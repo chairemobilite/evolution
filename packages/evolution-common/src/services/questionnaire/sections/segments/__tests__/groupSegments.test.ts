@@ -196,3 +196,28 @@ describe('SegmentsGroupConfigFactory segments GroupConfig widget', () => {
 
     });
 });
+
+test('SegmentsGroupConfigFactory segments GroupConfig widget with additional widget names', () => {
+    const segmentSectionConfigWithWidgets: SegmentSectionConfiguration = _cloneDeep(segmentSectionConfig);
+    segmentSectionConfigWithWidgets.additionalSegmentWidgetNames = ['customWidget1', 'customWidget2'];
+    const widgetConfig = new SegmentsGroupConfigFactory(segmentSectionConfigWithWidgets, widgetFactoryOptions).getWidgetConfigs()['segments'] as GroupConfig;
+    expect(widgetConfig).toEqual({
+        type: 'group',
+        path: 'segments',
+        title: expect.any(Function),
+        name: expect.any(Function),
+        showTitle: false,
+        showGroupedObjectDeleteButton: expect.any(Function),
+        showGroupedObjectAddButton: expect.any(Function),
+        groupedObjectAddButtonLabel: expect.any(Function),
+        addButtonLocation: 'bottom' as const,
+        widgets: [
+            'segmentSameModeAsReverseTrip',
+            'segmentModePre',
+            'segmentMode',
+            'customWidget1',
+            'customWidget2',
+            'segmentHasNextMode'
+        ]
+    });
+});

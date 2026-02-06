@@ -4,26 +4,21 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import moment       from 'moment-business-days';
-import isEmpty      from 'lodash/isEmpty';
 import isEqual      from 'lodash/isEqual';
 import _get         from 'lodash/get';
-import _cloneDeep from 'lodash/cloneDeep';
-import { distance as turfDistance } from '@turf/turf';
 
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
-import i18n                     from 'evolution-frontend/lib/config/i18n.config';
 import * as surveyHelperNew     from 'evolution-common/lib/utils/helpers';
 import * as odSurveyHelper     from 'evolution-common/lib/services/odSurvey/helpers';
 import { getFormattedDate, getVisitedPlaceDescription, validateButtonAction, validateButtonActionWithCompleteSection } from 'evolution-frontend/lib/services/display/frontendHelper';
-import { Person, VisitedPlace } from 'evolution-common/lib/services/questionnaire/types';
+import { SegmentSectionConfiguration, VisitedPlace } from 'evolution-common/lib/services/questionnaire/types';
 import { Mode } from 'evolution-common/lib/services/odSurvey/types';
 import { WidgetFactoryOptions } from 'evolution-common/lib/services/questionnaire/sections/types';
 import { faCheckCircle } from '@fortawesome/free-solid-svg-icons/faCheckCircle';
 
 // Configuration for the segments section
 // FIXME As sections and their widgets become more builtin, this thould be moved elsewhere. For now, it just needs to be available for both widgets.ts and sections.ts files
-export const segmentSectionConfig = {
+export const segmentSectionConfig: SegmentSectionConfiguration = {
     type: 'segments' as const,
     enabled: true,
     modesIncludeOnly: [
@@ -55,7 +50,28 @@ export const segmentSectionConfig = {
         'otherActiveMode',
         'other',
         'dontKnow'
-    ] as Mode[]
+    ] as Mode[],
+    additionalSegmentWidgetNames: [
+        //'segmentParkingType',
+        'segmentParkingPaymentType',
+        'segmentVehicleOccupancy',
+        'segmentVehicleType',
+        'segmentDriver',
+        'segmentBridgesAndTunnels',
+        'segmentHighways',
+        'segmentUsedBikesharing',
+        'segmentSubwayStationStart',
+        'segmentSubwayStationEnd',
+        'segmentSubwayTransferStations',
+        'segmentTrainStationStart',
+        'segmentTrainStationEnd',
+        'segmentHowToBus',
+        'segmentBusLines',
+        'segmentBusLinesWarning',
+        'segmentOnDemandType',
+        'tripJunctionQueryString',
+        'tripJunctionGeography'
+    ]
 };
 
 // FIXME Move elsewhere. It is not here to be available for widgets.ts, sections.ts and questionnaire.ts files

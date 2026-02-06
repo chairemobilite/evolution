@@ -505,6 +505,13 @@ export type SegmentSectionConfiguration = {
      * the modePre and mode questions.
      */
     modesExclude?: Mode[];
+    /**
+     * Names of additional widgets to include in the segment group of the
+     * section besides the default ones (modePre, mode, etc). The widgets need
+     * to be defined by these names in the survey's widget configuration. They
+     * will be added after the mode question, before the hasNextMode question.
+     */
+    additionalSegmentWidgetNames?: string[];
 };
 
 // TODO Add more section configuration types as we support more
