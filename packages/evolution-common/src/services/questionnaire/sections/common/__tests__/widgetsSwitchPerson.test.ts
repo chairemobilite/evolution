@@ -7,17 +7,11 @@
 import _cloneDeep from 'lodash/cloneDeep';
 
 import { SwitchPersonWidgetsFactory } from '../widgetsSwitchPerson';
-import { interviewAttributesForTestCases } from '../../../../../tests/surveys';
+import { interviewAttributesForTestCases, widgetFactoryOptions } from '../../../../../tests/surveys';
 import * as utilHelpers from '../../../../../utils/helpers';
 import { ButtonWidgetConfig, TextWidgetConfig } from '../../../../questionnaire/types';
 
 import * as odHelpers from '../../../../odSurvey/helpers';
-
-const widgetFactoryOptions = {
-    getFormattedDate: (date: string) => date,
-    buttonActions: { validateButtonAction: jest.fn() },
-    iconMapper: {}
-};
 
 jest.mock('../../../../odSurvey/helpers', () => ({
     getInterviewablePersonsArray: jest.fn().mockReturnValue([]),

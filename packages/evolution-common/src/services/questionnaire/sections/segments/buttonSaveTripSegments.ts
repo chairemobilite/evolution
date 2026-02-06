@@ -8,18 +8,10 @@ import { ButtonWidgetConfig } from '../../../questionnaire/types';
 import { getPath, getResponse } from '../../../../utils/helpers';
 import * as odHelpers from '../../../odSurvey/helpers';
 import { TFunction } from 'i18next';
-import { IconProp } from '@fortawesome/fontawesome-svg-core';
-import { ButtonAction, InterviewUpdateCallbacks, Segment, UserInterviewAttributes } from '../../types';
+import { InterviewUpdateCallbacks, Segment, UserInterviewAttributes } from '../../types';
+import { WidgetFactoryOptions } from '../types';
 
-export const getButtonSaveTripSegmentsConfig = (
-    // FIXME: Type this when there is a few more widgets implemented
-    options: {
-        context?: () => string;
-        buttonActions: { validateButtonAction: ButtonAction };
-        iconMapper: { [iconName: string]: IconProp };
-    }
-): ButtonWidgetConfig => {
-    // TODO These should be some configuration receive here to fine-tune the section's content
+export const getButtonSaveTripSegmentsConfig = (options: WidgetFactoryOptions): ButtonWidgetConfig => {
     return {
         type: 'button',
         color: 'green',

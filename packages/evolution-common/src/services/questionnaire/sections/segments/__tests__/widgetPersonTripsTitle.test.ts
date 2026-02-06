@@ -6,7 +6,7 @@
  */
 import _cloneDeep from 'lodash/cloneDeep';
 import { getPersonsTripsTitleWidgetConfig } from '../widgetPersonTripsTitle';
-import { interviewAttributesForTestCases } from '../../../../../tests/surveys';
+import { interviewAttributesForTestCases, widgetFactoryOptions } from '../../../../../tests/surveys';
 import * as odHelpers from '../../../../odSurvey/helpers';
 
 jest.mock('../../../../odSurvey/helpers', () => ({
@@ -18,13 +18,8 @@ const mockedGetActivePerson = odHelpers.getActivePerson as jest.MockedFunction<t
 const mockedGetActiveJourney = odHelpers.getActiveJourney as jest.MockedFunction<typeof odHelpers.getActiveJourney>;
 const mockedGetCountOrSelfDeclared = odHelpers.getCountOrSelfDeclared as jest.MockedFunction<typeof odHelpers.getCountOrSelfDeclared>;
 
-const mockGetFormattedDate = jest.fn().mockReturnValue('formattedDate');
-const widgetFactoryOptions = {
-    context: jest.fn(),
-    getFormattedDate: mockGetFormattedDate,
-    buttonActions: { validateButtonAction: jest.fn() },
-    iconMapper: {}
-};
+const mockGetFormattedDate = widgetFactoryOptions.getFormattedDate as jest.MockedFunction<typeof widgetFactoryOptions.getFormattedDate>;
+mockGetFormattedDate.mockReturnValue('formattedDate');
 
 beforeEach(() => {
     jest.clearAllMocks();

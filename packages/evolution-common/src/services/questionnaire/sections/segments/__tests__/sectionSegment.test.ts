@@ -8,10 +8,9 @@ import _cloneDeep from 'lodash/cloneDeep';
 import { v4 as uuidv4 } from 'uuid';
 
 import { SegmentsSectionFactory } from '../sectionSegments';
-import { interviewAttributesForTestCases, maskFunctions } from '../../../../../tests/surveys';
+import { interviewAttributesForTestCases, maskFunctions, widgetFactoryOptions } from '../../../../../tests/surveys';
 import * as utilHelpers from '../../../../../utils/helpers';
 import * as odHelpers from '../../../../odSurvey/helpers';
-import { WidgetFactoryOptions } from '../../types';
 import { SegmentSectionConfiguration, WidgetConfig } from '../../../types';
 import { Mode } from '../../../../odSurvey/types';
 import { PersonTripsGroupConfigFactory } from '../groupPersonTrips';
@@ -24,11 +23,6 @@ jest.mock('uuid', () => ({
     v4: jest.fn().mockReturnValue('newTripId')
 }));
 const mockUuidv4 = uuidv4 as jest.MockedFunction<typeof uuidv4>;
-const widgetFactoryOptions: WidgetFactoryOptions = {
-    getFormattedDate: (date: string) => date,
-    buttonActions: { validateButtonAction: jest.fn() },
-    iconMapper: {}
-};
 const segmentSectionConfig = {
     type: 'segments' as const,
     enabled: true

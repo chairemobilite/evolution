@@ -7,7 +7,7 @@
 import _cloneDeep from 'lodash/cloneDeep';
 
 import { getButtonSaveTripSegmentsConfig } from '../buttonSaveTripSegments';
-import { interviewAttributesForTestCases } from '../../../../../tests/surveys';
+import { interviewAttributesForTestCases, widgetFactoryOptions } from '../../../../../tests/surveys';
 import * as utilHelpers from '../../../../../utils/helpers';
 import * as odHelpers from '../../../../odSurvey/helpers';
 
@@ -20,12 +20,6 @@ const mockedGetPerson = odHelpers.getPerson as jest.MockedFunction<typeof odHelp
 const mockedGetActiveJourney = odHelpers.getActiveJourney as jest.MockedFunction<typeof odHelpers.getActiveJourney>;
 const mockedSelectNextIncompleteTrip = odHelpers.selectNextIncompleteTrip as jest.MockedFunction<typeof odHelpers.selectNextIncompleteTrip>;
 
-// Prepare configuration options
-const mockButtonValidate = jest.fn();
-const options = {
-    buttonActions: { validateButtonAction: mockButtonValidate },
-    iconMapper: { 'check-circle': 'check-circle' as any }
-};
 
 beforeEach(() => {
     jest.clearAllMocks();
@@ -34,7 +28,7 @@ beforeEach(() => {
 describe('getButtonSaveTripSegmentsConfig', () => {
 
     test('should return the correct widget config', () => {
-        const widgetConfig = getButtonSaveTripSegmentsConfig(options);
+        const widgetConfig = getButtonSaveTripSegmentsConfig(widgetFactoryOptions);
         expect(widgetConfig).toEqual({
             type: 'button',
             color: 'green',
@@ -43,7 +37,7 @@ describe('getButtonSaveTripSegmentsConfig', () => {
             path: 'buttonSaveTrip',
             icon: 'check-circle',
             align: 'center',
-            action: mockButtonValidate,
+            action: widgetFactoryOptions.buttonActions.validateButtonAction,
             saveCallback: expect.any(Function),
             conditional: expect.any(Function)
         });
@@ -52,7 +46,7 @@ describe('getButtonSaveTripSegmentsConfig', () => {
 });
 
 describe('getButtonSaveTripSegmentsConfig labels', () => {
-    const widgetConfig = getButtonSaveTripSegmentsConfig(options);
+    const widgetConfig = getButtonSaveTripSegmentsConfig(widgetFactoryOptions);
 
     test('should return the right label for title', () => {
         const mockedT = jest.fn();
@@ -65,7 +59,7 @@ describe('getButtonSaveTripSegmentsConfig labels', () => {
 });
 
 describe('getButtonSaveTripSegmentsConfig conditional', () => {
-    const widgetConfig = getButtonSaveTripSegmentsConfig(options);
+    const widgetConfig = getButtonSaveTripSegmentsConfig(widgetFactoryOptions);
 
     jest.spyOn(utilHelpers, 'getResponse').mockReturnValue({});
     const mockedGetResponse = utilHelpers.getResponse as jest.MockedFunction<typeof utilHelpers.getResponse>;
@@ -109,18 +103,18 @@ describe('getButtonSaveTripSegmentsConfig conditional', () => {
 });
 
 describe('getButtonSaveTripSegmentsConfig button action', () => {
-    const widgetConfig = getButtonSaveTripSegmentsConfig(options);
+    const widgetConfig = getButtonSaveTripSegmentsConfig(widgetFactoryOptions);
 
     test('test button action', () => {
-        expect(mockButtonValidate).not.toHaveBeenCalled();
+        expect(widgetFactoryOptions.buttonActions.validateButtonAction).not.toHaveBeenCalled();
         const action = widgetConfig.action;
         action({ startUpdateInterview: jest.fn(), startAddGroupedObjects: jest.fn(), startRemoveGroupedObjects: jest.fn(), startNavigate: jest.fn() }, interviewAttributesForTestCases, 'path', 'segments', {});
-        expect(mockButtonValidate).toHaveBeenCalled();
+        expect(widgetFactoryOptions.buttonActions.validateButtonAction).toHaveBeenCalled();
     });
 });
 
 describe('getButtonSaveTripSegmentsConfig save callback', () => {
-    const widgetConfig = getButtonSaveTripSegmentsConfig(options);
+    const widgetConfig = getButtonSaveTripSegmentsConfig(widgetFactoryOptions);
 
     jest.spyOn(utilHelpers, 'getResponse').mockReturnValue({});
     const mockedGetResponse = utilHelpers.getResponse as jest.MockedFunction<typeof utilHelpers.getResponse>;

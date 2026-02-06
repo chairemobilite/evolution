@@ -63,7 +63,22 @@ export type WidgetFactoryOptions = {
      * frontend code, so they can be mapped to each button action when creating
      * the survey.
      */
-    buttonActions: { validateButtonAction: ButtonAction };
+    buttonActions: {
+        /**
+         * When the button is clicked, this action will try to navigate to the
+         * next section and submit the current one, or display the errors of the
+         * current section if any.  This is the action to use for buttons that
+         * complete a section.
+         */
+        validateButtonActionWithCompleteSection: ButtonAction;
+        /**
+         * When the button is clicked, this action will simply submit the
+         * current data and call a callback provided by the widget. This is the
+         * action to use for buttons that would not trigger section change, but
+         * have actions, for example to complete a group and go to the next.
+         */
+        validateButtonAction: ButtonAction;
+    };
     /**
      * Map an icon name to its FontAwesome icon definition.
      *

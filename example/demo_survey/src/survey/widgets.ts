@@ -4,7 +4,6 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import { faCheckCircle } from '@fortawesome/free-solid-svg-icons/faCheckCircle';
 import { faPlay } from '@fortawesome/free-solid-svg-icons/faPlay';
 
 import { validateButtonActionWithCompleteSection } from 'evolution-frontend/lib/services/display/frontendHelper';
@@ -120,6 +119,7 @@ export const personNoSchoolTripReason: any       = travelBehaviorWidgets.personN
 export const personWhoAnsweredForThisPerson: any = travelBehaviorWidgets.personWhoAnsweredForThisPerson;
 
 import * as endWidgets from './widgets/end';
+import { widgetFactoryOptions } from './helper';
 
 export const householdResidentialPhoneType: any                 = endWidgets.householdResidentialPhoneType;
 export const householdWouldLikeToParticipateInOtherSurveys: any = endWidgets.householdWouldLikeToParticipateInOtherSurveys;
@@ -133,16 +133,9 @@ export const completedText: any                                 = endWidgets.com
 
 // multi-sections widgets:
 
-const buttonOptions = {
-  iconMapper: { "check-circle": faCheckCircle },
-  buttonActions: {
-    validateButtonAction: validateButtonActionWithCompleteSection,
-  },
-};
+export const buttonSaveNextSection = getButtonValidateAndGotoNextSection('survey:SaveAndContinue', widgetFactoryOptions);
 
-export const buttonSaveNextSection = getButtonValidateAndGotoNextSection('survey:SaveAndContinue', buttonOptions);
-
-export const buttonSaveNextSection2 = getButtonValidateAndGotoNextSection('survey:SaveAndContinue', buttonOptions);
+export const buttonSaveNextSection2 = getButtonValidateAndGotoNextSection('survey:SaveAndContinue', widgetFactoryOptions);
 
 export const buttonStartNextSection: any = {
   type: "button",
@@ -158,8 +151,8 @@ export const buttonStartNextSection: any = {
   action: validateButtonActionWithCompleteSection
 }
 
-export const buttonContinueNextSection = getButtonValidateAndGotoNextSection('survey:Continue', buttonOptions);;
+export const buttonContinueNextSection = getButtonValidateAndGotoNextSection('survey:Continue', widgetFactoryOptions);
 
-export const buttonConfirmNextSection = getButtonValidateAndGotoNextSection('survey:ConfirmAndContinue', buttonOptions);
+export const buttonConfirmNextSection = getButtonValidateAndGotoNextSection('survey:ConfirmAndContinue', widgetFactoryOptions);
 
-export const buttonCompleteInterview = getButtonValidateAndGotoNextSection('survey:CompleteInterview', buttonOptions);
+export const buttonCompleteInterview = getButtonValidateAndGotoNextSection('survey:CompleteInterview', widgetFactoryOptions);

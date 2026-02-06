@@ -7,21 +7,15 @@
 import _cloneDeep from 'lodash/cloneDeep';
 
 import { SegmentsGroupConfigFactory } from '../groupSegments';
-import { interviewAttributesForTestCases, maskFunctions } from '../../../../../tests/surveys';
+import { interviewAttributesForTestCases, maskFunctions, widgetFactoryOptions } from '../../../../../tests/surveys';
 import * as utilHelpers from '../../../../../utils/helpers';
 import { GroupConfig, SegmentSectionConfiguration, WidgetConfig } from '../../../types';
 import { getModePreWidgetConfig } from '../widgetSegmentModePre';
 import { getSameAsReverseTripWidgetConfig } from '../widgetSameAsReverseTrip';
-import { WidgetFactoryOptions } from '../../types';
 import { getModeWidgetConfig } from '../widgetSegmentMode';
 import { getSegmentHasNextModeWidgetConfig } from '../widgetSegmentHasNextMode';
 import { Mode } from '../../../../odSurvey/types';
 
-const widgetFactoryOptions: WidgetFactoryOptions = {
-    getFormattedDate: (date: string) => date,
-    buttonActions: { validateButtonAction: jest.fn() },
-    iconMapper: {}
-};
 const segmentSectionConfig = {
     type: 'segments' as const,
     enabled: true
