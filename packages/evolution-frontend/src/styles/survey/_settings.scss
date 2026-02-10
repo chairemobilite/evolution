@@ -1,7 +1,7 @@
 // Colors
-$black-pale: rgba(0,0,0,0.15);
-$black-medium-pale: rgba(0,0,0,0.35);
-$black-very-pale: rgba(0,0,0,0.05);
+$black-pale: rgba(0, 0, 0, 0.15);
+$black-medium-pale: rgba(0, 0, 0, 0.35);
+$black-very-pale: rgba(0, 0, 0, 0.05);
 $dark-grey: rgba(51, 51, 51, 1);
 $grey: rgba(102, 102, 102, 1);
 $blue: rgba(28, 136, 191, 0.9);
@@ -13,7 +13,7 @@ $dark-pale: rgba(44, 42, 38, 0.5);
 $off-white: rgb(245, 243, 239);
 $dark-off-white: rgb(238, 236, 231);
 $dark-off-white-pale: rgba(238, 236, 231, 0.4);
-$overlay-black: rgba(0,0,0,0.05);
+$overlay-black: rgba(0, 0, 0, 0.05);
 $input: rgba(51, 90, 124, 0.9);
 $dark-blue: rgb(33, 74, 109);
 $radio: rgba(73, 64, 44, 0.7);
@@ -27,6 +27,7 @@ $orange-background-pale: rgba(240, 122, 26, 0.4);
 $green: rgba(76, 123, 0, 0.9);
 $green-background-pale: rgba(131, 170, 39, 0.4);
 $dark-green: rgba(70, 100, 9, 0.9);
+$yellow: rgba(189, 148, 0, 0.9);
 
 // Button colors
 $button-green: #468024;
@@ -52,16 +53,17 @@ $valid-background: rgba(242, 245, 234, 1);
 $valid-input-background: rgb(247, 248, 244);
 $invalid-background: rgba(241, 224, 223, 1);
 $invalid-input-background: rgb(252, 243, 243);
-$valid-border: rgba(255,255,255,1.0);/*rgba(179, 204, 69, 0.7);*/
+$valid-border: rgba(255, 255, 255, 1.0);
+/*rgba(179, 204, 69, 0.7);*/
 $invalid-border: rgba(214, 77, 77, 0.9);
 
 // Font and Size
-$font-family:  "Lato", Helvetica, Arial, sans-serif;
-$font-size-xlarge:  2rem;
-$font-size-large:  1.8rem;
+$font-family: "Lato", Helvetica, Arial, sans-serif;
+$font-size-xlarge: 2rem;
+$font-size-large: 1.8rem;
 $font-size-medium-large: 1.6rem;
 $font-size-medium: 1.45rem;
-$font-size-small:  1.3rem;
+$font-size-small: 1.3rem;
 
 // Spacing
 $xxxs-size: 0.2em;
