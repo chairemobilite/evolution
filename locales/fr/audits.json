@@ -13,6 +13,7 @@
 
     "HM_M_Geography": "La géographie du domicile est manquante",
     "HM_I_Geography": "La géographie du domicile est invalide",
+    "HM_I_geographyNotInSurveyTerritory": "La géographie du domicile est en dehors du territoire d'enquête",
 
     "P_M_Age": "L'âge de la personne est manquant",
 

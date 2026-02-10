@@ -180,6 +180,15 @@ export type EvolutionProjectConfiguration = {
      */
     requiredFieldsBySurveyObject: AuditRequiredFieldsBySurveyObject;
 
+    /**
+     * Path to the GeoJSON file for the survey area.
+     * Relative to the survey project directory, which is set in config's
+     * projectDirectory param
+     * If provided, audit checks will use it to validate whether the home geography
+     * is within the survey area.
+     */
+    surveyAreaGeojsonPath?: string;
+
     // TODO Add more project configuration types
 };
 
@@ -199,6 +208,7 @@ const defaultConfig = {
     countryCode: 'CA',
     startDateTimeWithTimezoneOffset: undefined,
     endDateTimeWithTimezoneOffset: undefined,
+    surveyAreaGeojsonPath: undefined,
     hideStartButtonOnHomePage: false,
     introductionTwoParagraph: false,
     introBanner: false,

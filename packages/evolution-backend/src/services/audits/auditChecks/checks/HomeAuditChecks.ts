@@ -6,10 +6,11 @@
  */
 
 import { isFeature, isPoint } from 'geojson-validation';
-import { distance as turfDistance } from '@turf/distance';
+import { distance as turfDistance, booleanPointInPolygon as turfBooleanPointInPolygon } from '@turf/turf';
 
 import type { AuditForObject } from 'evolution-common/lib/services/audits/types';
 import type { HomeAuditCheckContext, HomeAuditCheckFunction } from '../AuditCheckContexts';
+import { getSurveyArea } from '../AuditCheckUtils';
 
 // Distances are arbitrary. This should only detect distances that could cause
 // change in travel behaviour.
@@ -132,5 +133,32 @@ export const homeAuditChecks: { [errorCode: string]: HomeAuditCheckFunction } = 
             }
         }
         return undefined;
+    },
+
+    /**
+     * Check if home geography is inside the survey area (territory)
+     * @param context - HomeAuditCheckContext
+     * @returns AuditForObject
+     */
+    HM_I_geographyNotInSurveyTerritory: (context: HomeAuditCheckContext): AuditForObject | undefined => {
+        const { home } = context;
+        const geography = home.geography;
+
+        if (geography && isNotBlankAndValidPoint(geography)) {
+            const surveyArea = getSurveyArea();
+            if (surveyArea && !turfBooleanPointInPolygon(geography, surveyArea)) {
+                return {
+                    objectType: 'home',
+                    objectUuid: home._uuid!,
+                    errorCode: 'HM_I_geographyNotInSurveyTerritory',
+                    version: 1, // Start with version 1 for the new infrastructure
+                    level: 'error',
+                    message: 'Home geography is outside of the survey territory',
+                    ignore: false
+                };
+            }
+        }
+
+        return undefined; // No audit needed
     }
 };
