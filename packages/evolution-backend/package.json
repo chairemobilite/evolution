@@ -26,7 +26,7 @@
     },
     "dependencies": {
         "@casl/ability": "^6.7.3",
-        "@turf/distance": "^7.1.0",
+        "@turf/turf": "^7.3.1",
         "chaire-lib-backend": "^0.2.2",
         "chaire-lib-common": "^0.2.2",
         "connect-session-knex": "^4.0.2",

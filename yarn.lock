@@ -3583,7 +3583,7 @@
     "@types/geojson" "^7946.0.10"
     tslib "^2.8.1"
 
-"@turf/distance@7.3.1", "@turf/distance@^7.1.0":
+"@turf/distance@7.3.1":
   version "7.3.1"
   resolved "https://registry.yarnpkg.com/@turf/distance/-/distance-7.3.1.tgz#165d868c31eed69f6e9dc6e4ea292b9ae498546c"
   integrity sha512-DK//doTGgYYjBkcWUywAe7wbZYcdP97hdEJ6rXYVYRoULwGGR3lhY96GNjozg6gaW9q2eSNYnZLpcL5iFVHqgw==

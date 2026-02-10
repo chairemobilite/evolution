@@ -13,6 +13,7 @@
 
     "HM_M_Geography": "Home geography is missing",
     "HM_I_Geography": "Home geography is invalid",
+    "HM_I_geographyNotInSurveyTerritory": "Home geography is outside the survey territory",
 
     "P_M_Age": "Person age is missing",
 
