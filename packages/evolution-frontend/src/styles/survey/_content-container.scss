@@ -1,5 +1,78 @@
 .content-container {
-  margin: 0;
-  padding: 0;
-  /*max-width: 80rem*/;
+    margin: 0;
+    padding: 0;
+    /*max-width: 80rem*/
+    ;
+}
+
+.faq-title {
+    color: #20587d;
+    text-decoration: underline;
+    text-align: center;
+}
+
+.faq-container {
+    line-height: 1.6;
+    padding: 2rem;
+    max-width: 100rem;
+    margin: 0 auto;
+
+    ._h2 {
+        width: 100%;
+        text-align: left;
+        font-weight: 300;
+        color: rgba(44, 42, 38, 0.6);
+        font-size: 130%;
+        padding: 0;
+        margin: 0;
+    }
+
+    p {
+        margin-bottom: 1.5rem;
+    }
+
+    ul,
+    ol {
+        margin-bottom: 1.5rem;
+        padding-left: 3rem;
+        list-style: inherit !important;
+    }
+
+    li {
+        margin-bottom: 1rem;
+    }
+
+    strong {
+        font-weight: bold;
+    }
+
+    .toc {
+        background-color: rgba(255, 255, 255, 0.3);
+        padding: 2rem;
+        border-radius: 0.5rem;
+        margin-bottom: 3rem;
+
+        ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        li {
+            margin-bottom: 0.5rem;
+        }
+    }
+
+    h3 {
+        text-align: left !important;
+    }
+
+    h3::after {
+        content: none !important;
+        background: none !important;
+        height: 0 !important;
+    }
+}
+
+details summary {
+    cursor: pointer;
 }
