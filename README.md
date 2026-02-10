@@ -109,6 +109,30 @@ yarn compile
 yarn migrate
 ```
 
+## Survey Area Configuration
+
+A GeoJSON file for the survey area can be used by audit checks to validate whether declared geographies (e.g., home) are within the survey territory.
+
+### Configuration
+
+To enable territorial validation, add the `surveyAreaGeojsonPath` property to your project configuration (e.g., `config.js`):
+
+```javascript
+module.exports = {
+  // ...
+  surveyAreaGeojsonPath: 'surveyArea.geojson'
+};
+```
+The path is relative to the survey project directory (where the configuration file is located). If this property is missing or the file is not found, territorial validation is skipped.
+
+### GeoJSON Specifications
+
+- It must be a `FeatureCollection`.
+- It should contain at least one feature with a `Polygon` or `MultiPolygon` geometry.
+- If multiple features are present, only the first one (index 0) will be used for validation.
+- **Multiple distinct areas**: If your survey territory consists of multiple disconnected areas, use a `MultiPolygon` geometry within a single feature.
+- An example file with the Quebec province area is available at `example/demo_survey/surveyArea.geojson.example`.
+
 ## Run UI tests for the application
 
 Evolution supports running UI tests with playwright. Surveys need to implement their own tests, but `evolution-frontend` provider a library in the `tests/ui-testing` folder.

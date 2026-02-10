@@ -93,4 +93,5 @@ module.exports = {
   timezone: 'America/Montreal',
   region: 'CA', // Used for Google Maps localization. See https://developers.google.com/maps/coverage for possible region codes
   hasSectionProgressBar: true, // If true, show a progress bar at the top of each section
+  surveyAreaGeojsonPath: '../surveyArea.geojson.example'
 };
