@@ -2,12 +2,22 @@
 
 .show-for-mobile {
     @media only screen and (min-width: settings.$desktop-breakpoint) {
-    display: none;
-  }
+        display: none;
+    }
 }
 
 .show-for-desktop {
-    @media only screen and (max-width: settings.$desktop-breakpoint - .01rem) {
-    display: none;
-  }
+    @media only screen and (max-width: (settings.$desktop-breakpoint - 0.01rem)) {
+        display: none;
+    }
+}
+
+.survey-half-or-full-width-no-margin-before-desktop-breakpoint {
+    margin-right: 2rem;
+    box-sizing: border-box;
+
+    @media only screen and (max-width: settings.$desktop-breakpoint) {
+        width: 100%;
+        margin-right: 0;
+    }
 }

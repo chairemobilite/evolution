@@ -3,7 +3,8 @@
 .form {
     display: flex;
     flex-direction: column;
-    > * {
+
+    >* {
         margin-bottom: settings.$m-size;
     }
 }
@@ -52,13 +53,11 @@
 
     .ornament_bottom {
         padding-bottom: 3rem;
-        background: linear-gradient(
-                to right,
+        background: linear-gradient(to right,
                 rgba(0, 0, 0, 0) 0,
                 settings.$black-pale 30%,
                 settings.$black-pale 70%,
-                rgba(0, 0, 0, 0) 100%
-            ),
+                rgba(0, 0, 0, 0) 100%),
             url(../../assets/images/ornaments/ornament_wide_bottom_pale.svg);
         background-size:
             100% 1px,
@@ -86,13 +85,11 @@
         width: 100%;
         height: 2.5rem;
         margin-bottom: 1rem;
-        background: linear-gradient(
-                to right,
+        background: linear-gradient(to right,
                 rgba(0, 0, 0, 0) 0,
                 settings.$black-pale 30%,
                 settings.$black-pale 70%,
-                rgba(0, 0, 0, 0) 100%
-            ),
+                rgba(0, 0, 0, 0) 100%),
             url(../../assets/images/ornaments/ornament_wide_bottom_pale.svg);
         background-size:
             100% 1px,
@@ -119,15 +116,13 @@
         width: 100%;
         height: 2px;
         margin-bottom: 0.5rem;
-        background: linear-gradient(
-            to right,
-            rgba(0, 0, 0, 0) 0,
-            rgba(0, 0, 0, 0) 20%,
-            settings.$black-pale 40%,
-            settings.$black-pale 60%,
-            rgba(0, 0, 0, 0) 80%,
-            rgba(0, 0, 0, 0) 100%
-        );
+        background: linear-gradient(to right,
+                rgba(0, 0, 0, 0) 0,
+                rgba(0, 0, 0, 0) 20%,
+                settings.$black-pale 40%,
+                settings.$black-pale 60%,
+                rgba(0, 0, 0, 0) 80%,
+                rgba(0, 0, 0, 0) 100%);
         background-size: 100% 1px;
         background-position: left top;
         background-repeat: no-repeat;
@@ -141,7 +136,7 @@
         margin-bottom: 2rem;
     }
 
-    .survey-group-object + .survey-group-object {
+    .survey-group-object+.survey-group-object {
         margin-top: -1rem;
     }
 
@@ -156,6 +151,7 @@
     .survey-section__content {
         width: 100%;
         padding: 0 settings.$s-size;
+
         @media only screen and (min-width: settings.$desktop-breakpoint) {
             padding: 0 settings.$l-size;
         }
@@ -268,6 +264,7 @@
             text-align: left;
             width: 100%;
         }
+
         h2.survey-page-title::after {
             // Reset all the style from H2::after
             display: none;
@@ -278,6 +275,191 @@
         .survey-page-image {
             max-width: 300px;
             margin: 2em;
+        }
+    }
+
+    .survey-visited-places-list-and-map-container,
+    .survey-trips-list-and-map-container {
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+
+        @media only screen and (max-width: settings.$desktop-breakpoint) {
+            display: block;
+        }
+
+        .survey-visited-places-list,
+        .survey-trips-list {
+
+            @media only screen and (max-width: settings.$desktop-breakpoint) {
+                margin-right: 0;
+            }
+
+            width: 50%;
+            margin-right: 2rem;
+
+            &.full-width {
+                width: 100%;
+                margin-right: 0;
+            }
+
+            @media only screen and (max-width: settings.$desktop-breakpoint) {
+                width: 100%;
+            }
+        }
+
+        .survey-visited-places-map,
+        .survey-trips-map {
+            width: 50%;
+
+            &.full-width {
+                width: 100%;
+            }
+
+            @media only screen and (max-width: settings.$desktop-breakpoint) {
+                width: 100%;
+            }
+        }
+
+        .survey-visited-place-item-description {
+            @media only screen and (max-width: settings.$desktop-breakpoint) {
+                max-width: 80%;
+            }
+        }
+    }
+
+    .survey-visited-place-item {
+        padding: 0.2rem 0.4rem 0.2rem 0.4rem;
+        border-top: 1px solid rgba(0, 0, 0, 0.15);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+        margin-bottom: 0.4rem;
+        background: rgba(0, 0, 0, 0.04);
+    }
+
+    .survey-visited-place-item,
+    .survey-trip-item {
+        display: flex;
+        flex-flow: row nowrap;
+        justify-content: flex-start;
+        align-items: center;
+        font-size: settings.$font-size-medium;
+        width: 100%;
+        margin: 0;
+
+        @media only screen and (max-width: settings.$desktop-breakpoint) {
+            flex-flow: row wrap;
+        }
+
+        .survey-visited-place-item-element,
+        .survey-trip-item-element {
+            display: flex;
+            align-items: center;
+        }
+
+        .survey-trip-item-origin-description,
+        .survey-trip-item-destination-description {
+            width: 45%;
+        }
+
+        &.survey-visited-place-item-selected {
+            background-color: rgba(31, 59, 107, 0.1);
+            border-color: rgba(28, 58, 109, 0.20);
+        }
+
+        &.survey-trip-item-name {
+            padding: 0.2rem 0.4rem 0 0.4rem;
+            border-top: 1px solid rgba(0, 0, 0, 0.15);
+            background: rgba(0, 0, 0, 0.04);
+        }
+
+        &.survey-trip-item-description {
+            padding: 0 0.4rem 0.2rem 0.4rem;
+            background: rgba(0, 0, 0, 0.04);
+        }
+
+        &.survey-trip-item-mode-icons {
+            padding: 0.4rem;
+            background: rgba(0, 0, 0, 0.04);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.15);
+            margin-bottom: 0.4rem;
+        }
+
+        &.survey-trip-item-selected {
+            background-color: rgba(40, 88, 170, 0.2);
+        }
+
+        &.survey-trip-item-selected.survey-trip-item-name {
+            border-top: 1px solid rgba(7, 67, 171, 0.6);
+        }
+
+        &.survey-trip-item-selected.survey-trip-item-mode-icons {
+            border-bottom: 1px solid rgba(7, 67, 171, 0.6);
+        }
+    }
+
+    .survey-visited-place-item-buttons,
+    .survey-trip-item-buttons {
+        margin-left: auto;
+        text-align: right;
+    }
+
+    .survey-visited-place-item-icon-container {
+        margin: 0.1rem 0.5rem;
+    }
+
+    .survey-visited-places-schedules {
+        width: 100%;
+
+        .survey-visited-places-schedule-person-container {
+            width: 100%;
+
+            p {
+                margin-top: 0.3em;
+                margin-bottom: 0;
+                font-style: oblique;
+            }
+
+            .survey-visited-places-schedule-person {
+                width: 100%;
+                position: relative;
+                height: 2em;
+                // Note: url path assumed relative to compiled CSS or handled by bundler
+                background: rgba(115, 147, 184, 0.5) url(~evolution-frontend/lib/assets/images/interface_icons/carret-right-white.svg);
+                background-size: 1.2em 1.2em;
+                background-repeat: repeat-x;
+                background-position: center left;
+
+                .survey-visited-places-schedule-visited-place {
+                    position: absolute;
+                    border: 1px solid rgba(0, 0, 0, 0.3);
+                    background: rgba(255, 255, 255, 1.0);
+                    height: 2em;
+                    overflow-x: hidden;
+                    overflow-y: hidden;
+                    z-index: 1;
+
+                    p {
+                        margin-bottom: 0;
+                        margin-top: 0;
+                    }
+
+                    .survey-visited-places-schedule-visited-place-icon {
+                        text-align: center;
+                    }
+
+                    &:hover,
+                    &:active,
+                    &:focus {
+                        min-width: 10em;
+                        height: 4em;
+                        z-index: 2;
+                    }
+                }
+
+                .survey-visited-places-schedule-visited-place.hand-cursor-on-hover:hover {
+                    cursor: pointer;
+                }
+            }
         }
     }
 }

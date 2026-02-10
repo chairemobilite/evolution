@@ -1,49 +1,58 @@
 @use "settings";
 
 
-label, .apptr__form__label-standalone {
-  font-weight: 600;
-  width: 100%;
-  color: settings.$label;
+label,
+.apptr__form__label-standalone {
+    font-weight: 600;
+    width: 100%;
+    color: settings.$label;
 }
 
-label.no-question, .apptr__form__label-standalone.no-question {
-  margin-bottom: 0.5em;
+label.no-question,
+.apptr__form__label-standalone.no-question {
+    margin-bottom: 0.5em;
 }
 
-label p, .apptr__form__label-standalone p {
-  margin: 0; padding: 0;
+label p,
+.apptr__form__label-standalone p {
+    margin: 0;
+    padding: 0;
 }
 
-label strong, .apptr__form__label-standalone strong {
-  color: rgba(0,0,0,0.95);
+label strong,
+.apptr__form__label-standalone strong {
+    color: rgba(0, 0, 0, 0.95);
 }
 
 
 
 .apptr__form-input-container {
-  
-  input[type=text], input[type=password], input[type=email], input[type=number] {
-    font-size: settings.$font-size-medium-large;
-    color: settings.$input;
-    font-weight: 700;
-    padding: settings.$xxxs-size;
-    width: 100%;
-  }
 
-  textarea, .input-text {
-    width: 100%;
-    font-weight: 300;
-    color: settings.$input;
-    font-size: settings.$font-size-medium;
-    resize: vertical;
-  }
+    input[type=text],
+    input[type=password],
+    input[type=email],
+    input[type=number] {
+        font-size: settings.$font-size-medium-large;
+        color: settings.$input;
+        font-weight: 700;
+        padding: settings.$xxxs-size;
+        width: 100%;
+    }
 
-  ::placeholder {
-    color: settings.$dark-pale;
-    font-style: oblique;
-    font-weight: 300;
-  }
+    textarea,
+    .input-text {
+        width: 100%;
+        font-weight: 300;
+        color: settings.$input;
+        font-size: settings.$font-size-medium;
+        resize: vertical;
+    }
+
+    ::placeholder {
+        color: settings.$dark-pale;
+        font-style: oblique;
+        font-weight: 300;
+    }
 
 }
 
@@ -57,357 +66,377 @@ label strong, .apptr__form__label-standalone strong {
     border-bottom-width: 0 !important;
 }
 
-.apptr__form-join-next + .apptr__form-container {
+.apptr__form-join-next+.apptr__form-container {
     padding-top: 0 !important;
     border-radius: 0 0 1.7rem 1.7rem !important;
 }
 
-.apptr__form-join-next + .apptr__form-container:not(.question-invalid) {
+.apptr__form-join-next+.apptr__form-container:not(.question-invalid) {
     border-top-width: 0 !important;
 }
 
-.apptr__form-join-next + .apptr__form-join-next {
+.apptr__form-join-next+.apptr__form-join-next {
     border-radius: 0 0 0 0 !important;
 }
 
 .validation .apptr__form-input-container {
-  
-  input[type=text], input[type=password], input[type=email] {
-    font-size: settings.$font-size-small;
-  }
 
-  textarea, .input-text {
-    font-size: settings.$font-size-small;
-  }
+    input[type=text],
+    input[type=password],
+    input[type=email] {
+        font-size: settings.$font-size-small;
+    }
+
+    textarea,
+    .input-text {
+        font-size: settings.$font-size-small;
+    }
 
 }
 
 .input-small {
-  width: 10rem !important;
+    width: 10rem !important;
 }
 
 .input-medium {
-  width: 20rem !important;
+    width: 20rem !important;
 }
 
 
 .apptr__form-container {
-  
-  background: rgba(255,255,255,1);
-  border: 0.5rem solid rgba(255,255,255,1);
-  border-radius: 1.7rem;
-  padding: 1rem 1rem 0.5rem 1rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: stretch;
-  
-  &.two-columns {
-    @media only screen and (min-width: settings.$desktop-breakpoint) {
-      padding: 0 4rem 0 1.5rem;
-      //min-width: calc(100vw*0.6);
+
+    background: rgba(255, 255, 255, 1);
+    border: 0.5rem solid rgba(255, 255, 255, 1);
+    border-radius: 1.7rem;
+    padding: 1rem 1rem 0.5rem 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: stretch;
+
+    &.two-columns {
+        @media only screen and (min-width: settings.$desktop-breakpoint) {
+            padding: 0 4rem 0 1.5rem;
+            //min-width: calc(100vw*0.6);
+        }
+
+        fieldset {
+            @media only screen and (min-width: settings.$desktop-breakpoint) {
+                display: flex;
+                flex-direction: row;
+                justify-content: center;
+                align-items: stretch;
+            }
+        }
     }
 
-    fieldset{
-      @media only screen and (min-width: settings.$desktop-breakpoint) {
+    display: flex;
+    margin-bottom: settings.$xxs-size;
+    //max-width: 90rem;
+
+    &.disabled {
+        opacity: 0.3;
+        pointer-events: none;
+    }
+
+    select {
+        font-size: settings.$sm-size;
+        color: settings.$input;
+        font-weight: 700;
+
+        @media only screen and (max-width: 400px) {
+            max-width: 280px;
+            text-overflow: ellipsis;
+        }
+    }
+
+    .apptr__form-label-container {
+        margin-bottom: 0.5rem;
+        padding-right: 2.5rem;
+
+        &.two-columns {
+            @media only screen and (min-width: settings.$desktop-breakpoint) {
+                display: flex;
+                text-align: right;
+                flex-direction: column;
+                justify-content: center;
+                align-items: stretch;
+                width: 66%;
+                padding: 0.5rem 2rem 0.5rem 0;
+                margin-bottom: 0;
+                background: url(../../assets/images/ornaments/ornament_vertical_separator_bracket_pale.svg);
+                background-position: right 0 top;
+                background-origin: padding-box;
+                background-size: auto 6px;
+                background-repeat: repeat-y;
+            }
+        }
+
+        &.align-center {
+            text-align: center;
+        }
+    }
+
+    .apptr__form-input-container {
+        &.two-columns {
+            @media only screen and (min-width: settings.$desktop-breakpoint) {
+                width: 34%;
+                padding: 0.5rem 0 0.5rem 1.5rem;
+                min-width: 25rem;
+            }
+        }
+    }
+
+    fieldset {
+        position: relative;
+        width: 100%;
+
+        @media only screen and (min-width: settings.$desktop-breakpoint) {
+            text-align: left;
+        }
+    }
+
+    &.two-columns {
+        @media only screen and (min-width: settings.$desktop-breakpoint) {
+            display: flex;
+            text-align: left;
+            flex-direction: row;
+            justify-content: center;
+            align-items: stretch;
+        }
+    }
+
+    &.question-type-mapPoint {
+        .apptr__form-label-container {
+
+            padding-left: 0.5rem;
+            margin-bottom: 0;
+
+        }
+
+        padding: 1.3rem 1.5rem 1rem 1.5rem;
+
+        @media only screen and (max-width: settings.$desktop-breakpoint) {
+            padding: 1.3rem 0 1rem 0;
+        }
+
+        //@media only screen and (min-width: $desktop-breakpoint) {
+        //  min-width: calc(100vw * 0.8); // forces map to take minimum width
+        //}
+    }
+
+    .survey-question__input-radio-group-container,
+    .survey-question__input-checkbox-group-container {
         display: flex;
         flex-direction: row;
-        justify-content: center;
-        align-items: stretch;
-      }
-    }
-  }
-  display: flex;
-  margin-bottom: settings.$xxs-size;
-  //max-width: 90rem;
+        flex-wrap: wrap;
 
-  &.disabled {
-    opacity: 0.3;
-    pointer-events: none;
-  }
-
-  select {
-    font-size: settings.$sm-size;
-    color: settings.$input;
-    font-weight: 700;
-    @media only screen and (max-width: 400px) {
-      max-width: 280px;
-      text-overflow: ellipsis;
-    }
-  }
-
-  .apptr__form-label-container {
-    margin-bottom: settings.$xs-size;
-    margin-bottom: 0.5rem;
-    padding-right: 2.5rem;
-    &.two-columns {
-      @media only screen and (min-width: settings.$desktop-breakpoint) {
-        display: flex;
-        text-align: right;
-        flex-direction: column;
-        justify-content: center;
-        align-items: stretch;
-        width: 66%;
-        padding: 0.5rem 2rem 0.5rem 0;
-        margin-bottom: 0;
-        text-align: right;
-        background: url(../../assets/images/ornaments/ornament_vertical_separator_bracket_pale.svg);
-        background-position: right 0 top;
-        background-origin: padding-box;
-        background-size: auto 6px;
-        background-repeat: repeat-y;
-      }
-    }
-    &.align-center {
-      text-align: center;
-    }
-  }
-
-  .apptr__form-input-container {
-    &.two-columns {
-      @media only screen and (min-width: settings.$desktop-breakpoint) {
-        width: 34%;
-        padding: 0.5rem 0 0.5rem 1.5rem;
-        min-width: 25rem;
-      }
-    }
-  }
-  
-  fieldset{
-    position: relative;
-    width: 100%;
-    @media only screen and (min-width: settings.$desktop-breakpoint) {
-        text-align: left;
-    }
-  }
-
-  &.two-columns {
-    @media only screen and (min-width: settings.$desktop-breakpoint) {
-      display: flex;
-      text-align: left;
-      flex-direction: row;
-      justify-content: center;
-      align-items: stretch;
-    }
-  }
-
-  &.question-type-mapPoint {
-    .apptr__form-label-container {
-      
-      padding-left: 0.5rem; margin-bottom: 0;
-      
-    }
-    padding: 1.3rem 1.5rem 1rem 1.5rem;
-    @media only screen and (max-width: settings.$desktop-breakpoint) {
-      padding: 1.3rem 0 1rem 0;
-    }
-    //@media only screen and (min-width: $desktop-breakpoint) {
-    //  min-width: calc(100vw * 0.8); // forces map to take minimum width
-    //}
-  }
-
-  .survey-question__input-radio-group-container, .survey-question__input-checkbox-group-container {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-
-    &.no-wrap {
-      flex-direction: column;
-      flex-wrap: nowrap;
-    }
-
-    label, .apptr__form__label-standalone {
-      text-align: left;
-      margin: 0.2rem 0 0 0.3rem;
-      font-weight: 700;
-      font-size: settings.$font-size-medium;
-      color: settings.$radio;
-      justify-content: center;
-      span {
-        display: table-cell;
-        vertical-align: middle;
-        //height: 100%;
-      }
-    }
-
-    .input-radio, .input-checkbox {
-      padding: 0 0.5rem;
-    }
-
-    .label-input-container {
-      padding: 0;
-      display: flex;
-      align-items: center;
-      align-content: stretch;
-      justify-content: center;
-    }
-
-    .label-input-custom-container {
-      padding: 0;
-      display: flex;
-      align-items: center;
-      align-content: stretch;
-      justify-content: flex-start !important;
-      width: 100%;
-
-      label, .label-input-container {
-        width: auto;
-        margin-right: 0.5rem;
-      }
-
-    }
-
-    .input-custom {
-      margin: 0.5rem 0;
-    }
-
-    .survey-question__input-radio-input-container, .survey-question__input-checkbox-input-container {
-      display: flex;
-      flex-flow: row wrap;
-      justify-content: flex-start;
-      background: rgba(0,0,0,0.02);
-      border: 1px solid rgba(0,0,0,0.1);
-      padding: 0.2rem 0.8rem 0.2rem 0.5rem;
-      margin-right: 0.5rem;
-      margin-bottom: 3px;
-      border-radius: 1.5rem;
-      text-align: left;
-      line-height: 1.05;
-
-      &.checked {
-        background: rgba(0,0,0,0.06);
-        label, .apptr__form__label-standalone {
-          color: settings.$input;
+        &.no-wrap {
+            flex-direction: column;
+            flex-wrap: nowrap;
         }
-      }
+
+        label,
+        .apptr__form__label-standalone {
+            text-align: left;
+            margin: 0.2rem 0 0 0.3rem;
+            font-weight: 700;
+            font-size: settings.$font-size-medium;
+            color: settings.$radio;
+            justify-content: center;
+
+            span {
+                display: table-cell;
+                vertical-align: middle;
+                //height: 100%;
+            }
+        }
+
+        .input-radio,
+        .input-checkbox {
+            padding: 0 0.5rem;
+        }
+
+        .label-input-container {
+            padding: 0;
+            display: flex;
+            align-items: center;
+            align-content: stretch;
+            justify-content: center;
+        }
+
+        .label-input-custom-container {
+            padding: 0;
+            display: flex;
+            align-items: center;
+            align-content: stretch;
+            justify-content: flex-start !important;
+            width: 100%;
+
+            label,
+            .label-input-container {
+                width: auto;
+                margin-right: 0.5rem;
+            }
+
+        }
+
+        .input-custom {
+            margin: 0.5rem 0;
+        }
+
+        .survey-question__input-radio-input-container,
+        .survey-question__input-checkbox-input-container {
+            display: flex;
+            flex-flow: row wrap;
+            justify-content: flex-start;
+            background: rgba(0, 0, 0, 0.02);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            padding: 0.2rem 0.8rem 0.2rem 0.5rem;
+            margin-right: 0.5rem;
+            margin-bottom: 3px;
+            border-radius: 1.5rem;
+            text-align: left;
+            line-height: 1.05;
+
+            &.checked {
+                background: rgba(0, 0, 0, 0.06);
+
+                label,
+                .apptr__form__label-standalone {
+                    color: settings.$input;
+                }
+            }
+        }
+
+        .survey-question__input-radio-group-column,
+        .survey-question__input-checkbox-group-column {
+            @media only screen and (min-width: settings.$desktop-breakpoint) {
+                flex-basis: 0;
+                flex-grow: 1;
+            }
+
+        }
+
     }
-
-    .survey-question__input-radio-group-column, .survey-question__input-checkbox-group-column {
-        @media only screen and (min-width: settings.$desktop-breakpoint) {
-        flex-basis: 0;
-        flex-grow: 1;
-      }
-
-    }
-
-  }
 
 }
 
 .validation .apptr__form-container {
-  padding: 0.2rem 0.2rem 0.5rem 0.2rem;
-  margin-bottom: 0;
-  font-size: settings.$font-size-small;
+    padding: 0.2rem 0.2rem 0.5rem 0.2rem;
+    margin-bottom: 0;
+    font-size: settings.$font-size-small;
 
-  &.two-columns {
-    @media only screen and (min-width: settings.$desktop-breakpoint) {
-      padding: 0 4rem 0 1.5rem;
-      //min-width: calc(100vw*0.6);
+    &.two-columns {
+        @media only screen and (min-width: settings.$desktop-breakpoint) {
+            padding: 0 4rem 0 1.5rem;
+            //min-width: calc(100vw*0.6);
+        }
     }
-  }
 }
 
 .apptr__form-error-message {
-  color: settings.$error;
-  font-weight: 400;
-  font-style: oblique;
-  margin: 0;
-  padding: 0;
-  &.no-question {
-    margin-bottom: 0.5em;
-  }
+    color: settings.$error;
+    font-weight: 400;
+    font-style: oblique;
+    margin: 0;
+    padding: 0;
+
+    &.no-question {
+        margin-bottom: 0.5em;
+    }
 }
 
 .apptr__form-container.question-empty {
-  
-  .apptr__form-input {
-    border: 1px solid settings.$black-pale;
-    background: settings.$empty-input-background;
-  }
-  
+
+    .apptr__form-input {
+        border: 1px solid settings.$black-pale;
+        background: settings.$empty-input-background;
+    }
+
 }
 
 .apptr__form-container.question-filled {
-  
-  .apptr__form-input {
-    border: 1px solid settings.$black-pale;
-    background: settings.$empty-input-background;
-  }
+
+    .apptr__form-input {
+        border: 1px solid settings.$black-pale;
+        background: settings.$empty-input-background;
+    }
 
 }
 
 .apptr__form-container.question-valid {
-  border: 0.5rem solid settings.$valid-border;
-  background: url(../../assets/images/interface_icons/check-circle.svg) settings.$valid-background;
-  background-position: right 0.5rem top 0.5rem;
-  background-origin: padding-box;
-  background-size: 2.5rem;
-  background-repeat: no-repeat;
-  
-  &.question-type-mapPoint {
+    border: 0.5rem solid settings.$valid-border;
     background: url(../../assets/images/interface_icons/check-circle.svg) settings.$valid-background;
     background-position: right 0.5rem top 0.5rem;
     background-origin: padding-box;
     background-size: 2.5rem;
     background-repeat: no-repeat;
-  }
 
-  .apptr__form-input {
-    background: settings.$valid-input-background;
-  }
-
-  &.question-empty {
-    .apptr__form-input {
-      background: settings.$empty-input-background;
+    &.question-type-mapPoint {
+        background: url(../../assets/images/interface_icons/check-circle.svg) settings.$valid-background;
+        background-position: right 0.5rem top 0.5rem;
+        background-origin: padding-box;
+        background-size: 2.5rem;
+        background-repeat: no-repeat;
     }
-  }
+
+    .apptr__form-input {
+        background: settings.$valid-input-background;
+    }
+
+    &.question-empty {
+        .apptr__form-input {
+            background: settings.$empty-input-background;
+        }
+    }
 
 }
 
 .survey-question__input-button-group-container {
-  display: flex;
-  
-  &.align-center {
-    justify-content: center;
-  }
+    display: flex;
+
+    &.align-center {
+        justify-content: center;
+    }
 }
 
 .apptr__form-container.question-invalid {
-  
-  border: 0.5rem solid settings.$invalid-border;
-  background: settings.$invalid-background;
 
-  &.question-type-mapPoint {
+    border: 0.5rem solid settings.$invalid-border;
     background: settings.$invalid-background;
-  }
 
-  .apptr__form-input {
-    background: settings.$invalid-input-background;
-    color: settings.$error;
-  }
+    &.question-type-mapPoint {
+        background: settings.$invalid-background;
+    }
+
+    .apptr__form-input {
+        background: settings.$invalid-input-background;
+        color: settings.$error;
+    }
 
 }
 
 // InputRange component
 .question-type-slider {
-  display: flex;
-  flex-direction: column;
-  gap: 2rem; // We need this to show correctly the values label on top of the slider
+    display: flex;
+    flex-direction: column;
+    gap: 2rem; // We need this to show correctly the values label on top of the slider
 }
 
 .survey-question__input-range_input_container {
-  margin: 0 auto;
+    margin: 0 auto;
 }
 
 // Slider container
 .input-range__slider-container {
-  transition: none; // Do not use transition or the slider will be very slow
+    transition: none; // Do not use transition or the slider will be very slow
 }
 
 .input-range__label-container {
-  font-weight: 500;
-  left: 0;
-  font-family: settings.$font-family;
+    font-weight: 500;
+    left: 0;
+    font-family: settings.$font-family;
 }
 
 .survey-question__input-range_input_container_with_labels {
@@ -442,117 +471,127 @@ label strong, .apptr__form__label-standalone strong {
 }
 
 .input-range {
-  margin-bottom: 3rem;
-  margin-left: 1%;
-  margin-right: 10%;
-  margin-top: 3rem;
-  width: 89%;
+    margin-bottom: 3rem;
+    margin-left: 1%;
+    margin-right: 10%;
+    margin-top: 3rem;
+    width: 89%;
 }
 
-.input-range__label{
-  font-size: 1.4rem;
-  bottom: -3rem;
-  font-weight: 300;
-  font-style: oblique;
-  color: rgba(0,0,0,0.6);
+.input-range__label {
+    font-size: 1.4rem;
+    bottom: -3rem;
+    font-weight: 300;
+    font-style: oblique;
+    color: rgba(0, 0, 0, 0.6);
 }
 
 .input-range__slider {
-  background: rgba(255, 255, 255, 1.0);
-  border: 5px solid rgb(61, 66, 74);
+    background: rgba(255, 255, 255, 1.0);
+    border: 5px solid rgb(61, 66, 74);
 }
 
 .question-empty .input-range__slider {
-  background: rgba(255, 255, 255, 1.0);
-  border: 1px solid rgba(61, 66, 74, 0.5);
+    background: rgba(255, 255, 255, 1.0);
+    border: 1px solid rgba(61, 66, 74, 0.5);
 }
 
 // Value on top of the slider
 .input-range__label--value {
-  top: -4rem;
-  font-style: normal;
-  font-weight: 700;
-  transform:translateX(-50%); // Center the value
-  color: rgba(0,0,0,0.85);
+    top: -4rem;
+    font-style: normal;
+    font-weight: 700;
+    transform: translateX(-50%); // Center the value
+    color: rgba(0, 0, 0, 0.85);
 }
 
 // Min value label
 .input-range__label--min {
-  display: none; // Hide the min value label
+    display: none; // Hide the min value label
 }
 
 // Max value label
 .input-range__label--max .input-range__label-container {
-  display: none; // Hide the max value label
+    display: none; // Hide the max value label
 }
 
 .input-range__label--max {
-  text-align: right;
-  margin-right: 0;
-  padding-right: 0;
-  //text-anchor: start;
+    text-align: right;
+    margin-right: 0;
+    padding-right: 0;
+    //text-anchor: start;
 }
 
-.input-range__track--background, .input-slider-blue {
-  background: linear-gradient(to right, rgba(255,255,255,1.0), rgba(255,255,255,1.0) 10%, rgba(54, 158, 255, 0.3) 10%, rgba(54, 158, 255, 1.0), rgba(0, 49, 139, 1.0));
-  box-shadow: 0 0 2px rgba(0,0,0,0.5);
+.input-range__track--background,
+.input-slider-blue {
+    background: linear-gradient(to right, rgba(255, 255, 255, 1.0), rgba(255, 255, 255, 1.0) 10%, rgba(54, 158, 255, 0.3) 10%, rgba(54, 158, 255, 1.0), rgba(0, 49, 139, 1.0));
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
 }
 
 // Any slider with a class starting with "input-slider-"
 [class^="input-slider-"] {
-  cursor: pointer;
+    cursor: pointer;
 }
 
 .input-slider-red-yellow-green {
-  background: linear-gradient(to right, rgba(255,255,255,1.0), rgba(255,255,255,1.0) 10%, rgb(220, 0, 0) 10%, rgb(255, 234, 0), rgb(72, 167, 13));
-  box-shadow: 0 0 2px rgba(0,0,0,0.5);
+    background: linear-gradient(to right, rgba(255, 255, 255, 1.0), rgba(255, 255, 255, 1.0) 10%, rgb(220, 0, 0) 10%, rgb(255, 234, 0), rgb(72, 167, 13));
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
 }
 
 .input-slider-red-white-green {
-    background: linear-gradient(to right, rgba(255,255,255,1.0), rgba(255,255,255,1.0) 10%, rgb(220, 0, 0) 10%, rgb(255, 255, 255), rgb(72, 167, 13));
-    box-shadow: 0 0 2px rgba(0,0,0,0.5);
+    background: linear-gradient(to right, rgba(255, 255, 255, 1.0), rgba(255, 255, 255, 1.0) 10%, rgb(220, 0, 0) 10%, rgb(255, 255, 255), rgb(72, 167, 13));
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
 }
 
 .input-slider-green-yellow-red {
-    background: linear-gradient(to right, rgba(255,255,255,1.0), rgba(255,255,255,1.0) 10%, rgb(72, 167, 13) 10%, rgb(255, 234, 0), rgb(220, 0, 0));
-    box-shadow: 0 0 2px rgba(0,0,0,0.5);
-  }
-  
-  .input-slider-green-white-red {
-      background: linear-gradient(to right, rgba(255,255,255,1.0), rgba(255,255,255,1.0) 10%, rgb(72, 167, 13) 10%, rgb(255, 255, 255), rgb(220, 0, 0));
-      box-shadow: 0 0 2px rgba(0,0,0,0.5);
-  }
+    background: linear-gradient(to right, rgba(255, 255, 255, 1.0), rgba(255, 255, 255, 1.0) 10%, rgb(72, 167, 13) 10%, rgb(255, 234, 0), rgb(220, 0, 0));
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+}
+
+.input-slider-green-white-red {
+    background: linear-gradient(to right, rgba(255, 255, 255, 1.0), rgba(255, 255, 255, 1.0) 10%, rgb(72, 167, 13) 10%, rgb(255, 255, 255), rgb(220, 0, 0));
+    box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+}
 
 
 .input-range__track--active {
-  background: none;
-  //box-shadow: 0 0 5px rgba(54, 158, 255, 1.0);
+    background: none;
+    //box-shadow: 0 0 5px rgba(54, 158, 255, 1.0);
 }
 
 // Slider circle
 .input-range__slider {
-  height: 2.5rem;
-  width: 2.5rem;
-  margin-left: -1.25rem; // Center the slider
-  margin-top: -1.75rem; // Center the slider
-  cursor: grabbing; // Change the cursor when dragging the slider
+    height: 2.5rem;
+    width: 2.5rem;
+    margin-left: -1.25rem; // Center the slider
+    margin-top: -1.75rem; // Center the slider
+    cursor: grabbing; // Change the cursor when dragging the slider
 }
 
 // Slider track
 .input-range__track {
-  border-radius: 0.5rem;
-  height: 1.2rem;
+    border-radius: 0.5rem;
+    height: 1.2rem;
 }
 
 .react-select-container {
-  font-size: settings.$m-size;
+    font-size: settings.$m-size;
 }
 
 .survey-question__input-button-input-container {
-  margin-right: 0.7rem;
+    margin-right: 0.7rem;
 }
 
 /* datepicker override for font-size */
-.react-datepicker { font-size: 1.4rem !important; }
-.react-datepicker__day-name, .react-datepicker__day { width: 2.8rem !important; }
-.react-datepicker__current-month { font-size: 1.6rem !important; }
+.react-datepicker {
+    font-size: 1.4rem !important;
+}
+
+.react-datepicker__day-name,
+.react-datepicker__day {
+    width: 2.8rem !important;
+}
+
+.react-datepicker__current-month {
+    font-size: 1.6rem !important;
+}
