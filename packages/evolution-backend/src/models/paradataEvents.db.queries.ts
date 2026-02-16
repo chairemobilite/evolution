@@ -54,11 +54,12 @@ const log = async ({
 };
 
 /**
- * Streams the paradata for a single or all interviews.
+ * Streams the paradata for a single or all interviews. The paradata is sorted
+ * by interview and timestamp.
  *
  * @param {Object} options Options object
- * @param {number|undefined} options.interviewId The id of the interview to get the logs
- * for. Leave undefined to get all the paradata
+ * @param {number|undefined} options.interviewId The id of the interview to get
+ * the logs for. Leave undefined to get all the paradata
  * @param {boolean|undefined} options.forCorrection If true, only get paradata
  * entries for corrected interviews. If false, only get paradata entries for
  * participant responses. If undefined, get all paradata entries.

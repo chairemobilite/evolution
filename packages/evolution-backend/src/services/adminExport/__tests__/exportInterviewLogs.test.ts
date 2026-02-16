@@ -598,7 +598,11 @@ describe('exportInterviewLogTask', () => {
                 widgetPath: userAction.buttonId,
                 hiddenWidgets: expectedOutput.hiddenWidgets,
                 invalidFields: expectedOutput.invalidFields,
-                validFields: ''
+                validFields: '',
+                browser: '',
+                os: '',
+                platform: '',
+                language: ''
             });
         });
     });
@@ -659,7 +663,11 @@ describe('exportInterviewLogTask', () => {
             widgetPath: userAction.targetSection.sectionShortname,
             hiddenWidgets: '',
             invalidFields: '',
-            validFields: 'home.geography'
+            validFields: 'home.geography',
+            browser: '',
+            os: '',
+            platform: '',
+            language: ''
         });
 
         const modifiedKeys2 = Object.entries(sectionChangeLogs[1].values_by_path).filter(([key, value]) => value !== null && !key.startsWith('validations.')).map(([key, value]) => key).join('|');
@@ -676,7 +684,11 @@ describe('exportInterviewLogTask', () => {
             widgetPath: userAction.targetSection.sectionShortname + '/' + (userActionWithHidden.targetSection.iterationContext || []).join('/'),
             hiddenWidgets: userActionWithHidden.hiddenWidgets.join('|'),
             invalidFields: '',
-            validFields: ''
+            validFields: '',
+            browser: '',
+            os: '',
+            platform: '',
+            language: ''
         });
         
     });
@@ -729,7 +741,11 @@ describe('exportInterviewLogTask', () => {
             widgetPath: '',
             hiddenWidgets: '',
             invalidFields: '',
-            validFields: 'home.geography'
+            validFields: 'home.geography',
+            browser: '',
+            os: '',
+            platform: '',
+            language: 'fr'
         });
     });
 
@@ -781,7 +797,11 @@ describe('exportInterviewLogTask', () => {
             widgetPath: '',
             hiddenWidgets: '',
             invalidFields: '',
-            validFields: 'home.geography'
+            validFields: 'home.geography',
+            browser: '',
+            os: '',
+            platform: '',
+            language: ''
         });
     });
 
@@ -847,7 +867,11 @@ describe('exportInterviewLogTask', () => {
             widgetPath: interviewLogs[0].user_action.buttonId,
             hiddenWidgets: '',
             invalidFields: '',
-            validFields: 'home.geography'
+            validFields: 'home.geography',
+            browser: '',
+            os: '',
+            platform: '',
+            language: ''
         });
 
         const modifiedKeysLog2 = Object.entries(interviewLogs[1].values_by_path).filter(([key, value]) => value !== null && !key.startsWith('validations.')).map(([key, value]) => key).join('|');
@@ -864,7 +888,11 @@ describe('exportInterviewLogTask', () => {
             widgetPath: interviewLogs[1].user_action.path,
             hiddenWidgets: '',
             invalidFields: 'home.someField',
-            validFields: ''
+            validFields: '',
+            browser: '',
+            os: '',
+            platform: '',
+            language: ''
         });
 
         const modifiedKeysLog3 = Object.entries(interviewLogs[2].values_by_path).filter(([key, value]) => value !== null && !key.startsWith('validations.')).map(([key, value]) => key).join('|');
@@ -881,7 +909,11 @@ describe('exportInterviewLogTask', () => {
             widgetPath: interviewLogs[2].user_action.buttonId,
             hiddenWidgets: '',
             invalidFields: ['home.household.size', 'home.someField'].join('|'),
-            validFields: 'home.geography'
+            validFields: 'home.geography',
+            browser: '',
+            os: '',
+            platform: '',
+            language: ''
         });
     });
 
@@ -932,7 +964,417 @@ describe('exportInterviewLogTask', () => {
             widgetPath: '',
             hiddenWidgets: '',
             invalidFields: '',
-            validFields: ''
+            validFields: '',
+            browser: '',
+            os: '',
+            platform: '',
+            language: ''
+        });
+    });
+
+    describe('Test with various context data', () => {
+        // Set default values for logs
+        const makeLog = (partial: { [key: string]: any }) => ({
+            ...commonInterviewData,
+            event_type: 'legacy',
+            timestamp_sec: 1,
+            event_date: new Date(1 * 1000),
+            values_by_path: null,
+            unset_paths: null,
+            user_action: null,
+            for_correction: null,
+            ...partial
+        });
+
+        // Deduce the expected values from the log data, with specific overrides for some fields if needed
+        const expectedRowFromLog = (log: { [key: string]: any }, overrides: { [key: string]: any } = {}) => ({
+            ...commonInterviewDataInRows,
+            event_type: log.event_type ?? 'legacy',
+            timestampMs: String((log.timestamp_sec ?? 0) * 1000),
+            event_date: new Date((log.timestamp_sec ?? 0) * 1000).toISOString(),
+            for_correction: log.for_correction === true ? 'true' : log.for_correction === false ? 'false' : '',
+            modifiedFields: log.values_by_path
+                ? Object.entries(log.values_by_path)
+                    .filter(([key, value]) => value !== null && !key.startsWith('validations.'))
+                    .map(([key]) => key)
+                    .join('|')
+                : '',
+            initializedFields: log.values_by_path
+                ? Object.entries(log.values_by_path)
+                    .filter(([key, value]) => value === null && !key.startsWith('validations.'))
+                    .map(([key]) => key)
+                    .join('|')
+                : '',
+            unsetFields: log.unset_paths
+                ? log.unset_paths.filter((path: string) => !path.startsWith('validations.')).join('|')
+                : '',
+            widgetType: '',
+            widgetPath: '',
+            hiddenWidgets: '',
+            invalidFields: log.values_by_path
+                ? Object.entries(log.values_by_path)
+                    .filter(([key, value]) => key.startsWith('validations.') && value !== true)
+                    .map(([key]) => key.replace('validations.', ''))
+                    .join('|')
+                : '',
+            validFields: log.values_by_path
+                ? Object.entries(log.values_by_path)
+                    .filter(([key, value]) => key.startsWith('validations.') && value === true)
+                    .map(([key]) => key.replace('validations.', ''))
+                    .join('|')
+                : '',
+            browser: '',
+            os: '',
+            platform: '',
+            language: '',
+            ...overrides
+        });
+
+        const platformData1 = { parsedResult: { browser: { name: 'Firefox', version: '146.0' }, os: { name: 'Linux' }, platform: { type: 'desktop'} } };
+        const platformData2 = { parsedResult: { browser: { name: 'Safari', version: '146.0' }, os: { name: 'MacOs' }, platform: { type: 'mobile'} } } ;
+
+        const contextCases = [
+            {
+                description: 'single user and multiple context switches',
+                logs: [
+                    makeLog({
+                        // Event setting the platform
+                        event_type: 'side_effect',
+                        timestamp_sec: 1,
+                        event_date: new Date(1 * 1000),
+                        values_by_path: { 'response._browser': platformData1 }
+                    }),
+                    makeLog({
+                        // Event setting the language for the first time
+                        event_type: 'language_change',
+                        timestamp_sec: 2,
+                        event_date: new Date(2 * 1000),
+                        user_action: { type: 'languageChange', language: 'fr' }
+                    }),
+                    makeLog({
+                        // Arbitrary event
+                        event_type: 'button_click',
+                        timestamp_sec: 3,
+                        event_date: new Date(3 * 1000),
+                        values_by_path: { 'validations.home.geography': true, 'validations.home.household.size': false, 'validations.home.someField': false },
+                        unset_paths: [ 'response.home.someField' ],
+                        user_action: { type: 'buttonClick', buttonId: 'response.someField' }
+                    }),
+                    makeLog({
+                        // Event setting the platform again with different values, to check that the latest context is used for the subsequent events
+                        event_type: 'side_effect',
+                        timestamp_sec: 4,
+                        event_date: new Date(4 * 1000),
+                        values_by_path: { 'response._browser': platformData2 }
+                    }),
+                    makeLog({
+                        // Arbitrary event
+                        event_type: 'button_click',
+                        timestamp_sec: 5,
+                        event_date: new Date(5 * 1000),
+                        values_by_path: { 'validations.home.geography': true, 'validations.home.household.size': false, 'validations.home.someField': false },
+                        unset_paths: [ 'response.home.someField' ],
+                        user_action: { type: 'buttonClick', buttonId: 'response.someField' }
+                    }),
+                    makeLog({
+                        // Event setting the language with legacy response data
+                        event_type: 'legacy',
+                        timestamp_sec: 6,
+                        event_date: new Date(6 * 1000),
+                        values_by_path: { 'response._language': 'es' }
+                    })
+                ],
+                expectedRowOverrides: [
+                    {
+                        // Browser 1, no language yet
+                        browser: platformData1.parsedResult.browser.name,
+                        os: platformData1.parsedResult.os.name,
+                        platform: platformData1.parsedResult.platform.type
+                    },
+                    {
+                        // Browser 1, language set to French
+                        browser: platformData1.parsedResult.browser.name,
+                        os: platformData1.parsedResult.os.name,
+                        platform: platformData1.parsedResult.platform.type,
+                        language: 'fr'
+                    },
+                    {
+                        browser: platformData1.parsedResult.browser.name,
+                        os: platformData1.parsedResult.os.name,
+                        platform: platformData1.parsedResult.platform.type,
+                        language: 'fr',
+                        widgetPath: 'response.someField',
+                    },
+                    {
+                        // Browser 2, language set to French
+                        browser: platformData2.parsedResult.browser.name,
+                        os: platformData2.parsedResult.os.name,
+                        platform: platformData2.parsedResult.platform.type,
+                        language: 'fr'
+                    },
+                    {
+                        browser: platformData2.parsedResult.browser.name,
+                        os: platformData2.parsedResult.os.name,
+                        platform: platformData2.parsedResult.platform.type,
+                        language: 'fr',
+                        widgetPath: 'response.someField',
+                    },
+                    {
+                        // Browser 2, language set to Spanish with legacy response data
+                        browser: platformData2.parsedResult.browser.name,
+                        os: platformData2.parsedResult.os.name,
+                        platform: platformData2.parsedResult.platform.type,
+                        language: 'es'
+                    }
+                ]
+            }, {
+                description: 'multiple users intricated, with/without correction for browser context',
+                logs: [
+                    makeLog({
+                        // Event setting the platform for participant
+                        event_type: 'side_effect',
+                        timestamp_sec: 1,
+                        event_date: new Date(1 * 1000),
+                        values_by_path: { 'response._browser': platformData1 }
+                    }),
+                    makeLog({
+                        // Event setting the platform for user 1 in participant mode
+                        event_type: 'side_effect',
+                        user_id: 1,
+                        timestamp_sec: 2,
+                        event_date: new Date(2 * 1000),
+                        values_by_path: { 'response._browser': platformData2 }
+                    }),
+                    makeLog({
+                        // Arbitrary event for user 1 in correction mode, browser not set
+                        event_type: 'button_click',
+                        timestamp_sec: 3,
+                        event_date: new Date(3 * 1000),
+                        user_id: 1,
+                        for_correction: true,
+                        values_by_path: { 'validations.home.geography': true, 'validations.home.household.size': false, 'validations.home.someField': false },
+                        unset_paths: [ 'response.home.someField' ],
+                        user_action: { type: 'buttonClick', buttonId: 'response.someField' }
+                    }),
+                    makeLog({
+                        // Arbitrary event for user 1 in participant mode, keep previous browser
+                        event_type: 'button_click',
+                        timestamp_sec: 4,
+                        event_date: new Date(4 * 1000),
+                        user_id: 1,
+                        for_correction: false,
+                        values_by_path: { 'validations.home.geography': true, 'validations.home.household.size': false, 'validations.home.someField': false },
+                        unset_paths: [ 'response.home.someField' ],
+                        user_action: { type: 'buttonClick', buttonId: 'response.someField' }
+                    }),
+                    makeLog({
+                        // Arbitrary event for participant, use previous browser
+                        event_type: 'button_click',
+                        timestamp_sec: 5,
+                        event_date: new Date(5 * 1000),
+                        values_by_path: { 'validations.home.geography': true, 'validations.home.household.size': false, 'validations.home.someField': false },
+                        unset_paths: [ 'response.home.someField' ],
+                        user_action: { type: 'buttonClick', buttonId: 'response.someField' }
+                    }),
+                    makeLog({
+                        // Setting browser for user 1 in correction mode
+                        event_type: 'side_effect',
+                        user_id: 1,
+                        for_correction: true,
+                        timestamp_sec: 6,
+                        event_date: new Date(6 * 1000),
+                        values_by_path: { 'corrected_response._browser': platformData1 }
+                    }),
+                    makeLog({
+                        // Arbitrary event for user 1 in participant mode, keep previous browser
+                        event_type: 'button_click',
+                        timestamp_sec: 7,
+                        event_date: new Date(7 * 1000),
+                        user_id: 1,
+                        for_correction: false,
+                        values_by_path: { 'validations.home.geography': true, 'validations.home.household.size': false, 'validations.home.someField': false },
+                        unset_paths: [ 'response.home.someField' ],
+                        user_action: { type: 'buttonClick', buttonId: 'response.someField' }
+                    }),
+                ],
+                expectedRowOverrides: [
+                    {
+                        browser: platformData1.parsedResult.browser.name,
+                        os: platformData1.parsedResult.os.name,
+                        platform: platformData1.parsedResult.platform.type
+                    },
+                    {
+                        browser: platformData2.parsedResult.browser.name,
+                        os: platformData2.parsedResult.os.name,
+                        platform: platformData2.parsedResult.platform.type,
+                        user_id: '1'
+                    },
+                    {
+                        browser: '',
+                        os: '',
+                        platform: '',
+                        widgetPath: 'response.someField',
+                        user_id: '1',
+                        for_correction: 'true'
+                    },
+                    {
+                        browser: platformData2.parsedResult.browser.name,
+                        os: platformData2.parsedResult.os.name,
+                        platform: platformData2.parsedResult.platform.type,
+                        widgetPath: 'response.someField',
+                        user_id: '1'
+                    },
+                    {
+                        browser: platformData1.parsedResult.browser.name,
+                        os: platformData1.parsedResult.os.name,
+                        platform: platformData1.parsedResult.platform.type,
+                        widgetPath: 'response.someField',
+                    },
+                    {
+                        browser: platformData1.parsedResult.browser.name,
+                        os: platformData1.parsedResult.os.name,
+                        platform: platformData1.parsedResult.platform.type,
+                        user_id: '1',
+                        for_correction: 'true'
+                    },
+                    {
+                        browser: platformData2.parsedResult.browser.name,
+                        os: platformData2.parsedResult.os.name,
+                        platform: platformData2.parsedResult.platform.type,
+                        widgetPath: 'response.someField',
+                        user_id: '1'
+                    },
+                ]
+            }, {
+                description: 'multiple users intricated, with/without correction for language context',
+                logs: [
+                    makeLog({
+                        // Event setting the language with legacy response data
+                        event_type: 'legacy',
+                        timestamp_sec: 1,
+                        event_date: new Date(1 * 1000),
+                        values_by_path: { 'response._language': 'fr' }
+                    }),
+                    makeLog({
+                        // Event setting the language for user 1 in participant mode
+                        event_type: 'language_change',
+                        user_id: 1,
+                        timestamp_sec: 2,
+                        event_date: new Date(2 * 1000),
+                        user_action: { type: 'languageChange', language: 'es' }
+                    }),
+                    makeLog({
+                        // Arbitrary event for user 1 in correction mode, language not set
+                        event_type: 'button_click',
+                        timestamp_sec: 3,
+                        event_date: new Date(3 * 1000),
+                        user_id: 1,
+                        for_correction: true,
+                        values_by_path: { 'validations.home.geography': true, 'validations.home.household.size': false, 'validations.home.someField': false },
+                        unset_paths: [ 'response.home.someField' ],
+                        user_action: { type: 'buttonClick', buttonId: 'response.someField' }
+                    }),
+                    makeLog({
+                        // Arbitrary event for user 1 in participant mode, keep previous language
+                        event_type: 'button_click',
+                        timestamp_sec: 4,
+                        event_date: new Date(4 * 1000),
+                        user_id: 1,
+                        for_correction: false,
+                        values_by_path: { 'validations.home.geography': true, 'validations.home.household.size': false, 'validations.home.someField': false },
+                        unset_paths: [ 'response.home.someField' ],
+                        user_action: { type: 'buttonClick', buttonId: 'response.someField' }
+                    }),
+                    makeLog({
+                        // Arbitrary event for participant, use previous language
+                        event_type: 'button_click',
+                        timestamp_sec: 5,
+                        event_date: new Date(5 * 1000),
+                        values_by_path: { 'validations.home.geography': true, 'validations.home.household.size': false, 'validations.home.someField': false },
+                        unset_paths: [ 'response.home.someField' ],
+                        user_action: { type: 'buttonClick', buttonId: 'response.someField' }
+                    }),
+                    makeLog({
+                        // Setting language for user 1 in correction mode
+                        event_type: 'language_change',
+                        user_id: 1,
+                        for_correction: true,
+                        timestamp_sec: 6,
+                        event_date: new Date(6 * 1000),
+                        values_by_path: { 'corrected_response._language': 'fr' }
+                    }),
+                    makeLog({
+                        // Arbitrary event for user 1 in participant mode, keep previous language
+                        event_type: 'button_click',
+                        timestamp_sec: 7,
+                        event_date: new Date(7 * 1000),
+                        user_id: 1,
+                        for_correction: false,
+                        values_by_path: { 'validations.home.geography': true, 'validations.home.household.size': false, 'validations.home.someField': false },
+                        unset_paths: [ 'response.home.someField' ],
+                        user_action: { type: 'buttonClick', buttonId: 'response.someField' }
+                    }),
+                ],
+                expectedRowOverrides: [
+                    {
+                        language: 'fr'
+                    },
+                    {
+                        language: 'es',
+                        user_id: '1'
+                    },
+                    {
+                        language: '',
+                        widgetPath: 'response.someField',
+                        user_id: '1',
+                        for_correction: 'true'
+                    },
+                    {
+                        language: 'es',
+                        widgetPath: 'response.someField',
+                        user_id: '1'
+                    },
+                    {
+                        language: 'fr',
+                        widgetPath: 'response.someField',
+                    },
+                    {
+                        language: 'fr',
+                        user_id: '1',
+                        for_correction: 'true'
+                    },
+                    {
+                        language: 'es',
+                        widgetPath: 'response.someField',
+                        user_id: '1'
+                    },
+                ]
+            }
+        ];
+
+        test.each(contextCases)('Test with $description', async ({ logs, expectedRowOverrides }) => {
+            mockGetInterviewLogsStream.mockReturnValue(new ObjectReadableMock(logs) as any);
+
+            const fileName = await exportInterviewLogTask({});
+
+            expect(mockCreateStream).toHaveBeenCalledTimes(1);
+            expect(mockGetInterviewLogsStream).toHaveBeenCalledWith({ forCorrection: undefined, interviewId: undefined });
+
+            const csvFileName = Object.keys(fileStreams).find((filename) => filename.endsWith(fileName));
+            expect(csvFileName).toBeDefined();
+
+            const csvStream = fileStreams[csvFileName as string];
+            expect(csvStream.data.length).toEqual(logs.length);
+
+            const logRows = await getCsvFileRows(csvStream.data);
+            expect(logRows.length).toEqual(expectedRowOverrides.length);
+            for (let i = 0; i < expectedRowOverrides.length; i++) {
+                const expectedRow = expectedRowFromLog(
+                    logs[i],
+                    expectedRowOverrides[i]
+                );
+                expect(logRows[i]).toEqual(expectedRow);
+            }
         });
     });
 
