@@ -3,7 +3,7 @@
     "node": ">=24.0.0"
   },
   "name": "evolution-frontend",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Transportation and travel survey analysis and simulation platform",
   "repository": "github.com/chairemobilite/evolution",
   "license": "MIT",
@@ -44,7 +44,7 @@
     "chaire-lib-frontend": "^0.2.2",
     "date-fns": "^4.1.0",
     "dompurify": "^3.2.4",
-    "evolution-common": "^0.5.0",
+    "evolution-common": "^0.5.1",
     "geojson": "^0.5.0",
     "geojson-validation": "^1.0.2",
     "gl-matrix": "^3.4.3",

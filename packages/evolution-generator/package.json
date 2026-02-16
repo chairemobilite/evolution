@@ -3,7 +3,7 @@
     "node": ">=24.0.0"
   },
   "name": "evolution-generator",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Automates creation of transit surveys for Evolution.",
   "repository": "github.com/chairemobilite/evolution",
   "license": "MIT",
@@ -26,8 +26,8 @@
   "dependencies": {
     "@fortawesome/free-solid-svg-icons": "^6.7.1",
     "chaire-lib-common": "^0.2.2",
-    "evolution-common": "^0.5.0",
-    "evolution-frontend": "^0.5.0",
+    "evolution-common": "^0.5.1",
+    "evolution-frontend": "^0.5.1",
     "i18next": "^25.7.4"
   },
   "devDependencies": {

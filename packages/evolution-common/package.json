@@ -3,7 +3,7 @@
     "node": ">=24.0.0"
   },
   "name": "evolution-common",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Common type library for evolution",
   "repository": "github.com/chairemobilite/evolution",
   "license": "MIT",

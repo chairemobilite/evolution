@@ -3,7 +3,7 @@
         "node": ">=24.0.0"
     },
     "name": "evolution-backend",
-    "version": "0.5.0",
+    "version": "0.5.1",
     "description": "Backend library for Evolution",
     "repository": "github.com/chairemobilite/evolution",
     "license": "MIT",
@@ -31,7 +31,7 @@
         "chaire-lib-common": "^0.2.2",
         "connect-session-knex": "^4.0.2",
         "dompurify": "^3.2.6",
-        "evolution-common": "^0.5.0",
+        "evolution-common": "^0.5.1",
         "express": "^5.2.1",
         "express-session": "^1.18.2",
         "geojson-validation": "^1.0.2",
