@@ -4,9 +4,9 @@ name: CI-Generator
 
 on:
   push:
-    branches: [ main ]
+    branches: [ main, v0.5.0 ]
   pull_request:
-    branches: [ main ]
+    branches: [ main, v0.5.0 ]
 
 jobs:
   generate-and-build-generator:
