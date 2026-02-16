@@ -13,10 +13,19 @@ import { execJob } from '../../tasks/serverWorkerPool';
 import { fileManager } from 'chaire-lib-backend/lib/utils/filesystem/fileManager';
 import paradataEventsQueries from '../../models/paradataEvents.db.queries';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
+import type { Parser } from 'bowser';
 
 export const filePathOnServer = 'exports/interviewLogs';
 const validationsPrefix = 'validations.';
 const responsePrefix = 'response.';
+const correctedResponsePrefix = 'corrected_response.';
+
+type ContextData = { platform?: string; os?: string; browser?: string; language?: string };
+type CurrentInterviewContext = {
+    interviewId?: number;
+    participant: { [userId: string | 'participant']: ContextData };
+    corrected: { [userId: string]: ContextData };
+};
 
 type ExportLogOptions = {
     participantResponseOnly?: boolean;
@@ -83,12 +92,81 @@ const userActionToWidgetData = (
     }
 };
 
+const updateAndGetContextDataFromLog = (
+    logData: {
+        values_by_path: { [key: string]: any };
+        user_action?: UserAction;
+        for_correction: boolean | null;
+        user_id: number | null;
+    },
+    currentInterviewContext: CurrentInterviewContext
+): ContextData => {
+    // Get the current context data for this user, or initialize it if not present yet
+    const userId = logData.user_id === null ? 'participant' : logData.user_id.toString();
+    const interviewContext =
+        logData.for_correction === true ? currentInterviewContext.corrected : currentInterviewContext.participant;
+    const contextData: ContextData = interviewContext[userId] || {
+        platform: undefined,
+        os: undefined,
+        browser: undefined,
+        language: undefined
+    };
+
+    // See if the log data contains any information about the context (platform,
+    // os, browser or language) and update the current context accordingly. This
+    // will allow us to have the most up to date context information for each
+    // log line, even if that information is only available in a later log entry
+    // for that user. We need to do this because users can change their context
+    // during the interview (for example changing language), and we want to be
+    // able to see that in the logs.
+
+    // Update the browser data:
+    const newBrowserData =
+        logData.values_by_path?.[responsePrefix + '_browser'] ??
+        logData.values_by_path?.[correctedResponsePrefix + '_browser'];
+    if (newBrowserData !== undefined && newBrowserData.parsedResult !== undefined) {
+        const parsedBrowser = newBrowserData.parsedResult as Parser.ParsedResult;
+        contextData.os = parsedBrowser.os?.name;
+        contextData.platform = parsedBrowser.platform?.type;
+        contextData.browser = parsedBrowser.browser?.name;
+    }
+
+    // Update the language data:
+    if (logData.user_action && logData.user_action.type === 'languageChange') {
+        contextData.language = logData.user_action.language;
+    } else if (
+        logData.values_by_path?.[responsePrefix + '_language'] !== undefined ||
+        logData.values_by_path?.[correctedResponsePrefix + '_language'] !== undefined
+    ) {
+        contextData.language =
+            logData.values_by_path![responsePrefix + '_language'] ??
+            logData.values_by_path![correctedResponsePrefix + '_language'];
+    }
+
+    // Set the current context for this user
+    interviewContext[userId] = contextData;
+    return contextData;
+};
+
 const exportLogToRows = (
-    logData: { values_by_path: { [key: string]: any }; unset_paths: string[]; [key: string]: any },
-    options: { withValues: boolean; participantResponseOnly?: boolean }
+    logData: {
+        values_by_path: { [key: string]: any };
+        unset_paths: string[];
+        for_correction: boolean | null;
+        user_id: number | null;
+        [key: string]: any;
+    },
+    options: {
+        withValues: boolean;
+        participantResponseOnly?: boolean;
+        currentInterviewContext: CurrentInterviewContext;
+    }
 ): { [key: string]: any }[] => {
     const { values_by_path, unset_paths, user_action, ...rest } = logData;
+
     if (!options.withValues) {
+        // Update current context with values from current event
+        const contextData = updateAndGetContextDataFromLog(logData, options.currentInterviewContext);
         const { valuesByPath, valuesByPathInit, invalidFields, validFields } = Object.entries(
             values_by_path || {}
         ).reduce(
@@ -123,6 +201,7 @@ const exportLogToRows = (
         return [
             {
                 ...rest,
+                ...contextData,
                 ...userActionFields,
                 modifiedFields: valuesByPath.length > 0 ? valuesByPath.join('|') : '',
                 initializedFields: valuesByPathInit.length > 0 ? valuesByPathInit.join('|') : '',
@@ -197,6 +276,11 @@ export const exportInterviewLogTask = async function ({
         forCorrection: participantResponseOnly === true ? false : undefined
     });
     let i = 0;
+    let currentInterviewContext: CurrentInterviewContext = {
+        interviewId: undefined,
+        corrected: {},
+        participant: {}
+    };
     return new Promise((resolve, reject) => {
         queryStream
             .on('error', (error) => {
@@ -216,6 +300,13 @@ export const exportInterviewLogTask = async function ({
                     // no data to export for this log
                     return;
                 }
+                if (currentInterviewContext.interviewId !== logData.id) {
+                    currentInterviewContext = {
+                        interviewId: logData.id,
+                        corrected: {},
+                        participant: {}
+                    };
+                }
 
                 // Prepare the log data to export
                 const exportLog = exportLogToRows(
@@ -224,7 +315,7 @@ export const exportInterviewLogTask = async function ({
                         event_date: new Date(event_date).toISOString(),
                         timestampMs: Math.round(timestamp_sec * 1000)
                     },
-                    { withValues, participantResponseOnly }
+                    { withValues, participantResponseOnly, currentInterviewContext }
                 );
 
                 const fileOk = csvStream.write(
