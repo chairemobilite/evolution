@@ -27,6 +27,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - In the root `package.json` add a resolution of `kdbush` to 3.0.0 to avoid compilation errors with some packages depending on a more recent version. This requirement comes from Transition, who does the same (see https://github.com/chairemobilite/transition/issues/921 to track issue to upgrade/remove `kdbush`).
 
 
+## [Unreleased (0.5.1)] - YYYY-MM-DD
+
+### Added
+- Added `platform`, `os`, `browser` and `language` fields to each record of the exported paradata (#1395)
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+
+### Dependency updates
+
+
 ## [0.5.0] - 2026-01-30
 
 ### Added
