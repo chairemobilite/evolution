@@ -51,6 +51,7 @@
         "cross-env": "^10.1.0",
         "eslint": "^8.57.1",
         "prettier-eslint-cli": "^8.0.1",
+        "style-loader": "^4.0.0",
         "typescript": "^5.9.3"
     }
 }

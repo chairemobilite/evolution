@@ -7,6 +7,10 @@ const HtmlWebpackPlugin       = require('html-webpack-plugin');
 const { CleanWebpackPlugin }  = require("clean-webpack-plugin");
 const CompressionPlugin       = require('compression-webpack-plugin');
 
+// Ensure server config is found regardless of cwd (fixes serve:dev when run from any directory)
+if (!process.env.PROJECT_CONFIG) {
+  process.env.PROJECT_CONFIG = path.join(__dirname, 'config.js');
+}
 require('chaire-lib-backend/lib/config/dotenv.config');
 
 if (!process.env.NODE_ENV) {
@@ -26,11 +30,15 @@ module.exports = (env) => {
   const isProduction = process.env.NODE_ENV === 'production';
   console.log('process.env.NODE_ENV', process.env.NODE_ENV);
 
+  // In dev, style-loader injects CSS via <style> so SCSS changes apply after reload without a separate .css file
+  const styleLoader = isProduction ? MiniCssExtractPlugin.loader : 'style-loader';
+
   const languages = config.languages || ['fr', 'en'];
   const momentLanguagesFilter = `/${languages.join("|")}/`;
 
   const customStylesFilePath  = `${__dirname}/lib/styles/styles.scss`;
   const customLocalesFilePath = `${__dirname}/locales`;
+  const evolutionFrontendRoot = path.dirname(require.resolve('evolution-frontend/package.json'));
   const includeDirectories    = [
     path.join(__dirname, 'lib', 'survey'),
     
@@ -60,7 +68,17 @@ module.exports = (env) => {
       publicPath: '/dist/'
     },
     watchOptions: {
-      ignored: ['node_modules/**'],
+      // In dev, watch evolution-frontend and evolution-common so CSS/TS changes trigger rebuild
+      // Exclude lib/styles from evolution-frontend since we use alias to point to src/styles
+      ignored: isProduction
+        // In production, ignore all node_modules to avoid rebuilding the whole project
+        ? new RegExp('node_modules/')
+        // Ignore all node_modules except evolution-frontend and evolution-common, 
+        // and also specifically ignore the lib/styles directory of evolution-frontend 
+        // (which we override via an alias to our src/styles).
+        : new RegExp(
+            `(node_modules\\/(?!evolution-frontend|evolution-common)|${path.join(evolutionFrontendRoot, 'lib', 'styles').replace(/\\/g, '/').replace(/[.*+?^${}()|[\]\\]/g, '\\$&')})`
+          ),
       aggregateTimeout: 600
     },
     module: {
@@ -81,7 +99,7 @@ module.exports = (env) => {
         {
           test: /\.s?css$/,
           use: [
-            MiniCssExtractPlugin.loader,
+            styleLoader, // In dev, style-loader injects CSS via <style> so SCSS changes apply after reload without a separate .css file
             {
               loader: 'css-loader',
               options: {
@@ -194,6 +212,10 @@ module.exports = (env) => {
       mainFields: ['browser', 'main', 'module'],
       modules: ['node_modules'],
       extensions: ['.json', '.js', '.ts', '.tsx'],
+      // In dev, read SCSS from evolution-frontend source so changes apply without running copy-files
+      alias: isProduction ? {} : {
+        [path.join(evolutionFrontendRoot, 'lib', 'styles')]: path.join(evolutionFrontendRoot, 'src', 'styles')
+      },
       // These modules are not used in the frontend, don't try to resolve them as they are nodejs only and don't have a browser counterpart (but they may be used in transition-legacy which is still not cleanly separated)
       fallback: { path: false, buffer: false }
     },
