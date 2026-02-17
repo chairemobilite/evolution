@@ -21,6 +21,7 @@ from scripts.generate_labels import generate_labels
 from scripts.generate_UI_tests import generate_UI_tests
 from scripts.generate_questionnaire_list import generate_questionnaire_list
 from scripts.generate_questionnaire_dictionary import generate_questionnaire_dictionary
+from scripts.check_excel_integrity import check_excel_integrity
 
 
 # TODO: Add some validation for the config file
@@ -71,6 +72,11 @@ def generate_survey(config_path):
             os.getenv("OFFICE365_USERNAME_EMAIL"),
             os.getenv("OFFICE365_PASSWORD"),
         )
+
+    # Check the integrity of the Excel file to avoid generating the survey with invalid data
+    integrity_ok = check_excel_integrity(excel_file_path)
+    if not integrity_ok:
+        raise Exception(f"Excel integrity check failed for {excel_file_path}. Aborting generation.")
 
     # Call the generate_folders function to generate the folders for the survey
     generate_folders(excel_file_path, survey_folder_path, enabled_scripts)
