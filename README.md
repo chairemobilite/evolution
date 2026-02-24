@@ -123,7 +123,7 @@ module.exports = {
   surveyAreaGeojsonPath: 'surveyArea.geojson'
 };
 ```
-The path is relative to the survey project directory (where the configuration file is located). If this property is missing or the file is not found, territorial validation is skipped.
+The path is relative to the survey project directory (projectDirectory param in config file). If this property is missing or the file is not found, territorial validation is skipped.
 
 ### GeoJSON Specifications
 
