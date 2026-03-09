@@ -5,6 +5,8 @@
     "I_I_StartedAtAfterSurveyEndDate": "Le début de l'entrevue est après la date de fin de l'enquête",
     "I_M_AccessCode": "Le code d'accès est manquant",
     "I_I_InvalidAccessCodeFormat": "Le format du code d'accès est invalide",
+    "I_I_ContactEmail": "Le courriel de contact est invalide",
+    "I_I_HelpContactEmail": "Le courriel de contact d'aide est invalide",
 
     "HH_I_Size": "La taille du ménage est en dehors de la plage autorisée (devrait être entre 1 et 20)",
     "HH_M_Size": "La taille du ménage est manquante",
