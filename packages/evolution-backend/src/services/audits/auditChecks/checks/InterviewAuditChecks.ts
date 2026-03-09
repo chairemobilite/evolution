@@ -6,7 +6,7 @@
  */
 
 import type { AuditForObject } from 'evolution-common/lib/services/audits/types';
-import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
+import { _isBlank, _isEmail } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import type { InterviewAuditCheckContext, InterviewAuditCheckFunction } from '../AuditCheckContexts';
 import projectConfig from 'evolution-common/lib/config/project.config';
 import { secondsToMillisecondsTimestamp, parseISODateToTimestamp } from 'evolution-common/lib/utils/DateTimeUtils';
@@ -181,5 +181,51 @@ export const interviewAuditChecks: { [errorCode: string]: InterviewAuditCheckFun
             }
         }
         return undefined;
+    },
+
+    /**
+     * Check if interview contact email is invalid
+     * @param context - InterviewAuditCheckContext
+     * @returns {AuditForObject | undefined}
+     */
+    I_I_ContactEmail: (context: InterviewAuditCheckContext): AuditForObject | undefined => {
+        const { interview } = context;
+        const contactEmail = interview.contactEmail;
+        if (!_isBlank(contactEmail) && !_isEmail(contactEmail as string)) {
+            return {
+                objectType: 'interview',
+                objectUuid: interview.uuid!,
+                errorCode: 'I_I_ContactEmail',
+                version: 1,
+                level: 'error',
+                message: 'Contact email is invalid',
+                ignore: false
+            };
+        }
+        return undefined;
+    },
+
+    /**
+     * Check if interview help contact email is invalid
+     * @param context - InterviewAuditCheckContext
+     * @returns {AuditForObject | undefined}
+     */
+    I_I_HelpContactEmail: (context: InterviewAuditCheckContext): AuditForObject | undefined => {
+        const { interview } = context;
+        const helpContactEmail = interview.helpContactEmail;
+        if (!_isBlank(helpContactEmail) && !_isEmail(helpContactEmail as string)) {
+            return {
+                objectType: 'interview',
+                objectUuid: interview.uuid!,
+                errorCode: 'I_I_HelpContactEmail',
+                version: 1,
+                level: 'error',
+                message: 'Help contact email is invalid',
+                ignore: false
+            };
+        }
+        return undefined;
     }
+
+    // TODO: validate phone number formats and normalize. The format should be defined in the survey config (by country).
 };
