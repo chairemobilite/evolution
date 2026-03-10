@@ -9,9 +9,28 @@ import { initReactI18next } from 'react-i18next';
 import moment from 'moment';
 import LanguageDetector from 'i18next-browser-languagedetector';
 import config from 'chaire-lib-frontend/lib/config/project.config';
-// TODO: importing a whole directory is allowed in javascript but not in typescript, find another way to import only the needed locales anyway.
-// eslint-disable-next-line
+
+// Declare custom locales path from webpack
+declare const __CUSTOM_LOCALES_PATH__: string | undefined;
+
+// Webpack will have replaced the locales folder with a module that exports the
+// locales resources, so at runtime, this is not a folder, but a module that we
+// can import. But at compile time, typescript complains.
+// eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires, n/no-unpublished-require
 const resources = require('../../../../locales/');
+
+// Load custom locales, webpack will have already merged with the base locales
+let customResources: any = null;
+if (typeof __CUSTOM_LOCALES_PATH__ !== 'undefined') {
+    try {
+        // eslint-disable-next-line @typescript-eslint/no-require-imports, @typescript-eslint/no-var-requires, n/no-unpublished-require
+        customResources = require(__CUSTOM_LOCALES_PATH__);
+    } catch (e) {
+        console.warn('Custom locales path defined but could not load:', __CUSTOM_LOCALES_PATH__, e);
+        customResources = null;
+    }
+}
+
 const detectorOrder = config.detectLanguageFromUrl
     ? ['querystring', 'path', 'cookie', 'localStorage']
     : config.detectLanguage
@@ -33,7 +52,7 @@ i18n.use(LanguageDetector)
             preload: config.languages,
             supportedLngs: config.languages,
             nonExplicitSupportedLngs: false,
-            resources: resources,
+            resources: customResources === null ? resources : customResources,
             fallbackLng: config.defaultLocale || 'en',
             debug: false,
             interpolation: {

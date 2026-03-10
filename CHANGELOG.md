@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 ### Fixed
+- Allow to effectively override locales from Evolution by survey specifics with the same key. Fix is applied automatically on projects calling the `createParticipantWebpackConfig` and `createAdminWebpackConfig` webpack helpers. (#1426)
 
 ### Security
 
