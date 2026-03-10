@@ -85,6 +85,11 @@ export const createCommonWebpackConfig = (params: WebpackGenerationConfigParams)
     const evolutionFrontendRoot = path.dirname(require.resolve('evolution-frontend/package.json'));
     const chaireLibFrontendRoot = path.dirname(require.resolve('chaire-lib-frontend/package.json'));
 
+    // Determine if there is project locales path to override evolution's
+    const evolutionLocaleFiles = path.join(evolutionFrontendRoot, '..', '..', 'locales');
+    const hasProjectLocales =
+        params.projectLocalesFilePath !== undefined && fs.existsSync(params.projectLocalesFilePath);
+
     // Determine which languages to use
     const languages = params.config.languages || ['fr', 'en'];
     const momentLanguagesFilter = `/${languages.join('|')}/`;
@@ -111,6 +116,10 @@ export const createCommonWebpackConfig = (params: WebpackGenerationConfigParams)
             ...params.config
         })
     };
+
+    if (hasProjectLocales) {
+        definePluginValues['__CUSTOM_LOCALES_PATH__'] = JSON.stringify(params.projectLocalesFilePath);
+    }
 
     return {
         // Controls which information to display (see https://webpack.js.org/configuration/stats/)
@@ -190,10 +199,8 @@ export const createCommonWebpackConfig = (params: WebpackGenerationConfigParams)
                     loader: '@alienfast/i18next-loader',
                     options: {
                         basenameAsNamespace: true,
-                        overrides:
-                            params.projectLocalesFilePath !== undefined && fs.existsSync(params.projectLocalesFilePath)
-                                ? [params.projectLocalesFilePath]
-                                : []
+                        // The custom locales will override evolution's
+                        overrides: hasProjectLocales ? [evolutionLocaleFiles] : []
                     }
                 },
                 {
