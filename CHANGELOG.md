@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - **CSS refresh in dev mode**: Changes to `.scss` files are automatically picked up by `yarn build:dev` and apply after a page reload (fixes [#1403](https://github.com/chairemobilite/evolution/issues/1403)). Survey projects that want the same: see [#1407](https://github.com/chairemobilite/evolution/pull/1407) for the webpack modifications.
 - Added `maxAccessEgressTravelTimeMinutes` and `walkingSpeedKmPerHour` to accessibility map calculation parameters (#1379)
+- Added utility functions for webpack generation in evolution-frontend: `createParticipantWebpackConfig` and `createAdminWebpackConfig`. The example projects implement this approach. Projects should consider using those for simlicity. (#1405)
 
 ### Changed
 
