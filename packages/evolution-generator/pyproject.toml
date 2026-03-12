@@ -32,7 +32,7 @@ urllib3 = "2.6.3"
 generateSurvey = "scripts.generate_survey:main"
 
 [tool.poetry.group.dev.dependencies]
-black = "^24.8.0"
+black = "^26.3.1"
 pytest = "^8.3.5"
 
 [build-system]
