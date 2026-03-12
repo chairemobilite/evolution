@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added utility functions for webpack generation in evolution-frontend: `createParticipantWebpackConfig` and `createAdminWebpackConfig`. The example projects implement this approach. Projects should consider using those for simlicity. (#1405)
 
 ### Changed
+- BREAKING: if using the webpack generation functions and the project has a `locales` folder, make sure an empty module file is present in the folder for build time import. An empty file named `index.js` at the root of the project's `locales` folder is enough. Webpack will replace it with the actual translations in the build. (#1426)
 
 ### Deprecated
 

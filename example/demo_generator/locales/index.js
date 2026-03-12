@@ -1,0 +1,1 @@
+// Empty file that must exists for the locales to be imported correctly at build time. Webpack config will create and fill this file in the bundle, but it must exist.
