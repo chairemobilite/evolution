@@ -11,7 +11,6 @@ from helpers.generator_helpers import (
     add_generator_comment,  # Add Generator comment at the start of the file
     get_data_from_excel,  # Read data from Excel
     get_values_from_row,  # Get values from the row
-    error_when_missing_required_fields,  # Error when any required fields are None
     generate_output_file,  # Generate output file
 )
 
@@ -33,24 +32,7 @@ def extract_conditionals_from_data(rows, headers) -> defaultdict:
                 parentheses,
             ) = get_values_from_row(row, headers)
 
-            # Error when any required fields are None
-            error_when_missing_required_fields(
-                required_fields_names=[
-                    "conditional_name",
-                    "path",
-                    "comparison_operator",
-                    "value",
-                ],
-                required_fields_values=[
-                    conditional_name,
-                    path,
-                    comparison_operator,
-                    value,
-                ],
-                row_number=row_number,
-            )
-
-            # Create conditional object
+            # Create conditional object (required fields already validated by check_excel_integrity)
             conditional = {
                 "logical_operator": logical_operator,
                 "path": path,
