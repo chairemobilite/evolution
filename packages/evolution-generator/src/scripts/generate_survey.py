@@ -14,14 +14,13 @@ from scripts.generate_section_configs import generate_section_configs
 from scripts.generate_sections import generate_sections
 from scripts.generate_widgets_configs import generate_widgets_configs
 from scripts.generate_widgets import generate_widgets
-from scripts.generate_conditionals import generate_conditionals
 from scripts.generate_choices import generate_choices
 from scripts.generate_input_range import generate_input_range
 from scripts.generate_labels import generate_labels
 from scripts.generate_UI_tests import generate_UI_tests
 from scripts.generate_questionnaire_list import generate_questionnaire_list
 from scripts.generate_questionnaire_dictionary import generate_questionnaire_dictionary
-from scripts.check_excel_integrity import check_excel_integrity
+from scripts.conditionals import Conditionals
 
 
 # TODO: Add some validation for the config file
@@ -76,7 +75,9 @@ def generate_survey(config_path):
     # Check the integrity of the Excel file to avoid generating the survey with invalid data
     integrity_ok = check_excel_integrity(excel_file_path)
     if not integrity_ok:
-        raise Exception(f"Excel integrity check failed for {excel_file_path}. Aborting generation.")
+        raise Exception(
+            f"Excel integrity check failed for {excel_file_path}. Aborting generation."
+        )
 
     # Call the generate_folders function to generate the folders for the survey
     generate_folders(excel_file_path, survey_folder_path, enabled_scripts)
@@ -114,7 +115,9 @@ def generate_survey(config_path):
         conditionals_output_file_path = os.path.join(
             survey_folder_path, "src", "survey", "common", "conditionals.tsx"
         )
-        generate_conditionals(excel_file_path, conditionals_output_file_path)
+        Conditionals.generate_conditionals(
+            excel_file_path, conditionals_output_file_path
+        )
 
     # Call the generate_choices function to generate choices.tsx if script enabled
     if enabled_generate_choices:
@@ -185,3 +188,14 @@ def main():
 
     # Call the generate_survey function with the config_path argument
     generate_survey(config_path)
+
+
+# Check the integrity of the Excel file to avoid generating the survey with invalid data
+def check_excel_integrity(excel_file_path: str) -> bool:
+    """Check the integrity of the Excel file. Entry point for scripts and UI."""
+    result = Conditionals().check(excel_file_path)
+    if result is True:
+        print(f"Excel integrity check passed for {excel_file_path}")
+    else:
+        print(f"Excel integrity check FAILED for {excel_file_path}")
+    return result

@@ -1,15 +1,30 @@
-import datetime
+# Copyright 2026, Polytechnique Montreal and contributors
+# This file is licensed under the MIT License.
+# License text available at https://opensource.org/licenses/MIT
 
+# Note: This script tests the conditionals functions.
+
+import datetime
 import pytest  # pyright: ignore[reportMissingImports]
 
-from scripts.check_excel_integrity import CheckExcelIntegrity, check_excel_integrity
+from scripts.conditionals import Conditionals
+from scripts.generate_survey import check_excel_integrity
 from helpers.generator_helpers import create_mocked_excel_data, delete_file_if_exists
+
+
+# TODO: Add tests for the remaining Conditionals class methods:
+# - Conditionals.check (directly, without going through check_excel_integrity).
+# - Conditionals.extract_conditionals_from_data (grouping logic for raw rows/headers).
+# - Conditionals.generate_typescript_code (shape and content of generated TS code).
+# - Conditionals.generate_conditionals (end-to-end generation from Excel to file).
 
 
 # Path where create_mocked_excel_data writes the workbook; we delete it after each test.
 MOCKED_EXCEL_FILE = "src/tests/references/test.xlsx"
 
 
+# FIXME: We should not test private methods, we should test the public methods.
+# FIXME: In these tests, we should still test the functionnalities of the private methods, but we should not test the private methods themselves.
 class TestCheckExcelIntegrity:
     """Tests for the public entry point check_excel_integrity(excel_file_path)."""
 
@@ -17,7 +32,7 @@ class TestCheckExcelIntegrity:
         """Full flow: load .xlsx from path and validate Conditionals sheet returns True."""
         create_mocked_excel_data(
             "Conditionals",
-            list(CheckExcelIntegrity.CONDITIONALS_ALL_HEADERS),
+            list(Conditionals.CONDITIONALS_ALL_HEADERS),
             [["cond1", "", "some.path", "===", "42", ""]],
         )
         try:
@@ -29,7 +44,7 @@ class TestCheckExcelIntegrity:
         """When the workbook has no 'Conditionals' sheet, check_excel_integrity returns False."""
         create_mocked_excel_data(
             "OtherSheet",
-            list(CheckExcelIntegrity.CONDITIONALS_ALL_HEADERS),
+            list(Conditionals.CONDITIONALS_ALL_HEADERS),
             [["cond1", "", "some.path", "===", "42", ""]],
         )
         try:
@@ -50,7 +65,7 @@ class TestCheckExcelIntegrity:
         """When validation passes, check_excel_integrity prints a success message."""
         create_mocked_excel_data(
             "Conditionals",
-            list(CheckExcelIntegrity.CONDITIONALS_ALL_HEADERS),
+            list(Conditionals.CONDITIONALS_ALL_HEADERS),
             [["cond1", "", "some.path", "===", "42", ""]],
         )
         try:
@@ -79,10 +94,10 @@ class TestCheckConditionalsSheet:
     """
 
     # Constants for test cases.
-    GOOD_SHEET_NAME = "Conditionals"
-    GOOD_HEADERS = list(CheckExcelIntegrity.CONDITIONALS_ALL_HEADERS)
+    CORRECT_SHEET_NAME = "Conditionals"
+    CORRECT_HEADERS = list(Conditionals.CONDITIONALS_ALL_HEADERS)
     # Headers missing 'conditional_name' to trigger missing-header error.
-    BAD_HEADERS = [
+    INCORRECT_HEADERS = [
         "conditional_name_bad",
         "logical_operator",
         "path",
@@ -92,7 +107,7 @@ class TestCheckConditionalsSheet:
     ]
 
     # Valid single row (all fields valid, optional cells empty).
-    GOOD_ROW = ["cond1", "", "some.path", "===", "42", ""]
+    CORRECT_ROW = ["cond1", "", "some.path", "===", "42", ""]
 
     # Multiple rows with same conditional_name: parentheses must balance within the block.
     # Invalid: one ')' with no preceding '('.
@@ -125,9 +140,9 @@ class TestCheckConditionalsSheet:
         [
             pytest.param(
                 {
-                    "sheet_name": GOOD_SHEET_NAME,
-                    "headers": GOOD_HEADERS,
-                    "rows": [GOOD_ROW],
+                    "sheet_name": CORRECT_SHEET_NAME,
+                    "headers": CORRECT_HEADERS,
+                    "rows": [CORRECT_ROW],
                     "expected_result": True,
                     "expected_message": None,
                 },
@@ -136,8 +151,8 @@ class TestCheckConditionalsSheet:
             pytest.param(
                 {
                     "sheet_name": "OtherSheet",
-                    "headers": GOOD_HEADERS,
-                    "rows": [GOOD_ROW],
+                    "headers": CORRECT_HEADERS,
+                    "rows": [CORRECT_ROW],
                     "expected_result": False,
                     "expected_message": "Error in Conditionals sheet - Sheet with name Conditionals does not exist",
                 },
@@ -145,9 +160,9 @@ class TestCheckConditionalsSheet:
             ),
             pytest.param(
                 {
-                    "sheet_name": GOOD_SHEET_NAME,
-                    "headers": BAD_HEADERS,
-                    "rows": [GOOD_ROW],
+                    "sheet_name": CORRECT_SHEET_NAME,
+                    "headers": INCORRECT_HEADERS,
+                    "rows": [CORRECT_ROW],
                     "expected_result": False,
                     "expected_message": "Error in Conditionals sheet - Missing expected header in Conditionals sheet: conditional_name",
                 },
@@ -155,7 +170,7 @@ class TestCheckConditionalsSheet:
             ),
             pytest.param(
                 {
-                    "sheet_name": GOOD_SHEET_NAME,
+                    "sheet_name": CORRECT_SHEET_NAME,
                     "headers": ["conditional_name", "path"],
                     "rows": [["cond1", "some.path"]],
                     "expected_result": False,
@@ -165,8 +180,8 @@ class TestCheckConditionalsSheet:
             ),
             pytest.param(
                 {
-                    "sheet_name": GOOD_SHEET_NAME,
-                    "headers": GOOD_HEADERS,
+                    "sheet_name": CORRECT_SHEET_NAME,
+                    "headers": CORRECT_HEADERS,
                     "rows": ROWS_UNBALANCED_PARENTHESES,
                     "expected_result": False,
                     "expected_message": "Error in Conditionals sheet - Unbalanced parentheses for conditional_name 'cond1' in row 2: too many ')' (closing parenthesis without matching opening).",
@@ -175,8 +190,8 @@ class TestCheckConditionalsSheet:
             ),
             pytest.param(
                 {
-                    "sheet_name": GOOD_SHEET_NAME,
-                    "headers": GOOD_HEADERS,
+                    "sheet_name": CORRECT_SHEET_NAME,
+                    "headers": CORRECT_HEADERS,
                     "rows": ROWS_BALANCED_PARENTHESES,
                     "expected_result": True,
                     "expected_message": None,
@@ -185,8 +200,8 @@ class TestCheckConditionalsSheet:
             ),
             pytest.param(
                 {
-                    "sheet_name": GOOD_SHEET_NAME,
-                    "headers": GOOD_HEADERS,
+                    "sheet_name": CORRECT_SHEET_NAME,
+                    "headers": CORRECT_HEADERS,
                     "rows": ROWS_FIRST_ROW_EMPTY_LOGICAL_OPERATOR,
                     "expected_result": True,
                     "expected_message": None,
@@ -195,8 +210,8 @@ class TestCheckConditionalsSheet:
             ),
             pytest.param(
                 {
-                    "sheet_name": GOOD_SHEET_NAME,
-                    "headers": GOOD_HEADERS,
+                    "sheet_name": CORRECT_SHEET_NAME,
+                    "headers": CORRECT_HEADERS,
                     "rows": ROWS_FIRST_ROW_HAS_LOGICAL_OPERATOR,
                     "expected_result": False,
                     "expected_message": "Error in Conditionals sheet - Invalid logical_operator in row 2: first row of a conditional must have empty logical_operator, got '&&'",
@@ -218,7 +233,7 @@ class TestCheckConditionalsSheet:
                 case["rows"],
             )
 
-            checker = CheckExcelIntegrity()
+            checker = Conditionals()
             assert (
                 checker._check_conditionals_sheet(workbook) is case["expected_result"]
             )
@@ -232,6 +247,39 @@ class TestCheckConditionalsSheet:
         finally:
             delete_file_if_exists(MOCKED_EXCEL_FILE)
 
+    def test_multiple_row_errors_are_all_reported_and_logic_skipped(self, capsys):
+        """
+        When multiple rows are invalid, all row-level errors are printed and
+        the sheet-level check returns False without running cross-row logic.
+        """
+        # Two rows with different invalid issues to ensure we see two distinct messages.
+        rows = [
+            # Invalid: conditional_name is None (required)
+            [None, "", "some.path", "===", "42", ""],
+            # Invalid: comparison_operator is invalid
+            ["cond2", "", "some.path", "==", "42", ""],
+        ]
+        workbook = create_mocked_excel_data(
+            self.CORRECT_SHEET_NAME,
+            self.CORRECT_HEADERS,
+            rows,
+        )
+
+        checker = Conditionals()
+        result = checker._check_conditionals_sheet(workbook)
+        assert result is False
+
+        captured = capsys.readouterr().out
+        # Both row-level errors should be printed so the user can fix them in one run.
+        assert (
+            "Required field is missing in row 2. Missing fields: ['conditional_name']"
+            in captured
+        )
+        assert (
+            "Invalid comparison_operator in row 3: must be one of ['!==', '<', '<=', '===', '>', '>='] or empty, got '=='"
+            in captured
+        )
+
 
 class TestValidateConditionalsRow:
     """
@@ -241,7 +289,7 @@ class TestValidateConditionalsRow:
     and asserts that the method either passes or raises the expected error.
     """
 
-    checker = CheckExcelIntegrity()
+    checker = Conditionals()
     ROW_NUMBER = 2
 
     def _row(
@@ -349,52 +397,6 @@ class TestValidateConditionalsRow:
         )
 
 
-class TestGroupRowDataByConditionalName:
-    """
-    Unit tests for _group_row_data_by_conditional_name.
-
-    Asserts that row_data is grouped by conditional_name across the entire list
-    (not only consecutive blocks), with order preserved within each group and
-    by first occurrence of each name.
-    """
-
-    checker = CheckExcelIntegrity()
-
-    def _row(self, conditional_name: str) -> dict:
-        """Minimal row dict for grouping (only conditional_name is used)."""
-        return {"conditional_name": conditional_name}
-
-    def test_single_name_one_row(self):
-        """Single row yields one group with one entry."""
-        row_data = [(2, self._row("cond1"))]
-        groups = self.checker._group_row_data_by_conditional_name(row_data)
-        assert groups == {"cond1": [(2, self._row("cond1"))]}
-
-    def test_two_names_consecutive(self):
-        """Two consecutive blocks become two groups with rows in order."""
-        row_data = [
-            (2, self._row("condA")),
-            (3, self._row("condA")),
-            (4, self._row("condB")),
-        ]
-        groups = self.checker._group_row_data_by_conditional_name(row_data)
-        assert list(groups.keys()) == ["condA", "condB"]
-        assert groups["condA"] == [(2, self._row("condA")), (3, self._row("condA"))]
-        assert groups["condB"] == [(4, self._row("condB"))]
-
-    def test_same_name_comes_back_later(self):
-        """Same conditional_name in non-consecutive rows is one group: condA, condB, condA."""
-        row_data = [
-            (2, self._row("condA")),
-            (3, self._row("condB")),
-            (4, self._row("condA")),
-        ]
-        groups = self.checker._group_row_data_by_conditional_name(row_data)
-        assert list(groups.keys()) == ["condA", "condB"]
-        assert groups["condA"] == [(2, self._row("condA")), (4, self._row("condA"))]
-        assert groups["condB"] == [(3, self._row("condB"))]
-
-
 class TestValidateConditionalsParenthesesBalance:
     """
     Unit tests for _validate_conditionals_parentheses_balance.
@@ -403,7 +405,7 @@ class TestValidateConditionalsParenthesesBalance:
     "conditional_name" and "parentheses" (other keys are ignored for this check).
     """
 
-    checker = CheckExcelIntegrity()
+    checker = Conditionals()
 
     def _row(self, conditional_name: str, parentheses: str | None) -> dict:
         """Minimal row dict for balance checks."""
@@ -483,7 +485,7 @@ class TestValidateConditionalsFirstRowNoLogicalOperator:
     must have empty logical_operator (no "||" or "&&"); subsequent rows may have one.
     """
 
-    checker = CheckExcelIntegrity()
+    checker = Conditionals()
 
     def _row(self, conditional_name: str, logical_operator: str | None) -> dict:
         """Minimal row dict for first-row logical_operator checks."""
@@ -569,17 +571,17 @@ class TestEmptyToNone:
         """
         Empty string should be converted to None.
         """
-        assert CheckExcelIntegrity._empty_to_none("") is None
+        assert Conditionals._empty_to_none("") is None
 
     def test_none_stays_none(self):
         """
         None should remain None.
         """
-        assert CheckExcelIntegrity._empty_to_none(None) is None
+        assert Conditionals._empty_to_none(None) is None
 
     def test_non_empty_string_unchanged(self):
         """
         Non-empty strings should be returned unchanged.
         """
-        assert CheckExcelIntegrity._empty_to_none("foo") == "foo"
-        assert CheckExcelIntegrity._empty_to_none(" ") == " "
+        assert Conditionals._empty_to_none("foo") == "foo"
+        assert Conditionals._empty_to_none(" ") == " "
