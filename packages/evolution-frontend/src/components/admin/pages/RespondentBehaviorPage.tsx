@@ -7,6 +7,7 @@
 import React from 'react';
 
 import { RespondentBehaviorCharts } from '../monitoring/RespondentBehaviorCharts';
+import { RespondentBurdensMonitoringCharts } from '../monitoring/RespondentBurdensMonitoringCharts';
 
 const RespondentBehaviorPage: React.FC = () => {
     // FIXME Experimental: This should be part of the monitoring page, not
@@ -18,6 +19,7 @@ const RespondentBehaviorPage: React.FC = () => {
             <div className="survey">
                 <div className="monitoring">
                     <RespondentBehaviorCharts />
+                    <RespondentBurdensMonitoringCharts />
                 </div>
             </div>
         </div>
