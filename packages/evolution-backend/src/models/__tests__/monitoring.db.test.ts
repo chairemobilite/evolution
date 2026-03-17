@@ -6,7 +6,7 @@
  */
 import knex from 'chaire-lib-backend/lib/config/shared/db.config';
 import { v4 as uuidV4 } from 'uuid';
-import { create, truncate } from 'chaire-lib-backend/lib/models/db/default.db.queries';
+import { truncate } from 'chaire-lib-backend/lib/models/db/default.db.queries';
 import {
     getStartedInterviewsCount,
     getCompletedInterviewsCount,
@@ -15,11 +15,29 @@ import {
 } from '../monitoring.db.queries';
 
 const interviewsTable = 'sv_interviews';
+const participantsTable = 'sv_participants';
+const surveysTable = 'sv_surveys';
+
+// `sv_interviews.participant_id` is NOT NULL and there is a UNIQUE(survey_id, participant_id)
+// constraint, so each interview fixture must reference a distinct participant for a given survey.
+const localParticipants = Array.from({ length: 5 }, (_v, i) => ({
+    id: i + 1,
+    email: `test${i + 1}@transition.city`,
+    is_valid: true
+}));
+
+// `sv_interviews.survey_id` is NOT NULL in the schema, so interviews must reference an existing survey.
+const localSurvey = {
+    id: 1,
+    shortname: 'test_survey'
+};
 
 const mockInterviews = [
     {
         id: 1,
         uuid: uuidV4(),
+        survey_id: localSurvey.id,
+        participant_id: localParticipants[0].id,
         is_valid: true,
         is_completed: true,
         response: {
@@ -30,6 +48,8 @@ const mockInterviews = [
     {
         id: 2,
         uuid: uuidV4(),
+        survey_id: localSurvey.id,
+        participant_id: localParticipants[1].id,
         is_valid: true,
         is_completed: true,
         response: {
@@ -40,6 +60,8 @@ const mockInterviews = [
     {
         id: 3,
         uuid: uuidV4(),
+        survey_id: localSurvey.id,
+        participant_id: localParticipants[2].id,
         is_valid: true,
         is_completed: false,
         response: {
@@ -49,6 +71,8 @@ const mockInterviews = [
     {
         id: 4,
         uuid: uuidV4(),
+        survey_id: localSurvey.id,
+        participant_id: localParticipants[3].id,
         is_valid: true,
         is_completed: true,
         response: {
@@ -59,6 +83,8 @@ const mockInterviews = [
     {
         id: 5,
         uuid: uuidV4(),
+        survey_id: localSurvey.id,
+        participant_id: localParticipants[4].id,
         is_valid: true,
         is_completed: false,
         response: {}
@@ -67,14 +93,19 @@ const mockInterviews = [
 
 beforeAll(async () => {
     jest.setTimeout(10000);
+    // Prepare required tables first: interviews depend on participants (NOT NULL participant_id).
     await truncate(knex, interviewsTable);
-    for (const interview of mockInterviews) {
-        await create(knex, interviewsTable, undefined, interview as any);
-    }
+    await truncate(knex, participantsTable);
+    await truncate(knex, surveysTable);
+    await knex(surveysTable).insert(localSurvey);
+    await knex(participantsTable).insert(localParticipants);
+    await knex(interviewsTable).insert(mockInterviews);
 });
 
 afterAll(async () => {
     await truncate(knex, interviewsTable);
+    await truncate(knex, participantsTable);
+    await truncate(knex, surveysTable);
     await knex.destroy();
 });
 
