@@ -55,14 +55,15 @@ export const HorizontalBarMonitoringChart: React.FC<HorizontalBarMonitoringChart
                     response
                         .json()
                         .then((jsonData) => {
-                            // Accepts either { data: Value[] } or just Value[]
-                            if (Array.isArray(jsonData)) {
-                                setData(jsonData);
-                            } else if (Array.isArray(jsonData.data)) {
-                                setData(jsonData.data);
-                            } else {
-                                setErrorKey('admin:monitoring.errors.invalidValueType');
+                            if (jsonData?.status !== 'OK') {
+                                setErrorKey('admin:monitoring.errors.fetchError');
+                                return;
                             }
+                            if (!Array.isArray(jsonData?.result?.distribution)) {
+                                setErrorKey('admin:monitoring.errors.invalidValueType');
+                                return;
+                            }
+                            setData(jsonData.result.distribution);
                         })
                         .catch((err) => {
                             if (err.name !== 'AbortError') {
@@ -101,7 +102,7 @@ export const HorizontalBarMonitoringChart: React.FC<HorizontalBarMonitoringChart
         // Chart dimensions and margins
         const barHeight = 25;
         const marginTop = 90; // More space for both titles
-        const marginRight = 0;
+        const marginRight = 40; // Extra space so rightmost x-axis labels are fully visible
         const marginBottom = 0;
         const marginLeft = 90;
         const width = 540;
@@ -176,7 +177,9 @@ export const HorizontalBarMonitoringChart: React.FC<HorizontalBarMonitoringChart
             .attr('transform', `rotate(-90, 20, ${marginTop + (height - marginTop - marginBottom) / 2})`)
             .text(yAxisTitle);
 
-        // Bars with hover effect (no vertical shift)
+        // Bars with hover effect (no vertical shift). We use D3 event.currentTarget instead of `this`
+        // so that we can keep arrow functions (ESLint prefer-arrow-callback) and still know which bar
+        // was interacted with.
         svg.append('g')
             .attr('fill', '#6486bd')
             .selectAll('rect')
@@ -186,20 +189,23 @@ export const HorizontalBarMonitoringChart: React.FC<HorizontalBarMonitoringChart
             .attr('y', (d) => y(d.label)!)
             .attr('width', (d) => x(d.percentage) - x(0))
             .attr('height', y.bandwidth())
-            .on('mouseenter', function (this: SVGRectElement, event, d) {
-                select(this).classed('bar-hovered', true);
+            .on('mouseenter', (event, d) => {
+                const target = event.currentTarget as SVGRectElement;
+                select(target).classed('bar-hovered', true);
                 setTooltip({
                     x: x(d.percentage) + 10,
                     y: y(d.label)! + y.bandwidth() / 2,
-                    value: `${d.label}: ${d.percentage}%${d.count !== null ? ` (${d.count})` : ''}`
+                    value: `${d.label}: ${d.percentage}%${d.count !== null && d.count !== undefined ? ` (${d.count})` : ''}`
                 });
             })
-            .on('mouseleave', function (this: SVGRectElement) {
-                select(this).classed('bar-hovered', false);
+            .on('mouseleave', (event) => {
+                const target = event.currentTarget as SVGRectElement;
+                select(target).classed('bar-hovered', false);
                 setTooltip(null);
             });
 
-        // Labels inside bars (show percentage, right aligned)
+        // Labels inside bars (show percentage, right aligned). Hovering a label highlights the
+        // corresponding bar and reuses the same tooltip formatting as the bar hover above.
         svg.append('g')
             .attr('fill', 'white')
             .attr('text-anchor', 'end')
@@ -211,21 +217,21 @@ export const HorizontalBarMonitoringChart: React.FC<HorizontalBarMonitoringChart
             .attr('dy', '0.35em')
             .attr('dx', -4)
             .text((d) => `${d.percentage}%`)
-            .on('mouseenter', function (this: SVGTextElement, event, d) {
-                // Find the corresponding bar and set its hover class
-                select(this.parentNode as SVGGElement)
-                    .select('rect')
+            .on('mouseenter', (event, d) => {
+                svg.selectAll<SVGRectElement, Value>('rect')
+                    .filter((d2) => d2.label === d.label)
                     .classed('bar-hovered', true);
                 setTooltip({
                     x: x(d.percentage) + 10,
                     y: y(d.label)! + y.bandwidth() / 2,
-                    value: `${d.label}: ${d.percentage}%${d.count !== null ? ` (${d.count})` : ''}`
+                    value: `${d.label}: ${d.percentage}%${d.count !== null && d.count !== undefined ? ` (${d.count})` : ''}`
                 });
             })
-            .on('mouseleave', function (this: SVGTextElement) {
-                // Find the corresponding bar and remove its hover class
-                select(this.parentNode as SVGGElement)
-                    .select('rect')
+            .on('mouseleave', (event) => {
+                const target = event.currentTarget as SVGTextElement;
+                const label = (target.textContent || '').replace('%', '').trim();
+                svg.selectAll<SVGRectElement, Value>('rect')
+                    .filter((d2) => `${d2.percentage}` === label)
                     .classed('bar-hovered', false);
                 setTooltip(null);
             })
@@ -238,18 +244,21 @@ export const HorizontalBarMonitoringChart: React.FC<HorizontalBarMonitoringChart
                     .attr('text-anchor', 'start')
             );
 
-        // Draw vertical lines up to the end of each bar, at each tick value <= bar value
+        // Draw vertical guide lines inside each bar, one per x-axis tick up to the bar value.
+        // The .each callback receives the current <g> node via the nodes array, so we can avoid
+        // function expressions that rely on `this` and keep TypeScript-friendly arrow functions.
         const xTicks = x.ticks(width / tickDistance);
         svg.append('g')
             .selectAll('g')
             .data(data)
             .join('g')
-            .each(function (this: SVGGElement, d) {
+            .each((d, i, nodes) => {
+                const group = select(nodes[i] as SVGGElement);
                 const barY = y(d.label)!;
                 const barHeight = y.bandwidth();
                 xTicks.forEach((tick) => {
                     if (tick > d.percentage) return;
-                    select(this)
+                    group
                         .append('line')
                         .attr('x1', x(tick))
                         .attr('x2', x(tick))

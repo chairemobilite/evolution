@@ -46,7 +46,11 @@ const StartedAndCompletedInterviewsByDay: React.FC = () => {
                     response
                         .json()
                         .then((jsonData) => {
-                            setData(jsonData);
+                            if (jsonData?.status !== 'OK' || jsonData?.result === undefined) {
+                                console.log('Error fetching data.', jsonData);
+                                return;
+                            }
+                            setData(jsonData.result);
                         })
                         .catch((err) => {
                             console.log('Error converting data to json.', err);

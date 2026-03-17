@@ -8,7 +8,6 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import Loader from 'react-spinners/HashLoader';
 import DropoutAnalysis from './DropoutAnalysis';
-import * as Status from 'chaire-lib-common/lib/utils/Status';
 import { RespondentBehaviorMetrics } from 'evolution-common/lib/services/paradata/types';
 
 // Main respondent behavior page: fetches metrics once and renders multiple collapsible sections
@@ -37,13 +36,13 @@ export const RespondentBehaviorCharts: React.FC = () => {
                 }
                 throw new Error(`HTTP ${response.status}`);
             })
-            .then((jsonData: Status.Status<RespondentBehaviorMetrics>) => {
-                if (Status.isStatusOk(jsonData)) {
-                    setMetrics(Status.unwrap(jsonData));
-                } else {
-                    setErrorKey('admin:monitoring.errors.invalidResponse');
-                    console.error(t('admin:monitoring.errors.invalidResponse'), jsonData);
+            .then((jsonData: { status: 'OK' | 'ERROR'; result?: RespondentBehaviorMetrics; error?: unknown }) => {
+                if (jsonData?.status === 'OK' && jsonData?.result) {
+                    setMetrics(jsonData.result);
+                    return;
                 }
+                setErrorKey('admin:monitoring.errors.invalidResponse');
+                console.error(t('admin:monitoring.errors.invalidResponse'), jsonData);
             })
             .catch((err) => {
                 if (err.name === 'AbortError') return;

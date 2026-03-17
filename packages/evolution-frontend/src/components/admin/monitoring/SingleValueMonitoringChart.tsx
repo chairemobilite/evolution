@@ -44,8 +44,14 @@ export const SingleValueMonitoringChart: React.FC<SingleValueMonitoringChartProp
                     response
                         .json()
                         .then((jsonData) => {
+                            if (jsonData?.status !== 'OK') {
+                                setErrorKey('admin:monitoring.errors.fetchError');
+                                console.error(t('admin:monitoring.errors.fetchError'), jsonData);
+                                return;
+                            }
+
                             // Extract the value using the provided valueName
-                            const extractedValue = jsonData[valueName];
+                            const extractedValue = jsonData?.result?.[valueName];
                             if (typeof extractedValue === 'number') {
                                 setValue(extractedValue);
                             } else {

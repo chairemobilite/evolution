@@ -20,15 +20,28 @@ import {
 
 addExportRoutes();
 
+// Helper function to respond with a OK status
+const respondOk = <T>({ res, result }: { res: Response; result: T }) => {
+    const ok = Status.createOk(result);
+    return res.status(200).json({ status: 'OK', result: ok.result });
+};
+
+// Helper function to respond with an error status
+const respondError = ({ res, message, httpStatus = 500 }: { res: Response; message: string; httpStatus?: number }) => {
+    const err = Status.createError(message);
+    // Expose the human-readable message under the `error` field
+    return res.status(httpStatus).json({ status: 'ERROR', error: String(err.error) });
+};
+
 router.all('/data/widgets/:widget/', (req: Request, res: Response, _next) => {
     const widgetName = req.params.widget;
 
     if (!widgetName) {
-        return res.status(200).json({ status: 'provide a valid widget name' });
+        return respondError({ res, message: 'Provide a valid widget name', httpStatus: 400 });
     }
     switch (widgetName) {
     case 'started-and-completed-interviews-by-day':
-        getStartedAndCompletedInterviewsByDay(res);
+        handleStartedAndCompletedInterviewsByDay(res);
         break;
     case 'started-interviews-count':
         // Get the count of started interviews
@@ -50,15 +63,13 @@ router.all('/data/widgets/:widget/', (req: Request, res: Response, _next) => {
         handleSurveyDifficultyDistribution(res);
         break;
     default:
-        return res
-            .status(404)
-            .json({ status: 'ERROR', message: `Admin monitoring widget '${widgetName}' not found` });
+        return respondError({ res, message: `Admin monitoring widget '${widgetName}' not found`, httpStatus: 404 });
     }
 });
 
 // TODO: add CSV export for this widget.
 // TODO: Move this logic to monitoring.db.queries.ts
-const getStartedAndCompletedInterviewsByDay = async (res: Response) => {
+const handleStartedAndCompletedInterviewsByDay = async (res: Response) => {
     // Get the sum directly from the DB, using the started_at date for grouping
     const subquery = knex('sv_interviews').select(
         'id',
@@ -73,9 +84,10 @@ const getStartedAndCompletedInterviewsByDay = async (res: Response) => {
         .groupBy('started_at_date')
         .orderBy('started_at_date');
     if (responses.length <= 0) {
-        return res
-            .status(200)
-            .json({ status: 'OK', dates: [], started: [], completed: [], startedCount: 0, completedCount: 0 });
+        return respondOk({
+            res,
+            result: { dates: [], started: [], completed: [], startedCount: 0, completedCount: 0 }
+        });
     }
     // Create an array of dates with all dates in range
     const dates: string[] = [];
@@ -94,17 +106,17 @@ const getStartedAndCompletedInterviewsByDay = async (res: Response) => {
     );
     const startedCount = started.reduce((cnt, startedCnt) => cnt + startedCnt, 0);
     const completedCount = completed.reduce((cnt, startedCnt) => cnt + startedCnt, 0);
-    return res.status(200).json({ status: 'OK', dates, started, completed, startedCount, completedCount });
+    return respondOk({ res, result: { dates, started, completed, startedCount, completedCount } });
 };
 
 // Get the count of started interviews
 const handleStartedInterviewsCount = async (res: Response) => {
     try {
         const startedInterviewsCount = await getStartedInterviewsCount();
-        return res.status(200).json({ status: 'OK', startedInterviewsCount });
+        return respondOk({ res, result: { startedInterviewsCount } });
     } catch (error) {
         console.error('Error fetching started interviews count:', error);
-        return res.status(500).json({ status: 'ERROR', message: 'Failed to fetch started interviews count' });
+        return respondError({ res, message: 'Failed to fetch started interviews count', httpStatus: 500 });
     }
 };
 
@@ -112,10 +124,10 @@ const handleStartedInterviewsCount = async (res: Response) => {
 const handleCompletedInterviewsCount = async (res: Response) => {
     try {
         const completedInterviewsCount = await getCompletedInterviewsCount();
-        return res.status(200).json({ status: 'OK', completedInterviewsCount });
+        return respondOk({ res, result: { completedInterviewsCount } });
     } catch (error) {
         console.error('Error fetching completed interviews count:', error);
-        return res.status(500).json({ status: 'ERROR', message: 'Failed to fetch completed interviews count' });
+        return respondError({ res, message: 'Failed to fetch completed interviews count', httpStatus: 500 });
     }
 };
 
@@ -123,21 +135,21 @@ const handleCompletedInterviewsCount = async (res: Response) => {
 const handleInterviewsCompletionRate = async (res: Response) => {
     try {
         const interviewsCompletionRate = await getInterviewsCompletionRate();
-        return res.status(200).json({ status: 'OK', interviewsCompletionRate });
+        return respondOk({ res, result: { interviewsCompletionRate } });
     } catch (error) {
         console.error('Error fetching interviews completion rate:', error);
-        return res.status(500).json({ status: 'ERROR', message: 'Failed to fetch interviews completion rate' });
+        return respondError({ res, message: 'Failed to fetch interviews completion rate', httpStatus: 500 });
     }
 };
 
 // Get respondent behavior metrics
-const handleRespondentBehaviorMetrics = async (res) => {
+const handleRespondentBehaviorMetrics = async (res: Response) => {
     try {
         const metrics = await RespondentBehaviorService.getRespondentBehaviorMetrics();
-        return res.status(200).json(Status.createOk(metrics));
+        return respondOk({ res, result: metrics });
     } catch (error) {
         console.error('Error fetching respondent behavior metrics:', error);
-        return res.status(500).json(Status.createError('Failed to fetch respondent behavior metrics'));
+        return respondError({ res, message: 'Failed to fetch respondent behavior metrics', httpStatus: 500 });
     }
 };
 
@@ -145,10 +157,10 @@ const handleRespondentBehaviorMetrics = async (res) => {
 const handleSurveyDifficultyDistribution = async (res: Response) => {
     try {
         const distribution = await getSurveyDifficultyDistribution();
-        return res.status(200).json({ status: 'OK', data: distribution });
+        return respondOk({ res, result: { distribution } });
     } catch (error) {
         console.error('Error fetching survey difficulty distribution:', error);
-        return res.status(500).json({ status: 'ERROR', message: 'Failed to fetch survey difficulty distribution' });
+        return respondError({ res, message: 'Failed to fetch survey difficulty distribution', httpStatus: 500 });
     }
 };
 

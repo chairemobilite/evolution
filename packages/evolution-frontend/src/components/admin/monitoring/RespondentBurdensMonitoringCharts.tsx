@@ -6,7 +6,6 @@
  */
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-// import { SingleValueMonitoringChart } from './SingleValueMonitoringChart';
 import { HorizontalBarMonitoringChart } from './HorizontalBarMonitoringChart';
 
 // Respondent burdens section containing various charts and indicators about survey respondent burdens

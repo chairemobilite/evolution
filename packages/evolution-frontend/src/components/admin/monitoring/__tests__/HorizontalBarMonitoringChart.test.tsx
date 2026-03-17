@@ -105,7 +105,7 @@ describe('HorizontalBarMonitoringChart', () => {
     it('shows error when invalid data is returned', async () => {
         mockFetch.mockResolvedValueOnce({
             status: 200,
-            json: async () => ({ data: { not: 'an array' } })
+            json: async () => ({ status: 'OK', result: { not: 'an array' } })
         } as Response);
 
         render(<HorizontalBarMonitoringChart {...defaultProps} />);
@@ -126,15 +126,30 @@ describe('HorizontalBarMonitoringChart', () => {
         });
     });
 
+    it('POSTs with expected payload and credentials', async () => {
+        (fetch as jest.Mock).mockResolvedValueOnce({
+            status: 200,
+            json: async () => ({ status: 'OK', result: [] })
+        } as Response);
+        render(<HorizontalBarMonitoringChart {...defaultProps} />);
+        await waitFor(() => expect(fetch).toHaveBeenCalled());
+        const [url, init] = (fetch as jest.Mock).mock.calls[0];
+        expect(url).toBe(defaultProps.apiUrl);
+        expect(init.method).toBe('POST');
+        expect(init.credentials).toBe('include');
+        expect(JSON.parse(init.body as string)).toEqual({ refreshCache: false });
+    });
+
     it('renders nothing if data is empty', async () => {
         mockFetch.mockResolvedValueOnce({
             status: 200,
-            json: async () => ({ data: [] })
+            json: async () => ({ status: 'OK', result: [] })
         } as Response);
 
-        render(<HorizontalBarMonitoringChart {...defaultProps} />);
+        const { container } = render(<HorizontalBarMonitoringChart {...defaultProps} />);
         await waitFor(() => {
             // Chart SVG should not be rendered
+            expect(container.querySelector('svg')).toBeNull();
             expect(screen.queryByText('A')).not.toBeInTheDocument();
             expect(screen.queryByText('B')).not.toBeInTheDocument();
         });
