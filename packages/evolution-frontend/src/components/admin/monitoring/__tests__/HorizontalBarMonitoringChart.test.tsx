@@ -105,7 +105,9 @@ describe('HorizontalBarMonitoringChart', () => {
     it('shows error when invalid data is returned', async () => {
         mockFetch.mockResolvedValueOnce({
             status: 200,
-            json: async () => ({ status: 'OK', result: { not: 'an array' } })
+            // `Status.isStatusOk` expects `status: 'ok'` (lowercase)
+            // and the component expects `result.distribution` to be an array.
+            json: async () => ({ status: 'ok', result: { not: 'an array' } })
         } as Response);
 
         render(<HorizontalBarMonitoringChart {...defaultProps} />);
@@ -129,7 +131,7 @@ describe('HorizontalBarMonitoringChart', () => {
     it('POSTs with expected payload and credentials', async () => {
         (fetch as jest.Mock).mockResolvedValueOnce({
             status: 200,
-            json: async () => ({ status: 'OK', result: [] })
+            json: async () => ({ status: 'ok', result: { distribution: [] } })
         } as Response);
         render(<HorizontalBarMonitoringChart {...defaultProps} />);
         await waitFor(() => expect(fetch).toHaveBeenCalled());
@@ -143,7 +145,7 @@ describe('HorizontalBarMonitoringChart', () => {
     it('renders nothing if data is empty', async () => {
         mockFetch.mockResolvedValueOnce({
             status: 200,
-            json: async () => ({ status: 'OK', result: [] })
+            json: async () => ({ status: 'ok', result: { distribution: [] } })
         } as Response);
 
         const { container } = render(<HorizontalBarMonitoringChart {...defaultProps} />);

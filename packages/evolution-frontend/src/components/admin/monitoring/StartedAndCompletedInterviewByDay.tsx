@@ -10,6 +10,7 @@ import Highcharts from 'highcharts';
 import HighchartsReact from 'highcharts-react-official';
 import _max from 'lodash/max';
 import Loader from 'react-spinners/HashLoader';
+import * as Status from 'chaire-lib-common/lib/utils/Status';
 
 type StartedAndCompletedInterviewsByDayData = {
     started: number[];
@@ -46,11 +47,12 @@ const StartedAndCompletedInterviewsByDay: React.FC = () => {
                     response
                         .json()
                         .then((jsonData) => {
-                            if (jsonData?.status !== 'OK' || jsonData?.result === undefined) {
+                            if (!Status.isStatusOk(jsonData) || jsonData?.result === undefined) {
                                 console.log('Error fetching data.', jsonData);
                                 return;
                             }
-                            setData(jsonData.result);
+                            const result = Status.unwrap(jsonData) as StartedAndCompletedInterviewsByDayData;
+                            setData(result);
                         })
                         .catch((err) => {
                             console.log('Error converting data to json.', err);

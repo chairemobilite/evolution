@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, Polytechnique Montreal and contributors
+ * Copyright 2026, Polytechnique Montreal and contributors
  *
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
@@ -42,7 +42,7 @@ const mockInterviews = [
         is_completed: true,
         response: {
             _completedAt: '2024-01-01T10:00:00Z',
-            end: { difficultyOfTheSurvey: 10 }
+            perceivedBurden: { difficultyRange: 10 }
         }
     },
     {
@@ -54,7 +54,7 @@ const mockInterviews = [
         is_completed: true,
         response: {
             _completedAt: '2024-01-02T10:00:00Z',
-            end: { difficultyOfTheSurvey: 50 }
+            perceivedBurden: { difficultyRange: 50 }
         }
     },
     {
@@ -65,7 +65,7 @@ const mockInterviews = [
         is_valid: true,
         is_completed: false,
         response: {
-            end: { difficultyOfTheSurvey: 90 }
+            perceivedBurden: { difficultyRange: 90 }
         }
     },
     {
@@ -77,7 +77,7 @@ const mockInterviews = [
         is_completed: true,
         response: {
             _completedAt: '2024-01-03T10:00:00Z',
-            end: { difficultyOfTheSurvey: null }
+            perceivedBurden: { difficultyRange: null }
         }
     },
     {
@@ -143,7 +143,7 @@ describe('monitoring.db.queries with mock data', () => {
 
         // Check that bins add up to number of interviews with difficulty value
         const withDifficulty = mockInterviews.filter(
-            (i) => i.response.end && typeof i.response.end.difficultyOfTheSurvey === 'number'
+            (i) => typeof i.response.perceivedBurden?.difficultyRange === 'number'
         ).length;
         const totalCount = result.reduce((sum, bin) => sum + bin.count, 0);
         expect(totalCount).toBe(withDifficulty);

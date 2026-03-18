@@ -20,18 +20,25 @@ import {
 
 addExportRoutes();
 
-// Helper function to respond with a OK status
-const respondOk = <T>({ res, result }: { res: Response; result: T }) => {
-    const ok = Status.createOk(result);
-    return res.status(200).json({ status: 'OK', result: ok.result });
-};
+// Helper function to respond with an OK status
+function respondOk<T>({ res, result }: { res: Response; result: T }): Response {
+    const payload: Status.StatusResult<T> = Status.createOk(result);
+    return res.status(200).json(payload);
+}
 
 // Helper function to respond with an error status
-const respondError = ({ res, message, httpStatus = 500 }: { res: Response; message: string; httpStatus?: number }) => {
-    const err = Status.createError(message);
-    // Expose the human-readable message under the `error` field
-    return res.status(httpStatus).json({ status: 'ERROR', error: String(err.error) });
-};
+function respondError({
+    res,
+    message,
+    httpStatus = 500
+}: {
+    res: Response;
+    message: string;
+    httpStatus?: number;
+}): Response {
+    const payload: Status.StatusError = Status.createError(message);
+    return res.status(httpStatus).json(payload);
+}
 
 router.all('/data/widgets/:widget/', (req: Request, res: Response, _next) => {
     const widgetName = req.params.widget;
@@ -110,7 +117,7 @@ const handleStartedAndCompletedInterviewsByDay = async (res: Response) => {
 };
 
 // Get the count of started interviews
-const handleStartedInterviewsCount = async (res: Response) => {
+const handleStartedInterviewsCount = async (res: Response): Promise<Response> => {
     try {
         const startedInterviewsCount = await getStartedInterviewsCount();
         return respondOk({ res, result: { startedInterviewsCount } });
@@ -121,7 +128,7 @@ const handleStartedInterviewsCount = async (res: Response) => {
 };
 
 // Get the count of completed interviews
-const handleCompletedInterviewsCount = async (res: Response) => {
+const handleCompletedInterviewsCount = async (res: Response): Promise<Response> => {
     try {
         const completedInterviewsCount = await getCompletedInterviewsCount();
         return respondOk({ res, result: { completedInterviewsCount } });
@@ -132,7 +139,7 @@ const handleCompletedInterviewsCount = async (res: Response) => {
 };
 
 // Get the interviews completion rate (completed / started, as a percentage, rounded to 1 decimal)
-const handleInterviewsCompletionRate = async (res: Response) => {
+const handleInterviewsCompletionRate = async (res: Response): Promise<Response> => {
     try {
         const interviewsCompletionRate = await getInterviewsCompletionRate();
         return respondOk({ res, result: { interviewsCompletionRate } });
@@ -143,7 +150,7 @@ const handleInterviewsCompletionRate = async (res: Response) => {
 };
 
 // Get respondent behavior metrics
-const handleRespondentBehaviorMetrics = async (res: Response) => {
+const handleRespondentBehaviorMetrics = async (res: Response): Promise<Response> => {
     try {
         const metrics = await RespondentBehaviorService.getRespondentBehaviorMetrics();
         return respondOk({ res, result: metrics });
@@ -154,7 +161,7 @@ const handleRespondentBehaviorMetrics = async (res: Response) => {
 };
 
 // Get the survey difficulty distribution from respondent feedback
-const handleSurveyDifficultyDistribution = async (res: Response) => {
+const handleSurveyDifficultyDistribution = async (res: Response): Promise<Response> => {
     try {
         const distribution = await getSurveyDifficultyDistribution();
         return respondOk({ res, result: { distribution } });

@@ -9,11 +9,17 @@ import React, { useEffect, useRef, useState } from 'react';
 import { create, scaleLinear, scaleBand, axisTop, axisLeft, max, select } from 'd3';
 import Loader from 'react-spinners/HashLoader';
 import { useTranslation } from 'react-i18next';
+import * as Status from 'chaire-lib-common/lib/utils/Status';
 
 export type Value = {
     label: string; // Name/category for the Y axis
     percentage: number; // Always a percentage (0-100)
     count?: number; // Optional: raw count for tooltip
+};
+
+/** Payload of `result` when the monitoring widget returns a horizontal bar distribution (see admin.routes). */
+export type HorizontalBarDistributionApiResult = {
+    distribution: Value[];
 };
 
 // New props interface
@@ -22,6 +28,8 @@ export type HorizontalBarMonitoringChartProps = {
     chartTitle: string;
     xAxisTitle: string;
     yAxisTitle: string;
+    titleFontSize?: string; // Chart title font size in px (default: '22px')
+    axisTitleFontSize?: string; // Axis titles font size in px (default: '20px')
 };
 
 // Component to display a horizontal bar chart using D3.js
@@ -29,7 +37,9 @@ export const HorizontalBarMonitoringChart: React.FC<HorizontalBarMonitoringChart
     apiUrl,
     chartTitle,
     xAxisTitle,
-    yAxisTitle
+    yAxisTitle,
+    titleFontSize = '22px',
+    axisTitleFontSize = '20px'
 }) => {
     const chartRef = useRef<HTMLDivElement>(null);
     const [tooltip, setTooltip] = useState<{ x: number; y: number; value: string } | null>(null);
@@ -55,15 +65,17 @@ export const HorizontalBarMonitoringChart: React.FC<HorizontalBarMonitoringChart
                     response
                         .json()
                         .then((jsonData) => {
-                            if (jsonData?.status !== 'OK') {
+                            const status = jsonData as Status.Status<HorizontalBarDistributionApiResult>;
+                            if (!Status.isStatusOk(status)) {
                                 setErrorKey('admin:monitoring.errors.fetchError');
                                 return;
                             }
-                            if (!Array.isArray(jsonData?.result?.distribution)) {
+                            const { distribution } = Status.unwrap(status);
+                            if (!Array.isArray(distribution)) {
                                 setErrorKey('admin:monitoring.errors.invalidValueType');
                                 return;
                             }
-                            setData(jsonData.result.distribution);
+                            setData(distribution);
                         })
                         .catch((err) => {
                             if (err.name !== 'AbortError') {
@@ -130,7 +142,7 @@ export const HorizontalBarMonitoringChart: React.FC<HorizontalBarMonitoringChart
             .attr('x', 0)
             .attr('y', 20)
             .attr('text-anchor', 'start')
-            .attr('font-size', 22)
+            .attr('font-size', titleFontSize)
             .attr('font-weight', 'bold')
             .attr('fill', '#222')
             .text(chartTitle);
@@ -140,7 +152,7 @@ export const HorizontalBarMonitoringChart: React.FC<HorizontalBarMonitoringChart
             .attr('x', marginLeft + (width - marginLeft - marginRight) / 2)
             .attr('y', 60)
             .attr('text-anchor', 'middle')
-            .attr('font-size', 20)
+            .attr('font-size', axisTitleFontSize)
             .attr('font-weight', 'bold')
             .attr('fill', '#444')
             .text(xAxisTitle);
@@ -171,7 +183,7 @@ export const HorizontalBarMonitoringChart: React.FC<HorizontalBarMonitoringChart
             .attr('x', 20)
             .attr('y', marginTop + (height - marginTop - marginBottom) / 2)
             .attr('text-anchor', 'middle')
-            .attr('font-size', 20)
+            .attr('font-size', axisTitleFontSize)
             .attr('fill', '#444')
             .attr('font-weight', 'bold')
             .attr('transform', `rotate(-90, 20, ${marginTop + (height - marginTop - marginBottom) / 2})`)
@@ -274,7 +286,7 @@ export const HorizontalBarMonitoringChart: React.FC<HorizontalBarMonitoringChart
             chartRef.current.innerHTML = '';
             chartRef.current.appendChild(svg.node()!);
         }
-    }, [chartTitle, xAxisTitle, yAxisTitle, data]);
+    }, [chartTitle, xAxisTitle, yAxisTitle, titleFontSize, axisTitleFontSize, data]);
 
     // Render
     return (

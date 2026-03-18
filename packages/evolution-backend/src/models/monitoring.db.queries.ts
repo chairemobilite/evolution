@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, Polytechnique Montreal and contributors
+ * Copyright 2026, Polytechnique Montreal and contributors
  *
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
@@ -59,11 +59,11 @@ export const getSurveyDifficultyDistribution = async (): Promise<
     Array<{ label: string; percentage: number; count: number }>
 > => {
     try {
-        // Query interviews with a non-null 'response.end.difficultyOfTheSurvey'
+        // Query interviews with a non-null 'response.perceivedBurden.difficultyRange'
         // Important: use ->> (text extraction) so JSON `null` is treated as SQL NULL and excluded.
         const rows = await knex(interviewsTable)
-            .select(knex.raw('CAST(response->\'end\'->>\'difficultyOfTheSurvey\' AS FLOAT) as difficulty'))
-            .whereRaw('response->\'end\'->>\'difficultyOfTheSurvey\' IS NOT NULL');
+            .select(knex.raw('CAST(response->\'perceivedBurden\'->>\'difficultyRange\' AS FLOAT) as difficulty'))
+            .whereRaw('response->\'perceivedBurden\'->>\'difficultyRange\' IS NOT NULL');
 
         // Bin the values into 10 bins: 0-10, 11-20, 21-30, ..., 91-100
         const bins = Array.from({ length: 10 }, (_, i) => {
