@@ -1,0 +1,14 @@
+lib/
+node_modules/
+references/
+runtime/
+assets/images
+assets/documents
+locales/
+**/__tests__
+jest.config.js
+playwright-example.config.ts
+playwright.config.ts
+webpack.config.js
+webpack.admin.config.js
+config.js

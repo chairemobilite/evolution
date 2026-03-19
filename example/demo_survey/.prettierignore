@@ -1,0 +1,8 @@
+/lib/
+/node_modules/
+/references/
+/runtime/
+/assets/images/
+/assets/documents/
+**/__tests__
+jest.config.js

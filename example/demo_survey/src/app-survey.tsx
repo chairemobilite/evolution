@@ -11,7 +11,7 @@ setApplicationConfiguration<EvolutionApplicationConfiguration>({
     widgets: widgetsConfig as any,
     projectHelpers: projectHelpers as any,
     allowedUrlFields: ['source', 'household.carNumber', 'accessCode'],
-    templateMapping: { ...appConfig.templateMapping, 'visitedPlaces': VisitedPlaceSection }
+    templateMapping: { ...appConfig.templateMapping, visitedPlaces: VisitedPlaceSection }
 });
 
 runClientApp();

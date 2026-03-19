@@ -9,7 +9,7 @@ const context = {
     objectDetector: new SurveyObjectDetector(),
     title: '',
     widgetTestCounters: {}
-}
+};
 
 // Configure the tests to run in serial mode (one after the other)
 test.describe.configure({ mode: 'serial' });
@@ -24,7 +24,12 @@ surveyTestHelpers.startAndLoginAnonymously({ context, title: 'Démo', hasUser: f
 
 // Verify that the buttons have the expected class/colors and are disabled if we haven't been to the corresponding page yet.
 testHelpers.verifyNavBarButtonStatus({ context, buttonText: 'Home', buttonStatus: 'active', isDisabled: false });
-testHelpers.verifyNavBarButtonStatus({ context, buttonText: 'Your household', buttonStatus: 'inactive', isDisabled: true });
+testHelpers.verifyNavBarButtonStatus({
+    context,
+    buttonText: 'Your household',
+    buttonStatus: 'inactive',
+    isDisabled: true
+});
 testHelpers.verifyNavBarButtonStatus({ context, buttonText: 'Trips', buttonStatus: 'inactive', isDisabled: true });
 testHelpers.verifyNavBarButtonStatus({ context, buttonText: 'End', buttonStatus: 'inactive', isDisabled: true });
 
@@ -32,7 +37,12 @@ testHelpers.verifyNavBarButtonStatus({ context, buttonText: 'End', buttonStatus:
 onePersonTestHelpers.completeHomePage(context);
 
 testHelpers.verifyNavBarButtonStatus({ context, buttonText: 'Home', buttonStatus: 'completed', isDisabled: false });
-testHelpers.verifyNavBarButtonStatus({ context, buttonText: 'Your household', buttonStatus: 'active', isDisabled: false });
+testHelpers.verifyNavBarButtonStatus({
+    context,
+    buttonText: 'Your household',
+    buttonStatus: 'active',
+    isDisabled: false
+});
 testHelpers.verifyNavBarButtonStatus({ context, buttonText: 'Trips', buttonStatus: 'inactive', isDisabled: true });
 testHelpers.verifyNavBarButtonStatus({ context, buttonText: 'End', buttonStatus: 'inactive', isDisabled: true });
 
@@ -41,8 +51,18 @@ testHelpers.inputStringTest({ context, path: 'household.persons.${personId[0]}.a
 
 testHelpers.changePageFromNavBar({ context, buttonText: 'Home', nextPageUrl: '/survey/home' });
 
-testHelpers.verifyNavBarButtonStatus({ context, buttonText: 'Home', buttonStatus: 'activeAndCompleted', isDisabled: false });
-testHelpers.verifyNavBarButtonStatus({ context, buttonText: 'Your household', buttonStatus: 'inactive', isDisabled: false });
+testHelpers.verifyNavBarButtonStatus({
+    context,
+    buttonText: 'Home',
+    buttonStatus: 'activeAndCompleted',
+    isDisabled: false
+});
+testHelpers.verifyNavBarButtonStatus({
+    context,
+    buttonText: 'Your household',
+    buttonStatus: 'inactive',
+    isDisabled: false
+});
 testHelpers.verifyNavBarButtonStatus({ context, buttonText: 'Trips', buttonStatus: 'inactive', isDisabled: true });
 testHelpers.verifyNavBarButtonStatus({ context, buttonText: 'End', buttonStatus: 'inactive', isDisabled: true });
 
@@ -55,7 +75,12 @@ onePersonTestHelpers.completeHouseholdPage(context);
 onePersonTestHelpers.completeProfilePage(context);
 
 testHelpers.verifyNavBarButtonStatus({ context, buttonText: 'Home', buttonStatus: 'completed', isDisabled: false });
-testHelpers.verifyNavBarButtonStatus({ context, buttonText: 'Your household', buttonStatus: 'completed', isDisabled: false });
+testHelpers.verifyNavBarButtonStatus({
+    context,
+    buttonText: 'Your household',
+    buttonStatus: 'completed',
+    isDisabled: false
+});
 testHelpers.verifyNavBarButtonStatus({ context, buttonText: 'Trips', buttonStatus: 'completed', isDisabled: false });
 testHelpers.verifyNavBarButtonStatus({ context, buttonText: 'End', buttonStatus: 'active', isDisabled: false });
 
@@ -68,6 +93,11 @@ testHelpers.changePageFromNavBar({ context, buttonText: 'End', nextPageUrl: '/su
 
 onePersonTestHelpers.completeEndPage(context);
 
-testHelpers.verifyNavBarButtonStatus({ context, buttonText: 'End', buttonStatus: 'activeAndCompleted', isDisabled: false });
+testHelpers.verifyNavBarButtonStatus({
+    context,
+    buttonText: 'End',
+    buttonStatus: 'activeAndCompleted',
+    isDisabled: false
+});
 
 surveyTestHelpers.logout({ context });

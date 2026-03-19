@@ -9,7 +9,7 @@ const context = {
     objectDetector: new SurveyObjectDetector(),
     title: '',
     widgetTestCounters: {}
-}
+};
 
 // Configure the tests to run in serial mode (one after the other)
 test.describe.configure({ mode: 'serial' });

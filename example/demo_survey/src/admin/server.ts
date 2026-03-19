@@ -17,11 +17,10 @@ const configureServer = () => {
         serverValidations: undefined,
         roleDefinitions: undefined
     });
-
-}
+};
 
 setupServer(configureServer);
 
 // FIXME Project directory is for runtime, locales should be in the config file (See #420)
-registerTranslationDir(path.join(__dirname, `../../locales/`));
+registerTranslationDir(path.join(__dirname, '../../locales/'));
 addTranslationNamespace('customServer');

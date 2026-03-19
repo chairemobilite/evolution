@@ -15,9 +15,9 @@ const segmentSectionConfigFromFactory = segmentSectionConfigFactory.getSectionCo
 // Add the segments section to the exported configuration
 const segmentConfig: SectionConfig = {
     ...segmentSectionConfigFromFactory,
-    isSectionVisible: function(interview) {
-      const person = odSurveyHelper.getPerson({ interview }) as any;
-      return person && person.didTripsOnTripsDate === 'yes';
+    isSectionVisible: function (interview) {
+        const person = odSurveyHelper.getPerson({ interview }) as any;
+        return person && person.didTripsOnTripsDate === 'yes';
     },
     isSectionCompleted: (interview) => {
         const person = odSurveyHelper.getPerson({ interview });
