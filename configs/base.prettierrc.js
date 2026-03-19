@@ -5,5 +5,6 @@ module.exports = {
     "bracketSpacing": true,
     "trailingComma": "none",
     "printWidth": 120,
+    "singleAttributePerLine": false,
 }
   
