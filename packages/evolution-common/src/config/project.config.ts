@@ -70,6 +70,18 @@ export type EvolutionProjectConfiguration = {
      * */
     drivingLicenseAge: number;
     /**
+     * Age at which a person is considered to be of working age in the survey
+     * area, inclusive of this value. Defaults to 15
+     */
+    workingAge: number;
+    /**
+     * Age until which attending school is mandatory in the survey area,
+     * inclusive of this value. This is used to determine if school related
+     * question should be shown by default for household members below that age.
+     * Defaults to 15.
+     */
+    schoolMandatoryAge: number;
+    /**
      * Whether to show the support form on all pages of the participant app. If
      * set to `true`, a button will be displayed in the bottom right corner of
      * the page, which opens a form to send a support request.  Defaults to
@@ -200,6 +212,8 @@ const defaultConfig = {
     interviewableAge: 5,
     adultAge: 18,
     drivingLicenseAge: 16,
+    workingAge: 15,
+    schoolMandatoryAge: 15,
     surveySupportForm: false,
     mapDefaultCenter: {
         lat: 45.5,
