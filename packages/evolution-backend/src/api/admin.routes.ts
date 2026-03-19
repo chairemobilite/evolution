@@ -5,46 +5,78 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import moment from 'moment';
+import { Response, Request } from 'express';
 import knex from 'chaire-lib-backend/lib/config/shared/db.config';
-
 import router from 'chaire-lib-backend/lib/api/admin.routes';
-// Add export routes from admin/exports.routes
 import { addExportRoutes } from './admin/exports.routes';
 import { RespondentBehaviorService } from '../services/paradata/respondentBehavior';
 import * as Status from 'chaire-lib-common/lib/utils/Status';
+import {
+    getStartedInterviewsCount,
+    getCompletedInterviewsCount,
+    getInterviewsCompletionRate,
+    getSurveyDifficultyDistribution
+} from '../models/monitoring.db.queries';
 
 addExportRoutes();
 
-router.all('/data/widgets/:widget/', (req, res, _next) => {
+// Helper function to respond with an OK status
+function respondOk<T>({ res, result }: { res: Response; result: T }): Response {
+    const payload: Status.StatusResult<T> = Status.createOk(result);
+    return res.status(200).json(payload);
+}
+
+// Helper function to respond with an error status
+function respondError({
+    res,
+    message,
+    httpStatus = 500
+}: {
+    res: Response;
+    message: string;
+    httpStatus?: number;
+}): Response {
+    const payload: Status.StatusError = Status.createError(message);
+    return res.status(httpStatus).json(payload);
+}
+
+router.all('/data/widgets/:widget/', (req: Request, res: Response, _next) => {
     const widgetName = req.params.widget;
 
     if (!widgetName) {
-        return res.status(200).json({ status: 'provide a valid widget name' });
+        return respondError({ res, message: 'Provide a valid widget name', httpStatus: 400 });
     }
     switch (widgetName) {
     case 'started-and-completed-interviews-by-day':
-        getStartedAndCompletedInterviewsByDay(res);
+        handleStartedAndCompletedInterviewsByDay(res);
         break;
     case 'started-interviews-count':
         // Get the count of started interviews
-        getStartedInterviewsCount(res);
+        handleStartedInterviewsCount(res);
         break;
     case 'completed-interviews-count':
-        getCompletedInterviewsCount(res);
+        // Get the count of completed interviews
+        handleCompletedInterviewsCount(res);
         break;
     case 'interviews-completion-rate':
-        getInterviewsCompletionRate(res);
+        // Get the count of completed interviews
+        handleInterviewsCompletionRate(res);
         break;
     case 'respondent-behavior-metrics':
-        getRespondentBehaviorMetrics(res);
+        handleRespondentBehaviorMetrics(res);
+        break;
+    case 'survey-difficulty-distribution':
+        // Get the survey difficulty distribution from respondent feedback
+        handleSurveyDifficultyDistribution(res);
         break;
     default:
-        // TODO: new widgets will be added
+        return respondError({ res, message: `Admin monitoring widget '${widgetName}' not found`, httpStatus: 404 });
     }
 });
 
-// TODO: add CSV export for this widget:
-const getStartedAndCompletedInterviewsByDay = async (res) => {
+// TODO: add CSV export for this widget.
+// TODO: Move this logic to monitoring.db.queries.ts
+const handleStartedAndCompletedInterviewsByDay = async (res: Response) => {
     // Get the sum directly from the DB, using the started_at date for grouping
     const subquery = knex('sv_interviews').select(
         'id',
@@ -59,11 +91,11 @@ const getStartedAndCompletedInterviewsByDay = async (res) => {
         .groupBy('started_at_date')
         .orderBy('started_at_date');
     if (responses.length <= 0) {
-        return res
-            .status(200)
-            .json({ status: 'OK', dates: [], started: [], completed: [], startedCount: 0, completedCount: 0 });
+        return respondOk({
+            res,
+            result: { dates: [], started: [], completed: [], startedCount: 0, completedCount: 0 }
+        });
     }
-
     // Create an array of dates with all dates in range
     const dates: string[] = [];
     const firstDate = moment(responses[0]['started_at_date']);
@@ -72,82 +104,70 @@ const getStartedAndCompletedInterviewsByDay = async (res) => {
         const dateStr = date.format('YYYY-MM-DD');
         dates.push(dateStr);
     }
-
     // Process database data into response field
     const dataByDate = {};
     responses.forEach((dateCount) => (dataByDate[dateCount['started_at_date']] = dateCount));
-
     const started = dates.map((date) => (dataByDate[date] !== undefined ? Number(dataByDate[date]['started_at']) : 0));
     const completed = dates.map((date) =>
         dataByDate[date] !== undefined ? Number(dataByDate[date]['is_completed']) : 0
     );
     const startedCount = started.reduce((cnt, startedCnt) => cnt + startedCnt, 0);
     const completedCount = completed.reduce((cnt, startedCnt) => cnt + startedCnt, 0);
-
-    return res.status(200).json({ status: 'OK', dates, started, completed, startedCount, completedCount });
-};
-
-// Helper function to get started interviews count from database
-const getStartedInterviewsCountFromDb = async () => {
-    const result = await knex('sv_interviews').count({ started: 'id' });
-    return result && result[0] && result[0].started ? Number(result[0].started) : 0;
-};
-
-// Helper function to get completed interviews count from database
-const getCompletedInterviewsCountFromDb = async () => {
-    const result = await knex('sv_interviews').sum({
-        is_completed: knex.raw('case when response->>\'_completedAt\' is null then 0 else 1 end')
-    });
-    return result && result[0] && result[0].is_completed ? Number(result[0].is_completed) : 0;
+    return respondOk({ res, result: { dates, started, completed, startedCount, completedCount } });
 };
 
 // Get the count of started interviews
-const getStartedInterviewsCount = async (res) => {
+const handleStartedInterviewsCount = async (res: Response): Promise<Response> => {
     try {
-        const startedInterviewsCount = await getStartedInterviewsCountFromDb();
-        return res.status(200).json({ status: 'OK', startedInterviewsCount });
+        const startedInterviewsCount = await getStartedInterviewsCount();
+        return respondOk({ res, result: { startedInterviewsCount } });
     } catch (error) {
         console.error('Error fetching started interviews count:', error);
-        return res.status(500).json({ status: 'ERROR', message: 'Failed to fetch started interviews count' });
+        return respondError({ res, message: 'Failed to fetch started interviews count', httpStatus: 500 });
     }
 };
 
 // Get the count of completed interviews
-const getCompletedInterviewsCount = async (res) => {
+const handleCompletedInterviewsCount = async (res: Response): Promise<Response> => {
     try {
-        const completedInterviewsCount = await getCompletedInterviewsCountFromDb();
-        return res.status(200).json({ status: 'OK', completedInterviewsCount });
+        const completedInterviewsCount = await getCompletedInterviewsCount();
+        return respondOk({ res, result: { completedInterviewsCount } });
     } catch (error) {
         console.error('Error fetching completed interviews count:', error);
-        return res.status(500).json({ status: 'ERROR', message: 'Failed to fetch completed interviews count' });
+        return respondError({ res, message: 'Failed to fetch completed interviews count', httpStatus: 500 });
     }
 };
 
 // Get the interviews completion rate (completed / started, as a percentage, rounded to 1 decimal)
-const getInterviewsCompletionRate = async (res) => {
+const handleInterviewsCompletionRate = async (res: Response): Promise<Response> => {
     try {
-        // Get counts using helper functions
-        const startedCount = await getStartedInterviewsCountFromDb();
-        const completedCount = await getCompletedInterviewsCountFromDb();
-
-        // Calculate completion rate (as percentage, 0 if startedCount is 0), rounded to 1 decimal
-        const completionRate = startedCount > 0 ? Number(((completedCount / startedCount) * 100).toFixed(1)) : 0;
-
-        return res.status(200).json({ status: 'OK', interviewsCompletionRate: completionRate });
+        const interviewsCompletionRate = await getInterviewsCompletionRate();
+        return respondOk({ res, result: { interviewsCompletionRate } });
     } catch (error) {
         console.error('Error fetching interviews completion rate:', error);
-        return res.status(500).json({ status: 'ERROR', message: 'Failed to fetch interviews completion rate' });
+        return respondError({ res, message: 'Failed to fetch interviews completion rate', httpStatus: 500 });
     }
 };
 
 // Get respondent behavior metrics
-const getRespondentBehaviorMetrics = async (res) => {
+const handleRespondentBehaviorMetrics = async (res: Response): Promise<Response> => {
     try {
         const metrics = await RespondentBehaviorService.getRespondentBehaviorMetrics();
-        return res.status(200).json(Status.createOk(metrics));
+        return respondOk({ res, result: metrics });
     } catch (error) {
         console.error('Error fetching respondent behavior metrics:', error);
-        return res.status(500).json(Status.createError('Failed to fetch respondent behavior metrics'));
+        return respondError({ res, message: 'Failed to fetch respondent behavior metrics', httpStatus: 500 });
+    }
+};
+
+// Get the survey difficulty distribution from respondent feedback
+const handleSurveyDifficultyDistribution = async (res: Response): Promise<Response> => {
+    try {
+        const distribution = await getSurveyDifficultyDistribution();
+        return respondOk({ res, result: { distribution } });
+    } catch (error) {
+        console.error('Error fetching survey difficulty distribution:', error);
+        return respondError({ res, message: 'Failed to fetch survey difficulty distribution', httpStatus: 500 });
     }
 };
 

@@ -4,10 +4,16 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
+import moment from 'moment';
+import { TFunction } from 'i18next';
 import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
 import { _isBlank, _isEmail } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import config from 'chaire-lib-common/lib/config/shared/project.config';
-import moment from 'moment';
+import * as defaultInputBase from 'evolution-frontend/lib/components/inputs/defaultInputBase';
+import { defaultConditional } from 'evolution-common/lib/services/widgets/conditionals/defaultConditional';
+import * as WidgetConfig from 'evolution-common/lib/services/questionnaire/types';
+import * as validations from 'evolution-common/lib/services/widgets/validations/validations';
+import * as inputRange from '../common/inputRange';
 
 export const householdResidentialPhoneType = {
     type: 'question',
@@ -361,6 +367,17 @@ export const householdSurveyAppreciation = {
             return 'How did you like this survey?';
         }
     }
+};
+
+export const endPerceivedBurdenDifficultyRange: WidgetConfig.InputRangeType = {
+    ...defaultInputBase.inputRangeBase,
+    ...inputRange.sliderVeryEasyToVeryDifficult,
+    path: 'perceivedBurden.difficultyRange',
+    twoColumns: false,
+    containsHtml: true,
+    label: (t: TFunction) => t('end:perceivedBurden.difficultyRange'),
+    conditional: defaultConditional,
+    validations: validations.inputRangeValidation
 };
 
 export const householdCommentsOnSurvey = {

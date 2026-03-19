@@ -7,6 +7,7 @@
 import React from 'react';
 import Loader from 'react-spinners/HashLoader';
 import { useTranslation } from 'react-i18next';
+import * as Status from 'chaire-lib-common/lib/utils/Status';
 
 type SingleValueMonitoringChartProps = {
     apiUrl: string; // API endpoint to fetch data from
@@ -44,8 +45,14 @@ export const SingleValueMonitoringChart: React.FC<SingleValueMonitoringChartProp
                     response
                         .json()
                         .then((jsonData) => {
+                            if (!Status.isStatusOk(jsonData)) {
+                                setErrorKey('admin:monitoring.errors.fetchError');
+                                console.error(t('admin:monitoring.errors.fetchError'), jsonData);
+                                return;
+                            }
+
                             // Extract the value using the provided valueName
-                            const extractedValue = jsonData[valueName];
+                            const extractedValue = Status.unwrap(jsonData)?.[valueName];
                             if (typeof extractedValue === 'number') {
                                 setValue(extractedValue);
                             } else {

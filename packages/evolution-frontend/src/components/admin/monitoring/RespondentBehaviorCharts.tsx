@@ -31,13 +31,8 @@ export const RespondentBehaviorCharts: React.FC = () => {
             headers: { 'Content-Type': 'application/json' },
             signal: abortController.signal
         })
-            .then((response) => {
-                if (response.status === 200) {
-                    return response.json();
-                }
-                throw new Error(`HTTP ${response.status}`);
-            })
-            .then((jsonData: Status.Status<RespondentBehaviorMetrics>) => {
+            .then(async (response) => {
+                const jsonData = (await response.json()) as Status.Status<RespondentBehaviorMetrics>;
                 if (Status.isStatusOk(jsonData)) {
                     setMetrics(Status.unwrap(jsonData));
                 } else {

@@ -98,6 +98,12 @@ testHelpers.inputSelectTest({ context, path: 'household.residentialPhoneType', v
 testHelpers.inputRadioTest({ context, path: 'household.didAlsoRespondByPhone', value: false });
 testHelpers.inputRadioTest({ context, path: 'household.wouldLikeToParticipateInOtherSurveys', value: false });
 testHelpers.inputSelectTest({ context, path: 'household.income', value: '060000_089999' });
+testHelpers.inputRangeTest({
+    context,
+    path: 'perceivedBurden.difficultyRange',
+    value: 75,
+    sliderColor: 'green-yellow-red'
+});
 testHelpers.inputNextButtonTest({ context, text: 'Complete interview', nextPageUrl: '/survey/completed' });
 
 surveyTestHelpers.logout({ context });

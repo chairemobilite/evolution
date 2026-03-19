@@ -44,7 +44,7 @@ describe('SingleValueMonitoringChart', () => {
     it('fetches and displays value correctly when status is 200', async () => {
         mockFetch.mockResolvedValueOnce({
             status: 200,
-            json: async () => ({ testValue: 42 })
+            json: async () => ({ status: 'ok', result: { testValue: 42 } })
         } as Response);
 
         render(<SingleValueMonitoringChart {...defaultProps} />);
@@ -59,7 +59,7 @@ describe('SingleValueMonitoringChart', () => {
     it('displays error when value is not a number', async () => {
         mockFetch.mockResolvedValueOnce({
             status: 200,
-            json: async () => ({ testValue: 'not a number' })
+            json: async () => ({ status: 'ok', result: { testValue: 'not a number' } })
         } as Response);
 
         render(<SingleValueMonitoringChart {...defaultProps} />);
@@ -82,7 +82,7 @@ describe('SingleValueMonitoringChart', () => {
     it('displays decimal values correctly', async () => {
         mockFetch.mockResolvedValueOnce({
             status: 200,
-            json: async () => ({ testValue: 42.756 })
+            json: async () => ({ status: 'ok', result: { testValue: 42.756 } })
         } as Response);
 
         render(<SingleValueMonitoringChart {...defaultProps} />);
@@ -97,7 +97,7 @@ describe('SingleValueMonitoringChart', () => {
         const propsWithoutUnit = { ...defaultProps, valueUnit: undefined };
         mockFetch.mockResolvedValueOnce({
             status: 200,
-            json: async () => ({ testValue: 100 })
+            json: async () => ({ status: 'ok', result: { testValue: 100 } })
         } as Response);
 
         render(<SingleValueMonitoringChart {...propsWithoutUnit} />);
