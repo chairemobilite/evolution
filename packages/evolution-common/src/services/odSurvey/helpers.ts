@@ -20,6 +20,7 @@ import {
 import { TFunction } from 'i18next';
 import config from '../../config/project.config';
 import { loopActivities } from './types';
+import { SchoolType } from '../baseObjects/attributeTypes/PersonAttributes';
 
 // This file contains helper function that retrieves various data from the
 // response field of the interview
@@ -257,6 +258,35 @@ export const getCountOrSelfDeclared = ({
         return 1;
     }
     return personsCount;
+};
+
+/* Various functions related to a person's occupation */
+
+// List of school types that infer the person is a student (ie. enrolled in school, even if they may not be currently attending school)
+// The excluded types are noSchool,dontKnow, nonApplicable and preferNotToAnswer, which do not infer that the person is a student
+const isSchoolEnrolledTrueValues: SchoolType[] = [
+    'kindergarten',
+    'childcare',
+    'primarySchool',
+    'secondarySchool',
+    'schoolAtHome',
+    'kindergartenFor4YearsOld',
+    'collegeProfessional',
+    'university',
+    'other'
+];
+/**
+ * Return whether the person is enrolled in school, from the school type field
+ *
+ * @param {Object} options - The options object.
+ * @param {UserInterviewAttributes} options.interview The interview
+ * @param {Person} options.person The current person
+ * @returns {boolean} `true` if the person is enrolled in school, `false`
+ * otherwise.
+ */
+export const isStudentFromSchoolType = ({ person }: { person: Person }): boolean => {
+    const schoolType = person.schoolType;
+    return schoolType !== undefined && schoolType !== null && isSchoolEnrolledTrueValues.includes(schoolType);
 };
 
 /**

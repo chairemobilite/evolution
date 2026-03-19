@@ -779,6 +779,29 @@ each([
 });
 
 each([
+    ['Undefined school type', undefined, false],
+    ['Null school type', null, false],
+    ['Kindergarten', 'kindergarten', true],
+    ['Childcare', 'childcare', true],
+    ['Primary school', 'primarySchool', true],
+    ['Secondary school', 'secondarySchool', true],
+    ['School at home', 'schoolAtHome', true],
+    ['Other enrolled school type', 'other', true],
+    ['Kindergarten for 4 year olds', 'kindergartenFor4YearsOld', true],
+    ['College/professional', 'collegeProfessional', true],
+    ['University', 'university', true],
+    ['No school', 'noSchool', false],
+    ["Don't know", 'dontKnow', false],
+    ['Non applicable', 'nonApplicable', false],
+    ['Prefer not to answer', 'preferNotToAnswer', false]
+]).test('isStudentFromSchoolType: %s', (_title, schoolTypeValue, expected) => {
+    const interview = _cloneDeep(interviewAttributesWithHh);
+    const person = interview.response.household!.persons!.personId1;
+    person.schoolType = schoolTypeValue;
+    expect(Helpers.isStudentFromSchoolType({ person })).toEqual(expected);
+});
+
+each([
     [
         'Undefined household',
         {
