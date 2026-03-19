@@ -30,34 +30,36 @@ export default [
                 };
             } else if (value === '1133-1133') {
                 // Special access code to test url redirection
-                return [{}, 'https://github.com/chairemobilite/evolution/']
+                return [{}, 'https://github.com/chairemobilite/evolution/'];
             } else if (value.startsWith('222')) {
                 // Use the update operation to set the city to Calgary, but 5 seconds later
                 registerUpdateOperation({
                     opName: 'city',
                     opUniqueId: 1,
-                    operation: () => new Promise((resolve) => {
-                        setTimeout(() => {
-                            resolve({
-                                'home.city': 'Calgary'
-                            });
-                        }, 5000);
-                    })
+                    operation: () =>
+                        new Promise((resolve) => {
+                            setTimeout(() => {
+                                resolve({
+                                    'home.city': 'Calgary'
+                                });
+                            }, 5000);
+                        })
                 });
                 // Use the update operation to set the province to Alberta, but 10 seconds later
                 registerUpdateOperation({
                     opName: 'province',
                     opUniqueId: 1,
-                    operation: () => new Promise((resolve) => {
-                        setTimeout(() => {
-                            resolve({
-                                'home.region': 'Alberta'
-                            });
-                        }, 10000);
-                    })
+                    operation: () =>
+                        new Promise((resolve) => {
+                            setTimeout(() => {
+                                resolve({
+                                    'home.region': 'Alberta'
+                                });
+                            }, 10000);
+                        })
                 });
             }
-            
+
             return {};
         }
     }

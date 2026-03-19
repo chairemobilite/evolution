@@ -24,7 +24,9 @@
         "start:admin:tracing": "yarn node -r ../../tracing.js lib/admin/server.js --max-old-space-size=4096",
         "start:debug": "cross-env DEBUG=express:* yarn node --trace-warnings lib/server.js --max-old-space-size=4096",
         "test": "cross-env NODE_ENV=test jest --config=jest.config.js",
-        "test:ui": "LOCALE_DIR=$(pwd)/locales npx playwright test"
+        "test:ui": "LOCALE_DIR=$(pwd)/locales npx playwright test",
+        "format": "prettier-eslint \"./**/*.{ts,tsx}\" --write",
+        "lint": "eslint ."
     },
     "dependencies": {
         "@fortawesome/free-solid-svg-icons": "^6.7.1",
@@ -39,6 +41,7 @@
         "evolution-common": "^0.6.0",
         "evolution-frontend": "^0.6.0",
         "geojson-validation": "^1.0.2",
+        "i18next": "^25.7.4",
         "json2csv": "^5.0.7",
         "lodash": "^4.17.23",
         "moment": "^2.30.1",
@@ -51,12 +54,18 @@
         "uuid": "^11.1.0"
     },
     "devDependencies": {
+        "@playwright/test": "^1.56.1",
         "@types/geojson": "^7946.0.16",
         "@types/lodash": "^4.17.23",
         "@types/node": "^24.10.4",
+        "@typescript-eslint/eslint-plugin": "^8.50.0",
+        "@typescript-eslint/parser": "^8.50.0",
         "cross-env": "^10.1.0",
+        "eslint": "^8.57.1",
+        "eslint-plugin-n": "^15.7.0",
         "jest": "^30.2.0",
         "jest-each": "^30.2.0",
+        "prettier-eslint-cli": "^8.0.1",
         "typescript": "^5.9.3"
     }
 }

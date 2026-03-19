@@ -8,7 +8,7 @@ const context = {
     objectDetector: new SurveyObjectDetector(),
     title: '',
     widgetTestCounters: {}
-}
+};
 
 // Configure the tests to run in serial mode (one after the other)
 test.describe.configure({ mode: 'serial' });
@@ -70,7 +70,11 @@ testHelpers.inputRadioTest({ context, path: 'household.persons.${personId[0]}.us
 testHelpers.inputNextButtonTest({ context, text: 'Save and continue', nextPageUrl: '/survey/travelBehavior' });
 
 // Test the travel behavior page for first person
-testHelpers.inputRadioTest({ context, path: 'household.persons.${personId[0]}.whoAnsweredForThisPerson', value: '${personId[0]}' });
+testHelpers.inputRadioTest({
+    context,
+    path: 'household.persons.${personId[0]}.whoAnsweredForThisPerson',
+    value: '${personId[0]}'
+});
 testHelpers.inputNextButtonTest({ context, text: 'Continue', nextPageUrl: '/survey/profile' });
 testHelpers.waitTextVisible({ context, text: 'alice\'s interview' });
 
@@ -82,7 +86,11 @@ testHelpers.inputRadioTest({ context, path: 'household.persons.${personId[1]}.us
 testHelpers.inputNextButtonTest({ context, text: 'Save and continue', nextPageUrl: '/survey/travelBehavior' });
 
 // Second person is retired, straight to travel behavior for her too
-testHelpers.inputRadioTest({ context, path: 'household.persons.${personId[1]}.whoAnsweredForThisPerson', value: '${personId[0]}' });
+testHelpers.inputRadioTest({
+    context,
+    path: 'household.persons.${personId[1]}.whoAnsweredForThisPerson',
+    value: '${personId[0]}'
+});
 testHelpers.inputNextButtonTest({ context, text: 'Continue', nextPageUrl: '/survey/end' });
 
 // Test the end page
