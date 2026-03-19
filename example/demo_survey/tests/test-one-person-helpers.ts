@@ -1,4 +1,4 @@
-import * as testHelpers from "evolution-frontend/tests/ui-testing/testHelpers";
+import * as testHelpers from 'evolution-frontend/tests/ui-testing/testHelpers';
 
 // These functions are used in both the one person and input verification tests, in order to avoid code duplication
 

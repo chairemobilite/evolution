@@ -4,12 +4,12 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import { faPlay } from "@fortawesome/free-solid-svg-icons/faPlay";
+import { faPlay } from '@fortawesome/free-solid-svg-icons/faPlay';
 
-import { validateButtonActionWithCompleteSection } from "evolution-frontend/lib/services/display/frontendHelper";
-import { getButtonValidateAndGotoNextSection } from "evolution-common/lib/services/questionnaire/sections/common/buttonValidateAndGotoNextSection";
+import { validateButtonActionWithCompleteSection } from 'evolution-frontend/lib/services/display/frontendHelper';
+import { getButtonValidateAndGotoNextSection } from 'evolution-common/lib/services/questionnaire/sections/common/buttonValidateAndGotoNextSection';
 
-import * as homeWidgets from "./widgets/home";
+import * as homeWidgets from './widgets/home';
 
 export const accessCode = homeWidgets.accessCode;
 export const interviewLanguage: any = homeWidgets.interviewLanguage;
@@ -25,7 +25,7 @@ export const homeCountry: any = homeWidgets.homeCountry;
 export const homePostalCode: any = homeWidgets.homePostalCode;
 export const homeGeography: any = homeWidgets.homeGeography;
 
-import * as householdMembersWidgets from "./widgets/householdMembers";
+import * as householdMembersWidgets from './widgets/householdMembers';
 
 export const householdMembers: any = householdMembersWidgets.householdMembers;
 export const personAge: any = householdMembersWidgets.personAge;
@@ -44,7 +44,7 @@ export const buttonSaveNextSectionHouseholdMembers: any = householdMembersWidget
 export const selectPerson: any = householdMembersWidgets.selectPerson;
 export const buttonSelectPersonConfirm: any = householdMembersWidgets.buttonSelectPersonConfirm;
 
-import * as profileWidgets from "./widgets/profile";
+import * as profileWidgets from './widgets/profile';
 
 export const personWorkOnTheRoad: any = profileWidgets.personWorkOnTheRoad;
 export const personUsualWorkPlaceIsHome: any = profileWidgets.personUsualWorkPlaceIsHome;
@@ -71,7 +71,7 @@ export const groupedPersonNoWorkTripReason: any = householdMembersWidgets.groupe
 export const groupedPersonNoSchoolTripReason: any = householdMembersWidgets.groupedPersonNoSchoolTripReason;
 export const groupedPersonWhoAnsweredForThisPerson: any = householdMembersWidgets.groupedPersonWhoAnsweredForThisPerson;
 
-import * as visitedPlacesWidgets from "./widgets/visitedPlaces";
+import * as visitedPlacesWidgets from './widgets/visitedPlaces';
 
 export const visitedPlacesIntro: any = visitedPlacesWidgets.visitedPlacesIntro;
 export const personDeparturePlaceType: any = visitedPlacesWidgets.personDeparturePlaceType;
@@ -95,7 +95,7 @@ export const buttonDeleteVisitedPlace: any = visitedPlacesWidgets.buttonDeleteVi
 export const buttonSaveVisitedPlace: any = visitedPlacesWidgets.buttonSaveVisitedPlace;
 export const buttonVisitedPlacesConfirmNextSection: any = visitedPlacesWidgets.buttonVisitedPlacesConfirmNextSection;
 
-import * as segmentsWidgets from "./widgets/segments";
+import * as segmentsWidgets from './widgets/segments';
 
 export const segmentParkingType: any = segmentsWidgets.segmentParkingType;
 export const segmentParkingPaymentType: any = segmentsWidgets.segmentParkingPaymentType;
@@ -113,14 +113,14 @@ export const segmentTrainStationEnd: any = segmentsWidgets.segmentTrainStationEn
 export const segmentBusLines: any = segmentsWidgets.segmentBusLines;
 export const tripJunctionGeography: any = segmentsWidgets.tripJunctionGeography;
 
-import * as travelBehaviorWidgets from "./widgets/travelBehavior";
+import * as travelBehaviorWidgets from './widgets/travelBehavior';
 
 export const personNoWorkTripReason: any = travelBehaviorWidgets.personNoWorkTripReason;
 export const personNoSchoolTripReason: any = travelBehaviorWidgets.personNoSchoolTripReason;
 export const personWhoAnsweredForThisPerson: any = travelBehaviorWidgets.personWhoAnsweredForThisPerson;
 
-import * as endWidgets from "./widgets/end";
-import { widgetFactoryOptions } from "./helper";
+import * as endWidgets from './widgets/end';
+import { widgetFactoryOptions } from './helper';
 
 export const householdResidentialPhoneType: any = endWidgets.householdResidentialPhoneType;
 export const householdWouldLikeToParticipateInOtherSurveys: any =
@@ -160,10 +160,7 @@ export const buttonStartNextSection: any = {
     action: validateButtonActionWithCompleteSection
 };
 
-export const buttonContinueNextSection = getButtonValidateAndGotoNextSection(
-  "survey:Continue",
-  widgetFactoryOptions,
-);
+export const buttonContinueNextSection = getButtonValidateAndGotoNextSection('survey:Continue', widgetFactoryOptions);
 
 export const buttonConfirmNextSection = getButtonValidateAndGotoNextSection(
     'survey:ConfirmAndContinue',
