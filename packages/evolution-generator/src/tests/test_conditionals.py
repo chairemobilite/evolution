@@ -11,7 +11,6 @@ from scripts.conditionals import Conditionals
 from scripts.generate_survey import check_excel_integrity
 from helpers.generator_helpers import create_mocked_excel_data, delete_file_if_exists
 
-
 # TODO: Add tests for the remaining Conditionals class methods:
 # - Conditionals.check (directly, without going through check_excel_integrity).
 # - Conditionals.extract_conditionals_from_data (grouping logic for raw rows/headers).

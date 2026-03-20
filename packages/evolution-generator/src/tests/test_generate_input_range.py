@@ -13,7 +13,6 @@ from helpers.generator_helpers import (
     delete_file_if_exists,
 )
 
-
 # Define constants
 MOCKED_EXCEL_FILE = "src/tests/references/test.xlsx"
 GOOD_INPUT_FILE = "src/tests/references/test.xlsx"
