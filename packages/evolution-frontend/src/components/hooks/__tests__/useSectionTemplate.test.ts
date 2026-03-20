@@ -6,11 +6,9 @@
  */
 import { renderHook } from '@testing-library/react';
 import { useSectionTemplate, SectionProps } from '../useSectionTemplate';
-import { MemoryRouter } from 'react-router'
+import { MemoryRouter } from 'react-router';
 
-jest.mock('../../../services/url', () => ({
-    getPathForSection: jest.fn(() => '/new-path')
-}));
+jest.mock('../../../services/url', () => ({ getPathForSection: jest.fn(() => '/new-path') }));
 
 describe('useSectionTemplate', () => {
     let props: SectionProps;
@@ -18,13 +16,8 @@ describe('useSectionTemplate', () => {
     beforeEach(() => {
         props = {
             shortname: 'testSection',
-            sectionConfig: {
-                previousSection: null,
-                nextSection: null,
-                preload: jest.fn(),
-                widgets: []
-            },
-            interview: { response: { field1: 'test' }} as any,
+            sectionConfig: { previousSection: null, nextSection: null, preload: jest.fn(), widgets: [] },
+            interview: { response: { field1: 'test' } } as any,
             errors: {},
             user: {} as any,
             startUpdateInterview: jest.fn(),
@@ -39,16 +32,14 @@ describe('useSectionTemplate', () => {
 
     it('should call preload function on mount', () => {
         renderHook(() => useSectionTemplate(props), { wrapper: MemoryRouter });
-        expect(props.sectionConfig.preload).toHaveBeenCalledWith(
-            props.interview, {
-                startUpdateInterview: props.startUpdateInterview,
-                startAddGroupedObjects: props.startAddGroupedObjects,
-                startRemoveGroupedObjects: props.startRemoveGroupedObjects,
-                startNavigate: props.startNavigate,
-                callback: expect.any(Function),
-                user: props.user
-            }
-        );
+        expect(props.sectionConfig.preload).toHaveBeenCalledWith(props.interview, {
+            startUpdateInterview: props.startUpdateInterview,
+            startAddGroupedObjects: props.startAddGroupedObjects,
+            startRemoveGroupedObjects: props.startRemoveGroupedObjects,
+            startNavigate: props.startNavigate,
+            callback: expect.any(Function),
+            user: props.user
+        });
     });
 
     it('should set preloaded to true if preload is not a function', () => {
@@ -70,10 +61,10 @@ describe('useSectionTemplate', () => {
         props.allWidgetsValid = false;
         props.submitted = true;
         renderHook(() => useSectionTemplate(props), { wrapper: MemoryRouter });
-        
+
         // Verify scrollIntoView was called
         expect(scrollIntoViewMock).toHaveBeenCalledWith({ behavior: 'smooth', block: 'nearest' });
-        
+
         // Verify focus was set on text input
         const inputElement = document.getElementById('invalid-input');
         expect(document.activeElement).toBe(inputElement);
@@ -83,19 +74,18 @@ describe('useSectionTemplate', () => {
         // Setup scrollIntoView mock
         const scrollIntoViewMock = jest.fn();
         Element.prototype.scrollIntoView = scrollIntoViewMock;
-        
+
         document.body.innerHTML = `
             <div class="question-invalid">
                 <input id="invalid-input" type="checkbox" />
             </div>
         `;
-        
+
         props.allWidgetsValid = false;
         props.submitted = true;
         renderHook(() => useSectionTemplate(props), { wrapper: MemoryRouter });
-        
+
         // Verify scrollIntoView was called with correct parameters
         expect(scrollIntoViewMock).toHaveBeenCalledWith({ behavior: 'smooth', block: 'nearest' });
     });
-
 });

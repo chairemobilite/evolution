@@ -22,17 +22,14 @@ describe('InterviewAudited', () => {
 
     beforeEach(() => {
         // Create a mock Interview instance
-        interview = new Interview({
-            _uuid: '123e4567-e89b-12d3-a456-426614174000',
-            accessCode: 'TEST123',
-            assignedDate: '2023-05-01'
-        }, { id: 1, participant_id: 1 } as any, registry);
+        interview = new Interview(
+            { _uuid: '123e4567-e89b-12d3-a456-426614174000', accessCode: 'TEST123', assignedDate: '2023-05-01' },
+            { id: 1, participant_id: 1 } as any,
+            registry
+        );
 
         // Create an InterviewAudited instance
-        interviewAudited = new InterviewAudited({
-            _interview: interview,
-            _originalInterviewId: 1
-        });
+        interviewAudited = new InterviewAudited({ _interview: interview, _originalInterviewId: 1 });
     });
 
     it('should create an InterviewAudited instance', () => {
@@ -80,12 +77,7 @@ describe('InterviewAudited', () => {
 
     describe('constructor with initial values', () => {
         it('should set initial values when provided', () => {
-            const initialAudits: Audit[] = [{
-                version: 1,
-                level: 'error',
-                errorCode: 'TEST_ERROR',
-                message: 'Test error message'
-            }];
+            const initialAudits: Audit[] = [{ version: 1, level: 'error', errorCode: 'TEST_ERROR', message: 'Test error message' }];
 
             const auditedWithInitialValues = new InterviewAudited({
                 _interview: interview,
@@ -117,6 +109,4 @@ describe('InterviewAudited', () => {
         expect(interviewAudited.getAuditedObject).toBeDefined();
         expect(interviewAudited.getOriginalInterviewId).toBeDefined();
     });
-
 });
-

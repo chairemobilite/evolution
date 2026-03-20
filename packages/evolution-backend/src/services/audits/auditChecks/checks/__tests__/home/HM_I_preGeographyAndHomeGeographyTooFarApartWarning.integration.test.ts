@@ -15,16 +15,8 @@ describe('HM_I_preGeographyAndHomeGeographyTooFarApartWarning audit check - Inte
     it('should warn when coordinates are moderately far apart (~93.5 meters)', () => {
         const context = createContextWithHome(
             {
-                preGeography: {
-                    type: 'Feature' as const,
-                    properties: {},
-                    geometry: { type: 'Point' as const, coordinates: [-73.5673, 45.5017] }
-                },
-                geography: {
-                    type: 'Feature' as const,
-                    properties: {},
-                    geometry: { type: 'Point' as const, coordinates: [-73.5661, 45.5017] }
-                }
+                preGeography: { type: 'Feature' as const, properties: {}, geometry: { type: 'Point' as const, coordinates: [-73.5673, 45.5017] } },
+                geography: { type: 'Feature' as const, properties: {}, geometry: { type: 'Point' as const, coordinates: [-73.5661, 45.5017] } }
             },
             validUuid
         );
@@ -43,16 +35,8 @@ describe('HM_I_preGeographyAndHomeGeographyTooFarApartWarning audit check - Inte
     it('should pass when coordinates are very close together (~7.8 meters)', () => {
         const context = createContextWithHome(
             {
-                preGeography: {
-                    type: 'Feature' as const,
-                    properties: {},
-                    geometry: { type: 'Point' as const, coordinates: [-73.5673, 45.5017] }
-                },
-                geography: {
-                    type: 'Feature' as const,
-                    properties: {},
-                    geometry: { type: 'Point' as const, coordinates: [-73.5672, 45.5017] }
-                }
+                preGeography: { type: 'Feature' as const, properties: {}, geometry: { type: 'Point' as const, coordinates: [-73.5673, 45.5017] } },
+                geography: { type: 'Feature' as const, properties: {}, geometry: { type: 'Point' as const, coordinates: [-73.5672, 45.5017] } }
             },
             validUuid
         );
@@ -73,7 +57,7 @@ describe('HM_I_preGeographyAndHomeGeographyTooFarApartWarning audit check - Inte
                 geography: {
                     type: 'Feature' as const,
                     properties: {},
-                    geometry: { type: 'Point' as const, coordinates: [-71.2080, 46.8139] } // Quebec City
+                    geometry: { type: 'Point' as const, coordinates: [-71.208, 46.8139] } // Quebec City
                 }
             },
             validUuid
@@ -84,4 +68,3 @@ describe('HM_I_preGeographyAndHomeGeographyTooFarApartWarning audit check - Inte
         expect(result).toBeUndefined();
     });
 });
-

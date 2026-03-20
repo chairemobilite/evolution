@@ -14,24 +14,8 @@ const testInterview: UserRuntimeInterviewAttributes = {
     uuid: 'arbitrary uuid',
     participant_id: 1,
     is_completed: false,
-    response: {
-        section1: {
-            q1: 'abc',
-            q2: 3
-        },
-        section2: {
-            q1: 'test'
-        }
-    } as any,
-    validations: {
-        section1: {
-            q1: true,
-            q2: false
-        },
-        section2: {
-            q1: true
-        }
-    } as any,
+    response: { section1: { q1: 'abc', q2: 3 }, section2: { q1: 'test' } } as any,
+    validations: { section1: { q1: true, q2: false }, section2: { q1: true } } as any,
     is_valid: true,
     widgets: {},
     groups: {},
@@ -48,23 +32,14 @@ describe('configureStore', () => {
 
     it('should initialize with the correct default state', () => {
         const state = store.getState();
-        expect(state).toEqual({
-            auth: { isAuthenticated: false },
-            survey: {},
-            loadingState: { loadingState: 0 }
-        });
+        expect(state).toEqual({ auth: { isAuthenticated: false }, survey: {}, loadingState: { loadingState: 0 } });
     });
 
     it('should handle actions and update state correctly', () => {
         const loginAction = { type: AuthActionTypes.LOGIN, user: null, isAuthenticated: true, register: false, login: true };
         store.dispatch(loginAction);
         const state = store.getState();
-        expect(state.auth).toEqual({
-            isAuthenticated: true,
-            user: null,
-            register: false,
-            login: true
-        });
+        expect(state.auth).toEqual({ isAuthenticated: true, user: null, register: false, login: true });
     });
 
     it('should reset state on logout', () => {
@@ -72,16 +47,11 @@ describe('configureStore', () => {
         const action = {
             type: SurveyActionTypes.UPDATE_INTERVIEW as const,
             interview: testInterview,
-            interviewLoaded:true,
+            interviewLoaded: true,
             submitted: true,
-            errors: {field: { 'en': 'something' }}
+            errors: { field: { en: 'something' } }
         };
-        const result =  {
-            interview: testInterview,
-            interviewLoaded:true,
-            submitted: true,
-            errors: {field: { 'en': 'something' }}
-        };
+        const result = { interview: testInterview, interviewLoaded: true, submitted: true, errors: { field: { en: 'something' } } };
         store.dispatch(action);
         const stateAfterUpdate = store.getState();
         expect(stateAfterUpdate.survey).toEqual(result);
@@ -90,19 +60,11 @@ describe('configureStore', () => {
         const logoutAction = { type: AuthActionTypes.LOGOUT, isAuthenticated: false };
         store.dispatch(logoutAction);
         const state = store.getState();
-        expect(state).toEqual({
-            auth: { isAuthenticated: false },
-            survey: {},
-            loadingState: { loadingState: 0 }
-        });
+        expect(state).toEqual({ auth: { isAuthenticated: false }, survey: {}, loadingState: { loadingState: 0 } });
     });
 
     it('should allow preloaded state to be passed', () => {
-        const preloadedState = {
-            auth: { isAuthenticated: true },
-            survey: { someSurveyData: 'test' },
-            loadingState: { loadingState: 1 }
-        };
+        const preloadedState = { auth: { isAuthenticated: true }, survey: { someSurveyData: 'test' }, loadingState: { loadingState: 1 } };
         const storeWithPreloadedState = configureStore(preloadedState as any);
         const state = storeWithPreloadedState.getState();
         expect(state).toEqual(preloadedState);

@@ -18,14 +18,7 @@ jest.mock('chaire-lib-backend/lib/api/auth.routes', () => {
     return jest.fn();
 });
 
-let authResponse: {
-    error: any,
-    user: any,
-    statusCode?: number
-} = {
-    error: null,
-    user: false
-}
+let authResponse: { error: any; user: any; statusCode?: number } = { error: null, user: false };
 
 const authMockImplementation = (req, res, next) => {
     const response = authResponse;
@@ -38,9 +31,7 @@ const authMockImplementation = (req, res, next) => {
     next(response.error, response.user);
 };
 
-const authMockFunctions = {
-    'auth-by-field': jest.fn().mockImplementation(authMockImplementation)
-}
+const authMockFunctions = { 'auth-by-field': jest.fn().mockImplementation(authMockImplementation) };
 
 jest.mock('passport', () => {
     return {
@@ -51,7 +42,7 @@ jest.mock('passport', () => {
                     mockImplementation(req, res, (error, user) => {
                         callback(error, user);
                     });
-                }
+                };
             }
             return mockImplementation;
         }),
@@ -60,7 +51,7 @@ jest.mock('passport', () => {
         deserializeUser: jest.fn(),
         initialize: jest.fn().mockReturnValue((req, res, next) => next()),
         session: jest.fn().mockReturnValue((req, res, next) => next())
-    }
+    };
 });
 
 // Mock the captcha validation
@@ -72,22 +63,12 @@ const mockedValidateCaptchaToken = jest.fn().mockImplementation((req, res, next)
 });
 
 const validFieldValue = 'test-value';
-const validUser = {
-    id: 5,
-    uuid: 'arbitrary',
-    username: 'test',
-    email: 'test@test.org',
-    is_confirmed: true,
-    is_valid: true
-};
+const validUser = { id: 5, uuid: 'arbitrary', username: 'test', email: 'test@test.org', is_confirmed: true, is_valid: true };
 
 beforeEach(() => {
-    authResponse = {
-        error: null,
-        user: false
-    }
-    Object.keys(authMockFunctions).forEach(authType => authMockFunctions[authType].mockClear());
-})
+    authResponse = { error: null, user: false };
+    Object.keys(authMockFunctions).forEach((authType) => authMockFunctions[authType].mockClear());
+});
 
 describe('Auth by field route', () => {
     // Setup the app with byField enabled
@@ -108,20 +89,17 @@ describe('Auth by field route', () => {
             callback(null);
         });
         next();
-    })
+    });
     authRoutes(router, userAuthModel, passport);
     app.use(router);
 
     beforeEach(() => {
         failedAttempts = undefined;
         jest.clearAllMocks();
-    })
+    });
 
     test('Auth by field, valid credentials', async () => {
-        authResponse = {
-            error: null,
-            user: validUser
-        };
+        authResponse = { error: null, user: validUser };
         const res = await session(app)
             .post('/auth-by-field')
             .send({ field: validFieldValue })
@@ -136,10 +114,7 @@ describe('Auth by field route', () => {
 
     test('Auth by field, valid credentials after first attempt, valid catpcha', async () => {
         failedAttempts = 1; // Simulate one failed attempt, should validate captcha
-        authResponse = {
-            error: null,
-            user: validUser
-        };
+        authResponse = { error: null, user: validUser };
         const res = await session(app)
             .post('/auth-by-field')
             .send({ field: validFieldValue })
@@ -156,11 +131,8 @@ describe('Auth by field route', () => {
         failedAttempts = 1; // Simulate one failed attempt, should validate captcha
         mockedValidateCaptchaToken.mockImplementationOnce((req, res, next) => {
             return res.status(403).json({ status: 'InvalidCaptcha' });
-        })
-        authResponse = {
-            error: null,
-            user: validUser
-        };
+        });
+        authResponse = { error: null, user: validUser };
         const res = await session(app)
             .post('/auth-by-field')
             .send({ field: validFieldValue })
@@ -174,10 +146,7 @@ describe('Auth by field route', () => {
     });
 
     test('Auth by field, invalid credentials', async () => {
-        authResponse = {
-            error: 'InvalidData',
-            user: false
-        };
+        authResponse = { error: 'InvalidData', user: false };
         const res = await session(app)
             .post('/auth-by-field')
             .send({ field: 'invalid-value' })
@@ -191,11 +160,7 @@ describe('Auth by field route', () => {
     });
 
     test('Auth by field, unauthorized access', async () => {
-        authResponse = {
-            error: 'Unauthorized',
-            user: false,
-            statusCode: 401
-        };
+        authResponse = { error: 'Unauthorized', user: false, statusCode: 401 };
         const res = await session(app)
             .post('/auth-by-field')
             .send({ field: validFieldValue })

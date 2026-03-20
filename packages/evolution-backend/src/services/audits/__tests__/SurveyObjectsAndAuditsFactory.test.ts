@@ -19,29 +19,18 @@ describe('SurveyObjectsAndAuditsFactory', () => {
     const mockInterviewUuid = uuidV4();
     const mockHouseholdUuid = uuidV4();
 
-    const createMockInterview = (): InterviewAttributes => ({
-        id: 123,
-        uuid: mockInterviewUuid,
-        participant_id: 456,
-        is_valid: false,
-        is_completed: false,
-        response: {
-            _uuid: mockInterviewUuid,
-            household: {
-                _uuid: mockHouseholdUuid,
-                size: 2
-            }
-        },
-        corrected_response: {
-            _uuid: mockInterviewUuid,
-            household: {
-                _uuid: mockHouseholdUuid,
-                size: 2
-            }
-        },
-        validations: {},
-        logs: []
-    } as InterviewAttributes);
+    const createMockInterview = (): InterviewAttributes =>
+        ({
+            id: 123,
+            uuid: mockInterviewUuid,
+            participant_id: 456,
+            is_valid: false,
+            is_completed: false,
+            response: { _uuid: mockInterviewUuid, household: { _uuid: mockHouseholdUuid, size: 2 } },
+            corrected_response: { _uuid: mockInterviewUuid, household: { _uuid: mockHouseholdUuid, size: 2 } },
+            validations: {},
+            logs: []
+        }) as InterviewAttributes;
 
     beforeEach(() => {
         jest.clearAllMocks();
@@ -62,16 +51,7 @@ describe('SurveyObjectsAndAuditsFactory', () => {
                     ignore: false
                 }
             ],
-            auditsByObject: {
-                interview: [],
-                household: [],
-                home: [],
-                persons: {},
-                journeys: {},
-                visitedPlaces: {},
-                trips: {},
-                segments: {}
-            }
+            auditsByObject: { interview: [], household: [], home: [], persons: {}, journeys: {}, visitedPlaces: {}, trips: {}, segments: {} }
         });
 
         (auditsDbQueries.setAuditsForInterview as jest.Mock).mockResolvedValue([
@@ -92,9 +72,9 @@ describe('SurveyObjectsAndAuditsFactory', () => {
             const interview = createMockInterview();
             interview.corrected_response = undefined as any;
 
-            await expect(
-                SurveyObjectsAndAuditsFactory.createSurveyObjectsAndSaveAuditsToDb(interview)
-            ).rejects.toThrow('Corrected response is required to create survey objects and audits');
+            await expect(SurveyObjectsAndAuditsFactory.createSurveyObjectsAndSaveAuditsToDb(interview)).rejects.toThrow(
+                'Corrected response is required to create survey objects and audits'
+            );
 
             expect(AuditService.auditInterview).not.toHaveBeenCalled();
         });
@@ -131,11 +111,7 @@ describe('SurveyObjectsAndAuditsFactory', () => {
             expect(AuditService.auditInterview).toHaveBeenCalledWith(interview, false);
             expect(auditsDbQueries.setAuditsForInterview).toHaveBeenCalledWith(
                 interview.id,
-                expect.arrayContaining([
-                    expect.objectContaining({
-                        errorCode: 'TEST_AUDIT'
-                    })
-                ])
+                expect.arrayContaining([expect.objectContaining({ errorCode: 'TEST_AUDIT' })])
             );
             expect(result.audits).toHaveLength(1);
         });
@@ -150,4 +126,3 @@ describe('SurveyObjectsAndAuditsFactory', () => {
         });
     });
 });
-

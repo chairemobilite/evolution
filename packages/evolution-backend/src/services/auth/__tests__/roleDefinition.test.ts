@@ -13,19 +13,10 @@ import each from 'jest-each';
 
 defineDefaultRoles();
 
-const interview = {
-    id: 1,
-    uuid: 'arbitrary',
-    participant_id: 1,
-    is_active: true
-}
+const interview = { id: 1, uuid: 'arbitrary', participant_id: 1, is_active: true };
 
 describe('default role', () => {
-    const user = {
-        id: 1,
-        uuid: 'arbitrary user',
-        is_admin: false
-    };
+    const user = { id: 1, uuid: 'arbitrary user', is_admin: false };
 
     each([
         ['read same id', true, 'read'],
@@ -39,7 +30,7 @@ describe('default role', () => {
         ['cannot delete other', false, 'delete'],
         ['cannot create other', false, 'create'],
         ['cannot validate other', false, 'validate'],
-        ['cannot confirm other', false, 'confirm'],
+        ['cannot confirm other', false, 'confirm']
     ]).test('Default has no permission: %s', (_title, same, permission) => {
         const testUser = _cloneDeep(user);
         testUser.id = same ? interview.participant_id : interview.participant_id + 1;
@@ -59,11 +50,7 @@ describe('default role', () => {
 });
 
 describe('admin role', () => {
-    const user = {
-        id: 1,
-        uuid: 'arbitrary user',
-        is_admin: true
-    };
+    const user = { id: 1, uuid: 'arbitrary user', is_admin: true };
 
     each([
         ['can read other', 'read'],
@@ -71,7 +58,7 @@ describe('admin role', () => {
         ['can delete other', 'delete'],
         ['can create other', 'create'],
         ['can validate other', 'validate'],
-        ['can confirm other', 'confirm'],
+        ['can confirm other', 'confirm']
     ]).test('%s', (_title, permission) => {
         const permissions = defineAbilitiesFor(user);
         expect(permissions.can(permission, subject(InterviewSubject, interview))).toEqual(true);
@@ -85,16 +72,11 @@ describe('admin role', () => {
         expect(permissions.can('delete', InterviewsSubject)).toBeTruthy();
         expect(permissions.can('validate', InterviewsSubject)).toBeTruthy();
         expect(permissions.can('confirm', InterviewsSubject)).toBeTruthy();
-    })
+    });
 });
 
 describe('validator Lvl 1', () => {
-    const user = {
-        id: 1,
-        uuid: 'arbitrary user',
-        is_admin: false,
-        permissions: { [VALIDATOR_LVL1_ROLE]: true, [VALIDATOR_LVL2_ROLE]: false }
-    };
+    const user = { id: 1, uuid: 'arbitrary user', is_admin: false, permissions: { [VALIDATOR_LVL1_ROLE]: true, [VALIDATOR_LVL2_ROLE]: false } };
 
     each([
         ['can read other', 'read', true],
@@ -102,7 +84,7 @@ describe('validator Lvl 1', () => {
         ['cannot delete other', 'delete', false],
         ['cannot create other', 'create', false],
         ['can validate other', 'validate', true],
-        ['cannot confirm other', 'confirm', false],
+        ['cannot confirm other', 'confirm', false]
     ]).test('%s', (_title, permission, expectedResult) => {
         const permissions = defineAbilitiesFor(user);
         expect(permissions.can(permission, subject(InterviewSubject, interview))).toEqual(expectedResult);
@@ -120,12 +102,7 @@ describe('validator Lvl 1', () => {
 });
 
 describe('validator Lvl 2', () => {
-    const user = {
-        id: 1,
-        uuid: 'arbitrary user',
-        is_admin: false,
-        permissions: { [VALIDATOR_LVL1_ROLE]: false, [VALIDATOR_LVL2_ROLE]: true }
-    };
+    const user = { id: 1, uuid: 'arbitrary user', is_admin: false, permissions: { [VALIDATOR_LVL1_ROLE]: false, [VALIDATOR_LVL2_ROLE]: true } };
 
     each([
         ['can read other', 'read', true],
@@ -133,7 +110,7 @@ describe('validator Lvl 2', () => {
         ['cannot delete other', 'delete', false],
         ['cannot create other', 'create', false],
         ['can validate other', 'validate', true],
-        ['cannot confirm other', 'confirm', true],
+        ['cannot confirm other', 'confirm', true]
     ]).test('%s', (_title, permission, expectedResult) => {
         const permissions = defineAbilitiesFor(user);
         expect(permissions.can(permission, subject(InterviewSubject, interview))).toEqual(expectedResult);

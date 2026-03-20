@@ -9,7 +9,6 @@ import { Survey } from '../Survey';
 import { v4 as uuidV4 } from 'uuid';
 
 describe('Survey Class', () => {
-
     const surveyName = 'Sample Survey';
     const surveyShortname = 'SS';
     const surveyStartDate = '2023-04-15'; // April 15, 2023
@@ -17,17 +16,31 @@ describe('Survey Class', () => {
 
     it('should instantiate with the provided UUID', () => {
         const validUuid = uuidV4();
-        const surveyInstance = new Survey({ _uuid: validUuid, name: surveyName, shortname: surveyShortname, startDate: surveyStartDate, endDate: surveyEndDate });
+        const surveyInstance = new Survey({
+            _uuid: validUuid,
+            name: surveyName,
+            shortname: surveyShortname,
+            startDate: surveyStartDate,
+            endDate: surveyEndDate
+        });
         expect(surveyInstance['_uuid']).toEqual(validUuid); // accessing the protected property for testing purposes
     });
 
     it('should throw an error when instantiated with an invalid UUID', () => {
         const invalidUuid = 'invalid-uuid';
-        expect(() => new Survey({ _uuid: invalidUuid, name: surveyName, shortname: surveyShortname, startDate: surveyStartDate, endDate: surveyEndDate })).toThrow('Uuidable: invalid uuid');
+        expect(
+            () => new Survey({ _uuid: invalidUuid, name: surveyName, shortname: surveyShortname, startDate: surveyStartDate, endDate: surveyEndDate })
+        ).toThrow('Uuidable: invalid uuid');
     });
 
     it('should correctly set name, shortname, startDate, and endDate properties', () => {
-        const surveyInstance = new Survey({ _uuid: uuidV4(), name: surveyName, shortname: surveyShortname, startDate: surveyStartDate, endDate: surveyEndDate });
+        const surveyInstance = new Survey({
+            _uuid: uuidV4(),
+            name: surveyName,
+            shortname: surveyShortname,
+            startDate: surveyStartDate,
+            endDate: surveyEndDate
+        });
         expect(surveyInstance.name).toEqual(surveyName);
         expect(surveyInstance.shortname).toEqual(surveyShortname);
         expect(surveyInstance.startDate).toEqual(surveyStartDate);
@@ -35,10 +48,26 @@ describe('Survey Class', () => {
     });
 
     it('should validate params', () => {
-
         // Valid attributes with an additional attribute
-        expect(Survey.validateParams({ _uuid: uuidV4(), name: surveyName, shortname: surveyShortname, startDate: surveyStartDate, endDate: surveyEndDate })).toEqual([]);
-        expect(Survey.validateParams({ _uuid: uuidV4(), name: surveyName, shortname: surveyShortname, startDate: surveyStartDate, endDate: surveyEndDate, additionalAttribute: 'additionalValue' })).toEqual([]);
+        expect(
+            Survey.validateParams({
+                _uuid: uuidV4(),
+                name: surveyName,
+                shortname: surveyShortname,
+                startDate: surveyStartDate,
+                endDate: surveyEndDate
+            })
+        ).toEqual([]);
+        expect(
+            Survey.validateParams({
+                _uuid: uuidV4(),
+                name: surveyName,
+                shortname: surveyShortname,
+                startDate: surveyStartDate,
+                endDate: surveyEndDate,
+                additionalAttribute: 'additionalValue'
+            })
+        ).toEqual([]);
 
         // Invalid name (should be a string)
         expect(Survey.validateParams({ name: 23, shortname: 'foo' })[0].message).toEqual('Survey validateParams: name should be a string');
@@ -47,10 +76,18 @@ describe('Survey Class', () => {
         expect(Survey.validateParams({ name: 'bar', shortname: {} })[0].message).toEqual('Survey validateParams: shortname should be a string');
 
         // Invalid description (should be a string)
-        expect(Survey.validateParams({ name: 'bar', shortname: 'foo', description: new Date() })[0].message).toEqual('Survey validateParams: description should be a string');
+        expect(Survey.validateParams({ name: 'bar', shortname: 'foo', description: new Date() })[0].message).toEqual(
+            'Survey validateParams: description should be a string'
+        );
 
         // Invalid UUID
-        const invalidUuid = Survey.validateParams({ name: 'bar', shortname: 'foo', _uuid: 'foo', startDate: surveyStartDate, endDate: surveyEndDate });
+        const invalidUuid = Survey.validateParams({
+            name: 'bar',
+            shortname: 'foo',
+            _uuid: 'foo',
+            startDate: surveyStartDate,
+            endDate: surveyEndDate
+        });
         expect(invalidUuid.length).toEqual(1);
         expect(invalidUuid[0].message).toEqual('Uuidable validateParams: _uuid should be a valid uuid');
 
@@ -66,9 +103,8 @@ describe('Survey Class', () => {
         expect(invalidEndDate2[0].message).toEqual('Survey validateParams: endDate should be a valid date string');
 
         // Missing required attributes:
-        const missingRequired = Survey.validateParams({ });
+        const missingRequired = Survey.validateParams({});
         expect(missingRequired.length).toEqual(1);
         expect(missingRequired[0].message).toEqual('Survey validateParams: shortname is required');
-
     });
 });

@@ -48,16 +48,7 @@ describe('SurveyObjectsUnserializer', () => {
                     _activeSection: 'home'
                 },
                 audits: [],
-                auditsByObject: {
-                    interview: [],
-                    household: [],
-                    home: [],
-                    persons: {},
-                    journeys: {},
-                    visitedPlaces: {},
-                    trips: {},
-                    segments: {}
-                }
+                auditsByObject: { interview: [], household: [], home: [], persons: {}, journeys: {}, visitedPlaces: {}, trips: {}, segments: {} }
             };
 
             const result = SurveyObjectsUnserializer.unserialize(serializedData);
@@ -74,14 +65,7 @@ describe('SurveyObjectsUnserializer', () => {
                     _uuid: homeUuid,
                     _isValid: true,
                     name: 'My Home',
-                    geography: {
-                        type: 'Feature',
-                        geometry: {
-                            type: 'Point',
-                            coordinates: [-73.5, 45.5]
-                        },
-                        properties: {}
-                    }
+                    geography: { type: 'Feature', geometry: { type: 'Point', coordinates: [-73.5, 45.5] }, properties: {} }
                 },
                 audits: []
             };
@@ -105,18 +89,8 @@ describe('SurveyObjectsUnserializer', () => {
                     _isValid: true,
                     size: 2,
                     _members: [
-                        {
-                            _uuid: person1Uuid,
-                            _sequence: 1,
-                            age: 30,
-                            _isValid: true
-                        },
-                        {
-                            _uuid: person2Uuid,
-                            _sequence: 2,
-                            age: 25,
-                            _isValid: true
-                        }
+                        { _uuid: person1Uuid, _sequence: 1, age: 30, _isValid: true },
+                        { _uuid: person2Uuid, _sequence: 2, age: 25, _isValid: true }
                     ]
                 },
                 audits: []
@@ -158,27 +132,13 @@ describe('SurveyObjectsUnserializer', () => {
                                     _uuid: journeyUuid,
                                     _isValid: true,
                                     name: 'Daily Commute',
-                                    _visitedPlaces: [
-                                        {
-                                            _uuid: visitedPlaceUuid,
-                                            _sequence: 1,
-                                            activity: 'work',
-                                            _isValid: true
-                                        }
-                                    ],
+                                    _visitedPlaces: [{ _uuid: visitedPlaceUuid, _sequence: 1, activity: 'work', _isValid: true }],
                                     _trips: [
                                         {
                                             _uuid: tripUuid,
                                             _sequence: 1,
                                             _isValid: true,
-                                            _segments: [
-                                                {
-                                                    _uuid: segmentUuid,
-                                                    _sequence: 1,
-                                                    mode: 'walk',
-                                                    _isValid: true
-                                                }
-                                            ]
+                                            _segments: [{ _uuid: segmentUuid, _sequence: 1, mode: 'walk', _isValid: true }]
                                         }
                                     ]
                                 }
@@ -231,15 +191,8 @@ describe('SurveyObjectsUnserializer', () => {
             const segmentUuid = uuidV4();
 
             const serializedData = {
-                interview: {
-                    _uuid: interviewUuid,
-                    _isValid: true
-                },
-                home: {
-                    _uuid: homeUuid,
-                    _isValid: true,
-                    _interviewUuid: interviewUuid
-                },
+                interview: { _uuid: interviewUuid, _isValid: true },
+                home: { _uuid: homeUuid, _isValid: true, _interviewUuid: interviewUuid },
                 household: {
                     _uuid: householdUuid,
                     _isValid: true,
@@ -259,13 +212,7 @@ describe('SurveyObjectsUnserializer', () => {
                                     _isValid: true,
                                     _personUuid: personUuid,
                                     _visitedPlaces: [
-                                        {
-                                            _uuid: visitedPlaceUuid,
-                                            _sequence: 1,
-                                            activity: 'home',
-                                            _isValid: true,
-                                            _journeyUuid: journeyUuid
-                                        }
+                                        { _uuid: visitedPlaceUuid, _sequence: 1, activity: 'home', _isValid: true, _journeyUuid: journeyUuid }
                                     ],
                                     _trips: [
                                         {
@@ -273,15 +220,7 @@ describe('SurveyObjectsUnserializer', () => {
                                             _sequence: 1,
                                             _isValid: true,
                                             _journeyUuid: journeyUuid,
-                                            _segments: [
-                                                {
-                                                    _uuid: segmentUuid,
-                                                    _sequence: 1,
-                                                    mode: 'walk',
-                                                    _isValid: true,
-                                                    _tripUuid: tripUuid
-                                                }
-                                            ]
+                                            _segments: [{ _uuid: segmentUuid, _sequence: 1, mode: 'walk', _isValid: true, _tripUuid: tripUuid }]
                                         }
                                     ]
                                 }
@@ -324,10 +263,7 @@ describe('SurveyObjectsUnserializer', () => {
         it('should unserialize audits', () => {
             const interviewUuid = uuidV4();
             const serializedData = {
-                interview: {
-                    _uuid: interviewUuid,
-                    _isValid: true
-                },
+                interview: { _uuid: interviewUuid, _isValid: true },
                 audits: [
                     {
                         objectType: 'interview',
@@ -390,14 +326,7 @@ describe('SurveyObjectsUnserializer', () => {
 
         it('should handle household without members', () => {
             const householdUuid = uuidV4();
-            const serializedData = {
-                household: {
-                    _uuid: householdUuid,
-                    _isValid: true,
-                    size: 0
-                },
-                audits: []
-            };
+            const serializedData = { household: { _uuid: householdUuid, _isValid: true, size: 0 }, audits: [] };
 
             const result = SurveyObjectsUnserializer.unserialize(serializedData);
 
@@ -423,15 +352,7 @@ describe('SurveyObjectsUnserializer', () => {
                             age: 30,
                             _isValid: true,
                             _householdUuid: householdUuid,
-                            _vehicles: [
-                                {
-                                    _uuid: vehicleUuid,
-                                    make: 'Toyota',
-                                    model: 'Camry',
-                                    _isValid: true,
-                                    _ownerUuid: personUuid
-                                }
-                            ]
+                            _vehicles: [{ _uuid: vehicleUuid, make: 'Toyota', model: 'Camry', _isValid: true, _ownerUuid: personUuid }]
                         }
                     ]
                 },
@@ -477,14 +398,7 @@ describe('SurveyObjectsUnserializer', () => {
                                             _sequence: 1,
                                             _isValid: true,
                                             _journeyUuid: journeyUuid,
-                                            _junctions: [
-                                                {
-                                                    _uuid: junctionUuid,
-                                                    parkingType: 'exterior',
-                                                    _isValid: true,
-                                                    _tripUuid: tripUuid
-                                                }
-                                            ]
+                                            _junctions: [{ _uuid: junctionUuid, parkingType: 'exterior', _isValid: true, _tripUuid: tripUuid }]
                                         }
                                     ]
                                 }
@@ -529,14 +443,7 @@ describe('SurveyObjectsUnserializer', () => {
                                     _uuid: journeyUuid,
                                     _isValid: true,
                                     _personUuid: personUuid,
-                                    _tripChains: [
-                                        {
-                                            _uuid: tripChainUuid,
-                                            category: 'work',
-                                            _isValid: true,
-                                            _journeyUuid: journeyUuid
-                                        }
-                                    ]
+                                    _tripChains: [{ _uuid: tripChainUuid, category: 'work', _isValid: true, _journeyUuid: journeyUuid }]
                                 }
                             ]
                         }
@@ -593,15 +500,7 @@ describe('SurveyObjectsUnserializer', () => {
         });
 
         it('should return true when any valid data is present', () => {
-            expect(
-                SurveyObjectsUnserializer.hasValidData({
-                    interview: {},
-                    household: {},
-                    home: {},
-                    audits: []
-                })
-            ).toBe(true);
+            expect(SurveyObjectsUnserializer.hasValidData({ interview: {}, household: {}, home: {}, audits: [] })).toBe(true);
         });
     });
 });
-

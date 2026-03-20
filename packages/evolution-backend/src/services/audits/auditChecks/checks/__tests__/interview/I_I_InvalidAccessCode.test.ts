@@ -22,30 +22,12 @@ describe('I_I_InvalidAccessCodeFormat audit check', () => {
 
     describe('should pass in valid scenarios', () => {
         it.each([
-            {
-                description: 'interview has valid access code with hyphen',
-                accessCode: '1234-5678'
-            },
-            {
-                description: 'interview has valid access code without hyphen',
-                accessCode: '12345678'
-            },
-            {
-                description: 'interview has no access code (undefined)',
-                accessCode: undefined
-            },
-            {
-                description: 'interview has null access code',
-                accessCode: null
-            },
-            {
-                description: 'access code is single space',
-                accessCode: ' '
-            },
-            {
-                description: 'interview has empty string access code',
-                accessCode: ''
-            }
+            { description: 'interview has valid access code with hyphen', accessCode: '1234-5678' },
+            { description: 'interview has valid access code without hyphen', accessCode: '12345678' },
+            { description: 'interview has no access code (undefined)', accessCode: undefined },
+            { description: 'interview has null access code', accessCode: null },
+            { description: 'access code is single space', accessCode: ' ' },
+            { description: 'interview has empty string access code', accessCode: '' }
         ])('$description', ({ accessCode }) => {
             const interview = createMockInterview({ accessCode: accessCode as string | undefined });
             const context: InterviewAuditCheckContext = { interview };
@@ -58,30 +40,12 @@ describe('I_I_InvalidAccessCodeFormat audit check', () => {
 
     describe('should fail when access code is invalid', () => {
         it.each([
-            {
-                description: 'access code with letters',
-                accessCode: 'invalid-code'
-            },
-            {
-                description: 'access code too short',
-                accessCode: '123'
-            },
-            {
-                description: 'access code with special characters',
-                accessCode: '!@#$%^&*()'
-            },
-            {
-                description: 'access code too long',
-                accessCode: '1234567890123456789012345678901234567890'
-            },
-            {
-                description: 'access code with 7 digits only',
-                accessCode: '1234567'
-            },
-            {
-                description: 'access code with multiple hyphens',
-                accessCode: '12-34-56-78'
-            }
+            { description: 'access code with letters', accessCode: 'invalid-code' },
+            { description: 'access code too short', accessCode: '123' },
+            { description: 'access code with special characters', accessCode: '!@#$%^&*()' },
+            { description: 'access code too long', accessCode: '1234567890123456789012345678901234567890' },
+            { description: 'access code with 7 digits only', accessCode: '1234567' },
+            { description: 'access code with multiple hyphens', accessCode: '12-34-56-78' }
         ])('$description', ({ accessCode }) => {
             const interview = createMockInterview({ accessCode }, validUuid);
             const context: InterviewAuditCheckContext = { interview };
@@ -100,4 +64,3 @@ describe('I_I_InvalidAccessCodeFormat audit check', () => {
         });
     });
 });
-

@@ -17,31 +17,11 @@ describe('I_M_AccessCode audit check', () => {
 
     describe('should pass when access code is present', () => {
         it.each([
-            {
-                description: 'access code is required and present',
-                accessCode: '1234-5678',
-                isRequired: true
-            },
-            {
-                description: 'access code is not required and present',
-                accessCode: '1234-5678',
-                isRequired: false
-            },
-            {
-                description: 'access code is not required and missing',
-                accessCode: undefined,
-                isRequired: false
-            },
-            {
-                description: 'access code is not required and null',
-                accessCode: null,
-                isRequired: false
-            },
-            {
-                description: 'access code is not required and empty string',
-                accessCode: '',
-                isRequired: false
-            }
+            { description: 'access code is required and present', accessCode: '1234-5678', isRequired: true },
+            { description: 'access code is not required and present', accessCode: '1234-5678', isRequired: false },
+            { description: 'access code is not required and missing', accessCode: undefined, isRequired: false },
+            { description: 'access code is not required and null', accessCode: null, isRequired: false },
+            { description: 'access code is not required and empty string', accessCode: '', isRequired: false }
         ])('$description', async ({ accessCode, isRequired }) => {
             await jest.isolateModulesAsync(async () => {
                 // Import modules inside isolateModules to get fresh instances
@@ -66,30 +46,12 @@ describe('I_M_AccessCode audit check', () => {
 
     describe('should fail when access code is required and missing', () => {
         it.each([
-            {
-                description: 'access code is undefined',
-                accessCode: undefined
-            },
-            {
-                description: 'access code is null',
-                accessCode: null
-            },
-            {
-                description: 'access code is empty string',
-                accessCode: ''
-            },
-            {
-                description: 'access code is whitespace only',
-                accessCode: '   '
-            },
-            {
-                description: 'access code is tab character',
-                accessCode: '\t'
-            },
-            {
-                description: 'access code is newline character',
-                accessCode: '\n'
-            }
+            { description: 'access code is undefined', accessCode: undefined },
+            { description: 'access code is null', accessCode: null },
+            { description: 'access code is empty string', accessCode: '' },
+            { description: 'access code is whitespace only', accessCode: '   ' },
+            { description: 'access code is tab character', accessCode: '\t' },
+            { description: 'access code is newline character', accessCode: '\n' }
         ])('$description', async ({ accessCode }) => {
             await jest.isolateModulesAsync(async () => {
                 // Import modules inside isolateModules to get fresh instances
@@ -97,10 +59,7 @@ describe('I_M_AccessCode audit check', () => {
                 const { interviewAuditChecks } = await import('../../InterviewAuditChecks');
 
                 // Set config to require access code
-                projectConfig.requiredFieldsBySurveyObject = {
-                    ...projectConfig.requiredFieldsBySurveyObject,
-                    interview: ['accessCode']
-                };
+                projectConfig.requiredFieldsBySurveyObject = { ...projectConfig.requiredFieldsBySurveyObject, interview: ['accessCode'] };
 
                 const interview = createMockInterview({ accessCode: accessCode as string | undefined }, validUuid);
                 const context: InterviewAuditCheckContext = { interview };
@@ -120,4 +79,3 @@ describe('I_M_AccessCode audit check', () => {
         });
     });
 });
-

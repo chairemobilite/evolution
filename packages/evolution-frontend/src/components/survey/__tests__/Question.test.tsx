@@ -8,7 +8,7 @@ import _cloneDeep from 'lodash/cloneDeep';
 import React from 'react';
 import each from 'jest-each';
 import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event'
+import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 import { axe, toHaveNoViolations } from 'jest-axe';
 expect.extend(toHaveNoViolations);
@@ -34,21 +34,18 @@ jest.mock('react-input-range/src/js/input-range/default-class-names', () => ({
     slider: 'input-range__slider',
     sliderContainer: 'input-range__slider-container',
     track: 'input-range__track input-range__track--background',
-    valueLabel: 'input-range__label input-range__label--value',
+    valueLabel: 'input-range__label input-range__label--value'
 }));
 
 jest.mock('react-input-range/lib/css/index.css', () => {});
 
 // Mock the createPortal function to allow the snapshots with Modal questions to work. With later React and React-modal versions, this won't be necessary anymore. See https://github.com/reactjs/react-modal/issues/553
-jest.mock('react-dom', () => ({
-    ...jest.requireActual('react-dom'),
-    createPortal: jest.fn((element, _) => element)
-}));
+jest.mock('react-dom', () => ({ ...jest.requireActual('react-dom'), createPortal: jest.fn((element, _) => element) }));
 
 const userAttributes = {
     id: 1,
     username: 'foo',
-    preferences: {  },
+    preferences: {},
     serializedPermissions: [],
     isAuthorized: () => true,
     is_admin: false,
@@ -61,10 +58,7 @@ const commonWidgetConfig = {
     twoColumns: true,
     path: 'home.region',
     containsHtml: true,
-    label: {
-        fr: 'Texte en français',
-        en: 'English text'
-    }
+    label: { fr: 'Texte en français', en: 'English text' }
 };
 
 const defaultWidgetStatus: WidgetStatus = {
@@ -83,34 +77,97 @@ const defaultWidgetStatus: WidgetStatus = {
 };
 
 each([
-    ['InputSelect', { ...commonWidgetConfig, inputType: 'select', choices: [{ label: 'choice 1', value: 'c1' }, { label: 'choice 2', value: 'c2' }] }, 'c2'],
-    ['InputRadio', { ...commonWidgetConfig, inputType: 'radio', choices: [{ label: 'choice 1', value: 'c1' }, { label: 'choice 2', value: 'c2' }] }, 'c2'],
+    [
+        'InputSelect',
+        {
+            ...commonWidgetConfig,
+            inputType: 'select',
+            choices: [
+                { label: 'choice 1', value: 'c1' },
+                { label: 'choice 2', value: 'c2' }
+            ]
+        },
+        'c2'
+    ],
+    [
+        'InputRadio',
+        {
+            ...commonWidgetConfig,
+            inputType: 'radio',
+            choices: [
+                { label: 'choice 1', value: 'c1' },
+                { label: 'choice 2', value: 'c2' }
+            ]
+        },
+        'c2'
+    ],
     ['InputRadioNumber', { ...commonWidgetConfig, valueRange: { min: 1, max: 3 }, inputType: 'radioNumber', overMaxAllowed: true }, 4],
-    ['InputCheckbox', { ...commonWidgetConfig, inputType: 'checkbox', choices: [{ label: 'choice 1', value: 'c1' }, { label: 'choice 2', value: 'c2' }] }, ['c2']],
-    ['InputMultiselect', { ...commonWidgetConfig, inputType: 'multiselect', choices: [{ label: 'choice 1', value: 'c1' }, { label: 'choice 2', value: 'c2' }] }, 'c2'],
-    ['InputButton', { ...commonWidgetConfig, inputType: 'button', choices: [{ label: 'choice 1', value: 'c1' }, { label: 'choice 2', value: 'c2' }] }, 'c2'],
-    ['InputDatePicker', { ...commonWidgetConfig, inputType: 'datePicker', minDate: new Date('2023-05-01'), maxDate: new Date('2023-06-01') }, new Date('2023-05-24 10:00:00 GMT-0400')],
+    [
+        'InputCheckbox',
+        {
+            ...commonWidgetConfig,
+            inputType: 'checkbox',
+            choices: [
+                { label: 'choice 1', value: 'c1' },
+                { label: 'choice 2', value: 'c2' }
+            ]
+        },
+        ['c2']
+    ],
+    [
+        'InputMultiselect',
+        {
+            ...commonWidgetConfig,
+            inputType: 'multiselect',
+            choices: [
+                { label: 'choice 1', value: 'c1' },
+                { label: 'choice 2', value: 'c2' }
+            ]
+        },
+        'c2'
+    ],
+    [
+        'InputButton',
+        {
+            ...commonWidgetConfig,
+            inputType: 'button',
+            choices: [
+                { label: 'choice 1', value: 'c1' },
+                { label: 'choice 2', value: 'c2' }
+            ]
+        },
+        'c2'
+    ],
+    [
+        'InputDatePicker',
+        { ...commonWidgetConfig, inputType: 'datePicker', minDate: new Date('2023-05-01'), maxDate: new Date('2023-06-01') },
+        new Date('2023-05-24 10:00:00 GMT-0400')
+    ],
     ['InputRange', { ...commonWidgetConfig, inputType: 'slider', minValue: 3, maxValue: 10 }],
     ['InputText', { ...commonWidgetConfig, inputType: 'text' }, 'foo'], // This test needs a value
     ['InputString', { ...commonWidgetConfig, inputType: 'string' }],
-    ['InputTime', { ...commonWidgetConfig, inputType: 'time', minTimeSecondsSinceMidnight: 3600, maxTimeSecondsSinceMidnight: 7200, minuteStep: 10 }, 3660], // This test needs a value
+    [
+        'InputTime',
+        { ...commonWidgetConfig, inputType: 'time', minTimeSecondsSinceMidnight: 3600, maxTimeSecondsSinceMidnight: 7200, minuteStep: 10 },
+        3660
+    ] // This test needs a value
 ]).describe('Question with widget %s', (_widget, widgetConfig, value: unknown = undefined) => {
-
     const widgetStatus = _cloneDeep(defaultWidgetStatus);
     widgetStatus.value = value as any;
 
     test('Render widget', () => {
-
         const { container } = render(
             <Question
-                path='home.region'
-                section='test'
+                path="home.region"
+                section="test"
                 loadingState={0}
                 widgetConfig={widgetConfig}
                 interview={interviewAttributes}
                 user={userAttributes}
                 widgetStatus={widgetStatus}
-                startUpdateInterview={() => { /* Nothing to do */}}
+                startUpdateInterview={() => {
+                    /* Nothing to do */
+                }}
             />
         );
         expect(container).toMatchSnapshot();
@@ -119,14 +176,16 @@ each([
     test('Widget accessibility', async () => {
         const { container } = render(
             <Question
-                path='home.region'
-                section='test'
+                path="home.region"
+                section="test"
                 loadingState={0}
                 widgetConfig={widgetConfig}
                 interview={interviewAttributes}
                 user={userAttributes}
                 widgetStatus={widgetStatus}
-                startUpdateInterview={() => { /* Nothing to do */}}
+                startUpdateInterview={() => {
+                    /* Nothing to do */
+                }}
             />
         );
         const results = await axe(container);
@@ -140,10 +199,7 @@ describe('With help popup and link', () => {
     const widgetConfig = {
         ...commonWidgetConfig,
         inputType: 'string',
-        helpPopup: {
-            title: helpTitle,
-            content: jest.fn().mockReturnValue(helpContent)
-        }
+        helpPopup: { title: helpTitle, content: jest.fn().mockReturnValue(helpContent) }
     };
 
     test('Test widget with help', () => {
@@ -152,14 +208,16 @@ describe('With help popup and link', () => {
 
         const { container } = render(
             <Question
-                path='home.region'
-                section='test'
+                path="home.region"
+                section="test"
                 loadingState={0}
                 widgetConfig={widgetConfig as any}
                 interview={interviewAttributes}
                 user={userAttributes}
                 widgetStatus={widgetStatus}
-                startUpdateInterview={() => { /* Nothing to do */}}
+                startUpdateInterview={() => {
+                    /* Nothing to do */
+                }}
             />
         );
         expect(container).toMatchSnapshot();
@@ -169,16 +227,20 @@ describe('With help popup and link', () => {
         const widgetStatus = _cloneDeep(defaultWidgetStatus);
         widgetStatus.value = 'test';
 
-        render(<Question
-            path='home.region'
-            section='test'
-            loadingState={0}
-            widgetConfig={widgetConfig as any}
-            interview={interviewAttributes}
-            user={userAttributes}
-            widgetStatus={widgetStatus}
-            startUpdateInterview={() => { /* Nothing to do */}}
-        />);
+        render(
+            <Question
+                path="home.region"
+                section="test"
+                loadingState={0}
+                widgetConfig={widgetConfig as any}
+                interview={interviewAttributes}
+                user={userAttributes}
+                widgetStatus={widgetStatus}
+                startUpdateInterview={() => {
+                    /* Nothing to do */
+                }}
+            />
+        );
         const user = userEvent.setup();
 
         // Find and click on the help button
@@ -193,10 +255,7 @@ describe('With help popup and link', () => {
 });
 
 describe('With error message', () => {
-    const widgetConfig = {
-        ...commonWidgetConfig,
-        inputType: 'string',
-    };
+    const widgetConfig = { ...commonWidgetConfig, inputType: 'string' };
 
     test('Error message on visible widget', () => {
         const widgetStatus = _cloneDeep(defaultWidgetStatus);
@@ -205,40 +264,39 @@ describe('With error message', () => {
 
         const { container } = render(
             <Question
-                path='home.region'
-                section='test'
+                path="home.region"
+                section="test"
                 loadingState={0}
                 widgetConfig={widgetConfig as any}
                 interview={interviewAttributes}
                 user={userAttributes}
                 widgetStatus={widgetStatus}
-                startUpdateInterview={() => { /* Nothing to do */}}
+                startUpdateInterview={() => {
+                    /* Nothing to do */
+                }}
             />
         );
         expect(container).toMatchSnapshot();
     });
-
 });
 
 describe('With joining questions', () => {
-
     test('Joining next', () => {
-        const widgetConfig = {
-            ...commonWidgetConfig,
-            inputType: 'string',
-        };
+        const widgetConfig = { ...commonWidgetConfig, inputType: 'string' };
         const widgetStatus = _cloneDeep(defaultWidgetStatus);
 
         const { container } = render(
             <Question
-                path='home.region'
-                section='test'
+                path="home.region"
+                section="test"
                 loadingState={0}
                 widgetConfig={widgetConfig as any}
                 interview={interviewAttributes}
                 user={userAttributes}
                 widgetStatus={widgetStatus}
-                startUpdateInterview={() => { /* Nothing to do */}}
+                startUpdateInterview={() => {
+                    /* Nothing to do */
+                }}
                 join={true}
             />
         );
@@ -247,47 +305,45 @@ describe('With joining questions', () => {
 });
 
 describe('Modal widget', () => {
-    const widgetConfig = {
-        ...commonWidgetConfig,
-        inputType: 'string',
-        isModal: true
-    };
+    const widgetConfig = { ...commonWidgetConfig, inputType: 'string', isModal: true };
 
     test('Widget is not visible', () => {
-        
         const widgetStatus = _cloneDeep(defaultWidgetStatus);
         widgetStatus.isVisible = false;
 
         const { container } = render(
             <Question
-                path='home.region'
-                section='test'
+                path="home.region"
+                section="test"
                 loadingState={0}
                 widgetConfig={widgetConfig as any}
                 interview={interviewAttributes}
                 user={userAttributes}
                 widgetStatus={widgetStatus}
-                startUpdateInterview={() => { /* Nothing to do */}}
+                startUpdateInterview={() => {
+                    /* Nothing to do */
+                }}
             />
         );
         expect(container).toMatchSnapshot();
     });
 
     test('Widget is visible', () => {
-        
         const widgetStatus = _cloneDeep(defaultWidgetStatus);
         widgetStatus.isVisible = true;
 
         const { container } = render(
             <Question
-                path='home.region'
-                section='test'
+                path="home.region"
+                section="test"
                 loadingState={0}
                 widgetConfig={widgetConfig as any}
                 interview={interviewAttributes}
                 user={userAttributes}
                 widgetStatus={widgetStatus}
-                startUpdateInterview={() => { /* Nothing to do */}}
+                startUpdateInterview={() => {
+                    /* Nothing to do */
+                }}
             />
         );
         expect(container).toMatchSnapshot();

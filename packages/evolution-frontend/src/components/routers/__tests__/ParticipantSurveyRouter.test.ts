@@ -10,10 +10,7 @@ import { render } from '@testing-library/react';
 import getParticipantSurveyRoutes from '../ParticipantSurveyRouter';
 
 // Mock the components since we're testing route configuration, not component rendering
-jest.mock('../ParticipantRootLayout', () => ({
-    __esModule: true,
-    default: () => React.createElement('div', null, 'ParticipantRootLayout')
-}));
+jest.mock('../ParticipantRootLayout', () => ({ __esModule: true, default: () => React.createElement('div', null, 'ParticipantRootLayout') }));
 
 jest.mock('chaire-lib-frontend/lib/components/routers/PrivateRoute', () => ({
     __esModule: true,
@@ -25,41 +22,23 @@ jest.mock('chaire-lib-frontend/lib/components/routers/PublicRoute', () => ({
     default: () => React.createElement('div', null, 'PublicRoute')
 }));
 
-jest.mock('../ConsentedRoute', () => ({
-    __esModule: true,
-    default: () => React.createElement('div', null, 'ConsentedRoute')
-}));
+jest.mock('../ConsentedRoute', () => ({ __esModule: true, default: () => React.createElement('div', null, 'ConsentedRoute') }));
 
 // Mock page components
-jest.mock('../../pages/HomePage', () => ({
-    __esModule: true,
-    default: () => React.createElement('div', null, 'HomePage')
-}));
+jest.mock('../../pages/HomePage', () => ({ __esModule: true, default: () => React.createElement('div', null, 'HomePage') }));
 
-jest.mock('../../pages/UnauthorizedPage', () => ({
-    __esModule: true,
-    default: () => React.createElement('div', null, 'UnauthorizedPage')
-}));
+jest.mock('../../pages/UnauthorizedPage', () => ({ __esModule: true, default: () => React.createElement('div', null, 'UnauthorizedPage') }));
 
-jest.mock('../../pages/SurveyErrorPage', () => ({
-    __esModule: true,
-    default: () => React.createElement('div', null, 'SurveyErrorPage')
-}));
+jest.mock('../../pages/SurveyErrorPage', () => ({ __esModule: true, default: () => React.createElement('div', null, 'SurveyErrorPage') }));
 
-jest.mock('../../pages/auth/AuthPage', () => ({
-    __esModule: true,
-    default: () => React.createElement('div', null, 'AuthPage')
-}));
+jest.mock('../../pages/auth/AuthPage', () => ({ __esModule: true, default: () => React.createElement('div', null, 'AuthPage') }));
 
 jest.mock('../../pages/SurveyUnavailablePage', () => ({
     __esModule: true,
     default: () => React.createElement('div', null, 'SurveyUnavailablePage')
 }));
 
-jest.mock('../../pages/NotFoundPage', () => ({
-    __esModule: true,
-    default: () => React.createElement('div', null, 'NotFoundPage')
-}));
+jest.mock('../../pages/NotFoundPage', () => ({ __esModule: true, default: () => React.createElement('div', null, 'NotFoundPage') }));
 
 jest.mock('chaire-lib-frontend/lib/components/forms/auth/passwordless/MagicLinkVerify', () => ({
     __esModule: true,
@@ -71,15 +50,10 @@ jest.mock('chaire-lib-frontend/lib/components/forms/auth/passwordless/CheckMagic
     default: () => React.createElement('div', null, 'CheckMagicEmailPage')
 }));
 
-jest.mock('../../hoc/SurveyWithErrorBoundary', () => ({
-    __esModule: true,
-    default: () => React.createElement('div', null, 'Survey')
-}));
+jest.mock('../../hoc/SurveyWithErrorBoundary', () => ({ __esModule: true, default: () => React.createElement('div', null, 'Survey') }));
 
 // Mock the setShowUserInfoPerm action
-jest.mock('chaire-lib-frontend/lib/actions/Auth', () => ({
-    setShowUserInfoPerm: jest.fn()
-}));
+jest.mock('chaire-lib-frontend/lib/actions/Auth', () => ({ setShowUserInfoPerm: jest.fn() }));
 
 describe('getParticipantSurveyRoutes', () => {
     let routes: RouteObject[];
@@ -122,7 +96,7 @@ describe('getParticipantSurveyRoutes', () => {
         { path: '/*', wrapperType: 'PublicRoute' },
         { path: '/unavailable', wrapperType: 'PrivateRoute' },
         { path: '/survey/:sectionShortname', wrapperType: 'PrivateRoute' },
-        { path: '/survey', wrapperType: 'PrivateRoute' },
+        { path: '/survey', wrapperType: 'PrivateRoute' }
     ];
 
     it('Should include all expected routes with correct total count', () => {
@@ -131,32 +105,29 @@ describe('getParticipantSurveyRoutes', () => {
         expect(children.length).toBe(expectedRoutes.length);
     });
 
-    it.each(expectedRoutes)(
-        'Should have route $path with correct path and $wrapperType wrapper',
-        ({ path, wrapperType }) => {
-            const rootRoute = routes[0];
-            const children = rootRoute.children || [];
+    it.each(expectedRoutes)('Should have route $path with correct path and $wrapperType wrapper', ({ path, wrapperType }) => {
+        const rootRoute = routes[0];
+        const children = rootRoute.children || [];
 
-            const getWrapperType = (pathToCheck: string): string => {
-                const route = children.find((child) => child.path === pathToCheck);
-                if (!route || !route.element) return 'Unknown';
+        const getWrapperType = (pathToCheck: string): string => {
+            const route = children.find((child) => child.path === pathToCheck);
+            if (!route || !route.element) return 'Unknown';
 
-                // Render the element and check the output
-                const { container, unmount } = render(route.element as React.ReactElement);
-                const textContent = container.textContent || '';
+            // Render the element and check the output
+            const { container, unmount } = render(route.element as React.ReactElement);
+            const textContent = container.textContent || '';
 
-                // Clean up the render before returning to avoid memory leaks
-                unmount();
+            // Clean up the render before returning to avoid memory leaks
+            unmount();
 
-                if (textContent.includes('ConsentedRoute')) return 'ConsentedRoute';
-                if (textContent.includes('PrivateRoute')) return 'PrivateRoute';
-                if (textContent.includes('PublicRoute')) return 'PublicRoute';
-                return 'Unknown';
-            };
+            if (textContent.includes('ConsentedRoute')) return 'ConsentedRoute';
+            if (textContent.includes('PrivateRoute')) return 'PrivateRoute';
+            if (textContent.includes('PublicRoute')) return 'PublicRoute';
+            return 'Unknown';
+        };
 
-            const paths = children.map((child) => child.path);
-            expect(paths).toContain(path);
-            expect(getWrapperType(path)).toBe(wrapperType);
-        }
-    );
+        const paths = children.map((child) => child.path);
+        expect(paths).toContain(path);
+        expect(getWrapperType(path)).toBe(wrapperType);
+    });
 });

@@ -134,9 +134,7 @@ describe('runVisitedPlaceAuditChecks - Integration', () => {
             }
         };
 
-        await expect(runVisitedPlaceAuditChecks(context, mockAuditChecks)).rejects.toThrow(
-            'Check function threw an error'
-        );
+        await expect(runVisitedPlaceAuditChecks(context, mockAuditChecks)).rejects.toThrow('Check function threw an error');
     });
 
     it('should propagate errors when an async check rejects', async () => {

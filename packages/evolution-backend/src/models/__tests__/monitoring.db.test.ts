@@ -20,17 +20,10 @@ const surveysTable = 'sv_surveys';
 
 // `sv_interviews.participant_id` is NOT NULL and there is a UNIQUE(survey_id, participant_id)
 // constraint, so each interview fixture must reference a distinct participant for a given survey.
-const localParticipants = Array.from({ length: 5 }, (_v, i) => ({
-    id: i + 1,
-    email: `test${i + 1}@transition.city`,
-    is_valid: true
-}));
+const localParticipants = Array.from({ length: 5 }, (_v, i) => ({ id: i + 1, email: `test${i + 1}@transition.city`, is_valid: true }));
 
 // `sv_interviews.survey_id` is NOT NULL in the schema, so interviews must reference an existing survey.
-const localSurvey = {
-    id: 1,
-    shortname: 'test_survey'
-};
+const localSurvey = { id: 1, shortname: 'test_survey' };
 
 const mockInterviews = [
     {
@@ -40,10 +33,7 @@ const mockInterviews = [
         participant_id: localParticipants[0].id,
         is_valid: true,
         is_completed: true,
-        response: {
-            _completedAt: '2024-01-01T10:00:00Z',
-            perceivedBurden: { difficultyRange: 10 }
-        }
+        response: { _completedAt: '2024-01-01T10:00:00Z', perceivedBurden: { difficultyRange: 10 } }
     },
     {
         id: 2,
@@ -52,10 +42,7 @@ const mockInterviews = [
         participant_id: localParticipants[1].id,
         is_valid: true,
         is_completed: true,
-        response: {
-            _completedAt: '2024-01-02T10:00:00Z',
-            perceivedBurden: { difficultyRange: 50 }
-        }
+        response: { _completedAt: '2024-01-02T10:00:00Z', perceivedBurden: { difficultyRange: 50 } }
     },
     {
         id: 3,
@@ -64,9 +51,7 @@ const mockInterviews = [
         participant_id: localParticipants[2].id,
         is_valid: true,
         is_completed: false,
-        response: {
-            perceivedBurden: { difficultyRange: 90 }
-        }
+        response: { perceivedBurden: { difficultyRange: 90 } }
     },
     {
         id: 4,
@@ -75,20 +60,9 @@ const mockInterviews = [
         participant_id: localParticipants[3].id,
         is_valid: true,
         is_completed: true,
-        response: {
-            _completedAt: '2024-01-03T10:00:00Z',
-            perceivedBurden: { difficultyRange: null }
-        }
+        response: { _completedAt: '2024-01-03T10:00:00Z', perceivedBurden: { difficultyRange: null } }
     },
-    {
-        id: 5,
-        uuid: uuidV4(),
-        survey_id: localSurvey.id,
-        participant_id: localParticipants[4].id,
-        is_valid: true,
-        is_completed: false,
-        response: {}
-    }
+    { id: 5, uuid: uuidV4(), survey_id: localSurvey.id, participant_id: localParticipants[4].id, is_valid: true, is_completed: false, response: {} }
 ];
 
 beforeAll(async () => {
@@ -142,9 +116,7 @@ describe('monitoring.db.queries with mock data', () => {
         });
 
         // Check that bins add up to number of interviews with difficulty value
-        const withDifficulty = mockInterviews.filter(
-            (i) => typeof i.response.perceivedBurden?.difficultyRange === 'number'
-        ).length;
+        const withDifficulty = mockInterviews.filter((i) => typeof i.response.perceivedBurden?.difficultyRange === 'number').length;
         const totalCount = result.reduce((sum, bin) => sum + bin.count, 0);
         expect(totalCount).toBe(withDifficulty);
 

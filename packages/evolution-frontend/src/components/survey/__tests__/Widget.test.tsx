@@ -31,7 +31,7 @@ jest.mock('react-input-range/src/js/input-range/default-class-names', () => ({
     slider: 'input-range__slider',
     sliderContainer: 'input-range__slider-container',
     track: 'input-range__track input-range__track--background',
-    valueLabel: 'input-range__label input-range__label--value',
+    valueLabel: 'input-range__label input-range__label--value'
 }));
 jest.mock('react-input-range/lib/css/index.css', () => {});
 
@@ -42,24 +42,21 @@ const commonWidgetConfig = {
     twoColumns: true,
     path: 'myTestPath',
     containsHtml: true,
-    label: {
-        fr: 'Texte en français',
-        en: 'English text'
-    }
+    label: { fr: 'Texte en français', en: 'English text' }
 };
-const mockedContext = { sections: {}, widgets: { [testWidgetShortname]: {}, [testNextWidgetShortname]: commonWidgetConfig }, devMode: false, dispatch: jest.fn()};
+const mockedContext = {
+    sections: {},
+    widgets: { [testWidgetShortname]: {}, [testNextWidgetShortname]: commonWidgetConfig },
+    devMode: false,
+    dispatch: jest.fn()
+};
 
 // Create a wrapper component to provide context
-const TestContextProvider = ({ children }) => (
-    <SurveyContext.Provider value={mockedContext}>
-        {children}
-    </SurveyContext.Provider>
-);
+const TestContextProvider = ({ children }) => <SurveyContext.Provider value={mockedContext}>{children}</SurveyContext.Provider>;
 
 const mockComponent = (props, name) => (
     <div>
-        Mocked {name} Widget: 
-        path: {props.path}
+        Mocked {name} Widget: path: {props.path}
         customPath: {props.customPath}
         section: {props.section}
         loadingState: {props.loadingState}
@@ -89,14 +86,12 @@ jest.mock('../Button', () => jest.fn((props) => mockComponent(props, 'Button')))
 jest.mock('../InfoMap', () => jest.fn((props) => mockComponent(props, 'InfoMap')));
 
 // Mock the Group component
-jest.mock('../GroupWidgets', () => ({
-    Group: jest.fn((props) => mockComponent(props, 'Group'))
-}));
+jest.mock('../GroupWidgets', () => ({ Group: jest.fn((props) => mockComponent(props, 'Group')) }));
 
 const userAttributes = {
     id: 1,
     username: 'foo',
-    preferences: {  },
+    preferences: {},
     serializedPermissions: [],
     isAuthorized: () => true,
     is_admin: false,
@@ -119,26 +114,15 @@ const defaultWidgetStatus: WidgetStatus = {
     value: null
 };
 
-const groupWidgetStatus: WidgetStatus = {
-    ..._cloneDeep(defaultWidgetStatus),
-    path: 'myGroupPath'
-};
+const groupWidgetStatus: WidgetStatus = { ..._cloneDeep(defaultWidgetStatus), path: 'myGroupPath' };
 
 const frontendInterviewAttributes = {
     ...interviewAttributes,
     previousWidgets: {},
     previousGroups: {},
-    widgets: {
-        [testWidgetShortname]: _cloneDeep(defaultWidgetStatus),
-        [testNextWidgetShortname]: _cloneDeep(defaultWidgetStatus)
-    },
+    widgets: { [testWidgetShortname]: _cloneDeep(defaultWidgetStatus), [testNextWidgetShortname]: _cloneDeep(defaultWidgetStatus) },
     groups: {
-        myGroup: {
-            myGroupId: {
-                [testWidgetShortname]: _cloneDeep(groupWidgetStatus),
-                [testNextWidgetShortname]: _cloneDeep(groupWidgetStatus)
-            }
-        }
+        myGroup: { myGroupId: { [testWidgetShortname]: _cloneDeep(groupWidgetStatus), [testNextWidgetShortname]: _cloneDeep(groupWidgetStatus) } }
     },
     visibleWidgets: [],
     allWidgetsValid: true
@@ -154,7 +138,6 @@ each([
     ['Group', { type: 'group', path: 'test', widgets: [testNextWidgetShortname] }],
     ['undefined', undefined]
 ]).describe('Widget of type %s', (_widget, widgetConfig) => {
-
     test('Render widget', () => {
         // Set the widget config in the context. Has to be in the test, since
         // it's a shared variable and otherwise it's racy with other tests
@@ -171,7 +154,7 @@ each([
                 <Widget
                     currentWidgetShortname={testWidgetShortname}
                     nextWidgetShortname={testNextWidgetShortname}
-                    sectionName='Test'
+                    sectionName="Test"
                     interview={frontendInterviewAttributes}
                     loadingState={0}
                     errors={{}}
@@ -206,28 +189,21 @@ each([
                     startAddGroupedObjects={jest.fn()}
                     startRemoveGroupedObjects={jest.fn()}
                     startNavigate={jest.fn()}
-                    widgetStatusPath='groups.myGroup.myGroupId'
-                    pathPrefix='groupPath.uuid.groupName'
-                    groupedObjectId='myGroupId'
-                    parentObjectIds={{[groupedShortname]: 'myGroupId'}}
+                    widgetStatusPath="groups.myGroup.myGroupId"
+                    pathPrefix="groupPath.uuid.groupName"
+                    groupedObjectId="myGroupId"
+                    parentObjectIds={{ [groupedShortname]: 'myGroupId' }}
                 />
             </TestContextProvider>
         );
         expect(container).toMatchSnapshot();
     });
-
 });
 
 describe('With server errors', () => {
-
     test('Render Question with server error', () => {
         // In the snapshot, expect the widget status to have the extra server error in it
-        const questionWidgetConfig = {
-            type: 'question',
-            path: 'test',
-            label: 'test question',
-            inputType: 'string'
-        };
+        const questionWidgetConfig = { type: 'question', path: 'test', label: 'test question', inputType: 'string' };
         mockedContext.widgets[testWidgetShortname] = questionWidgetConfig;
 
         const { container } = render(
@@ -235,12 +211,10 @@ describe('With server errors', () => {
                 <Widget
                     currentWidgetShortname={testWidgetShortname}
                     nextWidgetShortname={testNextWidgetShortname}
-                    sectionName='Test'
+                    sectionName="Test"
                     interview={frontendInterviewAttributes}
                     loadingState={0}
-                    errors={{
-                        [testWidgetShortname]: 'Server error message'
-                    }}
+                    errors={{ [testWidgetShortname]: 'Server error message' }}
                     user={userAttributes}
                     startUpdateInterview={jest.fn()}
                     startAddGroupedObjects={jest.fn()}
@@ -264,12 +238,10 @@ describe('With server errors', () => {
                 <Widget
                     currentWidgetShortname={testWidgetShortname}
                     nextWidgetShortname={testNextWidgetShortname}
-                    sectionName='Test'
+                    sectionName="Test"
                     interview={frontendInterviewAttributes}
                     loadingState={0}
-                    errors={{
-                        [testWidgetShortname]: 'Server error message'
-                    }}
+                    errors={{ [testWidgetShortname]: 'Server error message' }}
                     user={userAttributes}
                     startUpdateInterview={jest.fn()}
                     startAddGroupedObjects={jest.fn()}

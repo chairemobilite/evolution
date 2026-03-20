@@ -22,7 +22,7 @@ describe('Vehicle', () => {
         _uuid: uuidV4(),
         shortname: 'sample-shortname',
         name: 'Sample Weight Method',
-        description: 'Sample weight method description',
+        description: 'Sample weight method description'
     };
 
     const validAttributes: VehicleAttributes = {
@@ -41,13 +41,10 @@ describe('Vehicle', () => {
         licensePlateNumber: 'ABC123',
         internalId: 'V001',
         _weights: [{ weight: 1.5, method: new WeightMethod(weightMethodAttributes) }],
-        _isValid: true,
+        _isValid: true
     };
 
-    const extendedAttributes: ExtendedVehicleAttributes = {
-        ...validAttributes,
-        customAttribute: 'Custom Value',
-    };
+    const extendedAttributes: ExtendedVehicleAttributes = { ...validAttributes, customAttribute: 'Custom Value' };
 
     test('should create a Vehicle instance with valid attributes', () => {
         const vehicle = new Vehicle(validAttributes, registry);
@@ -57,9 +54,11 @@ describe('Vehicle', () => {
 
     test('should have a validateParams section for each attribute', () => {
         const validateParamsCode = Vehicle.validateParams.toString();
-        vehicleAttributes.filter((attribute) => attribute !== '_uuid' && attribute !== '_weights').forEach((attributeName) => {
-            expect(validateParamsCode).toContain('\'' + attributeName + '\'');
-        });
+        vehicleAttributes
+            .filter((attribute) => attribute !== '_uuid' && attribute !== '_weights')
+            .forEach((attributeName) => {
+                expect(validateParamsCode).toContain('\'' + attributeName + '\'');
+            });
     });
 
     test('should get uuid', () => {
@@ -135,14 +134,8 @@ describe('Vehicle', () => {
     });
 
     test('should create a Vehicle instance with custom attributes', () => {
-        const customAttributes = {
-            customAttribute1: 'value1',
-            customAttribute2: 'value2',
-        };
-        const vehicleAttributes = {
-            ...validAttributes,
-            ...customAttributes,
-        };
+        const customAttributes = { customAttribute1: 'value1', customAttribute2: 'value2' };
+        const vehicleAttributes = { ...validAttributes, ...customAttributes };
         const vehicle = new Vehicle(vehicleAttributes, registry);
         expect(vehicle).toBeInstanceOf(Vehicle);
         expect(vehicle.attributes).toEqual(validAttributes);
@@ -164,7 +157,7 @@ describe('Vehicle', () => {
             ['acquiredYear', 2022],
             ['licensePlateNumber', 'XYZ789'],
             ['internalId', 'V002'],
-            ['preData', { importedVehicleData: 'value', vin: 'ABC123XYZ' }],
+            ['preData', { importedVehicleData: 'value', vin: 'ABC123XYZ' }]
         ])('should set and get %s', (attribute, value) => {
             const vehicle = new Vehicle(validAttributes, registry);
             vehicle[attribute] = value;
@@ -175,7 +168,7 @@ describe('Vehicle', () => {
             test.each([
                 ['_uuid', extendedAttributes._uuid],
                 ['customAttributes', { customAttribute: extendedAttributes.customAttribute }],
-                ['attributes', validAttributes],
+                ['attributes', validAttributes]
             ])('should set and get %s', (attribute, value) => {
                 const vehicle = new Vehicle(extendedAttributes, registry);
                 expect(vehicle[attribute]).toEqual(value);
@@ -184,7 +177,7 @@ describe('Vehicle', () => {
 
         test.each([
             ['_isValid', false],
-            ['_weights', [{ weight: 2.0, method: new WeightMethod(weightMethodAttributes) }]],
+            ['_weights', [{ weight: 2.0, method: new WeightMethod(weightMethodAttributes) }]]
         ])('should set and get %s', (attribute, value) => {
             const vehicle = new Vehicle(validAttributes, registry);
             vehicle[attribute] = value;

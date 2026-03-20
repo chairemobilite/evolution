@@ -12,27 +12,24 @@ import Interviews from '../../interviews/interviews';
 
 let mockRequest: Partial<Request>;
 let mockResponse: Partial<Response>;
-let nextFunction: NextFunction = jest.fn();
-let mockParticipant = { id: 3, username: 'participant' };
-let mockOtherParticipant = { id: 4, username: 'other' };
+const nextFunction: NextFunction = jest.fn();
+const mockParticipant = { id: 3, username: 'participant' };
+const mockOtherParticipant = { id: 4, username: 'other' };
 
-const mockGetInterviewByUuid = Interviews.getInterviewByUuid = jest.fn();
+const mockGetInterviewByUuid = (Interviews.getInterviewByUuid = jest.fn());
 
 const interviewId = uuidV4();
 
 beforeEach(() => {
     mockRequest = {};
-    mockResponse = {
-        json: jest.fn(),
-        status: jest.fn().mockReturnThis()
-    };
+    mockResponse = { json: jest.fn(), status: jest.fn().mockReturnThis() };
     (nextFunction as any).mockClear();
     mockGetInterviewByUuid.mockClear();
 });
 
 describe('Participant interview access', () => {
-    const defaultGetParams = { params: { interviewId }};
-    const defaultPostParams = { body: { interviewId }};
+    const defaultGetParams = { params: { interviewId } };
+    const defaultPostParams = { body: { interviewId } };
 
     each([
         ['No participant', undefined, defaultGetParams, true, 401],
@@ -49,7 +46,7 @@ describe('Participant interview access', () => {
         ['Post and get params, not identical, ok', mockParticipant, { ...defaultGetParams, body: { interviewId: uuidV4() } }, true, 400]
     ]).test('%s', async (_title, participant, reqParams, isDefined, expectedNextOrCode, is_active = true) => {
         mockRequest.user = participant;
-        const request = {...mockRequest, ...reqParams };
+        const request = { ...mockRequest, ...reqParams };
         mockGetInterviewByUuid.mockResolvedValue(isDefined ? { id: 1, participant_id: mockParticipant.id, is_active } : undefined);
         await isAuthorized()(request as Request, mockResponse as Response, nextFunction);
         if (typeof expectedNextOrCode === 'number') {

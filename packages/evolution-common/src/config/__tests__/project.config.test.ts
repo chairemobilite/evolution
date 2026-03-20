@@ -9,23 +9,25 @@ import projectConfig, { EvolutionProjectConfiguration } from '../project.config'
 import { ISODateTimeStringWithTimezoneOffset } from '../../utils/DateTimeUtils';
 
 test('Expected default', () => {
-    expect(projectConfig).toEqual(expect.objectContaining({
-        region: 'CA',
-        selfResponseMinimumAge: 14,
-        drivingLicenseAge: 16,
-        logDatabaseUpdates: false,
-        startDateTimeWithTimezoneOffset: undefined,
-        endDateTimeWithTimezoneOffset: undefined,
-        surveyAreaGeojsonPath: undefined,
-        hideStartButtonOnHomePage: false,
-        introductionTwoParagraph: false,
-        introBanner: false,
-        bannerPaths: {},
-        introLogoAfterStartButton: false,
-        logoPaths: {},
-        languageNames: { 'en': 'English', 'fr': 'Français' },
-        title: { 'en': 'Survey', 'fr': 'Enquête' }
-    }));
+    expect(projectConfig).toEqual(
+        expect.objectContaining({
+            region: 'CA',
+            selfResponseMinimumAge: 14,
+            drivingLicenseAge: 16,
+            logDatabaseUpdates: false,
+            startDateTimeWithTimezoneOffset: undefined,
+            endDateTimeWithTimezoneOffset: undefined,
+            surveyAreaGeojsonPath: undefined,
+            hideStartButtonOnHomePage: false,
+            introductionTwoParagraph: false,
+            introBanner: false,
+            bannerPaths: {},
+            introLogoAfterStartButton: false,
+            logoPaths: {},
+            languageNames: { en: 'English', fr: 'Français' },
+            title: { en: 'Survey', fr: 'Enquête' }
+        })
+    );
 });
 
 test('set project configuration', () => {
@@ -40,11 +42,11 @@ test('set project configuration', () => {
         hideStartButtonOnHomePage: true,
         introductionTwoParagraph: true,
         introBanner: true,
-        bannerPaths: { 'en': 'banner-en.png', 'fr': 'banner-fr.png' },
+        bannerPaths: { en: 'banner-en.png', fr: 'banner-fr.png' },
         introLogoAfterStartButton: true,
-        logoPaths: { 'en': 'logo-en.png', 'fr': 'logo-fr.png' },
-        languageNames: { 'en': 'English', 'fr': 'Français' },
-        title: { 'en': 'Survey title', 'fr': 'Titre de l\'enquête' }
+        logoPaths: { en: 'logo-en.png', fr: 'logo-fr.png' },
+        languageNames: { en: 'English', fr: 'Français' },
+        title: { en: 'Survey title', fr: 'Titre de l\'enquête' }
     };
     setProjectConfiguration<EvolutionProjectConfiguration>(configToSet);
     expect(projectConfig).toEqual(expect.objectContaining(configToSet));

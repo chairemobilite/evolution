@@ -26,7 +26,7 @@ describe('Trip', () => {
         _uuid: uuidV4(),
         shortname: 'sample-shortname',
         name: 'Sample Weight Method',
-        description: 'Sample weight method description',
+        description: 'Sample weight method description'
     };
 
     const validAttributes: TripAttributes = {
@@ -38,7 +38,7 @@ describe('Trip', () => {
         startTimePeriod: 'am',
         endTimePeriod: 'pm',
         _weights: [{ weight: 1.5, method: new WeightMethod(weightMethodAttributes) }],
-        _isValid: true,
+        _isValid: true
     };
 
     const extendedAttributes: ExtendedTripAttributes = {
@@ -53,16 +53,9 @@ describe('Trip', () => {
             _isValid: true,
             _place: {
                 _uuid: uuidV4(),
-                geography: {
-                    type: 'Feature',
-                    geometry: {
-                        type: 'Point',
-                        coordinates: [0, 0],
-                    },
-                    properties: {},
-                },
-                _isValid: true,
-            },
+                geography: { type: 'Feature', geometry: { type: 'Point', coordinates: [0, 0] }, properties: {} },
+                _isValid: true
+            }
         },
         _endPlace: {
             _uuid: uuidV4(),
@@ -73,28 +66,13 @@ describe('Trip', () => {
             _isValid: true,
             _place: {
                 _uuid: uuidV4(),
-                geography: {
-                    type: 'Feature',
-                    geometry: {
-                        type: 'Point',
-                        coordinates: [1, 1],
-                    },
-                    properties: {},
-                },
-                _isValid: true,
-            },
+                geography: { type: 'Feature', geometry: { type: 'Point', coordinates: [1, 1] }, properties: {} },
+                _isValid: true
+            }
         },
         _segments: [
-            {
-                _uuid: uuidV4(),
-                mode: 'walk',
-                _isValid: true,
-            },
-            {
-                _uuid: uuidV4(),
-                mode: 'bicycle',
-                _isValid: true,
-            },
+            { _uuid: uuidV4(), mode: 'walk', _isValid: true },
+            { _uuid: uuidV4(), mode: 'bicycle', _isValid: true }
         ],
         _junctions: [
             {
@@ -106,16 +84,9 @@ describe('Trip', () => {
                 _isValid: true,
                 _place: {
                     _uuid: uuidV4(),
-                    geography: {
-                        type: 'Feature',
-                        geometry: {
-                            type: 'Point',
-                            coordinates: [0, 0],
-                        },
-                        properties: {},
-                    },
-                    _isValid: true,
-                },
+                    geography: { type: 'Feature', geometry: { type: 'Point', coordinates: [0, 0] }, properties: {} },
+                    _isValid: true
+                }
             },
             {
                 _uuid: uuidV4(),
@@ -126,18 +97,11 @@ describe('Trip', () => {
                 _isValid: true,
                 _place: {
                     _uuid: uuidV4(),
-                    geography: {
-                        type: 'Feature',
-                        geometry: {
-                            type: 'Point',
-                            coordinates: [1, 1],
-                        },
-                        properties: {},
-                    },
-                    _isValid: true,
-                },
-            },
-        ],
+                    geography: { type: 'Feature', geometry: { type: 'Point', coordinates: [1, 1] }, properties: {} },
+                    _isValid: true
+                }
+            }
+        ]
     };
 
     test('should create a Trip instance with valid attributes', () => {
@@ -148,9 +112,14 @@ describe('Trip', () => {
 
     test('should have a validateParams section for each attribute', () => {
         const validateParamsCode = Trip.validateParams.toString();
-        tripAttributes.filter((attribute) => attribute !== '_uuid' && attribute !== '_weights' && !(startEndDateAndTimesAttributes as unknown as string[]).includes(attribute)).forEach((attributeName) => {
-            expect(validateParamsCode).toContain('\'' + attributeName + '\'');
-        });
+        tripAttributes
+            .filter(
+                (attribute) =>
+                    attribute !== '_uuid' && attribute !== '_weights' && !(startEndDateAndTimesAttributes as unknown as string[]).includes(attribute)
+            )
+            .forEach((attributeName) => {
+                expect(validateParamsCode).toContain('\'' + attributeName + '\'');
+            });
     });
 
     test('should get uuid', () => {
@@ -208,14 +177,8 @@ describe('Trip', () => {
     });
 
     test('should create a Trip instance with custom attributes', () => {
-        const customAttributes = {
-            customAttribute1: 'value1',
-            customAttribute2: 'value2',
-        };
-        const tripAttributes = {
-            ...validAttributes,
-            ...customAttributes,
-        };
+        const customAttributes = { customAttribute1: 'value1', customAttribute2: 'value2' };
+        const tripAttributes = { ...validAttributes, ...customAttributes };
         const trip = new Trip(tripAttributes, registry);
         expect(trip).toBeInstanceOf(Trip);
         expect(trip.attributes).toEqual(validAttributes);
@@ -259,7 +222,7 @@ describe('Trip', () => {
             ['tripChainUuid', uuidV4()],
             ['_isValid', false],
             ['_weights', [{ weight: 2.0, method: new WeightMethod(weightMethodAttributes) }]],
-            ['preData', { importedTripData: 'value', distance: 12.5 }],
+            ['preData', { importedTripData: 'value', distance: 12.5 }]
         ])('should set and get %s', (attribute, value) => {
             const trip = new Trip(validAttributes, registry);
             trip[attribute] = value;
@@ -270,7 +233,7 @@ describe('Trip', () => {
             test.each([
                 ['_uuid', extendedAttributes._uuid],
                 ['customAttributes', { customAttribute: extendedAttributes.customAttribute }],
-                ['attributes', validAttributes],
+                ['attributes', validAttributes]
             ])('should set and get %s', (attribute, value) => {
                 const trip = new Trip(extendedAttributes, registry);
                 expect(trip[attribute]).toEqual(value);
@@ -283,7 +246,7 @@ describe('Trip', () => {
             ['_origin', () => new VisitedPlace(extendedAttributes._startPlace as ExtendedVisitedPlaceAttributes, registry)],
             ['_destination', () => new VisitedPlace(extendedAttributes._endPlace as ExtendedVisitedPlaceAttributes, registry)],
             ['_segments', () => extendedAttributes._segments?.map((segment) => new Segment(segment as ExtendedSegmentAttributes, registry))],
-            ['_junctions', () => extendedAttributes._junctions?.map((junction) => new Junction(junction as ExtendedJunctionAttributes, registry))],
+            ['_junctions', () => extendedAttributes._junctions?.map((junction) => new Junction(junction as ExtendedJunctionAttributes, registry))]
         ])('should set and get %s', (attribute, valueFactory) => {
             const trip = new Trip(validAttributes, registry);
             const value = valueFactory();
@@ -583,16 +546,9 @@ describe('Trip', () => {
                 _isValid: true,
                 _place: {
                     _uuid: uuidV4(),
-                    geography: {
-                        type: 'Feature',
-                        geometry: {
-                            type: 'Point',
-                            coordinates: [0, 0],
-                        },
-                        properties: {},
-                    },
-                    _isValid: true,
-                },
+                    geography: { type: 'Feature', geometry: { type: 'Point', coordinates: [0, 0] }, properties: {} },
+                    _isValid: true
+                }
             };
 
             const endPlaceAttributes: ExtendedVisitedPlaceAttributes = {
@@ -604,23 +560,12 @@ describe('Trip', () => {
                 _isValid: true,
                 _place: {
                     _uuid: uuidV4(),
-                    geography: {
-                        type: 'Feature',
-                        geometry: {
-                            type: 'Point',
-                            coordinates: [1, 1],
-                        },
-                        properties: {},
-                    },
-                    _isValid: true,
-                },
+                    geography: { type: 'Feature', geometry: { type: 'Point', coordinates: [1, 1] }, properties: {} },
+                    _isValid: true
+                }
             };
 
-            const tripAttributes: ExtendedTripAttributes = {
-                ...validAttributes,
-                _startPlace: startPlaceAttributes,
-                _endPlace: endPlaceAttributes,
-            };
+            const tripAttributes: ExtendedTripAttributes = { ...validAttributes, _startPlace: startPlaceAttributes, _endPlace: endPlaceAttributes };
 
             const result = Trip.create(tripAttributes, registry);
             expect(isOk(result)).toBe(true);
@@ -632,7 +577,7 @@ describe('Trip', () => {
                 activity: startPlaceAttributes.activity,
                 activityCategory: startPlaceAttributes.activityCategory,
                 _weights: startPlaceAttributes._weights,
-                _isValid: startPlaceAttributes._isValid,
+                _isValid: startPlaceAttributes._isValid
             });
             expect(trip.origin).toBeDefined();
             expect(trip.origin?.attributes).toEqual({
@@ -641,7 +586,7 @@ describe('Trip', () => {
                 activity: startPlaceAttributes.activity,
                 activityCategory: startPlaceAttributes.activityCategory,
                 _weights: startPlaceAttributes._weights,
-                _isValid: startPlaceAttributes._isValid,
+                _isValid: startPlaceAttributes._isValid
             });
             expect(trip.endPlace).toBeDefined();
             expect(trip.endPlace?.attributes).toEqual({
@@ -650,7 +595,7 @@ describe('Trip', () => {
                 activity: endPlaceAttributes.activity,
                 activityCategory: endPlaceAttributes.activityCategory,
                 _weights: endPlaceAttributes._weights,
-                _isValid: endPlaceAttributes._isValid,
+                _isValid: endPlaceAttributes._isValid
             });
             expect(trip.destination).toBeDefined();
             expect(trip.destination?.attributes).toEqual({
@@ -659,28 +604,17 @@ describe('Trip', () => {
                 activity: endPlaceAttributes.activity,
                 activityCategory: endPlaceAttributes.activityCategory,
                 _weights: endPlaceAttributes._weights,
-                _isValid: endPlaceAttributes._isValid,
+                _isValid: endPlaceAttributes._isValid
             });
         });
 
         test('should create Segment instances for segments when creating a Trip instance', () => {
             const segmentAttributes: ExtendedSegmentAttributes[] = [
-                {
-                    _uuid: uuidV4(),
-                    mode: 'walk',
-                    _isValid: true,
-                },
-                {
-                    _uuid: uuidV4(),
-                    mode: 'bicycle',
-                    _isValid: true,
-                },
+                { _uuid: uuidV4(), mode: 'walk', _isValid: true },
+                { _uuid: uuidV4(), mode: 'bicycle', _isValid: true }
             ];
 
-            const tripAttributes: ExtendedTripAttributes = {
-                ...validAttributes,
-                _segments: segmentAttributes,
-            };
+            const tripAttributes: ExtendedTripAttributes = { ...validAttributes, _segments: segmentAttributes };
 
             const result = Trip.create(tripAttributes, registry);
             expect(isOk(result)).toBe(true);
@@ -702,16 +636,9 @@ describe('Trip', () => {
                     _isValid: true,
                     _place: {
                         _uuid: uuidV4(),
-                        geography: {
-                            type: 'Feature',
-                            geometry: {
-                                type: 'Point',
-                                coordinates: [0, 0],
-                            },
-                            properties: {},
-                        },
-                        _isValid: true,
-                    },
+                        geography: { type: 'Feature', geometry: { type: 'Point', coordinates: [0, 0] }, properties: {} },
+                        _isValid: true
+                    }
                 },
                 {
                     _uuid: uuidV4(),
@@ -722,23 +649,13 @@ describe('Trip', () => {
                     _isValid: true,
                     _place: {
                         _uuid: uuidV4(),
-                        geography: {
-                            type: 'Feature',
-                            geometry: {
-                                type: 'Point',
-                                coordinates: [1, 1],
-                            },
-                            properties: {},
-                        },
-                        _isValid: true,
-                    },
-                },
+                        geography: { type: 'Feature', geometry: { type: 'Point', coordinates: [1, 1] }, properties: {} },
+                        _isValid: true
+                    }
+                }
             ];
 
-            const tripAttributes: ExtendedTripAttributes = {
-                ...validAttributes,
-                _junctions: junctionAttributes,
-            };
+            const tripAttributes: ExtendedTripAttributes = { ...validAttributes, _junctions: junctionAttributes };
 
             const result = Trip.create(tripAttributes, registry);
             expect(isOk(result)).toBe(true);
@@ -751,7 +668,7 @@ describe('Trip', () => {
                 endTime: junctionAttributes[0].endTime,
                 parkingType: junctionAttributes[0].parkingType,
                 _weights: junctionAttributes[0]._weights,
-                _isValid: junctionAttributes[0]._isValid,
+                _isValid: junctionAttributes[0]._isValid
             });
             expect(trip.junctions?.[1].attributes).toEqual({
                 _uuid: junctionAttributes[1]._uuid,
@@ -759,11 +676,10 @@ describe('Trip', () => {
                 endTime: junctionAttributes[1].endTime,
                 parkingType: junctionAttributes[1].parkingType,
                 _weights: junctionAttributes[1]._weights,
-                _isValid: junctionAttributes[1]._isValid,
+                _isValid: junctionAttributes[1]._isValid
             });
         });
     });
-
 
     describe('Trip methods', () => {
         let trip: Trip;
@@ -823,7 +739,11 @@ describe('Trip', () => {
             });
 
             test('should return the modes of the segments', () => {
-                trip.segments = [new Segment({ mode: 'walk' }, registry), new Segment({ mode: 'transitBus' }, registry), new Segment({ mode: 'bicycle' }, registry)];
+                trip.segments = [
+                    new Segment({ mode: 'walk' }, registry),
+                    new Segment({ mode: 'transitBus' }, registry),
+                    new Segment({ mode: 'bicycle' }, registry)
+                ];
                 expect(trip.getModes()).toEqual(['walk', 'transitBus', 'bicycle']);
             });
         });
@@ -840,7 +760,11 @@ describe('Trip', () => {
             });
 
             test('should return the mode categories of the segments', () => {
-                trip.segments = [new Segment({ mode: 'walk' }, registry), new Segment({ mode: 'transitBus' }, registry), new Segment({ mode: 'bicycle' }, registry)];
+                trip.segments = [
+                    new Segment({ mode: 'walk' }, registry),
+                    new Segment({ mode: 'transitBus' }, registry),
+                    new Segment({ mode: 'bicycle' }, registry)
+                ];
                 expect(trip.getModeCategories()).toEqual(['walk', 'transit', 'bicycle']);
             });
         });
@@ -879,7 +803,11 @@ describe('Trip', () => {
             });
 
             test('should return the modes without walk', () => {
-                trip.segments = [new Segment({ mode: 'walk' }, registry), new Segment({ mode: 'transitBus' }, registry), new Segment({ mode: 'bicycle' }, registry)];
+                trip.segments = [
+                    new Segment({ mode: 'walk' }, registry),
+                    new Segment({ mode: 'transitBus' }, registry),
+                    new Segment({ mode: 'bicycle' }, registry)
+                ];
                 expect(trip.getModesWithoutWalk()).toEqual(['transitBus', 'bicycle']);
             });
         });
@@ -896,7 +824,11 @@ describe('Trip', () => {
             });
 
             test('should return the transit modes', () => {
-                trip.segments = [new Segment({ mode: 'walk' }, registry), new Segment({ mode: 'transitBus' }, registry), new Segment({ mode: 'transitRRT' }, registry)];
+                trip.segments = [
+                    new Segment({ mode: 'walk' }, registry),
+                    new Segment({ mode: 'transitBus' }, registry),
+                    new Segment({ mode: 'transitRRT' }, registry)
+                ];
                 expect(trip.getTransitModes()).toEqual(['transitBus', 'transitRRT']);
             });
         });
@@ -913,7 +845,11 @@ describe('Trip', () => {
             });
 
             test('should return the non-transit modes', () => {
-                trip.segments = [new Segment({ mode: 'walk' }, registry), new Segment({ mode: 'transitBus' }, registry), new Segment({ mode: 'bicycle' }, registry)];
+                trip.segments = [
+                    new Segment({ mode: 'walk' }, registry),
+                    new Segment({ mode: 'transitBus' }, registry),
+                    new Segment({ mode: 'bicycle' }, registry)
+                ];
                 expect(trip.getNonTransitModes()).toEqual(['walk', 'bicycle']);
             });
         });
@@ -940,12 +876,20 @@ describe('Trip', () => {
             });
 
             test('should return true if segments has transit mode and multiple non-transit modes, not including walking', () => {
-                trip.segments = [new Segment({ mode: 'carDriver' }, registry), new Segment({ mode: 'transitBus' }, registry), new Segment({ mode: 'bicycle' }, registry)];
+                trip.segments = [
+                    new Segment({ mode: 'carDriver' }, registry),
+                    new Segment({ mode: 'transitBus' }, registry),
+                    new Segment({ mode: 'bicycle' }, registry)
+                ];
                 expect(trip.isTransitMultimodal()).toBe(true);
             });
 
             test('should return true if segments has transit mode and multiple non-transit modes, including walking', () => {
-                trip.segments = [new Segment({ mode: 'walk' }, registry), new Segment({ mode: 'transitBus' }, registry), new Segment({ mode: 'bicycle' }, registry)];
+                trip.segments = [
+                    new Segment({ mode: 'walk' }, registry),
+                    new Segment({ mode: 'transitBus' }, registry),
+                    new Segment({ mode: 'bicycle' }, registry)
+                ];
                 expect(trip.isTransitMultimodal()).toBe(true);
             });
         });
@@ -967,12 +911,20 @@ describe('Trip', () => {
             });
 
             test('should return false if segments has non-transit modes other than walk', () => {
-                trip.segments = [new Segment({ mode: 'walk' }, registry), new Segment({ mode: 'transitBus' }, registry), new Segment({ mode: 'bicycle' }, registry)];
+                trip.segments = [
+                    new Segment({ mode: 'walk' }, registry),
+                    new Segment({ mode: 'transitBus' }, registry),
+                    new Segment({ mode: 'bicycle' }, registry)
+                ];
                 expect(trip.isTransitOnly()).toBe(false);
             });
 
             test('should return true if segments has only transit modes and walk (which is ignored)', () => {
-                trip.segments = [new Segment({ mode: 'walk' }, registry), new Segment({ mode: 'transitBus' }, registry), new Segment({ mode: 'transitRRT' }, registry)];
+                trip.segments = [
+                    new Segment({ mode: 'walk' }, registry),
+                    new Segment({ mode: 'transitBus' }, registry),
+                    new Segment({ mode: 'transitRRT' }, registry)
+                ];
                 expect(trip.isTransitOnly()).toBe(true);
             });
         });
@@ -1019,13 +971,28 @@ describe('Trip', () => {
                 trip.endTime = 7200;
                 expect(trip.getDurationSeconds()).toBe(undefined);
             });
-
         });
 
         describe('getBirdDistanceMeters', () => {
             test('should return the bird distance in meters', () => {
-                trip.origin = new VisitedPlace({ _place: { geography: { type: 'Feature', geometry: { type: 'Point', coordinates: [45.5, -75.5] }, properties: {} }, _isValid: true } }, registry);
-                trip.destination = new VisitedPlace({ _place: { geography: { type: 'Feature', geometry: { type: 'Point', coordinates: [45.6, -75.4] }, properties: {} }, _isValid: true } }, registry);
+                trip.origin = new VisitedPlace(
+                    {
+                        _place: {
+                            geography: { type: 'Feature', geometry: { type: 'Point', coordinates: [45.5, -75.5] }, properties: {} },
+                            _isValid: true
+                        }
+                    },
+                    registry
+                );
+                trip.destination = new VisitedPlace(
+                    {
+                        _place: {
+                            geography: { type: 'Feature', geometry: { type: 'Point', coordinates: [45.6, -75.4] }, properties: {} },
+                            _isValid: true
+                        }
+                    },
+                    registry
+                );
                 expect(trip.getBirdDistanceMeters()).toBe(11466);
             });
 
@@ -1035,16 +1002,55 @@ describe('Trip', () => {
             });
 
             test('should return undefined if origin or destination is not a valid point', () => {
-                trip.origin = new VisitedPlace({ geography: { type: 'Feature', geometry: { type: 'Polygon', coordinates: [[[0, 0], [0, 1], [1, 1], [1, 0], [0, 0]]] }, properties: {} } as any }, registry);
-                trip.destination = new VisitedPlace({ geography: { type: 'Feature', geometry: { type: 'Point', coordinates: [2, 2] }, properties: {} } as any }, registry);
+                trip.origin = new VisitedPlace(
+                    {
+                        geography: {
+                            type: 'Feature',
+                            geometry: {
+                                type: 'Polygon',
+                                coordinates: [
+                                    [
+                                        [0, 0],
+                                        [0, 1],
+                                        [1, 1],
+                                        [1, 0],
+                                        [0, 0]
+                                    ]
+                                ]
+                            },
+                            properties: {}
+                        } as any
+                    },
+                    registry
+                );
+                trip.destination = new VisitedPlace(
+                    { geography: { type: 'Feature', geometry: { type: 'Point', coordinates: [2, 2] }, properties: {} } as any },
+                    registry
+                );
                 expect(trip.getBirdDistanceMeters()).toBe(undefined);
             });
         });
 
         describe('getBirdSpeedKph', () => {
             test('should return the bird speed in km/h', () => {
-                trip.origin = new VisitedPlace({ _place: { geography: { type: 'Feature', geometry: { type: 'Point', coordinates: [45.5, -75.5] }, properties: {} }, _isValid: true } }, registry);
-                trip.destination = new VisitedPlace({ _place: { geography: { type: 'Feature', geometry: { type: 'Point', coordinates: [45.6, -75.4] }, properties: {} }, _isValid: true } }, registry);
+                trip.origin = new VisitedPlace(
+                    {
+                        _place: {
+                            geography: { type: 'Feature', geometry: { type: 'Point', coordinates: [45.5, -75.5] }, properties: {} },
+                            _isValid: true
+                        }
+                    },
+                    registry
+                );
+                trip.destination = new VisitedPlace(
+                    {
+                        _place: {
+                            geography: { type: 'Feature', geometry: { type: 'Point', coordinates: [45.6, -75.4] }, properties: {} },
+                            _isValid: true
+                        }
+                    },
+                    registry
+                );
                 trip.startTime = 7200; // 2:00 AM in seconds
                 trip.endTime = 10020; // 2:47 AM in seconds (47 minutes later = 2820 seconds)
                 const speed = trip.getBirdSpeedKph() as number;
@@ -1057,11 +1063,33 @@ describe('Trip', () => {
             });
 
             test('should return undefined if origin or destination is not a valid point', () => {
-                trip.origin = new VisitedPlace({ geography: { type: 'Feature', geometry: { type: 'Polygon', coordinates: [[[0, 0], [0, 1], [1, 1], [1, 0], [0, 0]]] }, properties: {} } as any }, registry);
-                trip.destination = new VisitedPlace({ geography: { type: 'Feature', geometry: { type: 'Point', coordinates: [2, 2] }, properties: {} } as any }, registry);
+                trip.origin = new VisitedPlace(
+                    {
+                        geography: {
+                            type: 'Feature',
+                            geometry: {
+                                type: 'Polygon',
+                                coordinates: [
+                                    [
+                                        [0, 0],
+                                        [0, 1],
+                                        [1, 1],
+                                        [1, 0],
+                                        [0, 0]
+                                    ]
+                                ]
+                            },
+                            properties: {}
+                        } as any
+                    },
+                    registry
+                );
+                trip.destination = new VisitedPlace(
+                    { geography: { type: 'Feature', geometry: { type: 'Point', coordinates: [2, 2] }, properties: {} } as any },
+                    registry
+                );
                 expect(trip.getBirdSpeedKph()).toBe(undefined);
             });
         });
-
     });
 });

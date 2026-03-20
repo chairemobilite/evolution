@@ -32,11 +32,7 @@ jest.mock('react-modal', () => {
     return Modal;
 });
 
-const commonWidgetConfig = {
-    type: 'group' as const,
-    path: 'household.myGroup',
-    showGroupedObjectDeleteButton: true   
-};
+const commonWidgetConfig = { type: 'group' as const, path: 'household.myGroup', showGroupedObjectDeleteButton: true };
 
 const startUpdateInterviewMock = jest.fn();
 const startAddGroupedObjectsMock = jest.fn();
@@ -49,23 +45,15 @@ beforeEach(() => {
 
 each([
     ['Display with default label', commonWidgetConfig],
-    ['Display with custom label', {
-        ...commonWidgetConfig,
-        groupedObjectDeleteButtonLabel: jest.fn().mockReturnValue('Delete for unit test')
-    }],
-    ['Display is false', {
-        ...commonWidgetConfig,
-        showGroupedObjectDeleteButton: false
-    }]
+    ['Display with custom label', { ...commonWidgetConfig, groupedObjectDeleteButtonLabel: jest.fn().mockReturnValue('Delete for unit test') }],
+    ['Display is false', { ...commonWidgetConfig, showGroupedObjectDeleteButton: false }]
 ]).describe('DeleteGroupedObjectButton layout: %s', (_widget, widgetConfig) => {
-
     test('Render widget', () => {
-
         const { container } = render(
             <DeleteGroupedObjectButton
-                path='home.region'
+                path="home.region"
                 widgetConfig={widgetConfig}
-                shortname='myGroup'
+                shortname="myGroup"
                 interview={interviewAttributes}
                 startUpdateInterview={startUpdateInterviewMock}
                 startAddGroupedObjects={startAddGroupedObjectsMock}
@@ -75,24 +63,24 @@ each([
         );
         expect(container).toMatchSnapshot();
     });
-
 });
 
 describe('DeleteGroupedObjectButton behavior', () => {
-
-    const path = 'persons.0'
+    const path = 'persons.0';
 
     test('Click on button, no confirm modal', async () => {
-        render(<DeleteGroupedObjectButton
-            path={path}
-            widgetConfig={commonWidgetConfig}
-            shortname='myGroup'
-            interview={interviewAttributes}
-            startUpdateInterview={startUpdateInterviewMock}
-            startAddGroupedObjects={startAddGroupedObjectsMock}
-            startRemoveGroupedObjects={startRemoveGroupedObjectsMock}
-            startNavigate={startNavigateMock}
-        />);
+        render(
+            <DeleteGroupedObjectButton
+                path={path}
+                widgetConfig={commonWidgetConfig}
+                shortname="myGroup"
+                interview={interviewAttributes}
+                startUpdateInterview={startUpdateInterviewMock}
+                startAddGroupedObjects={startAddGroupedObjectsMock}
+                startRemoveGroupedObjects={startRemoveGroupedObjectsMock}
+                startNavigate={startNavigateMock}
+            />
+        );
         const user = userEvent.setup();
 
         // Find and click on the button itself and make sure the action has been called
@@ -103,31 +91,31 @@ describe('DeleteGroupedObjectButton behavior', () => {
         expect(startRemoveGroupedObjectsMock).toHaveBeenCalledTimes(1);
         expect(startRemoveGroupedObjectsMock).toHaveBeenCalledWith(path);
     });
-    
+
     test('Click on button, confirm modal, confirm', async () => {
         const deleteTitle = 'Delete item';
         const widgetConfig = {
             ...commonWidgetConfig,
             deleteConfirmPopup: {
-                content: {
-                    en: 'Are you sure you want to delete this item?'
-                },
+                content: { en: 'Are you sure you want to delete this item?' },
                 title: deleteTitle,
                 cancelAction: jest.fn().mockReturnValue('cancelAction'),
                 containsHtml: false
             },
             showGroupedObjectDeleteButton: true
-        }
-        render(<DeleteGroupedObjectButton
-            path={path}
-            widgetConfig={widgetConfig}
-            shortname='myGroup'
-            interview={interviewAttributes}
-            startUpdateInterview={startUpdateInterviewMock}
-            startAddGroupedObjects={startAddGroupedObjectsMock}
-            startRemoveGroupedObjects={startRemoveGroupedObjectsMock}
-            startNavigate={startNavigateMock}
-        />);
+        };
+        render(
+            <DeleteGroupedObjectButton
+                path={path}
+                widgetConfig={widgetConfig}
+                shortname="myGroup"
+                interview={interviewAttributes}
+                startUpdateInterview={startUpdateInterviewMock}
+                startAddGroupedObjects={startAddGroupedObjectsMock}
+                startRemoveGroupedObjects={startRemoveGroupedObjectsMock}
+                startNavigate={startNavigateMock}
+            />
+        );
         const user = userEvent.setup();
 
         // Find and click on the button itself and make sure the action has been called
@@ -152,25 +140,25 @@ describe('DeleteGroupedObjectButton behavior', () => {
         const widgetConfig = {
             ...commonWidgetConfig,
             deleteConfirmPopup: {
-                content: {
-                    en: 'Are you sure you want to delete this item?'
-                },
+                content: { en: 'Are you sure you want to delete this item?' },
                 title: deleteTitle,
                 cancelAction: jest.fn().mockReturnValue('cancelAction'),
                 containsHtml: false
             },
             showGroupedObjectDeleteButton: true
-        }
-        render(<DeleteGroupedObjectButton
-            path={path}
-            widgetConfig={widgetConfig}
-            shortname='myGroup'
-            interview={interviewAttributes}
-            startUpdateInterview={startUpdateInterviewMock}
-            startAddGroupedObjects={startAddGroupedObjectsMock}
-            startRemoveGroupedObjects={startRemoveGroupedObjectsMock}
-            startNavigate={startNavigateMock}
-        />);
+        };
+        render(
+            <DeleteGroupedObjectButton
+                path={path}
+                widgetConfig={widgetConfig}
+                shortname="myGroup"
+                interview={interviewAttributes}
+                startUpdateInterview={startUpdateInterviewMock}
+                startAddGroupedObjects={startAddGroupedObjectsMock}
+                startRemoveGroupedObjects={startRemoveGroupedObjectsMock}
+                startNavigate={startNavigateMock}
+            />
+        );
         const user = userEvent.setup();
 
         // Find and click on the button itself and make sure the action has been called
@@ -193,26 +181,26 @@ describe('DeleteGroupedObjectButton behavior', () => {
         const widgetConfig = {
             ...commonWidgetConfig,
             deleteConfirmPopup: {
-                content: {
-                    en: 'Are you sure you want to delete this item?'
-                },
+                content: { en: 'Are you sure you want to delete this item?' },
                 title: 'Delete item',
                 cancelAction: jest.fn().mockReturnValue('cancelAction'),
                 containsHtml: false,
                 conditional: jest.fn().mockReturnValue(false)
             },
             showGroupedObjectDeleteButton: true
-        }
-        render(<DeleteGroupedObjectButton
-            path={path}
-            widgetConfig={widgetConfig}
-            interview={interviewAttributes}
-            shortname='myGroup'
-            startUpdateInterview={startUpdateInterviewMock}
-            startAddGroupedObjects={startAddGroupedObjectsMock}
-            startRemoveGroupedObjects={startRemoveGroupedObjectsMock}
-            startNavigate={startNavigateMock}
-        />);
+        };
+        render(
+            <DeleteGroupedObjectButton
+                path={path}
+                widgetConfig={widgetConfig}
+                interview={interviewAttributes}
+                shortname="myGroup"
+                startUpdateInterview={startUpdateInterviewMock}
+                startAddGroupedObjects={startAddGroupedObjectsMock}
+                startRemoveGroupedObjects={startRemoveGroupedObjectsMock}
+                startNavigate={startNavigateMock}
+            />
+        );
         const user = userEvent.setup();
 
         // Find and click on the button itself and make sure the action has been called
@@ -230,26 +218,26 @@ describe('DeleteGroupedObjectButton behavior', () => {
         const widgetConfig = {
             ...commonWidgetConfig,
             deleteConfirmPopup: {
-                content: {
-                    en: 'Are you sure you want to delete this item?'
-                },
+                content: { en: 'Are you sure you want to delete this item?' },
                 title: deleteTitle,
                 cancelAction: jest.fn().mockReturnValue('cancelAction'),
                 containsHtml: false,
                 conditional: jest.fn().mockReturnValue(true)
             },
             showGroupedObjectDeleteButton: true
-        }
-        render(<DeleteGroupedObjectButton
-            path={path}
-            widgetConfig={widgetConfig}
-            interview={interviewAttributes}
-            shortname='myGroup'
-            startUpdateInterview={startUpdateInterviewMock}
-            startAddGroupedObjects={startAddGroupedObjectsMock}
-            startRemoveGroupedObjects={startRemoveGroupedObjectsMock}
-            startNavigate={startNavigateMock}
-        />);
+        };
+        render(
+            <DeleteGroupedObjectButton
+                path={path}
+                widgetConfig={widgetConfig}
+                interview={interviewAttributes}
+                shortname="myGroup"
+                startUpdateInterview={startUpdateInterviewMock}
+                startAddGroupedObjects={startAddGroupedObjectsMock}
+                startRemoveGroupedObjects={startRemoveGroupedObjectsMock}
+                startNavigate={startNavigateMock}
+            />
+        );
         const user = userEvent.setup();
 
         // Find and click on the button itself and make sure the action has been called
@@ -263,5 +251,4 @@ describe('DeleteGroupedObjectButton behavior', () => {
         const confirmModal = await screen.findByLabelText(deleteTitle);
         expect(confirmModal).toMatchSnapshot();
     });
-
 });

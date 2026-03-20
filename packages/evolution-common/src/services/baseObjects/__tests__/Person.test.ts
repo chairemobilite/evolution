@@ -29,7 +29,7 @@ describe('Person', () => {
         _uuid: uuidV4(),
         shortname: 'sample-shortname',
         name: 'Sample Weight Method',
-        description: 'Sample weight method description',
+        description: 'Sample weight method description'
     };
 
     const validAttributes: { [key: string]: unknown } = {
@@ -67,7 +67,7 @@ describe('Person', () => {
         contactPhoneNumber: '1234567890',
         contactEmail: 'john@example.com',
         _weights: [{ weight: 1.5, method: new WeightMethod(weightMethodAttributes) }],
-        _isValid: true,
+        _isValid: true
     };
 
     const extendedAttributes: { [key: string]: unknown } = {
@@ -76,40 +76,44 @@ describe('Person', () => {
         _workPlaces: [{ _uuid: uuidV4(), placeType: 'office', _isValid: true }],
         _schoolPlaces: [{ placeType: 'university', _isValid: true }],
         _vehicles: [{ model: 'foo', make: 'bar', _isValid: true }],
-        _journeys: [{ _uuid: uuidV4(), _isValid: true }],
+        _journeys: [{ _uuid: uuidV4(), _isValid: true }]
     };
 
     const extendedInvalidWorkPlacesAttributes: { [key: string]: unknown } = {
         ...validAttributes,
         customAttribute: 'custom value',
-        _workPlaces: [{ custom: 123, _isValid: 123, parkingType: 123, parkingFeeType: 123 }],
+        _workPlaces: [{ custom: 123, _isValid: 123, parkingType: 123, parkingFeeType: 123 }]
     };
 
     const extendedInvalidSchoolPlacesAttributes: { [key: string]: unknown } = {
         ...validAttributes,
         customAttribute: 'custom value',
-        _schoolPlaces: [{ custom: 333, _isValid: 111, parkingType: 123, parkingFeeType: 123 }],
+        _schoolPlaces: [{ custom: 333, _isValid: 111, parkingType: 123, parkingFeeType: 123 }]
     };
 
     const extendedInvalidVehiclesAttributes: { [key: string]: unknown } = {
         ...validAttributes,
         customAttribute: 'custom value',
-        _vehicles: [{ custom: 333, _isValid: 111, model: 123, make: 234 }],
+        _vehicles: [{ custom: 333, _isValid: 111, model: 123, make: 234 }]
     };
 
     const extendedInvalidJourneysAttributes: { [key: string]: unknown } = {
         ...validAttributes,
         customAttribute: 'custom value',
-        _journeys: [{ custom: 333, _isValid: 111 }, { _isValid: 111, _visitedPlaces: [{ _isValid: 111 }] }],
+        _journeys: [
+            { custom: 333, _isValid: 111 },
+            { _isValid: 111, _visitedPlaces: [{ _isValid: 111 }] }
+        ]
     };
-
 
     test('should have a validateParams section for each attribute', () => {
         const validateParamsCode = Person.validateParams.toString();
         // exclude string attributes, since they are validated automatically in a loop:
-        nonStringAttributes.filter((attribute) => attribute !== '_uuid' && attribute !== '_weights').forEach((attributeName) => {
-            expect(validateParamsCode).toContain('\'' + attributeName + '\'');
-        });
+        nonStringAttributes
+            .filter((attribute) => attribute !== '_uuid' && attribute !== '_weights')
+            .forEach((attributeName) => {
+                expect(validateParamsCode).toContain('\'' + attributeName + '\'');
+            });
     });
 
     nonStringAttributes.forEach((attribute) => {
@@ -158,14 +162,8 @@ describe('Person', () => {
     });
 
     test('should create a Person instance with custom attributes', () => {
-        const customAttributes = {
-            customAttribute1: 'value1',
-            customAttribute2: 'value2',
-        };
-        const placeAttributes = {
-            ...validAttributes,
-            ...customAttributes,
-        };
+        const customAttributes = { customAttribute1: 'value1', customAttribute2: 'value2' };
+        const placeAttributes = { ...validAttributes, ...customAttributes };
         const person = new Person(placeAttributes, registry);
         expect(person).toBeInstanceOf(Person);
         expect(person.attributes).toEqual(validAttributes);
@@ -223,7 +221,7 @@ describe('Person', () => {
             ['_isValid', 'invalid'],
             ['_weights', 'invalid'],
             ['whoWillAnswerForThisPerson', 'invalid-uuid'],
-            ['isProxy', 'invalid'],
+            ['isProxy', 'invalid']
         ])('should return an error for invalid %s', (param, value) => {
             const invalidAttributes = { ...validAttributes, [param]: value };
             const result = Person.create(invalidAttributes, registry);
@@ -255,7 +253,7 @@ describe('Person', () => {
             const invalidAttributes = 'foo' as any;
             const result = Person.create(invalidAttributes, registry);
             expect(hasErrors(result)).toBe(true);
-            expect((unwrap(result) as Error[])).toHaveLength(1);
+            expect(unwrap(result) as Error[]).toHaveLength(1);
         });
 
         test('should return no errors for valid attributes', () => {
@@ -271,7 +269,7 @@ describe('Person', () => {
                 _uuid: uuidV4(),
                 shortname: 'sample-shortname',
                 name: 'Sample Weight Method',
-                description: 'Sample weight method description',
+                description: 'Sample weight method description'
             };
             const weightMethod = new WeightMethod(weightMethodAttributes);
             const weights: Weight[] = [{ weight: 1.5, method: weightMethod }];
@@ -290,15 +288,8 @@ describe('Person', () => {
                 parkingType: 'interiorAssignedOrGuaranteed',
                 parkingFeeType: 'paidByEmployee',
                 name: 'testName',
-                geography: {
-                    type: 'Feature',
-                    geometry: {
-                        type: 'Point',
-                        coordinates: [0, 0],
-                    },
-                    properties: {},
-                },
-                _isValid: true,
+                geography: { type: 'Feature', geometry: { type: 'Point', coordinates: [0, 0] }, properties: {} },
+                _isValid: true
             };
             const workPlace = new WorkPlace(workPlaceAttributes, registry);
             const personAttributes: { [key: string]: unknown } = { ...validAttributes, _workPlaces: [workPlaceAttributes] };
@@ -312,7 +303,7 @@ describe('Person', () => {
         test('should return an error for invalid work places', () => {
             const result = Person.create(extendedInvalidWorkPlacesAttributes, registry);
             expect(hasErrors(result)).toBe(true);
-            expect((unwrap(result) as Error[])).toHaveLength(3);
+            expect(unwrap(result) as Error[]).toHaveLength(3);
         });
     });
 
@@ -323,15 +314,8 @@ describe('Person', () => {
                 parkingType: 'streetside',
                 parkingFeeType: 'paidByStudent',
                 name: 'testName',
-                geography: {
-                    type: 'Feature',
-                    geometry: {
-                        type: 'Point',
-                        coordinates: [1, 1],
-                    },
-                    properties: {},
-                },
-                _isValid: true,
+                geography: { type: 'Feature', geometry: { type: 'Point', coordinates: [1, 1] }, properties: {} },
+                _isValid: true
             };
             const schoolPlace = new SchoolPlace(schoolPlaceAttributes, registry);
             const personAttributes: { [key: string]: unknown } = { ...validAttributes, _schoolPlaces: [schoolPlaceAttributes] };
@@ -345,7 +329,7 @@ describe('Person', () => {
         test('should return an error for invalid school places', () => {
             const result = Person.create(extendedInvalidSchoolPlacesAttributes, registry);
             expect(hasErrors(result)).toBe(true);
-            expect((unwrap(result) as Error[])).toHaveLength(3);
+            expect(unwrap(result) as Error[]).toHaveLength(3);
         });
     });
 
@@ -380,7 +364,7 @@ describe('Person', () => {
         test('should return an error for invalid vehicles', () => {
             const result = Person.create(extendedInvalidVehiclesAttributes, registry);
             expect(hasErrors(result)).toBe(true);
-            expect((unwrap(result) as Error[])).toHaveLength(3);
+            expect(unwrap(result) as Error[]).toHaveLength(3);
         });
     });
 
@@ -399,7 +383,7 @@ describe('Person', () => {
                 startTimePeriod: 'am',
                 endTimePeriod: 'pm',
                 name: 'testName',
-                type: 'testType',
+                type: 'testType'
             };
             const journey = new Journey(journeyAttributes, registry);
             const personAttributes: { [key: string]: unknown } = { ...validAttributes, _journeys: [journeyAttributes] };
@@ -413,7 +397,7 @@ describe('Person', () => {
         test('should return an error for invalid journeys', () => {
             const result = Person.create(extendedInvalidJourneysAttributes, registry);
             expect(hasErrors(result)).toBe(true);
-            expect((unwrap(result) as Error[])).toHaveLength(3);
+            expect(unwrap(result) as Error[]).toHaveLength(3);
         });
     });
 
@@ -580,46 +564,38 @@ describe('Person', () => {
             const journey = new Journey({ _uuid: uuidV4(), _isValid: true }, registry);
 
             // Add a work visited place
-            const workVisitedPlace = new VisitedPlace({
-                _uuid: uuidV4(),
-                activity: 'workUsual',
-                _sequence: 1,
-                _isValid: true,
-                _place: {
+            const workVisitedPlace = new VisitedPlace(
+                {
                     _uuid: uuidV4(),
-                    name: 'My Office',
-                    geography: {
-                        type: 'Feature',
-                        geometry: {
-                            type: 'Point',
-                            coordinates: [-73.5, 45.5],
-                        },
-                        properties: {},
-                    },
+                    activity: 'workUsual',
+                    _sequence: 1,
                     _isValid: true,
+                    _place: {
+                        _uuid: uuidV4(),
+                        name: 'My Office',
+                        geography: { type: 'Feature', geometry: { type: 'Point', coordinates: [-73.5, 45.5] }, properties: {} },
+                        _isValid: true
+                    }
                 },
-            }, registry);
+                registry
+            );
 
             // Add a school visited place
-            const schoolVisitedPlace = new VisitedPlace({
-                _uuid: uuidV4(),
-                activity: 'schoolUsual',
-                _sequence: 2,
-                _isValid: true,
-                _place: {
+            const schoolVisitedPlace = new VisitedPlace(
+                {
                     _uuid: uuidV4(),
-                    name: 'My University',
-                    geography: {
-                        type: 'Feature',
-                        geometry: {
-                            type: 'Point',
-                            coordinates: [-73.6, 45.6],
-                        },
-                        properties: {},
-                    },
+                    activity: 'schoolUsual',
+                    _sequence: 2,
                     _isValid: true,
+                    _place: {
+                        _uuid: uuidV4(),
+                        name: 'My University',
+                        geography: { type: 'Feature', geometry: { type: 'Point', coordinates: [-73.6, 45.6] }, properties: {} },
+                        _isValid: true
+                    }
                 },
-            }, registry);
+                registry
+            );
 
             journey.addVisitedPlace(workVisitedPlace);
             journey.addVisitedPlace(schoolVisitedPlace);
@@ -641,19 +617,15 @@ describe('Person', () => {
             const journey = new Journey({ _uuid: uuidV4(), _isValid: true }, registry);
 
             // Pre-populate work places
-            const existingWorkPlace = new WorkPlace({
-                _uuid: uuidV4(),
-                name: 'Existing Office',
-                geography: {
-                    type: 'Feature',
-                    geometry: {
-                        type: 'Point',
-                        coordinates: [-73.5, 45.5],
-                    },
-                    properties: {},
+            const existingWorkPlace = new WorkPlace(
+                {
+                    _uuid: uuidV4(),
+                    name: 'Existing Office',
+                    geography: { type: 'Feature', geometry: { type: 'Point', coordinates: [-73.5, 45.5] }, properties: {} },
+                    _isValid: true
                 },
-                _isValid: true,
-            }, registry);
+                registry
+            );
             person.workPlaces = [existingWorkPlace];
 
             // Add a work visited place with same coordinates
@@ -662,25 +634,13 @@ describe('Person', () => {
                 activity: 'workUsual',
                 _sequence: 1,
                 _isValid: true,
-                attributes: {
-                    _uuid: uuidV4(),
-                    activity: 'workUsual',
-                    _sequence: 1,
-                    _isValid: true,
-                },
+                attributes: { _uuid: uuidV4(), activity: 'workUsual', _sequence: 1, _isValid: true },
                 _place: {
                     _uuid: uuidV4(),
                     name: 'Same Office',
-                    geography: {
-                        type: 'Feature',
-                        geometry: {
-                            type: 'Point',
-                            coordinates: [-73.5, 45.5],
-                        },
-                        properties: {},
-                    },
-                    _isValid: true,
-                },
+                    geography: { type: 'Feature', geometry: { type: 'Point', coordinates: [-73.5, 45.5] }, properties: {} },
+                    _isValid: true
+                }
             };
 
             journey.addVisitedPlace(workVisitedPlace as any);
@@ -697,19 +657,15 @@ describe('Person', () => {
             const journey = new Journey({ _uuid: uuidV4(), _isValid: true }, registry);
 
             // Pre-populate school places
-            const existingSchoolPlace = new SchoolPlace({
-                _uuid: uuidV4(),
-                name: 'Existing School',
-                geography: {
-                    type: 'Feature',
-                    geometry: {
-                        type: 'Point',
-                        coordinates: [-73.6, 45.6],
-                    },
-                    properties: {},
+            const existingSchoolPlace = new SchoolPlace(
+                {
+                    _uuid: uuidV4(),
+                    name: 'Existing School',
+                    geography: { type: 'Feature', geometry: { type: 'Point', coordinates: [-73.6, 45.6] }, properties: {} },
+                    _isValid: true
                 },
-                _isValid: true,
-            }, registry);
+                registry
+            );
             person.schoolPlaces = [existingSchoolPlace];
 
             // Add a school visited place with same coordinates
@@ -718,25 +674,13 @@ describe('Person', () => {
                 activity: 'schoolUsual',
                 _sequence: 1,
                 _isValid: true,
-                attributes: {
-                    _uuid: uuidV4(),
-                    activity: 'schoolUsual',
-                    _sequence: 1,
-                    _isValid: true,
-                },
+                attributes: { _uuid: uuidV4(), activity: 'schoolUsual', _sequence: 1, _isValid: true },
                 _place: {
                     _uuid: uuidV4(),
                     name: 'Same School',
-                    geography: {
-                        type: 'Feature',
-                        geometry: {
-                            type: 'Point',
-                            coordinates: [-73.6, 45.6],
-                        },
-                        properties: {},
-                    },
-                    _isValid: true,
-                },
+                    geography: { type: 'Feature', geometry: { type: 'Point', coordinates: [-73.6, 45.6] }, properties: {} },
+                    _isValid: true
+                }
             };
 
             journey.addVisitedPlace(schoolVisitedPlace as any);
@@ -753,45 +697,37 @@ describe('Person', () => {
             const journey = new Journey({ _uuid: uuidV4(), _isValid: true }, registry);
 
             // Add different work activities
-            const workUsualPlace = new VisitedPlace({
-                _uuid: uuidV4(),
-                activity: 'workUsual',
-                _sequence: 1,
-                _isValid: true,
-                _place: {
+            const workUsualPlace = new VisitedPlace(
+                {
                     _uuid: uuidV4(),
-                    name: 'Main Office',
-                    geography: {
-                        type: 'Feature',
-                        geometry: {
-                            type: 'Point',
-                            coordinates: [-73.5, 45.5],
-                        },
-                        properties: {},
-                    },
+                    activity: 'workUsual',
+                    _sequence: 1,
                     _isValid: true,
+                    _place: {
+                        _uuid: uuidV4(),
+                        name: 'Main Office',
+                        geography: { type: 'Feature', geometry: { type: 'Point', coordinates: [-73.5, 45.5] }, properties: {} },
+                        _isValid: true
+                    }
                 },
-            }, registry);
+                registry
+            );
 
-            const workOtherPlace = new VisitedPlace({
-                _uuid: uuidV4(),
-                activity: 'workOther',
-                _sequence: 2,
-                _isValid: true,
-                _place: {
+            const workOtherPlace = new VisitedPlace(
+                {
                     _uuid: uuidV4(),
-                    name: 'Client Office',
-                    geography: {
-                        type: 'Feature',
-                        geometry: {
-                            type: 'Point',
-                            coordinates: [-73.7, 45.7],
-                        },
-                        properties: {},
-                    },
+                    activity: 'workOther',
+                    _sequence: 2,
                     _isValid: true,
+                    _place: {
+                        _uuid: uuidV4(),
+                        name: 'Client Office',
+                        geography: { type: 'Feature', geometry: { type: 'Point', coordinates: [-73.7, 45.7] }, properties: {} },
+                        _isValid: true
+                    }
                 },
-            }, registry);
+                registry
+            );
 
             journey.addVisitedPlace(workUsualPlace);
             journey.addVisitedPlace(workOtherPlace);
@@ -834,18 +770,8 @@ describe('Person', () => {
                 activity: 'workUsual',
                 _sequence: 1,
                 _isValid: true,
-                attributes: {
-                    _uuid: uuidV4(),
-                    activity: 'workUsual',
-                    _sequence: 1,
-                    _isValid: true,
-                },
-                _place: {
-                    _uuid: uuidV4(),
-                    name: 'Remote Work',
-                    geography: undefined,
-                    _isValid: true,
-                },
+                attributes: { _uuid: uuidV4(), activity: 'workUsual', _sequence: 1, _isValid: true },
+                _place: { _uuid: uuidV4(), name: 'Remote Work', geography: undefined, _isValid: true }
             };
 
             journey.addVisitedPlace(workVisitedPlace as any);
@@ -891,7 +817,7 @@ describe('Person', () => {
             ['nickname', 'Johnny'],
             ['contactPhoneNumber', '9876543210'],
             ['contactEmail', 'johnny@example.com'],
-            ['preData', { importedPersonData: 'value', age: 35 }],
+            ['preData', { importedPersonData: 'value', age: 35 }]
         ])('should set and get %s', (attribute, value) => {
             const person = new Person(validAttributes, registry);
             person[attribute] = value;
@@ -902,7 +828,7 @@ describe('Person', () => {
             test.each([
                 ['_uuid', extendedAttributes._uuid],
                 ['customAttributes', { customAttribute: extendedAttributes.customAttribute }],
-                ['attributes', validAttributes],
+                ['attributes', validAttributes]
             ])('should set and get %s', (attribute, value) => {
                 const person = new Person(extendedAttributes, registry);
                 expect(person[attribute]).toEqual(value);
@@ -916,7 +842,7 @@ describe('Person', () => {
             ['_schoolPlaces', () => [new SchoolPlace({ placeType: 'college', _isValid: true }, registry)]],
             ['_vehicles', () => [new Vehicle({ modelYear: 2024, _isValid: true }, registry)]],
             ['_journeys', () => [new Journey({ name: 'test', _isValid: true }, registry)]],
-            ['householdUuid', () => uuidV4()],
+            ['householdUuid', () => uuidV4()]
         ])('should set and get %s', (attribute, valueFactory) => {
             const person = new Person(validAttributes, registry);
             const value = valueFactory();
@@ -934,7 +860,4 @@ describe('Person', () => {
             expect(p2.preData).toEqual({ importedPersonData: 'value', age: 35 });
         });
     });
-
 });
-
-

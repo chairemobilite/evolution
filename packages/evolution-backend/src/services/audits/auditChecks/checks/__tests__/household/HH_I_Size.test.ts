@@ -63,6 +63,4 @@ describe('HH_I_Size audit check', () => {
         const result = householdAuditChecks.HH_I_Size(context);
         expect(result).toBeUndefined();
     });
-
 });
-

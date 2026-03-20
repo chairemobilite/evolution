@@ -14,26 +14,21 @@ import * as surveyHelper from '../../../../odSurvey/helpers';
 import { shouldShowSameAsReverseTripQuestion, getPreviousTripSingleSegment } from '../helpers';
 import { Mode } from '../../../../odSurvey/types';
 
-const segmentSectionConfig = {
-    type: 'segments' as const,
-    enabled: true
-};
+const segmentSectionConfig = { type: 'segments' as const, enabled: true };
 
 jest.mock('../helpers', () => ({
     ...jest.requireActual('../helpers'),
     shouldShowSameAsReverseTripQuestion: jest.fn(),
     getPreviousTripSingleSegment: jest.fn()
 }));
-const mockedShouldShowSameAsReverseTripQuestion = shouldShowSameAsReverseTripQuestion as jest.MockedFunction<typeof shouldShowSameAsReverseTripQuestion>;
+const mockedShouldShowSameAsReverseTripQuestion = shouldShowSameAsReverseTripQuestion as jest.MockedFunction<
+    typeof shouldShowSameAsReverseTripQuestion
+>;
 const mockedGetPreviousTripSingleSegment = getPreviousTripSingleSegment as jest.MockedFunction<typeof getPreviousTripSingleSegment>;
 
 describe('getModePreWidgetConfig', () => {
     it('should return the correct widget config', () => {
-
-        const options = {
-            ...widgetFactoryOptions,
-            context: jest.fn()
-        };
+        const options = { ...widgetFactoryOptions, context: jest.fn() };
 
         const widgetConfig = getModePreWidgetConfig(segmentSectionConfig, options);
 
@@ -53,52 +48,28 @@ describe('getModePreWidgetConfig', () => {
                     conditional: expect.any(Function),
                     iconPath: '/dist/icons/modes/car/car_driver_without_passenger.svg'
                 }),
-                expect.objectContaining({
-                    value: 'carPassenger',
-                    label: expect.any(Function),
-                    iconPath: '/dist/icons/modes/car/car_passenger.svg'
-                }),
-                expect.objectContaining({
-                    value: 'walk',
-                    label: expect.any(Function),
-                    iconPath: '/dist/icons/modes/foot/foot.svg'
-                }),
+                expect.objectContaining({ value: 'carPassenger', label: expect.any(Function), iconPath: '/dist/icons/modes/car/car_passenger.svg' }),
+                expect.objectContaining({ value: 'walk', label: expect.any(Function), iconPath: '/dist/icons/modes/foot/foot.svg' }),
                 expect.objectContaining({
                     value: 'bicycle',
                     label: expect.any(Function),
                     iconPath: '/dist/icons/modes/bicycle/bicycle_with_rider.svg'
                 }),
-                expect.objectContaining({
-                    value: 'transit',
-                    label: expect.any(Function),
-                    iconPath: '/dist/icons/modes/bus/bus_city.svg'
-                }),
+                expect.objectContaining({ value: 'transit', label: expect.any(Function), iconPath: '/dist/icons/modes/bus/bus_city.svg' }),
                 expect.objectContaining({
                     value: 'taxi',
                     label: expect.any(Function),
                     iconPath: '/dist/icons/modes/taxi/taxi_no_steering_wheel.svg'
                 }),
-                expect.objectContaining({
-                    value: 'ferry',
-                    label: expect.any(Function),
-                    iconPath: '/dist/icons/modes/boat/ferry_without_car.svg'
-                }),
+                expect.objectContaining({ value: 'ferry', label: expect.any(Function), iconPath: '/dist/icons/modes/boat/ferry_without_car.svg' }),
                 expect.objectContaining({
                     value: 'paratransit',
                     label: expect.any(Function),
                     conditional: expect.any(Function),
                     iconPath: '/dist/icons/modes/minibus/minibus_with_wheelchair.svg'
                 }),
-                expect.objectContaining({
-                    value: 'other',
-                    label: expect.any(Function),
-                    iconPath: '/dist/icons/modes/other/air_balloon.svg'
-                }),
-                expect.objectContaining({
-                    value: 'dontKnow',
-                    label: expect.any(Function),
-                    iconPath: '/dist/icons/modes/other/question_mark.svg'
-                }),
+                expect.objectContaining({ value: 'other', label: expect.any(Function), iconPath: '/dist/icons/modes/other/air_balloon.svg' }),
+                expect.objectContaining({ value: 'dontKnow', label: expect.any(Function), iconPath: '/dist/icons/modes/other/question_mark.svg' }),
                 expect.objectContaining({
                     value: 'preferNotToAnswer',
                     label: expect.any(Function),
@@ -129,7 +100,10 @@ describe('Mode choices conditionals', () => {
         // Find the carDriver choice
         const carDriverChoice = choices.find((choice) => choice.value === 'carDriver');
         expect(carDriverChoice).toBeDefined();
-        const carDriverResult = carDriverChoice?.conditional?.(interview, 'household.persons.personId1.journeys.journeyId1.trips.tripId1P1.segments.segmentId1P1T1.modePre');
+        const carDriverResult = carDriverChoice?.conditional?.(
+            interview,
+            'household.persons.personId1.journeys.journeyId1.trips.tripId1P1.segments.segmentId1P1T1.modePre'
+        );
         expect(carDriverResult).toEqual(true);
     });
 
@@ -143,7 +117,10 @@ describe('Mode choices conditionals', () => {
         // Find the carDriver choice
         const carDriverChoice = choices.find((choice) => choice.value === 'carDriver');
         expect(carDriverChoice).toBeDefined();
-        const carDriverResult = carDriverChoice?.conditional?.(interview, 'household.persons.personId2.journeys.journeyId2.trips.tripId1P2.segments.segmentId1P2T1.modePre');
+        const carDriverResult = carDriverChoice?.conditional?.(
+            interview,
+            'household.persons.personId2.journeys.journeyId2.trips.tripId1P2.segments.segmentId1P2T1.modePre'
+        );
         expect(carDriverResult).toEqual(false);
     });
 
@@ -157,7 +134,10 @@ describe('Mode choices conditionals', () => {
         // Find the carDriver choice
         const carDriverChoice = choices.find((choice) => choice.value === 'carDriver');
         expect(carDriverChoice).toBeDefined();
-        const carDriverResult = carDriverChoice?.conditional?.(interview, 'household.persons.personId3.journeys.journeyId3.trips.tripId1P2.segments.segmentId1P3T1.modePre');
+        const carDriverResult = carDriverChoice?.conditional?.(
+            interview,
+            'household.persons.personId3.journeys.journeyId3.trips.tripId1P2.segments.segmentId1P3T1.modePre'
+        );
         expect(carDriverResult).toEqual(true);
     });
 
@@ -172,7 +152,10 @@ describe('Mode choices conditionals', () => {
         // Find the carDriver choice
         const carDriverChoice = choices.find((choice) => choice.value === 'carDriver');
         expect(carDriverChoice).toBeDefined();
-        const carDriverResult = carDriverChoice?.conditional?.(interview, 'household.persons.personId3.journeys.journeyId3.trips.tripId1P2.segments.segmentId1P3T1.modePre');
+        const carDriverResult = carDriverChoice?.conditional?.(
+            interview,
+            'household.persons.personId3.journeys.journeyId3.trips.tripId1P2.segments.segmentId1P3T1.modePre'
+        );
         expect(carDriverResult).toEqual(false);
     });
 
@@ -183,7 +166,10 @@ describe('Mode choices conditionals', () => {
         // Find the carDriver choice
         const carDriverChoice = choices.find((choice) => choice.value === 'carDriver');
         expect(carDriverChoice).toBeDefined();
-        const carDriverResult = carDriverChoice?.conditional?.(interview, 'household.persons.personId2.journeys.journeyId2.trips.tripId1P2.segments.segmentId1P2T1.modePre');
+        const carDriverResult = carDriverChoice?.conditional?.(
+            interview,
+            'household.persons.personId2.journeys.journeyId2.trips.tripId1P2.segments.segmentId1P2T1.modePre'
+        );
         expect(carDriverResult).toEqual(true);
     });
 
@@ -195,7 +181,10 @@ describe('Mode choices conditionals', () => {
         // Find the paratransit choice
         const paratransitChoice = choices.find((choice) => choice.value === 'paratransit');
         expect(paratransitChoice).toBeDefined();
-        const paratransitResult = paratransitChoice?.conditional?.(interview, 'household.persons.personId2.journeys.journeyId2.trips.tripId1P2.segments.segmentId1P2T1.modePre');
+        const paratransitResult = paratransitChoice?.conditional?.(
+            interview,
+            'household.persons.personId2.journeys.journeyId2.trips.tripId1P2.segments.segmentId1P2T1.modePre'
+        );
         expect(paratransitResult).toEqual(true);
         expect(mockedHhMayHaveDisability).toHaveBeenLastCalledWith({ interview });
     });
@@ -208,11 +197,13 @@ describe('Mode choices conditionals', () => {
         // Find the paratransit choice
         const paratransitChoice = choices.find((choice) => choice.value === 'paratransit');
         expect(paratransitChoice).toBeDefined();
-        const paratransitResult = paratransitChoice?.conditional?.(interview, 'household.persons.personId2.journeys.journeyId2.trips.tripId1P2.segments.segmentId1P2T1.modePre');
+        const paratransitResult = paratransitChoice?.conditional?.(
+            interview,
+            'household.persons.personId2.journeys.journeyId2.trips.tripId1P2.segments.segmentId1P2T1.modePre'
+        );
         expect(paratransitResult).toEqual(false);
         expect(mockedHhMayHaveDisability).toHaveBeenLastCalledWith({ interview });
     });
-
 });
 
 describe('Mode choices labels', () => {
@@ -251,7 +242,6 @@ describe('Mode choices labels', () => {
         translateString(choice?.label, { t: mockedT } as any, interview, 'path');
         expect(mockedT).toHaveBeenCalledWith(['customSurvey:segments:modePre:WalkOrMobilityHelp', 'segments:modePre:WalkOrMobilityHelp']);
     });
-
 });
 
 describe('Mode validations', () => {
@@ -262,22 +252,33 @@ describe('Mode validations', () => {
     const validations = widgetConfig.validations;
 
     test('should return an error if value is empty', () => {
-        expect(validations!(null, null, interview, 'household.persons.personId2.journeys.journeyId2.trips.tripId1P2.segments.segmentId1P2T1.modePre'))
-            .toEqual([{ validation: true, errorMessage: expect.anything() }]);
+        expect(
+            validations!(null, null, interview, 'household.persons.personId2.journeys.journeyId2.trips.tripId1P2.segments.segmentId1P2T1.modePre')
+        ).toEqual([{ validation: true, errorMessage: expect.anything() }]);
     });
 
     test('should return no error if value is not empty', () => {
-        expect(validations!('carDriver', null, interview, 'household.persons.personId2.journeys.journeyId2.trips.tripId1P2.segments.segmentId1P2T1.modePre'))
-            .toEqual([{ validation: false, errorMessage: expect.anything() }]);
+        expect(
+            validations!(
+                'carDriver',
+                null,
+                interview,
+                'household.persons.personId2.journeys.journeyId2.trips.tripId1P2.segments.segmentId1P2T1.modePre'
+            )
+        ).toEqual([{ validation: false, errorMessage: expect.anything() }]);
     });
 
     test('should return the right error message', () => {
-        const validation = validations!('carDriver', null, interview, 'household.persons.personId2.journeys.journeyId2.trips.tripId1P2.segments.segmentId1P2T1.modePre');
+        const validation = validations!(
+            'carDriver',
+            null,
+            interview,
+            'household.persons.personId2.journeys.journeyId2.trips.tripId1P2.segments.segmentId1P2T1.modePre'
+        );
         const mockedT = jest.fn();
         translateString(validation[0].errorMessage, { t: mockedT } as any, interview, 'path');
         expect(mockedT).toHaveBeenCalledWith(['survey:segments:ModeIsRequired', 'segments:ModeIsRequired']);
     });
-
 });
 
 describe('ModePre conditional', () => {
@@ -362,7 +363,10 @@ describe('ModePre label', () => {
     const mockedGetContext = jest.fn();
 
     // Prepare common data
-    const widgetConfig = getModePreWidgetConfig(segmentSectionConfig, { ...widgetFactoryOptions, context: mockedGetContext }) as QuestionWidgetConfig & InputRadioType;
+    const widgetConfig = getModePreWidgetConfig(segmentSectionConfig, {
+        ...widgetFactoryOptions,
+        context: mockedGetContext
+    }) as QuestionWidgetConfig & InputRadioType;
     const label = widgetConfig.label;
     const p2t2segmentsPath = 'household.persons.personId2.journeys.journeyId2.trips.tripId2P2.segments';
 
@@ -393,8 +397,16 @@ describe('ModePre label', () => {
             count: 1
         });
         expect(mockedT).toHaveBeenCalledTimes(1);
-        expect(mockedGetPlaceName).toHaveBeenCalledWith({ t: mockedT, visitedPlace: interview.response.household!.persons!.personId2!.journeys!.journeyId2!.visitedPlaces!.shoppingPlace1P2, interview });
-        expect(mockedGetPlaceName).toHaveBeenCalledWith({ t: mockedT, visitedPlace: interview.response.household!.persons!.personId2!.journeys!.journeyId2!.visitedPlaces!.otherWorkPlace1P2, interview });
+        expect(mockedGetPlaceName).toHaveBeenCalledWith({
+            t: mockedT,
+            visitedPlace: interview.response.household!.persons!.personId2!.journeys!.journeyId2!.visitedPlaces!.shoppingPlace1P2,
+            interview
+        });
+        expect(mockedGetPlaceName).toHaveBeenCalledWith({
+            t: mockedT,
+            visitedPlace: interview.response.household!.persons!.personId2!.journeys!.journeyId2!.visitedPlaces!.otherWorkPlace1P2,
+            interview
+        });
         expect(mockedGetCountOrSelfDeclared).toHaveBeenCalledWith({ interview, person: interview.response.household!.persons!.personId2 });
     });
 
@@ -416,14 +428,7 @@ describe('ModePre label', () => {
             _sequence: 2,
             _originVisitedPlaceUuid: 'unexistingOrigin',
             _destinationVisitedPlaceUuid: 'unexistingDestination',
-            segments: {
-                segmentId1P2T2: {
-                    _uuid: 'segmentId1P2T2',
-                    _isNew: false,
-                    _sequence: 1,
-                    modePre: 'walk'
-                }
-            }
+            segments: { segmentId1P2T2: { _uuid: 'segmentId1P2T2', _isNew: false, _sequence: 1, modePre: 'walk' } }
         };
 
         // Test label function
@@ -476,7 +481,10 @@ describe('ModePre label', () => {
 
     test('undefined context function', () => {
         // New widget config without context function
-        const testWidgetConfig = getModePreWidgetConfig(segmentSectionConfig, { ...widgetFactoryOptions, context: undefined }) as QuestionWidgetConfig & InputRadioType;
+        const testWidgetConfig = getModePreWidgetConfig(segmentSectionConfig, {
+            ...widgetFactoryOptions,
+            context: undefined
+        }) as QuestionWidgetConfig & InputRadioType;
         const label = testWidgetConfig.label;
 
         // Prepare mocked data
@@ -502,13 +510,8 @@ describe('ModePre label', () => {
 });
 
 describe('ModePre filtering based on configuration', () => {
-
     test('should only include modePre categories that have available modes', () => {
-        const segmentConfig = {
-            type: 'segments' as const,
-            enabled: true,
-            modesIncludeOnly: ['walk', 'bicycle', 'bicycleElectric'] as Mode[]
-        };
+        const segmentConfig = { type: 'segments' as const, enabled: true, modesIncludeOnly: ['walk', 'bicycle', 'bicycleElectric'] as Mode[] };
         const widgetConfig = getModePreWidgetConfig(segmentConfig, widgetFactoryOptions) as QuestionWidgetConfig & InputRadioType;
         const choices = widgetConfig.choices as RadioChoiceType[];
 
@@ -522,11 +525,7 @@ describe('ModePre filtering based on configuration', () => {
     });
 
     test('should include transit when transit modes are available', () => {
-        const segmentConfig = {
-            type: 'segments' as const,
-            enabled: true,
-            modesIncludeOnly: ['transitBus', 'transitRRT', 'walk'] as Mode[]
-        };
+        const segmentConfig = { type: 'segments' as const, enabled: true, modesIncludeOnly: ['transitBus', 'transitRRT', 'walk'] as Mode[] };
         const widgetConfig = getModePreWidgetConfig(segmentConfig, widgetFactoryOptions) as QuestionWidgetConfig & InputRadioType;
         const choices = widgetConfig.choices as RadioChoiceType[];
 
@@ -537,11 +536,7 @@ describe('ModePre filtering based on configuration', () => {
     });
 
     test('should include both walk and other when wheelchair/mobilityScooter are available', () => {
-        const segmentConfig = {
-            type: 'segments' as const,
-            enabled: true,
-            modesIncludeOnly: ['wheelchair', 'mobilityScooter'] as Mode[]
-        };
+        const segmentConfig = { type: 'segments' as const, enabled: true, modesIncludeOnly: ['wheelchair', 'mobilityScooter'] as Mode[] };
         const widgetConfig = getModePreWidgetConfig(segmentConfig, widgetFactoryOptions) as QuestionWidgetConfig & InputRadioType;
         const choices = widgetConfig.choices as RadioChoiceType[];
 
@@ -566,11 +561,7 @@ describe('ModePre filtering based on configuration', () => {
     });
 
     test('should preserve modePre conditionals with filtered modes', () => {
-        const segmentConfig = {
-            type: 'segments' as const,
-            enabled: true,
-            modesIncludeOnly: ['paratransit', 'walk'] as Mode[]
-        };
+        const segmentConfig = { type: 'segments' as const, enabled: true, modesIncludeOnly: ['paratransit', 'walk'] as Mode[] };
         const widgetConfig = getModePreWidgetConfig(segmentConfig, widgetFactoryOptions) as QuestionWidgetConfig & InputRadioType;
         const choices = widgetConfig.choices as RadioChoiceType[];
 
@@ -593,14 +584,9 @@ describe('ModePre filtering based on configuration', () => {
     });
 
     test('should throw an error when there is no mode', () => {
-        const segmentConfig = {
-            type: 'segments' as const,
-            enabled: true,
-            modesIncludeOnly: [] as Mode[]
-        };
+        const segmentConfig = { type: 'segments' as const, enabled: true, modesIncludeOnly: [] as Mode[] };
         expect(() => {
             getModePreWidgetConfig(segmentConfig, widgetFactoryOptions);
         }).toThrow('No available modes to create modePre widget configuration');
     });
-
 });

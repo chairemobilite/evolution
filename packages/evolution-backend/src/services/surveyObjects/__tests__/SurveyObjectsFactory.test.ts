@@ -19,16 +19,8 @@ import { SurveyObjectsRegistry } from 'evolution-common/lib/services/baseObjects
 jest.mock('../PersonFactory');
 jest.mock('../JourneyFactory');
 jest.mock('evolution-common/lib/services/baseObjects/interview/InterviewUnserializer');
-jest.mock('evolution-common/lib/services/baseObjects/Home', () => ({
-    Home: {
-        create: jest.fn()
-    }
-}));
-jest.mock('evolution-common/lib/services/baseObjects/Household', () => ({
-    Household: {
-        create: jest.fn()
-    }
-}));
+jest.mock('evolution-common/lib/services/baseObjects/Home', () => ({ Home: { create: jest.fn() } }));
+jest.mock('evolution-common/lib/services/baseObjects/Household', () => ({ Household: { create: jest.fn() } }));
 
 const mockedpopulatePersonsForHousehold = populatePersonsForHousehold as jest.MockedFunction<typeof populatePersonsForHousehold>;
 const mockedPopulateJourneysForPerson = populateJourneysForPerson as jest.MockedFunction<typeof populateJourneysForPerson>;
@@ -46,23 +38,9 @@ describe('SurveyObjectsFactory', () => {
         interviewAttributes = {
             uuid: 'interview-uuid',
             corrected_response: {
-                interview: {
-                    _uuid: 'interview-uuid'
-                },
-                home: {
-                    _uuid: 'home-uuid',
-                    geography: { type: 'Point', coordinates: [-73.5, 45.5] }
-                },
-                household: {
-                    _uuid: 'household-uuid',
-                    size: 2,
-                    persons: {
-                        'person-1': {
-                            _uuid: 'person-1',
-                            age: 30
-                        }
-                    }
-                }
+                interview: { _uuid: 'interview-uuid' },
+                home: { _uuid: 'home-uuid', geography: { type: 'Point', coordinates: [-73.5, 45.5] } },
+                household: { _uuid: 'household-uuid', size: 2, persons: { 'person-1': { _uuid: 'person-1', age: 30 } } }
             } as unknown as CorrectedResponse
         } as unknown as InterviewAttributes;
 
@@ -73,14 +51,8 @@ describe('SurveyObjectsFactory', () => {
     describe('createAllObjectsWithErrors', () => {
         it('should create all objects successfully', async () => {
             const mockInterview = { _uuid: 'interview-uuid' };
-            const mockHome = {
-                _uuid: 'home-uuid',
-                geography: { type: 'Point', coordinates: [-73.5, 45.5] }
-            };
-            const mockHousehold = {
-                _uuid: 'household-uuid',
-                members: [{ _uuid: 'person-1', setupWorkAndSchoolPlaces: jest.fn() }]
-            };
+            const mockHome = { _uuid: 'home-uuid', geography: { type: 'Point', coordinates: [-73.5, 45.5] } };
+            const mockHousehold = { _uuid: 'household-uuid', members: [{ _uuid: 'person-1', setupWorkAndSchoolPlaces: jest.fn() }] };
 
             mockedCreateInterviewObject.mockReturnValue(createOk(mockInterview as any));
             (MockedHome.create as jest.Mock).mockReturnValue(createOk(mockHome as any));
@@ -266,10 +238,7 @@ describe('SurveyObjectsFactory', () => {
         });
 
         it('should handle empty persons object', async () => {
-            const mockHousehold = {
-                _uuid: 'household-uuid',
-                members: []
-            };
+            const mockHousehold = { _uuid: 'household-uuid', members: [] };
 
             interviewAttributes.corrected_response!.household!.persons = {};
 
@@ -285,10 +254,7 @@ describe('SurveyObjectsFactory', () => {
         });
 
         it('should initialize with correct factory options', () => {
-            const customOptions = {
-                calculateRouting: false,
-                forceUpdateRouting: true
-            };
+            const customOptions = { calculateRouting: false, forceUpdateRouting: true };
 
             const customFactory = new SurveyObjectsFactory(customOptions);
 

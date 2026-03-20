@@ -9,9 +9,7 @@ import { v4 as uuidV4 } from 'uuid';
 import { homeAuditChecks, MAX_DISTANCE_PRE_AND_GEOGRAPHY_ERROR } from '../../HomeAuditChecks';
 import { createContextWithHome } from './testHelper';
 
-jest.mock('@turf/distance', () => ({
-    distance: jest.fn()
-}));
+jest.mock('@turf/distance', () => ({ distance: jest.fn() }));
 
 import { distance as turfDistance } from '@turf/distance';
 
@@ -27,34 +25,16 @@ describe('HM_I_preGeographyAndHomeGeographyTooFarApartError audit check', () => 
             {
                 name: 'preGeography is missing',
                 preGeography: undefined,
-                geography: {
-                    type: 'Feature' as const,
-                    properties: {},
-                    geometry: { type: 'Point' as const, coordinates: [-73.5, 45.5] }
-                }
+                geography: { type: 'Feature' as const, properties: {}, geometry: { type: 'Point' as const, coordinates: [-73.5, 45.5] } }
             },
             {
                 name: 'geography is missing',
-                preGeography: {
-                    type: 'Feature' as const,
-                    properties: {},
-                    geometry: { type: 'Point' as const, coordinates: [-73.5, 45.5] }
-                },
+                preGeography: { type: 'Feature' as const, properties: {}, geometry: { type: 'Point' as const, coordinates: [-73.5, 45.5] } },
                 geography: undefined
             },
-            {
-                name: 'both geographies are missing',
-                preGeography: undefined,
-                geography: undefined
-            }
+            { name: 'both geographies are missing', preGeography: undefined, geography: undefined }
         ])('$name', ({ preGeography, geography }) => {
-            const context = createContextWithHome(
-                {
-                    preGeography,
-                    geography
-                },
-                validUuid
-            );
+            const context = createContextWithHome({ preGeography, geography }, validUuid);
 
             const result = homeAuditChecks.HM_I_preGeographyAndHomeGeographyTooFarApartError(context);
 
@@ -73,16 +53,8 @@ describe('HM_I_preGeographyAndHomeGeographyTooFarApartError audit check', () => 
 
             const context = createContextWithHome(
                 {
-                    preGeography: {
-                        type: 'Feature' as const,
-                        properties: {},
-                        geometry: { type: 'Point' as const, coordinates: [-73.5, 45.5] }
-                    },
-                    geography: {
-                        type: 'Feature' as const,
-                        properties: {},
-                        geometry: { type: 'Point' as const, coordinates: [-73.5, 45.5] }
-                    }
+                    preGeography: { type: 'Feature' as const, properties: {}, geometry: { type: 'Point' as const, coordinates: [-73.5, 45.5] } },
+                    geography: { type: 'Feature' as const, properties: {}, geometry: { type: 'Point' as const, coordinates: [-73.5, 45.5] } }
                 },
                 validUuid
             );
@@ -108,16 +80,8 @@ describe('HM_I_preGeographyAndHomeGeographyTooFarApartError audit check', () => 
 
             const context = createContextWithHome(
                 {
-                    preGeography: {
-                        type: 'Feature' as const,
-                        properties: {},
-                        geometry: { type: 'Point' as const, coordinates: [-73.5, 45.5] }
-                    },
-                    geography: {
-                        type: 'Feature' as const,
-                        properties: {},
-                        geometry: { type: 'Point' as const, coordinates: [-73.5, 45.5] }
-                    }
+                    preGeography: { type: 'Feature' as const, properties: {}, geometry: { type: 'Point' as const, coordinates: [-73.5, 45.5] } },
+                    geography: { type: 'Feature' as const, properties: {}, geometry: { type: 'Point' as const, coordinates: [-73.5, 45.5] } }
                 },
                 validUuid
             );

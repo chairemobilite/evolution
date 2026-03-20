@@ -21,16 +21,19 @@ describe('HM_I_Geography audit check', () => {
     });
 
     it('should error when geography has invalid coordinates', () => {
-        const context = createContextWithHome({
-            geography: {
-                type: 'Feature',
-                properties: {},
-                geometry: {
-                    type: 'Point',
-                    coordinates: [-73.5] // Missing latitude
+        const context = createContextWithHome(
+            {
+                geography: {
+                    type: 'Feature',
+                    properties: {},
+                    geometry: {
+                        type: 'Point',
+                        coordinates: [-73.5] // Missing latitude
+                    }
                 }
-            }
-        }, validUuid);
+            },
+            validUuid
+        );
 
         const result = homeAuditChecks.HM_I_Geography(context);
 
@@ -46,16 +49,10 @@ describe('HM_I_Geography audit check', () => {
     });
 
     it('should error when geography has no coordinates', () => {
-        const context = createContextWithHome({
-            geography: {
-                type: 'Feature',
-                properties: {},
-                geometry: {
-                    type: 'Point',
-                    coordinates: [] as number[]
-                }
-            }
-        }, validUuid);
+        const context = createContextWithHome(
+            { geography: { type: 'Feature', properties: {}, geometry: { type: 'Point', coordinates: [] as number[] } } },
+            validUuid
+        );
 
         const result = homeAuditChecks.HM_I_Geography(context);
 
@@ -78,4 +75,3 @@ describe('HM_I_Geography audit check', () => {
         expect(result).toBeUndefined();
     });
 });
-

@@ -8,10 +8,9 @@
 import { ParamsValidatorUtils } from '../ParamsValidatorUtils';
 import { v4 as uuidV4 } from 'uuid';
 
-class TestClass { }
+class TestClass {}
 
 describe('ParamsValidatorUtils', () => {
-
     describe('isRecord', () => {
         test('should return no errors for a valid plain object', () => {
             const errors = ParamsValidatorUtils.isRecord('attr', {}, 'TestClass');
@@ -96,14 +95,12 @@ describe('ParamsValidatorUtils', () => {
     });
 
     describe('isInstanceOf', () => {
-
         class ParentClass {}
         class ChildClass extends ParentClass {}
 
         test('should return no errors for an instance of TestClass', () => {
             const instance = new TestClass();
-            const errors = ParamsValidatorUtils.isInstanceOf('attr', instance, 'TestClass', TestClass
-            );
+            const errors = ParamsValidatorUtils.isInstanceOf('attr', instance, 'TestClass', TestClass);
             expect(errors).toEqual([]);
         });
 
@@ -292,7 +289,8 @@ describe('ParamsValidatorUtils', () => {
         });
 
         test('should return an error for a non-array value', () => {
-            const errors = ParamsValidatorUtils.isArray('attr', 'invalid', 'TestClass'); expect(errors).toHaveLength(1);
+            const errors = ParamsValidatorUtils.isArray('attr', 'invalid', 'TestClass');
+            expect(errors).toHaveLength(1);
             expect(errors[0].message).toContain('should be an array');
         });
     });
@@ -456,14 +454,7 @@ describe('ParamsValidatorUtils', () => {
 
     describe('isGeojsonPoint', () => {
         test('should return no errors for a valid GeoJSON Point', () => {
-            const point: GeoJSON.Feature<GeoJSON.Point> = {
-                type: 'Feature',
-                properties: {},
-                geometry: {
-                    type: 'Point',
-                    coordinates: [0, 0]
-                }
-            };
+            const point: GeoJSON.Feature<GeoJSON.Point> = { type: 'Feature', properties: {}, geometry: { type: 'Point', coordinates: [0, 0] } };
             const errors = ParamsValidatorUtils.isGeojsonPoint('attr', point, 'TestClass');
             expect(errors).toEqual([]);
         });
@@ -480,13 +471,21 @@ describe('ParamsValidatorUtils', () => {
         });
 
         test('should return an error for an empty GeoJSON Point coordinates', () => {
-            const errors = ParamsValidatorUtils.isGeojsonPoint('attr', { type: 'Feature', geometry: { type: 'Point', coordinates: [] } }, 'TestClass');
+            const errors = ParamsValidatorUtils.isGeojsonPoint(
+                'attr',
+                { type: 'Feature', geometry: { type: 'Point', coordinates: [] } },
+                'TestClass'
+            );
             expect(errors).toHaveLength(1);
             expect(errors[0].message).toContain('should be a valid geojson point');
         });
 
         test('should return an error for an undefined GeoJSON Point coordinates', () => {
-            const errors = ParamsValidatorUtils.isGeojsonPoint('attr', { type: 'Feature', geometry: { type: 'Point', coordinates: undefined } }, 'TestClass');
+            const errors = ParamsValidatorUtils.isGeojsonPoint(
+                'attr',
+                { type: 'Feature', geometry: { type: 'Point', coordinates: undefined } },
+                'TestClass'
+            );
             expect(errors).toHaveLength(1);
             expect(errors[0].message).toContain('should be a valid geojson point');
         });
@@ -499,7 +498,10 @@ describe('ParamsValidatorUtils', () => {
                 properties: {},
                 geometry: {
                     type: 'LineString',
-                    coordinates: [[0, 0], [1, 1]]
+                    coordinates: [
+                        [0, 0],
+                        [1, 1]
+                    ]
                 }
             };
             const errors = ParamsValidatorUtils.isGeojsonLineString('attr', lineString, 'TestClass');
@@ -524,8 +526,15 @@ describe('ParamsValidatorUtils', () => {
                 type: 'Feature',
                 properties: {},
                 geometry: {
-                    type: 'Polygon', coordinates: [
-                        [[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]
+                    type: 'Polygon',
+                    coordinates: [
+                        [
+                            [0, 0],
+                            [1, 0],
+                            [1, 1],
+                            [0, 1],
+                            [0, 0]
+                        ]
                     ]
                 }
             };
@@ -552,7 +561,10 @@ describe('ParamsValidatorUtils', () => {
                 properties: {},
                 geometry: {
                     type: 'MultiPoint',
-                    coordinates: [[0, 0], [1, 1]]
+                    coordinates: [
+                        [0, 0],
+                        [1, 1]
+                    ]
                 }
             };
             const errors = ParamsValidatorUtils.isGeojsonMultiPoint('attr', multiPoint, 'TestClass');
@@ -579,8 +591,14 @@ describe('ParamsValidatorUtils', () => {
                 geometry: {
                     type: 'MultiLineString',
                     coordinates: [
-                        [[0, 0], [1, 1]],
-                        [[2, 2], [3, 3]]
+                        [
+                            [0, 0],
+                            [1, 1]
+                        ],
+                        [
+                            [2, 2],
+                            [3, 3]
+                        ]
                     ]
                 }
             };
@@ -609,10 +627,22 @@ describe('ParamsValidatorUtils', () => {
                     type: 'MultiPolygon',
                     coordinates: [
                         [
-                            [[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]
+                            [
+                                [0, 0],
+                                [1, 0],
+                                [1, 1],
+                                [0, 1],
+                                [0, 0]
+                            ]
                         ],
                         [
-                            [[2, 2], [3, 2], [3, 3], [2, 3], [2, 2]]
+                            [
+                                [2, 2],
+                                [3, 2],
+                                [3, 3],
+                                [2, 3],
+                                [2, 2]
+                            ]
                         ]
                     ]
                 }
@@ -637,16 +667,7 @@ describe('ParamsValidatorUtils', () => {
         test('should return no errors for a valid GeoJSON FeatureCollection', () => {
             const featureCollection: GeoJSON.FeatureCollection = {
                 type: 'FeatureCollection',
-                features: [
-                    {
-                        type: 'Feature',
-                        geometry: {
-                            type: 'Point',
-                            coordinates: [0, 0]
-                        },
-                        properties: {}
-                    }
-                ]
+                features: [{ type: 'Feature', geometry: { type: 'Point', coordinates: [0, 0] }, properties: {} }]
             };
             const errors = ParamsValidatorUtils.isGeojsonFeatureCollection('attr', featureCollection, 'TestClass');
             expect(errors).toEqual([]);
@@ -658,10 +679,7 @@ describe('ParamsValidatorUtils', () => {
         });
 
         test('should return no errors for a valid empty GeoJSON FeatureCollection', () => {
-            const featureCollection: GeoJSON.FeatureCollection = {
-                type: 'FeatureCollection',
-                features: []
-            };
+            const featureCollection: GeoJSON.FeatureCollection = { type: 'FeatureCollection', features: [] };
             const errors = ParamsValidatorUtils.isGeojsonFeatureCollection('attr', featureCollection, 'TestClass');
             expect(errors).toEqual([]);
         });

@@ -15,9 +15,7 @@ import { sendSupportRequestEmail } from '../../services/logging/supportRequest';
 jest.mock('../../services/interviews/interviews');
 jest.mock('../../services/logging/queryLoggingMiddleware');
 jest.mock('../../services/logging/supportRequest');
-jest.mock('evolution-common/lib/config/project.config', () => ({
-    surveySupportForm: true
-}));
+jest.mock('evolution-common/lib/config/project.config', () => ({ surveySupportForm: true }));
 
 const mockUserId = 3;
 const mockAuthorizationMiddleware = jest.fn(() => (req, res, next) => next());
@@ -53,14 +51,7 @@ describe('GET /survey/activeInterview', () => {
     });
 
     test('should return active interview for user', async () => {
-        const mockInterview = {
-            id: 1,
-            uuid: 'mockUuid',
-            is_valid: true,
-            is_completed: false,
-            response: {},
-            participant_id: 1
-        };
+        const mockInterview = { id: 1, uuid: 'mockUuid', is_valid: true, is_completed: false, response: {}, participant_id: 1 };
         (Interviews.getUserInterview as jest.Mock).mockResolvedValue(mockInterview);
 
         const response = await request(app).get('/survey/activeInterview');
@@ -71,14 +62,7 @@ describe('GET /survey/activeInterview', () => {
     });
 
     test('should create interview if none exists', async () => {
-        const mockCreatedInterview = {
-            id: 1,
-            uuid: 'mockUuid',
-            is_valid: true,
-            is_completed: false,
-            response: {},
-            participant_id: 1
-        };
+        const mockCreatedInterview = { id: 1, uuid: 'mockUuid', is_valid: true, is_completed: false, response: {}, participant_id: 1 };
         (Interviews.getUserInterview as jest.Mock).mockResolvedValue(undefined);
         (Interviews.createInterviewForUser as jest.Mock).mockResolvedValue(mockCreatedInterview);
 
@@ -116,11 +100,7 @@ describe('GET /survey/activeInterview', () => {
         const response = await request(app).get('/survey/activeInterview');
 
         expect(response.status).toBe(500);
-        expect(response.body).toEqual({
-            status: 'failed',
-            interview: null,
-            error: 'cannot fetch interview'
-        });
+        expect(response.body).toEqual({ status: 'failed', interview: null, error: 'cannot fetch interview' });
         expect(Interviews.getUserInterview).toHaveBeenCalledWith(mockUserId);
     });
 
@@ -155,11 +135,7 @@ describe('POST /supportRequest', () => {
     });
 
     test('should handle support request successfully when user is not logged in', async () => {
-        const requestData = {
-            email: 'test@example.com',
-            message: 'Help me please',
-            currentUrl: 'http://test.com/page'
-        };
+        const requestData = { email: 'test@example.com', message: 'Help me please', currentUrl: 'http://test.com/page' };
 
         (sendSupportRequestEmail as jest.Mock).mockResolvedValue(undefined);
 
@@ -191,11 +167,7 @@ describe('POST /supportRequest', () => {
         (Interviews.getUserInterview as jest.Mock).mockResolvedValue(mockInterview);
         (sendSupportRequestEmail as jest.Mock).mockResolvedValue(undefined);
 
-        const requestData = {
-            email: 'test@example.com',
-            message: 'Help me please',
-            currentUrl: 'http://test.com/page'
-        };
+        const requestData = { email: 'test@example.com', message: 'Help me please', currentUrl: 'http://test.com/page' };
 
         const response = await request(loggedInApp).post('/supportRequest/').send(requestData);
 
@@ -212,10 +184,7 @@ describe('POST /supportRequest', () => {
     });
 
     test('should handle missing message in request', async () => {
-        const requestData = {
-            email: 'test@example.com',
-            currentUrl: 'http://test.com/page'
-        };
+        const requestData = { email: 'test@example.com', currentUrl: 'http://test.com/page' };
 
         (sendSupportRequestEmail as jest.Mock).mockResolvedValue(undefined);
 
@@ -235,10 +204,7 @@ describe('POST /supportRequest', () => {
     test('should handle errors in support request processing', async () => {
         (sendSupportRequestEmail as jest.Mock).mockRejectedValue(new Error('Email sending failed'));
 
-        const requestData = {
-            email: 'test@example.com',
-            message: 'Help me please'
-        };
+        const requestData = { email: 'test@example.com', message: 'Help me please' };
 
         const response = await request(publicApp).post('/supportRequest/').send(requestData);
 
@@ -253,11 +219,7 @@ describe('POST /supportRequest', () => {
             return res.status(403).json({ status: 'InvalidCaptcha' });
         });
 
-        const requestData = {
-            email: 'test@example.com',
-            message: 'Help me please',
-            currentUrl: 'http://test.com/page'
-        };
+        const requestData = { email: 'test@example.com', message: 'Help me please', currentUrl: 'http://test.com/page' };
 
         (sendSupportRequestEmail as jest.Mock).mockResolvedValue(undefined);
 
@@ -272,9 +234,7 @@ describe('POST /supportRequest', () => {
     test('should not register route when supportForm is disabled', async () => {
         // Override the project config mock to disable support form
         jest.resetModules();
-        jest.mock('evolution-common/lib/config/project.config', () => ({
-            surveySupportForm: false
-        }));
+        jest.mock('evolution-common/lib/config/project.config', () => ({ surveySupportForm: false }));
 
         // Re-import to get updated config, otherwise it still uses the previous config mock and the result is a 500 error
         const { getPublicParticipantRoutes: getUpdatedRoutes } = require('../survey.participant.routes');

@@ -21,7 +21,7 @@ jest.mock('react-input-range/src/js/input-range/default-class-names', () => ({
     slider: 'input-range__slider',
     sliderContainer: 'input-range__slider-container',
     track: 'input-range__track input-range__track--background',
-    valueLabel: 'input-range__label input-range__label--value',
+    valueLabel: 'input-range__label input-range__label--value'
 }));
 
 jest.mock('react-input-range/lib/css/index.css', () => {});
@@ -29,40 +29,38 @@ jest.mock('react-input-range/lib/css/index.css', () => {});
 const userAttributes = {
     id: 1,
     username: 'foo',
-    preferences: {  },
+    preferences: {},
     serializedPermissions: [],
     isAuthorized: () => true,
     is_admin: false,
     pages: [],
     showUserInfo: true
-}
+};
 
 describe('Should correctly render InputRange with minimal parameters', () => {
-
     const widgetConfig = {
         type: 'question' as const,
         twoColumns: true,
         path: 'test.foo',
         containsHtml: true,
-        label: {
-            fr: `Texte en français`,
-            en: `English text`
-        },
+        label: { fr: 'Texte en français', en: 'English text' },
         inputType: 'slider' as const
-    }
+    };
 
     test('Test without value', () => {
         // Should have a blank style
         const { container } = render(
             <InputRange
                 id={'test'}
-                onValueChange={() => { /* nothing to do */}}
+                onValueChange={() => {
+                    /* nothing to do */
+                }}
                 widgetConfig={widgetConfig}
                 value={undefined}
                 inputRef={React.createRef()}
                 interview={interviewAttributes}
                 user={userAttributes}
-                path='foo.test'
+                path="foo.test"
             />
         );
         expect(container).toMatchSnapshot();
@@ -72,49 +70,45 @@ describe('Should correctly render InputRange with minimal parameters', () => {
         const { container } = render(
             <InputRange
                 id={'test'}
-                onValueChange={() => { /* nothing to do */}}
+                onValueChange={() => {
+                    /* nothing to do */
+                }}
                 widgetConfig={widgetConfig}
                 value={10}
                 inputRef={React.createRef()}
                 interview={interviewAttributes}
                 user={userAttributes}
-                path='foo.test'
+                path="foo.test"
             />
         );
         expect(container).toMatchSnapshot();
     });
-
 });
 
 describe('Should correctly render InputRange with various parameters', () => {
-
     const baseWidgetConfig = {
         type: 'question' as const,
         twoColumns: true,
         path: 'test.foo',
         containsHtml: true,
-        label: {
-            fr: `Texte en français`,
-            en: `English text`
-        },
+        label: { fr: 'Texte en français', en: 'English text' },
         inputType: 'slider' as const
-    }
+    };
 
     test('Test with min max range values', () => {
-        const widgetConfig = Object.assign({ 
-            maxValue: 40,
-            minValue: 10
-        }, baseWidgetConfig);
+        const widgetConfig = Object.assign({ maxValue: 40, minValue: 10 }, baseWidgetConfig);
         const { container } = render(
             <InputRange
                 id={'test'}
-                onValueChange={() => { /* nothing to do */}}
+                onValueChange={() => {
+                    /* nothing to do */
+                }}
                 widgetConfig={widgetConfig}
                 value={5}
                 inputRef={React.createRef()}
                 interview={interviewAttributes}
                 user={userAttributes}
-                path='foo.test'
+                path="foo.test"
             />
         );
         expect(container).toMatchSnapshot();
@@ -122,55 +116,53 @@ describe('Should correctly render InputRange with various parameters', () => {
 
     test('Test trackclass and labels', () => {
         const formatLabel = jest.fn().mockImplementation((val) => `l${val}`);
-        const widgetConfig = Object.assign({ 
-            formatLabel,
-            labels: ['unilingual text', { fr: '2e label français', en: '2nd english label' }],
-            trackClassName: 'myTrackClass',
-        }, baseWidgetConfig);
+        const widgetConfig = Object.assign(
+            { formatLabel, labels: ['unilingual text', { fr: '2e label français', en: '2nd english label' }], trackClassName: 'myTrackClass' },
+            baseWidgetConfig
+        );
         const { container } = render(
             <InputRange
                 id={'test'}
-                onValueChange={() => { /* nothing to do */}}
+                onValueChange={() => {
+                    /* nothing to do */
+                }}
                 widgetConfig={widgetConfig}
                 value={10}
                 inputRef={React.createRef()}
                 interview={interviewAttributes}
                 user={userAttributes}
-                path='foo.test'
+                path="foo.test"
             />
         );
         expect(container).toMatchSnapshot();
     });
-
 });
 
 describe('Should correctly render InputRange with not applicable', () => {
-
     const widgetConfig = {
         type: 'question' as const,
         twoColumns: true,
         path: 'test.foo',
         containsHtml: true,
-        label: {
-            fr: `Texte en français`,
-            en: `English text`
-        },
+        label: { fr: 'Texte en français', en: 'English text' },
         inputType: 'slider' as const,
         includeNotApplicable: true
-    }
+    };
 
     test('Test without value', () => {
         // Should have a blank style
         const { container } = render(
             <InputRange
                 id={'test'}
-                onValueChange={() => { /* nothing to do */}}
+                onValueChange={() => {
+                    /* nothing to do */
+                }}
                 widgetConfig={widgetConfig}
                 value={undefined}
                 inputRef={React.createRef()}
                 interview={interviewAttributes}
                 user={userAttributes}
-                path='foo.test'
+                path="foo.test"
             />
         );
         expect(container).toMatchSnapshot();
@@ -180,13 +172,15 @@ describe('Should correctly render InputRange with not applicable', () => {
         const { container } = render(
             <InputRange
                 id={'test'}
-                onValueChange={() => { /* nothing to do */}}
+                onValueChange={() => {
+                    /* nothing to do */
+                }}
                 widgetConfig={widgetConfig}
                 value={10}
                 inputRef={React.createRef()}
                 interview={interviewAttributes}
                 user={userAttributes}
-                path='foo.test'
+                path="foo.test"
             />
         );
         expect(container).toMatchSnapshot();
@@ -196,37 +190,36 @@ describe('Should correctly render InputRange with not applicable', () => {
         const { container } = render(
             <InputRange
                 id={'test'}
-                onValueChange={() => { /* nothing to do */}}
+                onValueChange={() => {
+                    /* nothing to do */
+                }}
                 widgetConfig={widgetConfig}
                 value={'na'}
                 inputRef={React.createRef()}
                 interview={interviewAttributes}
                 user={userAttributes}
-                path='foo.test'
+                path="foo.test"
             />
         );
         expect(container).toMatchSnapshot();
     });
 
     test('Test with custom not applicable label', () => {
-        const widgetConfigWithLabel = {
-            ...widgetConfig,
-            notApplicableLabel: 'Custom non applicable'
-        }
+        const widgetConfigWithLabel = { ...widgetConfig, notApplicableLabel: 'Custom non applicable' };
         const { container } = render(
             <InputRange
                 id={'test'}
-                onValueChange={() => { /* nothing to do */}}
+                onValueChange={() => {
+                    /* nothing to do */
+                }}
                 widgetConfig={widgetConfigWithLabel}
                 value={10}
                 inputRef={React.createRef()}
                 interview={interviewAttributes}
                 user={userAttributes}
-                path='foo.test'
+                path="foo.test"
             />
         );
         expect(container).toMatchSnapshot();
     });
-
 });
-

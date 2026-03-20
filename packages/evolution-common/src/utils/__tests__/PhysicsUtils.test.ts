@@ -9,62 +9,34 @@ import { getBirdDistanceMeters, getBirdSpeedKph } from '../PhysicsUtils';
 import * as PhysicsUtils from '../PhysicsUtils';
 
 describe('getBirdDistanceMeters', () => {
-
-    const origin = {
-        type: 'Feature',
-        geometry: {
-            type: 'Point',
-            coordinates: [45.5, -75.5]
-        },
-        properties: {}
-    } as GeoJSON.Feature<GeoJSON.Point>;
+    const origin = { type: 'Feature', geometry: { type: 'Point', coordinates: [45.5, -75.5] }, properties: {} } as GeoJSON.Feature<GeoJSON.Point>;
 
     const destination = {
         type: 'Feature',
-        geometry: {
-            type: 'Point',
-            coordinates: [45.4, -75.6]
-        },
+        geometry: { type: 'Point', coordinates: [45.4, -75.6] },
         properties: {}
     } as GeoJSON.Feature<GeoJSON.Point>;
 
-    const invalidPoint1 = {
-        type: 'Feature',
-        geometry: undefined,
-        properties: {}
-    } as any;
+    const invalidPoint1 = { type: 'Feature', geometry: undefined, properties: {} } as any;
 
-    const invalidPoint2 = {
-        type: 'Feature',
-        geometry: {
-            type: 'Point',
-            coordinates: [45.4, -75.6]
-        }
-    } as any;
+    const invalidPoint2 = { type: 'Feature', geometry: { type: 'Point', coordinates: [45.4, -75.6] } } as any;
 
-    const invalidPoint3 = {
-        type: 'Feature',
-        geometry: {
-            type: 'Point',
-            coordinates: []
-        },
-        properties: {}
-    } as any;
+    const invalidPoint3 = { type: 'Feature', geometry: { type: 'Point', coordinates: [] }, properties: {} } as any;
 
-    const invalidPoint4 = {
-        type: 'Feature',
-        geometry: {
-            type: 'Point',
-            coordinates: undefined
-        },
-        properties: {}
-    } as any;
+    const invalidPoint4 = { type: 'Feature', geometry: { type: 'Point', coordinates: undefined }, properties: {} } as any;
 
     const polygon = {
         type: 'Feature',
         geometry: {
             type: 'Polygon',
-            coordinates: [[[45.5, -75.5], [45.4, -75.6], [45.4, -75.4], [45.5, -75.5]]]
+            coordinates: [
+                [
+                    [45.5, -75.5],
+                    [45.4, -75.6],
+                    [45.4, -75.4],
+                    [45.5, -75.5]
+                ]
+            ]
         },
         properties: {}
     } as GeoJSON.Feature<GeoJSON.Polygon>;
@@ -103,61 +75,34 @@ describe('getBirdDistanceMeters', () => {
 });
 
 describe('getBirdSpeedKph', () => {
-    const origin = {
-        type: 'Feature',
-        geometry: {
-            type: 'Point',
-            coordinates: [45.5, -75.5]
-        },
-        properties: {}
-    } as GeoJSON.Feature<GeoJSON.Point>;
+    const origin = { type: 'Feature', geometry: { type: 'Point', coordinates: [45.5, -75.5] }, properties: {} } as GeoJSON.Feature<GeoJSON.Point>;
 
     const destination = {
         type: 'Feature',
-        geometry: {
-            type: 'Point',
-            coordinates: [45.4, -75.6]
-        },
+        geometry: { type: 'Point', coordinates: [45.4, -75.6] },
         properties: {}
     } as GeoJSON.Feature<GeoJSON.Point>;
 
-    const invalidPoint1 = {
-        type: 'Feature',
-        geometry: undefined,
-        properties: {}
-    } as any;
+    const invalidPoint1 = { type: 'Feature', geometry: undefined, properties: {} } as any;
 
-    const invalidPoint2 = {
-        type: 'Feature',
-        geometry: {
-            type: 'Point',
-            coordinates: [45.4, -75.6]
-        }
-    } as any;
+    const invalidPoint2 = { type: 'Feature', geometry: { type: 'Point', coordinates: [45.4, -75.6] } } as any;
 
-    const invalidPoint3 = {
-        type: 'Feature',
-        geometry: {
-            type: 'Point',
-            coordinates: []
-        },
-        properties: {}
-    } as any;
+    const invalidPoint3 = { type: 'Feature', geometry: { type: 'Point', coordinates: [] }, properties: {} } as any;
 
-    const invalidPoint4 = {
-        type: 'Feature',
-        geometry: {
-            type: 'Point',
-            coordinates: undefined
-        },
-        properties: {}
-    } as any;
+    const invalidPoint4 = { type: 'Feature', geometry: { type: 'Point', coordinates: undefined }, properties: {} } as any;
 
     const polygon = {
         type: 'Feature',
         geometry: {
             type: 'Polygon',
-            coordinates: [[[45.5, -75.5], [45.4, -75.6], [45.4, -75.4], [45.5, -75.5]]]
+            coordinates: [
+                [
+                    [45.5, -75.5],
+                    [45.4, -75.6],
+                    [45.4, -75.4],
+                    [45.5, -75.5]
+                ]
+            ]
         },
         properties: {}
     } as GeoJSON.Feature<GeoJSON.Polygon>;
@@ -189,4 +134,3 @@ describe('getBirdSpeedKph', () => {
         expect(speed).toBeUndefined();
     });
 });
-

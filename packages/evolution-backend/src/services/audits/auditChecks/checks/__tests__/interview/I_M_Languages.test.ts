@@ -14,9 +14,7 @@ describe('I_M_Languages audit check', () => {
     const validUuid = uuidV4();
 
     it('should pass when interview has languages', () => {
-        const context = createContextWithInterview({
-            paradata: new InterviewParadata({ languages: [{ language: 'en' }, { language: 'fr' }] })
-        });
+        const context = createContextWithInterview({ paradata: new InterviewParadata({ languages: [{ language: 'en' }, { language: 'fr' }] }) });
 
         const result = interviewAuditChecks.I_M_Languages(context);
 
@@ -24,9 +22,7 @@ describe('I_M_Languages audit check', () => {
     });
 
     it('should pass when interview has at least one language', () => {
-        const context = createContextWithInterview({
-            paradata: new InterviewParadata({ languages: [{ language: 'en' }] })
-        }, validUuid);
+        const context = createContextWithInterview({ paradata: new InterviewParadata({ languages: [{ language: 'en' }] }) }, validUuid);
 
         const result = interviewAuditChecks.I_M_Languages(context);
 
@@ -34,9 +30,7 @@ describe('I_M_Languages audit check', () => {
     });
 
     it('should fail when interview missing languages', () => {
-        const context = createContextWithInterview({
-            paradata: new InterviewParadata({ languages: undefined })
-        }, validUuid);
+        const context = createContextWithInterview({ paradata: new InterviewParadata({ languages: undefined }) }, validUuid);
 
         const result = interviewAuditChecks.I_M_Languages(context);
 
@@ -52,9 +46,7 @@ describe('I_M_Languages audit check', () => {
     });
 
     it('should fail when interview has empty languages array', () => {
-        const context = createContextWithInterview({
-            paradata: new InterviewParadata({ languages: [] })
-        }, validUuid);
+        const context = createContextWithInterview({ paradata: new InterviewParadata({ languages: [] }) }, validUuid);
 
         const result = interviewAuditChecks.I_M_Languages(context);
 
@@ -70,9 +62,7 @@ describe('I_M_Languages audit check', () => {
     });
 
     it('should fail when interview has no paradata', () => {
-        const context = createContextWithInterview({
-            paradata: undefined
-        }, validUuid);
+        const context = createContextWithInterview({ paradata: undefined }, validUuid);
 
         const result = interviewAuditChecks.I_M_Languages(context);
 
@@ -87,4 +77,3 @@ describe('I_M_Languages audit check', () => {
         });
     });
 });
-

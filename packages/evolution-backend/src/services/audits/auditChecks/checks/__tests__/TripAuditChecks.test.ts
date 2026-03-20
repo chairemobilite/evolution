@@ -14,7 +14,6 @@ import { createContextWithTrip } from './trip/testHelper';
 describe('runTripAuditChecks - Integration', () => {
     const validUuid = uuidV4();
 
-
     it('should run all audit checks and return empty array when all checks pass', async () => {
         const context = createContextWithTrip();
 

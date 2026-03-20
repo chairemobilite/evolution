@@ -19,14 +19,9 @@ import { getPersonVisitedPlacesMapConfig } from '../../common/widgetPersonVisite
 import { getButtonValidateAndGotoNextSection } from '../../common/buttonValidateAndGotoNextSection';
 import { SwitchPersonWidgetsFactory } from '../../common/widgetsSwitchPerson';
 
-jest.mock('uuid', () => ({
-    v4: jest.fn().mockReturnValue('newTripId')
-}));
+jest.mock('uuid', () => ({ v4: jest.fn().mockReturnValue('newTripId') }));
 const mockUuidv4 = uuidv4 as jest.MockedFunction<typeof uuidv4>;
-const segmentSectionConfig = {
-    type: 'segments' as const,
-    enabled: true
-};
+const segmentSectionConfig = { type: 'segments' as const, enabled: true };
 
 beforeEach(() => {
     jest.clearAllMocks();
@@ -38,15 +33,12 @@ const mockedSelectNextIncompleteTrip = jest.spyOn(odHelpers, 'selectNextIncomple
 const activeJourney = { _uuid: 'testJourney1', _sequence: 1 };
 const activePerson = { _uuid: 'testPerson1', _sequence: 1, journeys: { testJourney1: activeJourney } };
 const interviewWithTestPerson = _cloneDeep(interviewAttributesForTestCases);
-interviewWithTestPerson.response.household!.persons = {
-    testPerson1: activePerson
-};
+interviewWithTestPerson.response.household!.persons = { testPerson1: activePerson };
 // Set active person and journey:
 interviewWithTestPerson.response._activePersonId = activePerson._uuid;
 interviewWithTestPerson.response._activeJourneyId = activeJourney._uuid;
 
 describe('SegmentsSectionFactory#getSectionConfig', () => {
-
     test('should return the correct widget config when section enabled', () => {
         const sectionFactory = new SegmentsSectionFactory(segmentSectionConfig, widgetFactoryOptions);
         const widgetConfig = sectionFactory.getSectionConfig();
@@ -58,9 +50,7 @@ describe('SegmentsSectionFactory#getSectionConfig', () => {
             onSectionEntry: expect.any(Function),
             template: 'tripsAndSegmentsWithMap',
             title: expect.any(Function),
-            customStyle: {
-                maxWidth: '120rem'
-            },
+            customStyle: { maxWidth: '120rem' },
             widgets: [
                 'activePersonTitle',
                 'buttonSwitchPerson',
@@ -73,60 +63,60 @@ describe('SegmentsSectionFactory#getSectionConfig', () => {
     });
 
     test('should return the correct widget config when section disabled', () => {
-        expect(() => new SegmentsSectionFactory({ type: 'segments', enabled: false }, { ...widgetFactoryOptions, iconMapper: {} })).toThrow('Segments section configuration requested but the section is not enabled');
+        expect(() => new SegmentsSectionFactory({ type: 'segments', enabled: false }, { ...widgetFactoryOptions, iconMapper: {} })).toThrow(
+            'Segments section configuration requested but the section is not enabled'
+        );
     });
-
 });
 
 describe('SegmentsSectionFactory#getWidgetConfigs', () => {
-
-    test.each([
-        'personTripsTitle',
-        'personTrips',
-        'personVisitedPlacesMap',
-        'buttonConfirmNextSection'
-    ])('should have a widget named %s', (widgetName) => {
-        const widgetConfigs = new SegmentsSectionFactory(segmentSectionConfig, widgetFactoryOptions).getWidgetConfigs();
-        const widgetNames = Object.keys(widgetConfigs);
-        expect(widgetNames).toContain(widgetName);
-    });
+    test.each(['personTripsTitle', 'personTrips', 'personVisitedPlacesMap', 'buttonConfirmNextSection'])(
+        'should have a widget named %s',
+        (widgetName) => {
+            const widgetConfigs = new SegmentsSectionFactory(segmentSectionConfig, widgetFactoryOptions).getWidgetConfigs();
+            const widgetNames = Object.keys(widgetConfigs);
+            expect(widgetNames).toContain(widgetName);
+        }
+    );
 
     describe('should have all the extra widgets from the person trips group', () => {
-        const testSegmentSectionConfig = { ...segmentSectionConfig, modesIncludeOnly: ['walking', 'bicycle'] as Mode[]};
+        const testSegmentSectionConfig = { ...segmentSectionConfig, modesIncludeOnly: ['walking', 'bicycle'] as Mode[] };
         const personTripsGroupConfig = new PersonTripsGroupConfigFactory(testSegmentSectionConfig, widgetFactoryOptions).getWidgetConfigs();
 
         // Make sure there are widgets, then test each one
         const personTripsGroupWidgetNames = Object.keys(personTripsGroupConfig);
-        test('there should be widgets in the person trips group', () =>  {
+        test('there should be widgets in the person trips group', () => {
             expect(personTripsGroupWidgetNames.length).toBeGreaterThan(0);
         });
 
-        test.each(
-            personTripsGroupWidgetNames.map(widgetName => ({ widgetName, expected: personTripsGroupConfig[widgetName] }))
-        )('should have the person trips group widget named $widgetName', ({ widgetName, expected }: { widgetName: string, expected: WidgetConfig }) => {
-            const widgetConfigs = new SegmentsSectionFactory(testSegmentSectionConfig, widgetFactoryOptions).getWidgetConfigs();
-            const widgetConfig = widgetConfigs[widgetName];
-            expect(maskFunctions(widgetConfig)).toEqual(maskFunctions(expected));
-        });
+        test.each(personTripsGroupWidgetNames.map((widgetName) => ({ widgetName, expected: personTripsGroupConfig[widgetName] })))(
+            'should have the person trips group widget named $widgetName',
+            ({ widgetName, expected }: { widgetName: string; expected: WidgetConfig }) => {
+                const widgetConfigs = new SegmentsSectionFactory(testSegmentSectionConfig, widgetFactoryOptions).getWidgetConfigs();
+                const widgetConfig = widgetConfigs[widgetName];
+                expect(maskFunctions(widgetConfig)).toEqual(maskFunctions(expected));
+            }
+        );
     });
 
     describe('should have all the extra widgets from the switch person set', () => {
-        const testSegmentSectionConfig = { ...segmentSectionConfig, modesIncludeOnly: ['walking', 'bicycle'] as Mode[]};
+        const testSegmentSectionConfig = { ...segmentSectionConfig, modesIncludeOnly: ['walking', 'bicycle'] as Mode[] };
         const switchPersonWidgetConfig = new SwitchPersonWidgetsFactory(widgetFactoryOptions).getWidgetConfigs();
 
         // Make sure there are widgets, then test each one
         const switchPersonWidgetNames = Object.keys(switchPersonWidgetConfig);
-        test('there should be widgets in the switch person group', () =>  {
+        test('there should be widgets in the switch person group', () => {
             expect(switchPersonWidgetNames.length).toBeGreaterThan(0);
         });
 
-        test.each(
-            switchPersonWidgetNames.map(widgetName => ({ widgetName, expected: switchPersonWidgetConfig[widgetName] }))
-        )('should have the switch person widget named $widgetName', ({ widgetName, expected }: { widgetName: string, expected: WidgetConfig }) => {
-            const widgetConfigs = new SegmentsSectionFactory(testSegmentSectionConfig, widgetFactoryOptions).getWidgetConfigs();
-            const widgetConfig = widgetConfigs[widgetName];
-            expect(maskFunctions(widgetConfig)).toEqual(maskFunctions(expected));
-        });
+        test.each(switchPersonWidgetNames.map((widgetName) => ({ widgetName, expected: switchPersonWidgetConfig[widgetName] })))(
+            'should have the switch person widget named $widgetName',
+            ({ widgetName, expected }: { widgetName: string; expected: WidgetConfig }) => {
+                const widgetConfigs = new SegmentsSectionFactory(testSegmentSectionConfig, widgetFactoryOptions).getWidgetConfigs();
+                const widgetConfig = widgetConfigs[widgetName];
+                expect(maskFunctions(widgetConfig)).toEqual(maskFunctions(expected));
+            }
+        );
     });
 
     test('should not return extra widgets', () => {
@@ -134,7 +124,7 @@ describe('SegmentsSectionFactory#getWidgetConfigs', () => {
 
         const switchPersonsWidgetConfigs = new SwitchPersonWidgetsFactory(widgetFactoryOptions).getWidgetConfigs();
         const switchPersonsWidgetNames = Object.keys(switchPersonsWidgetConfigs);
-        
+
         // Widgets from segment groups are included in persons trips group, so only count those
         const tripsGroupWidgetConfigs = new PersonTripsGroupConfigFactory(segmentSectionConfig, widgetFactoryOptions).getWidgetConfigs();
         const tripsGroupWidgetNames = Object.keys(tripsGroupWidgetConfigs);
@@ -145,15 +135,38 @@ describe('SegmentsSectionFactory#getWidgetConfigs', () => {
     });
 
     test.each([
-        { widgetName: 'personTripsTitle', segmentSectionConfig, expected: (config: SegmentSectionConfiguration) => getPersonsTripsTitleWidgetConfig(widgetFactoryOptions) },
-        { widgetName: 'personVisitedPlacesMap', segmentSectionConfig: { ...segmentSectionConfig, modesIncludeOnly: ['walking', 'bicycle'] as Mode[]}, expected: (config: SegmentSectionConfiguration) => getPersonVisitedPlacesMapConfig(widgetFactoryOptions) },
-        { widgetName: 'buttonConfirmNextSection', segmentSectionConfig: { ...segmentSectionConfig, modesIncludeOnly: ['walking', 'bicycle'] as Mode[]}, expected: (config: SegmentSectionConfiguration) => getButtonValidateAndGotoNextSection('survey:ConfirmAndContinue', widgetFactoryOptions)},
-    ])('should return the correct widget config for $widgetName', ({ widgetName, segmentSectionConfig, expected }: { widgetName: string, segmentSectionConfig: SegmentSectionConfiguration, expected: (config: SegmentSectionConfiguration) => WidgetConfig }) => {
-        const widgetConfigs = new SegmentsSectionFactory(segmentSectionConfig, widgetFactoryOptions).getWidgetConfigs();
-        const widgetConfig = widgetConfigs[widgetName];
-        const expectedWidgetConfig = expected(segmentSectionConfig);
-        expect(maskFunctions(widgetConfig)).toEqual(maskFunctions(expectedWidgetConfig));
-    });
+        {
+            widgetName: 'personTripsTitle',
+            segmentSectionConfig,
+            expected: (config: SegmentSectionConfiguration) => getPersonsTripsTitleWidgetConfig(widgetFactoryOptions)
+        },
+        {
+            widgetName: 'personVisitedPlacesMap',
+            segmentSectionConfig: { ...segmentSectionConfig, modesIncludeOnly: ['walking', 'bicycle'] as Mode[] },
+            expected: (config: SegmentSectionConfiguration) => getPersonVisitedPlacesMapConfig(widgetFactoryOptions)
+        },
+        {
+            widgetName: 'buttonConfirmNextSection',
+            segmentSectionConfig: { ...segmentSectionConfig, modesIncludeOnly: ['walking', 'bicycle'] as Mode[] },
+            expected: (config: SegmentSectionConfiguration) => getButtonValidateAndGotoNextSection('survey:ConfirmAndContinue', widgetFactoryOptions)
+        }
+    ])(
+        'should return the correct widget config for $widgetName',
+        ({
+            widgetName,
+            segmentSectionConfig,
+            expected
+        }: {
+            widgetName: string;
+            segmentSectionConfig: SegmentSectionConfiguration;
+            expected: (config: SegmentSectionConfiguration) => WidgetConfig;
+        }) => {
+            const widgetConfigs = new SegmentsSectionFactory(segmentSectionConfig, widgetFactoryOptions).getWidgetConfigs();
+            const widgetConfig = widgetConfigs[widgetName];
+            const expectedWidgetConfig = expected(segmentSectionConfig);
+            expect(maskFunctions(widgetConfig)).toEqual(maskFunctions(expectedWidgetConfig));
+        }
+    );
 });
 
 describe('sectionConfig functionalities', () => {
@@ -168,38 +181,37 @@ describe('sectionConfig functionalities', () => {
             utilHelpers.translateString(title, { t: mockedT } as any, interviewWithTestPerson, 'path');
             expect(mockedT).toHaveBeenCalledWith(['customSurvey:segments:SegmentsTitle', 'segments:SegmentsTitle']);
         });
-
     });
 
     describe('getSegmentsSectionConfig isSectionVisible', () => {
         const sectionFactory = new SegmentsSectionFactory(segmentSectionConfig, widgetFactoryOptions);
         const widgetConfig = sectionFactory.getSectionConfig();
         const iterationContext = ['testPerson1'];
-        
+
         beforeEach(() => {
             jest.clearAllMocks();
         });
 
         test('should return false if no iteration context', () => {
             const result = widgetConfig.isSectionVisible!(interviewWithTestPerson, undefined);
-            
+
             expect(result).toBe(false);
         });
 
         test('should return false if no active journey', () => {
             const testInterview = _cloneDeep(interviewWithTestPerson);
             testInterview.response._activeJourneyId = undefined;
-            
+
             const result = widgetConfig.isSectionVisible!(testInterview, iterationContext);
-            
+
             expect(result).toBe(false);
         });
 
         test('should return true if there is an active journey', () => {
             const testInterview = _cloneDeep(interviewWithTestPerson);
-            
+
             const result = widgetConfig.isSectionVisible!(testInterview, iterationContext);
-            
+
             expect(result).toBe(true);
         });
     });
@@ -208,7 +220,7 @@ describe('sectionConfig functionalities', () => {
         const sectionFactory = new SegmentsSectionFactory(segmentSectionConfig, widgetFactoryOptions);
         const widgetConfig = sectionFactory.getSectionConfig();
         const iterationContext = ['testPerson1'];
-        
+
         beforeEach(() => {
             jest.clearAllMocks();
         });
@@ -216,23 +228,23 @@ describe('sectionConfig functionalities', () => {
         test('should return false if unexisting person', () => {
             const testInterview = _cloneDeep(interviewWithTestPerson);
             const testIterationContext = ['unexistingPerson'];
-            
+
             const result = widgetConfig.isSectionCompleted!(testInterview, testIterationContext);
-            
+
             expect(result).toBe(false);
         });
 
         test('should return false if no iteration context', () => {
             const result = widgetConfig.isSectionCompleted!(interviewWithTestPerson, undefined);
-            
+
             expect(result).toBe(false);
         });
 
         test('should return true if no next incomplete trip', () => {
             mockedSelectNextIncompleteTrip.mockReturnValueOnce(null);
-            
+
             const result = widgetConfig.isSectionCompleted!(interviewWithTestPerson, iterationContext);
-            
+
             expect(result).toBe(true);
             expect(mockedSelectNextIncompleteTrip).toHaveBeenCalledWith({ journey: activeJourney });
         });
@@ -240,9 +252,9 @@ describe('sectionConfig functionalities', () => {
         test('should return false if there is a next incomplete trip', () => {
             const incompleteTrip = { _uuid: 'tripId1', _sequence: 1 };
             mockedSelectNextIncompleteTrip.mockReturnValueOnce(incompleteTrip);
-            
+
             const result = widgetConfig.isSectionCompleted!(interviewWithTestPerson, iterationContext);
-            
+
             expect(result).toBe(false);
             expect(mockedSelectNextIncompleteTrip).toHaveBeenCalledWith({ journey: activeJourney });
         });
@@ -259,15 +271,15 @@ describe('sectionConfig functionalities', () => {
 
         test('should return undefined if unexisting person', () => {
             const testIterationContext = ['unexistingPerson'];
-            
+
             const result = widgetConfig.onSectionEntry!(interviewWithTestPerson, testIterationContext);
-            
+
             expect(result).toBeUndefined();
         });
 
-        test('should return undefined if no iteration context', () => {        
+        test('should return undefined if no iteration context', () => {
             const result = widgetConfig.onSectionEntry!(interviewWithTestPerson, undefined);
-            
+
             expect(result).toBeUndefined();
         });
 
@@ -290,7 +302,7 @@ describe('sectionConfig functionalities', () => {
             mockedSelectNextIncompleteTrip.mockReturnValueOnce(null);
 
             const result = widgetConfig.onSectionEntry!(testInterview, iterationContext);
-            
+
             expect(result).toEqual({
                 'response.household.persons.testPerson1.journeys.testJourney1.trips.tripId1': newTrip,
                 'validations.household.persons.testPerson1.journeys.testJourney1.trips.tripId1': {},
@@ -301,7 +313,7 @@ describe('sectionConfig functionalities', () => {
 
         test('should delete trips when the number of trips is greater than the number of visited places', () => {
             const testInterview = _cloneDeep(interviewWithTestPerson);
-            
+
             // 2 places
             const places = [
                 { _uuid: 'testPlace1', _sequence: 1, activity: 'home' },
@@ -324,7 +336,7 @@ describe('sectionConfig functionalities', () => {
             };
             // Should remove the last 2 trips
             mockedSelectNextIncompleteTrip.mockReturnValueOnce(null);
-            
+
             const result = widgetConfig.onSectionEntry!(testInterview, iterationContext);
             expect(result).toEqual({
                 'response._activeTripId': null,
@@ -351,7 +363,7 @@ describe('sectionConfig functionalities', () => {
                 { _uuid: 'tripId1', _sequence: 1, _originVisitedPlaceUuid: 'testPlace1', _destinationVisitedPlaceUuid: 'testPlace2' },
                 { _uuid: 'tripId2', _sequence: 2, _originVisitedPlaceUuid: 'testPlace2', _destinationVisitedPlaceUuid: 'testPlace3' },
                 { _uuid: 'tripId3', _sequence: 3, _originVisitedPlaceUuid: 'testPlace3', _destinationVisitedPlaceUuid: 'testPlace4' }
-            ]
+            ];
             testInterview.response.household!.persons!.testPerson1.journeys!.testJourney1.trips = {
                 tripId1: trips[0],
                 tripId2: trips[1],
@@ -361,14 +373,13 @@ describe('sectionConfig functionalities', () => {
             mockedSelectNextIncompleteTrip.mockReturnValueOnce(trips[2]);
 
             const result = widgetConfig.onSectionEntry!(testInterview, iterationContext);
-            
+
             expect(result).toEqual({
                 'response._activeTripId': null,
                 [`response.household.persons.${activePerson._uuid}.journeys.${activeJourney._uuid}.trips.tripId2`]: undefined,
                 [`response.household.persons.${activePerson._uuid}.journeys.${activeJourney._uuid}.trips.tripId3`]: undefined,
                 [`validations.household.persons.${activePerson._uuid}.journeys.${activeJourney._uuid}.trips.tripId2`]: undefined,
-                [`validations.household.persons.${activePerson._uuid}.journeys.${activeJourney._uuid}.trips.tripId3`]: undefined,
-
+                [`validations.household.persons.${activePerson._uuid}.journeys.${activeJourney._uuid}.trips.tripId3`]: undefined
             });
         });
 
@@ -390,13 +401,10 @@ describe('sectionConfig functionalities', () => {
                 { _uuid: 'tripId1', _sequence: 1, _originVisitedPlaceUuid: 'testPlace1', _destinationVisitedPlaceUuid: 'oldPlace2' },
                 { _uuid: 'tripId2', _sequence: 2, _originVisitedPlaceUuid: 'oldPlace2', _destinationVisitedPlaceUuid: 'oldPlace3' }
             ];
-            testInterview.response.household!.persons!.testPerson1.journeys!.testJourney1.trips = {
-                tripId1: trips[0],
-                tripId2: trips[1]
-            };
+            testInterview.response.household!.persons!.testPerson1.journeys!.testJourney1.trips = { tripId1: trips[0], tripId2: trips[1] };
 
             const result = widgetConfig.onSectionEntry!(testInterview, iterationContext);
-            
+
             expect(result).toEqual({
                 'response.household.persons.testPerson1.journeys.testJourney1.trips.tripId1._originVisitedPlaceUuid': places[0]._uuid,
                 'response.household.persons.testPerson1.journeys.testJourney1.trips.tripId1._destinationVisitedPlaceUuid': places[1]._uuid,
@@ -426,20 +434,15 @@ describe('sectionConfig functionalities', () => {
                 { _uuid: 'tripId1', _sequence: 1, _originVisitedPlaceUuid: 'testPlace1', _destinationVisitedPlaceUuid: 'testPlace2' },
                 { _uuid: 'tripId2', _sequence: 2, _originVisitedPlaceUuid: 'testPlace2', _destinationVisitedPlaceUuid: 'testPlace3' }
             ];
-            testInterview.response.household!.persons!.testPerson1.journeys!.testJourney1.trips = {
-                tripId1: trips[0],
-                tripId2: trips[1]
-            };
+            testInterview.response.household!.persons!.testPerson1.journeys!.testJourney1.trips = { tripId1: trips[0], tripId2: trips[1] };
             // Trip2 is incomplete
             const incompleteTrip = trips[1];
             mockedSelectNextIncompleteTrip.mockReturnValueOnce(incompleteTrip);
             const expectedJourney = _cloneDeep(testInterview.response.household!.persons!.testPerson1.journeys!.testJourney1);
 
             const result = widgetConfig.onSectionEntry!(testInterview, iterationContext);
-            
-            expect(result).toEqual({
-                'response._activeTripId': incompleteTrip._uuid
-            });
+
+            expect(result).toEqual({ 'response._activeTripId': incompleteTrip._uuid });
             expect(mockedSelectNextIncompleteTrip).toHaveBeenCalledWith({ journey: expectedJourney });
         });
 
@@ -461,23 +464,17 @@ describe('sectionConfig functionalities', () => {
                 { _uuid: 'tripId1', _sequence: 1, _originVisitedPlaceUuid: 'testPlace1', _destinationVisitedPlaceUuid: 'testPlace2' },
                 { _uuid: 'tripId2', _sequence: 2, _originVisitedPlaceUuid: 'testPlace2', _destinationVisitedPlaceUuid: 'testPlace3' }
             ];
-            testInterview.response.household!.persons!.testPerson1.journeys!.testJourney1.trips = {
-                tripId1: trips[0],
-                tripId2: trips[1]
-            };
+            testInterview.response.household!.persons!.testPerson1.journeys!.testJourney1.trips = { tripId1: trips[0], tripId2: trips[1] };
             mockedSelectNextIncompleteTrip.mockReturnValueOnce(null);
             const expectedJourney = _cloneDeep(testInterview.response.household!.persons!.testPerson1.journeys!.testJourney1);
 
             const result = widgetConfig.onSectionEntry!(testInterview, iterationContext);
-            
-            expect(result).toEqual({
-                'response._activeTripId': null
-            });
+
+            expect(result).toEqual({ 'response._activeTripId': null });
             expect(mockedSelectNextIncompleteTrip).toHaveBeenCalledWith({ journey: expectedJourney });
         });
 
         test('should add a new trip and select it if new trips have been added since last complete trip', () => {
-            
             // 4 places
             const places = [
                 { _uuid: 'testPlace1', _sequence: 1, activity: 'home' },
@@ -493,25 +490,31 @@ describe('sectionConfig functionalities', () => {
                 [places[2]._uuid]: places[2],
                 [places[3]._uuid]: places[3]
             };
-            
+
             // only 1 trip, with different origins and destination, the second trip is missing
-            const trips = [
-                { _uuid: 'tripId1', _sequence: 1, _originVisitedPlaceUuid: 'testPlace1', _destinationVisitedPlaceUuid: 'testPlace2' }
-            ];
-            testInterview.response.household!.persons!.testPerson1.journeys!.testJourney1.trips = {
-                tripId1: trips[0]
-            };
+            const trips = [{ _uuid: 'tripId1', _sequence: 1, _originVisitedPlaceUuid: 'testPlace1', _destinationVisitedPlaceUuid: 'testPlace2' }];
+            testInterview.response.household!.persons!.testPerson1.journeys!.testJourney1.trips = { tripId1: trips[0] };
             mockedSelectNextIncompleteTrip.mockReturnValueOnce(null);
             const expectedJourney = _cloneDeep(testInterview.response.household!.persons!.testPerson1.journeys!.testJourney1);
 
             // Should add a new trip
             mockUuidv4.mockReturnValueOnce('tripId2' as any);
             mockUuidv4.mockReturnValueOnce('tripId3' as any);
-            const newTrip2 = { _uuid: 'tripId2', _sequence: 2, _originVisitedPlaceUuid: places[1]._uuid, _destinationVisitedPlaceUuid: places[2]._uuid };
-            const newTrip3 = { _uuid: 'tripId3', _sequence: 3, _originVisitedPlaceUuid: places[2]._uuid, _destinationVisitedPlaceUuid: places[3]._uuid };
+            const newTrip2 = {
+                _uuid: 'tripId2',
+                _sequence: 2,
+                _originVisitedPlaceUuid: places[1]._uuid,
+                _destinationVisitedPlaceUuid: places[2]._uuid
+            };
+            const newTrip3 = {
+                _uuid: 'tripId3',
+                _sequence: 3,
+                _originVisitedPlaceUuid: places[2]._uuid,
+                _destinationVisitedPlaceUuid: places[3]._uuid
+            };
 
             const result = widgetConfig.onSectionEntry!(testInterview, iterationContext);
-            
+
             expect(result).toEqual({
                 'response.household.persons.testPerson1.journeys.testJourney1.trips.tripId2': newTrip2,
                 'validations.household.persons.testPerson1.journeys.testJourney1.trips.tripId2': {},
@@ -523,5 +526,4 @@ describe('sectionConfig functionalities', () => {
             expect(mockUuidv4).toHaveBeenCalledTimes(2);
         });
     });
-
 });

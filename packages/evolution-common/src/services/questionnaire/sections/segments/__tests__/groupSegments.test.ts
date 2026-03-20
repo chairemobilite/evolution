@@ -16,24 +16,17 @@ import { getModeWidgetConfig } from '../widgetSegmentMode';
 import { getSegmentHasNextModeWidgetConfig } from '../widgetSegmentHasNextMode';
 import { Mode } from '../../../../odSurvey/types';
 
-const segmentSectionConfig = {
-    type: 'segments' as const,
-    enabled: true
-};
+const segmentSectionConfig = { type: 'segments' as const, enabled: true };
 
 describe('SegmentsGroupConfigFactory widgets', () => {
-
-    test.each([
-        'segments',
-        'segmentSameModeAsReverseTrip',
-        'segmentModePre',
-        'segmentMode',
-        'segmentHasNextMode'
-    ])('should have a widget named %s', (widgetName) => {
-        const widgetConfigs = new SegmentsGroupConfigFactory(segmentSectionConfig, widgetFactoryOptions).getWidgetConfigs();
-        const widgetNames = Object.keys(widgetConfigs);
-        expect(widgetNames).toContain(widgetName);
-    });
+    test.each(['segments', 'segmentSameModeAsReverseTrip', 'segmentModePre', 'segmentMode', 'segmentHasNextMode'])(
+        'should have a widget named %s',
+        (widgetName) => {
+            const widgetConfigs = new SegmentsGroupConfigFactory(segmentSectionConfig, widgetFactoryOptions).getWidgetConfigs();
+            const widgetNames = Object.keys(widgetConfigs);
+            expect(widgetNames).toContain(widgetName);
+        }
+    );
 
     test('should not return extra widgets', () => {
         const widgetConfigs = new SegmentsGroupConfigFactory(segmentSectionConfig, widgetFactoryOptions).getWidgetConfigs();
@@ -42,23 +35,49 @@ describe('SegmentsGroupConfigFactory widgets', () => {
     });
 
     test.each([
-        { widgetName: 'segmentSameModeAsReverseTrip', segmentSectionConfig, expected: (config: SegmentSectionConfiguration) => getSameAsReverseTripWidgetConfig(widgetFactoryOptions) },
-        { widgetName: 'segmentModePre', segmentSectionConfig: { ...segmentSectionConfig, modesIncludeOnly: ['walking', 'bicycle'] as Mode[]}, expected: (config: SegmentSectionConfiguration) => getModePreWidgetConfig(config, widgetFactoryOptions) },
-        { widgetName: 'segmentMode', segmentSectionConfig: { ...segmentSectionConfig, modesIncludeOnly: ['walking', 'bicycle'] as Mode[]}, expected: (config: SegmentSectionConfiguration) => getModeWidgetConfig(config, widgetFactoryOptions) },
-        { widgetName: 'segmentHasNextMode', segmentSectionConfig, expected: (config: SegmentSectionConfiguration) => getSegmentHasNextModeWidgetConfig(widgetFactoryOptions) }
-    ])('should return the correct widget config for $widgetName', ({ widgetName, segmentSectionConfig, expected }: { widgetName: string, segmentSectionConfig: SegmentSectionConfiguration, expected: (config: SegmentSectionConfiguration) => WidgetConfig }) => {
-        const widgetConfigs = new SegmentsGroupConfigFactory(segmentSectionConfig, widgetFactoryOptions).getWidgetConfigs();
-        const widgetConfig = widgetConfigs[widgetName];
-        const expectedWidgetConfig = expected(segmentSectionConfig);
-        expect(maskFunctions(widgetConfig)).toEqual(maskFunctions(expectedWidgetConfig));
-    });
+        {
+            widgetName: 'segmentSameModeAsReverseTrip',
+            segmentSectionConfig,
+            expected: (config: SegmentSectionConfiguration) => getSameAsReverseTripWidgetConfig(widgetFactoryOptions)
+        },
+        {
+            widgetName: 'segmentModePre',
+            segmentSectionConfig: { ...segmentSectionConfig, modesIncludeOnly: ['walking', 'bicycle'] as Mode[] },
+            expected: (config: SegmentSectionConfiguration) => getModePreWidgetConfig(config, widgetFactoryOptions)
+        },
+        {
+            widgetName: 'segmentMode',
+            segmentSectionConfig: { ...segmentSectionConfig, modesIncludeOnly: ['walking', 'bicycle'] as Mode[] },
+            expected: (config: SegmentSectionConfiguration) => getModeWidgetConfig(config, widgetFactoryOptions)
+        },
+        {
+            widgetName: 'segmentHasNextMode',
+            segmentSectionConfig,
+            expected: (config: SegmentSectionConfiguration) => getSegmentHasNextModeWidgetConfig(widgetFactoryOptions)
+        }
+    ])(
+        'should return the correct widget config for $widgetName',
+        ({
+            widgetName,
+            segmentSectionConfig,
+            expected
+        }: {
+            widgetName: string;
+            segmentSectionConfig: SegmentSectionConfiguration;
+            expected: (config: SegmentSectionConfiguration) => WidgetConfig;
+        }) => {
+            const widgetConfigs = new SegmentsGroupConfigFactory(segmentSectionConfig, widgetFactoryOptions).getWidgetConfigs();
+            const widgetConfig = widgetConfigs[widgetName];
+            const expectedWidgetConfig = expected(segmentSectionConfig);
+            expect(maskFunctions(widgetConfig)).toEqual(maskFunctions(expectedWidgetConfig));
+        }
+    );
 });
 
 describe('SegmentsGroupConfigFactory segments GroupConfig widget', () => {
     const widgetConfig = new SegmentsGroupConfigFactory(segmentSectionConfig, widgetFactoryOptions).getWidgetConfigs()['segments'] as GroupConfig;
 
     test('should return the correct widget config', () => {
-
         expect(widgetConfig).toEqual({
             type: 'group',
             path: 'segments',
@@ -69,17 +88,11 @@ describe('SegmentsGroupConfigFactory segments GroupConfig widget', () => {
             showGroupedObjectAddButton: expect.any(Function),
             groupedObjectAddButtonLabel: expect.any(Function),
             addButtonLocation: 'bottom' as const,
-            widgets: [
-                'segmentSameModeAsReverseTrip',
-                'segmentModePre',
-                'segmentMode',
-                'segmentHasNextMode'
-            ]
+            widgets: ['segmentSameModeAsReverseTrip', 'segmentModePre', 'segmentMode', 'segmentHasNextMode']
         });
     });
 
     describe('getSegmentsGroupConfig labels', () => {
-
         test('should return the right label for title', () => {
             const mockedT = jest.fn();
             const title = widgetConfig.title;
@@ -107,7 +120,7 @@ describe('SegmentsGroupConfigFactory segments GroupConfig widget', () => {
             expect(mockedT).toHaveBeenCalledWith(['customSurvey:segments:AddButtonLabel', 'segments:AddButtonLabel'], { count: 0 });
 
             // Call the function with a path with segments
-            jest.spyOn(utilHelpers, 'getResponse').mockReturnValue({ segment1: { _uuid: 'segment1', _sequence: 1}});
+            jest.spyOn(utilHelpers, 'getResponse').mockReturnValue({ segment1: { _uuid: 'segment1', _sequence: 1 } });
             utilHelpers.translateString(addButtonLabel, { t: mockedT } as any, interviewAttributesForTestCases, 'path');
             expect(mockedT).toHaveBeenCalledWith(['customSurvey:segments:AddButtonLabel', 'segments:AddButtonLabel'], { count: 1 });
         });
@@ -119,7 +132,6 @@ describe('SegmentsGroupConfigFactory segments GroupConfig widget', () => {
     });
 
     describe('getSegmentsGroupConfig show add button', () => {
-
         jest.spyOn(utilHelpers, 'getResponse').mockReturnValue({});
         const mockedGetResponse = utilHelpers.getResponse as jest.MockedFunction<typeof utilHelpers.getResponse>;
 
@@ -136,7 +148,10 @@ describe('SegmentsGroupConfigFactory segments GroupConfig widget', () => {
         });
 
         test('shoud show the add button if the last segment has next mode', () => {
-            mockedGetResponse.mockReturnValue({ segment1: { _uuid: 'segment1', _sequence: 1, hasNextMode: true }, segment2: { _uuid: 'segment2', _sequence: 2, hasNextMode: true }});
+            mockedGetResponse.mockReturnValue({
+                segment1: { _uuid: 'segment1', _sequence: 1, hasNextMode: true },
+                segment2: { _uuid: 'segment2', _sequence: 2, hasNextMode: true }
+            });
             const showAddButton = widgetConfig.showGroupedObjectAddButton;
             expect(showAddButton).toBeDefined();
             expect((showAddButton as any)(interviewAttributesForTestCases, 'path')).toBe(true);
@@ -144,7 +159,7 @@ describe('SegmentsGroupConfigFactory segments GroupConfig widget', () => {
         });
 
         test('shoud not show add button if the last segment has no next mode', () => {
-            mockedGetResponse.mockReturnValue({ segment1: { _uuid: 'segment1', _sequence: 1, hasNextMode: false }});
+            mockedGetResponse.mockReturnValue({ segment1: { _uuid: 'segment1', _sequence: 1, hasNextMode: false } });
             const showAddButton = widgetConfig.showGroupedObjectAddButton;
             expect(showAddButton).toBeDefined();
             expect((showAddButton as any)(interviewAttributesForTestCases, 'path')).toBe(false);
@@ -152,17 +167,15 @@ describe('SegmentsGroupConfigFactory segments GroupConfig widget', () => {
         });
 
         test('shoud not show add button if the last segment has next mode not set', () => {
-            mockedGetResponse.mockReturnValue({ segment1: { _uuid: 'segment1', _sequence: 1 }});
+            mockedGetResponse.mockReturnValue({ segment1: { _uuid: 'segment1', _sequence: 1 } });
             const showAddButton = widgetConfig.showGroupedObjectAddButton;
             expect(showAddButton).toBeDefined();
             expect((showAddButton as any)(interviewAttributesForTestCases, 'path')).toBe(false);
             expect(mockedGetResponse).toHaveBeenCalledWith(interviewAttributesForTestCases, 'path', {});
         });
-
     });
 
     describe('getSegmentsGroupConfig show delete button', () => {
-
         jest.spyOn(utilHelpers, 'getResponse').mockReturnValue({});
         const mockedGetResponse = utilHelpers.getResponse as jest.MockedFunction<typeof utilHelpers.getResponse>;
 
@@ -193,14 +206,15 @@ describe('SegmentsGroupConfigFactory segments GroupConfig widget', () => {
             expect((showDeleteButton as any)(interviewAttributesForTestCases, 'path')).toBe(false);
             expect(mockedGetResponse).toHaveBeenCalledWith(interviewAttributesForTestCases, 'path', null);
         });
-
     });
 });
 
 test('SegmentsGroupConfigFactory segments GroupConfig widget with additional widget names', () => {
     const segmentSectionConfigWithWidgets: SegmentSectionConfiguration = _cloneDeep(segmentSectionConfig);
     segmentSectionConfigWithWidgets.additionalSegmentWidgetNames = ['customWidget1', 'customWidget2'];
-    const widgetConfig = new SegmentsGroupConfigFactory(segmentSectionConfigWithWidgets, widgetFactoryOptions).getWidgetConfigs()['segments'] as GroupConfig;
+    const widgetConfig = new SegmentsGroupConfigFactory(segmentSectionConfigWithWidgets, widgetFactoryOptions).getWidgetConfigs()[
+        'segments'
+    ] as GroupConfig;
     expect(widgetConfig).toEqual({
         type: 'group',
         path: 'segments',
@@ -211,13 +225,6 @@ test('SegmentsGroupConfigFactory segments GroupConfig widget with additional wid
         showGroupedObjectAddButton: expect.any(Function),
         groupedObjectAddButtonLabel: expect.any(Function),
         addButtonLocation: 'bottom' as const,
-        widgets: [
-            'segmentSameModeAsReverseTrip',
-            'segmentModePre',
-            'segmentMode',
-            'customWidget1',
-            'customWidget2',
-            'segmentHasNextMode'
-        ]
+        widgets: ['segmentSameModeAsReverseTrip', 'segmentModePre', 'segmentMode', 'customWidget1', 'customWidget2', 'segmentHasNextMode']
     });
 });

@@ -16,26 +16,21 @@ import { Mode, ModePre, modePreToModeMap, modeToModePreMap, modeValues } from '.
 import { shouldShowSameAsReverseTripQuestion, getPreviousTripSingleSegment } from '../helpers';
 import { modeToIconMapping } from '../modeIconMapping';
 
-const segmentSectionConfig = {
-    type: 'segments' as const,
-    enabled: true
-};
+const segmentSectionConfig = { type: 'segments' as const, enabled: true };
 
 jest.mock('../helpers', () => ({
     ...jest.requireActual('../helpers'),
     shouldShowSameAsReverseTripQuestion: jest.fn().mockReturnValue(false),
     getPreviousTripSingleSegment: jest.fn()
 }));
-const mockedShouldShowSameAsReverseTripQuestion = shouldShowSameAsReverseTripQuestion as jest.MockedFunction<typeof shouldShowSameAsReverseTripQuestion>;
+const mockedShouldShowSameAsReverseTripQuestion = shouldShowSameAsReverseTripQuestion as jest.MockedFunction<
+    typeof shouldShowSameAsReverseTripQuestion
+>;
 const mockedGetPreviousTripSingleSegment = getPreviousTripSingleSegment as jest.MockedFunction<typeof getPreviousTripSingleSegment>;
 
 describe('getModeWidgetConfig', () => {
     it('should return the correct widget config', () => {
-
-        const options = {
-            ...widgetFactoryOptions,
-            context: jest.fn()
-        };
+        const options = { ...widgetFactoryOptions, context: jest.fn() };
 
         const widgetConfig = getModeWidgetConfig(segmentSectionConfig, options);
 
@@ -48,12 +43,14 @@ describe('getModeWidgetConfig', () => {
             iconSize: '2.25em',
             columns: 2,
             label: expect.any(Function),
-            choices: modeValues.map((mode) => expect.objectContaining({
-                value: mode,
-                label: expect.any(Function),
-                conditional: expect.any(Function),
-                iconPath: modeToIconMapping[mode]
-            })),
+            choices: modeValues.map((mode) =>
+                expect.objectContaining({
+                    value: mode,
+                    label: expect.any(Function),
+                    conditional: expect.any(Function),
+                    iconPath: modeToIconMapping[mode]
+                })
+            ),
             validations: expect.any(Function),
             conditional: expect.any(Function)
         });
@@ -69,7 +66,9 @@ describe('Mode choices conditionals', () => {
     interview.response._activePersonId = 'personId1';
     interview.response._activeJourneyId = 'journeyId1';
     interview.response._activeTripId = 'tripId1P1';
-    setResponse(interview, 'household.persons.personId1.journeys.journeyId1.trips.tripId1P1.segments', { segmentId1P1T1: { _uuid: 'segmentId1P1T1', _sequence: 1 } });
+    setResponse(interview, 'household.persons.personId1.journeys.journeyId1.trips.tripId1P1.segments', {
+        segmentId1P1T1: { _uuid: 'segmentId1P1T1', _sequence: 1 }
+    });
 
     // Spy on a few functions to return disability conditions
     jest.spyOn(surveyHelper, 'personMayHaveDisability');
@@ -85,62 +84,88 @@ describe('Mode choices conditionals', () => {
     // modePreToModeMap to get the values, but filter out the modes that have
     // specific conditionals and that will be tested separately
     each(
-        modeValues.filter((mode) => !['wheelchair', 'mobilityScooter', 'paratransit'].includes(mode)).flatMap((mode) => Object.keys(modePreToModeMap).map((modePre) => [mode, modePre, modeToModePreMap[mode].includes(modePre as any)]))
+        modeValues
+            .filter((mode) => !['wheelchair', 'mobilityScooter', 'paratransit'].includes(mode))
+            .flatMap((mode) => Object.keys(modePreToModeMap).map((modePre) => [mode, modePre, modeToModePreMap[mode].includes(modePre as any)]))
     ).test('Test modePre conditional for mode %s with modePre %s: %s', (choiceValue, modePreValue, expected) => {
         // Find the right choice choice
         const modeChoice = choices.find((choice) => choice.value === choiceValue);
         expect(modeChoice).toBeDefined();
         setResponse(interview, 'household.persons.personId1.journeys.journeyId1.trips.tripId1P1.segments.segmentId1P1T1.modePre', modePreValue);
-        const modeResult = modeChoice?.conditional?.(interview, 'household.persons.personId1.journeys.journeyId1.trips.tripId1P1.segments.segmentId1P1T1.mode');
+        const modeResult = modeChoice?.conditional?.(
+            interview,
+            'household.persons.personId1.journeys.journeyId1.trips.tripId1P1.segments.segmentId1P1T1.mode'
+        );
         expect(modeResult).toEqual(expected);
     });
 
     // Test specific conditional for modes, where person may have disability
     each(
-        ['wheelchair' as Mode, 'mobilityScooter' as Mode].flatMap((mode: Mode) => Object.keys(modePreToModeMap).flatMap((modePre) => [[true, mode, modePre, modeToModePreMap[mode].includes(modePre as ModePre)], [false, mode, modePre, modeToModePreMap[mode].includes(modePre as ModePre)]]))
-    ).test('Test modePre with person may have disability (%s) conditional for mode %s with modePre %s: %s', (personMayHaveDisability, choiceValue, modePreValue, expectedIfTrue) => {
-        // Spy on the personMayHaveDisability function
-        if (expectedIfTrue) {
-            mockedPersonMayHaveDisability.mockReturnValueOnce(personMayHaveDisability);
-        }
+        ['wheelchair' as Mode, 'mobilityScooter' as Mode].flatMap((mode: Mode) =>
+            Object.keys(modePreToModeMap).flatMap((modePre) => [
+                [true, mode, modePre, modeToModePreMap[mode].includes(modePre as ModePre)],
+                [false, mode, modePre, modeToModePreMap[mode].includes(modePre as ModePre)]
+            ])
+        )
+    ).test(
+        'Test modePre with person may have disability (%s) conditional for mode %s with modePre %s: %s',
+        (personMayHaveDisability, choiceValue, modePreValue, expectedIfTrue) => {
+            // Spy on the personMayHaveDisability function
+            if (expectedIfTrue) {
+                mockedPersonMayHaveDisability.mockReturnValueOnce(personMayHaveDisability);
+            }
 
-        // Find the right choice choice
-        const modeChoice = choices.find((choice) => choice.value === choiceValue);
-        expect(modeChoice).toBeDefined();
-        // Set the mode pre value
-        setResponse(interview, 'household.persons.personId1.journeys.journeyId1.trips.tripId1P1.segments.segmentId1P1T1.modePre', modePreValue);
-        const modeResult = modeChoice?.conditional?.(interview, 'household.persons.personId1.journeys.journeyId1.trips.tripId1P1.segments.segmentId1P1T1.mode');
-        expect(modeResult).toEqual(personMayHaveDisability ? expectedIfTrue : false);
-        if (expectedIfTrue) {
-            expect(mockedPersonMayHaveDisability).toHaveBeenCalledWith({ person: interview.response.household!.persons!.personId1 });
-        } else {
-            expect(mockedPersonMayHaveDisability).not.toHaveBeenCalled();
+            // Find the right choice choice
+            const modeChoice = choices.find((choice) => choice.value === choiceValue);
+            expect(modeChoice).toBeDefined();
+            // Set the mode pre value
+            setResponse(interview, 'household.persons.personId1.journeys.journeyId1.trips.tripId1P1.segments.segmentId1P1T1.modePre', modePreValue);
+            const modeResult = modeChoice?.conditional?.(
+                interview,
+                'household.persons.personId1.journeys.journeyId1.trips.tripId1P1.segments.segmentId1P1T1.mode'
+            );
+            expect(modeResult).toEqual(personMayHaveDisability ? expectedIfTrue : false);
+            if (expectedIfTrue) {
+                expect(mockedPersonMayHaveDisability).toHaveBeenCalledWith({ person: interview.response.household!.persons!.personId1 });
+            } else {
+                expect(mockedPersonMayHaveDisability).not.toHaveBeenCalled();
+            }
         }
-    });
+    );
 
     // Test specific conditional for modes, where they may be disabilities in the household
     each(
-        ['paratransit' as Mode].flatMap((mode: Mode) => Object.keys(modePreToModeMap).flatMap((modePre) => [[true, mode, modePre, modeToModePreMap[mode].includes(modePre as ModePre)], [false, mode, modePre, modeToModePreMap[mode].includes(modePre as ModePre)]]))
-    ).test('Test modePre with hh may have disability (%s) conditional for mode %s with modePre %s: %s', (hhMayHaveDisability, choiceValue, modePreValue, expectedIfTrue) => {
-        // Spy on the householdMayHaveDisability function
-        if (expectedIfTrue) {
-            mockedHhMayHaveDisability.mockReturnValueOnce(hhMayHaveDisability);
-        }
+        ['paratransit' as Mode].flatMap((mode: Mode) =>
+            Object.keys(modePreToModeMap).flatMap((modePre) => [
+                [true, mode, modePre, modeToModePreMap[mode].includes(modePre as ModePre)],
+                [false, mode, modePre, modeToModePreMap[mode].includes(modePre as ModePre)]
+            ])
+        )
+    ).test(
+        'Test modePre with hh may have disability (%s) conditional for mode %s with modePre %s: %s',
+        (hhMayHaveDisability, choiceValue, modePreValue, expectedIfTrue) => {
+            // Spy on the householdMayHaveDisability function
+            if (expectedIfTrue) {
+                mockedHhMayHaveDisability.mockReturnValueOnce(hhMayHaveDisability);
+            }
 
-        // Find the right choice choice
-        const modeChoice = choices.find((choice) => choice.value === choiceValue);
-        expect(modeChoice).toBeDefined();
-        // Set the mode pre value
-        setResponse(interview, 'household.persons.personId1.journeys.journeyId1.trips.tripId1P1.segments.segmentId1P1T1.modePre', modePreValue);
-        const modeResult = modeChoice?.conditional?.(interview, 'household.persons.personId1.journeys.journeyId1.trips.tripId1P1.segments.segmentId1P1T1.mode');
-        expect(modeResult).toEqual(hhMayHaveDisability ? expectedIfTrue : false);
-        if (expectedIfTrue) {
-            expect(mockedHhMayHaveDisability).toHaveBeenCalledWith({ interview });
-        } else {
-            expect(mockedHhMayHaveDisability).not.toHaveBeenCalled();
+            // Find the right choice choice
+            const modeChoice = choices.find((choice) => choice.value === choiceValue);
+            expect(modeChoice).toBeDefined();
+            // Set the mode pre value
+            setResponse(interview, 'household.persons.personId1.journeys.journeyId1.trips.tripId1P1.segments.segmentId1P1T1.modePre', modePreValue);
+            const modeResult = modeChoice?.conditional?.(
+                interview,
+                'household.persons.personId1.journeys.journeyId1.trips.tripId1P1.segments.segmentId1P1T1.mode'
+            );
+            expect(modeResult).toEqual(hhMayHaveDisability ? expectedIfTrue : false);
+            if (expectedIfTrue) {
+                expect(mockedHhMayHaveDisability).toHaveBeenCalledWith({ interview });
+            } else {
+                expect(mockedHhMayHaveDisability).not.toHaveBeenCalled();
+            }
         }
-    });
-
+    );
 });
 
 describe('Mode choices labels', () => {
@@ -149,16 +174,16 @@ describe('Mode choices labels', () => {
     const widgetConfig = getModeWidgetConfig(segmentSectionConfig, widgetFactoryOptions) as QuestionWidgetConfig & InputRadioType;
     const choices = widgetConfig.choices as RadioChoiceType[];
 
-    each(
-        modeValues.map((mode) => [mode, [`customSurvey:segments:mode:${_upperFirst(mode)}`, `segments:mode:${_upperFirst(mode)}`]])
-    ).test('should return the right label for %s choice', (choiceValue, expectedLabel) => {
-        const mockedT = jest.fn();
-        const choice = choices.find((choice) => choice.value === choiceValue);
-        expect(choice).toBeDefined();
-        translateString(choice?.label, { t: mockedT } as any, interview, 'path');
-        expect(mockedT).toHaveBeenCalledWith(expectedLabel);
-    });
-
+    each(modeValues.map((mode) => [mode, [`customSurvey:segments:mode:${_upperFirst(mode)}`, `segments:mode:${_upperFirst(mode)}`]])).test(
+        'should return the right label for %s choice',
+        (choiceValue, expectedLabel) => {
+            const mockedT = jest.fn();
+            const choice = choices.find((choice) => choice.value === choiceValue);
+            expect(choice).toBeDefined();
+            translateString(choice?.label, { t: mockedT } as any, interview, 'path');
+            expect(mockedT).toHaveBeenCalledWith(expectedLabel);
+        }
+    );
 });
 
 describe('Mode validations', () => {
@@ -169,22 +194,28 @@ describe('Mode validations', () => {
     const validations = widgetConfig.validations;
 
     test('should return no error if value is not empty', () => {
-        expect(validations!(null, null, interview, 'household.persons.personId2.journeys.journeyId2.trips.tripId1P2.segments.segmentId1P2T1.mode'))
-            .toEqual([{ validation: true, errorMessage: expect.anything() }]);
+        expect(
+            validations!(null, null, interview, 'household.persons.personId2.journeys.journeyId2.trips.tripId1P2.segments.segmentId1P2T1.mode')
+        ).toEqual([{ validation: true, errorMessage: expect.anything() }]);
     });
 
     test('should return an error if value is empty', () => {
-        expect(validations!('carDriver', null, interview, 'household.persons.personId2.journeys.journeyId2.trips.tripId1P2.segments.segmentId1P2T1.mode'))
-            .toEqual([{ validation: false, errorMessage: expect.anything() }]);
+        expect(
+            validations!('carDriver', null, interview, 'household.persons.personId2.journeys.journeyId2.trips.tripId1P2.segments.segmentId1P2T1.mode')
+        ).toEqual([{ validation: false, errorMessage: expect.anything() }]);
     });
 
     test('should return the right error message', () => {
-        const validation = validations!('carDriver', null, interview, 'household.persons.personId2.journeys.journeyId2.trips.tripId1P2.segments.segmentId1P2T1.mode');
+        const validation = validations!(
+            'carDriver',
+            null,
+            interview,
+            'household.persons.personId2.journeys.journeyId2.trips.tripId1P2.segments.segmentId1P2T1.mode'
+        );
         const mockedT = jest.fn();
         translateString(validation[0].errorMessage, { t: mockedT } as any, interview, 'path');
         expect(mockedT).toHaveBeenCalledWith(['customSurvey:segments:ModeIsRequired', 'segments:ModeIsRequired']);
     });
-
 });
 
 describe('Mode conditional', () => {
@@ -301,7 +332,8 @@ describe('Widget label', () => {
     const mockedGetContext = jest.fn();
 
     // Prepare common data
-    const widgetConfig = getModeWidgetConfig(segmentSectionConfig, { ...widgetFactoryOptions, context: mockedGetContext }) as QuestionWidgetConfig & InputRadioType;
+    const widgetConfig = getModeWidgetConfig(segmentSectionConfig, { ...widgetFactoryOptions, context: mockedGetContext }) as QuestionWidgetConfig &
+        InputRadioType;
     const label = widgetConfig.label;
     const p2t2segmentsPath = 'household.persons.personId2.journeys.journeyId2.trips.tripId2P2.segments';
 
@@ -322,9 +354,7 @@ describe('Widget label', () => {
 
         // Test label function
         translateString(label, { t: mockedT } as any, interview, `${p2t2segmentsPath}.segmentId1P2T2.mode`);
-        expect(mockedT).toHaveBeenCalledWith(['customSurvey:segments:ModeSpecify', 'segments:ModeSpecify'], {
-            context
-        });
+        expect(mockedT).toHaveBeenCalledWith(['customSurvey:segments:ModeSpecify', 'segments:ModeSpecify'], { context });
         expect(mockedT).toHaveBeenCalledTimes(1);
     });
 
@@ -337,9 +367,7 @@ describe('Widget label', () => {
 
         // Test label function
         translateString(label, { t: mockedT } as any, interview, `${p2t2segmentsPath}.segmentId1P2T2.mode`);
-        expect(mockedT).toHaveBeenCalledWith(['customSurvey:segments:ModeSpecify', 'segments:ModeSpecify'], {
-            context: undefined
-        });
+        expect(mockedT).toHaveBeenCalledWith(['customSurvey:segments:ModeSpecify', 'segments:ModeSpecify'], { context: undefined });
         expect(mockedT).toHaveBeenCalledTimes(1);
     });
 });
@@ -363,11 +391,7 @@ describe('Mode filtering based on configuration', () => {
 
     test('should exclude configured modes when modesExclude is set', () => {
         const excludedModes = ['plane', 'ferryWithCar', 'snowmobile'] as Mode[];
-        const segmentConfig = {
-            type: 'segments' as const,
-            enabled: true,
-            modesExclude: excludedModes
-        };
+        const segmentConfig = { type: 'segments' as const, enabled: true, modesExclude: excludedModes };
         const widgetConfig = getModeWidgetConfig(segmentConfig, widgetFactoryOptions) as QuestionWidgetConfig & InputRadioType;
         const choices = widgetConfig.choices as RadioChoiceType[];
 
@@ -420,11 +444,7 @@ describe('Mode filtering based on configuration', () => {
     });
 
     test('should throw an error when there is no mode', () => {
-        const segmentConfig = {
-            type: 'segments' as const,
-            enabled: true,
-            modesIncludeOnly: [] as Mode[]
-        };
+        const segmentConfig = { type: 'segments' as const, enabled: true, modesIncludeOnly: [] as Mode[] };
         expect(() => {
             getModeWidgetConfig(segmentConfig, widgetFactoryOptions);
         }).toThrow('No available modes to create mode widget configuration');

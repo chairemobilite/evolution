@@ -27,7 +27,12 @@ const mockedGetVisitedPlaceGeography = odHelpers.getVisitedPlaceGeography as jes
 
 // Mock points to Bezier by returning a simple line string with the coordinates
 jest.mock('../../../../geodata/SurveyGeographyUtils', () => ({
-    pointsToBezierCurve: jest.fn().mockImplementation((points: GeoJSON.Point[]) => ({ type: 'Feature', geometry: { type: 'LineString', properties: {}, coordinates: points.map(point => point.coordinates) } }))
+    pointsToBezierCurve: jest
+        .fn()
+        .mockImplementation((points: GeoJSON.Point[]) => ({
+            type: 'Feature',
+            geometry: { type: 'LineString', properties: {}, coordinates: points.map((point) => point.coordinates) }
+        }))
 }));
 const mockedPointsToBezierCurve = pointsToBezierCurve as jest.MockedFunction<typeof pointsToBezierCurve>;
 
@@ -39,11 +44,7 @@ beforeEach(() => {
 
 describe('personVisitedPlacesMapConfig', () => {
     it('should return the correct widget config', () => {
-
-        const options = {
-            context: jest.fn(),
-            getFormattedDate: mockGetFormattedDate
-        };
+        const options = { context: jest.fn(), getFormattedDate: mockGetFormattedDate };
 
         const widgetConfig = getPersonVisitedPlacesMapConfig(options);
 
@@ -59,7 +60,6 @@ describe('personVisitedPlacesMapConfig', () => {
 });
 
 describe('personVisitedPlacesMapConfig title', () => {
-
     const options = {
         ...widgetFactoryOptions,
         context: jest.fn().mockImplementation((context: string) => context),
@@ -68,7 +68,7 @@ describe('personVisitedPlacesMapConfig title', () => {
 
     const widgetTitle = getPersonVisitedPlacesMapConfig(options).title as any;
     const mockedT = jest.fn().mockReturnValue('translatedString');
-   
+
     test('should call translation with correct parameters if no active person', () => {
         mockedGetActivePerson.mockReturnValueOnce(null);
         mockedGetActiveJourney.mockReturnValueOnce(null);
@@ -83,7 +83,7 @@ describe('personVisitedPlacesMapConfig title', () => {
     });
 
     test('should call translation with correct parameters if no active journey', () => {
-        const nickname = 'Jane'
+        const nickname = 'Jane';
         mockedGetActivePerson.mockReturnValueOnce({ _uuid: 'person1', _sequence: 1, nickname });
         mockedGetActiveJourney.mockReturnValueOnce(null);
         expect(widgetTitle(mockedT, interviewAttributesForTestCases, 'path')).toEqual('translatedString');
@@ -110,7 +110,7 @@ describe('personVisitedPlacesMapConfig title', () => {
     });
 
     test('should call translation with correct parameters if multiple person household and journey with start date', () => {
-        const nickname = 'Jane'
+        const nickname = 'Jane';
         mockedGetActivePerson.mockReturnValueOnce({ _uuid: 'person1', _sequence: 1, nickname });
         mockedGetActiveJourney.mockReturnValueOnce({ _uuid: 'journey1', _sequence: 1, startDate: '2024-11-18' });
         mockedGetCountOrSelfDeclared.mockReturnValueOnce(2);
@@ -123,33 +123,22 @@ describe('personVisitedPlacesMapConfig title', () => {
         });
         expect(options.context).toHaveBeenCalledWith(undefined);
     });
-
 });
 
 describe('personVisitedPlacesMapConfig geojsons', () => {
-
-    const options = {
-        context: jest.fn().mockImplementation((context: string) => context),
-        getFormattedDate: mockGetFormattedDate
-    };
+    const options = { context: jest.fn().mockImplementation((context: string) => context), getFormattedDate: mockGetFormattedDate };
 
     const widgetGeojsons = getPersonVisitedPlacesMapConfig(options).geojsons as any;
     const mockedT = jest.fn().mockReturnValue('translatedString');
     const person = { _uuid: 'person1', _sequence: 1 };
     const journey = { _uuid: 'journeyId1', _sequence: 1 };
-   
+
     test('should return empty features collections when no person', () => {
         mockedGetActivePerson.mockReturnValueOnce(null);
         mockedGetActiveJourney.mockReturnValueOnce(journey);
         expect(widgetGeojsons(interviewAttributesForTestCases)).toEqual({
-            points: {
-                type: 'FeatureCollection',
-                features: []
-            },
-            linestrings: {
-                type: 'FeatureCollection',
-                features: []
-            }
+            points: { type: 'FeatureCollection', features: [] },
+            linestrings: { type: 'FeatureCollection', features: [] }
         });
         expect(mockedGetVisitedPlacesArray).not.toHaveBeenCalled();
         expect(mockedGetVisitedPlaceGeography).not.toHaveBeenCalled();
@@ -159,14 +148,8 @@ describe('personVisitedPlacesMapConfig geojsons', () => {
         mockedGetActivePerson.mockReturnValueOnce(person);
         mockedGetActiveJourney.mockReturnValueOnce(null);
         expect(widgetGeojsons(interviewAttributesForTestCases)).toEqual({
-            points: {
-                type: 'FeatureCollection',
-                features: []
-            },
-            linestrings: {
-                type: 'FeatureCollection',
-                features: []
-            }
+            points: { type: 'FeatureCollection', features: [] },
+            linestrings: { type: 'FeatureCollection', features: [] }
         });
         expect(mockedGetVisitedPlacesArray).not.toHaveBeenCalled();
         expect(mockedGetVisitedPlaceGeography).not.toHaveBeenCalled();
@@ -177,45 +160,44 @@ describe('personVisitedPlacesMapConfig geojsons', () => {
         mockedGetActiveJourney.mockReturnValueOnce(journey);
         mockedGetVisitedPlacesArray.mockReturnValueOnce([]);
         expect(widgetGeojsons(interviewAttributesForTestCases)).toEqual({
-            points: {
-                type: 'FeatureCollection',
-                features: []
-            },
-            linestrings: {
-                type: 'FeatureCollection',
-                features: []
-            }
+            points: { type: 'FeatureCollection', features: [] },
+            linestrings: { type: 'FeatureCollection', features: [] }
         });
         expect(mockedGetVisitedPlacesArray).toHaveBeenCalledWith({ journey });
         expect(mockedGetVisitedPlaceGeography).not.toHaveBeenCalled();
     });
 
     test('should return points and lines features if visited places with geography', () => {
-        const visitedPlaces: VisitedPlace[] = [{
-            _uuid: 'place1',
-            _sequence: 1,
-            name: 'home',
-            activity: 'home',
-            geography: { type: 'Feature', properties: { lastAction: 'mapClicked' }, geometry: { type: 'Point', coordinates: [0, 0] } }
-        }, {
-            _uuid: 'place2',
-            _sequence: 2,
-            name: 'place2',
-            activity: 'work',
-            geography: { type: 'Feature', properties: { lastAction: 'mapClicked' }, geometry: { type: 'Point', coordinates: [1, 1] } }
-        }, {
-            _uuid: 'place3',
-            _sequence: 3,
-            name: 'place3',
-            activity: 'shopping',
-            geography: { type: 'Feature', properties: { lastAction: 'mapClicked' }, geometry: { type: 'Point', coordinates: [0, 1] } }
-        }, {
-            _uuid: 'place4',
-            _sequence: 3,
-            name: 'home',
-            activity: 'home',
-            geography: { type: 'Feature', properties: { lastAction: 'mapClicked' }, geometry: { type: 'Point', coordinates: [0, 0] } }
-        }]
+        const visitedPlaces: VisitedPlace[] = [
+            {
+                _uuid: 'place1',
+                _sequence: 1,
+                name: 'home',
+                activity: 'home',
+                geography: { type: 'Feature', properties: { lastAction: 'mapClicked' }, geometry: { type: 'Point', coordinates: [0, 0] } }
+            },
+            {
+                _uuid: 'place2',
+                _sequence: 2,
+                name: 'place2',
+                activity: 'work',
+                geography: { type: 'Feature', properties: { lastAction: 'mapClicked' }, geometry: { type: 'Point', coordinates: [1, 1] } }
+            },
+            {
+                _uuid: 'place3',
+                _sequence: 3,
+                name: 'place3',
+                activity: 'shopping',
+                geography: { type: 'Feature', properties: { lastAction: 'mapClicked' }, geometry: { type: 'Point', coordinates: [0, 1] } }
+            },
+            {
+                _uuid: 'place4',
+                _sequence: 3,
+                name: 'home',
+                activity: 'home',
+                geography: { type: 'Feature', properties: { lastAction: 'mapClicked' }, geometry: { type: 'Point', coordinates: [0, 0] } }
+            }
+        ];
         mockedGetActivePerson.mockReturnValueOnce(person);
         mockedGetActiveJourney.mockReturnValueOnce(journey);
         mockedGetVisitedPlacesArray.mockReturnValueOnce(visitedPlaces);
@@ -230,18 +212,84 @@ describe('personVisitedPlacesMapConfig geojsons', () => {
             points: {
                 type: 'FeatureCollection',
                 features: [
-                    { ...visitedPlaces[0].geography!, properties: { ...visitedPlaces[0].geography!.properties, icon: { url: '/dist/icons/activities/home/home-marker_round.svg', size: [40, 40] }, highlighted: false, label: 'home', sequence: 1 } },
-                    { ...visitedPlaces[1].geography!, properties: { ...visitedPlaces[1].geography!.properties, icon: { url: '/dist/icons/activities/work/briefcase-marker_round.svg', size: [40, 40] }, highlighted: false, label: 'place2', sequence: 2 } },
-                    { ...visitedPlaces[2].geography!, properties: { ...visitedPlaces[2].geography!.properties, icon: { url: '/dist/icons/activities/shopping/shopping_cart-marker_round.svg', size: [40, 40] }, highlighted: false, label: 'place3', sequence: 3 } },
-                    { ...visitedPlaces[3].geography!, properties: { ...visitedPlaces[3].geography!.properties, icon: { url: '/dist/icons/activities/home/home-marker_round.svg', size: [40, 40] }, highlighted: false, label: 'home', sequence: 3 } }
+                    {
+                        ...visitedPlaces[0].geography!,
+                        properties: {
+                            ...visitedPlaces[0].geography!.properties,
+                            icon: { url: '/dist/icons/activities/home/home-marker_round.svg', size: [40, 40] },
+                            highlighted: false,
+                            label: 'home',
+                            sequence: 1
+                        }
+                    },
+                    {
+                        ...visitedPlaces[1].geography!,
+                        properties: {
+                            ...visitedPlaces[1].geography!.properties,
+                            icon: { url: '/dist/icons/activities/work/briefcase-marker_round.svg', size: [40, 40] },
+                            highlighted: false,
+                            label: 'place2',
+                            sequence: 2
+                        }
+                    },
+                    {
+                        ...visitedPlaces[2].geography!,
+                        properties: {
+                            ...visitedPlaces[2].geography!.properties,
+                            icon: { url: '/dist/icons/activities/shopping/shopping_cart-marker_round.svg', size: [40, 40] },
+                            highlighted: false,
+                            label: 'place3',
+                            sequence: 3
+                        }
+                    },
+                    {
+                        ...visitedPlaces[3].geography!,
+                        properties: {
+                            ...visitedPlaces[3].geography!.properties,
+                            icon: { url: '/dist/icons/activities/home/home-marker_round.svg', size: [40, 40] },
+                            highlighted: false,
+                            label: 'home',
+                            sequence: 3
+                        }
+                    }
                 ]
             },
             linestrings: {
                 type: 'FeatureCollection',
                 features: [
-                    { type: 'Feature', geometry: { type: 'LineString', properties: {}, coordinates: [[0, 0], [1, 1]] } },
-                    { type: 'Feature', geometry: { type: 'LineString', properties: {}, coordinates: [[1, 1], [0, 1]] } },
-                    { type: 'Feature', geometry: { type: 'LineString', properties: {}, coordinates: [[0, 1], [0, 0]] } }
+                    {
+                        type: 'Feature',
+                        geometry: {
+                            type: 'LineString',
+                            properties: {},
+                            coordinates: [
+                                [0, 0],
+                                [1, 1]
+                            ]
+                        }
+                    },
+                    {
+                        type: 'Feature',
+                        geometry: {
+                            type: 'LineString',
+                            properties: {},
+                            coordinates: [
+                                [1, 1],
+                                [0, 1]
+                            ]
+                        }
+                    },
+                    {
+                        type: 'Feature',
+                        geometry: {
+                            type: 'LineString',
+                            properties: {},
+                            coordinates: [
+                                [0, 1],
+                                [0, 0]
+                            ]
+                        }
+                    }
                 ]
             }
         });
@@ -249,47 +297,65 @@ describe('personVisitedPlacesMapConfig geojsons', () => {
         // Validate the function called
         expect(mockedGetVisitedPlacesArray).toHaveBeenCalledWith({ journey });
         expect(mockedGetVisitedPlaceGeography).toHaveBeenCalledTimes(visitedPlaces.length);
-        expect(mockedGetVisitedPlaceGeography).toHaveBeenCalledWith({ visitedPlace: visitedPlaces[0], interview: interviewAttributesForTestCases, person });
-        expect(mockedGetVisitedPlaceGeography).toHaveBeenCalledWith({ visitedPlace: visitedPlaces[1], interview: interviewAttributesForTestCases, person });
-        expect(mockedGetVisitedPlaceGeography).toHaveBeenCalledWith({ visitedPlace: visitedPlaces[2], interview: interviewAttributesForTestCases, person });
-        expect(mockedGetVisitedPlaceGeography).toHaveBeenCalledWith({ visitedPlace: visitedPlaces[3], interview: interviewAttributesForTestCases, person });
+        expect(mockedGetVisitedPlaceGeography).toHaveBeenCalledWith({
+            visitedPlace: visitedPlaces[0],
+            interview: interviewAttributesForTestCases,
+            person
+        });
+        expect(mockedGetVisitedPlaceGeography).toHaveBeenCalledWith({
+            visitedPlace: visitedPlaces[1],
+            interview: interviewAttributesForTestCases,
+            person
+        });
+        expect(mockedGetVisitedPlaceGeography).toHaveBeenCalledWith({
+            visitedPlace: visitedPlaces[2],
+            interview: interviewAttributesForTestCases,
+            person
+        });
+        expect(mockedGetVisitedPlaceGeography).toHaveBeenCalledWith({
+            visitedPlace: visitedPlaces[3],
+            interview: interviewAttributesForTestCases,
+            person
+        });
         expect(mockedPointsToBezierCurve).toHaveBeenCalledTimes(3);
-        expect(mockedPointsToBezierCurve).toHaveBeenCalledWith([visitedPlaces[0].geography!.geometry, visitedPlaces[1].geography!.geometry], { superposedSequence: 0 });
-        expect(mockedPointsToBezierCurve).toHaveBeenCalledWith([visitedPlaces[1].geography!.geometry, visitedPlaces[2].geography!.geometry], { superposedSequence: 0 });
-        expect(mockedPointsToBezierCurve).toHaveBeenCalledWith([visitedPlaces[2].geography!.geometry, visitedPlaces[3].geography!.geometry], { superposedSequence: 0 });
+        expect(mockedPointsToBezierCurve).toHaveBeenCalledWith([visitedPlaces[0].geography!.geometry, visitedPlaces[1].geography!.geometry], {
+            superposedSequence: 0
+        });
+        expect(mockedPointsToBezierCurve).toHaveBeenCalledWith([visitedPlaces[1].geography!.geometry, visitedPlaces[2].geography!.geometry], {
+            superposedSequence: 0
+        });
+        expect(mockedPointsToBezierCurve).toHaveBeenCalledWith([visitedPlaces[2].geography!.geometry, visitedPlaces[3].geography!.geometry], {
+            superposedSequence: 0
+        });
     });
 
     test('should return correct points and lines features if some visited places without geography, or with undefined properties', () => {
         // Places 0 and 2 have no geography and should be ignored from map
-        const visitedPlaces: VisitedPlace[] = [{
-            _uuid: 'place1',
-            _sequence: 1,
-            name: 'home',
-            activity: 'home',
-        }, {
-            _uuid: 'place2',
-            _sequence: 2,
-            name: 'place2',
-            activity: 'work',
-            geography: { type: 'Feature', properties: { lastAction: 'mapClicked' }, geometry: { type: 'Point', coordinates: [1, 1] } }
-        }, {
-            _uuid: 'place3',
-            _sequence: 3,
-            name: 'place3',
-            activity: 'shopping',
-        }, {
-            _uuid: 'place4',
-            _sequence: 3,
-            name: 'home',
-            activity: 'home',
-            geography: { type: 'Feature', properties: { lastAction: 'mapClicked' }, geometry: { type: 'Point', coordinates: [0, 0] } }
-        }, {
-            _uuid: 'place5',
-            _sequence: 4,
-            name: 'My work without properties',
-            activity: 'workUsual',
-            geography: { type: 'Feature', geometry: { type: 'Point', coordinates: [0.5, 0.2] } } as any
-        }]
+        const visitedPlaces: VisitedPlace[] = [
+            { _uuid: 'place1', _sequence: 1, name: 'home', activity: 'home' },
+            {
+                _uuid: 'place2',
+                _sequence: 2,
+                name: 'place2',
+                activity: 'work',
+                geography: { type: 'Feature', properties: { lastAction: 'mapClicked' }, geometry: { type: 'Point', coordinates: [1, 1] } }
+            },
+            { _uuid: 'place3', _sequence: 3, name: 'place3', activity: 'shopping' },
+            {
+                _uuid: 'place4',
+                _sequence: 3,
+                name: 'home',
+                activity: 'home',
+                geography: { type: 'Feature', properties: { lastAction: 'mapClicked' }, geometry: { type: 'Point', coordinates: [0, 0] } }
+            },
+            {
+                _uuid: 'place5',
+                _sequence: 4,
+                name: 'My work without properties',
+                activity: 'workUsual',
+                geography: { type: 'Feature', geometry: { type: 'Point', coordinates: [0.5, 0.2] } } as any
+            }
+        ];
         mockedGetActivePerson.mockReturnValueOnce(person);
         mockedGetActiveJourney.mockReturnValueOnce(journey);
         mockedGetVisitedPlacesArray.mockReturnValueOnce(visitedPlaces);
@@ -305,30 +371,99 @@ describe('personVisitedPlacesMapConfig geojsons', () => {
         expect(geojsons.points).toEqual({
             type: 'FeatureCollection',
             features: [
-                { ...visitedPlaces[1].geography!, properties: { ...visitedPlaces[1].geography!.properties, icon: { url: '/dist/icons/activities/work/briefcase-marker_round.svg', size: [40, 40] }, highlighted: false, label: 'place2', sequence: 2 } },
-                { ...visitedPlaces[3].geography!, properties: { ...visitedPlaces[3].geography!.properties, icon: { url: '/dist/icons/activities/home/home-marker_round.svg', size: [40, 40] }, highlighted: false, label: 'home', sequence: 3 } },
-                { ...visitedPlaces[4].geography!, properties: { icon: { url: '/dist/icons/activities/work/briefcase-marker_round.svg', size: [40, 40] }, highlighted: false, label: 'My work without properties', sequence: 4 } }
+                {
+                    ...visitedPlaces[1].geography!,
+                    properties: {
+                        ...visitedPlaces[1].geography!.properties,
+                        icon: { url: '/dist/icons/activities/work/briefcase-marker_round.svg', size: [40, 40] },
+                        highlighted: false,
+                        label: 'place2',
+                        sequence: 2
+                    }
+                },
+                {
+                    ...visitedPlaces[3].geography!,
+                    properties: {
+                        ...visitedPlaces[3].geography!.properties,
+                        icon: { url: '/dist/icons/activities/home/home-marker_round.svg', size: [40, 40] },
+                        highlighted: false,
+                        label: 'home',
+                        sequence: 3
+                    }
+                },
+                {
+                    ...visitedPlaces[4].geography!,
+                    properties: {
+                        icon: { url: '/dist/icons/activities/work/briefcase-marker_round.svg', size: [40, 40] },
+                        highlighted: false,
+                        label: 'My work without properties',
+                        sequence: 4
+                    }
+                }
             ]
         });
         expect(geojsons.linestrings).toEqual({
             type: 'FeatureCollection',
             features: [
-                { type: 'Feature', geometry: { type: 'LineString', properties: {}, coordinates: [[1, 1], [0, 0]] } },
-                { type: 'Feature', geometry: { type: 'LineString', properties: {}, coordinates: [[0, 0], [0.5, 0.2]] } }
+                {
+                    type: 'Feature',
+                    geometry: {
+                        type: 'LineString',
+                        properties: {},
+                        coordinates: [
+                            [1, 1],
+                            [0, 0]
+                        ]
+                    }
+                },
+                {
+                    type: 'Feature',
+                    geometry: {
+                        type: 'LineString',
+                        properties: {},
+                        coordinates: [
+                            [0, 0],
+                            [0.5, 0.2]
+                        ]
+                    }
+                }
             ]
-        })
+        });
 
         // Validate the function called
         expect(mockedGetVisitedPlacesArray).toHaveBeenCalledWith({ journey });
         expect(mockedGetVisitedPlaceGeography).toHaveBeenCalledTimes(visitedPlaces.length);
-        expect(mockedGetVisitedPlaceGeography).toHaveBeenCalledWith({ visitedPlace: visitedPlaces[0], interview: interviewAttributesForTestCases, person });
-        expect(mockedGetVisitedPlaceGeography).toHaveBeenCalledWith({ visitedPlace: visitedPlaces[1], interview: interviewAttributesForTestCases, person });
-        expect(mockedGetVisitedPlaceGeography).toHaveBeenCalledWith({ visitedPlace: visitedPlaces[2], interview: interviewAttributesForTestCases, person });
-        expect(mockedGetVisitedPlaceGeography).toHaveBeenCalledWith({ visitedPlace: visitedPlaces[3], interview: interviewAttributesForTestCases, person });
-        expect(mockedGetVisitedPlaceGeography).toHaveBeenCalledWith({ visitedPlace: visitedPlaces[4], interview: interviewAttributesForTestCases, person });
+        expect(mockedGetVisitedPlaceGeography).toHaveBeenCalledWith({
+            visitedPlace: visitedPlaces[0],
+            interview: interviewAttributesForTestCases,
+            person
+        });
+        expect(mockedGetVisitedPlaceGeography).toHaveBeenCalledWith({
+            visitedPlace: visitedPlaces[1],
+            interview: interviewAttributesForTestCases,
+            person
+        });
+        expect(mockedGetVisitedPlaceGeography).toHaveBeenCalledWith({
+            visitedPlace: visitedPlaces[2],
+            interview: interviewAttributesForTestCases,
+            person
+        });
+        expect(mockedGetVisitedPlaceGeography).toHaveBeenCalledWith({
+            visitedPlace: visitedPlaces[3],
+            interview: interviewAttributesForTestCases,
+            person
+        });
+        expect(mockedGetVisitedPlaceGeography).toHaveBeenCalledWith({
+            visitedPlace: visitedPlaces[4],
+            interview: interviewAttributesForTestCases,
+            person
+        });
         expect(mockedPointsToBezierCurve).toHaveBeenCalledTimes(2);
-        expect(mockedPointsToBezierCurve).toHaveBeenCalledWith([visitedPlaces[1].geography!.geometry, visitedPlaces[3].geography!.geometry], { superposedSequence: 0 });
-        expect(mockedPointsToBezierCurve).toHaveBeenCalledWith([visitedPlaces[3].geography!.geometry, visitedPlaces[4].geography!.geometry], { superposedSequence: 0 });
+        expect(mockedPointsToBezierCurve).toHaveBeenCalledWith([visitedPlaces[1].geography!.geometry, visitedPlaces[3].geography!.geometry], {
+            superposedSequence: 0
+        });
+        expect(mockedPointsToBezierCurve).toHaveBeenCalledWith([visitedPlaces[3].geography!.geometry, visitedPlaces[4].geography!.geometry], {
+            superposedSequence: 0
+        });
     });
-
 });

@@ -9,7 +9,6 @@ import { Sample } from '../Sample';
 import { v4 as uuidV4 } from 'uuid';
 
 describe('Sample Class', () => {
-
     const sampleName = 'Sample Name';
     const sampleShortname = 'sample_name';
 
@@ -31,12 +30,7 @@ describe('Sample Class', () => {
     });
 
     it('should validate params', () => {
-        const validSampleAttributes = {
-            _uuid: uuidV4(),
-            name: 'Sample Name',
-            shortname: 'SN',
-            description: 'Sample description',
-        };
+        const validSampleAttributes = { _uuid: uuidV4(), name: 'Sample Name', shortname: 'SN', description: 'Sample description' };
 
         // Valid attributes
         expect(Sample.validateParams(validSampleAttributes)).toEqual([]);
@@ -70,5 +64,4 @@ describe('Sample Class', () => {
         expect(missingRequired.length).toEqual(1);
         expect(missingRequired[0].message).toEqual('Sample validateParams: shortname is required');
     });
-
 });

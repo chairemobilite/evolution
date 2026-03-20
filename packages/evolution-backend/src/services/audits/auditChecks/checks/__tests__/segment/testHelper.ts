@@ -21,7 +21,10 @@ export const createMockSegment = (overrides: Partial<Segment> = {}, validUuid = 
     } as Segment;
 };
 
-export const createContextWithSegment = (segmentOverrides: Partial<Segment> = {}, validUuid = uuidV4()): SegmentAuditCheckContext => {
+export const createContextWithSegment = (
+    segmentOverrides: Partial<Segment> = {},
+    validUuid = uuidV4()
+): SegmentAuditCheckContext => {
     return {
         segment: createMockSegment(segmentOverrides, validUuid),
         trip: { _uuid: uuidV4() } as unknown as Trip,

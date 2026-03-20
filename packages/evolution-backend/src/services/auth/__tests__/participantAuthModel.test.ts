@@ -23,7 +23,7 @@ jest.mock('../../../models/participants.db.queries', () => ({
 }));
 
 const mockSave = participantsDbQueries.update as jest.MockedFunction<typeof participantsDbQueries.update>;
-const mockFind = participantsDbQueries.find as jest.MockedFunction<typeof participantsDbQueries.find>
+const mockFind = participantsDbQueries.find as jest.MockedFunction<typeof participantsDbQueries.find>;
 const mockGetById = participantsDbQueries.getById as jest.MockedFunction<typeof participantsDbQueries.getById>;
 const mockCreate = participantsDbQueries.create as jest.MockedFunction<typeof participantsDbQueries.create>;
 const mockLogLastLogin = participantsDbQueries.logLastLogin as jest.MockedFunction<typeof participantsDbQueries.logLastLogin>;
@@ -64,12 +64,7 @@ test('sanitizeUserAttributes', () => {
     const last_name = 'last';
     const id = 4;
     const preferences = { pref1: 'abc', pref2: true };
-    let participantAttributes: ParticipantAttributes = {
-        id,
-        username,
-        first_name,
-        last_name
-    };
+    let participantAttributes: ParticipantAttributes = { id, username, first_name, last_name };
     expect(sanitizeUserAttributes(participantAttributes)).toEqual({
         id,
         username,
@@ -105,28 +100,19 @@ test('sanitizeUserAttributes', () => {
 
 describe('ParticipantAuthModel: Account confirmation', () => {
     test('Test valid token confirmation', async () => {
-        const token = "thisisanarbitraytoken";
-        mockFind.mockResolvedValueOnce({
-            id: defaultUserId,
-            confirmation_token: token,
-            is_confirmed: false
-        });
+        const token = 'thisisanarbitraytoken';
+        mockFind.mockResolvedValueOnce({ id: defaultUserId, confirmation_token: token, is_confirmed: false });
         const result = await participantAuthModel.confirmAccount(token);
         expect(result).toEqual('Confirmed');
         expect(mockFind).toHaveBeenCalledTimes(1);
         expect(mockFind).toHaveBeenCalledWith({ confirmation_token: token });
         expect(mockSave).toHaveBeenCalledTimes(1);
         expect(mockSave).toHaveBeenCalledWith(defaultUserId, { confirmation_token: null, is_confirmed: true });
-        
     });
-    
+
     test('Test valid token with callback', async () => {
-        const token = "thisisanarbitraytoken";
-        mockFind.mockResolvedValueOnce({
-            id: defaultUserId,
-            confirmation_token: token,
-            is_confirmed: false
-        })
+        const token = 'thisisanarbitraytoken';
+        mockFind.mockResolvedValueOnce({ id: defaultUserId, confirmation_token: token, is_confirmed: false });
         const callback = jest.fn();
         const result = await participantAuthModel.confirmAccount(token, callback);
         expect(result).toEqual('Confirmed');
@@ -136,10 +122,10 @@ describe('ParticipantAuthModel: Account confirmation', () => {
         expect(mockSave).toHaveBeenCalledWith(defaultUserId, { confirmation_token: null, is_confirmed: true });
         expect(callback).toHaveBeenCalled();
     });
-    
+
     test('Test invalid token confirmation', async () => {
-        const token = "thisisanarbitraytoken";
-        mockFind.mockResolvedValueOnce(undefined)
+        const token = 'thisisanarbitraytoken';
+        mockFind.mockResolvedValueOnce(undefined);
         const result = await participantAuthModel.confirmAccount(token);
         expect(result).toEqual('NotFound');
         expect(mockFind).toHaveBeenCalledTimes(1);
@@ -170,7 +156,7 @@ describe('ParticipantAuthModel: Reset password', () => {
             password_reset_token: null
         });
     });
-    
+
     test('Reset password expired', async () => {
         const token = 'thisisanarbitraytoken';
         const newPassword = 'newPassword';
@@ -184,7 +170,7 @@ describe('ParticipantAuthModel: Reset password', () => {
         expect(result).toEqual('Expired');
         expect(mockSave).not.toHaveBeenCalled();
     });
-    
+
     test('Reset password not found', async () => {
         const token = 'thisisanarbitraytoken';
         const newPassword = 'newPassword';
@@ -193,7 +179,7 @@ describe('ParticipantAuthModel: Reset password', () => {
         expect(result).toEqual('NotFound');
         expect(mockSave).not.toHaveBeenCalled();
     });
-    
+
     test('Reset password, no password', async () => {
         const token = 'thisisanarbitraytoken';
         mockFind.mockResolvedValue({
@@ -205,7 +191,7 @@ describe('ParticipantAuthModel: Reset password', () => {
         let result = await participantAuthModel.resetPassword(token);
         expect(result).toEqual('Confirmed');
         expect(mockSave).not.toHaveBeenCalled();
-    
+
         result = await participantAuthModel.resetPassword(token, undefined);
         expect(result).toEqual('Confirmed');
         expect(mockSave).not.toHaveBeenCalled();
@@ -234,11 +220,7 @@ test('ParticipantAuthModel: getById', async () => {
 });
 
 describe('ParticipantAuthModel: createAndSave', () => {
-    const mockedReturnedAttributes = {
-        id: 200,
-        username: 'random',
-        email: 'foo@bar.com'
-    }
+    const mockedReturnedAttributes = { id: 200, username: 'random', email: 'foo@bar.com' };
     const mockedReturnedParticipant = new ParticipantModel(mockedReturnedAttributes);
 
     test('Empty participant', async () => {
@@ -335,11 +317,7 @@ describe('ParticipantAuthModel: createAndSave', () => {
     });
 
     test('With an extra id parameter', async () => {
-        const newUserParams = {
-            username: 'username',
-            email: 'foo@bar.com',
-            id: 4
-        };
+        const newUserParams = { username: 'username', email: 'foo@bar.com', id: 4 };
         mockCreate.mockResolvedValueOnce(mockedReturnedAttributes);
         const newPart = await participantAuthModel.createAndSave(newUserParams);
         expect(JSON.stringify(newPart)).toEqual(JSON.stringify(mockedReturnedParticipant));
@@ -360,55 +338,41 @@ describe('ParticipantAuthModel: createAndSave', () => {
     });
 
     test('rejected create call', async () => {
-        const newUserParams = {
-            username: 'username',
-            email: 'foo@bar.com',
-            id: 4
-        };
+        const newUserParams = { username: 'username', email: 'foo@bar.com', id: 4 };
         mockCreate.mockRejectedValueOnce('Error');
         let error: any = undefined;
         try {
-            await participantAuthModel.createAndSave(newUserParams)
-        } catch(err) {
+            await participantAuthModel.createAndSave(newUserParams);
+        } catch (err) {
             error = err;
         }
         expect(error).toEqual('Error');
         /*await expect(participantAuthModel.createAndSave(newUserParams))
             .rejects
             .toThrow('Error');*/
-
     });
 });
 
-
 describe('ParticipantModel: Password verification', () => {
     test('Test password verification with string password', async () => {
-        const password = "test";
-        const user = new ParticipantModel({
-            id: defaultUserId,
-            password: participantAuthModel.encryptPassword(password),
-        });
+        const password = 'test';
+        const user = new ParticipantModel({ id: defaultUserId, password: participantAuthModel.encryptPassword(password) });
         expect(await user.verifyPassword(password)).toBeTruthy();
         expect(await user.verifyPassword('')).toBeFalsy;
         expect(await user.verifyPassword('Other password')).toBeFalsy();
     });
-    
+
     test('Test password verification with null password', async () => {
-        const user = new ParticipantModel({
-            id: defaultUserId,
-            password: null,
-        });
+        const user = new ParticipantModel({ id: defaultUserId, password: null });
         expect(await user.verifyPassword('')).toBeFalsy;
         expect(await user.verifyPassword('Other password')).toBeFalsy();
-    })
-    
+    });
+
     test('Test password verification with default user', async () => {
-        const user = new ParticipantModel({
-            id: defaultUserId
-        });
+        const user = new ParticipantModel({ id: defaultUserId });
         expect(await user.verifyPassword('')).toBeFalsy;
         expect(await user.verifyPassword('Other password')).toBeFalsy();
-    })
+    });
 });
 
 test('ParticipantModel: Test get display name', async () => {
@@ -416,53 +380,23 @@ test('ParticipantModel: Test get display name', async () => {
     const first_name = 'first';
     const last_name = 'last';
     const email = 'test@test.com';
-    let user = new ParticipantModel({
-        id: defaultUserId,
-        password: null,
-    });
+    let user = new ParticipantModel({ id: defaultUserId, password: null });
     expect(user.displayName).toEqual('');
 
-    user = new ParticipantModel({
-        id: defaultUserId,
-        password: null,
-        username,
-        email
-    });
+    user = new ParticipantModel({ id: defaultUserId, password: null, username, email });
     expect(user.displayName).toEqual(username);
 
-    user = new ParticipantModel({
-        id: defaultUserId,
-        password: null,
-        username,
-        first_name
-    });
+    user = new ParticipantModel({ id: defaultUserId, password: null, username, first_name });
     expect(user.displayName).toEqual(first_name);
 
-    user = new ParticipantModel({
-        id: defaultUserId,
-        password: null,
-        username,
-        last_name
-    });
+    user = new ParticipantModel({ id: defaultUserId, password: null, username, last_name });
     expect(user.displayName).toEqual(last_name);
 
-    user = new ParticipantModel({
-        id: defaultUserId,
-        password: null,
-        username,
-        first_name,
-        last_name
-    });
+    user = new ParticipantModel({ id: defaultUserId, password: null, username, first_name, last_name });
     expect(user.displayName).toEqual(first_name + ' ' + last_name);
 
-    user = new ParticipantModel({
-        id: defaultUserId,
-        password: null,
-        username: email,
-        email
-    });
+    user = new ParticipantModel({ id: defaultUserId, password: null, username: email, email });
     expect(user.displayName).toEqual('');
-
 });
 
 test('ParticipantModel: sanitize', () => {
@@ -472,14 +406,9 @@ test('ParticipantModel: sanitize', () => {
     const email = 'foo@bar.com';
     const id = 100;
     const preferences = { pref1: 'abc', pref2: true };
-    let user = new ParticipantModel({
+    let user = new ParticipantModel({ id, password: null, username, first_name, last_name });
+    expect(user.sanitize()).toEqual({
         id,
-        password: null,
-        username,
-        first_name,
-        last_name
-    });
-    expect(user.sanitize()).toEqual({ id,
         username,
         firstName: first_name,
         lastName: last_name,
@@ -522,7 +451,6 @@ test('ParticipantModel: sanitize', () => {
 });
 
 describe('ParticipantModel: Update attributes', () => {
-
     const basePartAttribs = {
         id: defaultUserId,
         first_name: 'Foo',
@@ -531,7 +459,7 @@ describe('ParticipantModel: Update attributes', () => {
         password: '$fdafdasfdas',
         is_test: false,
         is_active: false
-    }
+    };
     let baseUser = new ParticipantModel(basePartAttribs);
 
     beforeEach(() => {
@@ -556,7 +484,7 @@ describe('ParticipantModel: Update attributes', () => {
         expect(baseUser.attributes.is_test).toEqual(true);
 
         // not is_admin value
-        baseUser.updateAndSanitizeAttributes({ });
+        baseUser.updateAndSanitizeAttributes({});
         expect(baseUser.attributes.is_test).toEqual(true);
 
         // truthy number
@@ -582,7 +510,7 @@ describe('ParticipantModel: Update attributes', () => {
         expect(baseUser.attributes.is_active).toEqual(true);
 
         // not is_admin value
-        baseUser.updateAndSanitizeAttributes({ });
+        baseUser.updateAndSanitizeAttributes({});
         expect(baseUser.attributes.is_active).toEqual(true);
 
         // truthy number
@@ -592,7 +520,7 @@ describe('ParticipantModel: Update attributes', () => {
 
     test('First/last name', () => {
         // Valid strings
-        const name = 'Test'
+        const name = 'Test';
         baseUser.updateAndSanitizeAttributes({ first_name: name, last_name: name });
         expect(baseUser.attributes.last_name).toEqual(name);
         expect(baseUser.attributes.first_name).toEqual(name);
@@ -611,12 +539,10 @@ describe('ParticipantModel: Update attributes', () => {
     test('Test random attributes', () => {
         baseUser.updateAndSanitizeAttributes({ arbitrary: 'some value', other: 'abc' });
         expect(baseUser.attributes).toEqual(basePartAttribs);
-    })
-
+    });
 });
 
 test('ParticipantModel: properties', () => {
-
     const user = new ParticipantModel(defaultParticipantAttributes);
     expect(user.id).toEqual(defaultParticipantAttributes.id);
     expect(user.email).toEqual(defaultParticipantAttributes.email);

@@ -13,15 +13,8 @@ import type { Interview } from 'evolution-common/lib/services/baseObjects/interv
 import type { Household } from 'evolution-common/lib/services/baseObjects/Household';
 import type { Home } from 'evolution-common/lib/services/baseObjects/Home';
 
-jest.mock('../../../models/audits.db.queries', () => ({
-    setAuditsForInterview: jest.fn(),
-    updateAudit: jest.fn()
-}));
-jest.mock('../AuditService', () => ({
-    AuditService: {
-        auditInterview: jest.fn()
-    }
-}));
+jest.mock('../../../models/audits.db.queries', () => ({ setAuditsForInterview: jest.fn(), updateAudit: jest.fn() }));
+jest.mock('../AuditService', () => ({ AuditService: { auditInterview: jest.fn() } }));
 
 const mockSetAudits = auditsDbQueries.setAuditsForInterview as jest.MockedFunction<typeof auditsDbQueries.setAuditsForInterview>;
 mockSetAudits.mockImplementation(async (_interviewId, audits) => audits);
@@ -40,7 +33,6 @@ const makeServiceResult = (audits: AuditForObject[]) => ({
 const interviewId = 3;
 
 describe('updateAudits', () => {
-
     beforeEach(() => {
         mockUpdateAudit.mockClear();
     });
@@ -51,34 +43,18 @@ describe('updateAudits', () => {
     });
 
     test('update single audit', async () => {
-        const audits = [{
-            version: 3,
-            objectType: 'person',
-            objectUuid: 'arbitrary',
-            errorCode: 'err-code'
-        }];
+        const audits = [{ version: 3, objectType: 'person', objectUuid: 'arbitrary', errorCode: 'err-code' }];
         await SurveyObjectsAndAuditsFactory.updateAudits(interviewId, audits);
         expect(mockUpdateAudit).toHaveBeenCalledTimes(audits.length);
         expect(mockUpdateAudit).toHaveBeenCalledWith(interviewId, audits[0]);
     });
 
     test('update many audits', async () => {
-        const audits = [{
-            version: 3,
-            objectType: 'person',
-            objectUuid: 'arbitrary',
-            errorCode: 'err-code'
-        }, {
-            version: 3,
-            objectType: 'interview',
-            objectUuid: 'arbitrary',
-            errorCode: 'err-code'
-        }, {
-            version: 3,
-            objectType: 'person',
-            objectUuid: 'arbitrary2',
-            errorCode: 'err-code'
-        }];
+        const audits = [
+            { version: 3, objectType: 'person', objectUuid: 'arbitrary', errorCode: 'err-code' },
+            { version: 3, objectType: 'interview', objectUuid: 'arbitrary', errorCode: 'err-code' },
+            { version: 3, objectType: 'person', objectUuid: 'arbitrary2', errorCode: 'err-code' }
+        ];
         await SurveyObjectsAndAuditsFactory.updateAudits(interviewId, audits);
         expect(mockUpdateAudit).toHaveBeenCalledTimes(audits.length);
         expect(mockUpdateAudit).toHaveBeenCalledWith(interviewId, audits[0]);
@@ -88,7 +64,6 @@ describe('updateAudits', () => {
 });
 
 describe('createSurveyObjectsAndSaveAuditsToDb', () => {
-
     const interviewAttributes = {
         id: interviewId,
         uuid: '123e4567-e89b-12d3-a456-426614174000',
@@ -130,8 +105,9 @@ describe('createSurveyObjectsAndSaveAuditsToDb', () => {
     });
 
     test('corrected_response not set in interview', async () => {
-        await expect(SurveyObjectsAndAuditsFactory.createSurveyObjectsAndSaveAuditsToDb(_omit(interviewAttributes, 'corrected_response')))
-            .rejects.toThrow('Corrected response is required to create survey objects and audits');
+        await expect(
+            SurveyObjectsAndAuditsFactory.createSurveyObjectsAndSaveAuditsToDb(_omit(interviewAttributes, 'corrected_response'))
+        ).rejects.toThrow('Corrected response is required to create survey objects and audits');
         expect(mockAuditInterview).not.toHaveBeenCalled();
     });
 
@@ -198,4 +174,3 @@ describe('createSurveyObjectsAndSaveAuditsToDb', () => {
         expect(mockSetAudits).toHaveBeenCalledWith(interviewId, []);
     });
 });
-

@@ -10,15 +10,7 @@ import { InterviewAttributes } from 'evolution-common/lib/services/questionnaire
 
 const validations = {
     testField: {
-        validations: [
-            {
-                validation: (value: string) => (parseInt(value) % 2 === 0),
-                errorMessage: {
-                    fr: 'Valeur paire',
-                    en: 'Value is even'
-                }
-            }
-        ]
+        validations: [{ validation: (value: string) => parseInt(value) % 2 === 0, errorMessage: { fr: 'Valeur paire', en: 'Value is even' } }]
     }
 };
 
@@ -41,7 +33,7 @@ describe('With validation testField', () => {
         ['Valid testField', { 'response.testField': '121' }, true],
         ['Invalid testField', { 'response.testField': '122' }, { testField: validations.testField.validations[0].errorMessage }],
         ['Invalid client side', { 'validations.testField': false, 'response.testField': '122' }, true],
-        ['No data', { }, true],
+        ['No data', {}, true]
     ]).test('%s', async (_description, valuesByPath, result) => {
         expect(await serverValidation(interviewAttributes, validations, valuesByPath, [])).toEqual(result);
     });

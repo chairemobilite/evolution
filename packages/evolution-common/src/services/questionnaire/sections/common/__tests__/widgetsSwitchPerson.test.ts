@@ -18,7 +18,9 @@ jest.mock('../../../../odSurvey/helpers', () => ({
     getActivePerson: jest.fn().mockReturnValue(null),
     countPersons: jest.fn().mockReturnValue(0)
 }));
-const mockedGetInterviewablePersonsArray = odHelpers.getInterviewablePersonsArray as jest.MockedFunction<typeof odHelpers.getInterviewablePersonsArray>;
+const mockedGetInterviewablePersonsArray = odHelpers.getInterviewablePersonsArray as jest.MockedFunction<
+    typeof odHelpers.getInterviewablePersonsArray
+>;
 const mockedGetActivePerson = odHelpers.getActivePerson as jest.MockedFunction<typeof odHelpers.getActivePerson>;
 const mockedCountPersons = odHelpers.countPersons as jest.MockedFunction<typeof odHelpers.countPersons>;
 
@@ -27,7 +29,6 @@ beforeEach(() => {
 });
 
 describe('SwitchPersonWidgets', () => {
-
     test('should return the correct widget configs', () => {
         const widgetConfig = new SwitchPersonWidgetsFactory(widgetFactoryOptions).getWidgetConfigs();
         expect(widgetConfig).toEqual({
@@ -59,11 +60,9 @@ describe('SwitchPersonWidgets', () => {
             }
         });
     });
-
 });
 
 describe('activePersonTitle widget', () => {
-
     const widgetConfig = new SwitchPersonWidgetsFactory(widgetFactoryOptions).getWidgetConfigs()['activePersonTitle'] as TextWidgetConfig;
 
     describe('conditional', () => {
@@ -104,16 +103,13 @@ describe('activePersonTitle widget', () => {
             utilHelpers.translateString(text, { t: mockedT } as any, interviewAttributesForTestCases, 'path');
             expect(mockedT).toHaveBeenCalledWith(['customSurvey:ActivePersonTitle', 'survey:ActivePersonTitle'], { context: 'unnamed', name: 1 });
         });
-
     });
-
 });
 
 describe('buttonSwitchPerson widget', () => {
     const widgetConfig = new SwitchPersonWidgetsFactory(widgetFactoryOptions).getWidgetConfigs()['buttonSwitchPerson'] as ButtonWidgetConfig;
 
     describe('conditional', () => {
-
         test('should return false if there are no interviewable persons', () => {
             mockedGetInterviewablePersonsArray.mockReturnValue([]);
             expect(widgetConfig.conditional!(interviewAttributesForTestCases, 'path')).toEqual([false, undefined]);
@@ -125,16 +121,23 @@ describe('buttonSwitchPerson widget', () => {
         });
 
         test('should return true if there is more than one interviewable person', () => {
-            mockedGetInterviewablePersonsArray.mockReturnValue([{ _uuid: 'personId1', _sequence: 1 }, { _uuid: 'personId1', _sequence: 1 }]);
+            mockedGetInterviewablePersonsArray.mockReturnValue([
+                { _uuid: 'personId1', _sequence: 1 },
+                { _uuid: 'personId1', _sequence: 1 }
+            ]);
             expect(widgetConfig.conditional!(interviewAttributesForTestCases, 'path')).toEqual([true, undefined]);
         });
-
     });
 
     test('action', () => {
         const action = widgetConfig.action;
         expect(action).toBeDefined();
-        const callbackMocks = { startUpdateInterview: jest.fn(), startAddGroupedObjects: jest.fn(), startRemoveGroupedObjects: jest.fn(), startNavigate: jest.fn() };
+        const callbackMocks = {
+            startUpdateInterview: jest.fn(),
+            startAddGroupedObjects: jest.fn(),
+            startRemoveGroupedObjects: jest.fn(),
+            startNavigate: jest.fn()
+        };
         action(callbackMocks, interviewAttributesForTestCases, 'path', 'section', {}, jest.fn());
         expect(callbackMocks.startNavigate).toHaveBeenCalledWith({ requestedSection: { sectionShortname: 'selectPerson' } });
     });
@@ -172,7 +175,6 @@ describe('buttonSwitchPerson widget', () => {
                 (interview as any).allWidgetsValid = undefined;
                 expect(conditional!(interview, 'path')).toBe(true);
             });
-
         });
 
         test('content', () => {
@@ -190,7 +192,5 @@ describe('buttonSwitchPerson widget', () => {
             utilHelpers.translateString(text, { t: mockedT } as any, interviewAttributesForTestCases, 'path');
             expect(mockedT).toHaveBeenCalledWith('main:OK');
         });
-
     });
-
 });

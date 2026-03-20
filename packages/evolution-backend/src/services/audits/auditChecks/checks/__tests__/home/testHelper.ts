@@ -26,7 +26,10 @@ export const createMockHome = (overrides: Partial<Home> = {}, validUuid = uuidV4
     } as Home;
 };
 
-export const createContextWithHome = (homeOverrides: Partial<Home> = {}, validUuid = uuidV4()): HomeAuditCheckContext => {
+export const createContextWithHome = (
+    homeOverrides: Partial<Home> = {},
+    validUuid = uuidV4()
+): HomeAuditCheckContext => {
     return {
         home: createMockHome(homeOverrides, validUuid),
         interview: { _uuid: uuidV4() } as unknown as Interview,

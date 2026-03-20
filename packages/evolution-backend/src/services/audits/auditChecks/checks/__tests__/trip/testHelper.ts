@@ -20,7 +20,10 @@ export const createMockTrip = (overrides: Partial<Trip> = {}, validUuid = uuidV4
     } as Trip;
 };
 
-export const createContextWithTrip = (tripOverrides: Partial<Trip> = {}, validUuid = uuidV4()): TripAuditCheckContext => {
+export const createContextWithTrip = (
+    tripOverrides: Partial<Trip> = {},
+    validUuid = uuidV4()
+): TripAuditCheckContext => {
     return {
         trip: createMockTrip(tripOverrides, validUuid),
         journey: { _uuid: uuidV4() } as unknown as Journey,

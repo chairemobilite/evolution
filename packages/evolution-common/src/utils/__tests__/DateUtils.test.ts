@@ -5,13 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import {
-    parseDate,
-    getDateFromDateString,
-    getDateStringFromDate,
-    getWeekdayFromDate,
-    getUnixEpochFromDate,
-} from '../DateUtils';
+import { parseDate, getDateFromDateString, getDateStringFromDate, getWeekdayFromDate, getUnixEpochFromDate } from '../DateUtils';
 
 // deprecated:
 describe('parseDate function', () => {
@@ -20,7 +14,7 @@ describe('parseDate function', () => {
         [undefined, undefined, 'returns undefined for undefined input'],
         ['', undefined, 'returns undefined for empty string input'],
         [null, undefined, 'returns undefined for null input'],
-        [new Date('2020-01-01'), new Date('2020-01-01'), 'returns the same Date object for Date input'],
+        [new Date('2020-01-01'), new Date('2020-01-01'), 'returns the same Date object for Date input']
     ])('%s: %s', (input, expected, _) => {
         expect(parseDate(input)).toEqual(expected);
     });
@@ -28,7 +22,7 @@ describe('parseDate function', () => {
     // Test cases for string input
     test.each([
         ['2020-01-01', true, 'returns a valid Date object for valid date string input'],
-        ['invalid-date', false, 'returns an invalid Date object for invalid date string input'],
+        ['invalid-date', false, 'returns an invalid Date object for invalid date string input']
     ])('%s: %s', (input, isValid, _) => {
         const result = parseDate(input);
         expect(result instanceof Date).toBeTruthy();
@@ -36,18 +30,19 @@ describe('parseDate function', () => {
     });
 
     // Test case for logging error on invalid date string input
-    test.each([
-        ['invalid-date', true, 'logs an error for invalid date string input when showErrorOnValidate is true'],
-    ])('%s with showErrorOnValidate=%s: %s', (input, showErrorOnValidate, _) => {
-        const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
-        parseDate(input, showErrorOnValidate);
-        if (showErrorOnValidate) {
-            expect(consoleSpy).toHaveBeenCalledWith('DateUtils parseDate: invalid date');
-        } else {
-            expect(consoleSpy).not.toHaveBeenCalled();
+    test.each([['invalid-date', true, 'logs an error for invalid date string input when showErrorOnValidate is true']])(
+        '%s with showErrorOnValidate=%s: %s',
+        (input, showErrorOnValidate, _) => {
+            const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+            parseDate(input, showErrorOnValidate);
+            if (showErrorOnValidate) {
+                expect(consoleSpy).toHaveBeenCalledWith('DateUtils parseDate: invalid date');
+            } else {
+                expect(consoleSpy).not.toHaveBeenCalled();
+            }
+            consoleSpy.mockRestore();
         }
-        consoleSpy.mockRestore();
-    });
+    );
 });
 
 describe('getDateFromDateString', () => {
@@ -99,7 +94,6 @@ describe('getDateStringFromDate', () => {
         const result = getDateStringFromDate(date);
         expect(result).toEqual('2023-01-01');
     });
-
 });
 
 describe('getWeekdayFromDate', () => {

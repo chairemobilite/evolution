@@ -22,7 +22,7 @@ jest.mock('remark-gfm', () => 'remark-gfm');
 const userAttributes = {
     id: 1,
     username: 'foo',
-    preferences: {  },
+    preferences: {},
     serializedPermissions: [],
     isAuthorized: () => true,
     is_admin: false,
@@ -30,10 +30,7 @@ const userAttributes = {
     showUserInfo: true
 };
 
-const commonWidgetConfig = {
-    type: 'text' as const,
-    text: 'random text'
-};
+const commonWidgetConfig = { type: 'text' as const, text: 'random text' };
 
 const defaultWidgetStatus: WidgetStatus = {
     path: 'foo',
@@ -54,14 +51,12 @@ each([
     ['Default values', commonWidgetConfig],
     ['Contains html', { ...commonWidgetConfig, containsHtml: true, text: '<br> bold text</br>blabla' }],
     ['No html', { ...commonWidgetConfig, containsHtml: false, text: '<br>text not to be in bold</br>other' }],
-    ['No html, with classes and alignment', { ...commonWidgetConfig, containsHtml: false, classes: 'my-class', align: 'right' }],
+    ['No html, with classes and alignment', { ...commonWidgetConfig, containsHtml: false, classes: 'my-class', align: 'right' }]
 ]).describe('Text widget: %s', (_widget, widgetConfig) => {
-
     test('Render widget', () => {
-
         const { container } = render(
             <Text
-                path='home.region'
+                path="home.region"
                 widgetConfig={widgetConfig}
                 interview={interviewAttributes}
                 user={userAttributes}
@@ -74,7 +69,7 @@ each([
     test('Widget accessibility', async () => {
         const { container } = render(
             <Text
-                path='home.region'
+                path="home.region"
                 widgetConfig={widgetConfig}
                 interview={interviewAttributes}
                 user={userAttributes}
@@ -91,7 +86,7 @@ test('Widget invisible, should be null', () => {
     widgetStatus.isVisible = false;
     const { container } = render(
         <Text
-            path='home.region'
+            path="home.region"
             widgetConfig={commonWidgetConfig}
             interview={interviewAttributes}
             user={userAttributes}
@@ -106,7 +101,7 @@ test('Blank text on widget, should be null', () => {
     widgetConfig.text = jest.fn().mockReturnValue('') as any;
     const { container } = render(
         <Text
-            path='home.region'
+            path="home.region"
             widgetConfig={widgetConfig}
             interview={interviewAttributes}
             user={userAttributes}

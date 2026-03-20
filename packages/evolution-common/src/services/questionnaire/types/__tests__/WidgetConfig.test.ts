@@ -8,14 +8,7 @@ import { WidgetConfig, isInputTypeWithArrayValue } from '../WidgetConfig';
 
 // Simply make sure various objects are recognize as WidgetConfig object. Any fault should result in compilation error.
 test('Test text assignation', () => {
-    const widgetConfig: WidgetConfig = {
-        type: 'text',
-        align: 'center',
-        text: {
-            fr: 'Texte en français',
-            en: 'English text'
-        }
-    };
+    const widgetConfig: WidgetConfig = { type: 'text', align: 'center', text: { fr: 'Texte en français', en: 'English text' } };
 
     expect(widgetConfig).toBeDefined();
 });
@@ -30,21 +23,10 @@ test('Test input string assignation', () => {
         maxLength: 20,
         defaultValue: 'test',
         containsHtml: true,
-        label: {
-            fr: 'Texte en français',
-            en: 'English text'
-        }
+        label: { fr: 'Texte en français', en: 'English text' }
     };
 
-    widgetConfig = {
-        type: 'question',
-        path: 'test.foo' as any,
-        inputType: 'string',
-        label: {
-            fr: 'Texte en français',
-            en: 'English text'
-        }
-    };
+    widgetConfig = { type: 'question', path: 'test.foo' as any, inputType: 'string', label: { fr: 'Texte en français', en: 'English text' } };
 
     expect(widgetConfig).toBeDefined();
 });
@@ -61,10 +43,7 @@ test('Test input text assignation', () => {
         rows: 5,
         defaultValue: 'test',
         containsHtml: true,
-        label: {
-            fr: 'Texte en français',
-            en: 'English text'
-        }
+        label: { fr: 'Texte en français', en: 'English text' }
     };
 
     widgetConfig = {
@@ -72,10 +51,7 @@ test('Test input text assignation', () => {
         path: 'comments' as any,
         inputType: 'text',
         datatype: 'text',
-        label: {
-            fr: 'Texte en français',
-            en: 'English text'
-        }
+        label: { fr: 'Texte en français', en: 'English text' }
     };
 
     expect(widgetConfig).toBeDefined();

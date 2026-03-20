@@ -22,12 +22,7 @@ describe('Interview - Getters and Setters', () => {
     let interview: Interview;
 
     beforeEach(() => {
-        const validParams = {
-            _uuid: uuidV4(),
-            accessCode: 'ABC123',
-            assignedDate: '2023-09-30',
-            _startedAt: 1632929461
-        };
+        const validParams = { _uuid: uuidV4(), accessCode: 'ABC123', assignedDate: '2023-09-30', _startedAt: 1632929461 };
         const interviewResult = create(validParams, { id: 123, participant_id: 456 } as RawInterviewAttributes, registry) as Result<Interview>;
         if (isOk(interviewResult)) {
             interview = unwrap(interviewResult) as Interview;
@@ -38,9 +33,7 @@ describe('Interview - Getters and Setters', () => {
 
     it('should allow undefined id and participant id', () => {
         let _interview: Interview;
-        const validParamsWithoutIdAndParticipantId = {
-            _uuid: uuidV4(),
-        };
+        const validParamsWithoutIdAndParticipantId = { _uuid: uuidV4() };
         const result = create(validParamsWithoutIdAndParticipantId, {} as RawInterviewAttributes, registry) as Result<Interview>;
         if (isOk(result)) {
             _interview = unwrap(result) as Interview;
@@ -179,5 +172,4 @@ describe('Interview - Getters and Setters', () => {
         interview.acceptToBeContactedForHelp = undefined;
         expect(interview.acceptToBeContactedForHelp).toBeUndefined();
     });
-
 });

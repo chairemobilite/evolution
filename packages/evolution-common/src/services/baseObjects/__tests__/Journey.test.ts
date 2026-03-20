@@ -26,7 +26,7 @@ describe('Journey', () => {
         _uuid: uuidV4(),
         shortname: 'sample-shortname',
         name: 'Sample Weight Method',
-        description: 'Sample weight method description',
+        description: 'Sample weight method description'
     };
 
     const validAttributes: JourneyAttributes = {
@@ -47,40 +47,17 @@ describe('Journey', () => {
         previousWeekRemoteWorkDays: { monday: true, tuesday: true, wednesday: true },
         previousWeekTravelToWorkDays: { monday: true, tuesday: true },
         _weights: [{ weight: 1.5, method: new WeightMethod(weightMethodAttributes) }],
-        _isValid: true,
+        _isValid: true
     };
 
     const extendedAttributes: ExtendedJourneyAttributes = {
         ...validAttributes,
         customAttribute: 'Custom Value',
         _visitedPlaces: [
-            {
-                _uuid: uuidV4(),
-                geography: {
-                    type: 'Feature',
-                    geometry: {
-                        type: 'Point',
-                        coordinates: [0, 0],
-                    },
-                    properties: {},
-                },
-                _isValid: true,
-            },
+            { _uuid: uuidV4(), geography: { type: 'Feature', geometry: { type: 'Point', coordinates: [0, 0] }, properties: {} }, _isValid: true }
         ],
-        _trips: [
-            {
-                _uuid: uuidV4(),
-                startDate: '2023-01-03',
-                _isValid: true,
-            },
-        ],
-        _tripChains: [
-            {
-                _uuid: uuidV4(),
-                category: 'simple',
-                _isValid: true,
-            },
-        ],
+        _trips: [{ _uuid: uuidV4(), startDate: '2023-01-03', _isValid: true }],
+        _tripChains: [{ _uuid: uuidV4(), category: 'simple', _isValid: true }]
     };
 
     test('should instantiate a Journey instance', () => {
@@ -91,9 +68,14 @@ describe('Journey', () => {
 
     test('should have a validateParams section for each attribute', () => {
         const validateParamsCode = Journey.validateParams.toString();
-        journeyAttributes.filter((attribute) => attribute !== '_uuid' && attribute !== '_weights' && !(startEndDateAndTimesAttributes as unknown as string[]).includes(attribute)).forEach((attributeName) => {
-            expect(validateParamsCode).toContain('\'' + attributeName + '\'');
-        });
+        journeyAttributes
+            .filter(
+                (attribute) =>
+                    attribute !== '_uuid' && attribute !== '_weights' && !(startEndDateAndTimesAttributes as unknown as string[]).includes(attribute)
+            )
+            .forEach((attributeName) => {
+                expect(validateParamsCode).toContain('\'' + attributeName + '\'');
+            });
     });
 
     test('should get uuid', () => {
@@ -151,14 +133,8 @@ describe('Journey', () => {
     });
 
     test('should create a Journey instance with custom attributes', () => {
-        const customAttributes = {
-            customAttribute1: 'value1',
-            customAttribute2: 'value2',
-        };
-        const journeyAttributes = {
-            ...validAttributes,
-            ...customAttributes,
-        };
+        const customAttributes = { customAttribute1: 'value1', customAttribute2: 'value2' };
+        const journeyAttributes = { ...validAttributes, ...customAttributes };
         const journey = new Journey(journeyAttributes, registry);
         expect(journey).toBeInstanceOf(Journey);
         expect(journey.attributes).toEqual(validAttributes);
@@ -216,7 +192,7 @@ describe('Journey', () => {
             ['didTrips', 'no'],
             ['previousWeekRemoteWorkDays', { friday: true, saturday: true, sunday: true }],
             ['previousWeekTravelToWorkDays', { thursday: true, friday: true }],
-            ['preData', { importedJourneyData: 'value', tripCount: 5 }],
+            ['preData', { importedJourneyData: 'value', tripCount: 5 }]
         ])('should set and get %s', (attribute, value) => {
             const journey = new Journey(validAttributes, registry);
             journey[attribute] = value;
@@ -227,7 +203,7 @@ describe('Journey', () => {
             test.each([
                 ['_uuid', extendedAttributes._uuid],
                 ['customAttributes', { customAttribute: extendedAttributes.customAttribute }],
-                ['attributes', validAttributes],
+                ['attributes', validAttributes]
             ])('should set and get %s', (attribute, value) => {
                 const journey = new Journey(extendedAttributes, registry);
                 expect(journey[attribute]).toEqual(value);
@@ -240,7 +216,7 @@ describe('Journey', () => {
             ['_visitedPlaces', extendedAttributes._visitedPlaces],
             ['_trips', extendedAttributes._trips],
             ['_tripChains', extendedAttributes._tripChains],
-            ['personUuid', uuidV4()],
+            ['personUuid', uuidV4()]
         ])('should set and get %s', (attribute, value) => {
             const journey = new Journey(validAttributes, registry);
             journey[attribute] = value;
@@ -505,23 +481,13 @@ describe('Journey', () => {
                     _isValid: true,
                     _place: {
                         _uuid: uuidV4(),
-                        geography: {
-                            type: 'Feature',
-                            geometry: {
-                                type: 'Point',
-                                coordinates: [0, 0],
-                            },
-                            properties: {},
-                        },
-                        _isValid: true,
-                    },
-                },
+                        geography: { type: 'Feature', geometry: { type: 'Point', coordinates: [0, 0] }, properties: {} },
+                        _isValid: true
+                    }
+                }
             ];
 
-            const journeyAttributes: ExtendedJourneyAttributes = {
-                ...validAttributes,
-                _visitedPlaces: visitedPlaceAttributes,
-            };
+            const journeyAttributes: ExtendedJourneyAttributes = { ...validAttributes, _visitedPlaces: visitedPlaceAttributes };
 
             const result = Journey.create(journeyAttributes, registry);
             expect(isOk(result)).toBe(true);
@@ -534,23 +500,14 @@ describe('Journey', () => {
                 activity: visitedPlaceAttributes[0].activity,
                 activityCategory: visitedPlaceAttributes[0].activityCategory,
                 _weights: visitedPlaceAttributes[0]._weights,
-                _isValid: visitedPlaceAttributes[0]._isValid,
+                _isValid: visitedPlaceAttributes[0]._isValid
             });
         });
 
         test('should create Trip instances for trips when creating a Journey instance', () => {
-            const tripAttributes: TripAttributes[] = [
-                {
-                    _uuid: uuidV4(),
-                    endDate: '2024-01-13',
-                    _isValid: true,
-                },
-            ];
+            const tripAttributes: TripAttributes[] = [{ _uuid: uuidV4(), endDate: '2024-01-13', _isValid: true }];
 
-            const journeyAttributes: ExtendedJourneyAttributes = {
-                ...validAttributes,
-                _trips: tripAttributes,
-            };
+            const journeyAttributes: ExtendedJourneyAttributes = { ...validAttributes, _trips: tripAttributes };
 
             const result = Journey.create(journeyAttributes, registry);
             expect(isOk(result)).toBe(true);
@@ -561,18 +518,9 @@ describe('Journey', () => {
         });
 
         test('should create TripChain instances for tripChains when creating a Journey instance', () => {
-            const tripChainAttributes: TripChainAttributes[] = [
-                {
-                    _uuid: uuidV4(),
-                    category: 'simple',
-                    _isValid: true,
-                },
-            ];
+            const tripChainAttributes: TripChainAttributes[] = [{ _uuid: uuidV4(), category: 'simple', _isValid: true }];
 
-            const journeyAttributes: ExtendedJourneyAttributes = {
-                ...validAttributes,
-                _tripChains: tripChainAttributes,
-            };
+            const journeyAttributes: ExtendedJourneyAttributes = { ...validAttributes, _tripChains: tripChainAttributes };
 
             const result = Journey.create(journeyAttributes, registry);
             expect(isOk(result)).toBe(true);

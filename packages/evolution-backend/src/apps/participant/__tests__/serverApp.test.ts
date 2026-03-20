@@ -11,63 +11,37 @@ import * as surveyStatus from '../../../services/surveyStatus/surveyStatus';
 import { fileManager } from 'chaire-lib-backend/lib/utils/filesystem/fileManager';
 
 // Mock the dependencies
-jest.mock('chaire-lib-backend/lib/config/server.config', () => ({
-    __esModule: true,
-    default: {
-        projectShortname: 'test-project'
-    }
-}));
+jest.mock('chaire-lib-backend/lib/config/server.config', () => ({ __esModule: true, default: { projectShortname: 'test-project' } }));
 
-jest.mock('chaire-lib-backend/lib/config/shared/db.config', () => ({
-    __esModule: true,
-    default: {}
-}));
+jest.mock('chaire-lib-backend/lib/config/shared/db.config', () => ({ __esModule: true, default: {} }));
 
-jest.mock('../../../services/auth/participantAuthModel', () => ({
-    participantAuthModel: {}
-}));
+jest.mock('../../../services/auth/participantAuthModel', () => ({ participantAuthModel: {} }));
 
 jest.mock('../../../services/auth/auth.config', () => ({
     __esModule: true,
-    default: jest.fn().mockReturnValue({
-        initialize: jest.fn().mockReturnValue((req, res, next) => next()),
-        session: jest.fn().mockReturnValue((req, res, next) => next())
-    })
+    default: jest
+        .fn()
+        .mockReturnValue({
+            initialize: jest.fn().mockReturnValue((req, res, next) => next()),
+            session: jest.fn().mockReturnValue((req, res, next) => next())
+        })
 }));
 
 jest.mock('chaire-lib-backend/lib/utils/filesystem/directoryManager', () => ({
-    directoryManager: {
-        createDirectoryIfNotExistsAbsolute: jest.fn(),
-        createDirectoryIfNotExists: jest.fn()
-    }
+    directoryManager: { createDirectoryIfNotExistsAbsolute: jest.fn(), createDirectoryIfNotExists: jest.fn() }
 }));
 
-jest.mock('chaire-lib-backend/lib/utils/filesystem/fileManager', () => ({
-    fileManager: {
-        fileExistsAbsolute: jest.fn().mockReturnValue(true)
-    }
-}));
+jest.mock('chaire-lib-backend/lib/utils/filesystem/fileManager', () => ({ fileManager: { fileExistsAbsolute: jest.fn().mockReturnValue(true) } }));
 const mockFileExistsAbsolute = fileManager.fileExistsAbsolute as jest.MockedFunction<typeof fileManager.fileExistsAbsolute>;
 
-jest.mock('../../../api/auth.routes', () => ({
-    __esModule: true,
-    default: jest.fn()
-}));
+jest.mock('../../../api/auth.routes', () => ({ __esModule: true, default: jest.fn() }));
 
-jest.mock('../../participant/routes', () => ({
-    __esModule: true,
-    default: jest.fn()
-}));
+jest.mock('../../participant/routes', () => ({ __esModule: true, default: jest.fn() }));
 
-jest.mock('chaire-lib-backend/lib/api/trRouting.routes', () => ({
-    __esModule: true,
-    default: jest.fn()
-}));
+jest.mock('chaire-lib-backend/lib/api/trRouting.routes', () => ({ __esModule: true, default: jest.fn() }));
 
 jest.mock('connect-session-knex', () => {
-    const MockStore = jest.fn().mockImplementation(() => ({
-        on: jest.fn()
-    }));
+    const MockStore = jest.fn().mockImplementation(() => ({ on: jest.fn() }));
     return jest.fn().mockReturnValue(MockStore);
 });
 
@@ -139,9 +113,7 @@ describe('serverApp index path routing', () => {
             expect(response.status).toBe(200);
             expect(response.text).toBe('Survey Page');
             expect(surveyStatus.isSurveyEnded).toHaveBeenCalled();
-            expect(sendFileMock).toHaveBeenCalledWith(
-                expect.stringContaining('index-survey-test-project_test.html')
-            );
+            expect(sendFileMock).toHaveBeenCalledWith(expect.stringContaining('index-survey-test-project_test.html'));
         });
 
         test('should return the regular index page for unmatched routes', async () => {
@@ -150,18 +122,14 @@ describe('serverApp index path routing', () => {
             expect(response.status).toBe(200);
             expect(response.text).toBe('Survey Page');
             expect(surveyStatus.isSurveyEnded).toHaveBeenCalled();
-            expect(sendFileMock).toHaveBeenCalledWith(
-                expect.stringContaining('index-survey-test-project_test.html')
-            );
+            expect(sendFileMock).toHaveBeenCalledWith(expect.stringContaining('index-survey-test-project_test.html'));
         });
 
         test('should return 404 for file extensions that do not exist', async () => {
             const response = await request(app).get('/nonexistent.php');
 
             expect(response.status).toBe(404);
-            expect(sendFileMock).toHaveBeenCalledWith(
-                expect.stringContaining('notFound404.html')
-            );
+            expect(sendFileMock).toHaveBeenCalledWith(expect.stringContaining('notFound404.html'));
         });
     });
 
@@ -177,9 +145,7 @@ describe('serverApp index path routing', () => {
             expect(response.status).toBe(200);
             expect(response.text).toBe('Survey Ended Page');
             expect(surveyStatus.isSurveyEnded).toHaveBeenCalled();
-            expect(sendFileMock).toHaveBeenCalledWith(
-                expect.stringContaining('index-survey-ended-test-project_test.html')
-            );
+            expect(sendFileMock).toHaveBeenCalledWith(expect.stringContaining('index-survey-ended-test-project_test.html'));
         });
 
         test('should return the survey ended index page for unmatched routes', async () => {
@@ -188,18 +154,14 @@ describe('serverApp index path routing', () => {
             expect(response.status).toBe(200);
             expect(response.text).toBe('Survey Ended Page');
             expect(surveyStatus.isSurveyEnded).toHaveBeenCalled();
-            expect(sendFileMock).toHaveBeenCalledWith(
-                expect.stringContaining('index-survey-ended-test-project_test.html')
-            );
+            expect(sendFileMock).toHaveBeenCalledWith(expect.stringContaining('index-survey-ended-test-project_test.html'));
         });
 
         test('should return 404 for file extensions that do not exist', async () => {
             const response = await request(app).get('/nonexistent.php');
 
             expect(response.status).toBe(404);
-            expect(sendFileMock).toHaveBeenCalledWith(
-                expect.stringContaining('notFound404.html')
-            );
+            expect(sendFileMock).toHaveBeenCalledWith(expect.stringContaining('notFound404.html'));
         });
 
         test('should serve regular index if survey ended page does not exist', async () => {
@@ -239,12 +201,8 @@ describe('serverApp index path routing', () => {
             expect(response.status).toBe(200);
             expect(response.text).toBe('Survey Page');
             expect(surveyStatus.isSurveyEnded).toHaveBeenCalled();
-            expect(sendFileMock).toHaveBeenCalledWith(
-                expect.stringContaining('index-survey-test-project_test.html')
-            );
-            expect(mockFileExistsAbsolute).toHaveBeenCalledWith(
-                expect.stringContaining('index-survey-ended-test-project_test.html')
-            );
+            expect(sendFileMock).toHaveBeenCalledWith(expect.stringContaining('index-survey-test-project_test.html'));
+            expect(mockFileExistsAbsolute).toHaveBeenCalledWith(expect.stringContaining('index-survey-ended-test-project_test.html'));
         });
     });
 
@@ -309,10 +267,7 @@ describe('serverApp index path routing', () => {
             const testApp = express();
 
             expect(() => setupServerApp(testApp, mockSetupFct)).not.toThrow();
-            expect(consoleSpy).toHaveBeenCalledWith(
-                'Error running project specific server setup function: ',
-                expect.any(Error)
-            );
+            expect(consoleSpy).toHaveBeenCalledWith('Error running project specific server setup function: ', expect.any(Error));
 
             consoleSpy.mockRestore();
         });

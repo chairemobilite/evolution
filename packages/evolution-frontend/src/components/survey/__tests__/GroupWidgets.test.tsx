@@ -33,23 +33,15 @@ jest.mock('react-input-range/src/js/input-range/default-class-names', () => ({
     slider: 'input-range__slider',
     sliderContainer: 'input-range__slider-container',
     track: 'input-range__track input-range__track--background',
-    valueLabel: 'input-range__label input-range__label--value',
+    valueLabel: 'input-range__label input-range__label--value'
 }));
 
 jest.mock('react-input-range/lib/css/index.css', () => {});
 
 // Add widgets to the survey context
 const widgets = {
-    widgetText: {
-        type: 'text' as const,
-        text: 'This is a text widget'
-    },
-    widgetQuestion: {
-        type: 'question' as const,
-        path: 'quest',
-        label: 'Test Question Label',
-        inputType: 'string' as const
-    },
+    widgetText: { type: 'text' as const, text: 'This is a text widget' },
+    widgetQuestion: { type: 'question' as const, path: 'quest', label: 'Test Question Label', inputType: 'string' as const }
 };
 const nestedGroupWidget = {
     widgetGroups: {
@@ -57,30 +49,24 @@ const nestedGroupWidget = {
         path: 'myNestedGroups',
         widgets: Object.keys(widgets),
         title: 'Nested group title',
-        name: jest.fn().mockImplementation((_t, _obj, seq) => `Nested object at index ${seq}`),
+        name: jest.fn().mockImplementation((_t, _obj, seq) => `Nested object at index ${seq}`)
     }
-}
-const mockedContext = { sections: {}, widgets: { ...widgets, ...nestedGroupWidget }, devMode: false, dispatch: jest.fn()};
+};
+const mockedContext = { sections: {}, widgets: { ...widgets, ...nestedGroupWidget }, devMode: false, dispatch: jest.fn() };
 
 const path = 'myGroups';
-const commonWidgetConfig = {
-    type: 'group' as const,
-    path,
-    widgets: Object.keys(widgets)
-};
+const commonWidgetConfig = { type: 'group' as const, path, widgets: Object.keys(widgets) };
 
 // Create a wrapper component to provide context
 const TestContextProvider = ({ children }: { children: React.ReactNode }) => (
-    <SurveyContext.Provider value={mockedContext}>
-        {children}
-    </SurveyContext.Provider>
+    <SurveyContext.Provider value={mockedContext}>{children}</SurveyContext.Provider>
 );
 
 // Mock data and functions
 const userAttributes = {
     id: 1,
     username: 'foo',
-    preferences: {  },
+    preferences: {},
     serializedPermissions: [],
     isAuthorized: () => true,
     is_admin: false,
@@ -94,22 +80,11 @@ const startNavigateMock = jest.fn();
 
 // Add some grouped object data in the interview
 const interview = _cloneDeep(interviewAttributes) as UserRuntimeInterviewAttributes;
-const groupedObjectIds = [ 'obj0Uuid', 'obj1Uuid', 'obj2Uuid' ];
+const groupedObjectIds = ['obj0Uuid', 'obj1Uuid', 'obj2Uuid'];
 interview.response.myGroups = {
-    [groupedObjectIds[0]]: {
-        _uuid: groupedObjectIds[0],
-        _sequence: 0,
-        quest: 'Some answer'
-    },
-    [groupedObjectIds[1]]: {
-        _uuid: groupedObjectIds[1],
-        _sequence: 1,
-        quest: 'Some other answer'
-    },
-    [groupedObjectIds[2]]: {
-        _uuid: groupedObjectIds[2],
-        _sequence: 2
-    }
+    [groupedObjectIds[0]]: { _uuid: groupedObjectIds[0], _sequence: 0, quest: 'Some answer' },
+    [groupedObjectIds[1]]: { _uuid: groupedObjectIds[1], _sequence: 1, quest: 'Some other answer' },
+    [groupedObjectIds[2]]: { _uuid: groupedObjectIds[2], _sequence: 2 }
 };
 // Make all widgets visible
 (interview as any).groups = {
@@ -127,73 +102,78 @@ interview.response.myGroups = {
             widgetQuestion: { isVisible: true, value: interview.response.myGroups[groupedObjectIds[2]].quest }
         }
     }
-}
+};
 
 describe('Group', () => {
-
     each([
         ['Default values', commonWidgetConfig],
-        ['All values set, all true, add button default data, filter show all', {
-            ...commonWidgetConfig,
-            showTitle: true,
-            title: 'Group Title',
-            name: jest.fn().mockImplementation((_t, _obj, seq) => `Grouped object at index ${seq}`),
-            conditional: true,
-            groupedObjectConditional: true,
-            showGroupedObjectAddButton: jest.fn().mockReturnValue(true),
-            groupedObjectAddButtonLabel: jest.fn().mockReturnValue('Add a new grouped object in my group'),
-            showGroupedObjectDeleteButton: jest.fn().mockReturnValue(true),
-            groupedObjectDeleteButtonLabel: jest.fn().mockReturnValue('Delete this grouped object from my group'),
-            addButtonLocation: 'both',
-            addButtonSize: 'small',
-            filter: jest.fn().mockImplementation((interview, objects) => objects)
-        }],
-        ['All values set, false when possible', {
-            ...commonWidgetConfig,
-            showTitle: false,
-            title: 'Group Title',
-            name: jest.fn().mockImplementation((_t, _obj, seq) => `Grouped object at index ${seq}`),
-            conditional: true,
-            groupedObjectConditional: true,
-            showGroupedObjectAddButton: jest.fn().mockReturnValue(false),
-            groupedObjectAddButtonLabel: jest.fn().mockReturnValue('Add a new grouped object in my group'),
-            showGroupedObjectDeleteButton: jest.fn().mockReturnValue(false),
-            groupedObjectDeleteButtonLabel: jest.fn().mockReturnValue('Delete this grouped object from my group'),
-            addButtonLocation: 'both',
-            addButtonSize: 'small',
-            filter: jest.fn().mockImplementation((interview, objects) => objects)
-        }],
-        ['With object filter, show even sequenced objects', {
-            ...commonWidgetConfig,
-            name: jest.fn().mockImplementation((_t, _obj, seq) => `Grouped object at index ${seq}`),
-            filter: jest.fn().mockImplementation((interview, objects) => {
-                const retObjects = {};
-                Object.keys(objects).forEach((key) => {
-                    if (objects[key]._sequence % 2 === 0) {
-                        retObjects[key] = objects[key];
-                    }
-                });
-                return retObjects;
-            })
-        }],
-        ['With grouped object conditional filter, show only object 1', {
-            ...commonWidgetConfig,
-            name: jest.fn().mockImplementation((_t, _obj, seq) => `Grouped object at index ${seq}`),
-            groupedObjectConditional: jest.fn().mockImplementation((interview, path: string) => path.includes(groupedObjectIds[1]) === true)
-        }],
-        ['Add button top, default label, medium', {
-            ...commonWidgetConfig,
-            showGroupedObjectAddButton: jest.fn().mockReturnValue(true),
-            addButtonLocation: 'top',
-            addButtonSize: 'small'
-        }],
-        ['Conditional false, should not display', {
-            conditional: jest.fn().mockReturnValue(false)
-        }]
+        [
+            'All values set, all true, add button default data, filter show all',
+            {
+                ...commonWidgetConfig,
+                showTitle: true,
+                title: 'Group Title',
+                name: jest.fn().mockImplementation((_t, _obj, seq) => `Grouped object at index ${seq}`),
+                conditional: true,
+                groupedObjectConditional: true,
+                showGroupedObjectAddButton: jest.fn().mockReturnValue(true),
+                groupedObjectAddButtonLabel: jest.fn().mockReturnValue('Add a new grouped object in my group'),
+                showGroupedObjectDeleteButton: jest.fn().mockReturnValue(true),
+                groupedObjectDeleteButtonLabel: jest.fn().mockReturnValue('Delete this grouped object from my group'),
+                addButtonLocation: 'both',
+                addButtonSize: 'small',
+                filter: jest.fn().mockImplementation((interview, objects) => objects)
+            }
+        ],
+        [
+            'All values set, false when possible',
+            {
+                ...commonWidgetConfig,
+                showTitle: false,
+                title: 'Group Title',
+                name: jest.fn().mockImplementation((_t, _obj, seq) => `Grouped object at index ${seq}`),
+                conditional: true,
+                groupedObjectConditional: true,
+                showGroupedObjectAddButton: jest.fn().mockReturnValue(false),
+                groupedObjectAddButtonLabel: jest.fn().mockReturnValue('Add a new grouped object in my group'),
+                showGroupedObjectDeleteButton: jest.fn().mockReturnValue(false),
+                groupedObjectDeleteButtonLabel: jest.fn().mockReturnValue('Delete this grouped object from my group'),
+                addButtonLocation: 'both',
+                addButtonSize: 'small',
+                filter: jest.fn().mockImplementation((interview, objects) => objects)
+            }
+        ],
+        [
+            'With object filter, show even sequenced objects',
+            {
+                ...commonWidgetConfig,
+                name: jest.fn().mockImplementation((_t, _obj, seq) => `Grouped object at index ${seq}`),
+                filter: jest.fn().mockImplementation((interview, objects) => {
+                    const retObjects = {};
+                    Object.keys(objects).forEach((key) => {
+                        if (objects[key]._sequence % 2 === 0) {
+                            retObjects[key] = objects[key];
+                        }
+                    });
+                    return retObjects;
+                })
+            }
+        ],
+        [
+            'With grouped object conditional filter, show only object 1',
+            {
+                ...commonWidgetConfig,
+                name: jest.fn().mockImplementation((_t, _obj, seq) => `Grouped object at index ${seq}`),
+                groupedObjectConditional: jest.fn().mockImplementation((interview, path: string) => path.includes(groupedObjectIds[1]) === true)
+            }
+        ],
+        [
+            'Add button top, default label, medium',
+            { ...commonWidgetConfig, showGroupedObjectAddButton: jest.fn().mockReturnValue(true), addButtonLocation: 'top', addButtonSize: 'small' }
+        ],
+        ['Conditional false, should not display', { conditional: jest.fn().mockReturnValue(false) }]
     ]).describe('%s', (_widget, widgetConfig) => {
-    
         test('Render widget', () => {
-    
             const { container } = render(
                 <TestContextProvider>
                     <Group
@@ -214,7 +194,7 @@ describe('Group', () => {
             );
             expect(container).toMatchSnapshot();
         });
-    
+
         test('Widget accessibility', async () => {
             const { container } = render(
                 <TestContextProvider>
@@ -241,59 +221,44 @@ describe('Group', () => {
 
     test('Nested groups, should display widgets with right path', () => {
         const interviewWithNested = _cloneDeep(interviewAttributes) as UserRuntimeInterviewAttributes;
-        const groupedObjectIds = [ 'obj0Uuid', 'obj1Uuid', 'obj2Uuid' ];
-        const nestedGroupObjectIds = [ 'nestedObj0Uuid', 'nestedObj1Uuid' ];
+        const groupedObjectIds = ['obj0Uuid', 'obj1Uuid', 'obj2Uuid'];
+        const nestedGroupObjectIds = ['nestedObj0Uuid', 'nestedObj1Uuid'];
         interviewWithNested.response.myGroups = {
             [groupedObjectIds[0]]: {
                 _uuid: groupedObjectIds[0],
                 _sequence: 0,
                 myNestedGroups: {
-                    [nestedGroupObjectIds[0]]: {
-                        _uuid: nestedGroupObjectIds[0],
-                        _sequence: 0,
-                        quest: 'Some answer'
-                    },
-                    [nestedGroupObjectIds[1]]: {
-                        _uuid: nestedGroupObjectIds[1],
-                        _sequence: 1,
-                        quest: 'Some other answer'
-                    }
+                    [nestedGroupObjectIds[0]]: { _uuid: nestedGroupObjectIds[0], _sequence: 0, quest: 'Some answer' },
+                    [nestedGroupObjectIds[1]]: { _uuid: nestedGroupObjectIds[1], _sequence: 1, quest: 'Some other answer' }
                 }
             },
-            [groupedObjectIds[1]]: {
-                _uuid: groupedObjectIds[1],
-                _sequence: 1,
-                widgetGroup: {}
-            },
-            [groupedObjectIds[2]]: {
-                _uuid: groupedObjectIds[2],
-                _sequence: 2
-            }
+            [groupedObjectIds[1]]: { _uuid: groupedObjectIds[1], _sequence: 1, widgetGroup: {} },
+            [groupedObjectIds[2]]: { _uuid: groupedObjectIds[2], _sequence: 2 }
         };
         // Make all widgets visible
         (interviewWithNested as any).groups = {
             myGroups: {
-                [groupedObjectIds[0]]: {
-                    widgetGroup: { isVisible: true }
-                },
-                [groupedObjectIds[1]]: {
-                    widgetGroup: { isVisible: true }
-                },
-                [groupedObjectIds[2]]: {
-                    widgetGroup: { isVisible: true }
-                }
+                [groupedObjectIds[0]]: { widgetGroup: { isVisible: true } },
+                [groupedObjectIds[1]]: { widgetGroup: { isVisible: true } },
+                [groupedObjectIds[2]]: { widgetGroup: { isVisible: true } }
             },
             widgetGroups: {
                 [nestedGroupObjectIds[0]]: {
                     widgetText: { isVisible: true },
-                    widgetQuestion: { isVisible: true, value: interviewWithNested.response.myGroups[groupedObjectIds[0]].myNestedGroups[nestedGroupObjectIds[0]].quest }
+                    widgetQuestion: {
+                        isVisible: true,
+                        value: interviewWithNested.response.myGroups[groupedObjectIds[0]].myNestedGroups[nestedGroupObjectIds[0]].quest
+                    }
                 },
                 [nestedGroupObjectIds[1]]: {
                     widgetText: { isVisible: true },
-                    widgetQuestion: { isVisible: true, value: interviewWithNested.response.myGroups[groupedObjectIds[0]].myNestedGroups[nestedGroupObjectIds[1]].quest }
+                    widgetQuestion: {
+                        isVisible: true,
+                        value: interviewWithNested.response.myGroups[groupedObjectIds[0]].myNestedGroups[nestedGroupObjectIds[1]].quest
+                    }
                 }
             }
-        }
+        };
 
         // Group with nested group widgetConfig
         const widgetConfig = {
@@ -301,7 +266,7 @@ describe('Group', () => {
             path,
             shortname: 'myGroup',
             widgets: Object.keys(nestedGroupWidget),
-            name: jest.fn().mockImplementation((_t, _obj, seq) => `Grouped object at index ${seq}`),
+            name: jest.fn().mockImplementation((_t, _obj, seq) => `Grouped object at index ${seq}`)
         };
 
         const { container } = render(
@@ -323,50 +288,52 @@ describe('Group', () => {
             </TestContextProvider>
         );
         expect(container).toMatchSnapshot();
-    })
-
+    });
 });
 
 describe('Grouped Object', () => {
-
     each([
         ['Default values', commonWidgetConfig],
-        ['All values set, all true, add button default label, filter show all', {
-            ...commonWidgetConfig,
-            showTitle: true,
-            title: 'Group Title',
-            name: jest.fn().mockImplementation((_t, _obj, seq) => `Grouped object at index ${seq}`),
-            conditional: true,
-            groupedObjectConditional: true,
-            showGroupedObjectAddButton: jest.fn().mockReturnValue(true),
-            groupedObjectAddButtonLabel: jest.fn().mockReturnValue('Add a new grouped object in my group'),
-            showGroupedObjectDeleteButton: jest.fn().mockReturnValue(true),
-            groupedObjectDeleteButtonLabel: jest.fn().mockReturnValue('Delete this grouped object from my group'),
-            addButtonLocation: 'both',
-            addButtonSize: 'small',
-            filter: jest.fn().mockImplementation((interview, objects) => objects)
-        }],
-        ['All values set, add/delete button false', {
-            ...commonWidgetConfig,
-            showTitle: false,
-            title: 'Group Title',
-            name: jest.fn().mockImplementation((_t, _obj, seq) => `Grouped object at index ${seq}`),
-            conditional: true,
-            groupedObjectConditional: true,
-            showGroupedObjectAddButton: jest.fn().mockReturnValue(false),
-            groupedObjectAddButtonLabel: jest.fn().mockReturnValue('Add a new grouped object in my group'),
-            showGroupedObjectDeleteButton: jest.fn().mockReturnValue(false),
-            groupedObjectDeleteButtonLabel: jest.fn().mockReturnValue('Delete this grouped object from my group'),
-            addButtonLocation: 'both',
-            addButtonSize: 'small',
-            filter: jest.fn().mockImplementation((interview, objects) => objects)
-        }]
+        [
+            'All values set, all true, add button default label, filter show all',
+            {
+                ...commonWidgetConfig,
+                showTitle: true,
+                title: 'Group Title',
+                name: jest.fn().mockImplementation((_t, _obj, seq) => `Grouped object at index ${seq}`),
+                conditional: true,
+                groupedObjectConditional: true,
+                showGroupedObjectAddButton: jest.fn().mockReturnValue(true),
+                groupedObjectAddButtonLabel: jest.fn().mockReturnValue('Add a new grouped object in my group'),
+                showGroupedObjectDeleteButton: jest.fn().mockReturnValue(true),
+                groupedObjectDeleteButtonLabel: jest.fn().mockReturnValue('Delete this grouped object from my group'),
+                addButtonLocation: 'both',
+                addButtonSize: 'small',
+                filter: jest.fn().mockImplementation((interview, objects) => objects)
+            }
+        ],
+        [
+            'All values set, add/delete button false',
+            {
+                ...commonWidgetConfig,
+                showTitle: false,
+                title: 'Group Title',
+                name: jest.fn().mockImplementation((_t, _obj, seq) => `Grouped object at index ${seq}`),
+                conditional: true,
+                groupedObjectConditional: true,
+                showGroupedObjectAddButton: jest.fn().mockReturnValue(false),
+                groupedObjectAddButtonLabel: jest.fn().mockReturnValue('Add a new grouped object in my group'),
+                showGroupedObjectDeleteButton: jest.fn().mockReturnValue(false),
+                groupedObjectDeleteButtonLabel: jest.fn().mockReturnValue('Delete this grouped object from my group'),
+                addButtonLocation: 'both',
+                addButtonSize: 'small',
+                filter: jest.fn().mockImplementation((interview, objects) => objects)
+            }
+        ]
     ]).describe('%s', (_widget, widgetConfig) => {
-
         const groupedObjectPath = `${path}.${groupedObjectIds[0]}`;
-    
+
         test('Render widget', () => {
-    
             const { container } = render(
                 <TestContextProvider>
                     <GroupedObject
@@ -389,7 +356,7 @@ describe('Grouped Object', () => {
             );
             expect(container).toMatchSnapshot();
         });
-    
+
         test('Widget accessibility', async () => {
             const { container } = render(
                 <TestContextProvider>
@@ -415,5 +382,4 @@ describe('Grouped Object', () => {
             expect(results).toHaveNoViolations();
         });
     });
-
 });

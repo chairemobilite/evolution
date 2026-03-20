@@ -14,24 +14,8 @@ const testInterview: UserRuntimeInterviewAttributes = {
     uuid: 'arbitrary uuid',
     participant_id: 1,
     is_completed: false,
-    response: {
-        section1: {
-            q1: 'abc',
-            q2: 3
-        },
-        section2: {
-            q1: 'test'
-        }
-    } as any,
-    validations: {
-        section1: {
-            q1: true,
-            q2: false
-        },
-        section2: {
-            q1: true
-        }
-    } as any,
+    response: { section1: { q1: 'abc', q2: 3 }, section2: { q1: 'test' } } as any,
+    validations: { section1: { q1: true, q2: false }, section2: { q1: true } } as any,
     is_valid: true,
     widgets: {},
     groups: {},
@@ -41,20 +25,13 @@ const testInterview: UserRuntimeInterviewAttributes = {
 
 describe('SET_INTERVIEW action', () => {
     test('Test setting an interview', () => {
-        const action = {
-            type: SurveyActionTypes.SET_INTERVIEW as const,
-            interview: testInterview,
-            interviewLoaded: true
-        };
-    
-        const result =  {
-            interview: testInterview,
-            interviewLoaded: true
-        };
-    
-        expect(surveyReducer({ }, action)).toEqual(result);
+        const action = { type: SurveyActionTypes.SET_INTERVIEW as const, interview: testInterview, interviewLoaded: true };
+
+        const result = { interview: testInterview, interviewLoaded: true };
+
+        expect(surveyReducer({}, action)).toEqual(result);
     });
-    
+
     test('Test setting an interview with previous state', () => {
         const initialState = {
             navigation: {
@@ -62,26 +39,16 @@ describe('SET_INTERVIEW action', () => {
                 navigationHistory: [{ sectionShortname: 'previous3' }, { sectionShortname: 'previous2', iterationContext: ['1234'] }]
             },
             submitted: true,
-            errors: { field: { 'en': 'something' } },
-            interview: { id: 2 } as UserRuntimeInterviewAttributes,
-        }
-        const action = {
-            type: SurveyActionTypes.SET_INTERVIEW as const,
-            interview: testInterview,
-            interviewLoaded: true
+            errors: { field: { en: 'something' } },
+            interview: { id: 2 } as UserRuntimeInterviewAttributes
         };
-    
-        const result =  {
-            interview: testInterview,
-            interviewLoaded: true,
-            navigation: undefined,
-            errors: undefined,
-            submitted: undefined
-        };
-    
+        const action = { type: SurveyActionTypes.SET_INTERVIEW as const, interview: testInterview, interviewLoaded: true };
+
+        const result = { interview: testInterview, interviewLoaded: true, navigation: undefined, errors: undefined, submitted: undefined };
+
         expect(surveyReducer(initialState, action)).toEqual(result);
     });
-})
+});
 
 test('Test updating an interview', () => {
     const action = {
@@ -89,40 +56,23 @@ test('Test updating an interview', () => {
         interview: testInterview,
         interviewLoaded: true,
         submitted: true,
-        errors: {field: { 'en': 'something' }}
+        errors: { field: { en: 'something' } }
     };
 
-    const result =  {
-        interview: testInterview,
-        interviewLoaded: true,
-        submitted: true,
-        errors: {field: { 'en': 'something' }}
-    };
+    const result = { interview: testInterview, interviewLoaded: true, submitted: true, errors: { field: { en: 'something' } } };
 
-    expect(surveyReducer({
-        interview: testInterview,
-        interviewLoaded: false
-    }, action)).toEqual(result);
+    expect(surveyReducer({ interview: testInterview, interviewLoaded: false }, action)).toEqual(result);
 });
 
 describe('Navigate action', () => {
-    const action = {
-        type: SurveyActionTypes.NAVIGATE as const,
-        targetSection: { sectionShortname: 'next' }
-    };
+    const action = { type: SurveyActionTypes.NAVIGATE as const, targetSection: { sectionShortname: 'next' } };
 
     test('Test initial navigation state', () => {
-        const initialState = {
-            interview: testInterview,
-            interviewLoaded: true
-        }
-        const result =  {
+        const initialState = { interview: testInterview, interviewLoaded: true };
+        const result = {
             interview: testInterview,
             interviewLoaded: true,
-            navigation: {
-                currentSection: action.targetSection,
-                navigationHistory: []
-            }
+            navigation: { currentSection: action.targetSection, navigationHistory: [] }
         };
 
         expect(surveyReducer(initialState, action)).toEqual(result);
@@ -132,18 +82,12 @@ describe('Navigate action', () => {
         const initialState = {
             interview: testInterview,
             interviewLoaded: true,
-            navigation: {
-                currentSection: { sectionShortname: 'previous', iterationContext: ['1234'] },
-                navigationHistory: []
-            }
-        }
-        const result =  {
+            navigation: { currentSection: { sectionShortname: 'previous', iterationContext: ['1234'] }, navigationHistory: [] }
+        };
+        const result = {
             interview: testInterview,
             interviewLoaded: true,
-            navigation: {
-                currentSection: action.targetSection,
-                navigationHistory: [initialState.navigation.currentSection]
-            }
+            navigation: { currentSection: action.targetSection, navigationHistory: [initialState.navigation.currentSection] }
         };
 
         expect(surveyReducer(initialState, action)).toEqual(result);
@@ -157,8 +101,8 @@ describe('Navigate action', () => {
                 currentSection: { sectionShortname: 'previous', iterationContext: ['1234'] },
                 navigationHistory: [{ sectionShortname: 'previous3' }, { sectionShortname: 'previous2', iterationContext: ['1234'] }]
             }
-        }
-        const result =  {
+        };
+        const result = {
             interview: testInterview,
             interviewLoaded: true,
             navigation: {
@@ -169,27 +113,15 @@ describe('Navigate action', () => {
 
         expect(surveyReducer(initialState, action)).toEqual(result);
     });
-
 });
 
 describe('Init navigate action', () => {
-    const action = {
-        type: SurveyActionTypes.INIT_NAVIGATE as const,
-        navigationService: createNavigationService({})
-    };
+    const action = { type: SurveyActionTypes.INIT_NAVIGATE as const, navigationService: createNavigationService({}) };
 
     test('Test initial navigation state', () => {
-        const initialState = {
-            interview: testInterview,
-            interviewLoaded: true
-        }
-        const result =  {
-            interview: testInterview,
-            interviewLoaded: true,
-            navigationService: action.navigationService
-        };
+        const initialState = { interview: testInterview, interviewLoaded: true };
+        const result = { interview: testInterview, interviewLoaded: true, navigationService: action.navigationService };
 
         expect(surveyReducer(initialState, action)).toEqual(result);
     });
-
 });

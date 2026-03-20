@@ -15,10 +15,9 @@ const translatableKey = 'myButtonKey';
 
 beforeEach(() => {
     jest.clearAllMocks();
-})
+});
 
 describe('getButtonValidateAndGotoNextSection', () => {
-
     test('should return the correct widget config', () => {
         const widgetConfig = getButtonValidateAndGotoNextSection(translatableKey, widgetFactoryOptions);
         expect(widgetConfig).toEqual({
@@ -32,7 +31,6 @@ describe('getButtonValidateAndGotoNextSection', () => {
             action: widgetFactoryOptions.buttonActions.validateButtonActionWithCompleteSection
         });
     });
-
 });
 
 describe('getButtonValidateAndGotoNextSection labels', () => {
@@ -45,7 +43,6 @@ describe('getButtonValidateAndGotoNextSection labels', () => {
         utilHelpers.translateString(title, { t: mockedT } as any, interviewAttributesForTestCases, 'path');
         expect(mockedT).toHaveBeenCalledWith([`customSurvey:${translatableKey}`, translatableKey]);
     });
-
 });
 
 describe('getButtonValidateAndGotoNextSection button action', () => {
@@ -54,7 +51,13 @@ describe('getButtonValidateAndGotoNextSection button action', () => {
     test('test button action', () => {
         expect(widgetFactoryOptions.buttonActions.validateButtonActionWithCompleteSection).not.toHaveBeenCalled();
         const action = widgetConfig.action;
-        action({ startUpdateInterview: jest.fn(), startAddGroupedObjects: jest.fn(), startRemoveGroupedObjects: jest.fn(), startNavigate: jest.fn() }, interviewAttributesForTestCases, 'path', 'segments', {});
+        action(
+            { startUpdateInterview: jest.fn(), startAddGroupedObjects: jest.fn(), startRemoveGroupedObjects: jest.fn(), startNavigate: jest.fn() },
+            interviewAttributesForTestCases,
+            'path',
+            'segments',
+            {}
+        );
         expect(widgetFactoryOptions.buttonActions.validateButtonActionWithCompleteSection).toHaveBeenCalled();
-    })
+    });
 });

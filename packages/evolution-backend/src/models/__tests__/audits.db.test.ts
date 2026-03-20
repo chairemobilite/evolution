@@ -13,43 +13,21 @@ import dbQueries from '../audits.db.queries';
 import interviewsDbQueries from '../interviews.db.queries';
 import { AuditForObject } from 'evolution-common/lib/services/audits/types';
 
-const localParticipant = {
-    id: 1,
-    email: 'test@transition.city',
-    is_valid: true
-};
+const localParticipant = { id: 1, email: 'test@transition.city', is_valid: true };
 
-const otherParticipant = {
-    id: 2,
-    is_valid: true,
-    google_id: '1234'
-};
+const otherParticipant = { id: 2, is_valid: true, google_id: '1234' };
 
 const baseInterviewAttributes = {
     is_valid: false,
     is_active: true,
     is_completed: undefined,
-    response: {
-        accessCode: '11111',
-        booleanField: true,
-    },
-    validations: {},
+    response: { accessCode: '11111', booleanField: true },
+    validations: {}
 };
 
-const localUserInterviewAttributes = {
-    id: 1,
-    uuid: uuidV4(),
-    participant_id: localParticipant.id,
-    ...baseInterviewAttributes
-};
+const localUserInterviewAttributes = { id: 1, uuid: uuidV4(), participant_id: localParticipant.id, ...baseInterviewAttributes };
 
-const otherUserInterviewAttributes = {
-    id: 2,
-    uuid: uuidV4(),
-    participant_id: otherParticipant.id,
-    ...baseInterviewAttributes
-};
-
+const otherUserInterviewAttributes = { id: 2, uuid: uuidV4(), participant_id: otherParticipant.id, ...baseInterviewAttributes };
 
 beforeAll(async () => {
     jest.setTimeout(10000);
@@ -62,7 +40,7 @@ beforeAll(async () => {
     await interviewsDbQueries.create(otherUserInterviewAttributes as any);
 });
 
-afterAll(async() => {
+afterAll(async () => {
     await truncate(knex, 'sv_audits');
     await truncate(knex, 'sv_interviews');
     await truncate(knex, 'sv_participants');
@@ -81,73 +59,69 @@ const removeUndefined = (obj) => {
 const person1Uuid = uuidV4();
 const person2Uuid = uuidV4();
 
-const audits = [{
-    objectType: 'interview',
-    objectUuid: localUserInterviewAttributes.uuid,
-    version: 2,
-    level: 'warning',
-    errorCode: 'InterviewErrorCode1',
-    message: 'ThisOneHasAMessage',
-    ignore: false
-}, {
-    objectType: 'interview',
-    objectUuid: localUserInterviewAttributes.uuid,
-    version: 2,
-    level: 'error',
-    errorCode: 'InterviewErrorCodeMinimal',
-}, {
-    objectType: 'person',
-    objectUuid: person1Uuid,
-    version: 2,
-    level: 'error',
-    errorCode: 'PersonErrorCode1',
-    message: 'WithAMessage',
-    ignore: false
-}, {
-    objectType: 'person',
-    objectUuid: person2Uuid,
-    version: 2,
-    level: 'error',
-    errorCode: 'PersonErrorCode1',
-    message: 'WithAMessage',
-    ignore: false
-}] as AuditForObject[];
-
-const expected = [
-    audits[0], {
-        ...audits[1],
+const audits = [
+    {
+        objectType: 'interview',
+        objectUuid: localUserInterviewAttributes.uuid,
+        version: 2,
+        level: 'warning',
+        errorCode: 'InterviewErrorCode1',
+        message: 'ThisOneHasAMessage',
         ignore: false
     },
-    audits[2],
-    audits[3]
+    { objectType: 'interview', objectUuid: localUserInterviewAttributes.uuid, version: 2, level: 'error', errorCode: 'InterviewErrorCodeMinimal' },
+    {
+        objectType: 'person',
+        objectUuid: person1Uuid,
+        version: 2,
+        level: 'error',
+        errorCode: 'PersonErrorCode1',
+        message: 'WithAMessage',
+        ignore: false
+    },
+    {
+        objectType: 'person',
+        objectUuid: person2Uuid,
+        version: 2,
+        level: 'error',
+        errorCode: 'PersonErrorCode1',
+        message: 'WithAMessage',
+        ignore: false
+    }
+] as AuditForObject[];
+
+const expected = [audits[0], { ...audits[1], ignore: false }, audits[2], audits[3]];
+
+const newAudits = [
+    {
+        objectType: 'person',
+        objectUuid: person1Uuid,
+        version: 2,
+        level: 'warning' as const,
+        errorCode: 'NewPersonErrorCode1',
+        message: 'NewMessage1',
+        ignore: false
+    },
+    {
+        objectType: 'person',
+        objectUuid: person2Uuid,
+        version: 2,
+        level: 'info' as const,
+        errorCode: 'NewPersonErrorCode1',
+        message: 'NewMEssage2',
+        ignore: false
+    }
 ];
 
-const newAudits = [{
-    objectType: 'person',
-    objectUuid: person1Uuid,
-    version: 2,
-    level: 'warning' as const,
-    errorCode: 'NewPersonErrorCode1',
-    message: 'NewMessage1',
-    ignore: false
-}, {
-    objectType: 'person',
-    objectUuid: person2Uuid,
-    version: 2,
-    level: 'info' as const,
-    errorCode: 'NewPersonErrorCode1',
-    message: 'NewMEssage2',
-    ignore: false
-}];
+const auditsMatch = (audit1, audit2) =>
+    audit1.objectType === audit2.objectType && audit1.objectUuid === audit2.objectUuid && audit1.errorCode === audit2.errorCode;
 
-const auditsMatch = (audit1, audit2) => audit1.objectType === audit2.objectType && audit1.objectUuid === audit2.objectUuid && audit1.errorCode === audit2.errorCode;
-
-test('Set a few audits for an interview', async() => {
+test('Set a few audits for an interview', async () => {
     const result = await dbQueries.setAuditsForInterview(localUserInterviewAttributes.id, audits);
     expect(result).toBeTruthy();
 });
 
-test('Get the audits for the previous interview', async() => {
+test('Get the audits for the previous interview', async () => {
     const dbAudits = await dbQueries.getAuditsForInterview(localUserInterviewAttributes.id);
 
     expect(dbAudits.length).toEqual(audits.length);
@@ -157,12 +131,12 @@ test('Get the audits for the previous interview', async() => {
     }
 });
 
-test('Add same audits to other interview', async() => {
+test('Add same audits to other interview', async () => {
     const result = await dbQueries.setAuditsForInterview(otherUserInterviewAttributes.id, audits);
     expect(result).toBeTruthy();
 });
 
-test('Get the audits for both interviews', async() => {
+test('Get the audits for both interviews', async () => {
     const dbAuditsLocal = await dbQueries.getAuditsForInterview(localUserInterviewAttributes.id);
 
     expect(dbAuditsLocal.length).toEqual(audits.length);
@@ -180,7 +154,7 @@ test('Get the audits for both interviews', async() => {
     }
 });
 
-test('Set new audits for interview', async() => {
+test('Set new audits for interview', async () => {
     const result = await dbQueries.setAuditsForInterview(otherUserInterviewAttributes.id, newAudits);
     expect(result).toBeTruthy();
 
@@ -194,21 +168,13 @@ test('Set new audits for interview', async() => {
     }
 });
 
-test('Set new audits for interview, with errors', async() => {
-
-    const errorAudits = [{
-        objectType: 'person',
-        objectUuid: 'notAUUID',
-        version: 2,
-        errorCode: 'NewPersonErrorCode1',
-        message: 'NewMessage1',
-        ignore: false
-    }];
+test('Set new audits for interview, with errors', async () => {
+    const errorAudits = [
+        { objectType: 'person', objectUuid: 'notAUUID', version: 2, errorCode: 'NewPersonErrorCode1', message: 'NewMessage1', ignore: false }
+    ];
 
     // The query should throw an error and the audits should not be modified
-    await expect(dbQueries.setAuditsForInterview(otherUserInterviewAttributes.id, errorAudits))
-        .rejects
-        .toThrow(expect.anything());
+    await expect(dbQueries.setAuditsForInterview(otherUserInterviewAttributes.id, errorAudits)).rejects.toThrow(expect.anything());
 
     const dbAuditsOther = await dbQueries.getAuditsForInterview(otherUserInterviewAttributes.id);
     expect(dbAuditsOther.length).toEqual(newAudits.length);
@@ -216,10 +182,9 @@ test('Set new audits for interview, with errors', async() => {
         const findAudit = newAudits.find((audit) => auditsMatch(audit, removeUndefined(dbAuditsOther[i])));
         expect(dbAuditsOther[i]).toEqual(findAudit);
     }
-
 });
 
-test('Update audit', async() => {
+test('Update audit', async () => {
     // Change the ignore status of one audit
     const modifiedAudit = _cloneDeep(newAudits[0]);
     modifiedAudit.ignore = true;
@@ -243,22 +208,23 @@ test('Update audit', async() => {
     }
 });
 
-test('Set new audits that will be updated', async() => {
+test('Set new audits that will be updated', async () => {
     // For first audit, use the same as newAudits, with ignore to false (should be kept to true)
     // For second audit, replace with a new code
     // A third audit is added for an object not present the first time
-    const newAuditsToUpdate = [newAudits[0], {
-        ...newAudits[1],
-        errorCode: 'this-is-a-new-error'
-    }, {
-        objectType: 'newObject',
-        objectUuid: person1Uuid,
-        version: 2,
-        level: 'error' as const,
-        errorCode: 'NewObjectError',
-        message: 'NewMEssage2',
-        ignore: false
-    }];
+    const newAuditsToUpdate = [
+        newAudits[0],
+        { ...newAudits[1], errorCode: 'this-is-a-new-error' },
+        {
+            objectType: 'newObject',
+            objectUuid: person1Uuid,
+            version: 2,
+            level: 'error' as const,
+            errorCode: 'NewObjectError',
+            message: 'NewMEssage2',
+            ignore: false
+        }
+    ];
     // Prepare the modified audit and expected results
     const modifiedAudit = _cloneDeep(newAudits[0]);
     modifiedAudit.ignore = true;

@@ -9,7 +9,6 @@ import { v4 as uuidV4 } from 'uuid';
 import { BaseAddress } from '../BaseAddress';
 
 describe('BaseAddress Class Tests', () => {
-
     const _uuid = uuidV4();
     const addressParams = {
         _uuid,
@@ -64,5 +63,4 @@ describe('BaseAddress Class Tests', () => {
         expect(instance.region).toEqual(addressParams.region);
         expect(instance.country).toEqual(addressParams.country);
     });
-
 });

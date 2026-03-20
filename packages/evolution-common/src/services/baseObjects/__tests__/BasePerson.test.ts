@@ -11,14 +11,13 @@ import { Weight } from '../Weight';
 import { WeightMethod } from '../WeightMethod';
 
 describe('BasePerson', () => {
-
     const validUuid = uuidV4(); // Generate a valid UUID
 
     const weightMethodAttributes = {
         _uuid: uuidV4(),
         shortname: 'sample-shortname',
         name: 'Sample Weight Method',
-        description: 'Sample weight method description',
+        description: 'Sample weight method description'
     };
 
     const personAttributes: ExtendedPersonAttributes = {
@@ -41,12 +40,10 @@ describe('BasePerson', () => {
         isJobTelecommuteCompatible: 'yes' as PAttr.HasTelecommuteCompatibleJob, // Valid telecommute compatibility status, renamed from isJobTelecommuteCompatible to hasTelecommuteCompatibleJob in new Person class
         educationalAttainment: 'PhD' as PAttr.EducationalAttainment, // Valid educational attainment
         _weights: [{ weight: 1.5, method: new WeightMethod(weightMethodAttributes) }],
-        foo: 'bar', // extended attribute
+        foo: 'bar' // extended attribute
     };
 
     it('should create a BasePerson instance with valid attributes', () => {
-
-
         const person = new BasePerson(personAttributes);
 
         expect(person).toBeInstanceOf(BasePerson);
@@ -71,10 +68,9 @@ describe('BasePerson', () => {
     });
 
     it('should allow empty arrays and home', () => {
-
         const personAttributes2: ExtendedPersonAttributes = {
             _uuid: validUuid,
-            foo: 'bar', // extended attribute
+            foo: 'bar' // extended attribute
         };
         const person2 = new BasePerson(personAttributes2);
         expect(person2).toBeInstanceOf(BasePerson);
@@ -121,7 +117,7 @@ describe('BasePerson', () => {
             educationalAttainment: 'Ph.D',
             nickname: 'John Doe',
             contactPhoneNumber: '123-456-7890',
-            contactEmail: 'john.doe@example.com',
+            contactEmail: 'john.doe@example.com'
         };
 
         const errors = BasePerson.validateParams(params);
@@ -141,14 +137,14 @@ describe('BasePerson', () => {
             bikesharingUser: 324,
             ridesharingMember: new Date(),
             ridesharingUser: [],
-            occupation: [1,2,3],
+            occupation: [1, 2, 3],
             jobCategory: ['foo', 'bar'],
             jobName: 123,
             isOnTheRoadWorker: Infinity,
             isJobTelecommuteCompatible: 1234,
             educationalAttainment: 5678,
             contactPhoneNumber: 123, // Invalid type
-            contactEmail: 43.4, // Invalid email format
+            contactEmail: 43.4 // Invalid email format
         };
 
         const errors = BasePerson.validateParams(params);
@@ -172,40 +168,28 @@ describe('BasePerson', () => {
             new Error('BasePerson validateParams: isJobTelecommuteCompatible should be a boolean'),
             new Error('BasePerson validateParams: educationalAttainment is not a valid value'),
             new Error('BasePerson validateParams: contactPhoneNumber should be a string'),
-            new Error('BasePerson validateParams: contactEmail should be a string'),
+            new Error('BasePerson validateParams: contactEmail should be a string')
         ]);
     });
 
     test('validateParams with invalid age', () => {
-        const params = {
-            age: -324
-        };
+        const params = { age: -324 };
 
         const errors = BasePerson.validateParams(params);
         expect(errors.length).toBeGreaterThan(0);
-        expect(errors).toEqual([
-            new Error('BasePerson validateParams: age must be a positive integer')
-        ]);
+        expect(errors).toEqual([new Error('BasePerson validateParams: age must be a positive integer')]);
 
-        const params2 = {
-            age: 34.5
-        };
+        const params2 = { age: 34.5 };
 
         const errors2 = BasePerson.validateParams(params2);
         expect(errors2.length).toBeGreaterThan(0);
-        expect(errors).toEqual([
-            new Error('BasePerson validateParams: age must be a positive integer')
-        ]);
+        expect(errors).toEqual([new Error('BasePerson validateParams: age must be a positive integer')]);
 
-        const params3 = {
-            age: -99.23434
-        };
+        const params3 = { age: -99.23434 };
 
         const errors3 = BasePerson.validateParams(params3);
         expect(errors3.length).toBeGreaterThan(0);
-        expect(errors).toEqual([
-            new Error('BasePerson validateParams: age must be a positive integer')
-        ]);
+        expect(errors).toEqual([new Error('BasePerson validateParams: age must be a positive integer')]);
     });
 
     test('validateParams with empty parameters', () => {
@@ -235,7 +219,7 @@ describe('BasePerson', () => {
             educationalAttainment: 'none',
             nickname: 'John Doe',
             contactPhoneNumber: '123-456-7890',
-            contactEmail: 'john.doe@example.com',
+            contactEmail: 'john.doe@example.com'
         };
 
         const errors = BasePerson.validateParams(params);
@@ -247,5 +231,4 @@ describe('BasePerson', () => {
         expect(instance).toBeInstanceOf(BasePerson);
         expect(instance.age).toEqual(personAttributes.age);
     });
-
 });

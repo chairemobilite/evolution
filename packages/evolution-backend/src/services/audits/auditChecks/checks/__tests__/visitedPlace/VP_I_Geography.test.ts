@@ -21,16 +21,19 @@ describe('VP_I_Geography audit check', () => {
     });
 
     it('should error when geography has invalid coordinates', () => {
-        const context = createContextWithVisitedPlace({
-            geography: {
-                type: 'Feature',
-                properties: {},
-                geometry: {
-                    type: 'Point',
-                    coordinates: [-73.5] // Missing latitude
+        const context = createContextWithVisitedPlace(
+            {
+                geography: {
+                    type: 'Feature',
+                    properties: {},
+                    geometry: {
+                        type: 'Point',
+                        coordinates: [-73.5] // Missing latitude
+                    }
                 }
-            }
-        }, validUuid);
+            },
+            validUuid
+        );
 
         const result = visitedPlaceAuditChecks.VP_I_Geography(context);
 
@@ -46,16 +49,10 @@ describe('VP_I_Geography audit check', () => {
     });
 
     it('should error when geography has no coordinates', () => {
-        const context = createContextWithVisitedPlace({
-            geography: {
-                type: 'Feature',
-                properties: {},
-                geometry: {
-                    type: 'Point',
-                    coordinates: [] as number[]
-                }
-            }
-        }, validUuid);
+        const context = createContextWithVisitedPlace(
+            { geography: { type: 'Feature', properties: {}, geometry: { type: 'Point', coordinates: [] as number[] } } },
+            validUuid
+        );
 
         const result = visitedPlaceAuditChecks.VP_I_Geography(context);
 
@@ -78,4 +75,3 @@ describe('VP_I_Geography audit check', () => {
         expect(result).toBeUndefined();
     });
 });
-

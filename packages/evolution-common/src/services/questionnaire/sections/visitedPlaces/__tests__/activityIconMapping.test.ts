@@ -48,5 +48,4 @@ describe('activityIconMapping', () => {
             expect(getActivityMarkerIcon('school' as Activity, 'square')).toBe('/dist/icons/activities/school/graduation_cap-marker_square.svg');
         });
     });
-    
 });

@@ -13,14 +13,19 @@ import { InterviewParadata } from 'evolution-common/lib/services/baseObjects/int
 export const createMockInterview = (overrides: Partial<Interview> = {}, validUuid = uuidV4(), validId = 123) => {
     return {
         _uuid: validUuid,
-        get uuid() { return this._uuid; },
+        get uuid() {
+            return this._uuid;
+        },
         id: validId,
         paradata: new InterviewParadata({ languages: [{ language: 'en' }] }),
         ...overrides
     } as Interview;
 };
 
-export const createContextWithInterview = (interviewOverrides: Partial<Interview> = {}, validUuid = uuidV4()): InterviewAuditCheckContext => {
+export const createContextWithInterview = (
+    interviewOverrides: Partial<Interview> = {},
+    validUuid = uuidV4()
+): InterviewAuditCheckContext => {
     return {
         interview: createMockInterview(interviewOverrides, validUuid)
     };

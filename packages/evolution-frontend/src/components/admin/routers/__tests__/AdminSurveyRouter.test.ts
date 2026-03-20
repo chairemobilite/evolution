@@ -10,10 +10,7 @@ import { render } from '@testing-library/react';
 import getAdminSurveyRoutes from '../AdminSurveyRouter';
 
 // Mock the components since we're testing route configuration, not component rendering
-jest.mock('../AdminRootLayout', () => ({
-    __esModule: true,
-    default: () => React.createElement('div', null, 'AdminRootLayout')
-}));
+jest.mock('../AdminRootLayout', () => ({ __esModule: true, default: () => React.createElement('div', null, 'AdminRootLayout') }));
 
 jest.mock('chaire-lib-frontend/lib/components/routers/PrivateRoute', () => ({
     __esModule: true,
@@ -31,20 +28,11 @@ jest.mock('chaire-lib-frontend/lib/components/routers/AdminRoute', () => ({
 }));
 
 // Mock page components
-jest.mock('../../pages/AdminMonitoringPage', () => ({
-    __esModule: true,
-    default: () => React.createElement('div', null, 'AdminMonitoringPage')
-}));
+jest.mock('../../pages/AdminMonitoringPage', () => ({ __esModule: true, default: () => React.createElement('div', null, 'AdminMonitoringPage') }));
 
-jest.mock('../../pages/ReviewPage', () => ({
-    __esModule: true,
-    default: () => React.createElement('div', null, 'AdminReviewPage')
-}));
+jest.mock('../../pages/ReviewPage', () => ({ __esModule: true, default: () => React.createElement('div', null, 'AdminReviewPage') }));
 
-jest.mock('../../pages/SurveyCorrection', () => ({
-    __esModule: true,
-    default: () => React.createElement('div', null, 'AdminSurveyCorrectionPage')
-}));
+jest.mock('../../pages/SurveyCorrection', () => ({ __esModule: true, default: () => React.createElement('div', null, 'AdminSurveyCorrectionPage') }));
 
 jest.mock('../../pages/RespondentBehaviorPage', () => ({
     __esModule: true,
@@ -56,10 +44,7 @@ jest.mock('../../../pages/SurveyUnavailablePage', () => ({
     default: () => React.createElement('div', null, 'SurveyUnavailablePage')
 }));
 
-jest.mock('../../../pages/NotFoundPage', () => ({
-    __esModule: true,
-    default: () => React.createElement('div', null, 'NotFoundPage')
-}));
+jest.mock('../../../pages/NotFoundPage', () => ({ __esModule: true, default: () => React.createElement('div', null, 'NotFoundPage') }));
 
 jest.mock('chaire-lib-frontend/lib/components/pages/UnauthorizedPage', () => ({
     __esModule: true,
@@ -71,9 +56,7 @@ jest.mock('chaire-lib-frontend/lib/components/pages/MaintenancePage', () => ({
     default: () => React.createElement('div', null, 'MaintenancePage')
 }));
 
-jest.mock('chaire-lib-frontend/lib/components/pages', () => ({
-    LoginPage: () => React.createElement('div', null, 'AdminLoginPage')
-}));
+jest.mock('chaire-lib-frontend/lib/components/pages', () => ({ LoginPage: () => React.createElement('div', null, 'AdminLoginPage') }));
 
 jest.mock('chaire-lib-frontend/lib/components/pages/RegisterPage', () => ({
     __esModule: true,
@@ -100,10 +83,7 @@ jest.mock('chaire-lib-frontend/lib/components/pages/UnconfirmedPage', () => ({
     default: () => React.createElement('div', null, 'UnconfirmedPage')
 }));
 
-jest.mock('../../../hoc/SurveyWithErrorBoundary', () => ({
-    __esModule: true,
-    default: () => React.createElement('div', null, 'Survey')
-}));
+jest.mock('../../../hoc/SurveyWithErrorBoundary', () => ({ __esModule: true, default: () => React.createElement('div', null, 'Survey') }));
 
 jest.mock('chaire-lib-frontend/lib/components/pages/admin/UsersPage', () => ({
     __esModule: true,
@@ -115,23 +95,14 @@ jest.mock('../../interviews/InterviewsByAccessCode', () => ({
     default: () => React.createElement('div', null, 'InterviewsByAccessCode')
 }));
 
-jest.mock('../../pages/InterviewsPage', () => ({
-    __esModule: true,
-    default: () => React.createElement('div', null, 'InterviewsPage')
-}));
+jest.mock('../../pages/InterviewsPage', () => ({ __esModule: true, default: () => React.createElement('div', null, 'InterviewsPage') }));
 
-jest.mock('../../pages/AdminHomePage', () => ({
-    __esModule: true,
-    default: () => React.createElement('div', null, 'AdminHomePage')
-}));
+jest.mock('../../pages/AdminHomePage', () => ({ __esModule: true, default: () => React.createElement('div', null, 'AdminHomePage') }));
 
 // Mock config
 jest.mock('chaire-lib-common/lib/config/shared/project.config', () => ({
     __esModule: true,
-    default: {
-        auth: {},
-        mapDefaultCenter: { lon: -73.6131, lat: 45.5041 }
-    }
+    default: { auth: {}, mapDefaultCenter: { lon: -73.6131, lat: 45.5041 } }
 }));
 
 describe('getAdminSurveyRoutes', () => {
@@ -197,32 +168,29 @@ describe('getAdminSurveyRoutes', () => {
         expect(children.length).toBe(expectedRoutes.length);
     });
 
-    it.each(expectedRoutes)(
-        'Should have route $path with correct path and $wrapperType wrapper',
-        ({ path, wrapperType }) => {
-            const rootRoute = routes[0];
-            const children = rootRoute.children || [];
+    it.each(expectedRoutes)('Should have route $path with correct path and $wrapperType wrapper', ({ path, wrapperType }) => {
+        const rootRoute = routes[0];
+        const children = rootRoute.children || [];
 
-            const getWrapperType = (pathToCheck: string): string => {
-                const route = children.find((child) => child.path === pathToCheck);
-                if (!route || !route.element) return 'Unknown';
+        const getWrapperType = (pathToCheck: string): string => {
+            const route = children.find((child) => child.path === pathToCheck);
+            if (!route || !route.element) return 'Unknown';
 
-                // Render the element and check the output
-                const { container, unmount } = render(route.element as React.ReactElement);
-                const textContent = container.textContent || '';
+            // Render the element and check the output
+            const { container, unmount } = render(route.element as React.ReactElement);
+            const textContent = container.textContent || '';
 
-                // Clean up the render before returning to avoid memory leaks
-                unmount();
+            // Clean up the render before returning to avoid memory leaks
+            unmount();
 
-                if (textContent.includes('AdminRoute')) return 'AdminRoute';
-                if (textContent.includes('PrivateRoute')) return 'PrivateRoute';
-                if (textContent.includes('PublicRoute')) return 'PublicRoute';
-                return 'Unknown';
-            };
+            if (textContent.includes('AdminRoute')) return 'AdminRoute';
+            if (textContent.includes('PrivateRoute')) return 'PrivateRoute';
+            if (textContent.includes('PublicRoute')) return 'PublicRoute';
+            return 'Unknown';
+        };
 
-            const paths = children.map((child) => child.path);
-            expect(paths).toContain(path);
-            expect(getWrapperType(path)).toBe(wrapperType);
-        }
-    );
+        const paths = children.map((child) => child.path);
+        expect(paths).toContain(path);
+        expect(getWrapperType(path)).toBe(wrapperType);
+    });
 });

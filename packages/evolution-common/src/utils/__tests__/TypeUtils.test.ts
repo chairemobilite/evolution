@@ -12,8 +12,12 @@ describe('TypeUtils', () => {
         class TestClass {
             prop1: string;
             prop2: number;
-            method1() { return 'method1'; }
-            method2() { return true; }
+            method1() {
+                return 'method1';
+            }
+            method2() {
+                return true;
+            }
 
             constructor(prop1: string, prop2: number) {
                 this.prop1 = prop1;
@@ -23,10 +27,7 @@ describe('TypeUtils', () => {
 
         test('should exclude function property names from a type', () => {
             type NonFunctionProps = ExcludeFunctionPropertyNames<TestClass>;
-            const nonFunctionProps: NonFunctionProps = {
-                prop1: 'value1',
-                prop2: 123,
-            };
+            const nonFunctionProps: NonFunctionProps = { prop1: 'value1', prop2: 123 };
             expect(Object.keys(nonFunctionProps)).toEqual(['prop1', 'prop2']);
         });
     });

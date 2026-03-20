@@ -16,15 +16,13 @@ import * as VPAttr from '../attributeTypes/VisitedPlaceAttributes';
 const validUUID = uuidV4();
 
 describe('BaseTripChain', () => {
-    const baseTripAttributes: BaseTripAttributes = {
-        _uuid: uuidV4()
-    };
+    const baseTripAttributes: BaseTripAttributes = { _uuid: uuidV4() };
 
     const weightMethodAttributes = {
         _uuid: uuidV4(),
         shortname: 'sample-shortname3',
         name: 'Sample Weight Method3',
-        description: 'Sample weight method description3',
+        description: 'Sample weight method description3'
     };
 
     const baseTripChainAttributes: BaseTripChainAttributes = {
@@ -34,7 +32,7 @@ describe('BaseTripChain', () => {
         isConstrained: true,
         category: 'simple' as TCAttr.TripChainCategory,
         mainActivityCategory: 'work' as VPAttr.ActivityCategory,
-        mainActivity: 'workOther' as VPAttr.Activity,
+        mainActivity: 'workOther' as VPAttr.Activity
     };
 
     it('should create a new BaseTripChain instance', () => {
@@ -53,7 +51,7 @@ describe('BaseTripChain', () => {
             _uuid: validUUID,
             isMultiloop: true,
             isConstrained: false,
-            category: 'complex' as TCAttr.TripChainCategory,
+            category: 'complex' as TCAttr.TripChainCategory
         };
 
         const tripChain = new BaseTripChain(minimalAttributes);
@@ -76,10 +74,7 @@ describe('BaseTripChain', () => {
     });
 
     it('should accept extended attributes', () => {
-        const extendedAttributes: ExtendedTripChainAttributes = {
-            ...baseTripChainAttributes,
-            customAttribute: 'Custom Value',
-        };
+        const extendedAttributes: ExtendedTripChainAttributes = { ...baseTripChainAttributes, customAttribute: 'Custom Value' };
 
         const tripChain = new BaseTripChain(extendedAttributes);
         expect(tripChain).toBeInstanceOf(BaseTripChain);
@@ -103,7 +98,7 @@ describe('BaseTripChain', () => {
             category: 'category',
             mainActivityCategory: 'work',
             mainActivity: 'workUsual',
-            _weights: [{ weight: 1, method: new WeightMethod(weightMethodAttributes) }],
+            _weights: [{ weight: 1, method: new WeightMethod(weightMethodAttributes) }]
         };
 
         const errors = BaseTripChain.validateParams(params);
@@ -118,7 +113,7 @@ describe('BaseTripChain', () => {
             category: 2355,
             mainActivityCategory: -324.5,
             mainActivity: {},
-            _weights: [{ weight: 1, method: new WeightMethod(weightMethodAttributes) }],
+            _weights: [{ weight: 1, method: new WeightMethod(weightMethodAttributes) }]
         };
 
         const errors = BaseTripChain.validateParams(params);
@@ -128,7 +123,7 @@ describe('BaseTripChain', () => {
             new Error('BaseTripChain validateParams: isConstrained should be a boolean'),
             new Error('BaseTripChain validateParams: category should be a string'),
             new Error('BaseTripChain validateParams: mainActivityCategory should be a string'),
-            new Error('BaseTripChain validateParams: mainActivity should be a string'),
+            new Error('BaseTripChain validateParams: mainActivity should be a string')
         ]);
     });
 
@@ -143,5 +138,4 @@ describe('BaseTripChain', () => {
         expect(instance).toBeInstanceOf(BaseTripChain);
         expect(instance.category).toEqual(baseTripChainAttributes.category);
     });
-
 });

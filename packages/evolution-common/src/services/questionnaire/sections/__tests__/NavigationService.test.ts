@@ -6,13 +6,10 @@
  */
 import _cloneDeep from 'lodash/cloneDeep';
 import _shuffle from 'lodash/shuffle';
-import {  SectionConfigWithDefaultsBlock, SurveySections, UserRuntimeInterviewAttributes, getAndValidateSurveySections } from '../../types';
+import { SectionConfigWithDefaultsBlock, SurveySections, UserRuntimeInterviewAttributes, getAndValidateSurveySections } from '../../types';
 import { createNavigationService } from '../NavigationService';
 
-jest.mock('lodash/shuffle', () => ({
-    __esModule: true,
-    default: jest.fn((array) => array)
-}));
+jest.mock('lodash/shuffle', () => ({ __esModule: true, default: jest.fn((array) => array) }));
 const mockShuffle = _shuffle as jest.MockedFunction<typeof _shuffle>;
 
 // TODO Add a basic interview object
@@ -21,19 +18,19 @@ const interview: UserRuntimeInterviewAttributes = {
     uuid: 'uuid',
     participant_id: 1,
     is_completed: false,
-    response: { },
-    validations: { },
+    response: {},
+    validations: {},
     is_valid: false,
     // These are widgets statuses for the current section, if they are not grouped
-    widgets: { },
+    widgets: {},
     // These are the widget status for the groups in the current section
-    groups: { },
+    groups: {},
     // Contains the paths in the responses of the visible widgets... FIXME Rename?
     visibleWidgets: [],
     allWidgetsValid: true,
     // Name of the currently loaded section
     sectionLoaded: undefined
-}
+};
 
 beforeEach(() => {
     jest.clearAllMocks();
@@ -61,12 +58,7 @@ const simpleSectionsConfig: SurveySections = getAndValidateSurveySections({
         isSectionCompleted: hhSectionCompleted,
         enableConditional: hhSectionEnabled
     },
-    end: {
-        title: 'End',
-        previousSection: 'householdMembers',
-        nextSection: null,
-        widgets: ['endWidget']
-    }
+    end: { title: 'End', previousSection: 'householdMembers', nextSection: null, widgets: ['endWidget'] }
 });
 
 // Define a navigation with repeated blocks
@@ -74,18 +66,8 @@ const tbIsSectionVisible = jest.fn().mockReturnValue(true);
 const tbIsSectionEnabled = jest.fn().mockReturnValue(true);
 const tripsIsEnabled = jest.fn().mockReturnValue(true);
 const complexSectionsConfig: SurveySections = getAndValidateSurveySections({
-    home: {
-        title: 'Home',
-        previousSection: null,
-        nextSection: 'householdMembers',
-        widgets: ['homeWidget']
-    },
-    householdMembers: {
-        title: 'Household members',
-        previousSection: 'home',
-        nextSection: 'personsTrips',
-        widgets: ['hhWidget']
-    },
+    home: { title: 'Home', previousSection: null, nextSection: 'householdMembers', widgets: ['homeWidget'] },
+    householdMembers: { title: 'Household members', previousSection: 'home', nextSection: 'personsTrips', widgets: ['hhWidget'] },
     personsTrips: {
         title: 'Trips',
         previousSection: 'householdMembers',
@@ -100,18 +82,8 @@ const complexSectionsConfig: SurveySections = getAndValidateSurveySections({
             skipSelectionInNaturalFlow: true
         }
     },
-    selectPerson: {
-        title: 'Select person',
-        previousSection: 'personsTrips',
-        nextSection: 'visitedPlaces',
-        widgets: ['hhWidget']
-    },
-    visitedPlaces: {
-        title: 'Visited places',
-        previousSection: 'selectPerson',
-        nextSection: 'travelBehavior',
-        widgets: ['hhWidget']
-    },
+    selectPerson: { title: 'Select person', previousSection: 'personsTrips', nextSection: 'visitedPlaces', widgets: ['hhWidget'] },
+    visitedPlaces: { title: 'Visited places', previousSection: 'selectPerson', nextSection: 'travelBehavior', widgets: ['hhWidget'] },
     travelBehavior: {
         title: 'Travel behavior',
         previousSection: 'visitedPlaces',
@@ -120,51 +92,28 @@ const complexSectionsConfig: SurveySections = getAndValidateSurveySections({
         isSectionVisible: tbIsSectionVisible,
         enableConditional: tbIsSectionEnabled
     },
-    end: {
-        title: 'End',
-        previousSection: 'personsTrips',
-        nextSection: null,
-        widgets: ['endWidget']
-    }
+    end: { title: 'End', previousSection: 'personsTrips', nextSection: null, widgets: ['endWidget'] }
 });
 const hhWithPersonsResponse = {
     household: {
         persons: {
-            personId1: {
-                _uuid: 'personId1',
-                _sequence: 1,
-                age: 30
-            },
-            personId2: {
-                _uuid: 'personId2',
-                _sequence: 2,
-                age: 35
-            },
-            personId3: {
-                _uuid: 'personId3',
-                _sequence: 3,
-                age: 3
-            }
+            personId1: { _uuid: 'personId1', _sequence: 1, age: 30 },
+            personId2: { _uuid: 'personId2', _sequence: 2, age: 35 },
+            personId3: { _uuid: 'personId3', _sequence: 3, age: 3 }
         }
     }
 };
 
 describe('Simple direct navigation, each section in nav bar', () => {
-
     const navigationService = createNavigationService(simpleSectionsConfig);
 
-    describe('initNavigationState',() => {
+    describe('initNavigationState', () => {
         test('should navigate to first section when no previous navigation', () => {
             const expectedSection = 'home';
 
             // Navigate to the first section
             const nextSectionResult = navigationService.initNavigationState({ interview });
-            expect(nextSectionResult).toEqual({
-                targetSection: {
-                    sectionShortname: expectedSection,
-                    iterationContext: undefined
-                }
-            });
+            expect(nextSectionResult).toEqual({ targetSection: { sectionShortname: expectedSection, iterationContext: undefined } });
         });
 
         test('should navigate to last visited section if there are previous navigations', () => {
@@ -178,18 +127,13 @@ describe('Simple direct navigation, each section in nav bar', () => {
                 householdMembers: { _startedAt: 2 },
                 _actions: [
                     { section: 'home', action: 'start' as const, ts: 1 },
-                    { section: 'householdMembers', action: 'start' as const, ts: 2 },
+                    { section: 'householdMembers', action: 'start' as const, ts: 2 }
                 ]
             } as any;
 
             // Navigate to last visited section
             const nextSectionResult = navigationService.initNavigationState({ interview: testInterview });
-            expect(nextSectionResult).toEqual({
-                targetSection: {
-                    sectionShortname: expectedSection,
-                    iterationContext: undefined
-                }
-            });
+            expect(nextSectionResult).toEqual({ targetSection: { sectionShortname: expectedSection, iterationContext: undefined } });
         });
 
         test('should navigate to requested section, even with previous navigations that reaches later', () => {
@@ -206,18 +150,13 @@ describe('Simple direct navigation, each section in nav bar', () => {
                 _actions: [
                     { section: 'home', action: 'start' as const, ts: 1 },
                     { section: 'householdMembers', action: 'start' as const, ts: 2 },
-                    { section: 'end', action: 'start' as const, ts: 3 },
+                    { section: 'end', action: 'start' as const, ts: 3 }
                 ]
             } as any;
 
             // Navigate to the requested section
-            const nextSectionResult = navigationService.initNavigationState({ interview: testInterview, requestedSection});
-            expect(nextSectionResult).toEqual({
-                targetSection: {
-                    sectionShortname: expectedSection,
-                    iterationContext: undefined
-                }
-            });
+            const nextSectionResult = navigationService.initNavigationState({ interview: testInterview, requestedSection });
+            expect(nextSectionResult).toEqual({ targetSection: { sectionShortname: expectedSection, iterationContext: undefined } });
         });
 
         test('should navigate to last possible section if requested section is not enabled yet, using default enable', () => {
@@ -235,18 +174,13 @@ describe('Simple direct navigation, each section in nav bar', () => {
                 householdMembers: { _startedAt: 2 },
                 _actions: [
                     { section: 'home', action: 'start' as const, ts: 1 },
-                    { section: 'householdMembers', action: 'start' as const, ts: 2 },
+                    { section: 'householdMembers', action: 'start' as const, ts: 2 }
                 ]
             } as any;
 
             // Navigate to a specific section
             const nextSectionResult = navigationService.initNavigationState({ interview: testInterview, requestedSection });
-            expect(nextSectionResult).toEqual({
-                targetSection: {
-                    sectionShortname: expectedSection,
-                    iterationContext: undefined
-                }
-            });
+            expect(nextSectionResult).toEqual({ targetSection: { sectionShortname: expectedSection, iterationContext: undefined } });
             // The completion conditional of the previous section should have been called
             expect(hhSectionCompleted).toHaveBeenCalledWith(testInterview, undefined);
         });
@@ -266,18 +200,13 @@ describe('Simple direct navigation, each section in nav bar', () => {
                 householdMembers: { _startedAt: 2 },
                 _actions: [
                     { section: 'home', action: 'start' as const, ts: 1 },
-                    { section: 'householdMembers', action: 'start' as const, ts: 2 },
+                    { section: 'householdMembers', action: 'start' as const, ts: 2 }
                 ]
             } as any;
 
             // Navigate to a specific section
             const nextSectionResult = navigationService.initNavigationState({ interview: testInterview, requestedSection });
-            expect(nextSectionResult).toEqual({
-                targetSection: {
-                    sectionShortname: expectedSection,
-                    iterationContext: undefined
-                }
-            });
+            expect(nextSectionResult).toEqual({ targetSection: { sectionShortname: expectedSection, iterationContext: undefined } });
             // The completion conditional of the previous section should have been called
             expect(hhSectionEnabled).toHaveBeenCalledWith(testInterview, 'householdMembers', undefined);
         });
@@ -298,26 +227,19 @@ describe('Simple direct navigation, each section in nav bar', () => {
                 householdMembers: { _startedAt: 2 },
                 _actions: [
                     { section: 'home', action: 'start' as const, ts: 1 },
-                    { section: 'householdMembers', action: 'start' as const, ts: 2 },
+                    { section: 'householdMembers', action: 'start' as const, ts: 2 }
                 ]
             } as any;
 
             // Navigate to requested section
             const nextSectionResult = navigationService.initNavigationState({ interview: testInterview, requestedSection });
-            expect(nextSectionResult).toEqual({
-                targetSection: {
-                    sectionShortname: expectedSection,
-                    iterationContext: undefined
-                }
-            });
+            expect(nextSectionResult).toEqual({ targetSection: { sectionShortname: expectedSection, iterationContext: undefined } });
             // The completion conditional of the previous section should have been called
             expect(hhSectionCompleted).toHaveBeenCalledWith(testInterview, undefined);
         });
-
     });
 
     describe('Navigate function', () => {
-        
         test('should navigate to the next section forward', () => {
             const currentSection = 'home';
             const expectedSection = 'householdMembers';
@@ -327,16 +249,11 @@ describe('Simple direct navigation, each section in nav bar', () => {
             // FIXME The type of the _sections is not quite right, this should be valid but it is not
             testInterview.response._sections = {
                 home: { _startedAt: 1, _isCompleted: true },
-                _actions: [
-                    { section: 'home', action: 'start' as const, ts: 1 },
-                ]
+                _actions: [{ section: 'home', action: 'start' as const, ts: 1 }]
             } as any;
 
             // Prepare the previous navigation state
-            const currentSectionData = {
-                sectionShortname: currentSection,
-                iterationContext: undefined
-            }
+            const currentSectionData = { sectionShortname: currentSection, iterationContext: undefined };
 
             // Navigate to specific section
             const nextSectionResult = navigationService.navigate({
@@ -344,12 +261,7 @@ describe('Simple direct navigation, each section in nav bar', () => {
                 currentSection: _cloneDeep(currentSectionData),
                 direction: 'forward'
             });
-            expect(nextSectionResult).toEqual({
-                targetSection: {
-                    sectionShortname: expectedSection,
-                    iterationContext: undefined
-                }
-            });
+            expect(nextSectionResult).toEqual({ targetSection: { sectionShortname: expectedSection, iterationContext: undefined } });
         });
 
         test('should stay on page if navigating forward but section incomplete', () => {
@@ -362,16 +274,11 @@ describe('Simple direct navigation, each section in nav bar', () => {
             // FIXME The type of the _sections is not quite right, this should be valid but it is not
             testInterview.response._sections = {
                 home: { _startedAt: 1, _isCompleted: true },
-                _actions: [
-                    { section: 'home', action: 'start' as const, ts: 1 },
-                ]
+                _actions: [{ section: 'home', action: 'start' as const, ts: 1 }]
             } as any;
 
             // Prepare the previous navigation state
-            const currentSectionData = {
-                sectionShortname: currentSection,
-                iterationContext: undefined
-            }
+            const currentSectionData = { sectionShortname: currentSection, iterationContext: undefined };
 
             // Navigate to specific section
             const nextSectionResult = navigationService.navigate({
@@ -379,12 +286,7 @@ describe('Simple direct navigation, each section in nav bar', () => {
                 currentSection: _cloneDeep(currentSectionData),
                 direction: 'forward'
             });
-            expect(nextSectionResult).toEqual({
-                targetSection: {
-                    sectionShortname: expectedSection,
-                    iterationContext: undefined
-                }
-            });
+            expect(nextSectionResult).toEqual({ targetSection: { sectionShortname: expectedSection, iterationContext: undefined } });
         });
 
         test('should navigate to the next section backward', () => {
@@ -399,15 +301,12 @@ describe('Simple direct navigation, each section in nav bar', () => {
                 householdMembers: { _startedAt: 2 },
                 _actions: [
                     { section: 'home', action: 'start' as const, ts: 1 },
-                    { section: 'householdMembers', action: 'start' as const, ts: 2 },
+                    { section: 'householdMembers', action: 'start' as const, ts: 2 }
                 ]
             } as any;
 
             // Prepare the previous navigation state
-            const currentSectionData = {
-                sectionShortname: currentSection,
-                iterationContext: undefined
-            }
+            const currentSectionData = { sectionShortname: currentSection, iterationContext: undefined };
 
             // Navigate to specific section
             const nextSectionResult = navigationService.navigate({
@@ -415,12 +314,7 @@ describe('Simple direct navigation, each section in nav bar', () => {
                 currentSection: _cloneDeep(currentSectionData),
                 direction: 'backward'
             });
-            expect(nextSectionResult).toEqual({
-                targetSection: {
-                    sectionShortname: expectedSection,
-                    iterationContext: undefined
-                }
-            });
+            expect(nextSectionResult).toEqual({ targetSection: { sectionShortname: expectedSection, iterationContext: undefined } });
         });
 
         test('should navigate to the next section backward, even if current section is incomplete', () => {
@@ -435,15 +329,12 @@ describe('Simple direct navigation, each section in nav bar', () => {
                 householdMembers: { _startedAt: 2 },
                 _actions: [
                     { section: 'home', action: 'start' as const, ts: 1 },
-                    { section: 'householdMembers', action: 'start' as const, ts: 2 },
+                    { section: 'householdMembers', action: 'start' as const, ts: 2 }
                 ]
             } as any;
 
             // Prepare the previous navigation state
-            const currentSectionData = {
-                sectionShortname: currentSection,
-                iterationContext: undefined
-            }
+            const currentSectionData = { sectionShortname: currentSection, iterationContext: undefined };
 
             // Navigate to specific section
             const nextSectionResult = navigationService.navigate({
@@ -451,12 +342,7 @@ describe('Simple direct navigation, each section in nav bar', () => {
                 currentSection: _cloneDeep(currentSectionData),
                 direction: 'backward'
             });
-            expect(nextSectionResult).toEqual({
-                targetSection: {
-                    sectionShortname: expectedSection,
-                    iterationContext: undefined
-                }
-            });
+            expect(nextSectionResult).toEqual({ targetSection: { sectionShortname: expectedSection, iterationContext: undefined } });
             // Should not verify completion is going to previous section
             expect(hhSectionCompleted).not.toHaveBeenCalled();
         });
@@ -475,15 +361,12 @@ describe('Simple direct navigation, each section in nav bar', () => {
                 _actions: [
                     { section: 'home', action: 'start' as const, ts: 1 },
                     { section: 'householdMembers', action: 'start' as const, ts: 2 },
-                    { section: 'end', action: 'start' as const, ts: 4 },
+                    { section: 'end', action: 'start' as const, ts: 4 }
                 ]
             } as any;
 
             // Prepare the previous navigation state
-            const currentSectionData = {
-                sectionShortname: currentSection,
-                iterationContext: undefined
-            }
+            const currentSectionData = { sectionShortname: currentSection, iterationContext: undefined };
 
             // Navigate to specific section
             const nextSectionResult = navigationService.navigate({
@@ -491,12 +374,7 @@ describe('Simple direct navigation, each section in nav bar', () => {
                 currentSection: _cloneDeep(currentSectionData),
                 direction: 'forward'
             });
-            expect(nextSectionResult).toEqual({
-                targetSection: {
-                    sectionShortname: expectedSection,
-                    iterationContext: undefined
-                }
-            });
+            expect(nextSectionResult).toEqual({ targetSection: { sectionShortname: expectedSection, iterationContext: undefined } });
         });
 
         test('should skip section if section is marked as such', () => {
@@ -505,7 +383,7 @@ describe('Simple direct navigation, each section in nav bar', () => {
             // HouseholdMembers section should be skipped
             hhShouldSectionBeVisible.mockReturnValueOnce(false);
 
-             // Prepare the interview with section navigation history
+            // Prepare the interview with section navigation history
             const testInterview = _cloneDeep(interview);
             // FIXME The type of the _sections is not quite right, this should be valid but it is not
             testInterview.response._sections = {
@@ -516,15 +394,12 @@ describe('Simple direct navigation, each section in nav bar', () => {
                     { section: 'home', action: 'start' as const, ts: 1 },
                     { section: 'householdMembers', action: 'start' as const, ts: 2 },
                     { section: 'end', action: 'start' as const, ts: 4 },
-                    { section: 'home', action: 'start' as const, ts: 8 },
+                    { section: 'home', action: 'start' as const, ts: 8 }
                 ]
             } as any;
 
             // Prepare the previous navigation state
-            const currentSectionData = {
-                sectionShortname: currentSection,
-                iterationContext: undefined
-            }
+            const currentSectionData = { sectionShortname: currentSection, iterationContext: undefined };
 
             // Navigate to specific section
             const nextSectionResult = navigationService.navigate({
@@ -534,38 +409,26 @@ describe('Simple direct navigation, each section in nav bar', () => {
             });
             expect(hhShouldSectionBeVisible).toHaveBeenCalledWith(testInterview, undefined);
             expect(hhSectionCompleted).toHaveBeenCalledWith(testInterview, undefined);
-            expect(nextSectionResult).toEqual({
-                targetSection: {
-                    sectionShortname: expectedSection,
-                    iterationContext: undefined
-                }
-            });
+            expect(nextSectionResult).toEqual({ targetSection: { sectionShortname: expectedSection, iterationContext: undefined } });
         });
-    })
-
+    });
 });
 
 describe('With repeated sections per household members, skipping select in natural flow', () => {
-
     const navigationService = createNavigationService(complexSectionsConfig);
 
-    describe('initNavigationState',() => {
+    describe('initNavigationState', () => {
         test('should navigate to first section when no previous navigation', () => {
             const expectedSection = 'home';
 
             // Navigate to the first section
             const nextSectionResult = navigationService.initNavigationState({ interview });
-            expect(nextSectionResult).toEqual({
-                targetSection: {
-                    sectionShortname: expectedSection,
-                    iterationContext: undefined
-                }
-            });
+            expect(nextSectionResult).toEqual({ targetSection: { sectionShortname: expectedSection, iterationContext: undefined } });
         });
 
         test('should navigate to last visited section if there are previous navigations, section not repeated', () => {
             const expectedSection = 'end';
-            
+
             // Prepare the interview with section navigation history
             const testInterview = _cloneDeep(interview);
             // FIXME The type of the _sections is not quite right, this should be valid but it is not
@@ -608,24 +471,19 @@ describe('With repeated sections per household members, skipping select in natur
                     { section: 'selectPerson', iterationContext: ['personId2'], action: 'start' as const, ts: 24 },
                     { section: 'visitedPlaces', iterationContext: ['personId2'], action: 'start' as const, ts: 28 },
                     { section: 'travelBehavior', iterationContext: ['personId2'], action: 'start' as const, ts: 32 },
-                    { section: 'end', action: 'start' as const, ts: 50 },
+                    { section: 'end', action: 'start' as const, ts: 50 }
                 ]
             } as any;
             Object.assign(testInterview.response, hhWithPersonsResponse);
 
             // Navigate to last visited section
             const nextSectionResult = navigationService.initNavigationState({ interview: testInterview });
-            expect(nextSectionResult).toEqual({
-                targetSection: {
-                    sectionShortname: expectedSection,
-                    iterationContext: undefined
-                }
-            });
+            expect(nextSectionResult).toEqual({ targetSection: { sectionShortname: expectedSection, iterationContext: undefined } });
         });
 
         test('should navigate to last visited section with correctly activated object if there are previous navigations', () => {
             const expectedSection = 'visitedPlaces';
-            
+
             // Prepare the interview with section navigation history
             const testInterview = _cloneDeep(interview);
             // FIXME The type of the _sections is not quite right, this should be valid but it is not
@@ -650,11 +508,7 @@ describe('With repeated sections per household members, skipping select in natur
                     personId1: { _startedAt: 12, _isCompleted: true },
                     personId2: { _startedAt: 28 }
                 },
-                travelBehavior: {
-                    _startedAt: 20,
-                    _isCompleted: true,
-                    personId1: { _startedAt: 20, _isCompleted: true }
-                },
+                travelBehavior: { _startedAt: 20, _isCompleted: true, personId1: { _startedAt: 20, _isCompleted: true } },
                 _actions: [
                     { section: 'home', action: 'start' as const, ts: 1 },
                     { section: 'householdMembers', action: 'start' as const, ts: 2 },
@@ -672,10 +526,7 @@ describe('With repeated sections per household members, skipping select in natur
             // Navigate to last visited section
             const nextSectionResult = navigationService.initNavigationState({ interview: testInterview });
             expect(nextSectionResult).toEqual({
-                targetSection: {
-                    sectionShortname: expectedSection,
-                    iterationContext: ['personId2']
-                },
+                targetSection: { sectionShortname: expectedSection, iterationContext: ['personId2'] },
                 valuesByPath: { 'response._activePersonId': 'personId2' }
             });
         });
@@ -683,7 +534,7 @@ describe('With repeated sections per household members, skipping select in natur
         test('should navigate to last incomplete section for activated object if requested section in a repeated block but not enabled', () => {
             const requestedSection = 'travelBehavior';
             const expectedSection = 'visitedPlaces';
-            
+
             // Prepare the interview with section navigation history and a household
             const testInterview = _cloneDeep(interview);
             // FIXME The type of the _sections is not quite right, this should be valid but it is not
@@ -708,11 +559,7 @@ describe('With repeated sections per household members, skipping select in natur
                     personId1: { _startedAt: 12, _isCompleted: true },
                     personId2: { _startedAt: 28 }
                 },
-                travelBehavior: {
-                    _startedAt: 20,
-                    _isCompleted: true,
-                    personId1: { _startedAt: 20, _isCompleted: true }
-                },
+                travelBehavior: { _startedAt: 20, _isCompleted: true, personId1: { _startedAt: 20, _isCompleted: true } },
                 _actions: [
                     { section: 'home', action: 'start' as const, ts: 1 },
                     { section: 'householdMembers', action: 'start' as const, ts: 2 },
@@ -731,18 +578,13 @@ describe('With repeated sections per household members, skipping select in natur
 
             // Navigate to requested section
             const nextSectionResult = navigationService.initNavigationState({ interview: testInterview, requestedSection });
-            expect(nextSectionResult).toEqual({
-                targetSection: {
-                    sectionShortname: expectedSection,
-                    iterationContext: ['personId2']
-                }
-            });
+            expect(nextSectionResult).toEqual({ targetSection: { sectionShortname: expectedSection, iterationContext: ['personId2'] } });
         });
 
         test('should navigate to last section for activated object if requested section in a repeated block but not visible', () => {
             const requestedSection = 'travelBehavior';
             const expectedSection = 'visitedPlaces';
-            
+
             // Prepare the interview with section navigation history and a household
             const testInterview = _cloneDeep(interview);
             // FIXME The type of the _sections is not quite right, this should be valid but it is not
@@ -767,11 +609,7 @@ describe('With repeated sections per household members, skipping select in natur
                     personId1: { _startedAt: 12, _isCompleted: true },
                     personId2: { _startedAt: 28 }
                 },
-                travelBehavior: {
-                    _startedAt: 20,
-                    _isCompleted: true,
-                    personId1: { _startedAt: 20, _isCompleted: true }
-                },
+                travelBehavior: { _startedAt: 20, _isCompleted: true, personId1: { _startedAt: 20, _isCompleted: true } },
                 _actions: [
                     { section: 'home', action: 'start' as const, ts: 1 },
                     { section: 'householdMembers', action: 'start' as const, ts: 2 },
@@ -790,18 +628,13 @@ describe('With repeated sections per household members, skipping select in natur
 
             // Navigate to requested section
             const nextSectionResult = navigationService.initNavigationState({ interview: testInterview, requestedSection });
-            expect(nextSectionResult).toEqual({
-                targetSection: {
-                    sectionShortname: expectedSection,
-                    iterationContext: ['personId2']
-                }
-            });
+            expect(nextSectionResult).toEqual({ targetSection: { sectionShortname: expectedSection, iterationContext: ['personId2'] } });
         });
 
         test('should navigate to object selection section if requested section in a repeated block but no active object', () => {
             const requestedSection = 'travelBehavior';
             const expectedSection = 'selectPerson';
-            
+
             // Prepare the interview with section navigation history and a household
             const testInterview = _cloneDeep(interview);
             // FIXME The type of the _sections is not quite right, this should be valid but it is not
@@ -824,7 +657,7 @@ describe('With repeated sections per household members, skipping select in natur
                     _startedAt: 12,
                     _isCompleted: true,
                     personId1: { _startedAt: 12, _isCompleted: true },
-                    personId2: { _startedAt: 28,  _isCompleted: true }
+                    personId2: { _startedAt: 28, _isCompleted: true }
                 },
                 travelBehavior: {
                     _startedAt: 20,
@@ -849,19 +682,14 @@ describe('With repeated sections per household members, skipping select in natur
 
             // Navigate to requested section
             const nextSectionResult = navigationService.initNavigationState({ interview: testInterview, requestedSection });
-            expect(nextSectionResult).toEqual({
-                targetSection: {
-                    sectionShortname: expectedSection,
-                    iterationContext: undefined
-                }
-            });
+            expect(nextSectionResult).toEqual({ targetSection: { sectionShortname: expectedSection, iterationContext: undefined } });
         });
 
         test('should navigate to first section of repeated block with first iteration if the main repeated block section is requested', () => {
             const requestedSection = 'personsTrips';
             const expectedSection = 'selectPerson';
             const expectedContext = ['personId1'];
-            
+
             // Prepare the interview with section navigation history and a household
             const testInterview = _cloneDeep(interview);
             // FIXME The type of the _sections is not quite right, this should be valid but it is not
@@ -886,11 +714,7 @@ describe('With repeated sections per household members, skipping select in natur
                     personId1: { _startedAt: 12, _isCompleted: true },
                     personId2: { _startedAt: 28 }
                 },
-                travelBehavior: {
-                    _startedAt: 20,
-                    _isCompleted: true,
-                    personId1: { _startedAt: 20, _isCompleted: true }
-                },
+                travelBehavior: { _startedAt: 20, _isCompleted: true, personId1: { _startedAt: 20, _isCompleted: true } },
                 _actions: [
                     { section: 'home', action: 'start' as const, ts: 1 },
                     { section: 'householdMembers', action: 'start' as const, ts: 2 },
@@ -909,10 +733,7 @@ describe('With repeated sections per household members, skipping select in natur
             // Navigate to requested section
             const nextSectionResult = navigationService.initNavigationState({ interview: testInterview, requestedSection });
             expect(nextSectionResult).toEqual({
-                targetSection: {
-                    sectionShortname: expectedSection,
-                    iterationContext: expectedContext
-                },
+                targetSection: { sectionShortname: expectedSection, iterationContext: expectedContext },
                 valuesByPath: { 'response._activePersonId': 'personId1' }
             });
         });
@@ -921,7 +742,7 @@ describe('With repeated sections per household members, skipping select in natur
             const requestedSection = 'personsTrips';
             const expectedSection = 'visitedPlaces';
             const expectedContext = ['personId1'];
-            
+
             // Prepare the interview with section navigation history and a household with only one person
             const testInterview = _cloneDeep(interview);
             const testHhWithPersons = _cloneDeep(hhWithPersonsResponse) as any;
@@ -931,21 +752,9 @@ describe('With repeated sections per household members, skipping select in natur
             testInterview.response._sections = {
                 home: { _startedAt: 1, _isCompleted: true },
                 householdMembers: { _startedAt: 2, _isCompleted: true },
-                personsTrips: {
-                    _startedAt: 6,
-                    _isCompleted: true,
-                    personId1: { _startedAt: 6, _isCompleted: true },
-                },
-                visitedPlaces: {
-                    _startedAt: 12,
-                    _isCompleted: true,
-                    personId1: { _startedAt: 12, _isCompleted: true },
-                },
-                travelBehavior: {
-                    _startedAt: 20,
-                    _isCompleted: true,
-                    personId1: { _startedAt: 20, _isCompleted: true }
-                },
+                personsTrips: { _startedAt: 6, _isCompleted: true, personId1: { _startedAt: 6, _isCompleted: true } },
+                visitedPlaces: { _startedAt: 12, _isCompleted: true, personId1: { _startedAt: 12, _isCompleted: true } },
+                travelBehavior: { _startedAt: 20, _isCompleted: true, personId1: { _startedAt: 20, _isCompleted: true } },
                 _actions: [
                     { section: 'home', action: 'start' as const, ts: 1 },
                     { section: 'householdMembers', action: 'start' as const, ts: 2 },
@@ -959,17 +768,13 @@ describe('With repeated sections per household members, skipping select in natur
             // Navigate to requested section
             const nextSectionResult = navigationService.initNavigationState({ interview: testInterview, requestedSection });
             expect(nextSectionResult).toEqual({
-                targetSection: {
-                    sectionShortname: expectedSection,
-                    iterationContext: expectedContext
-                },
+                targetSection: { sectionShortname: expectedSection, iterationContext: expectedContext },
                 valuesByPath: { 'response._activePersonId': 'personId1' }
             });
         });
     });
 
     describe('Navigate function', () => {
-
         test('should skip selection section when coming from previous section the first time', () => {
             const currentSection = 'householdMembers';
             const expectedSection = 'visitedPlaces';
@@ -988,10 +793,7 @@ describe('With repeated sections per household members, skipping select in natur
             Object.assign(testInterview.response, hhWithPersonsResponse);
 
             // Prepare the previous navigation state
-            const currentSectionData = {
-                sectionShortname: currentSection,
-                iterationContext: undefined
-            }
+            const currentSectionData = { sectionShortname: currentSection, iterationContext: undefined };
 
             // Navigate to specific section
             const nextSectionResult = navigationService.navigate({
@@ -1000,10 +802,7 @@ describe('With repeated sections per household members, skipping select in natur
                 direction: 'forward'
             });
             expect(nextSectionResult).toEqual({
-                targetSection: {
-                    sectionShortname: expectedSection,
-                    iterationContext: ['personId1']
-                },
+                targetSection: { sectionShortname: expectedSection, iterationContext: ['personId1'] },
                 valuesByPath: { 'response._activePersonId': 'personId1' }
             });
         });
@@ -1018,26 +817,10 @@ describe('With repeated sections per household members, skipping select in natur
             testInterview.response._sections = {
                 home: { _startedAt: 1, _isCompleted: true },
                 householdMembers: { _startedAt: 2, _isCompleted: true },
-                personsTrips: {
-                    _startedAt: 6,
-                    _isCompleted: true,
-                    personId1: { _startedAt: 6, _isCompleted: true }
-                },
-                selectPerson: {
-                    _startedAt: 9,
-                    _isCompleted: true,
-                    personId1: { _startedAt: 9, _isCompleted: true }
-                },
-                visitedPlaces: {
-                    _startedAt: 12,
-                    _isCompleted: true,
-                    personId1: { _startedAt: 12, _isCompleted: true }
-                },
-                travelBehavior: {
-                    _startedAt: 20,
-                    _isCompleted: true,
-                    personId1: { _startedAt: 20, _isCompleted: true }
-                },
+                personsTrips: { _startedAt: 6, _isCompleted: true, personId1: { _startedAt: 6, _isCompleted: true } },
+                selectPerson: { _startedAt: 9, _isCompleted: true, personId1: { _startedAt: 9, _isCompleted: true } },
+                visitedPlaces: { _startedAt: 12, _isCompleted: true, personId1: { _startedAt: 12, _isCompleted: true } },
+                travelBehavior: { _startedAt: 20, _isCompleted: true, personId1: { _startedAt: 20, _isCompleted: true } },
                 _actions: [
                     { section: 'home', action: 'start' as const, ts: 1 },
                     { section: 'householdMembers', action: 'start' as const, ts: 2 },
@@ -1050,10 +833,7 @@ describe('With repeated sections per household members, skipping select in natur
             Object.assign(testInterview.response, hhWithPersonsResponse);
 
             // Prepare the previous navigation state
-            const currentSectionData = {
-                sectionShortname: currentSection,
-                iterationContext: ['personId1']
-            }
+            const currentSectionData = { sectionShortname: currentSection, iterationContext: ['personId1'] };
 
             // Navigate to specific section
             const nextSectionResult = navigationService.navigate({
@@ -1062,15 +842,12 @@ describe('With repeated sections per household members, skipping select in natur
                 direction: 'forward'
             });
             expect(nextSectionResult).toEqual({
-                targetSection: {
-                    sectionShortname: expectedSection,
-                    iterationContext: ['personId2']
-                },
+                targetSection: { sectionShortname: expectedSection, iterationContext: ['personId2'] },
                 valuesByPath: { 'response._activePersonId': 'personId2' }
             });
         });
 
-        test('should show selection section when coming from previous, but sections already visited', () => {          
+        test('should show selection section when coming from previous, but sections already visited', () => {
             const currentSection = 'householdMembers';
             const expectedSection = 'selectPerson';
 
@@ -1080,25 +857,10 @@ describe('With repeated sections per household members, skipping select in natur
             testInterview.response._sections = {
                 home: { _startedAt: 1, _isCompleted: true },
                 householdMembers: { _startedAt: 2, _isCompleted: true },
-                personsTrips: {
-                    _startedAt: 6,
-                    _isCompleted: true,
-                    personId1: { _startedAt: 6, _isCompleted: true }
-                },
-                selectPerson: {
-                    _startedAt: 9,
-                    _isCompleted: true,
-                    personId1: { _startedAt: 9, _isCompleted: true }
-                },
-                visitedPlaces: {
-                    _startedAt: 12,
-                    _isCompleted: true,
-                    personId1: { _startedAt: 12, _isCompleted: true }
-                },
-                travelBehavior: {
-                    _startedAt: 20,
-                    _isCompleted: true
-                },
+                personsTrips: { _startedAt: 6, _isCompleted: true, personId1: { _startedAt: 6, _isCompleted: true } },
+                selectPerson: { _startedAt: 9, _isCompleted: true, personId1: { _startedAt: 9, _isCompleted: true } },
+                visitedPlaces: { _startedAt: 12, _isCompleted: true, personId1: { _startedAt: 12, _isCompleted: true } },
+                travelBehavior: { _startedAt: 20, _isCompleted: true },
                 _actions: [
                     { section: 'home', action: 'start' as const, ts: 1 },
                     { section: 'householdMembers', action: 'start' as const, ts: 2 },
@@ -1111,10 +873,7 @@ describe('With repeated sections per household members, skipping select in natur
             Object.assign(testInterview.response, hhWithPersonsResponse);
 
             // Prepare the previous navigation state
-            const currentSectionData = {
-                sectionShortname: currentSection,
-                iterationContext: undefined
-            }
+            const currentSectionData = { sectionShortname: currentSection, iterationContext: undefined };
 
             // Navigate to specific section
             const nextSectionResult = navigationService.navigate({
@@ -1123,10 +882,7 @@ describe('With repeated sections per household members, skipping select in natur
                 direction: 'forward'
             });
             expect(nextSectionResult).toEqual({
-                targetSection: {
-                    sectionShortname: expectedSection,
-                    iterationContext: ['personId1']
-                },
+                targetSection: { sectionShortname: expectedSection, iterationContext: ['personId1'] },
                 valuesByPath: { 'response._activePersonId': 'personId1' }
             });
         });
@@ -1134,7 +890,7 @@ describe('With repeated sections per household members, skipping select in natur
         test('should navigate to the "end" section when all repeated blocks completed', () => {
             const currentSection = 'travelBehavior';
             const expectedSection = 'end';
-            
+
             // Prepare the interview with section navigation history and a household
             const testInterview = _cloneDeep(interview);
             // FIXME The type of the _sections is not quite right, this should be valid but it is not
@@ -1157,7 +913,7 @@ describe('With repeated sections per household members, skipping select in natur
                     _startedAt: 12,
                     _isCompleted: true,
                     personId1: { _startedAt: 12, _isCompleted: true },
-                    personId2: { _startedAt: 28,  _isCompleted: true }
+                    personId2: { _startedAt: 28, _isCompleted: true }
                 },
                 travelBehavior: {
                     _startedAt: 20,
@@ -1181,10 +937,7 @@ describe('With repeated sections per household members, skipping select in natur
             Object.assign(testInterview.response, hhWithPersonsResponse);
 
             // Prepare the previous navigation state
-            const currentSectionData = {
-                sectionShortname: currentSection,
-                iterationContext: ['personId2']
-            }
+            const currentSectionData = { sectionShortname: currentSection, iterationContext: ['personId2'] };
 
             // Navigate to specific section
             const nextSectionResult = navigationService.navigate({
@@ -1193,10 +946,7 @@ describe('With repeated sections per household members, skipping select in natur
                 direction: 'forward'
             });
             expect(nextSectionResult).toEqual({
-                targetSection: {
-                    sectionShortname: expectedSection,
-                    iterationContext: undefined
-                },
+                targetSection: { sectionShortname: expectedSection, iterationContext: undefined },
                 valuesByPath: { 'response._activePersonId': undefined }
             });
         });
@@ -1204,7 +954,7 @@ describe('With repeated sections per household members, skipping select in natur
         test('should show selection section when entering repeated block, even if interview is completed', () => {
             const currentSection = 'householdMembers';
             const expectedSection = 'selectPerson';
-            
+
             // Prepare the interview with section navigation history and a household
             const testInterview = _cloneDeep(interview);
             // FIXME The type of the _sections is not quite right, this should be valid but it is not
@@ -1227,7 +977,7 @@ describe('With repeated sections per household members, skipping select in natur
                     _startedAt: 12,
                     _isCompleted: true,
                     personId1: { _startedAt: 12, _isCompleted: true },
-                    personId2: { _startedAt: 28,  _isCompleted: true }
+                    personId2: { _startedAt: 28, _isCompleted: true }
                 },
                 travelBehavior: {
                     _startedAt: 20,
@@ -1253,10 +1003,7 @@ describe('With repeated sections per household members, skipping select in natur
             Object.assign(testInterview.response, hhWithPersonsResponse);
 
             // Prepare the previous navigation state
-            const currentSectionData = {
-                sectionShortname: currentSection,
-                iterationContext: undefined
-            }
+            const currentSectionData = { sectionShortname: currentSection, iterationContext: undefined };
 
             // Navigate to specific section
             const nextSectionResult = navigationService.navigate({
@@ -1265,10 +1012,7 @@ describe('With repeated sections per household members, skipping select in natur
                 direction: 'forward'
             });
             expect(nextSectionResult).toEqual({
-                targetSection: {
-                    sectionShortname: expectedSection,
-                    iterationContext: ['personId1']
-                },
+                targetSection: { sectionShortname: expectedSection, iterationContext: ['personId1'] },
                 valuesByPath: { 'response._activePersonId': 'personId1' }
             });
         });
@@ -1278,7 +1022,7 @@ describe('With repeated sections per household members, skipping select in natur
             const currentIterationContext = ['personId2'];
             const expectedSection = 'selectPerson';
             const expectedIterationContext = ['personId1'];
-            
+
             // Prepare the interview with section navigation history and a household
             const testInterview = _cloneDeep(interview);
             // FIXME The type of the _sections is not quite right, this should be valid but it is not
@@ -1301,7 +1045,7 @@ describe('With repeated sections per household members, skipping select in natur
                     _startedAt: 12,
                     _isCompleted: true,
                     personId1: { _startedAt: 12, _isCompleted: true },
-                    personId2: { _startedAt: 28,  _isCompleted: true }
+                    personId2: { _startedAt: 28, _isCompleted: true }
                 },
                 travelBehavior: {
                     _startedAt: 20,
@@ -1327,10 +1071,7 @@ describe('With repeated sections per household members, skipping select in natur
             Object.assign(testInterview.response, hhWithPersonsResponse);
 
             // Prepare the previous navigation state
-            const currentSectionData = {
-                sectionShortname: currentSection,
-                iterationContext: currentIterationContext
-            }
+            const currentSectionData = { sectionShortname: currentSection, iterationContext: currentIterationContext };
 
             // Navigate to specific section
             const nextSectionResult = navigationService.navigate({
@@ -1339,10 +1080,7 @@ describe('With repeated sections per household members, skipping select in natur
                 direction: 'backward'
             });
             expect(nextSectionResult).toEqual({
-                targetSection: {
-                    sectionShortname: expectedSection,
-                    iterationContext: expectedIterationContext
-                },
+                targetSection: { sectionShortname: expectedSection, iterationContext: expectedIterationContext },
                 valuesByPath: { 'response._activePersonId': 'personId1' }
             });
         });
@@ -1351,7 +1089,7 @@ describe('With repeated sections per household members, skipping select in natur
             const currentSection = 'selectPerson';
             const currentIterationContext = ['personId1'];
             const expectedSection = 'householdMembers';
-            
+
             // Prepare the interview with section navigation history and a household
             const testInterview = _cloneDeep(interview);
             // FIXME The type of the _sections is not quite right, this should be valid but it is not
@@ -1374,7 +1112,7 @@ describe('With repeated sections per household members, skipping select in natur
                     _startedAt: 12,
                     _isCompleted: true,
                     personId1: { _startedAt: 12, _isCompleted: true },
-                    personId2: { _startedAt: 28,  _isCompleted: true }
+                    personId2: { _startedAt: 28, _isCompleted: true }
                 },
                 travelBehavior: {
                     _startedAt: 20,
@@ -1400,10 +1138,7 @@ describe('With repeated sections per household members, skipping select in natur
             Object.assign(testInterview.response, hhWithPersonsResponse);
 
             // Prepare the previous navigation state
-            const currentSectionData = {
-                sectionShortname: currentSection,
-                iterationContext: currentIterationContext
-            }
+            const currentSectionData = { sectionShortname: currentSection, iterationContext: currentIterationContext };
 
             // Navigate to specific section
             const nextSectionResult = navigationService.navigate({
@@ -1412,45 +1147,27 @@ describe('With repeated sections per household members, skipping select in natur
                 direction: 'backward'
             });
             expect(nextSectionResult).toEqual({
-                targetSection: {
-                    sectionShortname: expectedSection,
-                    iterationContext: undefined
-                },
+                targetSection: { sectionShortname: expectedSection, iterationContext: undefined },
                 valuesByPath: { 'response._activePersonId': undefined }
             });
         });
 
-        test('should go to next section in block with same iteration if not skipped', () => {           
+        test('should go to next section in block with same iteration if not skipped', () => {
             const currentSection = 'visitedPlaces';
             const currentIterationContext = ['personId1'];
             const expectedSection = 'travelBehavior';
             const expectedIterationContext = ['personId1'];
-            
+
             // Prepare the interview with section navigation history and a household
             const testInterview = _cloneDeep(interview);
             // FIXME The type of the _sections is not quite right, this should be valid but it is not
             testInterview.response._sections = {
                 home: { _startedAt: 1, _isCompleted: true },
                 householdMembers: { _startedAt: 2, _isCompleted: true },
-                personsTrips: {
-                    _startedAt: 6,
-                    _isCompleted: true,
-                    personId1: { _startedAt: 6, _isCompleted: true }
-                },
-                selectPerson: {
-                    _startedAt: 9,
-                    _isCompleted: true,
-                    personId1: { _startedAt: 9, _isCompleted: true }
-                },
-                visitedPlaces: {
-                    _startedAt: 12,
-                    _isCompleted: true,
-                    personId1: { _startedAt: 12, _isCompleted: true }
-                },
-                travelBehavior: {
-                    _startedAt: 20,
-                    _isCompleted: true
-                },
+                personsTrips: { _startedAt: 6, _isCompleted: true, personId1: { _startedAt: 6, _isCompleted: true } },
+                selectPerson: { _startedAt: 9, _isCompleted: true, personId1: { _startedAt: 9, _isCompleted: true } },
+                visitedPlaces: { _startedAt: 12, _isCompleted: true, personId1: { _startedAt: 12, _isCompleted: true } },
+                travelBehavior: { _startedAt: 20, _isCompleted: true },
                 end: { _startedAt: 40, _isCompleted: true },
                 _actions: [
                     { section: 'home', action: 'start' as const, ts: 1 },
@@ -1464,10 +1181,7 @@ describe('With repeated sections per household members, skipping select in natur
             testInterview.response._activePersonId = 'personId1';
 
             // Prepare the previous navigation state
-            const currentSectionData = {
-                sectionShortname: currentSection,
-                iterationContext: currentIterationContext
-            }
+            const currentSectionData = { sectionShortname: currentSection, iterationContext: currentIterationContext };
 
             // Navigate to specific section
             const nextSectionResult = navigationService.navigate({
@@ -1476,47 +1190,29 @@ describe('With repeated sections per household members, skipping select in natur
                 direction: 'forward'
             });
             expect(nextSectionResult).toEqual({
-                targetSection: {
-                    sectionShortname: expectedSection,
-                    iterationContext: expectedIterationContext
-                },
+                targetSection: { sectionShortname: expectedSection, iterationContext: expectedIterationContext },
                 valuesByPath: undefined
             });
             expect(tbIsSectionVisible).toHaveBeenCalledWith(testInterview, ['personId1']);
         });
 
-        test('should go to next iteration if last section of block is skipped in natural flow', () => {           
+        test('should go to next iteration if last section of block is skipped in natural flow', () => {
             const currentSection = 'visitedPlaces';
             const currentIterationContext = ['personId1'];
             const expectedSection = 'visitedPlaces';
             const expectedIterationContext = ['personId2'];
             tbIsSectionVisible.mockReturnValueOnce(false);
-            
+
             // Prepare the interview with section navigation history and a household
             const testInterview = _cloneDeep(interview);
             // FIXME The type of the _sections is not quite right, this should be valid but it is not
             testInterview.response._sections = {
                 home: { _startedAt: 1, _isCompleted: true },
                 householdMembers: { _startedAt: 2, _isCompleted: true },
-                personsTrips: {
-                    _startedAt: 6,
-                    _isCompleted: true,
-                    personId1: { _startedAt: 6, _isCompleted: true }
-                },
-                selectPerson: {
-                    _startedAt: 9,
-                    _isCompleted: true,
-                    personId1: { _startedAt: 9, _isCompleted: true }
-                },
-                visitedPlaces: {
-                    _startedAt: 12,
-                    _isCompleted: true,
-                    personId1: { _startedAt: 12, _isCompleted: true }
-                },
-                travelBehavior: {
-                    _startedAt: 20,
-                    _isCompleted: true
-                },
+                personsTrips: { _startedAt: 6, _isCompleted: true, personId1: { _startedAt: 6, _isCompleted: true } },
+                selectPerson: { _startedAt: 9, _isCompleted: true, personId1: { _startedAt: 9, _isCompleted: true } },
+                visitedPlaces: { _startedAt: 12, _isCompleted: true, personId1: { _startedAt: 12, _isCompleted: true } },
+                travelBehavior: { _startedAt: 20, _isCompleted: true },
                 end: { _startedAt: 40, _isCompleted: true },
                 _actions: [
                     { section: 'home', action: 'start' as const, ts: 1 },
@@ -1529,10 +1225,7 @@ describe('With repeated sections per household members, skipping select in natur
             Object.assign(testInterview.response, hhWithPersonsResponse);
 
             // Prepare the previous navigation state
-            const currentSectionData = {
-                sectionShortname: currentSection,
-                iterationContext: currentIterationContext
-            }
+            const currentSectionData = { sectionShortname: currentSection, iterationContext: currentIterationContext };
 
             // Navigate to specific section
             const nextSectionResult = navigationService.navigate({
@@ -1541,10 +1234,7 @@ describe('With repeated sections per household members, skipping select in natur
                 direction: 'forward'
             });
             expect(nextSectionResult).toEqual({
-                targetSection: {
-                    sectionShortname: expectedSection,
-                    iterationContext: expectedIterationContext
-                },
+                targetSection: { sectionShortname: expectedSection, iterationContext: expectedIterationContext },
                 valuesByPath: { 'response._activePersonId': expectedIterationContext[0] }
             });
             expect(tbIsSectionVisible).toHaveBeenCalledWith(testInterview, ['personId1']);
@@ -1556,8 +1246,8 @@ describe('With repeated sections per household members, skipping select in natur
                 { sectionShortname: 'home' },
                 { sectionShortname: 'householdMembers' },
                 { sectionShortname: 'visitedPlaces', iterationContext: ['personId1'] },
-                { sectionShortname: 'travelBehavior', iterationContext: ['personId1']},
-                { sectionShortname: 'visitedPlaces', iterationContext: ['personId2']},
+                { sectionShortname: 'travelBehavior', iterationContext: ['personId1'] },
+                { sectionShortname: 'visitedPlaces', iterationContext: ['personId2'] },
                 { sectionShortname: 'end' }
             ];
             // Skip travelBehavior at second call
@@ -1567,29 +1257,22 @@ describe('With repeated sections per household members, skipping select in natur
             // Prepare the interview with section navigation history and a household
             const testInterview = _cloneDeep(interview);
             // Initialize sections, they will be filled as needed, prefill responses
-            testInterview.response._sections = {
-                _actions: []
-            } as any;
+            testInterview.response._sections = { _actions: [] } as any;
             Object.assign(testInterview.response, hhWithPersonsResponse);
 
             const initialNavigation = navigationService.initNavigationState({ interview: testInterview });
-            expect(initialNavigation).toEqual({
-                targetSection: expectedSectionSequence[0]
-            });
+            expect(initialNavigation).toEqual({ targetSection: expectedSectionSequence[0] });
 
             // Prepare the previous navigation state
             let currentSection = initialNavigation.targetSection;
 
             for (let i = 1; i < expectedSectionSequence.length; i++) {
                 // Add section completion data to the interview
-                (testInterview.response._sections as any)[currentSection.sectionShortname] = {
-                    _startedAt: i * 10,
-                    _isCompleted: true,
-                };
-                if (currentSection.iterationContext) { 
+                (testInterview.response._sections as any)[currentSection.sectionShortname] = { _startedAt: i * 10, _isCompleted: true };
+                if (currentSection.iterationContext) {
                     (testInterview.response._sections as any)[currentSection.sectionShortname][currentSection.iterationContext[0]] = {
                         _startedAt: i * 10,
-                        _isCompleted: true,
+                        _isCompleted: true
                     };
                 }
                 (testInterview.response._sections as any)._actions.push({
@@ -1609,7 +1292,10 @@ describe('With repeated sections per household members, skipping select in natur
                 });
                 expect(nextSectionResult).toEqual({
                     targetSection: expectedSection,
-                    valuesByPath: expectedSection.iterationContext === undefined && currentSection.iterationContext === undefined ? undefined : { 'response._activePersonId': expectedSection.iterationContext ? expectedSection.iterationContext[0] : undefined }
+                    valuesByPath:
+                        expectedSection.iterationContext === undefined && currentSection.iterationContext === undefined
+                            ? undefined
+                            : { 'response._activePersonId': expectedSection.iterationContext ? expectedSection.iterationContext[0] : undefined }
                 });
                 currentSection = nextSectionResult.targetSection;
             }
@@ -1619,7 +1305,7 @@ describe('With repeated sections per household members, skipping select in natur
             const currentSection = 'householdMembers';
             const expectedSection = 'end';
             tripsIsEnabled.mockReturnValueOnce(false);
-            
+
             // Prepare the interview with section navigation history and a household
             const testInterview = _cloneDeep(interview);
             // FIXME The type of the _sections is not quite right, this should be valid but it is not
@@ -1634,9 +1320,7 @@ describe('With repeated sections per household members, skipping select in natur
             Object.assign(testInterview.response, hhWithPersonsResponse);
 
             // Prepare the previous navigation state
-            const currentSectionData = {
-                sectionShortname: currentSection
-            }
+            const currentSectionData = { sectionShortname: currentSection };
 
             // Navigate to specific section
             const nextSectionResult = navigationService.navigate({
@@ -1645,10 +1329,7 @@ describe('With repeated sections per household members, skipping select in natur
                 direction: 'forward'
             });
             expect(nextSectionResult).toEqual({
-                targetSection: {
-                    sectionShortname: expectedSection,
-                    iterationContext: undefined
-                },
+                targetSection: { sectionShortname: expectedSection, iterationContext: undefined },
                 valuesByPath: undefined
             });
         });
@@ -1682,7 +1363,7 @@ describe('With repeated sections per household members, skipping select in natur
                     _startedAt: 12,
                     _isCompleted: true,
                     personId1: { _startedAt: 12, _isCompleted: true },
-                    personId2: { _startedAt: 28,  _isCompleted: true }
+                    personId2: { _startedAt: 28, _isCompleted: true }
                 },
                 travelBehavior: {
                     _startedAt: 20,
@@ -1708,27 +1389,20 @@ describe('With repeated sections per household members, skipping select in natur
             Object.assign(testInterview.response, hhWithPersonsResponse);
 
             // Prepare the previous navigation state
-            const currentSectionData = {
-                sectionShortname: currentSection,
-                iterationContext: currentIterationContext
-            }
+            const currentSectionData = { sectionShortname: currentSection, iterationContext: currentIterationContext };
 
             // Navigate to specific section
-            const nextSectionResult = navigationService.navigate({ interview: testInterview, currentSection: _cloneDeep(currentSectionData), direction: 'forward' });
-            expect(nextSectionResult).toEqual({
-                targetSection: {
-                    sectionShortname: expectedSection,
-                    iterationContext: expectedIterationContext
-                }
+            const nextSectionResult = navigationService.navigate({
+                interview: testInterview,
+                currentSection: _cloneDeep(currentSectionData),
+                direction: 'forward'
             });
+            expect(nextSectionResult).toEqual({ targetSection: { sectionShortname: expectedSection, iterationContext: expectedIterationContext } });
         });
-
     });
-
 });
 
 describe('navigate function, further use cases', () => {
-
     describe('test iteration context order', () => {
         // Prepare the interview with section navigation history and a household
         const testInterview = _cloneDeep(interview);
@@ -1755,19 +1429,17 @@ describe('navigate function, further use cases', () => {
             const navigationService = createNavigationService(sectionConfig);
 
             // Prepare the previous navigation state
-            const currentSectionData = {
-                sectionShortname: currentSection,
-                iterationContext: undefined
-            }
+            const currentSectionData = { sectionShortname: currentSection, iterationContext: undefined };
 
             // Navigate to specific section
-            const nextSectionResult = navigationService.navigate({ interview: testInterview, currentSection: _cloneDeep(currentSectionData), direction: 'forward'});
+            const nextSectionResult = navigationService.navigate({
+                interview: testInterview,
+                currentSection: _cloneDeep(currentSectionData),
+                direction: 'forward'
+            });
             expect(mockShuffle).toHaveBeenCalledWith(['personId1', 'personId2']);
             expect(nextSectionResult).toEqual({
-                targetSection: {
-                    sectionShortname: expectedSection,
-                    iterationContext: expectedIterationContext
-                },
+                targetSection: { sectionShortname: expectedSection, iterationContext: expectedIterationContext },
                 valuesByPath: { 'response._activePersonId': expectedIterationContext[0], 'response._RandomSequence': ['personId2', 'personId1'] }
             });
         });
@@ -1783,23 +1455,24 @@ describe('navigate function, further use cases', () => {
             (sectionConfig['personsTrips'] as SectionConfigWithDefaultsBlock).repeatedBlock.order = 'random';
             (sectionConfig['personsTrips'] as SectionConfigWithDefaultsBlock).repeatedBlock.pathPrefix = pathPrefix;
             mockShuffle.mockReturnValueOnce(['personId2', 'personId1']);
-            
+
             const navigationService = createNavigationService(sectionConfig);
 
             // Prepare the previous navigation state
-            const currentSectionData = {
-                sectionShortname: currentSection,
-                iterationContext: undefined
-            }
+            const currentSectionData = { sectionShortname: currentSection, iterationContext: undefined };
 
             // Navigate to specific section
-            const nextSectionResult = navigationService.navigate({ interview: testInterview, currentSection: _cloneDeep(currentSectionData), direction: 'forward' });
+            const nextSectionResult = navigationService.navigate({
+                interview: testInterview,
+                currentSection: _cloneDeep(currentSectionData),
+                direction: 'forward'
+            });
             expect(nextSectionResult).toEqual({
-                targetSection: {
-                    sectionShortname: expectedSection,
-                    iterationContext: expectedIterationContext
-                },
-                valuesByPath: { 'response._activePersonId': expectedIterationContext[1], 'response._personRandomSequence': ['personId2', 'personId1'] }
+                targetSection: { sectionShortname: expectedSection, iterationContext: expectedIterationContext },
+                valuesByPath: {
+                    'response._activePersonId': expectedIterationContext[1],
+                    'response._personRandomSequence': ['personId2', 'personId1']
+                }
             });
             expect(mockShuffle).toHaveBeenCalledWith(['personId1', 'personId2']);
         });
@@ -1818,19 +1491,17 @@ describe('navigate function, further use cases', () => {
             testInterviewWithRandomSequence.response._RandomSequence = ['personId2', 'personId1'];
 
             // Prepare the previous navigation state
-            const currentSectionData = {
-                sectionShortname: currentSection,
-                iterationContext: undefined
-            }
+            const currentSectionData = { sectionShortname: currentSection, iterationContext: undefined };
 
             // Navigate to specific section
-            const nextSectionResult = navigationService.navigate({ interview: testInterviewWithRandomSequence, currentSection: _cloneDeep(currentSectionData), direction: 'forward' });
+            const nextSectionResult = navigationService.navigate({
+                interview: testInterviewWithRandomSequence,
+                currentSection: _cloneDeep(currentSectionData),
+                direction: 'forward'
+            });
             expect(mockShuffle).not.toHaveBeenCalled();
             expect(nextSectionResult).toEqual({
-                targetSection: {
-                    sectionShortname: expectedSection,
-                    iterationContext: expectedIterationContext
-                },
+                targetSection: { sectionShortname: expectedSection, iterationContext: expectedIterationContext },
                 valuesByPath: { 'response._activePersonId': expectedIterationContext[0] }
             });
         });
@@ -1851,19 +1522,17 @@ describe('navigate function, further use cases', () => {
             testInterviewWithRandomSequence.response._RandomSequence = ['personId2', 'personId3'];
 
             // Prepare the previous navigation state
-            const currentSectionData = {
-                sectionShortname: currentSection,
-                iterationContext: undefined
-            }
+            const currentSectionData = { sectionShortname: currentSection, iterationContext: undefined };
 
             // Navigate to specific section
-            const nextSectionResult = navigationService.navigate({ interview: testInterviewWithRandomSequence, currentSection: _cloneDeep(currentSectionData), direction: 'forward'});
+            const nextSectionResult = navigationService.navigate({
+                interview: testInterviewWithRandomSequence,
+                currentSection: _cloneDeep(currentSectionData),
+                direction: 'forward'
+            });
             expect(mockShuffle).toHaveBeenCalledWith(['personId1', 'personId2']);
             expect(nextSectionResult).toEqual({
-                targetSection: {
-                    sectionShortname: expectedSection,
-                    iterationContext: expectedIterationContext
-                },
+                targetSection: { sectionShortname: expectedSection, iterationContext: expectedIterationContext },
                 valuesByPath: { 'response._activePersonId': expectedIterationContext[0], 'response._RandomSequence': ['personId2', 'personId1'] }
             });
         });
@@ -1883,19 +1552,17 @@ describe('navigate function, further use cases', () => {
             testInterviewWithRandomSequence.response._RandomSequence = ['personId2', 'personId3', 'personId1'];
 
             // Prepare the previous navigation state
-            const currentSectionData = {
-                sectionShortname: currentSection,
-                iterationContext: undefined
-            }
+            const currentSectionData = { sectionShortname: currentSection, iterationContext: undefined };
 
             // Navigate to specific section
-            const nextSectionResult = navigationService.navigate({ interview: testInterviewWithRandomSequence, currentSection: _cloneDeep(currentSectionData), direction: 'forward' });
+            const nextSectionResult = navigationService.navigate({
+                interview: testInterviewWithRandomSequence,
+                currentSection: _cloneDeep(currentSectionData),
+                direction: 'forward'
+            });
             expect(mockShuffle).toHaveBeenCalledWith(['personId1', 'personId2']);
             expect(nextSectionResult).toEqual({
-                targetSection: {
-                    sectionShortname: expectedSection,
-                    iterationContext: expectedIterationContext
-                },
+                targetSection: { sectionShortname: expectedSection, iterationContext: expectedIterationContext },
                 valuesByPath: { 'response._activePersonId': expectedIterationContext[0], 'response._RandomSequence': ['personId2', 'personId1'] }
             });
         });
@@ -1913,23 +1580,21 @@ describe('navigate function, further use cases', () => {
             // Set random order
             const testInterviewWithRandomSequence = _cloneDeep(testInterview);
             testInterviewWithRandomSequence.response._personRandomSequence = ['personId2', 'personId1'];
-            
+
             const navigationService = createNavigationService(sectionConfig);
 
             // Prepare the previous navigation state
-            const currentSectionData = {
-                sectionShortname: currentSection,
-                iterationContext: undefined
-            }
+            const currentSectionData = { sectionShortname: currentSection, iterationContext: undefined };
 
             // Navigate to specific section
-            const nextSectionResult = navigationService.navigate({ interview: testInterviewWithRandomSequence, currentSection: _cloneDeep(currentSectionData), direction: 'forward' });
+            const nextSectionResult = navigationService.navigate({
+                interview: testInterviewWithRandomSequence,
+                currentSection: _cloneDeep(currentSectionData),
+                direction: 'forward'
+            });
             expect(mockShuffle).not.toHaveBeenCalled();
             expect(nextSectionResult).toEqual({
-                targetSection: {
-                    sectionShortname: expectedSection,
-                    iterationContext: expectedIterationContext
-                },
+                targetSection: { sectionShortname: expectedSection, iterationContext: expectedIterationContext },
                 valuesByPath: { 'response._activePersonId': expectedIterationContext[1] }
             });
         });
@@ -1950,19 +1615,17 @@ describe('navigate function, further use cases', () => {
             testInterviewWithRandomSequence.response._RandomSequence = ['personId2', 'personId1'];
 
             // Prepare the previous navigation state
-            const currentSectionData = {
-                sectionShortname: currentSection,
-                iterationContext: currentIterationContext
-            };
+            const currentSectionData = { sectionShortname: currentSection, iterationContext: currentIterationContext };
 
             // Navigate to specific section
-            const nextSectionResult = navigationService.navigate({ interview: testInterviewWithRandomSequence, currentSection: _cloneDeep(currentSectionData), direction: 'forward'});
+            const nextSectionResult = navigationService.navigate({
+                interview: testInterviewWithRandomSequence,
+                currentSection: _cloneDeep(currentSectionData),
+                direction: 'forward'
+            });
             expect(mockShuffle).not.toHaveBeenCalled();
             expect(nextSectionResult).toEqual({
-                targetSection: {
-                    sectionShortname: expectedSection,
-                    iterationContext: expectedIterationContext
-                },
+                targetSection: { sectionShortname: expectedSection, iterationContext: expectedIterationContext },
                 valuesByPath: { 'response._activePersonId': undefined }
             });
         });
@@ -1975,22 +1638,20 @@ describe('navigate function, further use cases', () => {
             // Set the order of the iteration contexts to sequential and make sure mockShuffle is not called
             const sectionConfig = _cloneDeep(complexSectionsConfig);
             (sectionConfig['personsTrips'] as SectionConfigWithDefaultsBlock).repeatedBlock.order = 'sequential';
-            
+
             const navigationService = createNavigationService(sectionConfig);
 
             // Prepare the previous navigation state
-            const currentSectionData = {
-                sectionShortname: currentSection,
-                iterationContext: undefined
-            }
+            const currentSectionData = { sectionShortname: currentSection, iterationContext: undefined };
 
             // Navigate to specific section
-            const nextSectionResult = navigationService.navigate({ interview: testInterview, currentSection: _cloneDeep(currentSectionData), direction: 'forward' });
+            const nextSectionResult = navigationService.navigate({
+                interview: testInterview,
+                currentSection: _cloneDeep(currentSectionData),
+                direction: 'forward'
+            });
             expect(nextSectionResult).toEqual({
-                targetSection: {
-                    sectionShortname: expectedSection,
-                    iterationContext: expectedIterationContext
-                },
+                targetSection: { sectionShortname: expectedSection, iterationContext: expectedIterationContext },
                 valuesByPath: { 'response._activePersonId': expectedIterationContext[0] }
             });
             expect(mockShuffle).not.toHaveBeenCalled();
@@ -2010,25 +1671,10 @@ describe('navigate function, further use cases', () => {
             testInterview.response._sections = {
                 home: { _startedAt: 1, _isCompleted: true },
                 householdMembers: { _startedAt: 2, _isCompleted: true },
-                personsTrips: {
-                    _startedAt: 6,
-                    _isCompleted: true,
-                    personId1: { _startedAt: 6, _isCompleted: true }
-                },
-                selectPerson: {
-                    _startedAt: 9,
-                    _isCompleted: true,
-                    personId1: { _startedAt: 9, _isCompleted: true }
-                },
-                visitedPlaces: {
-                    _startedAt: 12,
-                    _isCompleted: true,
-                    personId1: { _startedAt: 12, _isCompleted: true }
-                },
-                travelBehavior: {
-                    _startedAt: 20,
-                    _isCompleted: true
-                },
+                personsTrips: { _startedAt: 6, _isCompleted: true, personId1: { _startedAt: 6, _isCompleted: true } },
+                selectPerson: { _startedAt: 9, _isCompleted: true, personId1: { _startedAt: 9, _isCompleted: true } },
+                visitedPlaces: { _startedAt: 12, _isCompleted: true, personId1: { _startedAt: 12, _isCompleted: true } },
+                travelBehavior: { _startedAt: 20, _isCompleted: true },
                 end: { _startedAt: 40, _isCompleted: true },
                 _actions: [
                     { section: 'home', action: 'start' as const, ts: 1 },
@@ -2042,10 +1688,7 @@ describe('navigate function, further use cases', () => {
             testInterview.response._activePersonId = 'personId1';
 
             // Prepare the previous navigation state
-            const currentSectionData = {
-                sectionShortname: currentSection,
-                iterationContext: currentIterationContext
-            }
+            const currentSectionData = { sectionShortname: currentSection, iterationContext: currentIterationContext };
 
             // Prepare section configuration with a path prefix and create navigation service
             const sectionConfig = _cloneDeep(complexSectionsConfig);
@@ -2054,12 +1697,13 @@ describe('navigate function, further use cases', () => {
             const navigationService = createNavigationService(sectionConfig);
 
             // Navigate to specific section
-            const nextSectionResult = navigationService.navigate({ interview: testInterview, currentSection: _cloneDeep(currentSectionData), direction: 'forward' });
+            const nextSectionResult = navigationService.navigate({
+                interview: testInterview,
+                currentSection: _cloneDeep(currentSectionData),
+                direction: 'forward'
+            });
             expect(nextSectionResult).toEqual({
-                targetSection: {
-                    sectionShortname: expectedSection,
-                    iterationContext: expectedIterationContext
-                },
+                targetSection: { sectionShortname: expectedSection, iterationContext: expectedIterationContext },
                 valuesByPath: undefined
             });
             expect(tbIsSectionVisible).toHaveBeenCalledWith(testInterview, ['person', 'personId1']);
@@ -2077,35 +1721,21 @@ describe('navigate function, further use cases', () => {
             testInterview.response._sections = {
                 home: { _startedAt: 1, _isCompleted: true },
                 householdMembers: { _startedAt: 2, _isCompleted: true },
-                personsTrips: {
-                    _startedAt: 6,
-                    _isCompleted: true,
-                    personId1: { _startedAt: 6, _isCompleted: true }
-                },
-                selectPerson: {
-                    _startedAt: 9,
-                    _isCompleted: true,
-                    personId1: { _startedAt: 9, _isCompleted: true }
-                },
-                visitedPlaces: {
-                    _startedAt: 12,
-                    _isCompleted: true,
-                },
+                personsTrips: { _startedAt: 6, _isCompleted: true, personId1: { _startedAt: 6, _isCompleted: true } },
+                selectPerson: { _startedAt: 9, _isCompleted: true, personId1: { _startedAt: 9, _isCompleted: true } },
+                visitedPlaces: { _startedAt: 12, _isCompleted: true },
                 _actions: [
                     { section: 'home', action: 'start' as const, ts: 1 },
                     { section: 'householdMembers', action: 'start' as const, ts: 2 },
                     { section: 'personsTrips', iterationContext: ['personId1'], action: 'start' as const, ts: 6 },
-                    { section: 'selectPerson', iterationContext: ['personId1'], action: 'start' as const, ts: 9 },
+                    { section: 'selectPerson', iterationContext: ['personId1'], action: 'start' as const, ts: 9 }
                 ]
             } as any;
             Object.assign(testInterview.response, hhWithPersonsResponse);
             testInterview.response._activePersonId = 'personId1';
 
             // Prepare the previous navigation state
-            const currentSectionData = {
-                sectionShortname: currentSection,
-                iterationContext: currentIterationContext
-            }
+            const currentSectionData = { sectionShortname: currentSection, iterationContext: currentIterationContext };
 
             // Prepare section configuration with a path prefix and create navigation service
             const sectionConfig = _cloneDeep(complexSectionsConfig);
@@ -2114,12 +1744,13 @@ describe('navigate function, further use cases', () => {
             const navigationService = createNavigationService(sectionConfig);
 
             // Navigate to specific section
-            const nextSectionResult = navigationService.navigate({ interview: testInterview, currentSection: _cloneDeep(currentSectionData), direction: 'forward' });
+            const nextSectionResult = navigationService.navigate({
+                interview: testInterview,
+                currentSection: _cloneDeep(currentSectionData),
+                direction: 'forward'
+            });
             expect(nextSectionResult).toEqual({
-                targetSection: {
-                    sectionShortname: expectedSection,
-                    iterationContext: expectedIterationContext
-                },
+                targetSection: { sectionShortname: expectedSection, iterationContext: expectedIterationContext },
                 valuesByPath: undefined
             });
         });
@@ -2136,7 +1767,7 @@ describe('navigate function, further use cases', () => {
         beforeEach(() => {
             mockIsIterationValid.mockReset();
             mockIsIterationValid.mockReturnValue(true);
-        })
+        });
 
         test('Last iteration, all iterations valid', () => {
             const currentSection = 'travelBehavior';
@@ -2191,18 +1822,16 @@ describe('navigate function, further use cases', () => {
             testInterview.response._activePersonId = 'personId2';
 
             // Prepare the previous navigation state
-            const currentSectionData = {
-                sectionShortname: currentSection,
-                iterationContext: currentIterationContext
-            }
+            const currentSectionData = { sectionShortname: currentSection, iterationContext: currentIterationContext };
 
             // Navigate to specific section
-            const nextSectionResult = navigationService.navigate({ interview: testInterview, currentSection: _cloneDeep(currentSectionData), direction: 'forward' });
+            const nextSectionResult = navigationService.navigate({
+                interview: testInterview,
+                currentSection: _cloneDeep(currentSectionData),
+                direction: 'forward'
+            });
             expect(nextSectionResult).toEqual({
-                targetSection: {
-                    sectionShortname: expectedSection,
-                    iterationContext: expectedIterationContext
-                },
+                targetSection: { sectionShortname: expectedSection, iterationContext: expectedIterationContext },
                 valuesByPath: { 'response._activePersonId': undefined }
             });
             expect(mockIsIterationValid).toHaveBeenCalledWith(testInterview, ['personId1']);
@@ -2264,18 +1893,16 @@ describe('navigate function, further use cases', () => {
             testInterview.response._activePersonId = 'personId2';
 
             // Prepare the previous navigation state
-            const currentSectionData = {
-                sectionShortname: currentSection,
-                iterationContext: currentIterationContext
-            }
+            const currentSectionData = { sectionShortname: currentSection, iterationContext: currentIterationContext };
 
             // Navigate to specific section
-            const nextSectionResult = navigationService.navigate({ interview: testInterview, currentSection: _cloneDeep(currentSectionData), direction: 'forward' });
+            const nextSectionResult = navigationService.navigate({
+                interview: testInterview,
+                currentSection: _cloneDeep(currentSectionData),
+                direction: 'forward'
+            });
             expect(nextSectionResult).toEqual({
-                targetSection: {
-                    sectionShortname: expectedSection,
-                    iterationContext: expectedIterationContext
-                },
+                targetSection: { sectionShortname: expectedSection, iterationContext: expectedIterationContext },
                 valuesByPath: { 'response._activePersonId': expectedIterationContext[0] }
             });
             expect(mockIsIterationValid).toHaveBeenCalledWith(testInterview, ['personId1']);
@@ -2293,26 +1920,10 @@ describe('navigate function, further use cases', () => {
             testInterview.response._sections = {
                 home: { _startedAt: 1, _isCompleted: true },
                 householdMembers: { _startedAt: 2, _isCompleted: true },
-                personsTrips: {
-                    _startedAt: 6,
-                    _isCompleted: true,
-                    personId1: { _startedAt: 6, _isCompleted: true }
-                },
-                selectPerson: {
-                    _startedAt: 9,
-                    _isCompleted: true,
-                    personId1: { _startedAt: 9, _isCompleted: true }
-                },
-                visitedPlaces: {
-                    _startedAt: 12,
-                    _isCompleted: true,
-                    personId1: { _startedAt: 12, _isCompleted: true }
-                },
-                travelBehavior: {
-                    _startedAt: 20,
-                    _isCompleted: true,
-                    personId1: { _startedAt: 15, _isCompleted: true }
-                },
+                personsTrips: { _startedAt: 6, _isCompleted: true, personId1: { _startedAt: 6, _isCompleted: true } },
+                selectPerson: { _startedAt: 9, _isCompleted: true, personId1: { _startedAt: 9, _isCompleted: true } },
+                visitedPlaces: { _startedAt: 12, _isCompleted: true, personId1: { _startedAt: 12, _isCompleted: true } },
+                travelBehavior: { _startedAt: 20, _isCompleted: true, personId1: { _startedAt: 15, _isCompleted: true } },
                 end: { _startedAt: 40, _isCompleted: true },
                 _actions: [
                     { section: 'home', action: 'start' as const, ts: 1 },
@@ -2327,18 +1938,16 @@ describe('navigate function, further use cases', () => {
             testInterview.response._activePersonId = 'personId1';
 
             // Prepare the previous navigation state
-            const currentSectionData = {
-                sectionShortname: currentSection,
-                iterationContext: currentIterationContext
-            }
+            const currentSectionData = { sectionShortname: currentSection, iterationContext: currentIterationContext };
 
             // Navigate to specific section
-            const nextSectionResult = navigationService.navigate({ interview: testInterview, currentSection: _cloneDeep(currentSectionData), direction: 'forward' });
+            const nextSectionResult = navigationService.navigate({
+                interview: testInterview,
+                currentSection: _cloneDeep(currentSectionData),
+                direction: 'forward'
+            });
             expect(nextSectionResult).toEqual({
-                targetSection: {
-                    sectionShortname: expectedSection,
-                    iterationContext: expectedIterationContext
-                },
+                targetSection: { sectionShortname: expectedSection, iterationContext: expectedIterationContext },
                 valuesByPath: { 'response._activePersonId': expectedIterationContext[0] }
             });
             expect(mockIsIterationValid).not.toHaveBeenCalled();
@@ -2357,7 +1966,7 @@ describe('navigate function, further use cases', () => {
 
         beforeEach(() => {
             jest.clearAllMocks();
-        })
+        });
 
         test('Entering household section through navigation from nowhere', () => {
             // Prepare expected sections and on enter values by path
@@ -2380,10 +1989,7 @@ describe('navigate function, further use cases', () => {
             // Navigate to last visited section
             const nextSectionResult = navigationService.initNavigationState({ interview: testInterview });
             expect(nextSectionResult).toEqual({
-                targetSection: {
-                    sectionShortname: expectedSection,
-                    iterationContext: undefined
-                },
+                targetSection: { sectionShortname: expectedSection, iterationContext: undefined },
                 valuesByPath: onEnterValues
             });
             expect(mockOnEnterHh).toHaveBeenCalledWith(testInterview, undefined);
@@ -2405,24 +2011,16 @@ describe('navigate function, further use cases', () => {
             testInterview.response._sections = {
                 home: { _startedAt: 1, _isCompleted: true },
                 householdMembers: { _startedAt: 2 },
-                _actions: [
-                    { section: 'home', action: 'start' as const, ts: 1 }
-                ]
+                _actions: [{ section: 'home', action: 'start' as const, ts: 1 }]
             } as any;
 
             // Prepare the previous navigation state
-            const currentSectionData = {
-                sectionShortname: currentSection,
-                iterationContext: undefined
-            }
+            const currentSectionData = { sectionShortname: currentSection, iterationContext: undefined };
 
             // Navigate to next section
             const nextSectionResult = navigationService.navigate({ interview: testInterview, currentSection: currentSectionData });
             expect(nextSectionResult).toEqual({
-                targetSection: {
-                    sectionShortname: expectedSection,
-                    iterationContext: undefined
-                },
+                targetSection: { sectionShortname: expectedSection, iterationContext: undefined },
                 valuesByPath: Object.assign({}, onEnterValues, onExitValues)
             });
             expect(mockOnEnterHh).toHaveBeenCalledWith(testInterview, undefined);
@@ -2449,18 +2047,16 @@ describe('navigate function, further use cases', () => {
             } as any;
 
             // Prepare the previous navigation state
-            const currentSectionData = {
-                sectionShortname: currentSection,
-                iterationContext: undefined
-            }
+            const currentSectionData = { sectionShortname: currentSection, iterationContext: undefined };
 
             // Navigate to next section
-            const nextSectionResult = navigationService.initNavigationState({ interview: testInterview, requestedSection: 'end', currentSection: currentSectionData });
+            const nextSectionResult = navigationService.initNavigationState({
+                interview: testInterview,
+                requestedSection: 'end',
+                currentSection: currentSectionData
+            });
             expect(nextSectionResult).toEqual({
-                targetSection: {
-                    sectionShortname: expectedSection,
-                    iterationContext: undefined
-                },
+                targetSection: { sectionShortname: expectedSection, iterationContext: undefined },
                 valuesByPath: Object.assign({}, onExitValues)
             });
             expect(mockOnEnterHh).not.toHaveBeenCalled();
@@ -2487,25 +2083,18 @@ describe('navigate function, further use cases', () => {
             } as any;
 
             // Prepare the previous navigation state
-            const currentSectionData = {
-                sectionShortname: currentSection,
-                iterationContext: undefined
-            }
+            const currentSectionData = { sectionShortname: currentSection, iterationContext: undefined };
 
             // Navigate to next section
             const nextSectionResult = navigationService.navigate({ interview: testInterview, currentSection: currentSectionData });
             expect(nextSectionResult).toEqual({
-                targetSection: {
-                    sectionShortname: expectedSection,
-                    iterationContext: undefined
-                },
+                targetSection: { sectionShortname: expectedSection, iterationContext: undefined },
                 valuesByPath: undefined
             });
             expect(mockOnEnterHh).not.toHaveBeenCalled();
             expect(mockOnExitHome).not.toHaveBeenCalled();
         });
     });
-    
 });
 
 describe('Exceptions in sectionConfig\'s functions', () => {
@@ -2524,11 +2113,15 @@ describe('Exceptions in sectionConfig\'s functions', () => {
 
         // Set the `onSectionEntry` to throw an error
         const sectionConfig = _cloneDeep(simpleSectionsConfig);
-        sectionConfig.householdMembers.onSectionEntry = () => { throw new Error('Test error'); }
+        sectionConfig.householdMembers.onSectionEntry = () => {
+            throw new Error('Test error');
+        };
         const navigationService = createNavigationService(sectionConfig);
 
         // Navigate to last visited section
-        expect(() => navigationService.initNavigationState({ interview: testInterview })).toThrow('NavigationService: Error evaluating onSectionEntry for section householdMembers: Error: Test error');
+        expect(() => navigationService.initNavigationState({ interview: testInterview })).toThrow(
+            'NavigationService: Error evaluating onSectionEntry for section householdMembers: Error: Test error'
+        );
     });
 
     test('onSectionExit throws an error', () => {
@@ -2546,17 +2139,18 @@ describe('Exceptions in sectionConfig\'s functions', () => {
 
         // Set the `onSectionExit` to throw an error
         const sectionConfig = _cloneDeep(simpleSectionsConfig);
-        sectionConfig.home.onSectionExit = () => { throw new Error('Test error'); }
+        sectionConfig.home.onSectionExit = () => {
+            throw new Error('Test error');
+        };
         const navigationService = createNavigationService(sectionConfig);
 
         // Prepare the previous navigation state
-        const currentSectionData = {
-            sectionShortname: 'home',
-            iterationContext: undefined
-        }
+        const currentSectionData = { sectionShortname: 'home', iterationContext: undefined };
 
         // Navigate to next section
-        expect(() => navigationService.navigate({ interview: testInterview, currentSection: currentSectionData })).toThrow('NavigationService: Error evaluating onSectionExit for section home: Error: Test error');
+        expect(() => navigationService.navigate({ interview: testInterview, currentSection: currentSectionData })).toThrow(
+            'NavigationService: Error evaluating onSectionExit for section home: Error: Test error'
+        );
     });
 
     test('isSectionVisible throws an error', () => {
@@ -2574,11 +2168,15 @@ describe('Exceptions in sectionConfig\'s functions', () => {
 
         // Set the `isSectionVisible` to throw an error
         const sectionConfig = _cloneDeep(simpleSectionsConfig);
-        sectionConfig.householdMembers.isSectionVisible = () => { throw new Error('Test error'); }
+        sectionConfig.householdMembers.isSectionVisible = () => {
+            throw new Error('Test error');
+        };
         const navigationService = createNavigationService(sectionConfig);
 
         // Navigate to last visited section
-        expect(() => navigationService.initNavigationState({ interview: testInterview })).toThrow('NavigationService: Error evaluating isSectionVisible for section householdMembers: Error: Test error');
+        expect(() => navigationService.initNavigationState({ interview: testInterview })).toThrow(
+            'NavigationService: Error evaluating isSectionVisible for section householdMembers: Error: Test error'
+        );
     });
 
     test('isSectionCompleted throws an error', () => {
@@ -2596,11 +2194,15 @@ describe('Exceptions in sectionConfig\'s functions', () => {
 
         // Set the `isSectionCompleted` to throw an error
         const sectionConfig = _cloneDeep(simpleSectionsConfig);
-        sectionConfig.home.isSectionCompleted = () => { throw new Error('Test error'); }
+        sectionConfig.home.isSectionCompleted = () => {
+            throw new Error('Test error');
+        };
         const navigationService = createNavigationService(sectionConfig);
 
         // Navigate to last visited section
-        expect(() => navigationService.navigate({ interview: testInterview, currentSection: { sectionShortname: 'home' } })).toThrow('NavigationService: Error evaluating isSectionCompleted for section home: Error: Test error');
+        expect(() => navigationService.navigate({ interview: testInterview, currentSection: { sectionShortname: 'home' } })).toThrow(
+            'NavigationService: Error evaluating isSectionCompleted for section home: Error: Test error'
+        );
     });
 
     test('enableConditional throws an error', () => {
@@ -2618,11 +2220,15 @@ describe('Exceptions in sectionConfig\'s functions', () => {
 
         // Set the `enableConditional` to throw an error
         const sectionConfig = _cloneDeep(simpleSectionsConfig);
-        sectionConfig.householdMembers.enableConditional = () => { throw new Error('Test error'); }
+        sectionConfig.householdMembers.enableConditional = () => {
+            throw new Error('Test error');
+        };
         const navigationService = createNavigationService(sectionConfig);
 
         // Navigate to last visited section
-        expect(() => navigationService.initNavigationState({ interview: testInterview })).toThrow('NavigationService: Error evaluating enableConditional for section householdMembers: Error: Test error');
+        expect(() => navigationService.initNavigationState({ interview: testInterview })).toThrow(
+            'NavigationService: Error evaluating enableConditional for section householdMembers: Error: Test error'
+        );
     });
 
     test('isIterationValid throws an error', () => {
@@ -2674,19 +2280,20 @@ describe('Exceptions in sectionConfig\'s functions', () => {
 
         // Set the `isIterationValid` function to throw an error
         const sectionConfig = _cloneDeep(complexSectionsConfig);
-        (sectionConfig['personsTrips'] as SectionConfigWithDefaultsBlock).repeatedBlock.isIterationValid = () => { throw new Error('Test error'); }
-        
+        (sectionConfig['personsTrips'] as SectionConfigWithDefaultsBlock).repeatedBlock.isIterationValid = () => {
+            throw new Error('Test error');
+        };
+
         const navigationService = createNavigationService(sectionConfig);
 
         // Prepare the previous navigation state
         const currentSection = 'travelBehavior';
         const currentIterationContext = ['personId2'];
-        const currentSectionData = {
-            sectionShortname: currentSection,
-            iterationContext: currentIterationContext
-        }
+        const currentSectionData = { sectionShortname: currentSection, iterationContext: currentIterationContext };
 
         // Navigate to specific section
-        expect(() => navigationService.navigate({ interview: testInterview, currentSection: _cloneDeep(currentSectionData), direction: 'forward' })).toThrow('NavigationService: Error evaluating isIterationValid for section personsTrips with iteration personId1: Error: Test error');
+        expect(() =>
+            navigationService.navigate({ interview: testInterview, currentSection: _cloneDeep(currentSectionData), direction: 'forward' })
+        ).toThrow('NavigationService: Error evaluating isIterationValid for section personsTrips with iteration personId1: Error: Test error');
     });
 });

@@ -10,9 +10,7 @@ import { createContextWithHome } from './testHelper';
 import * as auditCheckUtils from '../../../AuditCheckUtils';
 
 // Mock the AuditCheckUtils to provide a controlled survey area
-jest.mock('../../../AuditCheckUtils', () => ({
-    getSurveyArea: jest.fn()
-}));
+jest.mock('../../../AuditCheckUtils', () => ({ getSurveyArea: jest.fn() }));
 
 const mockGetSurveyArea = auditCheckUtils.getSurveyArea as jest.Mock;
 
@@ -42,14 +40,7 @@ describe('HM_I_geographyNotInSurveyTerritory audit check', () => {
     it('should pass when home geography is inside the survey area', () => {
         mockGetSurveyArea.mockReturnValue(surveyArea);
         const context = createContextWithHome({
-            geography: {
-                type: 'Feature',
-                properties: {},
-                geometry: {
-                    type: 'Point',
-                    coordinates: [-73.5, 45.5]
-                }
-            }
+            geography: { type: 'Feature', properties: {}, geometry: { type: 'Point', coordinates: [-73.5, 45.5] } }
         });
 
         const result = homeAuditChecks.HM_I_geographyNotInSurveyTerritory(context);
@@ -59,16 +50,19 @@ describe('HM_I_geographyNotInSurveyTerritory audit check', () => {
 
     it('should fail when home geography is outside the survey area', () => {
         mockGetSurveyArea.mockReturnValue(surveyArea);
-        const context = createContextWithHome({
-            geography: {
-                type: 'Feature',
-                properties: {},
-                geometry: {
-                    type: 'Point',
-                    coordinates: [-75.0, 45.5] // Outside
+        const context = createContextWithHome(
+            {
+                geography: {
+                    type: 'Feature',
+                    properties: {},
+                    geometry: {
+                        type: 'Point',
+                        coordinates: [-75.0, 45.5] // Outside
+                    }
                 }
-            }
-        }, validUuid);
+            },
+            validUuid
+        );
 
         const result = homeAuditChecks.HM_I_geographyNotInSurveyTerritory(context);
 
@@ -86,14 +80,7 @@ describe('HM_I_geographyNotInSurveyTerritory audit check', () => {
     it('should pass when no survey area is available', () => {
         mockGetSurveyArea.mockReturnValue(undefined);
         const context = createContextWithHome({
-            geography: {
-                type: 'Feature',
-                properties: {},
-                geometry: {
-                    type: 'Point',
-                    coordinates: [-75.0, 45.5]
-                }
-            }
+            geography: { type: 'Feature', properties: {}, geometry: { type: 'Point', coordinates: [-75.0, 45.5] } }
         });
 
         const result = homeAuditChecks.HM_I_geographyNotInSurveyTerritory(context);

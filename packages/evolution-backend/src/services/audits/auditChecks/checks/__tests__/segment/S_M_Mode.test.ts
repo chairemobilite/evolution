@@ -35,6 +35,4 @@ describe('S_M_Mode audit check', () => {
             ignore: false
         });
     });
-
 });
-

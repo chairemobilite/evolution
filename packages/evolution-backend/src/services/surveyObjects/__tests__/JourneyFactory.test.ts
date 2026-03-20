@@ -16,11 +16,7 @@ import { createOk, createErrors } from 'evolution-common/lib/types/Result.type';
 import { SurveyObjectsRegistry } from 'evolution-common/lib/services/baseObjects/SurveyObjectsRegistry';
 
 // Mock dependencies
-jest.mock('evolution-common/lib/services/baseObjects/Journey', () => ({
-    Journey: {
-        create: jest.fn()
-    }
-}));
+jest.mock('evolution-common/lib/services/baseObjects/Journey', () => ({ Journey: { create: jest.fn() } }));
 jest.mock('../VisitedPlaceFactory');
 jest.mock('../TripFactory');
 
@@ -56,35 +52,17 @@ describe('JourneyFactory', () => {
             }
         };
 
-        person = {
-            _uuid: 'person-uuid',
-            addJourney: jest.fn()
-        } as unknown as Person;
+        person = { _uuid: 'person-uuid', addJourney: jest.fn() } as unknown as Person;
 
         personAttributes = {
             _uuid: 'person-uuid',
             journeys: {
-                'journey-1': {
-                    _uuid: 'journey-1',
-                    _sequence: 1,
-                    name: 'Work Day',
-                    visitedPlaces: {},
-                    trips: {}
-                },
-                'journey-2': {
-                    _uuid: 'journey-2',
-                    _sequence: 2,
-                    name: 'Weekend',
-                    visitedPlaces: {},
-                    trips: {}
-                }
+                'journey-1': { _uuid: 'journey-1', _sequence: 1, name: 'Work Day', visitedPlaces: {}, trips: {} },
+                'journey-2': { _uuid: 'journey-2', _sequence: 2, name: 'Weekend', visitedPlaces: {}, trips: {} }
             }
         } as unknown as ExtendedPersonAttributes;
 
-        home = {
-            _uuid: 'home-uuid',
-            geography: { type: 'Point', coordinates: [0, 0] }
-        } as unknown as Home;
+        home = { _uuid: 'home-uuid', geography: { type: 'Point', coordinates: [0, 0] } } as unknown as Home;
 
         // Clear all mocks
         jest.clearAllMocks();
@@ -92,19 +70,11 @@ describe('JourneyFactory', () => {
 
     describe('populateJourneysForPerson', () => {
         it('should create journeys successfully and add them to person', async () => {
-            const mockJourney1 = {
-                _uuid: 'journey-1',
-                name: 'Work Day'
-            } as Journey;
+            const mockJourney1 = { _uuid: 'journey-1', name: 'Work Day' } as Journey;
 
-            const mockJourney2 = {
-                _uuid: 'journey-2',
-                name: 'Weekend'
-            } as Journey;
+            const mockJourney2 = { _uuid: 'journey-2', name: 'Weekend' } as Journey;
 
-            (MockedJourney.create as jest.Mock)
-                .mockReturnValueOnce(createOk(mockJourney1))
-                .mockReturnValueOnce(createOk(mockJourney2));
+            (MockedJourney.create as jest.Mock).mockReturnValueOnce(createOk(mockJourney1)).mockReturnValueOnce(createOk(mockJourney2));
 
             mockedpopulateVisitedPlacesForJourney.mockResolvedValue();
             mockedpopulateTripsForJourney.mockResolvedValue();
@@ -114,19 +84,11 @@ describe('JourneyFactory', () => {
             // Verify Journey.create was called with correct attributes (visitedPlaces and trips are omitted)
             expect(MockedJourney.create).toHaveBeenCalledTimes(2);
             expect(MockedJourney.create).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    _uuid: 'journey-1',
-                    _sequence: 1,
-                    name: 'Work Day'
-                }),
+                expect.objectContaining({ _uuid: 'journey-1', _sequence: 1, name: 'Work Day' }),
                 surveyObjectsRegistry
             );
             expect(MockedJourney.create).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    _uuid: 'journey-2',
-                    _sequence: 2,
-                    name: 'Weekend'
-                }),
+                expect.objectContaining({ _uuid: 'journey-2', _sequence: 2, name: 'Weekend' }),
                 surveyObjectsRegistry
             );
 
@@ -146,10 +108,9 @@ describe('JourneyFactory', () => {
         it('should handle journey creation errors', async () => {
             const errors = [new Error('Invalid journey data')];
 
-            (MockedJourney.create as jest.Mock).mockReturnValueOnce(createErrors(errors))
-                .mockReturnValueOnce(createOk({
-                    _uuid: 'journey-2'
-                } as Journey));
+            (MockedJourney.create as jest.Mock)
+                .mockReturnValueOnce(createErrors(errors))
+                .mockReturnValueOnce(createOk({ _uuid: 'journey-2' } as Journey));
 
             mockedpopulateVisitedPlacesForJourney.mockResolvedValue();
             mockedpopulateTripsForJourney.mockResolvedValue();
@@ -169,19 +130,11 @@ describe('JourneyFactory', () => {
 
         it('should skip journeys with undefined uuid', async () => {
             personAttributes.journeys = {
-                'undefined': {
-                    _uuid: 'undefined',
-                    name: 'Invalid'
-                },
-                'journey-1': {
-                    _uuid: 'journey-1',
-                    name: 'Valid'
-                }
+                undefined: { _uuid: 'undefined', name: 'Invalid' },
+                'journey-1': { _uuid: 'journey-1', name: 'Valid' }
             } as any;
 
-            (MockedJourney.create as jest.Mock).mockReturnValue(createOk({
-                _uuid: 'journey-1'
-            } as Journey));
+            (MockedJourney.create as jest.Mock).mockReturnValue(createOk({ _uuid: 'journey-1' } as Journey));
 
             mockedpopulateVisitedPlacesForJourney.mockResolvedValue();
             mockedpopulateTripsForJourney.mockResolvedValue();
@@ -205,24 +158,13 @@ describe('JourneyFactory', () => {
         it('should sort journeys by sequence', async () => {
             // Create journeys with mixed sequence order
             personAttributes.journeys = {
-                'journey-3': {
-                    _uuid: 'journey-3',
-                    _sequence: 3,
-                    name: 'Third'
-                },
-                'journey-1': {
-                    _uuid: 'journey-1',
-                    _sequence: 1,
-                    name: 'First'
-                },
-                'journey-2': {
-                    _uuid: 'journey-2',
-                    _sequence: 2,
-                    name: 'Second'
-                }
+                'journey-3': { _uuid: 'journey-3', _sequence: 3, name: 'Third' },
+                'journey-1': { _uuid: 'journey-1', _sequence: 1, name: 'First' },
+                'journey-2': { _uuid: 'journey-2', _sequence: 2, name: 'Second' }
             } as any;
 
-            (MockedJourney.create as jest.Mock).mockReturnValueOnce(createOk({ _uuid: 'journey-1' } as Journey))
+            (MockedJourney.create as jest.Mock)
+                .mockReturnValueOnce(createOk({ _uuid: 'journey-1' } as Journey))
                 .mockReturnValueOnce(createOk({ _uuid: 'journey-2' } as Journey))
                 .mockReturnValueOnce(createOk({ _uuid: 'journey-3' } as Journey));
 
@@ -238,9 +180,7 @@ describe('JourneyFactory', () => {
         });
 
         it('should pass correct parameters to nested factory functions', async () => {
-            const mockJourney = {
-                _uuid: 'journey-1'
-            } as Journey;
+            const mockJourney = { _uuid: 'journey-1' } as Journey;
 
             (MockedJourney.create as jest.Mock).mockReturnValue(createOk(mockJourney));
             mockedpopulateVisitedPlacesForJourney.mockResolvedValue();

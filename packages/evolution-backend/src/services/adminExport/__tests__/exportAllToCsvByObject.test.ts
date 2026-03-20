@@ -12,13 +12,11 @@ import interviewsDbQueries from '../../../models/interviews.db.queries';
 import { exportAllToCsvBySurveyObjectTask } from '../exportAllToCsvBySurveyObject';
 
 // Mock the database log stream
-jest.mock('../../../models/interviews.db.queries', () => ({
-    getInterviewsStream: jest.fn().mockImplementation(() => new ObjectReadableMock([]))
-}));
+jest.mock('../../../models/interviews.db.queries', () => ({ getInterviewsStream: jest.fn().mockImplementation(() => new ObjectReadableMock([])) }));
 const mockGetInterviewsStream = interviewsDbQueries.getInterviewsStream as jest.MockedFunction<typeof interviewsDbQueries.getInterviewsStream>;
 
 // Mock the csv file stream
-let fileStreams: {[key: string]: ObjectWritableMock } = {};
+let fileStreams: { [key: string]: ObjectWritableMock } = {};
 const mockCreateStream = jest.fn().mockImplementation((filename: string) => {
     fileStreams[filename] = new ObjectWritableMock();
     return fileStreams[filename];
@@ -28,10 +26,7 @@ jest.mock('fs', () => {
     // Require the original module to not be mocked...
     const originalModule = jest.requireActual('fs');
 
-    return {
-        ...originalModule,
-        createWriteStream: (fileName: string) => mockCreateStream(fileName)
-    };
+    return { ...originalModule, createWriteStream: (fileName: string) => mockCreateStream(fileName) };
 });
 
 beforeEach(() => {
@@ -40,7 +35,6 @@ beforeEach(() => {
 });
 
 describe('exportAllToCsvBySurveyObject', () => {
-
     const getCsvFileRows = (csvData: string[]): Promise<any[]> => {
         const input = csvData.join('');
         const rows: any[] = [];
@@ -72,26 +66,20 @@ describe('exportAllToCsvBySurveyObject', () => {
         const interviewData = {
             id: 1,
             uuid: uuidV4(),
-            'updated_at': '2024-10-11 09:02:00',
+            updated_at: '2024-10-11 09:02:00',
             is_valid: true,
             is_completed: true,
             is_validated: null,
             is_questionable: null,
             response: {
-                household: {
-                    size: 1,
-                    persons: {
-                        [person1Uuid]: {
-                            _uuid: person1Uuid,
-                            age: 30
-                        }
-                    },
-                    personsDidTrips: [person1Uuid]
-                },
-                arrayOfObjects: [{ a: 1, b: 2 }, { a: 3, b: 4 }],
-                arrayOfStrings: ['a', 'b', 'c'],
+                household: { size: 1, persons: { [person1Uuid]: { _uuid: person1Uuid, age: 30 } }, personsDidTrips: [person1Uuid] },
+                arrayOfObjects: [
+                    { a: 1, b: 2 },
+                    { a: 3, b: 4 }
+                ],
+                arrayOfStrings: ['a', 'b', 'c']
             },
-            corrected_response_available: true,
+            corrected_response_available: true
         };
 
         // Add the interview to the stream twice, for the paths and the export
@@ -103,7 +91,10 @@ describe('exportAllToCsvBySurveyObject', () => {
         // Check the file content of the exported files, there should be one file for persons, one for the interview
         expect(mockCreateStream).toHaveBeenCalledTimes(2);
         expect(mockGetInterviewsStream).toHaveBeenCalledTimes(2);
-        expect(mockGetInterviewsStream).toHaveBeenCalledWith({ filters: {}, select: { includeAudits: false, includeInterviewerData: true, responseType: 'correctedIfAvailable' } });
+        expect(mockGetInterviewsStream).toHaveBeenCalledWith({
+            filters: {},
+            select: { includeAudits: false, includeInterviewerData: true, responseType: 'correctedIfAvailable' }
+        });
 
         // Check the content of the interview file
         const interviewCsvFileName = Object.keys(fileStreams).find((filename) => filename.endsWith('corrected_interview_test.csv'));
@@ -130,7 +121,7 @@ describe('exportAllToCsvBySurveyObject', () => {
             'arrayOfObjects.0.b': String(interviewData.response.arrayOfObjects[0].b),
             'arrayOfObjects.1.a': String(interviewData.response.arrayOfObjects[1].a),
             'arrayOfObjects.1.b': String(interviewData.response.arrayOfObjects[1].b),
-            'arrayOfStrings': interviewData.response.arrayOfStrings.join('|'),
+            arrayOfStrings: interviewData.response.arrayOfStrings.join('|'),
             'household.personsDidTrips': person1Uuid
         });
 
@@ -150,7 +141,7 @@ describe('exportAllToCsvBySurveyObject', () => {
             _interviewUuid: interviewData.uuid,
             _parentUuid: interviewData.uuid,
             _uuid: person1Uuid,
-            age: String(interviewData.response.household.persons[person1Uuid].age),
+            age: String(interviewData.response.household.persons[person1Uuid].age)
         });
     });
 
@@ -164,7 +155,7 @@ describe('exportAllToCsvBySurveyObject', () => {
         const interviewData = {
             id: 1,
             uuid: uuidV4(),
-            'updated_at': '2024-10-11 09:02:00',
+            updated_at: '2024-10-11 09:02:00',
             is_valid: true,
             is_completed: true,
             is_validated: null,
@@ -182,13 +173,8 @@ describe('exportAllToCsvBySurveyObject', () => {
                                     name: 'Place 1',
                                     geography: {
                                         type: 'Feature',
-                                        geometry: {
-                                            type: 'Point',
-                                            coordinates: [1, 2]
-                                        },
-                                        properties: {
-                                            action: 'mapClicked'
-                                        }
+                                        geometry: { type: 'Point', coordinates: [1, 2] },
+                                        properties: { action: 'mapClicked' }
                                     }
                                 }
                             }
@@ -203,13 +189,8 @@ describe('exportAllToCsvBySurveyObject', () => {
                                     name: 'Place 1',
                                     geography: {
                                         type: 'Feature',
-                                        geometry: {
-                                            type: 'Point',
-                                            coordinates: [1, 2]
-                                        },
-                                        properties: {
-                                            action: 'mapClicked'
-                                        }
+                                        geometry: { type: 'Point', coordinates: [1, 2] },
+                                        properties: { action: 'mapClicked' }
                                     }
                                 },
                                 [visitedPlace2P2Uuid]: {
@@ -217,13 +198,8 @@ describe('exportAllToCsvBySurveyObject', () => {
                                     name: 'Place 2',
                                     geography: {
                                         type: 'Feature',
-                                        geometry: {
-                                            type: 'Point',
-                                            coordinates: [1, 2]
-                                        },
-                                        properties: {
-                                            action: 'mapClicked'
-                                        }
+                                        geometry: { type: 'Point', coordinates: [1, 2] },
+                                        properties: { action: 'mapClicked' }
                                     }
                                 }
                             }
@@ -232,7 +208,7 @@ describe('exportAllToCsvBySurveyObject', () => {
                     personsDidTrips: [person1Uuid, person2Uuid]
                 }
             },
-            corrected_response_available: true,
+            corrected_response_available: true
         };
 
         // Add the interview to the stream twice, for the paths and the export
@@ -245,7 +221,10 @@ describe('exportAllToCsvBySurveyObject', () => {
         // Check the file content of the exported files, there should be one file for persons, one for the interview
         expect(mockCreateStream).toHaveBeenCalledTimes(3);
         expect(mockGetInterviewsStream).toHaveBeenCalledTimes(2);
-        expect(mockGetInterviewsStream).toHaveBeenCalledWith({ filters: {}, select: { includeAudits: false, includeInterviewerData: true, responseType: 'correctedIfAvailable' } });
+        expect(mockGetInterviewsStream).toHaveBeenCalledWith({
+            filters: {},
+            select: { includeAudits: false, includeInterviewerData: true, responseType: 'correctedIfAvailable' }
+        });
 
         // Check the content of the interview file
         const interviewCsvFileName = Object.keys(fileStreams).find((filename) => filename.endsWith('corrected_interview_test.csv'));
@@ -297,7 +276,9 @@ describe('exportAllToCsvBySurveyObject', () => {
         });
 
         // Check the content of the visited places file
-        const visitedPlacesCsvFileName = Object.keys(fileStreams).find((filename) => filename.endsWith('corrected_household_persons_visitedPlaces_test.csv'));
+        const visitedPlacesCsvFileName = Object.keys(fileStreams).find((filename) =>
+            filename.endsWith('corrected_household_persons_visitedPlaces_test.csv')
+        );
         expect(visitedPlacesCsvFileName).toBeDefined();
 
         const visitedPlacesCsvStream = fileStreams[visitedPlacesCsvFileName as string];
@@ -312,10 +293,16 @@ describe('exportAllToCsvBySurveyObject', () => {
             _uuid: visitedPlace1P1Uuid,
             name: interviewData.response.household.persons[person1Uuid].visitedPlaces[visitedPlace1P1Uuid].name,
             'geography.type': interviewData.response.household.persons[person1Uuid].visitedPlaces[visitedPlace1P1Uuid].geography.type,
-            'geography.properties.action': interviewData.response.household.persons[person1Uuid].visitedPlaces[visitedPlace1P1Uuid].geography.properties.action,
-            'geography.geometry.type': interviewData.response.household.persons[person1Uuid].visitedPlaces[visitedPlace1P1Uuid].geography.geometry.type,
-            'geography.geometry.lat': String(interviewData.response.household.persons[person1Uuid].visitedPlaces[visitedPlace1P1Uuid].geography.geometry.coordinates[1]),
-            'geography.geometry.lon': String(interviewData.response.household.persons[person1Uuid].visitedPlaces[visitedPlace1P1Uuid].geography.geometry.coordinates[0]),
+            'geography.properties.action':
+                interviewData.response.household.persons[person1Uuid].visitedPlaces[visitedPlace1P1Uuid].geography.properties.action,
+            'geography.geometry.type':
+                interviewData.response.household.persons[person1Uuid].visitedPlaces[visitedPlace1P1Uuid].geography.geometry.type,
+            'geography.geometry.lat': String(
+                interviewData.response.household.persons[person1Uuid].visitedPlaces[visitedPlace1P1Uuid].geography.geometry.coordinates[1]
+            ),
+            'geography.geometry.lon': String(
+                interviewData.response.household.persons[person1Uuid].visitedPlaces[visitedPlace1P1Uuid].geography.geometry.coordinates[0]
+            )
         });
         expect(visitedPlacesRows[1]).toEqual({
             _interviewUuid: interviewData.uuid,
@@ -323,10 +310,16 @@ describe('exportAllToCsvBySurveyObject', () => {
             _uuid: visitedPlace1P2Uuid,
             name: interviewData.response.household.persons[person2Uuid].visitedPlaces[visitedPlace1P2Uuid].name,
             'geography.type': interviewData.response.household.persons[person2Uuid].visitedPlaces[visitedPlace1P2Uuid].geography.type,
-            'geography.properties.action': interviewData.response.household.persons[person2Uuid].visitedPlaces[visitedPlace1P2Uuid].geography.properties.action,
-            'geography.geometry.type': interviewData.response.household.persons[person2Uuid].visitedPlaces[visitedPlace1P2Uuid].geography.geometry.type,
-            'geography.geometry.lat': String(interviewData.response.household.persons[person2Uuid].visitedPlaces[visitedPlace1P2Uuid].geography.geometry.coordinates[1]),
-            'geography.geometry.lon': String(interviewData.response.household.persons[person2Uuid].visitedPlaces[visitedPlace1P2Uuid].geography.geometry.coordinates[0]),
+            'geography.properties.action':
+                interviewData.response.household.persons[person2Uuid].visitedPlaces[visitedPlace1P2Uuid].geography.properties.action,
+            'geography.geometry.type':
+                interviewData.response.household.persons[person2Uuid].visitedPlaces[visitedPlace1P2Uuid].geography.geometry.type,
+            'geography.geometry.lat': String(
+                interviewData.response.household.persons[person2Uuid].visitedPlaces[visitedPlace1P2Uuid].geography.geometry.coordinates[1]
+            ),
+            'geography.geometry.lon': String(
+                interviewData.response.household.persons[person2Uuid].visitedPlaces[visitedPlace1P2Uuid].geography.geometry.coordinates[0]
+            )
         });
         expect(visitedPlacesRows[2]).toEqual({
             _interviewUuid: interviewData.uuid,
@@ -334,46 +327,52 @@ describe('exportAllToCsvBySurveyObject', () => {
             _uuid: visitedPlace2P2Uuid,
             name: interviewData.response.household.persons[person2Uuid].visitedPlaces[visitedPlace2P2Uuid].name,
             'geography.type': interviewData.response.household.persons[person2Uuid].visitedPlaces[visitedPlace2P2Uuid].geography.type,
-            'geography.properties.action': interviewData.response.household.persons[person2Uuid].visitedPlaces[visitedPlace2P2Uuid].geography.properties.action,
-            'geography.geometry.type': interviewData.response.household.persons[person2Uuid].visitedPlaces[visitedPlace2P2Uuid].geography.geometry.type,
-            'geography.geometry.lat': String(interviewData.response.household.persons[person2Uuid].visitedPlaces[visitedPlace2P2Uuid].geography.geometry.coordinates[1]),
-            'geography.geometry.lon': String(interviewData.response.household.persons[person2Uuid].visitedPlaces[visitedPlace2P2Uuid].geography.geometry.coordinates[0]),
+            'geography.properties.action':
+                interviewData.response.household.persons[person2Uuid].visitedPlaces[visitedPlace2P2Uuid].geography.properties.action,
+            'geography.geometry.type':
+                interviewData.response.household.persons[person2Uuid].visitedPlaces[visitedPlace2P2Uuid].geography.geometry.type,
+            'geography.geometry.lat': String(
+                interviewData.response.household.persons[person2Uuid].visitedPlaces[visitedPlace2P2Uuid].geography.geometry.coordinates[1]
+            ),
+            'geography.geometry.lon': String(
+                interviewData.response.household.persons[person2Uuid].visitedPlaces[visitedPlace2P2Uuid].geography.geometry.coordinates[0]
+            )
         });
-
     });
 
     test('Test multiple interviews with divergent response fields', async () => {
         // Very simple interview data
-        const interviewData = [{
-            id: 1,
-            uuid: uuidV4(),
-            'updated_at': '2024-10-11 09:02:00',
-            is_valid: true,
-            is_completed: true,
-            is_validated: null,
-            is_questionable: null,
-            response: {
-                arrayOfObjectsIn1Only: [{ a: 1, b: 2 }, { a: 3, b: 4 }],
-                arrayOfStrings: ['a', 'b', 'c'],
-                arrayOrString: 'string'
+        const interviewData = [
+            {
+                id: 1,
+                uuid: uuidV4(),
+                updated_at: '2024-10-11 09:02:00',
+                is_valid: true,
+                is_completed: true,
+                is_validated: null,
+                is_questionable: null,
+                response: {
+                    arrayOfObjectsIn1Only: [
+                        { a: 1, b: 2 },
+                        { a: 3, b: 4 }
+                    ],
+                    arrayOfStrings: ['a', 'b', 'c'],
+                    arrayOrString: 'string'
+                },
+                corrected_response_available: true
             },
-            corrected_response_available: true,
-        }, {
-            id: 2,
-            uuid: uuidV4(),
-            'updated_at': '2024-10-11 09:02:00',
-            is_valid: true,
-            is_completed: true,
-            is_validated: null,
-            is_questionable: null,
-            response: {
-                arrayOfStrings: ['d', 'e', 'c'],
-                arrayOrString: ['an', 'array'],
-                fieldIn2: 2,
-                arrayIn2Only: ['x']
-            },
-            corrected_response_available: true,
-        }];
+            {
+                id: 2,
+                uuid: uuidV4(),
+                updated_at: '2024-10-11 09:02:00',
+                is_valid: true,
+                is_completed: true,
+                is_validated: null,
+                is_questionable: null,
+                response: { arrayOfStrings: ['d', 'e', 'c'], arrayOrString: ['an', 'array'], fieldIn2: 2, arrayIn2Only: ['x'] },
+                corrected_response_available: true
+            }
+        ];
 
         // Add the interview to the stream twice, for the paths and the export
         mockGetInterviewsStream.mockReturnValueOnce(new ObjectReadableMock(interviewData) as any);
@@ -384,7 +383,10 @@ describe('exportAllToCsvBySurveyObject', () => {
         // Check the file content of the exported files, there should be one file for persons, one for the interview
         expect(mockCreateStream).toHaveBeenCalledTimes(1);
         expect(mockGetInterviewsStream).toHaveBeenCalledTimes(2);
-        expect(mockGetInterviewsStream).toHaveBeenCalledWith({ filters: {}, select: { includeAudits: false, includeInterviewerData: true, responseType: 'correctedIfAvailable' } });
+        expect(mockGetInterviewsStream).toHaveBeenCalledWith({
+            filters: {},
+            select: { includeAudits: false, includeInterviewerData: true, responseType: 'correctedIfAvailable' }
+        });
 
         // Check the content of the interview file
         const interviewCsvFileName = Object.keys(fileStreams).find((filename) => filename.endsWith('corrected_interview_test.csv'));
@@ -409,8 +411,8 @@ describe('exportAllToCsvBySurveyObject', () => {
             'arrayOfObjectsIn1Only.0.b': String(interviewData[0].response.arrayOfObjectsIn1Only![0].b),
             'arrayOfObjectsIn1Only.1.a': String(interviewData[0].response.arrayOfObjectsIn1Only![1].a),
             'arrayOfObjectsIn1Only.1.b': String(interviewData[0].response.arrayOfObjectsIn1Only![1].b),
-            'arrayOfStrings': interviewData[0].response.arrayOfStrings.join('|'),
-            'arrayOrString': 'string',
+            arrayOfStrings: interviewData[0].response.arrayOfStrings.join('|'),
+            arrayOrString: 'string',
             fieldIn2: '',
             arrayIn2Only: ''
         });
@@ -428,12 +430,10 @@ describe('exportAllToCsvBySurveyObject', () => {
             'arrayOfObjectsIn1Only.0.b': '',
             'arrayOfObjectsIn1Only.1.a': '',
             'arrayOfObjectsIn1Only.1.b': '',
-            'arrayOfStrings': interviewData[1].response.arrayOfStrings.join('|'),
-            'arrayOrString': (interviewData[1].response.arrayOrString as string[]).join('|'),
+            arrayOfStrings: interviewData[1].response.arrayOfStrings.join('|'),
+            arrayOrString: (interviewData[1].response.arrayOrString as string[]).join('|'),
             fieldIn2: String(interviewData[1].response.fieldIn2),
-            arrayIn2Only: interviewData[1].response.arrayIn2Only!.join('|'),
+            arrayIn2Only: interviewData[1].response.arrayIn2Only!.join('|')
         });
-
     });
-
 });

@@ -27,27 +27,18 @@ beforeEach(() => {
 
 describe('getPersonsTripsTitleWidgetConfig', () => {
     it('should return the correct widget config', () => {
-
         const widgetConfig = getPersonsTripsTitleWidgetConfig(widgetFactoryOptions);
 
-        expect(widgetConfig).toEqual({
-            type: 'text',
-            align: 'left',
-            text: expect.any(Function)
-        });
+        expect(widgetConfig).toEqual({ type: 'text', align: 'left', text: expect.any(Function) });
     });
 });
 
 describe('personsTripsTitleWidgetConfig text', () => {
-
-    const options = {
-        ...widgetFactoryOptions,
-        context: jest.fn().mockImplementation((context: string) => context)
-    };
+    const options = { ...widgetFactoryOptions, context: jest.fn().mockImplementation((context: string) => context) };
 
     const widgetText = getPersonsTripsTitleWidgetConfig(options).text as any;
     const mockedT = jest.fn().mockReturnValue('translatedString');
-   
+
     test('should call translation with correct parameters if no active person', () => {
         mockedGetActivePerson.mockReturnValueOnce(null);
         mockedGetActiveJourney.mockReturnValueOnce(null);
@@ -62,7 +53,7 @@ describe('personsTripsTitleWidgetConfig text', () => {
     });
 
     test('should call translation with correct parameters if no active journey', () => {
-        const nickname = 'Jane'
+        const nickname = 'Jane';
         mockedGetActivePerson.mockReturnValueOnce({ _uuid: 'person1', _sequence: 1, nickname });
         mockedGetActiveJourney.mockReturnValueOnce(null);
         expect(widgetText(mockedT, interviewAttributesForTestCases, 'path')).toEqual('translatedString');
@@ -89,7 +80,7 @@ describe('personsTripsTitleWidgetConfig text', () => {
     });
 
     test('should call translation with correct parameters if multiple person household and journey with start date', () => {
-        const nickname = 'Jane'
+        const nickname = 'Jane';
         mockedGetActivePerson.mockReturnValueOnce({ _uuid: 'person1', _sequence: 1, nickname });
         mockedGetActiveJourney.mockReturnValueOnce({ _uuid: 'journey1', _sequence: 1, startDate: '2024-11-18' });
         mockedGetCountOrSelfDeclared.mockReturnValueOnce(2);
@@ -102,5 +93,4 @@ describe('personsTripsTitleWidgetConfig text', () => {
         });
         expect(options.context).toHaveBeenCalledWith(undefined);
     });
-
 });

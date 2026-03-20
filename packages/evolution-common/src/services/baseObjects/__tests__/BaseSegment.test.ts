@@ -14,11 +14,10 @@ import * as SAttr from '../attributeTypes/SegmentAttributes';
 const validUUID = uuidV4();
 
 describe('BaseSegment', () => {
-
     const baseSegmentAttributes: BaseSegmentAttributes = {
         _uuid: validUUID,
         modeCategory: 'car' as SAttr.ModeCategory,
-        mode: 'carDriver' as SAttr.Mode,
+        mode: 'carDriver' as SAttr.Mode
     };
 
     it('should create a new BaseSegment instance', () => {
@@ -30,9 +29,7 @@ describe('BaseSegment', () => {
     });
 
     it('should create a new BaseSegment instance with minimal attributes', () => {
-        const minimalAttributes: BaseSegmentAttributes = {
-            _uuid: validUUID,
-        };
+        const minimalAttributes: BaseSegmentAttributes = { _uuid: validUUID };
 
         const segment = new BaseSegment(minimalAttributes);
         expect(segment).toBeInstanceOf(BaseSegment);
@@ -50,21 +47,14 @@ describe('BaseSegment', () => {
     });
 
     it('should accept extended attributes', () => {
-        const extendedAttributes: ExtendedSegmentAttributes = {
-            ...baseSegmentAttributes,
-            customAttribute: 'Custom Value',
-        };
+        const extendedAttributes: ExtendedSegmentAttributes = { ...baseSegmentAttributes, customAttribute: 'Custom Value' };
 
         const segment = new BaseSegment(extendedAttributes);
         expect(segment).toBeInstanceOf(BaseSegment);
     });
 
     it('should return an empty array for valid parameters', () => {
-        const params = {
-            modeCategory: 'walk',
-            mode: 'walk',
-            baseVehicle: new BaseVehicle({}),
-        };
+        const params = { modeCategory: 'walk', mode: 'walk', baseVehicle: new BaseVehicle({}) };
 
         const result = BaseSegment.validateParams(params);
 
@@ -82,7 +72,7 @@ describe('BaseSegment', () => {
     it('should return an array of errors for invalid modeCategory', () => {
         const params = {
             modeCategory: 42, // Invalid type
-            mode: new Date(), // Invalid type
+            mode: new Date() // Invalid type
         };
 
         const result = BaseSegment.validateParams(params);

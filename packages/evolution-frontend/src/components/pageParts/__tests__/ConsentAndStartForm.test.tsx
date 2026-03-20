@@ -19,19 +19,16 @@ let translatedString = '';
 jest.mock('react-i18next', () => ({
     ...jest.requireActual('react-i18next'),
     useTranslation: () => ({
-        t: (str: string | string[]) => typeof str === 'string' ? str : str.findIndex((s) => s.includes('AgreementText')) !== -1 ? translatedString : str[0] 
+        t: (str: string | string[]) =>
+            typeof str === 'string' ? str : str.findIndex((s) => s.includes('AgreementText')) !== -1 ? translatedString : str[0]
     })
 }));
 
 let store = configureStore();
 jest.mock('../../../actions/Survey', () => ({
-    addConsent: jest.fn().mockImplementation((consented: boolean) => ({
-        type: 'ADD_CONSENT',
-        consented
-    }))
+    addConsent: jest.fn().mockImplementation((consented: boolean) => ({ type: 'ADD_CONSENT', consented }))
 }));
 const mockAddConsent = addConsent as jest.MockedFunction<typeof addConsent>;
-
 
 beforeEach(() => {
     mockAddConsent.mockClear();
@@ -39,16 +36,12 @@ beforeEach(() => {
 });
 
 describe('Render ConsentAndStartForm', () => {
-
     test('Without consent checkbox', () => {
         translatedString = '';
         const { container } = render(
             <Provider store={store}>
-                <ConsentAndStartForm
-                    afterClicked={jest.fn()}
-                />
+                <ConsentAndStartForm afterClicked={jest.fn()} />
             </Provider>
-
         );
         expect(container).toMatchSnapshot();
     });
@@ -57,32 +50,24 @@ describe('Render ConsentAndStartForm', () => {
         translatedString = 'I agree';
         const { container } = render(
             <Provider store={store}>
-                <ConsentAndStartForm
-                    afterClicked={jest.fn()}
-                />
+                <ConsentAndStartForm afterClicked={jest.fn()} />
             </Provider>
         );
         expect(container).toMatchSnapshot();
     });
-
 });
 
 describe('Button click', () => {
-
     test('With consent true', async () => {
-        store = configureStore({
-            survey: {
-                hasConsent: true,
-            }
-        } as any);
+        store = configureStore({ survey: { hasConsent: true } } as any);
 
         const afterClick = jest.fn();
         translatedString = '';
-        render(<Provider store={store}>
-            <ConsentAndStartForm
-                afterClicked={afterClick}
-            />
-        </Provider>);
+        render(
+            <Provider store={store}>
+                <ConsentAndStartForm afterClicked={afterClick} />
+            </Provider>
+        );
         const user = userEvent.setup();
 
         // Click on button and make sure it accepts the change
@@ -94,19 +79,15 @@ describe('Button click', () => {
     });
 
     test('With consent false', async () => {
-        store = configureStore({
-            survey: {
-                hasConsent: false,
-            }
-        } as any);
+        store = configureStore({ survey: { hasConsent: false } } as any);
 
         const afterClick = jest.fn();
         translatedString = 'I agree';
-        const { container } = render(<Provider store={store}>
-            <ConsentAndStartForm
-                afterClicked={afterClick}
-            />
-        </Provider>);
+        const { container } = render(
+            <Provider store={store}>
+                <ConsentAndStartForm afterClicked={afterClick} />
+            </Provider>
+        );
         const user = userEvent.setup();
 
         // Click on button, it should not agree
@@ -118,20 +99,18 @@ describe('Button click', () => {
         const errorElement = container.querySelectorAll('.apptr__form-errors-container');
         expect(errorElement.length).toBe(1);
     });
-
 });
 
 describe('State update', () => {
-
     test('No consent', () => {
         // no consent box, the consent should be set automatically
         const afterClick = jest.fn();
         translatedString = '';
-        render(<Provider store={store}>
-            <ConsentAndStartForm
-                afterClicked={afterClick}
-            />
-        </Provider>);
+        render(
+            <Provider store={store}>
+                <ConsentAndStartForm afterClicked={afterClick} />
+            </Provider>
+        );
 
         // the addConsent survey action should have been called
         expect(mockAddConsent).toHaveBeenCalledTimes(1);
@@ -139,18 +118,14 @@ describe('State update', () => {
     });
 
     test('With consent, not initially checked, check the box', async () => {
-        store = configureStore({
-            survey: {
-                hasConsent: false,
-            }
-        } as any);
+        store = configureStore({ survey: { hasConsent: false } } as any);
         const afterClick = jest.fn();
         translatedString = 'I agree';
-        render(<Provider store={store}>
-            <ConsentAndStartForm
-                afterClicked={afterClick}
-            />
-        </Provider>);
+        render(
+            <Provider store={store}>
+                <ConsentAndStartForm afterClicked={afterClick} />
+            </Provider>
+        );
         const user = userEvent.setup();
 
         // the addConsent survey action should not have been called yet
@@ -166,19 +141,15 @@ describe('State update', () => {
     });
 
     test('With consent, initially checked, then unchecked', async () => {
-        store = configureStore({
-            survey: {
-                hasConsent: true,
-            }
-        } as any);
+        store = configureStore({ survey: { hasConsent: true } } as any);
 
         const afterClick = jest.fn();
         translatedString = 'I agree';
-        render(<Provider store={store}>
-            <ConsentAndStartForm
-                afterClicked={afterClick}
-            />
-        </Provider>);
+        render(
+            <Provider store={store}>
+                <ConsentAndStartForm afterClicked={afterClick} />
+            </Provider>
+        );
         const user = userEvent.setup();
 
         // the addConsent survey action should not have been called yet
@@ -192,5 +163,4 @@ describe('State update', () => {
         expect(mockAddConsent).toHaveBeenCalledTimes(1);
         expect(mockAddConsent).toHaveBeenCalledWith(false);
     });
-
 });

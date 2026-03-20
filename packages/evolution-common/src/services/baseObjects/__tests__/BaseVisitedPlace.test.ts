@@ -15,31 +15,21 @@ import { WeightMethod } from '../WeightMethod';
 const validUUID = uuidV4();
 
 describe('BaseVisitedPlace', () => {
-
     const geojson = {
         type: 'Feature',
         id: 444,
-        geometry: {
-            type: 'Point',
-            coordinates: [23.5, -11.0033423],
-        },
-        properties: {
-            foo: 'boo2',
-            bar: 'far2'
-        },
+        geometry: { type: 'Point', coordinates: [23.5, -11.0033423] },
+        properties: { foo: 'boo2', bar: 'far2' }
     } as GeoJSON.Feature<GeoJSON.Point, { [key: string]: string }>;
 
     const weightMethodAttributes = {
         _uuid: uuidV4(),
         shortname: 'sample-shortname5',
         name: 'Sample Weight Method5',
-        description: 'Sample weight method description5',
+        description: 'Sample weight method description5'
     };
 
-    const basePlaceAttributes: BasePlaceAttributes = {
-        geography: geojson,
-        _uuid: validUUID,
-    };
+    const basePlaceAttributes: BasePlaceAttributes = { geography: geojson, _uuid: validUUID };
 
     const baseVisitedPlaceAttributes: BaseVisitedPlaceAttributes = {
         _uuid: validUUID,
@@ -49,7 +39,7 @@ describe('BaseVisitedPlace', () => {
         departureTime: 45000, // 12:30 PM in seconds since midnight
         activityCategory: 'school' as VPAttr.ActivityCategory,
         activity: 'schoolOther' as VPAttr.Activity,
-        _weights: [{ weight: 0.9911, method: new WeightMethod(weightMethodAttributes) }],
+        _weights: [{ weight: 0.9911, method: new WeightMethod(weightMethodAttributes) }]
     };
 
     it('should create a new BaseVisitedPlace instance', () => {
@@ -71,16 +61,12 @@ describe('BaseVisitedPlace', () => {
     });
 
     it('should create a new BaseVisitedPlace instance with minimal attributes', () => {
-        const minimalBasePlaceAttributes: BasePlaceAttributes = {
-            geography: undefined,
-            _uuid: validUUID,
-            name: 'Minimal Test Place',
-        };
+        const minimalBasePlaceAttributes: BasePlaceAttributes = { geography: undefined, _uuid: validUUID, name: 'Minimal Test Place' };
 
         const minimalVisitedPlaceAttributes: BaseVisitedPlaceAttributes = {
             _uuid: validUUID,
             activityCategory: 'home' as VPAttr.ActivityCategory,
-            activity: 'home' as VPAttr.Activity,
+            activity: 'home' as VPAttr.Activity
         };
 
         const visitedPlace = new BaseVisitedPlace({ ...minimalVisitedPlaceAttributes, basePlace: new BasePlace(minimalBasePlaceAttributes) });
@@ -106,10 +92,7 @@ describe('BaseVisitedPlace', () => {
     });
 
     it('should accept extended attributes', () => {
-        const extendedVisitedPlaceAttributes: ExtendedVisitedPlaceAttributes = {
-            ...baseVisitedPlaceAttributes,
-            customAttribute: 'Custom Value',
-        };
+        const extendedVisitedPlaceAttributes: ExtendedVisitedPlaceAttributes = { ...baseVisitedPlaceAttributes, customAttribute: 'Custom Value' };
 
         const visitedPlace = new BaseVisitedPlace({ ...extendedVisitedPlaceAttributes, basePlace: new BasePlace(basePlaceAttributes) });
         expect(visitedPlace).toBeInstanceOf(BaseVisitedPlace);
@@ -118,7 +101,7 @@ describe('BaseVisitedPlace', () => {
     it('should set weight and method correctly', () => {
         const visitedPlace = new BaseVisitedPlace({ ...baseVisitedPlaceAttributes, basePlace: new BasePlace(basePlaceAttributes) });
         const weight: Weight = visitedPlace._weights?.[0] as Weight;
-        expect(weight.weight).toBe(.9911);
+        expect(weight.weight).toBe(0.9911);
         expect(weight.method).toBeInstanceOf(WeightMethod);
         expect(weight.method?.shortname).toEqual('sample-shortname5');
         expect(weight.method?.name).toEqual('Sample Weight Method5');
@@ -134,7 +117,7 @@ describe('BaseVisitedPlace', () => {
             arrivalTime: 36000, // 10:00 AM in seconds since midnight
             departureTime: 43200, // 12:00 PM in seconds since midnight
             activityCategory: 'work' as VPAttr.ActivityCategory,
-            activity: 'workUsual' as VPAttr.Activity,
+            activity: 'workUsual' as VPAttr.Activity
         };
         const errors = BaseVisitedPlace.validateParams(validParams);
         expect(errors).toEqual([]);
@@ -156,7 +139,7 @@ describe('BaseVisitedPlace', () => {
             departureTime: 43200,
             activityCategory: 'other' as VPAttr.ActivityCategory,
             activity: 'other' as VPAttr.Activity,
-            additionalAttribute: 'additionalValue',
+            additionalAttribute: 'additionalValue'
         };
         const errors = BaseVisitedPlace.validateParams(validParams);
         expect(errors).toEqual([]);
@@ -171,7 +154,7 @@ describe('BaseVisitedPlace', () => {
             arrivalTime: -1, // Negative arrival time
             departureTime: '12:00 PM', // Invalid departure time string
             activityCategory: 44, // Invalid activity category
-            activity: -123283764.34534, // Invalid activity
+            activity: -123283764.34534 // Invalid activity
         };
 
         const errors = BaseVisitedPlace.validateParams(invalidParams);
@@ -194,7 +177,7 @@ describe('BaseVisitedPlace', () => {
             arrivalTime: -1, // Negative arrival time
             departureTime: '12:00 PM', // Invalid departure time string
             activityCategory: 44, // Invalid activity category
-            activity: -123283764.34534, // Invalid activity
+            activity: -123283764.34534 // Invalid activity
         };
         const validParams = {
             _uuid: uuidV4(), // Invalid UUID
@@ -205,7 +188,7 @@ describe('BaseVisitedPlace', () => {
             departureTime: 43200,
             activityCategory: 'other' as VPAttr.ActivityCategory,
             activity: 'other' as VPAttr.Activity,
-            additionalAttribute: 'additionalValue',
+            additionalAttribute: 'additionalValue'
         };
 
         const invalidResult = BaseVisitedPlace.create(invalidParams);

@@ -24,7 +24,7 @@ describe('Junction', () => {
         _uuid: uuidV4(),
         shortname: 'sample-shortname',
         name: 'Sample Weight Method',
-        description: 'Sample weight method description',
+        description: 'Sample weight method description'
     };
 
     const validPlaceAttributes: ExtendedPlaceAttributes = {
@@ -42,14 +42,7 @@ describe('Junction', () => {
         lastAction: 'findPlace',
         deviceUsed: 'tablet',
         zoom: 15,
-        geography: {
-            type: 'Feature',
-            geometry: {
-                type: 'Point',
-                coordinates: [0, 0],
-            },
-            properties: {},
-        },
+        geography: { type: 'Feature', geometry: { type: 'Point', coordinates: [0, 0] }, properties: {} },
         _weights: [{ weight: 1.2, method: new WeightMethod(weightMethodAttributes) }],
         _isValid: true
     };
@@ -69,15 +62,12 @@ describe('Junction', () => {
         _isValid: true
     };
 
-    const validJunctionAttributesWithPlace: { [key: string]: unknown } = {
-        ...validJunctionAttributes,
-        _place: validPlaceAttributes
-    };
+    const validJunctionAttributesWithPlace: { [key: string]: unknown } = { ...validJunctionAttributes, _place: validPlaceAttributes };
 
     const extendedJunctionAttributes: { [key: string]: unknown } = {
         ...validJunctionAttributesWithPlace,
         customAttribute1: 'value1',
-        customAttribute2: 'value2',
+        customAttribute2: 'value2'
     };
 
     test('should create a Junction instance with valid attributes', () => {
@@ -88,9 +78,14 @@ describe('Junction', () => {
 
     test('should have a validateParams section for each attribute', () => {
         const validateParamsCode = Junction.validateParams.toString();
-        junctionAttributes.filter((attribute) => attribute !== '_uuid' && attribute !== '_weights' && !(startEndDateAndTimesAttributes as unknown as string[]).includes(attribute)).forEach((attributeName) => {
-            expect(validateParamsCode).toContain('\'' + attributeName + '\'');
-        });
+        junctionAttributes
+            .filter(
+                (attribute) =>
+                    attribute !== '_uuid' && attribute !== '_weights' && !(startEndDateAndTimesAttributes as unknown as string[]).includes(attribute)
+            )
+            .forEach((attributeName) => {
+                expect(validateParamsCode).toContain('\'' + attributeName + '\'');
+            });
     });
 
     test('should get uuid', () => {
@@ -108,7 +103,7 @@ describe('Junction', () => {
         const invalidAttributes = 'foo' as any;
         const result = Junction.create(invalidAttributes, registry);
         expect(hasErrors(result)).toBe(true);
-        expect((unwrap(result) as Error[])).toHaveLength(1);
+        expect(unwrap(result) as Error[]).toHaveLength(1);
     });
 
     test('should create a Junction instance with extended attributes', () => {
@@ -148,14 +143,8 @@ describe('Junction', () => {
     });
 
     test('should create a Junction instance with custom attributes', () => {
-        const customAttributes = {
-            customAttribute1: 'value1',
-            customAttribute2: 'value2',
-        };
-        const junctionAttributesWithCustom = {
-            ...validJunctionAttributesWithPlace,
-            ...customAttributes,
-        };
+        const customAttributes = { customAttribute1: 'value1', customAttribute2: 'value2' };
+        const junctionAttributesWithCustom = { ...validJunctionAttributesWithPlace, ...customAttributes };
         const junction = new Junction(junctionAttributesWithCustom, registry);
         expect(junction).toBeInstanceOf(Junction);
         expect(junction.attributes).toEqual(validJunctionAttributes);
@@ -176,7 +165,7 @@ describe('Junction', () => {
             ['preData', 'invalid'],
             ['preData', []],
             ['preData', new Date() as any],
-            ['preData', true as any],
+            ['preData', true as any]
         ])('should return an error for invalid %s', (param, value) => {
             const invalidAttributes = { ...validJunctionAttributesWithPlace, [param]: value };
             const errors = Junction.validateParams(invalidAttributes);
@@ -201,7 +190,7 @@ describe('Junction', () => {
             ['parkingType', 'interiorAssignedOrGuaranteed'],
             ['parkingFeeType', 'paidByEmployer'],
             ['transitPlaceType', 'busStation'],
-            ['preData', { importedJunctionData: 'value', waitTime: 5 }],
+            ['preData', { importedJunctionData: 'value', waitTime: 5 }]
         ])('should set and get %s', (attribute, value) => {
             const junction = new Junction(validJunctionAttributesWithPlace, registry);
             junction[attribute] = value;
@@ -211,11 +200,11 @@ describe('Junction', () => {
         describe('Getters for attributes with no setters', () => {
             test.each([
                 ['_uuid', validJunctionAttributes._uuid],
-                ['customAttributes', {
-                    customAttribute1: extendedJunctionAttributes.customAttribute1,
-                    customAttribute2: extendedJunctionAttributes.customAttribute2
-                }],
-                ['attributes', validJunctionAttributes],
+                [
+                    'customAttributes',
+                    { customAttribute1: extendedJunctionAttributes.customAttribute1, customAttribute2: extendedJunctionAttributes.customAttribute2 }
+                ],
+                ['attributes', validJunctionAttributes]
             ])('should set and get %s', (attribute, value) => {
                 const junction = new Junction(extendedJunctionAttributes, registry);
                 expect(junction[attribute]).toEqual(value);
@@ -225,7 +214,7 @@ describe('Junction', () => {
         test.each([
             ['_isValid', false],
             ['_weights', [{ weight: 2.0, method: new WeightMethod(weightMethodAttributes) }]],
-            ['_place', validPlaceAttributes],
+            ['_place', validPlaceAttributes]
         ])('should set and get %s', (attribute, value) => {
             const junction = new Junction(validJunctionAttributesWithPlace, registry);
             junction[attribute] = value;

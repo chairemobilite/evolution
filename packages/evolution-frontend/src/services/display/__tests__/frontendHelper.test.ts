@@ -157,11 +157,7 @@ describe('validateButtonAction', () => {
     const interview = interviewAttributesForTestCases;
     let callbackArgs = [{ ...interview, allWidgetsValid: true }, { sectionShortname: 'section' }];
     const callbacks = {
-        startUpdateInterview: jest
-            .fn()
-            .mockImplementation((data, callback) =>
-                callback?.({ ...data.interview, allWidgetsValid: true })
-            ),
+        startUpdateInterview: jest.fn().mockImplementation((data, callback) => callback?.({ ...data.interview, allWidgetsValid: true })),
         startAddGroupedObjects: jest.fn(),
         startRemoveGroupedObjects: jest.fn(),
         startNavigate: jest.fn().mockImplementation((_data, callback?) => {
@@ -179,32 +175,32 @@ describe('validateButtonAction', () => {
         validateButtonAction(callbacks, interview, 'path', 'section', { section: { nextSection: 'next' } });
         expect(callbacks.startNavigate).toHaveBeenCalledTimes(1);
         expect(callbacks.startNavigate).toHaveBeenCalledWith();
-        expect(callbacks.startUpdateInterview).toHaveBeenCalledWith({ sectionShortname: 'section', valuesByPath: { _all: true }, interview }, expect.any(Function));
+        expect(callbacks.startUpdateInterview).toHaveBeenCalledWith(
+            { sectionShortname: 'section', valuesByPath: { _all: true }, interview },
+            expect.any(Function)
+        );
     });
 
     test('with callback', () => {
         const saveCallback = jest.fn();
-        validateButtonAction(
-            callbacks,
-            interview,
-            'path',
-            'section',
-            { section: { nextSection: 'next' } },
-            saveCallback
-        );
+        validateButtonAction(callbacks, interview, 'path', 'section', { section: { nextSection: 'next' } }, saveCallback);
         expect(callbacks.startNavigate).not.toHaveBeenCalled();
-        expect(callbacks.startUpdateInterview).toHaveBeenCalledWith({ sectionShortname: 'section', valuesByPath: { _all: true }, interview }, expect.any(Function));
+        expect(callbacks.startUpdateInterview).toHaveBeenCalledWith(
+            { sectionShortname: 'section', valuesByPath: { _all: true }, interview },
+            expect.any(Function)
+        );
         expect(saveCallback).toHaveBeenCalledWith(callbacks, { ...interview, allWidgetsValid: true }, 'path');
     });
 
     test('widgets invalid', () => {
         callbackArgs = [{ ...interview, allWidgetsValid: false }, { sectionShortname: 'section' }];
-        callbacks.startUpdateInterview.mockImplementationOnce((data, callback) =>
-            callback?.({ ...data.interview, allWidgetsValid: false })
-        );
+        callbacks.startUpdateInterview.mockImplementationOnce((data, callback) => callback?.({ ...data.interview, allWidgetsValid: false }));
         const saveCallback = jest.fn();
         validateButtonAction(callbacks, interview, 'path', 'section', {}, saveCallback);
-        expect(callbacks.startUpdateInterview).toHaveBeenCalledWith({ sectionShortname: 'section', valuesByPath: { _all: true }, interview }, expect.any(Function));
+        expect(callbacks.startUpdateInterview).toHaveBeenCalledWith(
+            { sectionShortname: 'section', valuesByPath: { _all: true }, interview },
+            expect.any(Function)
+        );
         expect(saveCallback).not.toHaveBeenCalled();
         expect(callbacks.startNavigate).not.toHaveBeenCalled();
     });
@@ -214,11 +210,7 @@ describe('validateButtonActionWithCompleteSection', () => {
     const interview = interviewAttributesForTestCases;
     let callbackArgs = [{ ...interview, allWidgetsValid: true }, { sectionShortname: 'section' }];
     const callbacks = {
-        startUpdateInterview: jest
-            .fn()
-            .mockImplementation((_data, callback) =>
-                callback?.({ ...interview, allWidgetsValid: true })
-            ),
+        startUpdateInterview: jest.fn().mockImplementation((_data, callback) => callback?.({ ...interview, allWidgetsValid: true })),
         startAddGroupedObjects: jest.fn(),
         startRemoveGroupedObjects: jest.fn(),
         startNavigate: jest.fn().mockImplementation((_data, callback?) => {
@@ -230,41 +222,22 @@ describe('validateButtonActionWithCompleteSection', () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
-        callbackArgs = [{ ...interview, allWidgetsValid: true }, { sectionShortname: 'section' }]
+        callbackArgs = [{ ...interview, allWidgetsValid: true }, { sectionShortname: 'section' }];
     });
 
     test('no callback', () => {
-        validateButtonActionWithCompleteSection(callbacks, interview, 'path', 'section', {
-            section: { nextSection: 'next' }
-        });
+        validateButtonActionWithCompleteSection(callbacks, interview, 'path', 'section', { section: { nextSection: 'next' } });
         expect(callbacks.startNavigate).toHaveBeenCalledTimes(1);
-        expect(callbacks.startNavigate).toHaveBeenCalledWith(
-            undefined,
-            expect.any(Function)
-        );
+        expect(callbacks.startNavigate).toHaveBeenCalledWith(undefined, expect.any(Function));
         expect(callbacks.startUpdateInterview).toHaveBeenCalledTimes(1);
-        expect(callbacks.startUpdateInterview).toHaveBeenCalledWith({
-            valuesByPath: {
-                'response._completionPercentage': 100
-            }
-        });
+        expect(callbacks.startUpdateInterview).toHaveBeenCalledWith({ valuesByPath: { 'response._completionPercentage': 100 } });
     });
 
     test('with callback', () => {
         const saveCallback = jest.fn();
-        validateButtonActionWithCompleteSection(
-            callbacks,
-            interview,
-            'path',
-            'section',
-            { section: { nextSection: 'next' } },
-            saveCallback
-        );
+        validateButtonActionWithCompleteSection(callbacks, interview, 'path', 'section', { section: { nextSection: 'next' } }, saveCallback);
         expect(callbacks.startNavigate).toHaveBeenCalledTimes(1);
-        expect(callbacks.startNavigate).toHaveBeenCalledWith(
-            undefined,
-            expect.any(Function)
-        );
+        expect(callbacks.startNavigate).toHaveBeenCalledWith(undefined, expect.any(Function));
         expect(callbacks.startUpdateInterview).not.toHaveBeenCalled();
         expect(saveCallback).toHaveBeenCalledWith(callbacks, callbackArgs[0], 'path');
     });

@@ -13,7 +13,7 @@ const weightMethodAttributes: WeightMethodAttributes = {
     _uuid: uuidV4(),
     shortname: 'ShortName',
     name: 'Test Weight Method',
-    description: 'Description of the weight method',
+    description: 'Description of the weight method'
 };
 
 describe('Weight', () => {

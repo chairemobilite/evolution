@@ -15,7 +15,7 @@ const weightMethodAttributes = {
     _uuid: uuidV4(),
     shortname: 'sample-shortname',
     name: 'Sample Weight Method',
-    description: 'Sample weight method description',
+    description: 'Sample weight method description'
 };
 
 const baseHouseholdAttributes: BaseHouseholdAttributes = {
@@ -25,13 +25,13 @@ const baseHouseholdAttributes: BaseHouseholdAttributes = {
     category: 'bar' as HAttr.HouseholdCategory,
     contactPhoneNumber: '123-456-7890',
     contactEmail: 'test@example.com',
-    _weights: [{ weight: 5.5, method: new WeightMethod(weightMethodAttributes) }, { weight: 6.3, method: new WeightMethod(weightMethodAttributes) }],
+    _weights: [
+        { weight: 5.5, method: new WeightMethod(weightMethodAttributes) },
+        { weight: 6.3, method: new WeightMethod(weightMethodAttributes) }
+    ]
 };
 
-const extendedHouseholdAttributes: ExtendedHouseholdAttributes = {
-    ...baseHouseholdAttributes,
-    additionalAttribute: 'additionalValue',
-};
+const extendedHouseholdAttributes: ExtendedHouseholdAttributes = { ...baseHouseholdAttributes, additionalAttribute: 'additionalValue' };
 
 const baseHouseholdAttributes2: BaseHouseholdAttributes = {
     _uuid: uuidV4(),
@@ -47,7 +47,6 @@ const baseHouseholdAttributes2: BaseHouseholdAttributes = {
 };
 
 describe('BaseHousehold Class Tests', () => {
-
     it('should create a BaseHousehold instance', () => {
         const household = new BaseHousehold(baseHouseholdAttributes);
         expect(household).toBeInstanceOf(BaseHousehold);
@@ -92,7 +91,6 @@ describe('BaseHousehold Class Tests', () => {
 });
 
 describe('BaseHousehold Class Additional Tests', () => {
-
     it('should correctly set category property if provided', () => {
         const householdInstance = new BaseHousehold(baseHouseholdAttributes2);
         expect(householdInstance.category).toEqual(baseHouseholdAttributes2.category);
@@ -128,7 +126,7 @@ describe('BaseHousehold Class Additional Tests', () => {
             category: 'single-family',
             homeCarParkings: ['private-garage'],
             contactPhoneNumber: '1234567890',
-            contactEmail: 'valid@example.com',
+            contactEmail: 'valid@example.com'
         };
 
         const errors = BaseHousehold.validateParams(validParams);
@@ -151,7 +149,8 @@ describe('BaseHousehold Class Additional Tests', () => {
             _weights: [
                 { weight: 5.5, method: 'foo' },
                 { weight: -3.2, method: new WeightMethod(weightMethodAttributes) },
-                { weight: 'bar', method: new WeightMethod(weightMethodAttributes) }]
+                { weight: 'bar', method: new WeightMethod(weightMethodAttributes) }
+            ]
         };
 
         const errors = BaseHousehold.validateParams(invalidParams);
@@ -169,7 +168,7 @@ describe('BaseHousehold Class Additional Tests', () => {
             new Error('BaseHousehold validateParams: category should be a string'),
             new Error('BaseHousehold validateParams: homeCarParkings index 0 should be a string'),
             new Error('BaseHousehold validateParams: contactPhoneNumber should be a string'),
-            new Error('BaseHousehold validateParams: contactEmail should be a string'),
+            new Error('BaseHousehold validateParams: contactEmail should be a string')
         ]);
     });
 
@@ -185,6 +184,4 @@ describe('BaseHousehold Class Additional Tests', () => {
         expect(instance.size).toEqual(baseHouseholdAttributes.size);
         expect(instance.carNumber).toEqual(baseHouseholdAttributes.carNumber);
     });
-
 });
-

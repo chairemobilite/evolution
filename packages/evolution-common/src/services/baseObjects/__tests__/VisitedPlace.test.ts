@@ -24,7 +24,7 @@ describe('VisitedPlace', () => {
         _uuid: uuidV4(),
         shortname: 'sample-shortname',
         name: 'Sample Weight Method',
-        description: 'Sample weight method description',
+        description: 'Sample weight method description'
     };
 
     const validPlaceAttributes: ExtendedPlaceAttributes = {
@@ -42,14 +42,7 @@ describe('VisitedPlace', () => {
         lastAction: 'findPlace',
         deviceUsed: 'tablet',
         zoom: 15,
-        geography: {
-            type: 'Feature',
-            geometry: {
-                type: 'Point',
-                coordinates: [0, 0],
-            },
-            properties: {},
-        },
+        geography: { type: 'Feature', geometry: { type: 'Point', coordinates: [0, 0] }, properties: {} },
         _weights: [{ weight: 1.2, method: new WeightMethod(weightMethodAttributes) }],
         _isValid: true
     };
@@ -70,15 +63,12 @@ describe('VisitedPlace', () => {
         _isValid: true
     };
 
-    const validVisitedPlaceAttributesWithPlace: ExtendedVisitedPlaceAttributes = {
-        ...validVisitedPlaceAttributes,
-        _place: validPlaceAttributes
-    };
+    const validVisitedPlaceAttributesWithPlace: ExtendedVisitedPlaceAttributes = { ...validVisitedPlaceAttributes, _place: validPlaceAttributes };
 
     const extendedVisitedPlaceAttributes: ExtendedVisitedPlaceAttributes = {
         ...validVisitedPlaceAttributesWithPlace,
         customAttribute1: 'value1',
-        customAttribute2: 'value2',
+        customAttribute2: 'value2'
     };
 
     test('should create a VisitedPlace instance with valid attributes', () => {
@@ -89,9 +79,14 @@ describe('VisitedPlace', () => {
 
     test('should have a validateParams section for each attribute', () => {
         const validateParamsCode = VisitedPlace.validateParams.toString();
-        visitedPlaceAttributes.filter((attribute) => attribute !== '_uuid' && attribute !== '_weights' && !(startEndDateAndTimesAttributes as unknown as string[]).includes(attribute)).forEach((attributeName) => {
-            expect(validateParamsCode).toContain('\'' + attributeName + '\'');
-        });
+        visitedPlaceAttributes
+            .filter(
+                (attribute) =>
+                    attribute !== '_uuid' && attribute !== '_weights' && !(startEndDateAndTimesAttributes as unknown as string[]).includes(attribute)
+            )
+            .forEach((attributeName) => {
+                expect(validateParamsCode).toContain('\'' + attributeName + '\'');
+            });
     });
 
     test('should get uuid', () => {
@@ -109,7 +104,7 @@ describe('VisitedPlace', () => {
         const invalidAttributes = 'foo' as any;
         const result = VisitedPlace.create(invalidAttributes, registry);
         expect(hasErrors(result)).toBe(true);
-        expect((unwrap(result) as Error[])).toHaveLength(1);
+        expect(unwrap(result) as Error[]).toHaveLength(1);
     });
 
     test('should create a VisitedPlace instance with extended attributes', () => {
@@ -163,14 +158,8 @@ describe('VisitedPlace', () => {
     });
 
     test('should create a VisitedPlace instance with custom attributes', () => {
-        const customAttributes = {
-            customAttribute1: 'value1',
-            customAttribute2: 'value2',
-        };
-        const visitedPlaceAttributesWithCustom = {
-            ...validVisitedPlaceAttributesWithPlace,
-            ...customAttributes,
-        };
+        const customAttributes = { customAttribute1: 'value1', customAttribute2: 'value2' };
+        const visitedPlaceAttributesWithCustom = { ...validVisitedPlaceAttributesWithPlace, ...customAttributes };
         const visitedPlace = new VisitedPlace(visitedPlaceAttributesWithCustom, registry);
         expect(visitedPlace).toBeInstanceOf(VisitedPlace);
         expect(visitedPlace.attributes).toEqual(validVisitedPlaceAttributes);
@@ -218,7 +207,7 @@ describe('VisitedPlace', () => {
             ['activityCategory', 'leisure'],
             ['shortcut', uuidV4()],
             ['_sequence', 2],
-            ['preData', { importedVisitedPlaceData: 'value', duration: 30 }],
+            ['preData', { importedVisitedPlaceData: 'value', duration: 30 }]
         ])('should set and get %s', (attribute, value) => {
             const visitedPlace = new VisitedPlace(validVisitedPlaceAttributesWithPlace, registry);
             visitedPlace[attribute] = value;
@@ -228,11 +217,14 @@ describe('VisitedPlace', () => {
         describe('Getters for attributes with no setters', () => {
             test.each([
                 ['_uuid', validVisitedPlaceAttributes._uuid],
-                ['customAttributes', {
-                    customAttribute1: extendedVisitedPlaceAttributes.customAttribute1,
-                    customAttribute2: extendedVisitedPlaceAttributes.customAttribute2
-                }],
-                ['attributes', validVisitedPlaceAttributes],
+                [
+                    'customAttributes',
+                    {
+                        customAttribute1: extendedVisitedPlaceAttributes.customAttribute1,
+                        customAttribute2: extendedVisitedPlaceAttributes.customAttribute2
+                    }
+                ],
+                ['attributes', validVisitedPlaceAttributes]
             ])('should set and get %s', (attribute, value) => {
                 const visitedPlace = new VisitedPlace(extendedVisitedPlaceAttributes, registry);
                 expect(visitedPlace[attribute]).toEqual(value);
@@ -243,7 +235,7 @@ describe('VisitedPlace', () => {
             ['_isValid', false],
             ['_weights', [{ weight: 2.0, method: new WeightMethod(weightMethodAttributes) }]],
             ['journeyUuid', uuidV4()],
-            ['_place', validPlaceAttributes],
+            ['_place', validPlaceAttributes]
         ])('should set and get %s', (attribute, value) => {
             const visitedPlace = new VisitedPlace(validVisitedPlaceAttributesWithPlace, registry);
             visitedPlace[attribute] = value;
@@ -261,4 +253,3 @@ describe('VisitedPlace', () => {
         });
     });
 });
-

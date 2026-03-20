@@ -14,7 +14,6 @@ import { Journey, Person } from '../../../types';
 import { modeValues, modePreValues, Mode } from '../../../../odSurvey/types';
 
 describe('getPreviousTripSingleSegment', () => {
-
     test('No active trip', () => {
         // Prepare test data
         const interview = _cloneDeep(interviewAttributesForTestCases);
@@ -72,7 +71,9 @@ describe('getPreviousTripSingleSegment', () => {
 
         // Get person and test the function
         const person = odHelpers.getPerson({ interview }) as Person;
-        expect(helpers.getPreviousTripSingleSegment({ interview, person })).toEqual(interview.response.household!.persons!.personId2.journeys!.journeyId2.trips!.tripId1P2.segments!.segmentId1P2T1);
+        expect(helpers.getPreviousTripSingleSegment({ interview, person })).toEqual(
+            interview.response.household!.persons!.personId2.journeys!.journeyId2.trips!.tripId1P2.segments!.segmentId1P2T1
+        );
     });
 
     test('Previous trip, multiple segments', () => {
@@ -89,12 +90,11 @@ describe('getPreviousTripSingleSegment', () => {
 });
 
 describe('isSimpleChainSingleModeReturnTrip', () => {
-
     each([
         ['origin', 'household.persons.personId3.journeys.journeyId3.trips.tripId2P3._originVisitedPlaceUuid'],
         ['destination', 'household.persons.personId3.journeys.journeyId3.trips.tripId2P3._destinationVisitedPlaceUuid'],
         ['previous origin', 'household.persons.personId3.journeys.journeyId3.trips.tripId1P3._originVisitedPlaceUuid'],
-        ['geography', 'home.geography'],
+        ['geography', 'home.geography']
     ]).test('undefined data for %s', (_field, pathOfValueToUndefine) => {
         // Prepare test data, trip 2 of person 3 should be a simple chain
         const interview = _cloneDeep(interviewAttributesForTestCases);
@@ -106,22 +106,17 @@ describe('isSimpleChainSingleModeReturnTrip', () => {
         const journey = odHelpers.getActiveJourney({ interview, person }) as Journey;
 
         // Add a segment to trip1 to make sure it would return `true` if everything was right otherwise
-        journey.trips!.tripId1P3.segments = {
-            segmentId1P3T1: {
-                _uuid: 'segmentId1P3T1',
-                _sequence: 1,
-                _isNew: false,
-                mode: 'walk'
-            }
-        };
+        journey.trips!.tripId1P3.segments = { segmentId1P3T1: { _uuid: 'segmentId1P3T1', _sequence: 1, _isNew: false, mode: 'walk' } };
 
-        expect(helpers.isSimpleChainSingleModeReturnTrip({
-            interview,
-            journey,
-            person,
-            trip: journey.trips!.tripId2P3,
-            previousTrip: journey.trips!.tripId1P3
-        })).toEqual(false);
+        expect(
+            helpers.isSimpleChainSingleModeReturnTrip({
+                interview,
+                journey,
+                person,
+                trip: journey.trips!.tripId2P3,
+                previousTrip: journey.trips!.tripId1P3
+            })
+        ).toEqual(false);
     });
 
     test('Previous trip is not a simple chain', () => {
@@ -134,22 +129,17 @@ describe('isSimpleChainSingleModeReturnTrip', () => {
         const journey = odHelpers.getActiveJourney({ interview, person }) as Journey;
 
         // Add a segment to trip1 with simple mode
-        journey.trips!.tripId1P2.segments = {
-            segmentId1P2T1: {
-                _uuid: 'segmentId1P2T1',
-                _sequence: 1,
-                _isNew: false,
-                mode: 'walk'
-            }
-        };
+        journey.trips!.tripId1P2.segments = { segmentId1P2T1: { _uuid: 'segmentId1P2T1', _sequence: 1, _isNew: false, mode: 'walk' } };
 
-        expect(helpers.isSimpleChainSingleModeReturnTrip({
-            interview,
-            journey,
-            person,
-            trip: journey.trips!.tripId2P2,
-            previousTrip: journey.trips!.tripId1P2
-        })).toEqual(false);
+        expect(
+            helpers.isSimpleChainSingleModeReturnTrip({
+                interview,
+                journey,
+                person,
+                trip: journey.trips!.tripId2P2,
+                previousTrip: journey.trips!.tripId1P2
+            })
+        ).toEqual(false);
     });
 
     test('Previous trip is simple chain and has single not simple mode', () => {
@@ -162,22 +152,17 @@ describe('isSimpleChainSingleModeReturnTrip', () => {
         const journey = odHelpers.getActiveJourney({ interview, person }) as Journey;
 
         // Add a segment to trip1 with not simle mode
-        journey.trips!.tripId1P3.segments = {
-            segmentId1P3T1: {
-                _uuid: 'segmentId1P3T1',
-                _sequence: 1,
-                _isNew: false,
-                mode: 'transitFerry'
-            }
-        };
+        journey.trips!.tripId1P3.segments = { segmentId1P3T1: { _uuid: 'segmentId1P3T1', _sequence: 1, _isNew: false, mode: 'transitFerry' } };
 
-        expect(helpers.isSimpleChainSingleModeReturnTrip({
-            interview,
-            journey,
-            person,
-            trip: journey.trips!.tripId2P3,
-            previousTrip: journey.trips!.tripId1P3
-        })).toEqual(false);
+        expect(
+            helpers.isSimpleChainSingleModeReturnTrip({
+                interview,
+                journey,
+                person,
+                trip: journey.trips!.tripId2P3,
+                previousTrip: journey.trips!.tripId1P3
+            })
+        ).toEqual(false);
     });
 
     test('Previous trip is simlpe chain and has 2 simple modes', () => {
@@ -191,27 +176,19 @@ describe('isSimpleChainSingleModeReturnTrip', () => {
 
         // Add 2 segments with simple modes to trip1 with not simle mode
         journey.trips!.tripId1P3.segments = {
-            segmentId1P3T1: {
-                _uuid: 'segmentId1P3T1',
-                _sequence: 1,
-                _isNew: false,
-                mode: 'walk'
-            },
-            segmentId2P3T1: {
-                _uuid: 'segmentId2P3T1',
-                _sequence: 1,
-                _isNew: false,
-                mode: 'bicycle'
-            }
+            segmentId1P3T1: { _uuid: 'segmentId1P3T1', _sequence: 1, _isNew: false, mode: 'walk' },
+            segmentId2P3T1: { _uuid: 'segmentId2P3T1', _sequence: 1, _isNew: false, mode: 'bicycle' }
         };
 
-        expect(helpers.isSimpleChainSingleModeReturnTrip({
-            interview,
-            journey,
-            person,
-            trip: journey.trips!.tripId2P3,
-            previousTrip: journey.trips!.tripId1P3
-        })).toEqual(false);
+        expect(
+            helpers.isSimpleChainSingleModeReturnTrip({
+                interview,
+                journey,
+                person,
+                trip: journey.trips!.tripId2P3,
+                previousTrip: journey.trips!.tripId1P3
+            })
+        ).toEqual(false);
     });
 
     test('Previous trip is simple chain and has single simple mode', () => {
@@ -224,22 +201,17 @@ describe('isSimpleChainSingleModeReturnTrip', () => {
         const journey = odHelpers.getActiveJourney({ interview, person }) as Journey;
 
         // Add a segment to trip1 with single simple mode
-        journey.trips!.tripId1P3.segments = {
-            segmentId1P3T1: {
-                _uuid: 'segmentId1P3T1',
-                _sequence: 1,
-                _isNew: false,
-                mode: 'walk'
-            }
-        };
+        journey.trips!.tripId1P3.segments = { segmentId1P3T1: { _uuid: 'segmentId1P3T1', _sequence: 1, _isNew: false, mode: 'walk' } };
 
-        expect(helpers.isSimpleChainSingleModeReturnTrip({
-            interview,
-            journey,
-            person,
-            trip: journey.trips!.tripId2P3,
-            previousTrip: journey.trips!.tripId1P3
-        })).toEqual(true);
+        expect(
+            helpers.isSimpleChainSingleModeReturnTrip({
+                interview,
+                journey,
+                person,
+                trip: journey.trips!.tripId2P3,
+                previousTrip: journey.trips!.tripId1P3
+            })
+        ).toEqual(true);
     });
 
     test('simple chain/simple mode, but moving activity at origin', () => {
@@ -252,25 +224,20 @@ describe('isSimpleChainSingleModeReturnTrip', () => {
         const journey = odHelpers.getActiveJourney({ interview, person }) as Journey;
 
         // Add a segment to trip1 with single simple mode
-        journey.trips!.tripId1P3.segments = {
-            segmentId1P3T1: {
-                _uuid: 'segmentId1P3T1',
-                _sequence: 1,
-                _isNew: false,
-                mode: 'walk'
-            }
-        };
+        journey.trips!.tripId1P3.segments = { segmentId1P3T1: { _uuid: 'segmentId1P3T1', _sequence: 1, _isNew: false, mode: 'walk' } };
 
         // Change activity of origin to a moving one
         journey.visitedPlaces!.schoolPlace1P3.activity = 'workOnTheRoad';
 
-        expect(helpers.isSimpleChainSingleModeReturnTrip({
-            interview,
-            journey,
-            person,
-            trip: journey.trips!.tripId2P3,
-            previousTrip: journey.trips!.tripId1P3
-        })).toEqual(false);
+        expect(
+            helpers.isSimpleChainSingleModeReturnTrip({
+                interview,
+                journey,
+                person,
+                trip: journey.trips!.tripId2P3,
+                previousTrip: journey.trips!.tripId1P3
+            })
+        ).toEqual(false);
     });
 
     test('simple chain/simple mode, but moving activity at destination', () => {
@@ -283,31 +250,25 @@ describe('isSimpleChainSingleModeReturnTrip', () => {
         const journey = odHelpers.getActiveJourney({ interview, person }) as Journey;
 
         // Add a segment to trip1 with single simple mode
-        journey.trips!.tripId1P3.segments = {
-            segmentId1P3T1: {
-                _uuid: 'segmentId1P3T1',
-                _sequence: 1,
-                _isNew: false,
-                mode: 'walk'
-            }
-        };
+        journey.trips!.tripId1P3.segments = { segmentId1P3T1: { _uuid: 'segmentId1P3T1', _sequence: 1, _isNew: false, mode: 'walk' } };
 
         // Change activity destinations to a moving one
         journey.visitedPlaces!.homePlace1P3.activity = 'workOnTheRoad';
         journey.visitedPlaces!.homePlace2P3.activity = 'workOnTheRoad';
 
-        expect(helpers.isSimpleChainSingleModeReturnTrip({
-            interview,
-            journey,
-            person,
-            trip: journey.trips!.tripId2P3,
-            previousTrip: journey.trips!.tripId1P3
-        })).toEqual(false);
+        expect(
+            helpers.isSimpleChainSingleModeReturnTrip({
+                interview,
+                journey,
+                person,
+                trip: journey.trips!.tripId2P3,
+                previousTrip: journey.trips!.tripId1P3
+            })
+        ).toEqual(false);
     });
 });
 
 describe('shouldShowSameAsReverseTripQuestion', () => {
-
     // Prepare test data with default active person/journey/trip, tripId2P1 is return trip of a simple chain
     const baseTestInterview = _cloneDeep(interviewAttributesForTestCases);
     baseTestInterview.response._activePersonId = 'personId1';
@@ -320,9 +281,7 @@ describe('shouldShowSameAsReverseTripQuestion', () => {
 
     // Add a segment for tripId2P1, tests will initialize it
     const baseTestSegment = { _uuid: 'segmentId1P1T2', _sequence: 1, _isNew: true };
-    baseTestInterview.response.household!.persons!.personId1.journeys!.journeyId1.trips!.tripId2P1.segments = {
-        segmentId1P1T2: baseTestSegment
-    };
+    baseTestInterview.response.household!.persons!.personId1.journeys!.journeyId1.trips!.tripId2P1.segments = { segmentId1P1T2: baseTestSegment };
 
     test('Segment is not new, but simple chain', () => {
         // Prepare interview data, setting segment as not new
@@ -376,11 +335,9 @@ describe('shouldShowSameAsReverseTripQuestion', () => {
         const result = helpers.shouldShowSameAsReverseTripQuestion!({ interview: baseTestInterview, segment: baseTestSegment });
         expect(result).toEqual(true);
     });
-
 });
 
 describe('conditionalPersonMayHaveDisability', () => {
-
     test('Person has disability set to "yes"', () => {
         // Prepare test data
         const interview = _cloneDeep(interviewAttributesForTestCases);
@@ -449,7 +406,6 @@ describe('conditionalPersonMayHaveDisability', () => {
 });
 
 describe('conditionalHhMayHaveDisability', () => {
-
     test('At least one person has disability set to "yes"', () => {
         // Prepare test data
         const interview = _cloneDeep(interviewAttributesForTestCases);
@@ -555,11 +511,7 @@ describe('Mode/modePre filtering based on configuration', () => {
     });
 
     test('getFilteredModes should filter with modesExclude', () => {
-        const segmentConfig = {
-            type: 'segments' as const,
-            enabled: true,
-            modesExclude: ['plane', 'ferryWithCar', 'snowmobile'] as Mode[]
-        };
+        const segmentConfig = { type: 'segments' as const, enabled: true, modesExclude: ['plane', 'ferryWithCar', 'snowmobile'] as Mode[] };
         const filteredModes = helpers.getFilteredModes(segmentConfig);
 
         // Should exclude those 3 modes
@@ -572,11 +524,7 @@ describe('Mode/modePre filtering based on configuration', () => {
     });
 
     test('getFilteredModes should handle modesIncludeOnly with non-existent modes', () => {
-        const segmentConfig = {
-            type: 'segments' as const,
-            enabled: true,
-            modesIncludeOnly: ['walk', 'bicycle', 'nonExistentMode' as any] as any
-        };
+        const segmentConfig = { type: 'segments' as const, enabled: true, modesIncludeOnly: ['walk', 'bicycle', 'nonExistentMode' as any] as any };
         const filteredModes = helpers.getFilteredModes(segmentConfig);
 
         // Should only include the valid modes

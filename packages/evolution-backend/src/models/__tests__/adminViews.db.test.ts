@@ -14,23 +14,11 @@ import interviewsDbQueries from '../interviews.db.queries';
 
 const viewName = 'test_view';
 
-const localParticipant = {
-    id: 1,
-    email: 'test@transition.city',
-    is_valid: true
-};
+const localParticipant = { id: 1, email: 'test@transition.city', is_valid: true };
 
-const otherParticipant = {
-    id: 2,
-    is_valid: true,
-    google_id: '1234'
-};
+const otherParticipant = { id: 2, is_valid: true, google_id: '1234' };
 
-const participant3 = {
-    id: 3,
-    is_valid: true,
-    email: 'test@example.org',
-};
+const participant3 = { id: 3, is_valid: true, email: 'test@example.org' };
 
 const localUserInterviewAttributes = {
     uuid: uuidV4(),
@@ -38,10 +26,7 @@ const localUserInterviewAttributes = {
     is_valid: false,
     is_active: true,
     is_completed: undefined,
-    response: {
-        accessCode: '11111',
-        booleanField: true,
-    },
+    response: { accessCode: '11111', booleanField: true },
     validations: {},
     audits: { errorOne: 3, errorThree: 1 }
 } as any;
@@ -59,7 +44,7 @@ beforeAll(async () => {
     await interviewsDbQueries.create(localUserInterviewAttributes);
 });
 
-afterAll(async() => {
+afterAll(async () => {
     await truncate(knex, 'sv_materialized_views');
     await truncate(knex, 'sv_interviews');
     await truncate(knex, 'users');
@@ -69,7 +54,6 @@ afterAll(async() => {
 });
 
 describe('registerView', () => {
-
     const defaultViewQuery = `select i.id, 
         i.uuid,
         i.participant_id,
@@ -83,31 +67,31 @@ describe('registerView', () => {
     from sv_interviews i
     inner join sv_participants part on i.participant_id = part.id`;
 
-    test('Register a new view', async() => {
+    test('Register a new view', async () => {
         expect(await dbQueries.registerView(viewName, defaultViewQuery)).toEqual(true);
         const data = await knex(viewName).select('*');
-        expect(data).toEqual([{
-            uuid: localUserInterviewAttributes.uuid,
-            id: expect.anything(),
-            participant_id: localUserInterviewAttributes.participant_id,
-            is_valid: localUserInterviewAttributes.is_valid,
-            is_completed: null,
-            auth_method: 'email'
-        }]);
+        expect(data).toEqual([
+            {
+                uuid: localUserInterviewAttributes.uuid,
+                id: expect.anything(),
+                participant_id: localUserInterviewAttributes.participant_id,
+                is_valid: localUserInterviewAttributes.is_valid,
+                is_completed: null,
+                auth_method: 'email'
+            }
+        ]);
         expect(await dbQueries.viewExists(viewName)).toEqual(true);
     });
 
-    test('Register a new view, with SQL error', async() => {
+    test('Register a new view, with SQL error', async () => {
         const errorViewName = 'errorView';
         // Add a comma at the end of the view sql
-        await expect(dbQueries.registerView(errorViewName, `${defaultViewQuery},`))
-            .rejects
-            .toThrow(expect.anything());
+        await expect(dbQueries.registerView(errorViewName, `${defaultViewQuery},`)).rejects.toThrow(expect.anything());
         // The view should not exist in the database
         expect(await dbQueries.viewExists(errorViewName)).toEqual(false);
     });
 
-    test('Register an existing view, with same query', async() => {
+    test('Register an existing view, with same query', async () => {
         const currentView = await knex('sv_materialized_views').where('view_name', viewName);
         expect(await dbQueries.registerView(viewName, defaultViewQuery)).toEqual(true);
 
@@ -115,36 +99,38 @@ describe('registerView', () => {
         const viewAfterRegister = await knex('sv_materialized_views').where('view_name', viewName);
         expect(viewAfterRegister[0].updated_at).toEqual(currentView[0].updated_at);
 
-        expect(await knex(viewName).select('*')).toEqual([{
-            uuid: localUserInterviewAttributes.uuid,
-            id: expect.anything(),
-            participant_id: localUserInterviewAttributes.participant_id,
-            is_valid: localUserInterviewAttributes.is_valid,
-            is_completed: null,
-            auth_method: 'email'
-        }]);
+        expect(await knex(viewName).select('*')).toEqual([
+            {
+                uuid: localUserInterviewAttributes.uuid,
+                id: expect.anything(),
+                participant_id: localUserInterviewAttributes.participant_id,
+                is_valid: localUserInterviewAttributes.is_valid,
+                is_completed: null,
+                auth_method: 'email'
+            }
+        ]);
         expect(await dbQueries.viewExists(viewName)).toEqual(true);
     });
 
-    test('Register an existing view, with a SQL error', async() => {
+    test('Register an existing view, with a SQL error', async () => {
         // Add a comma at the end of the view sql
-        await expect(dbQueries.registerView(viewName, `${defaultViewQuery},`))
-            .rejects
-            .toThrow(expect.anything());
+        await expect(dbQueries.registerView(viewName, `${defaultViewQuery},`)).rejects.toThrow(expect.anything());
 
         // The view should still exist in the database and be equal to the previous
         expect(await dbQueries.viewExists(viewName)).toEqual(true);
-        expect(await knex(viewName).select('*')).toEqual([{
-            uuid: localUserInterviewAttributes.uuid,
-            id: expect.anything(),
-            participant_id: localUserInterviewAttributes.participant_id,
-            is_valid: localUserInterviewAttributes.is_valid,
-            is_completed: null,
-            auth_method: 'email'
-        }]);
+        expect(await knex(viewName).select('*')).toEqual([
+            {
+                uuid: localUserInterviewAttributes.uuid,
+                id: expect.anything(),
+                participant_id: localUserInterviewAttributes.participant_id,
+                is_valid: localUserInterviewAttributes.is_valid,
+                is_completed: null,
+                auth_method: 'email'
+            }
+        ]);
     });
 
-    test('Register an existing view, with a different query', async() => {
+    test('Register an existing view, with a different query', async () => {
         // Use the same query, but rename the fields
         const defaultViewQuery = `select i.id, 
             i.uuid,
@@ -160,18 +146,20 @@ describe('registerView', () => {
         inner join sv_participants part on i.participant_id = part.id`;
 
         expect(await dbQueries.registerView(viewName, defaultViewQuery)).toEqual(true);
-        expect(await knex(viewName).select('*')).toEqual([{
-            uuid: localUserInterviewAttributes.uuid,
-            id: expect.anything(),
-            part_id: localUserInterviewAttributes.participant_id,
-            valid: localUserInterviewAttributes.is_valid,
-            completed: null,
-            auth: 'email'
-        }]);
+        expect(await knex(viewName).select('*')).toEqual([
+            {
+                uuid: localUserInterviewAttributes.uuid,
+                id: expect.anything(),
+                part_id: localUserInterviewAttributes.participant_id,
+                valid: localUserInterviewAttributes.is_valid,
+                completed: null,
+                auth: 'email'
+            }
+        ]);
         expect(await dbQueries.viewExists(viewName)).toEqual(true);
     });
 
-    test('Register an existing view, with a single unique field', async() => {
+    test('Register an existing view, with a single unique field', async () => {
         // Use the same query, but rename the fields
         const defaultViewQuery = `select i.id, 
             i.uuid,
@@ -187,23 +175,22 @@ describe('registerView', () => {
         inner join sv_participants part on i.participant_id = part.id`;
 
         expect(await dbQueries.registerView(viewName, defaultViewQuery, 'id')).toEqual(true);
-        expect(await knex(viewName).select('*')).toEqual([{
-            uuid: localUserInterviewAttributes.uuid,
-            id: expect.anything(),
-            part_id: localUserInterviewAttributes.participant_id,
-            valid: localUserInterviewAttributes.is_valid,
-            completed: null,
-            auth: 'email'
-        }]);
-        expect(await knex('sv_materialized_views').select('*').where('view_name', viewName)).toEqual([expect.objectContaining({
-            view_name: viewName,
-            view_query: defaultViewQuery,
-            unique_field: 'id',
-        })]);
-
+        expect(await knex(viewName).select('*')).toEqual([
+            {
+                uuid: localUserInterviewAttributes.uuid,
+                id: expect.anything(),
+                part_id: localUserInterviewAttributes.participant_id,
+                valid: localUserInterviewAttributes.is_valid,
+                completed: null,
+                auth: 'email'
+            }
+        ]);
+        expect(await knex('sv_materialized_views').select('*').where('view_name', viewName)).toEqual([
+            expect.objectContaining({ view_name: viewName, view_query: defaultViewQuery, unique_field: 'id' })
+        ]);
     });
 
-    test('Register an existing view, with multiple unique fields', async() => {
+    test('Register an existing view, with multiple unique fields', async () => {
         // Use the same query, but rename the fields
         const defaultViewQuery = `select i.id, 
             i.uuid,
@@ -219,22 +206,20 @@ describe('registerView', () => {
         inner join sv_participants part on i.participant_id = part.id`;
 
         expect(await dbQueries.registerView(viewName, defaultViewQuery, ['id', 'uuid'])).toEqual(true);
-        expect(await knex(viewName).select('*')).toEqual([{
-            uuid: localUserInterviewAttributes.uuid,
-            id: expect.anything(),
-            part_id: localUserInterviewAttributes.participant_id,
-            valid: localUserInterviewAttributes.is_valid,
-            completed: null,
-            auth: 'email'
-        }]);
-        expect(await knex('sv_materialized_views').select('*').where('view_name', viewName)).toEqual([expect.objectContaining({
-            view_name: viewName,
-            view_query: defaultViewQuery,
-            unique_field: 'id, uuid'
-        })]);
-
+        expect(await knex(viewName).select('*')).toEqual([
+            {
+                uuid: localUserInterviewAttributes.uuid,
+                id: expect.anything(),
+                part_id: localUserInterviewAttributes.participant_id,
+                valid: localUserInterviewAttributes.is_valid,
+                completed: null,
+                auth: 'email'
+            }
+        ]);
+        expect(await knex('sv_materialized_views').select('*').where('view_name', viewName)).toEqual([
+            expect.objectContaining({ view_name: viewName, view_query: defaultViewQuery, unique_field: 'id, uuid' })
+        ]);
     });
-
 });
 
 test('Update database view', async () => {
@@ -272,13 +257,12 @@ test('Update database view', async () => {
     await dbQueries.refreshAllViews();
     const data4 = await knex(viewName).select('*');
     expect(data4.length).toEqual(originalCount + 2);
-
 });
 
 describe('Query view', () => {
     const dataCount = 3;
 
-    test('Query all fields', async() => {
+    test('Query all fields', async () => {
         const data = await dbQueries.queryView(viewName);
         expect(data).not.toEqual(false);
         expect((data as any[]).length).toEqual(dataCount);
@@ -292,58 +276,44 @@ describe('Query view', () => {
         });
     });
 
-    test('Query only a subset of the fields', async() => {
+    test('Query only a subset of the fields', async () => {
         const data = await dbQueries.queryView(viewName, ['id', 'auth']);
         expect(data).not.toEqual(false);
         expect((data as any[]).length).toEqual(dataCount);
-        expect(data[0]).toEqual({
-            id: expect.anything(),
-            auth: 'email'
-        });
+        expect(data[0]).toEqual({ id: expect.anything(), auth: 'email' });
     });
 
-    test('Query an unexisting view', async() => {
+    test('Query an unexisting view', async () => {
         const data = await dbQueries.queryView('unexistingView');
         expect(data).toEqual(false);
     });
 
-    test('Query unexisting fields', async() => {
+    test('Query unexisting fields', async () => {
         const data = await dbQueries.queryView(viewName, ['id', 'unexisting']);
         expect(data).toEqual(false);
     });
-
 });
 
 describe('Count by', () => {
-
     const dataCount = 3;
 
-    test('Count by one field', async() => {
+    test('Count by one field', async () => {
         const data = await dbQueries.countByView(viewName, ['valid']);
         expect(data).not.toEqual(false);
-        expect(data).toEqual([{
-            valid: localUserInterviewAttributes.is_valid,
-            count: dataCount
-        }]);
+        expect(data).toEqual([{ valid: localUserInterviewAttributes.is_valid, count: dataCount }]);
     });
 
-    test('Count by 2 fields', async() => {
+    test('Count by 2 fields', async () => {
         const data = await dbQueries.countByView(viewName, ['id', 'auth']);
         expect(data).not.toEqual(false);
         expect((data as any[]).length).toEqual(dataCount);
         for (let i = 0; i < (data as any[]).length; i++) {
-            switch(data[i].auth) {
-            case 'email': expect(data[i]).toEqual({
-                id: expect.anything(),
-                auth: 'email',
-                count: 1
-            });
+            switch (data[i].auth) {
+            case 'email':
+                expect(data[i]).toEqual({ id: expect.anything(), auth: 'email', count: 1 });
                 break;
-            case 'google': expect(data[i]).toEqual({
-                id: expect.anything(),
-                auth: 'google',
-                count: 1
-            });
+            case 'google':
+                expect(data[i]).toEqual({ id: expect.anything(), auth: 'google', count: 1 });
                 break;
             default:
                 // Unexpected data
@@ -352,14 +322,13 @@ describe('Count by', () => {
         }
     });
 
-    test('Count on an unexisting view', async() => {
+    test('Count on an unexisting view', async () => {
         const data = await dbQueries.countByView('unexistingView', ['valid']);
         expect(data).toEqual(false);
     });
 
-    test('Count on unexisting fields', async() => {
+    test('Count on unexisting fields', async () => {
         const data = await dbQueries.countByView(viewName, ['id', 'unexisting']);
         expect(data).toEqual(false);
     });
-
 });

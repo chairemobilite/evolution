@@ -18,14 +18,14 @@ const router = express.Router();
 // Add the middleware to test before each route
 router.get('/testWithUuid/:interviewUuid', validateUuidMiddleware, requestHandler);
 router.get('/testWithId/:interviewId', validateUuidMiddleware, requestHandler);
-app.use('/test', router)
+app.use('/test', router);
 
 beforeEach(() => {
     jest.clearAllMocks();
-})
+});
 
 test('Valid uuid in interviewUuid', async () => {
-    const uuid = uuidV4()
+    const uuid = uuidV4();
     const response = await request(app).get(`/test/testWithUuid/${uuid}`);
     expect(response.status).toBe(200);
     expect(requestHandler).toHaveBeenCalled();
@@ -38,7 +38,7 @@ test('Invalid uuid in interviewUuid', async () => {
 });
 
 test('Valid uuid in interviewId', async () => {
-    const uuid = uuidV4()
+    const uuid = uuidV4();
     const response = await request(app).get(`/test/testWithId/${uuid}`);
     expect(response.status).toBe(200);
     expect(requestHandler).toHaveBeenCalled();
@@ -49,4 +49,3 @@ test('Invalid uuid in interviewId', async () => {
     expect(response.status).toBe(400);
     expect(requestHandler).not.toHaveBeenCalled();
 });
-
