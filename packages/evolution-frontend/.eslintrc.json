@@ -1,3 +1,13 @@
 {
-    "extends": "../../configs/react.eslintrc.json"
+    "extends": "../../configs/react.eslintrc.json",
+    "overrides": [
+        {
+            "files": ["**/__tests__/**/*.{ts,tsx}"],
+            "rules": {
+                "@typescript-eslint/no-unused-vars": ["warn", { "vars": "all", "args": "after-used", "argsIgnorePattern": "^_", "varsIgnorePattern": "^_", "ignoreRestSiblings": false }],
+                // Some imports for testing purposes are devDependencies and not published
+                "n/no-unpublished-import": "off"
+            }
+        }
+    ]
   }
