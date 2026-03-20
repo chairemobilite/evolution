@@ -47,9 +47,7 @@ describe('Interview', () => {
         updatedAt: 1625184000,
         completedAt: 1625270400,
         source: 'web',
-        languages: [
-            { language: 'en', startTimestamp: 1625097600, endTimestamp: 1625270400 }
-        ],
+        languages: [{ language: 'en', startTimestamp: 1625097600, endTimestamp: 1625270400 }],
         browsers: [
             {
                 _ua: 'Mozilla/5.0...',
@@ -60,12 +58,7 @@ describe('Interview', () => {
                 endTimestamp: 1625270400
             }
         ],
-        sections: {
-            'home': {
-                _startedAt: 1625097600,
-                _isCompleted: true
-            }
-        }
+        sections: { home: { _startedAt: 1625097600, _isCompleted: true } }
     };
 
     describe('constructor', () => {
@@ -77,10 +70,7 @@ describe('Interview', () => {
         });
 
         it('should create an Interview instance with acceptToBeContactedForHelp', () => {
-            const paramsWithAcceptContact = {
-                ...validParams,
-                acceptToBeContactedForHelp: true
-            };
+            const paramsWithAcceptContact = { ...validParams, acceptToBeContactedForHelp: true };
             const interview = new Interview(paramsWithAcceptContact, createRawInterviewAttributes(), registry);
             expect(interview.acceptToBeContactedForHelp).toBe(true);
         });
@@ -100,7 +90,9 @@ describe('Interview', () => {
 
         it('should throw an error for invalid UUID', () => {
             const invalidParams = { ...validParams, _uuid: 'invalid-uuid' };
-            expect(() => new Interview(invalidParams, createRawInterviewAttributes({ uuid: 'invalid-uuid' }), registry)).toThrow('Uuidable: invalid uuid');
+            expect(() => new Interview(invalidParams, createRawInterviewAttributes({ uuid: 'invalid-uuid' }), registry)).toThrow(
+                'Uuidable: invalid uuid'
+            );
         });
     });
 
@@ -115,10 +107,7 @@ describe('Interview', () => {
         });
 
         it('should create an Interview instance with acceptToBeContactedForHelp using create method', () => {
-            const paramsWithAcceptContact = {
-                ...validParams,
-                acceptToBeContactedForHelp: false
-            };
+            const paramsWithAcceptContact = { ...validParams, acceptToBeContactedForHelp: false };
             const result = create(paramsWithAcceptContact, createRawInterviewAttributes(), registry);
             expect(isOk(result)).toBe(true);
             if (isOk(result)) {
@@ -155,26 +144,22 @@ describe('Interview', () => {
 
         it('should throw an error for an invalid UUID', () => {
             const invalidUuidParams = { ...validParams, _uuid: 'invalid-uuid' };
-            expect(() => new Interview(invalidUuidParams, createRawInterviewAttributes({ uuid: 'invalid-uuid' }), registry)).toThrow('Uuidable: invalid uuid');
+            expect(() => new Interview(invalidUuidParams, createRawInterviewAttributes({ uuid: 'invalid-uuid' }), registry)).toThrow(
+                'Uuidable: invalid uuid'
+            );
         });
     });
 
     describe('paradata handling', () => {
         it('should create an Interview instance with valid paradata', () => {
-            const paramsWithParadata = {
-                ...validParams,
-                _paradata: validParadataParams
-            };
+            const paramsWithParadata = { ...validParams, _paradata: validParadataParams };
             const interview = new Interview(paramsWithParadata, createRawInterviewAttributes(), registry);
             expect(interview.paradata).toBeInstanceOf(InterviewParadata);
             expect(interview.paradata?.startedAt).toBe(validParadataParams.startedAt);
         });
 
         it('should create an Interview instance with valid paradata using create method', () => {
-            const paramsWithParadata = {
-                ...validParams,
-                _paradata: validParadataParams
-            };
+            const paramsWithParadata = { ...validParams, _paradata: validParadataParams };
             const result = create(paramsWithParadata, createRawInterviewAttributes(), registry);
             expect(isOk(result)).toBe(true);
             if (isOk(result)) {
@@ -190,10 +175,7 @@ describe('Interview', () => {
                 startedAt: 'invalid' // should be a number
                 // other attributes are tested in a separate file (InterviewParadata.validateParams)
             };
-            const paramsWithInvalidParadata = {
-                ...validParams,
-                _paradata: invalidParadataParams
-            };
+            const paramsWithInvalidParadata = { ...validParams, _paradata: invalidParadataParams };
             const result = create(paramsWithInvalidParadata, createRawInterviewAttributes(), registry);
             expect(hasErrors(result)).toBe(true);
             if (hasErrors(result)) {
@@ -201,16 +183,11 @@ describe('Interview', () => {
                 expect(result.errors[0].message).toContain('startedAt');
             }
         });
-
     });
 
     describe('Interview - Custom attributes and composed objects', () => {
         it('should handle custom attributes', () => {
-            const customParams = {
-                ...validParams,
-                customField1: 'value1',
-                customField2: 42
-            };
+            const customParams = { ...validParams, customField1: 'value1', customField2: 42 };
             const interview = new Interview(customParams, createRawInterviewAttributes(), registry);
             expect(interview.customAttributes.customField1).toBe('value1');
             expect(interview.customAttributes.customField2).toBe(42);
@@ -233,10 +210,7 @@ describe('Interview', () => {
         });
 
         it('should handle preData in constructor', () => {
-            const paramsWithPreData = {
-                ...validParams,
-                preData: { importedField: 'importedValue', surveyId: 'S456' }
-            };
+            const paramsWithPreData = { ...validParams, preData: { importedField: 'importedValue', surveyId: 'S456' } };
             const interview = new Interview(paramsWithPreData, createRawInterviewAttributes(), registry);
             expect(interview.preData).toEqual({ importedField: 'importedValue', surveyId: 'S456' });
         });
@@ -269,10 +243,7 @@ describe('Interview', () => {
 
     describe('preData serialization', () => {
         test('should preserve preData through create and unserialize', () => {
-            const paramsWithPreData = {
-                ...validParams,
-                preData: { importedInterviewData: 'value', respondentId: 'R123' }
-            };
+            const paramsWithPreData = { ...validParams, preData: { importedInterviewData: 'value', respondentId: 'R123' } };
             const result1 = create(paramsWithPreData, createRawInterviewAttributes(), registry);
             expect(isOk(result1)).toBe(true);
             if (isOk(result1)) {
@@ -321,37 +292,22 @@ describe('Interview', () => {
 
     describe('hasMinimumRequiredData', () => {
         it('should return true when paradata startedAt is defined', () => {
-            const paramsWithRequiredData = {
-                ...validParams,
-                _paradata: {
-                    ...validParadataParams,
-                    startedAt: 1625097600
-                }
-            };
+            const paramsWithRequiredData = { ...validParams, _paradata: { ...validParadataParams, startedAt: 1625097600 } };
             const interview = new Interview(paramsWithRequiredData, createRawInterviewAttributes(), registry);
             expect(interview.hasMinimumRequiredData()).toBe(true);
         });
 
         it('should return false when startedAt is undefined', () => {
-            const paramsWithoutStartedAt = {
-                ...validParams,
-                _paradata: {
-                    ...validParadataParams,
-                    startedAt: undefined
-                }
-            };
+            const paramsWithoutStartedAt = { ...validParams, _paradata: { ...validParadataParams, startedAt: undefined } };
             const interview = new Interview(paramsWithoutStartedAt, createRawInterviewAttributes(), registry);
             expect(interview.hasMinimumRequiredData()).toBe(false);
         });
 
         it('should return false when paradata is undefined', () => {
-            const paramsWithoutParadata = {
-                ...validParams,
-            };
+            const paramsWithoutParadata = { ...validParams };
             const interview = new Interview(paramsWithoutParadata, createRawInterviewAttributes(), registry);
             expect(interview.hasMinimumRequiredData()).toBe(false);
         });
-
     });
 
     describe('Interview - extractDirtyParadataParams', () => {
@@ -363,9 +319,7 @@ describe('Interview', () => {
                 _completedAt: 1632930461,
                 _source: 'web',
                 _personRandomSequence: [uuidV4(), uuidV4()],
-                _sections: {
-                    home: [{ startTimestamp: 1632929461, endTimestamp: 1632930461, widgets: {} }]
-                }
+                _sections: { home: [{ startTimestamp: 1632929461, endTimestamp: 1632930461, widgets: {} }] }
             };
 
             const result = Interview.extractDirtyParadataParams(dirtyParams);
@@ -381,12 +335,7 @@ describe('Interview', () => {
 
         it('should extract paradata params from dirty params with single browser', () => {
             const dirtyParams = {
-                _browser: {
-                    _ua: 'Mozilla/5.0',
-                    browser: { name: 'Chrome', version: '93.0' },
-                    startTimestamp: 1632929461,
-                    endTimestamp: 1632930461
-                },
+                _browser: { _ua: 'Mozilla/5.0', browser: { name: 'Chrome', version: '93.0' }, startTimestamp: 1632929461, endTimestamp: 1632930461 },
                 _startedAt: 1632929461
             };
 
@@ -397,9 +346,7 @@ describe('Interview', () => {
         });
 
         it('should handle missing optional fields', () => {
-            const dirtyParams = {
-                _startedAt: 1632929461
-            };
+            const dirtyParams = { _startedAt: 1632929461 };
 
             const result = Interview.extractDirtyParadataParams(dirtyParams);
 
@@ -457,7 +404,6 @@ describe('Interview', () => {
             }
         });
 
-
         it('should extract paradata from dirty params when _paradata and paradata are not provided', () => {
             const validParams = {
                 _uuid: uuidV4(),
@@ -468,16 +414,9 @@ describe('Interview', () => {
                 _completedAt: 1632930461,
                 _source: 'web',
                 _language: 'fr',
-                _browser: {
-                    _ua: 'Mozilla/5.0',
-                    browser: { name: 'Firefox', version: '92.0' },
-                    startTimestamp: 1632929461,
-                    endTimestamp: 1632930461
-                },
+                _browser: { _ua: 'Mozilla/5.0', browser: { name: 'Firefox', version: '92.0' }, startTimestamp: 1632929461, endTimestamp: 1632930461 },
                 _personRandomSequence: ['uuid1', 'uuid2'],
-                _sections: {
-                    home: [{ startTimestamp: 1632929461, endTimestamp: 1632930461, widgets: {} }]
-                }
+                _sections: { home: [{ startTimestamp: 1632929461, endTimestamp: 1632930461, widgets: {} }] }
             };
 
             const result = create(validParams, { id: 123, participant_id: 456 } as RawInterviewAttributes, registry);
@@ -498,11 +437,7 @@ describe('Interview', () => {
         });
 
         it('should handle minimal dirty params without paradata fields', () => {
-            const validParams = {
-                _uuid: uuidV4(),
-                accessCode: 'ABC123',
-                assignedDate: '2023-09-30'
-            };
+            const validParams = { _uuid: uuidV4(), accessCode: 'ABC123', assignedDate: '2023-09-30' };
 
             const result = create(validParams, { id: 123, participant_id: 456 } as RawInterviewAttributes, registry);
             expect(isOk(result)).toBe(true);

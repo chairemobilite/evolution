@@ -182,11 +182,7 @@ describe('DateTimeUtils', () => {
     describe('secondsToMillisecondsTimestamp', () => {
         describe('should convert valid timestamps', () => {
             test.each([
-                {
-                    description: 'zero (Unix epoch)',
-                    seconds: 0,
-                    expected: 0
-                },
+                { description: 'zero (Unix epoch)', seconds: 0, expected: 0 },
                 {
                     description: 'positive timestamp',
                     seconds: 1704067200, // 2024-01-01T00:00:00Z
@@ -197,11 +193,7 @@ describe('DateTimeUtils', () => {
                     seconds: -86400, // 1969-12-31
                     expected: -86400000
                 },
-                {
-                    description: 'fractional seconds',
-                    seconds: 1704067200.5,
-                    expected: 1704067200500
-                },
+                { description: 'fractional seconds', seconds: 1704067200.5, expected: 1704067200500 },
                 {
                     description: 'large timestamp (year 2100)',
                     seconds: 4102444800, // 2100-01-01T00:00:00Z
@@ -215,26 +207,10 @@ describe('DateTimeUtils', () => {
 
         describe('should return undefined for invalid inputs', () => {
             test.each([
-                {
-                    description: 'undefined',
-                    seconds: undefined,
-                    expected: undefined
-                },
-                {
-                    description: 'NaN',
-                    seconds: NaN,
-                    expected: undefined
-                },
-                {
-                    description: 'Infinity',
-                    seconds: Infinity,
-                    expected: undefined
-                },
-                {
-                    description: '-Infinity',
-                    seconds: -Infinity,
-                    expected: undefined
-                }
+                { description: 'undefined', seconds: undefined, expected: undefined },
+                { description: 'NaN', seconds: NaN, expected: undefined },
+                { description: 'Infinity', seconds: Infinity, expected: undefined },
+                { description: '-Infinity', seconds: -Infinity, expected: undefined }
             ])('$description', ({ seconds, expected }) => {
                 const result = secondsToMillisecondsTimestamp(seconds);
                 expect(result).toBe(expected);
@@ -285,11 +261,7 @@ describe('DateTimeUtils', () => {
                     isoString: '2025-01-01T12:30:45.123Z',
                     expected: new Date('2025-01-01T12:30:45.123Z').getTime()
                 },
-                {
-                    description: 'date-only ISO string',
-                    isoString: '2025-01-01',
-                    expected: new Date('2025-01-01').getTime()
-                },
+                { description: 'date-only ISO string', isoString: '2025-01-01', expected: new Date('2025-01-01').getTime() },
                 {
                     description: 'ISO string without timezone (assumes local)',
                     isoString: '2025-01-01T00:00:00',
@@ -303,46 +275,14 @@ describe('DateTimeUtils', () => {
 
         describe('should return undefined for invalid inputs', () => {
             test.each([
-                {
-                    description: 'undefined',
-                    isoString: undefined,
-                    expected: undefined
-                },
-                {
-                    description: 'empty string',
-                    isoString: '',
-                    expected: undefined
-                },
-                {
-                    description: 'invalid date string',
-                    isoString: 'invalid-date-string',
-                    expected: undefined
-                },
-                {
-                    description: 'malformed ISO string (invalid month)',
-                    isoString: '2025-13-01T00:00:00-05:00',
-                    expected: undefined
-                },
-                {
-                    description: 'malformed ISO string (invalid day)',
-                    isoString: '2025-01-32T00:00:00-05:00',
-                    expected: undefined
-                },
-                {
-                    description: 'malformed ISO string (invalid hour)',
-                    isoString: '2025-01-01T25:00:00-05:00',
-                    expected: undefined
-                },
-                {
-                    description: 'completely invalid format',
-                    isoString: '2025-00-00T99:99:99-05:00',
-                    expected: undefined
-                },
-                {
-                    description: 'random text',
-                    isoString: 'not a date',
-                    expected: undefined
-                }
+                { description: 'undefined', isoString: undefined, expected: undefined },
+                { description: 'empty string', isoString: '', expected: undefined },
+                { description: 'invalid date string', isoString: 'invalid-date-string', expected: undefined },
+                { description: 'malformed ISO string (invalid month)', isoString: '2025-13-01T00:00:00-05:00', expected: undefined },
+                { description: 'malformed ISO string (invalid day)', isoString: '2025-01-32T00:00:00-05:00', expected: undefined },
+                { description: 'malformed ISO string (invalid hour)', isoString: '2025-01-01T25:00:00-05:00', expected: undefined },
+                { description: 'completely invalid format', isoString: '2025-00-00T99:99:99-05:00', expected: undefined },
+                { description: 'random text', isoString: 'not a date', expected: undefined }
             ])('$description', ({ isoString, expected }) => {
                 const result = parseISODateToTimestamp(isoString);
                 expect(result).toBe(expected);
@@ -374,5 +314,4 @@ describe('DateTimeUtils', () => {
             });
         });
     });
-
 });

@@ -24,7 +24,7 @@ describe('Place', () => {
         _uuid: uuidV4(),
         shortname: 'sample-shortname',
         name: 'Sample Weight Method',
-        description: 'Sample weight method description',
+        description: 'Sample weight method description'
     };
 
     const validPlaceAttributes: ExtendedPlaceAttributes = {
@@ -42,31 +42,13 @@ describe('Place', () => {
         lastAction: 'findPlace',
         deviceUsed: 'tablet',
         zoom: 15,
-        geography: {
-            type: 'Feature',
-            geometry: {
-                type: 'Point',
-                coordinates: [0, 0],
-            },
-            properties: {},
-        },
-        preGeography: {
-            type: 'Feature',
-            geometry: {
-                type: 'Point',
-                coordinates: [0, 0],
-            },
-            properties: {},
-        },
+        geography: { type: 'Feature', geometry: { type: 'Point', coordinates: [0, 0] }, properties: {} },
+        preGeography: { type: 'Feature', geometry: { type: 'Point', coordinates: [0, 0] }, properties: {} },
         _weights: [{ weight: 1.2, method: new WeightMethod(weightMethodAttributes) }],
         _isValid: true
     };
 
-    const extendedPlaceAttributes: { [key: string]: unknown } = {
-        ...validPlaceAttributes,
-        customAttribute1: 'value1',
-        customAttribute2: 'value2',
-    };
+    const extendedPlaceAttributes: { [key: string]: unknown } = { ...validPlaceAttributes, customAttribute1: 'value1', customAttribute2: 'value2' };
 
     const extendedAttributesWithAddress: { [key: string]: unknown } = {
         ...validPlaceAttributes,
@@ -86,23 +68,16 @@ describe('Place', () => {
     const extendedInvalidAddressAttributes: { [key: string]: unknown } = {
         ...validPlaceAttributes,
         customAttribute: 'custom value',
-        _address: {
-            _isValid: 123,
-            fullAddress: 123,
-            civicNumber: 'foo',
-            streetName: 123,
-            municipalityName: 123,
-            region: 123,
-            country: 123
-        }
+        _address: { _isValid: 123, fullAddress: 123, civicNumber: 'foo', streetName: 123, municipalityName: 123, region: 123, country: 123 }
     };
-
 
     test('should have a validateParams section for each attribute', () => {
         const validateParamsCode = Place.validateParams.toString();
-        placeAttributes.filter((attribute) => attribute !== '_uuid' && attribute !== '_weights').forEach((attributeName) => {
-            expect(validateParamsCode).toContain('\'' + attributeName + '\'');
-        });
+        placeAttributes
+            .filter((attribute) => attribute !== '_uuid' && attribute !== '_weights')
+            .forEach((attributeName) => {
+                expect(validateParamsCode).toContain('\'' + attributeName + '\'');
+            });
     });
 
     test('should create a Place instance with valid attributes using constructor', () => {
@@ -115,7 +90,7 @@ describe('Place', () => {
         const invalidAttributes = 'foo' as any;
         const result = Place.create(invalidAttributes, registry);
         expect(hasErrors(result)).toBe(true);
-        expect((unwrap(result) as Error[])).toHaveLength(1);
+        expect(unwrap(result) as Error[]).toHaveLength(1);
     });
 
     test('should create a Place instance with valid attributes', () => {
@@ -175,14 +150,8 @@ describe('Place', () => {
     });
 
     test('should create a Place instance with custom attributes', () => {
-        const customAttributes = {
-            customAttribute1: 'value1',
-            customAttribute2: 'value2',
-        };
-        const placeAttributes = {
-            ...validPlaceAttributes,
-            ...customAttributes,
-        };
+        const customAttributes = { customAttribute1: 'value1', customAttribute2: 'value2' };
+        const placeAttributes = { ...validPlaceAttributes, ...customAttributes };
         const place = new Place(placeAttributes, registry);
         expect(place).toBeInstanceOf(Place);
         expect(place.attributes).toEqual(validPlaceAttributes);
@@ -195,7 +164,7 @@ describe('Place', () => {
                 _uuid: uuidV4(),
                 shortname: 'sample-shortname',
                 name: 'Sample Weight Method',
-                description: 'Sample weight method description',
+                description: 'Sample weight method description'
             };
             const weightMethod = new WeightMethod(weightMethodAttributes);
             const weights: Weight[] = [{ weight: 1.5, method: weightMethod }];
@@ -228,7 +197,7 @@ describe('Place', () => {
             ['preData', []],
             ['preData', new Date() as any],
             ['preData', true as any],
-            ['preGeography', 'invalid'],
+            ['preGeography', 'invalid']
         ])('should return an error for invalid %s', (param, value) => {
             const invalidAttributes = { ...validPlaceAttributes, [param]: value };
             const errors = Place.validateParams(invalidAttributes);
@@ -244,7 +213,7 @@ describe('Place', () => {
         test('should return an error for invalid address', () => {
             const result = Place.create(extendedInvalidAddressAttributes, registry);
             expect(hasErrors(result)).toBe(true);
-            expect((unwrap(result) as Error[])).toHaveLength(7);
+            expect(unwrap(result) as Error[]).toHaveLength(7);
         });
     });
 
@@ -263,23 +232,9 @@ describe('Place', () => {
             ['lastAction', 'mapClicked'],
             ['deviceUsed', 'web'],
             ['zoom', 12],
-            ['geography', {
-                type: 'Feature',
-                geometry: {
-                    type: 'Point',
-                    coordinates: [1, 1],
-                },
-                properties: {},
-            }],
+            ['geography', { type: 'Feature', geometry: { type: 'Point', coordinates: [1, 1] }, properties: {} }],
             ['preData', { importedField: 'importedValue', anotherField: 123 }],
-            ['preGeography', {
-                type: 'Feature',
-                geometry: {
-                    type: 'Point',
-                    coordinates: [2, 2],
-                },
-                properties: {},
-            }],
+            ['preGeography', { type: 'Feature', geometry: { type: 'Point', coordinates: [2, 2] }, properties: {} }]
         ])('should set and get %s', (attribute, value) => {
             const place = new Place(validPlaceAttributes, registry);
             place[attribute] = value;
@@ -289,11 +244,11 @@ describe('Place', () => {
         describe('Getters for attributes with no setters', () => {
             test.each([
                 ['_uuid', extendedPlaceAttributes._uuid],
-                ['customAttributes', {
-                    customAttribute1: extendedPlaceAttributes.customAttribute1,
-                    customAttribute2: extendedPlaceAttributes.customAttribute2
-                }],
-                ['attributes', validPlaceAttributes],
+                [
+                    'customAttributes',
+                    { customAttribute1: extendedPlaceAttributes.customAttribute1, customAttribute2: extendedPlaceAttributes.customAttribute2 }
+                ],
+                ['attributes', validPlaceAttributes]
             ])('should set and get %s', (attribute, value) => {
                 const place = new Place(extendedPlaceAttributes, registry);
                 expect(place[attribute]).toEqual(value);
@@ -302,7 +257,7 @@ describe('Place', () => {
 
         test.each([
             ['_isValid', false],
-            ['_weights', [{ weight: 2.0, method: new WeightMethod(weightMethodAttributes) }]],
+            ['_weights', [{ weight: 2.0, method: new WeightMethod(weightMethodAttributes) }]]
         ])('should set and get %s', (attribute, value) => {
             const place = new Place(validPlaceAttributes, registry);
             place[attribute] = value;
@@ -320,14 +275,7 @@ describe('Place', () => {
         });
 
         test('should preserve preGeography through (un)serialize', () => {
-            const preGeography = {
-                type: 'Feature' as const,
-                geometry: {
-                    type: 'Point' as const,
-                    coordinates: [2, 2],
-                },
-                properties: {},
-            };
+            const preGeography = { type: 'Feature' as const, geometry: { type: 'Point' as const, coordinates: [2, 2] }, properties: {} };
             const attrs = { ...validPlaceAttributes, preGeography };
             const p1 = new Place(attrs, registry);
             const p2 = Place.unserialize(attrs, registry);
@@ -355,7 +303,7 @@ describe('Place', () => {
                 postalCode: 'X9Y 8Z7',
                 postalId: 'postal-12345',
                 combinedAddressUuid: uuidV4(),
-                _isValid: true,
+                _isValid: true
             };
             const address = new Address(addressAttributes);
             const placeAttributes: { [key: string]: unknown } = { ...validPlaceAttributes, _address: addressAttributes };
@@ -380,7 +328,7 @@ describe('Place', () => {
                 postalCode: 'A1B 2C3',
                 postalId: 'test-postal-id',
                 combinedAddressUuid: uuidV4(),
-                _isValid: true,
+                _isValid: true
             };
             const placeAttributes: { [key: string]: unknown } = { ...validPlaceAttributes, _address: addressAttributes };
             const place = new Place(placeAttributes, registry);
@@ -403,7 +351,7 @@ describe('Place', () => {
                 region: 'Validation Region',
                 country: 'Validation Country',
                 combinedAddressUuid: uuidV4(),
-                _isValid: true,
+                _isValid: true
             };
 
             const errors = Address.validateParams(addressAttributes);
@@ -441,9 +389,17 @@ describe('Place', () => {
                 type: 'Feature',
                 geometry: {
                     type: 'Polygon',
-                    coordinates: [[[0, 0], [0, 1], [1, 1], [1, 0], [0, 0]]],
+                    coordinates: [
+                        [
+                            [0, 0],
+                            [0, 1],
+                            [1, 1],
+                            [1, 0],
+                            [0, 0]
+                        ]
+                    ]
                 },
-                properties: {},
+                properties: {}
             } as any;
             expect(place.geographyIsValid()).toBe(false);
         });
@@ -460,7 +416,6 @@ describe('Place', () => {
             place.preGeography = undefined;
             expect(place.preGeographyIsValid()).toBeUndefined();
         });
-
 
         test('should return false for invalid preGeography', () => {
             const place = new Place(validPlaceAttributes, registry);
@@ -480,9 +435,17 @@ describe('Place', () => {
                 type: 'Feature',
                 geometry: {
                     type: 'Polygon',
-                    coordinates: [[[0, 0], [0, 1], [1, 1], [1, 0], [0, 0]]],
+                    coordinates: [
+                        [
+                            [0, 0],
+                            [0, 1],
+                            [1, 1],
+                            [1, 0],
+                            [0, 0]
+                        ]
+                    ]
                 },
-                properties: {},
+                properties: {}
             } as any;
             expect(place.preGeographyIsValid()).toBe(false);
         });

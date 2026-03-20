@@ -13,11 +13,7 @@ import { createOk, createErrors } from 'evolution-common/lib/types/Result.type';
 import { SurveyObjectsRegistry } from 'evolution-common/lib/services/baseObjects/SurveyObjectsRegistry';
 
 // Mock Segment.create
-jest.mock('evolution-common/lib/services/baseObjects/Segment', () => ({
-    Segment: {
-        create: jest.fn()
-    }
-}));
+jest.mock('evolution-common/lib/services/baseObjects/Segment', () => ({ Segment: { create: jest.fn() } }));
 const MockedSegment = Segment as jest.MockedClass<typeof Segment>;
 
 describe('SegmentFactory', () => {
@@ -47,26 +43,13 @@ describe('SegmentFactory', () => {
             }
         };
 
-        trip = {
-            _uuid: 'trip-uuid',
-            addSegment: jest.fn()
-        } as unknown as Trip;
+        trip = { _uuid: 'trip-uuid', addSegment: jest.fn() } as unknown as Trip;
 
         tripAttributes = {
             _uuid: 'trip-uuid',
             segments: {
-                'segment-1': {
-                    _uuid: 'segment-1',
-                    _sequence: 1,
-                    mode: 'walk',
-                    distanceMeters: 500
-                },
-                'segment-2': {
-                    _uuid: 'segment-2',
-                    _sequence: 2,
-                    mode: 'bus',
-                    distanceMeters: 2000
-                }
+                'segment-1': { _uuid: 'segment-1', _sequence: 1, mode: 'walk', distanceMeters: 500 },
+                'segment-2': { _uuid: 'segment-2', _sequence: 2, mode: 'bus', distanceMeters: 2000 }
             }
         } as unknown as ExtendedTripAttributes;
 
@@ -76,39 +59,22 @@ describe('SegmentFactory', () => {
 
     describe('populateSegmentsForTrip', () => {
         it('should create segments successfully and add them to trip', async () => {
-            const mockSegment1 = {
-                _uuid: 'segment-1',
-                mode: 'walk'
-            } as Segment;
+            const mockSegment1 = { _uuid: 'segment-1', mode: 'walk' } as Segment;
 
-            const mockSegment2 = {
-                _uuid: 'segment-2',
-                mode: 'bus'
-            } as unknown as Segment;
+            const mockSegment2 = { _uuid: 'segment-2', mode: 'bus' } as unknown as Segment;
 
-            (MockedSegment.create as jest.Mock).mockReturnValueOnce(createOk(mockSegment1))
-                .mockReturnValueOnce(createOk(mockSegment2));
+            (MockedSegment.create as jest.Mock).mockReturnValueOnce(createOk(mockSegment1)).mockReturnValueOnce(createOk(mockSegment2));
 
             await populateSegmentsForTrip(surveyObjectsWithErrors, trip, tripAttributes, { uuid: 'test' } as any, surveyObjectsRegistry);
 
             // Verify Segment.create was called with correct attributes
             expect(MockedSegment.create).toHaveBeenCalledTimes(2);
             expect(MockedSegment.create).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    _uuid: 'segment-1',
-                    _sequence: 1,
-                    mode: 'walk',
-                    distanceMeters: 500
-                }),
+                expect.objectContaining({ _uuid: 'segment-1', _sequence: 1, mode: 'walk', distanceMeters: 500 }),
                 surveyObjectsRegistry
             );
             expect(MockedSegment.create).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    _uuid: 'segment-2',
-                    _sequence: 2,
-                    mode: 'bus',
-                    distanceMeters: 2000
-                }),
+                expect.objectContaining({ _uuid: 'segment-2', _sequence: 2, mode: 'bus', distanceMeters: 2000 }),
                 surveyObjectsRegistry
             );
 
@@ -124,10 +90,9 @@ describe('SegmentFactory', () => {
         it('should handle segment creation errors', async () => {
             const errors = [new Error('Invalid segment data')];
 
-            (MockedSegment.create as jest.Mock).mockReturnValueOnce(createErrors(errors))
-                .mockReturnValueOnce(createOk({
-                    _uuid: 'segment-2'
-                } as unknown as Segment));
+            (MockedSegment.create as jest.Mock)
+                .mockReturnValueOnce(createErrors(errors))
+                .mockReturnValueOnce(createOk({ _uuid: 'segment-2' } as unknown as Segment));
 
             await populateSegmentsForTrip(surveyObjectsWithErrors, trip, tripAttributes, { uuid: 'test' } as any, surveyObjectsRegistry);
 
@@ -139,20 +104,9 @@ describe('SegmentFactory', () => {
         });
 
         it('should skip segments with undefined uuid', async () => {
-            tripAttributes.segments = {
-                'undefined': {
-                    _uuid: 'undefined',
-                    mode: 'walk'
-                },
-                'segment-1': {
-                    _uuid: 'segment-1',
-                    mode: 'bus'
-                }
-            } as any;
+            tripAttributes.segments = { undefined: { _uuid: 'undefined', mode: 'walk' }, 'segment-1': { _uuid: 'segment-1', mode: 'bus' } } as any;
 
-            (MockedSegment.create as jest.Mock).mockReturnValue(createOk({
-                _uuid: 'segment-1'
-            } as Segment));
+            (MockedSegment.create as jest.Mock).mockReturnValue(createOk({ _uuid: 'segment-1' } as Segment));
 
             await populateSegmentsForTrip(surveyObjectsWithErrors, trip, tripAttributes, { uuid: 'test' } as any, surveyObjectsRegistry);
 
@@ -182,24 +136,13 @@ describe('SegmentFactory', () => {
         it('should sort segments by sequence', async () => {
             // Create segments with mixed sequence order
             tripAttributes.segments = {
-                'segment-3': {
-                    _uuid: 'segment-3',
-                    _sequence: 3,
-                    mode: 'car'
-                },
-                'segment-1': {
-                    _uuid: 'segment-1',
-                    _sequence: 1,
-                    mode: 'walk'
-                },
-                'segment-2': {
-                    _uuid: 'segment-2',
-                    _sequence: 2,
-                    mode: 'bus'
-                }
+                'segment-3': { _uuid: 'segment-3', _sequence: 3, mode: 'car' },
+                'segment-1': { _uuid: 'segment-1', _sequence: 1, mode: 'walk' },
+                'segment-2': { _uuid: 'segment-2', _sequence: 2, mode: 'bus' }
             } as any;
 
-            (MockedSegment.create as jest.Mock).mockReturnValueOnce(createOk({ _uuid: 'segment-1' } as Segment))
+            (MockedSegment.create as jest.Mock)
+                .mockReturnValueOnce(createOk({ _uuid: 'segment-1' } as Segment))
                 .mockReturnValueOnce(createOk({ _uuid: 'segment-2' } as Segment))
                 .mockReturnValueOnce(createOk({ _uuid: 'segment-3' } as Segment));
 
@@ -218,19 +161,12 @@ describe('SegmentFactory', () => {
                     mode: 'walk'
                     // No _sequence property
                 },
-                'segment-zero': {
-                    _uuid: 'segment-zero',
-                    _sequence: 0,
-                    mode: 'bus'
-                },
-                'segment-1': {
-                    _uuid: 'segment-1',
-                    _sequence: 1,
-                    mode: 'car'
-                }
+                'segment-zero': { _uuid: 'segment-zero', _sequence: 0, mode: 'bus' },
+                'segment-1': { _uuid: 'segment-1', _sequence: 1, mode: 'car' }
             } as any;
 
-            (MockedSegment.create as jest.Mock).mockReturnValueOnce(createOk({ _uuid: 'segment-no-seq' } as Segment))
+            (MockedSegment.create as jest.Mock)
+                .mockReturnValueOnce(createOk({ _uuid: 'segment-no-seq' } as Segment))
                 .mockReturnValueOnce(createOk({ _uuid: 'segment-zero' } as Segment))
                 .mockReturnValueOnce(createOk({ _uuid: 'segment-1' } as Segment));
 
@@ -243,26 +179,10 @@ describe('SegmentFactory', () => {
 
         it('should handle segments with various transport modes', async () => {
             tripAttributes.segments = {
-                'walk-segment': {
-                    _uuid: 'walk-segment',
-                    _sequence: 1,
-                    mode: 'walk'
-                },
-                'transit-segment': {
-                    _uuid: 'transit-segment',
-                    _sequence: 2,
-                    mode: 'transit'
-                },
-                'car-segment': {
-                    _uuid: 'car-segment',
-                    _sequence: 3,
-                    mode: 'carDriver'
-                },
-                'bike-segment': {
-                    _uuid: 'bike-segment',
-                    _sequence: 4,
-                    mode: 'bicycle'
-                }
+                'walk-segment': { _uuid: 'walk-segment', _sequence: 1, mode: 'walk' },
+                'transit-segment': { _uuid: 'transit-segment', _sequence: 2, mode: 'transit' },
+                'car-segment': { _uuid: 'car-segment', _sequence: 3, mode: 'carDriver' },
+                'bike-segment': { _uuid: 'bike-segment', _sequence: 4, mode: 'bicycle' }
             } as any;
 
             (MockedSegment.create as jest.Mock).mockReturnValue(createOk({} as Segment));

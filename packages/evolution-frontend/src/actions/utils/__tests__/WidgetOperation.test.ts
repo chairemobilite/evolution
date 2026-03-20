@@ -16,7 +16,7 @@ import { checkValidations } from '../Validation';
 const testUser = {
     id: 1,
     username: 'test',
-    preferences: { },
+    preferences: {},
     serializedPermissions: [],
     isAuthorized: jest.fn(),
     is_admin: false,
@@ -30,9 +30,7 @@ jest.mock('../Conditional', () => ({
 }));
 const mockedCheckConditional = checkConditional as jest.MockedFunction<typeof checkConditional>;
 const mockedCheckChoicesConditional = checkChoicesConditional as jest.MockedFunction<typeof checkChoicesConditional>;
-jest.mock('../Validation', () => ({
-    checkValidations: jest.fn().mockReturnValue([true, undefined])
-}));
+jest.mock('../Validation', () => ({ checkValidations: jest.fn().mockReturnValue([true, undefined]) }));
 const mockedCheckValidations = checkValidations as jest.MockedFunction<typeof checkValidations>;
 
 // Prepare sections and widget configurations
@@ -41,38 +39,15 @@ const choiceSection = 'choiceSection';
 const groupSection = 'groupSection';
 const group1Name = 'group1Name';
 const sections = {
-    [mainSection]: {
-        widgets: ['widget1', 'widget2']
-    },
-    [groupSection]: {
-        widgets: [group1Name]
-    },
-    [choiceSection]: {
-        widgets: ['widget4']
-    },
+    [mainSection]: { widgets: ['widget1', 'widget2'] },
+    [groupSection]: { widgets: [group1Name] },
+    [choiceSection]: { widgets: ['widget4'] }
 };
 
 const widgets = {
-    widget1: {
-        type: 'question',
-        inputType: 'string',
-        label: { en: 'q1 label' },
-        path: 'section1.q1',
-    },
-    widget2: {
-        type: 'question',
-        inputType: 'string',
-        path: 'section1.q2',
-        label: { en: 'q2 label' },
-        validations: jest.fn()
-    },
-    widget3: {
-        type: 'question',
-        inputType: 'string',
-        path: 'gq1',
-        label: { en: 'q3 label' },
-        defaultValue: jest.fn().mockReturnValue('default')
-    },
+    widget1: { type: 'question', inputType: 'string', label: { en: 'q1 label' }, path: 'section1.q1' },
+    widget2: { type: 'question', inputType: 'string', path: 'section1.q2', label: { en: 'q2 label' }, validations: jest.fn() },
+    widget3: { type: 'question', inputType: 'string', path: 'gq1', label: { en: 'q3 label' }, defaultValue: jest.fn().mockReturnValue('default') },
     widget4: {
         type: 'question',
         inputType: 'select',
@@ -84,11 +59,7 @@ const widgets = {
             { value: 'b', label: {}, conditional: () => false }
         ]
     },
-    [group1Name]: {
-        type: 'group',
-        path: 'groupResponse',
-        widgets: ['widget3']
-    }
+    [group1Name]: { type: 'group', path: 'groupResponse', widgets: ['widget3'] }
 };
 const mockedDefaultValue = widgets.widget3.defaultValue as jest.MockedFunction<any>;
 
@@ -102,35 +73,11 @@ const interviewAttributes: UserInterviewAttributes = {
     participant_id: 1,
     is_completed: false,
     response: {
-        section1: {
-            q1: 'abc',
-            q2: 3
-        },
-        groupResponse: {
-            [group1Id]: {
-                _uuid: group1Id,
-                gq1: 'test'
-            },
-            [group2Id]: {
-                _uuid: group2Id
-            }
-        }
+        section1: { q1: 'abc', q2: 3 },
+        groupResponse: { [group1Id]: { _uuid: group1Id, gq1: 'test' }, [group2Id]: { _uuid: group2Id } }
     } as any,
-    validations: {
-        section1: {
-            q1: true,
-            q2: true
-        },
-        groupResponse: {
-            [group1Id]: {
-                gq1: true
-            },
-            [group2Id]: {
-                gq1: true
-            }
-        }
-    } as any,
-    is_valid: true,
+    validations: { section1: { q1: true, q2: true }, groupResponse: { [group1Id]: { gq1: true }, [group2Id]: { gq1: true } } } as any,
+    is_valid: true
 };
 const runtimeInterviewAttributes: UserRuntimeInterviewAttributes = {
     ...interviewAttributes,
@@ -181,7 +128,12 @@ test('Test widget preparation, without prior status', () => {
     expectedInterview.response.section1.q1 = newValue;
 
     // Test, 2 widgets should be valid and visible
-    const { updatedInterview, updatedValuesByPath, needUpdate } = prepareSectionWidgets(mainSection, testInterviewAttributes, { 'response.section1.q1': true }, _cloneDeep(valuesByPath));
+    const { updatedInterview, updatedValuesByPath, needUpdate } = prepareSectionWidgets(
+        mainSection,
+        testInterviewAttributes,
+        { 'response.section1.q1': true },
+        _cloneDeep(valuesByPath)
+    );
 
     // Interview data should correspond to expected
     expect(updatedInterview).toEqual(expect.objectContaining(expectedInterview));
@@ -191,7 +143,14 @@ test('Test widget preparation, without prior status', () => {
     // Check calls of the validation function, should have been called only for the widget 2, as widget 1 has previous status and is unchanged
     expect(mockedCheckValidations).toHaveBeenCalledTimes(2);
     expect(mockedCheckValidations).toHaveBeenCalledWith(undefined, newValue, undefined, testInterviewAttributes, 'section1.q1', undefined);
-    expect(mockedCheckValidations).toHaveBeenCalledWith(widgets.widget2.validations, runtimeInterviewAttributes.response.section1.q2, undefined, testInterviewAttributes, 'section1.q2', undefined);
+    expect(mockedCheckValidations).toHaveBeenCalledWith(
+        widgets.widget2.validations,
+        runtimeInterviewAttributes.response.section1.q2,
+        undefined,
+        testInterviewAttributes,
+        'section1.q2',
+        undefined
+    );
 
     // Check calls to the conditional function, called twice, once for each widget
     expect(mockedCheckConditional).toHaveBeenCalledTimes(2);
@@ -200,11 +159,7 @@ test('Test widget preparation, without prior status', () => {
     expect(mockedCheckChoicesConditional).not.toHaveBeenCalled();
 
     // Check widget statuses for the 2 widgets
-    expect(updatedInterview.widgets.widget1).toEqual({
-        ...commonDefaultWidgetStatus,
-        path: 'section1.q1',
-        value: newValue
-    });
+    expect(updatedInterview.widgets.widget1).toEqual({ ...commonDefaultWidgetStatus, path: 'section1.q1', value: newValue });
     expect(updatedInterview.widgets.widget2).toEqual({
         ...commonDefaultWidgetStatus,
         path: 'section1.q2',
@@ -218,19 +173,10 @@ test('Test widget preparation, without prior status', () => {
 });
 
 describe('Test with previous status', () => {
-
     // Prepare previous widget statuses
     const previousWidgetStatuses = {
-        widget1: {
-            ...commonDefaultWidgetStatus,
-            path: 'section1.q1',
-            value: runtimeInterviewAttributes.response.section1.q1
-        },
-        widget2: {
-            ...commonDefaultWidgetStatus,
-            path: 'section1.q2',
-            value: runtimeInterviewAttributes.response.section1.q2
-        }
+        widget1: { ...commonDefaultWidgetStatus, path: 'section1.q1', value: runtimeInterviewAttributes.response.section1.q1 },
+        widget2: { ...commonDefaultWidgetStatus, path: 'section1.q2', value: runtimeInterviewAttributes.response.section1.q2 }
     };
 
     test('Only affected widgets should be checked, no change in validity or visibility', () => {
@@ -247,7 +193,12 @@ describe('Test with previous status', () => {
         interviewCopy.response.section1.q2 = newValue;
 
         // Test, the 2 widgets should still be valid and visible
-        const { updatedInterview, updatedValuesByPath, needUpdate } = prepareSectionWidgets(mainSection, testInterviewAttributes, { 'response.section1.q2': true }, _cloneDeep(valuesByPath));
+        const { updatedInterview, updatedValuesByPath, needUpdate } = prepareSectionWidgets(
+            mainSection,
+            testInterviewAttributes,
+            { 'response.section1.q2': true },
+            _cloneDeep(valuesByPath)
+        );
 
         // Interview data should correspond to expected
         expect(updatedInterview).toEqual(expect.objectContaining(interviewCopy));
@@ -256,7 +207,14 @@ describe('Test with previous status', () => {
 
         // Check calls of the validation function, should have been called only for the widget 2, as widget 1 has previous status and is unchanged
         expect(mockedCheckValidations).toHaveBeenCalledTimes(1);
-        expect(mockedCheckValidations).toHaveBeenCalledWith(widgets.widget2.validations, newValue, undefined, testInterviewAttributes, 'section1.q2', undefined);
+        expect(mockedCheckValidations).toHaveBeenCalledWith(
+            widgets.widget2.validations,
+            newValue,
+            undefined,
+            testInterviewAttributes,
+            'section1.q2',
+            undefined
+        );
 
         // Check calls to the conditional function, called twice, once for each widget
         expect(mockedCheckConditional).toHaveBeenCalledTimes(2);
@@ -266,10 +224,7 @@ describe('Test with previous status', () => {
         // Widget statuses should match previous ones (no change)
         expect(updatedInterview.widgets).toEqual({
             widget1: previousWidgetStatuses.widget1,
-            widget2: {
-                ...previousWidgetStatuses.widget2,
-                value: newValue
-            }
+            widget2: { ...previousWidgetStatuses.widget2, value: newValue }
         });
 
         // Check the visible widgets and the allWidgetsValid flag
@@ -296,7 +251,12 @@ describe('Test with previous status', () => {
         mockedCheckValidations.mockReturnValueOnce([false, errorMessage]);
 
         // Test, both widgets should be visible, only widget 1 is valid
-        const { updatedInterview, updatedValuesByPath, needUpdate } = prepareSectionWidgets(mainSection, testInterviewAttributes, { 'response.section1.q2': true }, _cloneDeep(valuesByPath));
+        const { updatedInterview, updatedValuesByPath, needUpdate } = prepareSectionWidgets(
+            mainSection,
+            testInterviewAttributes,
+            { 'response.section1.q2': true },
+            _cloneDeep(valuesByPath)
+        );
 
         // Interview data should correspond to expected
         expect(updatedInterview).toEqual(expect.objectContaining(expectedInterview));
@@ -305,7 +265,14 @@ describe('Test with previous status', () => {
 
         // Check calls of the validation function, should have been called only for the widget 2, as widget 1 has previous status and is unchanged
         expect(mockedCheckValidations).toHaveBeenCalledTimes(1);
-        expect(mockedCheckValidations).toHaveBeenCalledWith(widgets.widget2.validations, newValue, undefined, testInterviewAttributes, 'section1.q2', undefined);
+        expect(mockedCheckValidations).toHaveBeenCalledWith(
+            widgets.widget2.validations,
+            newValue,
+            undefined,
+            testInterviewAttributes,
+            'section1.q2',
+            undefined
+        );
 
         // Check calls to the conditional function, called twice, once for each widget
         expect(mockedCheckConditional).toHaveBeenCalledTimes(2);
@@ -315,24 +282,18 @@ describe('Test with previous status', () => {
         // Widget statuses should match previous ones (no change)
         expect(updatedInterview.widgets).toEqual({
             widget1: previousWidgetStatuses.widget1,
-            widget2: {
-                ...previousWidgetStatuses.widget2,
-                isValid: false,
-                errorMessage,
-                value: newValue
-            }
+            widget2: { ...previousWidgetStatuses.widget2, isValid: false, errorMessage, value: newValue }
         });
 
         // Check the visible widgets and the allWidgetsValid flag
         expect(updatedInterview.visibleWidgets).toEqual(['section1.q1', 'section1.q2']);
         expect(updatedInterview.allWidgetsValid).toEqual(false);
-
     });
 
     test('Check all widgets if "_all" is affected', () => {
         // Prepare test data, no changes
         const testInterviewAttributes = _cloneDeep(runtimeInterviewAttributes);
-        const valuesByPath = { };
+        const valuesByPath = {};
         // Set statuses before update
         testInterviewAttributes.widgets = _cloneDeep(previousWidgetStatuses);
 
@@ -345,7 +306,12 @@ describe('Test with previous status', () => {
         mockedCheckValidations.mockReturnValueOnce([false, errorMessage]);
 
         // Test, the 2 widgets should be visible, widget1 is invalid
-        const { updatedInterview, updatedValuesByPath, needUpdate } = prepareSectionWidgets(mainSection, testInterviewAttributes, { '_all': true }, _cloneDeep(valuesByPath));
+        const { updatedInterview, updatedValuesByPath, needUpdate } = prepareSectionWidgets(
+            mainSection,
+            testInterviewAttributes,
+            { _all: true },
+            _cloneDeep(valuesByPath)
+        );
 
         // Interview data should correspond to expected
         expect(updatedInterview).toEqual(expect.objectContaining(expectedInterview));
@@ -354,8 +320,22 @@ describe('Test with previous status', () => {
 
         // Check calls of the validation function, should have been called for all widgets
         expect(mockedCheckValidations).toHaveBeenCalledTimes(2);
-        expect(mockedCheckValidations).toHaveBeenCalledWith(undefined, interviewAttributes.response.section1.q1, undefined, testInterviewAttributes, 'section1.q1', undefined);
-        expect(mockedCheckValidations).toHaveBeenCalledWith(widgets.widget2.validations, interviewAttributes.response.section1.q2, undefined, testInterviewAttributes, 'section1.q2', undefined);
+        expect(mockedCheckValidations).toHaveBeenCalledWith(
+            undefined,
+            interviewAttributes.response.section1.q1,
+            undefined,
+            testInterviewAttributes,
+            'section1.q1',
+            undefined
+        );
+        expect(mockedCheckValidations).toHaveBeenCalledWith(
+            widgets.widget2.validations,
+            interviewAttributes.response.section1.q2,
+            undefined,
+            testInterviewAttributes,
+            'section1.q2',
+            undefined
+        );
 
         // Check calls to the conditional function, called twice, once for each widget
         expect(mockedCheckConditional).toHaveBeenCalledTimes(2);
@@ -364,22 +344,18 @@ describe('Test with previous status', () => {
 
         // Widget statuses should match previous ones (no change)
         expect(updatedInterview.widgets).toEqual({
-            widget1:  {
+            widget1: {
                 ...previousWidgetStatuses.widget1,
                 isValid: false,
                 errorMessage,
                 isCustomResponded: true // FIXME Really? What does it mean? There is no custom value, but the code sets it to true
             },
-            widget2: {
-                ...previousWidgetStatuses.widget2,
-                isCustomResponded: true
-            }
+            widget2: { ...previousWidgetStatuses.widget2, isCustomResponded: true }
         });
 
         // Check the visible widgets and the allWidgetsValid flag
         expect(updatedInterview.visibleWidgets).toEqual(['section1.q1', 'section1.q2']);
         expect(updatedInterview.allWidgetsValid).toEqual(false);
-
     });
 
     test('Should set widget status if previous path does not match current one', () => {
@@ -391,7 +367,12 @@ describe('Test with previous status', () => {
         testInterviewAttributes.widgets = previousStatuses;
 
         // Test, the 2 widgets should still be valid and visible
-        const { updatedInterview, updatedValuesByPath, needUpdate } = prepareSectionWidgets(mainSection, testInterviewAttributes, { 'response.section1.q2': true }, {});
+        const { updatedInterview, updatedValuesByPath, needUpdate } = prepareSectionWidgets(
+            mainSection,
+            testInterviewAttributes,
+            { 'response.section1.q2': true },
+            {}
+        );
 
         // Interview data should correspond to expected
         expect(updatedInterview).toEqual(expect.objectContaining(interviewAttributes));
@@ -400,8 +381,22 @@ describe('Test with previous status', () => {
 
         // Check calls of the validation function, should have been called for both widget: widget 2 because it is affected and widget 1 because it does not have a proper previous status.
         expect(mockedCheckValidations).toHaveBeenCalledTimes(2);
-        expect(mockedCheckValidations).toHaveBeenCalledWith(undefined, interviewAttributes.response.section1.q1, undefined, testInterviewAttributes, 'section1.q1', undefined);
-        expect(mockedCheckValidations).toHaveBeenCalledWith(widgets.widget2.validations, interviewAttributes.response.section1.q2, undefined, testInterviewAttributes, 'section1.q2', undefined);
+        expect(mockedCheckValidations).toHaveBeenCalledWith(
+            undefined,
+            interviewAttributes.response.section1.q1,
+            undefined,
+            testInterviewAttributes,
+            'section1.q1',
+            undefined
+        );
+        expect(mockedCheckValidations).toHaveBeenCalledWith(
+            widgets.widget2.validations,
+            interviewAttributes.response.section1.q2,
+            undefined,
+            testInterviewAttributes,
+            'section1.q2',
+            undefined
+        );
 
         // Check calls to the conditional function, called twice, once for each widget
         expect(mockedCheckConditional).toHaveBeenCalledTimes(2);
@@ -409,21 +404,16 @@ describe('Test with previous status', () => {
         expect(mockedCheckConditional).toHaveBeenCalledWith(undefined, testInterviewAttributes, 'section1.q2', undefined);
 
         // Widget statuses should have been updated and match the one specified in the test, not the previous ones from the interview
-        expect(updatedInterview.widgets).toEqual({
-            widget1: previousWidgetStatuses.widget1,
-            widget2: previousWidgetStatuses.widget2
-        });
+        expect(updatedInterview.widgets).toEqual({ widget1: previousWidgetStatuses.widget1, widget2: previousWidgetStatuses.widget2 });
 
         // Check the visible widgets and the allWidgetsValid flag
         expect(updatedInterview.visibleWidgets).toEqual(['section1.q1', 'section1.q2']);
         expect(updatedInterview.allWidgetsValid).toEqual(true);
     });
-
 });
 
 describe('Test with conditional', () => {
     test('Change in widget1, make widget2 invisible and empty', () => {
-
         // Prepare test data
         const newValue = 2;
         const testInterviewAttributes = _cloneDeep(runtimeInterviewAttributes);
@@ -432,16 +422,8 @@ describe('Test with conditional', () => {
 
         // Prepare previous widget statuses
         const previousWidgetStatuses = {
-            widget1: {
-                ...commonDefaultWidgetStatus,
-                path: 'section1.q1',
-                value: testInterviewAttributes.response.section1.q1
-            },
-            widget2: {
-                ...commonDefaultWidgetStatus,
-                path: 'section1.q2',
-                value: runtimeInterviewAttributes.response.section1.q2
-            }
+            widget1: { ...commonDefaultWidgetStatus, path: 'section1.q1', value: testInterviewAttributes.response.section1.q1 },
+            widget2: { ...commonDefaultWidgetStatus, path: 'section1.q2', value: runtimeInterviewAttributes.response.section1.q2 }
         };
         testInterviewAttributes.widgets = _cloneDeep(previousWidgetStatuses);
 
@@ -457,7 +439,12 @@ describe('Test with conditional', () => {
         mockedCheckConditional.mockReturnValueOnce([false, undefined, undefined]);
 
         // Test, widget 2 should be invisible and empty, widget 1 should be visible and valid
-        const { updatedInterview, updatedValuesByPath, needUpdate } = prepareSectionWidgets(mainSection, testInterviewAttributes, { 'response.section1.q1': true }, _cloneDeep(valuesByPath));
+        const { updatedInterview, updatedValuesByPath, needUpdate } = prepareSectionWidgets(
+            mainSection,
+            testInterviewAttributes,
+            { 'response.section1.q1': true },
+            _cloneDeep(valuesByPath)
+        );
 
         // Interview data should correspond to expected
         expect(updatedInterview).toEqual(expect.objectContaining(expectedInterview));
@@ -467,7 +454,14 @@ describe('Test with conditional', () => {
         // Check calls of the validation function, should have been called for both widgets and their new values
         expect(mockedCheckValidations).toHaveBeenCalledTimes(2);
         expect(mockedCheckValidations).toHaveBeenCalledWith(undefined, newValue, undefined, testInterviewAttributes, 'section1.q1', undefined);
-        expect(mockedCheckValidations).toHaveBeenCalledWith(widgets.widget2.validations, undefined, undefined, testInterviewAttributes, 'section1.q2', undefined);
+        expect(mockedCheckValidations).toHaveBeenCalledWith(
+            widgets.widget2.validations,
+            undefined,
+            undefined,
+            testInterviewAttributes,
+            'section1.q2',
+            undefined
+        );
 
         // Check calls to the conditional function, called twice, once for each widget
         expect(mockedCheckConditional).toHaveBeenCalledTimes(2);
@@ -477,23 +471,15 @@ describe('Test with conditional', () => {
         // Widget statuses should match previous ones (no change)
         expect(updatedInterview.widgets).toEqual({
             widget1: previousWidgetStatuses.widget1,
-            widget2: {
-                ...previousWidgetStatuses.widget2,
-                isValid: true,
-                isVisible: false,
-                isEmpty: true,
-                value: undefined
-            }
+            widget2: { ...previousWidgetStatuses.widget2, isValid: true, isVisible: false, isEmpty: true, value: undefined }
         });
 
         // Check the visible widgets and the allWidgetsValid flag
         expect(updatedInterview.visibleWidgets).toEqual(['section1.q1']);
         expect(updatedInterview.allWidgetsValid).toEqual(true);
-
     });
 
     test('Change in widget1, make widget2 invisible with default value', () => {
-
         // Prepare test data
         const newValue = 2;
         const widget2DefaultValue = 'defaultValue';
@@ -503,16 +489,8 @@ describe('Test with conditional', () => {
 
         // Prepare previous widget statuses
         const previousWidgetStatuses = {
-            widget1: {
-                ...commonDefaultWidgetStatus,
-                path: 'section1.q1',
-                value: testInterviewAttributes.response.section1.q1
-            },
-            widget2: {
-                ...commonDefaultWidgetStatus,
-                path: 'section1.q2',
-                value: runtimeInterviewAttributes.response.section1.q2
-            }
+            widget1: { ...commonDefaultWidgetStatus, path: 'section1.q1', value: testInterviewAttributes.response.section1.q1 },
+            widget2: { ...commonDefaultWidgetStatus, path: 'section1.q2', value: runtimeInterviewAttributes.response.section1.q2 }
         };
         testInterviewAttributes.widgets = _cloneDeep(previousWidgetStatuses);
 
@@ -529,7 +507,12 @@ describe('Test with conditional', () => {
         mockedCheckConditional.mockReturnValueOnce([false, widget2DefaultValue, undefined]);
 
         // Test, widget 2 should be invisible and empty, widget 1 should be visible and valid
-        const { updatedInterview, updatedValuesByPath, needUpdate } = prepareSectionWidgets(mainSection, testInterviewAttributes, { 'response.section1.q1': true }, _cloneDeep(valuesByPath));
+        const { updatedInterview, updatedValuesByPath, needUpdate } = prepareSectionWidgets(
+            mainSection,
+            testInterviewAttributes,
+            { 'response.section1.q1': true },
+            _cloneDeep(valuesByPath)
+        );
 
         // Interview data should correspond to expected
         expect(updatedInterview).toEqual(expect.objectContaining(expectedInterview));
@@ -539,7 +522,14 @@ describe('Test with conditional', () => {
         // Check calls of the validation function, should have been called for both widgets and their new values
         expect(mockedCheckValidations).toHaveBeenCalledTimes(2);
         expect(mockedCheckValidations).toHaveBeenCalledWith(undefined, newValue, undefined, testInterviewAttributes, 'section1.q1', undefined);
-        expect(mockedCheckValidations).toHaveBeenCalledWith(widgets.widget2.validations, widget2DefaultValue, undefined, testInterviewAttributes, 'section1.q2', undefined);
+        expect(mockedCheckValidations).toHaveBeenCalledWith(
+            widgets.widget2.validations,
+            widget2DefaultValue,
+            undefined,
+            testInterviewAttributes,
+            'section1.q2',
+            undefined
+        );
 
         // Check calls to the conditional function, called twice, once for each widget
         expect(mockedCheckConditional).toHaveBeenCalledTimes(2);
@@ -549,30 +539,22 @@ describe('Test with conditional', () => {
         // Widget statuses should match previous ones (no change)
         expect(updatedInterview.widgets).toEqual({
             widget1: previousWidgetStatuses.widget1,
-            widget2: {
-                ...previousWidgetStatuses.widget2,
-                isValid: true,
-                isVisible: false,
-                isEmpty: false,
-                value: widget2DefaultValue
-            }
+            widget2: { ...previousWidgetStatuses.widget2, isValid: true, isVisible: false, isEmpty: false, value: widget2DefaultValue }
         });
 
         // Check the visible widgets and the allWidgetsValid flag
         expect(updatedInterview.visibleWidgets).toEqual(['section1.q1']);
         expect(updatedInterview.allWidgetsValid).toEqual(true);
-
     });
 });
 
 describe('Test a group widget', () => {
-
     test('Initial group widget preparation, no previous status', () => {
         const g2DefaultValue = 'default';
         // Prepare test data, without widget status at first, make the value of gq1 in group 2 undefined, so it will set the default value
         const testInterviewAttributes = _cloneDeep(runtimeInterviewAttributes);
         testInterviewAttributes.response.groupResponse[group2Id].gq1 = undefined;
-        const valuesByPath = { };
+        const valuesByPath = {};
 
         // Prepare expected interview, with the new value for gq1 of group2
         const expectedInterview = _cloneDeep(interviewAttributes) as any;
@@ -582,7 +564,12 @@ describe('Test a group widget', () => {
         mockedDefaultValue.mockReturnValueOnce(g2DefaultValue);
 
         // Test, 2 widgets should be valid and visible
-        const { updatedInterview, updatedValuesByPath, needUpdate } = prepareSectionWidgets(groupSection, testInterviewAttributes, { }, _cloneDeep(valuesByPath));
+        const { updatedInterview, updatedValuesByPath, needUpdate } = prepareSectionWidgets(
+            groupSection,
+            testInterviewAttributes,
+            {},
+            _cloneDeep(valuesByPath)
+        );
 
         // Interview data should correspond to expected
         expect(updatedInterview).toEqual(expect.objectContaining(expectedInterview));
@@ -591,8 +578,22 @@ describe('Test a group widget', () => {
 
         // Check calls of the validation function, should have been called for the widget of each group
         expect(mockedCheckValidations).toHaveBeenCalledTimes(2);
-        expect(mockedCheckValidations).toHaveBeenCalledWith(undefined, interviewAttributes.response.groupResponse[group1Id].gq1, undefined, testInterviewAttributes, `groupResponse.${group1Id}.gq1`, undefined);
-        expect(mockedCheckValidations).toHaveBeenCalledWith(undefined, g2DefaultValue, undefined, testInterviewAttributes, `groupResponse.${group2Id}.gq1`, undefined);
+        expect(mockedCheckValidations).toHaveBeenCalledWith(
+            undefined,
+            interviewAttributes.response.groupResponse[group1Id].gq1,
+            undefined,
+            testInterviewAttributes,
+            `groupResponse.${group1Id}.gq1`,
+            undefined
+        );
+        expect(mockedCheckValidations).toHaveBeenCalledWith(
+            undefined,
+            g2DefaultValue,
+            undefined,
+            testInterviewAttributes,
+            `groupResponse.${group2Id}.gq1`,
+            undefined
+        );
 
         // Check calls to the conditional function, called twice, once for each widget
         expect(mockedCheckConditional).toHaveBeenCalledTimes(2);
@@ -621,7 +622,6 @@ describe('Test a group widget', () => {
         // Check the visible widgets and the allWidgetsValid flag
         expect(updatedInterview.visibleWidgets).toEqual([`groupResponse.${group1Id}.gq1`, `groupResponse.${group2Id}.gq1`]);
         expect(updatedInterview.allWidgetsValid).toEqual(true);
-
     });
 
     test('With previous status and change in group 1', () => {
@@ -636,20 +636,10 @@ describe('Test a group widget', () => {
         // Prepare previous widget statuses
         const previousWidgetStatuses = {
             [group1Id]: {
-                widget3: {
-                    ...commonDefaultWidgetStatus,
-                    path: 'groupResponse.group1Id.gq1',
-                    value: 'any previous value',
-                    groupedObjectId: group1Id
-                },
+                widget3: { ...commonDefaultWidgetStatus, path: 'groupResponse.group1Id.gq1', value: 'any previous value', groupedObjectId: group1Id }
             },
             [group2Id]: {
-                widget3: {
-                    ...commonDefaultWidgetStatus,
-                    path: 'groupResponse.group2Id.gq1',
-                    value: valueInGroup2,
-                    groupedObjectId: group2Id
-                }
+                widget3: { ...commonDefaultWidgetStatus, path: 'groupResponse.group2Id.gq1', value: valueInGroup2, groupedObjectId: group2Id }
             }
         };
         testInterviewAttributes.groups = { [group1Name]: _cloneDeep(previousWidgetStatuses) };
@@ -660,7 +650,12 @@ describe('Test a group widget', () => {
         expectedInterview.response.groupResponse[group1Id].gq1 = newValue;
 
         // Test, 2 widgets should be valid and visible
-        const { updatedInterview, updatedValuesByPath, needUpdate } = prepareSectionWidgets(groupSection, testInterviewAttributes, { 'response.groupResponse.group1Id.gq1': true }, _cloneDeep(valuesByPath));
+        const { updatedInterview, updatedValuesByPath, needUpdate } = prepareSectionWidgets(
+            groupSection,
+            testInterviewAttributes,
+            { 'response.groupResponse.group1Id.gq1': true },
+            _cloneDeep(valuesByPath)
+        );
 
         // Interview data should correspond to expected
         expect(updatedInterview).toEqual(expect.objectContaining(expectedInterview));
@@ -669,7 +664,14 @@ describe('Test a group widget', () => {
 
         // Check calls of the validation function, should have been called only for the widget in group 1
         expect(mockedCheckValidations).toHaveBeenCalledTimes(1);
-        expect(mockedCheckValidations).toHaveBeenCalledWith(undefined, newValue, undefined, testInterviewAttributes, `groupResponse.${group1Id}.gq1`, undefined);
+        expect(mockedCheckValidations).toHaveBeenCalledWith(
+            undefined,
+            newValue,
+            undefined,
+            testInterviewAttributes,
+            `groupResponse.${group1Id}.gq1`,
+            undefined
+        );
 
         // Check calls to the conditional function, called twice, once for each widget
         expect(mockedCheckConditional).toHaveBeenCalledTimes(2);
@@ -697,11 +699,9 @@ describe('Test a group widget', () => {
         expect(updatedInterview.visibleWidgets).toEqual([`groupResponse.${group1Id}.gq1`, `groupResponse.${group2Id}.gq1`]);
         expect(updatedInterview.allWidgetsValid).toEqual(true);
     });
-
 });
 
 test('Test simple widget data with update key', () => {
-
     // Prepare test data, without widget status at first
     const newValue = 'newValue';
     const testInterviewAttributes = _cloneDeep(runtimeInterviewAttributes);
@@ -713,7 +713,13 @@ test('Test simple widget data with update key', () => {
     expectedInterview.response.section1.q1 = newValue;
 
     // Test, 2 widgets should be valid and visible, with updateKey set
-    const { updatedInterview, updatedValuesByPath, needUpdate } = prepareSectionWidgets(mainSection, testInterviewAttributes, { 'response.section1.q1': true }, _cloneDeep(valuesByPath), true);
+    const { updatedInterview, updatedValuesByPath, needUpdate } = prepareSectionWidgets(
+        mainSection,
+        testInterviewAttributes,
+        { 'response.section1.q1': true },
+        _cloneDeep(valuesByPath),
+        true
+    );
 
     // Interview data should correspond to expected
     expect(updatedInterview).toEqual(expect.objectContaining(expectedInterview));
@@ -737,14 +743,12 @@ test('Test simple widget data with update key', () => {
     // Check the visible widgets and the allWidgetsValid flag
     expect(updatedInterview.visibleWidgets).toEqual(['section1.q1', 'section1.q2']);
     expect(updatedInterview.allWidgetsValid).toEqual(true);
-
 });
 
 describe('Test with choice conditional', () => {
     // These tests use the choiceSection, with widget4 with choice conditional
 
     test('No change in value if all choice conditionals are true', () => {
-
         // Prepare test data, without widget status
         const newValue = 'a';
         const testInterviewAttributes = _cloneDeep(runtimeInterviewAttributes);
@@ -760,7 +764,13 @@ describe('Test with choice conditional', () => {
         mockedCheckChoicesConditional.mockReturnValueOnce([true, undefined]);
 
         // Test, the widget should be valid and visible, with value as set
-        const { updatedInterview, updatedValuesByPath, needUpdate } = prepareSectionWidgets(choiceSection, testInterviewAttributes, { 'response.section1.q4': true }, _cloneDeep(valuesByPath), false);
+        const { updatedInterview, updatedValuesByPath, needUpdate } = prepareSectionWidgets(
+            choiceSection,
+            testInterviewAttributes,
+            { 'response.section1.q4': true },
+            _cloneDeep(valuesByPath),
+            false
+        );
 
         // Interview data should correspond to expected
         expect(updatedInterview).toEqual(expect.objectContaining(expectedInterview));
@@ -772,21 +782,15 @@ describe('Test with choice conditional', () => {
         expect(mockedCheckChoicesConditional).toHaveBeenCalledWith(newValue, widgets.widget4.choices, testInterviewAttributes, 'section1.q4');
 
         // Check widget status for widget 4
-        expect(updatedInterview.widgets.widget4).toEqual({
-            ...commonDefaultWidgetStatus,
-            path: 'section1.q4',
-            value: newValue
-        });
+        expect(updatedInterview.widgets.widget4).toEqual({ ...commonDefaultWidgetStatus, path: 'section1.q4', value: newValue });
         expect(Object.keys(updatedInterview.widgets)).toEqual(['widget4']);
 
         // Check the visible widgets and the allWidgetsValid flag
         expect(updatedInterview.visibleWidgets).toEqual(['section1.q4']);
         expect(updatedInterview.allWidgetsValid).toEqual(true);
-
     });
 
     test('Choice conditional changes, set to undefined, as side-effect of other change', () => {
-
         // Prepare test data, changing a widget that is not widget4
         const valueForW4 = 'a';
         const newValue = 3;
@@ -807,7 +811,13 @@ describe('Test with choice conditional', () => {
         mockedCheckChoicesConditional.mockReturnValueOnce([false, undefined]);
 
         // Test, widget4 should have been updated
-        const { updatedInterview, updatedValuesByPath, needUpdate } = prepareSectionWidgets(choiceSection, testInterviewAttributes, { 'response.section1.q1': true }, _cloneDeep(valuesByPath), false);
+        const { updatedInterview, updatedValuesByPath, needUpdate } = prepareSectionWidgets(
+            choiceSection,
+            testInterviewAttributes,
+            { 'response.section1.q1': true },
+            _cloneDeep(valuesByPath),
+            false
+        );
 
         // Interview data should correspond to expected
         expect(updatedInterview).toEqual(expect.objectContaining(expectedInterview));
@@ -832,11 +842,9 @@ describe('Test with choice conditional', () => {
         // Check the visible widgets and the allWidgetsValid flag
         expect(updatedInterview.visibleWidgets).toEqual(['section1.q4']);
         expect(updatedInterview.allWidgetsValid).toEqual(true);
-
     });
 
     test('Choice visibility changes, change to new values, with previous statuses', () => {
-
         // Prepare test data, changing a widget that is not widget4
         const initialValueForWidget4 = 'a';
         const updatedValueForWidget4 = 'b';
@@ -848,13 +856,7 @@ describe('Test with choice conditional', () => {
         const valuesByPath = { 'response.section1.q1': newValue };
 
         // Prepare previous widget statuses
-        const previousWidgetStatuses = {
-            widget4: {
-                ...commonDefaultWidgetStatus,
-                path: 'section1.q4',
-                value: initialValueForWidget4
-            }
-        };
+        const previousWidgetStatuses = { widget4: { ...commonDefaultWidgetStatus, path: 'section1.q4', value: initialValueForWidget4 } };
         testInterviewAttributes.widgets = _cloneDeep(previousWidgetStatuses);
 
         // Prepare expected interview, with the new value for q4
@@ -868,16 +870,29 @@ describe('Test with choice conditional', () => {
         mockedCheckChoicesConditional.mockReturnValueOnce([false, updatedValueForWidget4]);
 
         // Test, widget4 should have been updated
-        const { updatedInterview, updatedValuesByPath, needUpdate } = prepareSectionWidgets(choiceSection, testInterviewAttributes, { 'response.section1.q1': true }, _cloneDeep(valuesByPath), false);
+        const { updatedInterview, updatedValuesByPath, needUpdate } = prepareSectionWidgets(
+            choiceSection,
+            testInterviewAttributes,
+            { 'response.section1.q1': true },
+            _cloneDeep(valuesByPath),
+            false
+        );
 
         // Interview data should correspond to expected
         expect(updatedInterview).toEqual(expect.objectContaining(expectedInterview));
-        expect(updatedValuesByPath).toEqual(Object.assign({ 'validations.section1.q4': true, 'response.section1.q4': updatedValueForWidget4 }, valuesByPath));
+        expect(updatedValuesByPath).toEqual(
+            Object.assign({ 'validations.section1.q4': true, 'response.section1.q4': updatedValueForWidget4 }, valuesByPath)
+        );
         expect(needUpdate).toEqual(true);
 
         // Check the mockecCheckChoicesConditional call
         expect(mockedCheckChoicesConditional).toHaveBeenCalledTimes(1);
-        expect(mockedCheckChoicesConditional).toHaveBeenCalledWith(initialValueForWidget4, widgets.widget4.choices, testInterviewAttributes, 'section1.q4');
+        expect(mockedCheckChoicesConditional).toHaveBeenCalledWith(
+            initialValueForWidget4,
+            widgets.widget4.choices,
+            testInterviewAttributes,
+            'section1.q4'
+        );
 
         // Check widget statuses for widget 4, should have an update key and updated value
         expect(updatedInterview.widgets.widget4).toEqual({
@@ -891,23 +906,15 @@ describe('Test with choice conditional', () => {
         // Check the visible widgets and the allWidgetsValid flag
         expect(updatedInterview.visibleWidgets).toEqual(['section1.q4']);
         expect(updatedInterview.allWidgetsValid).toEqual(true);
-
     });
 });
 
 describe('Test text widget', () => {
-
     test('Test with path and conditional', () => {
         // Test data
         const mockConditional = jest.fn();
         const path = 'somePath';
-        const widget = {
-            type: 'text',
-            align: 'center',
-            path,
-            text: 'Test text',
-            conditional: mockConditional
-        };
+        const widget = { type: 'text', align: 'center', path, text: 'Test text', conditional: mockConditional };
         mockedCheckConditional.mockReturnValueOnce([true, undefined, undefined]);
         setApplicationConfiguration({ sections: { [mainSection]: { widgets: ['widget'] } }, widgets: { widget } });
 
@@ -917,7 +924,6 @@ describe('Test text widget', () => {
 
         expect(mockedCheckConditional).toHaveBeenLastCalledWith(mockConditional, testInterviewAttributes, path, undefined);
     });
-
 });
 
 describe('Test with custom path', () => {
@@ -954,7 +960,7 @@ describe('Test with custom path', () => {
     };
 
     beforeEach(() => {
-        setApplicationConfiguration({ sections: { choiceSection: { widgets: [ 'widgetWithCustom'] } }, widgets: { widgetWithCustom } });
+        setApplicationConfiguration({ sections: { choiceSection: { widgets: ['widgetWithCustom'] } }, widgets: { widgetWithCustom } });
     });
 
     test('Test with custom path, custom choice not selected', () => {
@@ -972,12 +978,26 @@ describe('Test with custom path', () => {
         expectedInterview.validations.section1.q4custom = true;
 
         // Test, custom statuses should be set to empty
-        const { updatedInterview, updatedValuesByPath, needUpdate } = prepareSectionWidgets(choiceSection, testInterviewAttributes, { 'response.section1.q4': true }, _cloneDeep(valuesByPath));
+        const { updatedInterview, updatedValuesByPath, needUpdate } = prepareSectionWidgets(
+            choiceSection,
+            testInterviewAttributes,
+            { 'response.section1.q4': true },
+            _cloneDeep(valuesByPath)
+        );
         expect(updatedInterview).toEqual(expect.objectContaining(expectedInterview));
-        expect(updatedValuesByPath).toEqual(Object.assign({}, valuesByPath, { 'validations.section1.q4': true, 'validations.section1.q4custom': true }));
+        expect(updatedValuesByPath).toEqual(
+            Object.assign({}, valuesByPath, { 'validations.section1.q4': true, 'validations.section1.q4custom': true })
+        );
         expect(needUpdate).toEqual(false);
         expect(mockedCheckValidations).toHaveBeenCalledTimes(1);
-        expect(mockedCheckValidations).toHaveBeenCalledWith(widgetWithCustom.validations, (testInterviewAttributes as any).response.section1.q4, undefined, testInterviewAttributes, 'section1.q4',  'section1.q4custom');
+        expect(mockedCheckValidations).toHaveBeenCalledWith(
+            widgetWithCustom.validations,
+            (testInterviewAttributes as any).response.section1.q4,
+            undefined,
+            testInterviewAttributes,
+            'section1.q4',
+            'section1.q4custom'
+        );
         expect(updatedInterview.widgets.widgetWithCustom).toEqual({
             ...defaultExpectedWidgetStatus,
             isValid: true,
@@ -1007,12 +1027,26 @@ describe('Test with custom path', () => {
         expectedInterview.validations.section1.q4custom = true;
 
         // Test, the custom value should be responded
-        const { updatedInterview, updatedValuesByPath, needUpdate } = prepareSectionWidgets(choiceSection, testInterviewAttributes, { 'response.section1.q4': true }, _cloneDeep(valuesByPath));
+        const { updatedInterview, updatedValuesByPath, needUpdate } = prepareSectionWidgets(
+            choiceSection,
+            testInterviewAttributes,
+            { 'response.section1.q4': true },
+            _cloneDeep(valuesByPath)
+        );
         expect(updatedInterview).toEqual(expect.objectContaining(expectedInterview));
-        expect(updatedValuesByPath).toEqual(Object.assign({}, valuesByPath, { 'validations.section1.q4': true, 'validations.section1.q4custom': true }));
+        expect(updatedValuesByPath).toEqual(
+            Object.assign({}, valuesByPath, { 'validations.section1.q4': true, 'validations.section1.q4custom': true })
+        );
         expect(needUpdate).toEqual(false);
         expect(mockedCheckValidations).toHaveBeenCalledTimes(1);
-        expect(mockedCheckValidations).toHaveBeenCalledWith(widgetWithCustom.validations, currentResponse, currentCustomResponse, testInterviewAttributes, 'section1.q4',  'section1.q4custom');
+        expect(mockedCheckValidations).toHaveBeenCalledWith(
+            widgetWithCustom.validations,
+            currentResponse,
+            currentCustomResponse,
+            testInterviewAttributes,
+            'section1.q4',
+            'section1.q4custom'
+        );
         expect(updatedInterview.widgets.widgetWithCustom).toEqual({
             ...defaultExpectedWidgetStatus,
             isValid: true,
@@ -1024,5 +1058,4 @@ describe('Test with custom path', () => {
         expect(updatedInterview.visibleWidgets).toEqual(['section1.q4', 'section1.q4custom']);
         expect(updatedInterview.allWidgetsValid).toEqual(true);
     });
-
 });

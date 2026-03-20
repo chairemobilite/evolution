@@ -19,12 +19,11 @@ import * as TCAttr from '../attributeTypes/TripChainAttributes';
 const validUUID = uuidV4();
 
 describe('BaseJourney', () => {
-
     const weightMethodAttributes = {
         _uuid: uuidV4(),
         shortname: 'sample-shortname',
         name: 'Sample Weight Method',
-        description: 'Sample weight method description',
+        description: 'Sample weight method description'
     };
 
     const baseJourneyAttributes: ExtendedJourneyAttributes = {
@@ -58,7 +57,7 @@ describe('BaseJourney', () => {
             startDate: '2023-10-07',
             endDate: '2023-10-08',
             startTime: 36100, // 10 hours in seconds
-            endTime: 72100, // 20 hours in seconds
+            endTime: 72100 // 20 hours in seconds
         };
 
         const journey = new BaseJourney(minimalAttributes);
@@ -92,7 +91,7 @@ describe('BaseJourney', () => {
             endDate: '2023-10-06',
             endTime: 7200,
             name: 'Valid Journey',
-            _weights: [],
+            _weights: []
         };
 
         const errors = BaseJourney.validateParams(validParams);
@@ -106,7 +105,7 @@ describe('BaseJourney', () => {
             startTime: 'invalid-time',
             endDate: 'invalid-date',
             endTime: 'invalid-time',
-            name: 123,
+            name: 123
         };
 
         const errors = BaseJourney.validateParams(invalidParams);
@@ -117,7 +116,7 @@ describe('BaseJourney', () => {
             new Error('BaseJourney validateParams: startTime is required and should be a non-negative number'),
             new Error('BaseJourney validateParams: endDate is required and should be a valid date string'),
             new Error('BaseJourney validateParams: endTime is required and should be a non-negative number'),
-            new Error('BaseJourney validateParams: name should be a string'),
+            new Error('BaseJourney validateParams: name should be a string')
         ]);
     });
 
@@ -126,6 +125,4 @@ describe('BaseJourney', () => {
         expect(instance).toBeInstanceOf(BaseJourney);
         expect(instance.name).toEqual(baseJourneyAttributes.name);
     });
-
-
 });

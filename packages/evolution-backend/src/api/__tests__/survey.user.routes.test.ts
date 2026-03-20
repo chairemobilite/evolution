@@ -13,13 +13,9 @@ import Interviews from '../../services/interviews/interviews';
 import { addRolesToInterview } from '../../services/interviews/interview';
 import { isLoggedIn } from 'chaire-lib-backend/lib/services/auth/authorization';
 
-jest.mock('../../services/interviews/interviews', () => ({
-    getInterviewByUuid: jest.fn()
-}));
+jest.mock('../../services/interviews/interviews', () => ({ getInterviewByUuid: jest.fn() }));
 const mockGetInterviewByUuid = Interviews.getInterviewByUuid as jest.MockedFunction<typeof Interviews.getInterviewByUuid>;
-jest.mock('../../services/interviews/interview', () => ({
-    addRolesToInterview: jest.fn()
-}));
+jest.mock('../../services/interviews/interview', () => ({ addRolesToInterview: jest.fn() }));
 const mockAddRolesToInterview = addRolesToInterview as jest.MockedFunction<typeof addRolesToInterview>;
 jest.mock('../../services/logging/queryLoggingMiddleware');
 
@@ -36,18 +32,15 @@ jest.mock('chaire-lib-backend/lib/services/auth/authorization', () => ({
     isLoggedIn: jest.fn((req, res, next) => {
         req.user = { id: mockUserId }; // Mock user object
         next();
-    }),
+    })
 }));
 const mockIsLoggedIn = isLoggedIn as jest.MockedFunction<typeof isLoggedIn>;
 
 const app = express();
 app.use(express.json());
-app.use(
-    surveyUserRoutes(mockAuthorizationMiddleware, mockLoggingMiddleware)
-);
+app.use(surveyUserRoutes(mockAuthorizationMiddleware, mockLoggingMiddleware));
 
 describe('GET /survey/activeInterview/:interviewId', () => {
-
     const interviewUuid = uuidV4();
 
     beforeEach(() => {
@@ -68,8 +61,7 @@ describe('GET /survey/activeInterview/:interviewId', () => {
     it('should return 404 if interview is not found', async () => {
         mockGetInterviewByUuid.mockResolvedValueOnce(undefined);
 
-        const response = await request(app)
-            .get('/survey/activeInterview/' + interviewUuid);
+        const response = await request(app).get('/survey/activeInterview/' + interviewUuid);
 
         expect(response.status).toBe(404);
         expect(response.body).toEqual({ status: 'notFound', interview: null });
@@ -80,8 +72,7 @@ describe('GET /survey/activeInterview/:interviewId', () => {
         const mockInterview = { id: 1, uuid: interviewUuid };
         mockGetInterviewByUuid.mockResolvedValueOnce(mockInterview as any);
 
-        const response = await request(app)
-            .get('/survey/activeInterview/' + interviewUuid);
+        const response = await request(app).get('/survey/activeInterview/' + interviewUuid);
 
         expect(response.status).toBe(200);
         expect(response.body).toEqual({ status: 'success', interview: mockInterview });
@@ -92,20 +83,15 @@ describe('GET /survey/activeInterview/:interviewId', () => {
     it('should return 500 if an error occurs', async () => {
         mockGetInterviewByUuid.mockRejectedValueOnce(new Error('Database error'));
 
-        const response = await request(app)
-            .get('/survey/activeInterview/' + interviewUuid);
+        const response = await request(app).get('/survey/activeInterview/' + interviewUuid);
 
         expect(response.status).toBe(500);
-        expect(response.body).toEqual({
-            status: 'failed',
-            interview: null,
-            error: 'cannot fetch interview'
-        });
+        expect(response.body).toEqual({ status: 'failed', interview: null, error: 'cannot fetch interview' });
     });
 
     it('should return failed status if uuid is not valid', async () => {
         const response = await request(app).get('/survey/activeInterview/notAUuid');
         expect(response.status).toBe(400);
-        expect(response.body).toEqual({ status: 'failed', error: "Invalid interview ID" });
+        expect(response.body).toEqual({ status: 'failed', error: 'Invalid interview ID' });
     });
 });

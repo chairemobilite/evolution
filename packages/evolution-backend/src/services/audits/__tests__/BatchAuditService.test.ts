@@ -26,80 +26,50 @@ describe('BatchAuditService', () => {
     const mockInterviewUuid2 = uuidV4();
     const mockInterviewUuid3 = uuidV4();
 
-    const createMockInterview = (uuid: string): InterviewAttributes => ({
-        id: 123,
-        uuid,
-        participant_id: 456,
-        is_valid: false,
-        is_completed: false,
-        response: {
-            _uuid: uuid,
-            household: {
-                _uuid: uuidV4(),
-                size: 2
-            }
-        },
-        corrected_response: {
-            _uuid: uuid,
-            household: {
-                _uuid: uuidV4(),
-                size: 2
-            }
-        },
-        validations: {},
-        logs: []
-    } as InterviewAttributes);
+    const createMockInterview = (uuid: string): InterviewAttributes =>
+        ({
+            id: 123,
+            uuid,
+            participant_id: 456,
+            is_valid: false,
+            is_completed: false,
+            response: { _uuid: uuid, household: { _uuid: uuidV4(), size: 2 } },
+            corrected_response: { _uuid: uuid, household: { _uuid: uuidV4(), size: 2 } },
+            validations: {},
+            logs: []
+        }) as InterviewAttributes;
 
-    const createMockInterviewListItem = (uuid: string): InterviewListAttributes => ({
-        uuid,
-        id: 123,
-        participant_id: 456,
-        is_valid: false,
-        is_completed: false,
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
-    } as InterviewListAttributes);
+    const createMockInterviewListItem = (uuid: string): InterviewListAttributes =>
+        ({
+            uuid,
+            id: 123,
+            participant_id: 456,
+            is_valid: false,
+            is_completed: false,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+        }) as InterviewListAttributes;
 
     beforeEach(() => {
         jest.clearAllMocks();
 
         // Setup default mock implementations
         (copyResponseToCorrectedResponse as jest.Mock).mockResolvedValue(undefined);
-        (SurveyObjectsAndAuditsFactory.createSurveyObjectsAndSaveAuditsToDb as jest.Mock).mockResolvedValue(
-            undefined
-        );
+        (SurveyObjectsAndAuditsFactory.createSurveyObjectsAndSaveAuditsToDb as jest.Mock).mockResolvedValue(undefined);
         // Reset getAllMatching mock to avoid interference between tests
         (Interviews.getAllMatching as jest.Mock).mockReset();
     });
 
     describe('runBatchAuditsTask', () => {
         it('should return empty results when no interviews match filters', async () => {
-            (Interviews.getAllMatching as jest.Mock).mockResolvedValue({
-                interviews: [],
-                totalCount: 0
-            });
+            (Interviews.getAllMatching as jest.Mock).mockResolvedValue({ interviews: [], totalCount: 0 });
 
-            const params: BatchAuditTaskParams = {
-                filters: {},
-                extended: false
-            };
+            const params: BatchAuditTaskParams = { filters: {}, extended: false };
 
             const result = await runBatchAuditsTask(params);
 
-            expect(result).toEqual({
-                totalCount: 0,
-                processed: 0,
-                succeeded: 0,
-                failed: 0,
-                results: []
-            });
-            expect(Interviews.getAllMatching).toHaveBeenCalledWith({
-                pageIndex: 0,
-                pageSize: BATCH_SIZE,
-                filter: {},
-                updatedAt: 0,
-                sort: undefined
-            });
+            expect(result).toEqual({ totalCount: 0, processed: 0, succeeded: 0, failed: 0, results: [] });
+            expect(Interviews.getAllMatching).toHaveBeenCalledWith({ pageIndex: 0, pageSize: BATCH_SIZE, filter: {}, updatedAt: 0, sort: undefined });
         });
 
         it('should process single interview successfully', async () => {
@@ -107,20 +77,11 @@ describe('BatchAuditService', () => {
             const interviewListItem1 = createMockInterviewListItem(mockInterviewUuid1);
 
             (Interviews.getAllMatching as jest.Mock)
-                .mockResolvedValueOnce({
-                    interviews: [interviewListItem1],
-                    totalCount: 1
-                })
-                .mockResolvedValueOnce({
-                    interviews: [interviewListItem1],
-                    totalCount: 1
-                });
+                .mockResolvedValueOnce({ interviews: [interviewListItem1], totalCount: 1 })
+                .mockResolvedValueOnce({ interviews: [interviewListItem1], totalCount: 1 });
             (Interviews.getInterviewByUuid as jest.Mock).mockResolvedValue(interview1);
 
-            const params: BatchAuditTaskParams = {
-                filters: {},
-                extended: false
-            };
+            const params: BatchAuditTaskParams = { filters: {}, extended: false };
 
             const result = await runBatchAuditsTask(params);
 
@@ -129,15 +90,9 @@ describe('BatchAuditService', () => {
             expect(result.succeeded).toBe(1);
             expect(result.failed).toBe(0);
             expect(result.results).toHaveLength(1);
-            expect(result.results[0]).toEqual({
-                uuid: mockInterviewUuid1,
-                status: 'success'
-            });
+            expect(result.results[0]).toEqual({ uuid: mockInterviewUuid1, status: 'success' });
             expect(Interviews.getInterviewByUuid).toHaveBeenCalledWith(mockInterviewUuid1);
-            expect(SurveyObjectsAndAuditsFactory.createSurveyObjectsAndSaveAuditsToDb).toHaveBeenCalledWith(
-                interview1,
-                false
-            );
+            expect(SurveyObjectsAndAuditsFactory.createSurveyObjectsAndSaveAuditsToDb).toHaveBeenCalledWith(interview1, false);
         });
 
         it('should copy response to corrected_response when missing', async () => {
@@ -147,20 +102,11 @@ describe('BatchAuditService', () => {
             const interviewListItem1 = createMockInterviewListItem(mockInterviewUuid1);
 
             (Interviews.getAllMatching as jest.Mock)
-                .mockResolvedValueOnce({
-                    interviews: [interviewListItem1],
-                    totalCount: 1
-                })
-                .mockResolvedValueOnce({
-                    interviews: [interviewListItem1],
-                    totalCount: 1
-                });
+                .mockResolvedValueOnce({ interviews: [interviewListItem1], totalCount: 1 })
+                .mockResolvedValueOnce({ interviews: [interviewListItem1], totalCount: 1 });
             (Interviews.getInterviewByUuid as jest.Mock).mockResolvedValue(interview1);
 
-            const params: BatchAuditTaskParams = {
-                filters: {},
-                extended: false
-            };
+            const params: BatchAuditTaskParams = { filters: {}, extended: false };
 
             await runBatchAuditsTask(params);
 
@@ -172,20 +118,11 @@ describe('BatchAuditService', () => {
             const interviewListItem1 = createMockInterviewListItem(mockInterviewUuid1);
 
             (Interviews.getAllMatching as jest.Mock)
-                .mockResolvedValueOnce({
-                    interviews: [interviewListItem1],
-                    totalCount: 1
-                })
-                .mockResolvedValueOnce({
-                    interviews: [interviewListItem1],
-                    totalCount: 1
-                });
+                .mockResolvedValueOnce({ interviews: [interviewListItem1], totalCount: 1 })
+                .mockResolvedValueOnce({ interviews: [interviewListItem1], totalCount: 1 });
             (Interviews.getInterviewByUuid as jest.Mock).mockResolvedValue(interview1);
 
-            const params: BatchAuditTaskParams = {
-                filters: {},
-                extended: false
-            };
+            const params: BatchAuditTaskParams = { filters: {}, extended: false };
 
             await runBatchAuditsTask(params);
 
@@ -210,10 +147,7 @@ describe('BatchAuditService', () => {
                 .mockResolvedValueOnce(interview2)
                 .mockResolvedValueOnce(interview3);
 
-            const params: BatchAuditTaskParams = {
-                filters: {},
-                extended: false
-            };
+            const params: BatchAuditTaskParams = { filters: {}, extended: false };
 
             const result = await runBatchAuditsTask(params);
 
@@ -229,16 +163,10 @@ describe('BatchAuditService', () => {
             const interviewListItem1 = createMockInterviewListItem(mockInterviewUuid1);
 
             // First call gets first page (to get totalCount)
-            (Interviews.getAllMatching as jest.Mock).mockResolvedValueOnce({
-                interviews: [interviewListItem1],
-                totalCount: 1
-            });
+            (Interviews.getAllMatching as jest.Mock).mockResolvedValueOnce({ interviews: [interviewListItem1], totalCount: 1 });
             (Interviews.getInterviewByUuid as jest.Mock).mockResolvedValue(undefined);
 
-            const params: BatchAuditTaskParams = {
-                filters: {},
-                extended: false
-            };
+            const params: BatchAuditTaskParams = { filters: {}, extended: false };
 
             const result = await runBatchAuditsTask(params);
 
@@ -246,11 +174,7 @@ describe('BatchAuditService', () => {
             expect(result.processed).toBe(1);
             expect(result.succeeded).toBe(0);
             expect(result.failed).toBe(1);
-            expect(result.results[0]).toEqual({
-                uuid: mockInterviewUuid1,
-                status: 'failed',
-                error: 'Interview not found'
-            });
+            expect(result.results[0]).toEqual({ uuid: mockInterviewUuid1, status: 'failed', error: 'Interview not found' });
         });
 
         it('should handle audit processing errors', async () => {
@@ -258,23 +182,12 @@ describe('BatchAuditService', () => {
             const interviewListItem1 = createMockInterviewListItem(mockInterviewUuid1);
 
             (Interviews.getAllMatching as jest.Mock)
-                .mockResolvedValueOnce({
-                    interviews: [interviewListItem1],
-                    totalCount: 1
-                })
-                .mockResolvedValueOnce({
-                    interviews: [interviewListItem1],
-                    totalCount: 1
-                });
+                .mockResolvedValueOnce({ interviews: [interviewListItem1], totalCount: 1 })
+                .mockResolvedValueOnce({ interviews: [interviewListItem1], totalCount: 1 });
             (Interviews.getInterviewByUuid as jest.Mock).mockResolvedValue(interview1);
-            (SurveyObjectsAndAuditsFactory.createSurveyObjectsAndSaveAuditsToDb as jest.Mock).mockRejectedValue(
-                new Error('Audit failed')
-            );
+            (SurveyObjectsAndAuditsFactory.createSurveyObjectsAndSaveAuditsToDb as jest.Mock).mockRejectedValue(new Error('Audit failed'));
 
-            const params: BatchAuditTaskParams = {
-                filters: {},
-                extended: false
-            };
+            const params: BatchAuditTaskParams = { filters: {}, extended: false };
 
             const result = await runBatchAuditsTask(params);
 
@@ -282,11 +195,7 @@ describe('BatchAuditService', () => {
             expect(result.processed).toBe(1);
             expect(result.succeeded).toBe(0);
             expect(result.failed).toBe(1);
-            expect(result.results[0]).toEqual({
-                uuid: mockInterviewUuid1,
-                status: 'failed',
-                error: 'Error processing interview'
-            });
+            expect(result.results[0]).toEqual({ uuid: mockInterviewUuid1, status: 'failed', error: 'Error processing interview' });
         });
 
         it('should handle mixed success and failure', async () => {
@@ -295,18 +204,10 @@ describe('BatchAuditService', () => {
             const interviewListItem2 = createMockInterviewListItem(mockInterviewUuid2);
 
             // First call gets first page (to get totalCount), both interviews fit in one page
-            (Interviews.getAllMatching as jest.Mock).mockResolvedValueOnce({
-                interviews: [interviewListItem1, interviewListItem2],
-                totalCount: 2
-            });
-            (Interviews.getInterviewByUuid as jest.Mock)
-                .mockResolvedValueOnce(interview1)
-                .mockResolvedValueOnce(undefined); // Second interview not found
+            (Interviews.getAllMatching as jest.Mock).mockResolvedValueOnce({ interviews: [interviewListItem1, interviewListItem2], totalCount: 2 });
+            (Interviews.getInterviewByUuid as jest.Mock).mockResolvedValueOnce(interview1).mockResolvedValueOnce(undefined); // Second interview not found
 
-            const params: BatchAuditTaskParams = {
-                filters: {},
-                extended: false
-            };
+            const params: BatchAuditTaskParams = { filters: {}, extended: false };
 
             const result = await runBatchAuditsTask(params);
 
@@ -320,16 +221,10 @@ describe('BatchAuditService', () => {
         });
 
         it('should parse string filters correctly', async () => {
-            (Interviews.getAllMatching as jest.Mock).mockResolvedValue({
-                interviews: [],
-                totalCount: 0
-            });
+            (Interviews.getAllMatching as jest.Mock).mockResolvedValue({ interviews: [], totalCount: 0 });
 
             const params: BatchAuditTaskParams = {
-                filters: {
-                    'response.accessCode': 'ABC123',
-                    'response.household.size': ['1', '2']
-                },
+                filters: { 'response.accessCode': 'ABC123', 'response.household.size': ['1', '2'] },
                 extended: false
             };
 
@@ -338,42 +233,23 @@ describe('BatchAuditService', () => {
             expect(Interviews.getAllMatching).toHaveBeenCalledWith({
                 pageIndex: 0,
                 pageSize: BATCH_SIZE,
-                filter: {
-                    'response.accessCode': 'ABC123',
-                    'response.household.size': ['1', '2']
-                },
+                filter: { 'response.accessCode': 'ABC123', 'response.household.size': ['1', '2'] },
                 updatedAt: 0,
                 sort: undefined
             });
         });
 
         it('should parse object filters correctly', async () => {
-            (Interviews.getAllMatching as jest.Mock).mockResolvedValue({
-                interviews: [],
-                totalCount: 0
-            });
+            (Interviews.getAllMatching as jest.Mock).mockResolvedValue({ interviews: [], totalCount: 0 });
 
-            const params: BatchAuditTaskParams = {
-                filters: {
-                    'response.household.size': {
-                        value: 2,
-                        op: 'eq'
-                    }
-                },
-                extended: false
-            };
+            const params: BatchAuditTaskParams = { filters: { 'response.household.size': { value: 2, op: 'eq' } }, extended: false };
 
             await runBatchAuditsTask(params);
 
             expect(Interviews.getAllMatching).toHaveBeenCalledWith({
                 pageIndex: 0,
                 pageSize: BATCH_SIZE,
-                filter: {
-                    'response.household.size': {
-                        value: 2,
-                        op: 'eq'
-                    }
-                },
+                filter: { 'response.household.size': { value: 2, op: 'eq' } },
                 updatedAt: 0,
                 sort: undefined
             });
@@ -390,9 +266,7 @@ describe('BatchAuditService', () => {
                 extended: false
             };
 
-            await expect(runBatchAuditsTask(params)).rejects.toThrow(
-                'Invalid filter structure for keys: response.household.size'
-            );
+            await expect(runBatchAuditsTask(params)).rejects.toThrow('Invalid filter structure for keys: response.household.size');
         });
 
         it('should throw error for invalid filter value type', async () => {
@@ -406,9 +280,7 @@ describe('BatchAuditService', () => {
                 extended: false
             };
 
-            await expect(runBatchAuditsTask(params)).rejects.toThrow(
-                'Invalid filter structure for keys: response.household.size'
-            );
+            await expect(runBatchAuditsTask(params)).rejects.toThrow('Invalid filter structure for keys: response.household.size');
         });
 
         it('should throw error for invalid operator', async () => {
@@ -422,17 +294,13 @@ describe('BatchAuditService', () => {
                 extended: false
             };
 
-            await expect(runBatchAuditsTask(params)).rejects.toThrow(
-                'Invalid filter structure for keys: response.household.size'
-            );
+            await expect(runBatchAuditsTask(params)).rejects.toThrow('Invalid filter structure for keys: response.household.size');
         });
 
         it('should throw error for multiple invalid filters', async () => {
             const params: BatchAuditTaskParams = {
                 filters: {
-                    'response.household.size': {
-                        value: { invalid: 'type' }
-                    },
+                    'response.household.size': { value: { invalid: 'type' } },
                     'response.accessCode': {
                         op: 'eq'
                         // Missing value
@@ -448,10 +316,7 @@ describe('BatchAuditService', () => {
         });
 
         it('should accept valid GeoJSON Polygon feature as filter value', async () => {
-            (Interviews.getAllMatching as jest.Mock).mockResolvedValue({
-                interviews: [],
-                totalCount: 0
-            });
+            (Interviews.getAllMatching as jest.Mock).mockResolvedValue({ interviews: [], totalCount: 0 });
 
             const validPolygonFeature = {
                 type: 'Feature',
@@ -471,12 +336,7 @@ describe('BatchAuditService', () => {
             };
 
             const params: BatchAuditTaskParams = {
-                filters: {
-                    'response.home.geography': {
-                        value: validPolygonFeature,
-                        op: 'eq'
-                    }
-                },
+                filters: { 'response.home.geography': { value: validPolygonFeature, op: 'eq' } },
                 extended: false
             };
 
@@ -485,58 +345,25 @@ describe('BatchAuditService', () => {
             expect(Interviews.getAllMatching).toHaveBeenCalledWith({
                 pageIndex: 0,
                 pageSize: BATCH_SIZE,
-                filter: {
-                    'response.home.geography': {
-                        value: validPolygonFeature,
-                        op: 'eq'
-                    }
-                },
+                filter: { 'response.home.geography': { value: validPolygonFeature, op: 'eq' } },
                 updatedAt: 0,
                 sort: undefined
             });
         });
 
         it('should reject invalid GeoJSON feature (not a Polygon)', async () => {
-            const invalidFeature = {
-                type: 'Feature',
-                geometry: {
-                    type: 'Point',
-                    coordinates: [0, 0]
-                },
-                properties: {}
-            };
+            const invalidFeature = { type: 'Feature', geometry: { type: 'Point', coordinates: [0, 0] }, properties: {} };
 
-            const params: BatchAuditTaskParams = {
-                filters: {
-                    'response.home.geography': {
-                        value: invalidFeature,
-                        op: 'eq'
-                    }
-                },
-                extended: false
-            };
+            const params: BatchAuditTaskParams = { filters: { 'response.home.geography': { value: invalidFeature, op: 'eq' } }, extended: false };
 
-            await expect(runBatchAuditsTask(params)).rejects.toThrow(
-                'Invalid filter structure for keys: response.home.geography'
-            );
+            await expect(runBatchAuditsTask(params)).rejects.toThrow('Invalid filter structure for keys: response.home.geography');
         });
 
         it('should accept all valid operator types', async () => {
-            (Interviews.getAllMatching as jest.Mock).mockResolvedValue({
-                interviews: [],
-                totalCount: 0
-            });
+            (Interviews.getAllMatching as jest.Mock).mockResolvedValue({ interviews: [], totalCount: 0 });
 
             for (const op of VALID_OPERATORS) {
-                const params: BatchAuditTaskParams = {
-                    filters: {
-                        [`test.${op}`]: {
-                            value: 2,
-                            op: op as keyof OperatorSigns
-                        }
-                    },
-                    extended: false
-                };
+                const params: BatchAuditTaskParams = { filters: { [`test.${op}`]: { value: 2, op: op as keyof OperatorSigns } }, extended: false };
 
                 await runBatchAuditsTask(params);
             }
@@ -550,27 +377,15 @@ describe('BatchAuditService', () => {
             const interviewListItem1 = createMockInterviewListItem(mockInterviewUuid1);
 
             (Interviews.getAllMatching as jest.Mock)
-                .mockResolvedValueOnce({
-                    interviews: [interviewListItem1],
-                    totalCount: 1
-                })
-                .mockResolvedValueOnce({
-                    interviews: [interviewListItem1],
-                    totalCount: 1
-                });
+                .mockResolvedValueOnce({ interviews: [interviewListItem1], totalCount: 1 })
+                .mockResolvedValueOnce({ interviews: [interviewListItem1], totalCount: 1 });
             (Interviews.getInterviewByUuid as jest.Mock).mockResolvedValue(interview1);
 
-            const params: BatchAuditTaskParams = {
-                filters: {},
-                extended: true
-            };
+            const params: BatchAuditTaskParams = { filters: {}, extended: true };
 
             await runBatchAuditsTask(params);
 
-            expect(SurveyObjectsAndAuditsFactory.createSurveyObjectsAndSaveAuditsToDb).toHaveBeenCalledWith(
-                interview1,
-                true
-            );
+            expect(SurveyObjectsAndAuditsFactory.createSurveyObjectsAndSaveAuditsToDb).toHaveBeenCalledWith(interview1, true);
         });
 
         it('should use extended audit checks when extended="true"', async () => {
@@ -578,27 +393,15 @@ describe('BatchAuditService', () => {
             const interviewListItem1 = createMockInterviewListItem(mockInterviewUuid1);
 
             (Interviews.getAllMatching as jest.Mock)
-                .mockResolvedValueOnce({
-                    interviews: [interviewListItem1],
-                    totalCount: 1
-                })
-                .mockResolvedValueOnce({
-                    interviews: [interviewListItem1],
-                    totalCount: 1
-                });
+                .mockResolvedValueOnce({ interviews: [interviewListItem1], totalCount: 1 })
+                .mockResolvedValueOnce({ interviews: [interviewListItem1], totalCount: 1 });
             (Interviews.getInterviewByUuid as jest.Mock).mockResolvedValue(interview1);
 
-            const params: BatchAuditTaskParams = {
-                filters: {},
-                extended: 'true'
-            };
+            const params: BatchAuditTaskParams = { filters: {}, extended: 'true' };
 
             await runBatchAuditsTask(params);
 
-            expect(SurveyObjectsAndAuditsFactory.createSurveyObjectsAndSaveAuditsToDb).toHaveBeenCalledWith(
-                interview1,
-                true
-            );
+            expect(SurveyObjectsAndAuditsFactory.createSurveyObjectsAndSaveAuditsToDb).toHaveBeenCalledWith(interview1, true);
         });
 
         it('should not use extended audit checks when extended=false', async () => {
@@ -606,27 +409,15 @@ describe('BatchAuditService', () => {
             const interviewListItem1 = createMockInterviewListItem(mockInterviewUuid1);
 
             (Interviews.getAllMatching as jest.Mock)
-                .mockResolvedValueOnce({
-                    interviews: [interviewListItem1],
-                    totalCount: 1
-                })
-                .mockResolvedValueOnce({
-                    interviews: [interviewListItem1],
-                    totalCount: 1
-                });
+                .mockResolvedValueOnce({ interviews: [interviewListItem1], totalCount: 1 })
+                .mockResolvedValueOnce({ interviews: [interviewListItem1], totalCount: 1 });
             (Interviews.getInterviewByUuid as jest.Mock).mockResolvedValue(interview1);
 
-            const params: BatchAuditTaskParams = {
-                filters: {},
-                extended: false
-            };
+            const params: BatchAuditTaskParams = { filters: {}, extended: false };
 
             await runBatchAuditsTask(params);
 
-            expect(SurveyObjectsAndAuditsFactory.createSurveyObjectsAndSaveAuditsToDb).toHaveBeenCalledWith(
-                interview1,
-                false
-            );
+            expect(SurveyObjectsAndAuditsFactory.createSurveyObjectsAndSaveAuditsToDb).toHaveBeenCalledWith(interview1, false);
         });
 
         it('should log userId when provided', async () => {
@@ -635,27 +426,15 @@ describe('BatchAuditService', () => {
             const interviewListItem1 = createMockInterviewListItem(mockInterviewUuid1);
 
             (Interviews.getAllMatching as jest.Mock)
-                .mockResolvedValueOnce({
-                    interviews: [interviewListItem1],
-                    totalCount: 1
-                })
-                .mockResolvedValueOnce({
-                    interviews: [interviewListItem1],
-                    totalCount: 1
-                });
+                .mockResolvedValueOnce({ interviews: [interviewListItem1], totalCount: 1 })
+                .mockResolvedValueOnce({ interviews: [interviewListItem1], totalCount: 1 });
             (Interviews.getInterviewByUuid as jest.Mock).mockResolvedValue(interview1);
 
-            const params: BatchAuditTaskParams = {
-                filters: {},
-                extended: false,
-                userId: 123
-            };
+            const params: BatchAuditTaskParams = { filters: {}, extended: false, userId: 123 };
 
             await runBatchAuditsTask(params);
 
-            expect(consoleSpy).toHaveBeenCalledWith(
-                expect.stringContaining('userId=123')
-            );
+            expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('userId=123'));
 
             consoleSpy.mockRestore();
         });
@@ -676,10 +455,7 @@ describe('BatchAuditService', () => {
                 totalCount: 150 // Exceeds limit of 100
             });
 
-            const params: BatchAuditTaskParams = {
-                filters: {},
-                extended: false
-            };
+            const params: BatchAuditTaskParams = { filters: {}, extended: false };
 
             await expect(reloadedTask(params)).rejects.toThrow(
                 'Batch audit request exceeds maximum limit of 100 interviews. Found 150 matching interviews. Please refine your filters.'
@@ -714,10 +490,7 @@ describe('BatchAuditService', () => {
                 .mockResolvedValueOnce({ interviews: [], totalCount: 50 }); // pageIndex 4
             (Interviews.getInterviewByUuid as jest.Mock).mockResolvedValue(interview1);
 
-            const params: BatchAuditTaskParams = {
-                filters: {},
-                extended: false
-            };
+            const params: BatchAuditTaskParams = { filters: {}, extended: false };
 
             const result = await runBatchAuditsTask(params);
 
@@ -737,15 +510,9 @@ describe('BatchAuditService', () => {
             // Re-import Interviews after module reset
             const InterviewsModule = await import('../../interviews/interviews');
 
-            (InterviewsModule.default.getAllMatching as jest.Mock).mockResolvedValue({
-                interviews: [],
-                totalCount: 0
-            });
+            (InterviewsModule.default.getAllMatching as jest.Mock).mockResolvedValue({ interviews: [], totalCount: 0 });
 
-            const params: BatchAuditTaskParams = {
-                filters: {},
-                extended: false
-            };
+            const params: BatchAuditTaskParams = { filters: {}, extended: false };
 
             await reloadedTask(params);
 
@@ -772,25 +539,14 @@ describe('BatchAuditService', () => {
                 processed: 1,
                 succeeded: 1,
                 failed: 0,
-                results: [
-                    {
-                        uuid: mockInterviewUuid1,
-                        status: 'success' as const
-                    }
-                ]
+                results: [{ uuid: mockInterviewUuid1, status: 'success' as const }]
             };
 
             (execJob as jest.Mock).mockResolvedValue(mockResult);
 
             const result = await BatchAuditService.runBatchAudits({}, false, 123);
 
-            expect(execJob).toHaveBeenCalledWith('runBatchAudits', [
-                {
-                    filters: {},
-                    extended: false,
-                    userId: 123
-                }
-            ]);
+            expect(execJob).toHaveBeenCalledWith('runBatchAudits', [{ filters: {}, extended: false, userId: 123 }]);
             expect(isOk(result)).toBe(true);
             if (isOk(result)) {
                 expect(result.result).toEqual(mockResult);
@@ -823,31 +579,15 @@ describe('BatchAuditService', () => {
         });
 
         it('should pass filters and extended flag correctly', async () => {
-            const mockResult = {
-                totalCount: 0,
-                processed: 0,
-                succeeded: 0,
-                failed: 0,
-                results: []
-            };
+            const mockResult = { totalCount: 0, processed: 0, succeeded: 0, failed: 0, results: [] };
 
             (execJob as jest.Mock).mockResolvedValue(mockResult);
 
-            const filters = {
-                'response.accessCode': 'ABC123',
-                'response.household.size': { value: 2, op: 'eq' }
-            };
+            const filters = { 'response.accessCode': 'ABC123', 'response.household.size': { value: 2, op: 'eq' } };
 
             await BatchAuditService.runBatchAudits(filters, true, 456);
 
-            expect(execJob).toHaveBeenCalledWith('runBatchAudits', [
-                {
-                    filters,
-                    extended: true,
-                    userId: 456
-                }
-            ]);
+            expect(execJob).toHaveBeenCalledWith('runBatchAudits', [{ filters, extended: true, userId: 456 }]);
         });
     });
 });
-

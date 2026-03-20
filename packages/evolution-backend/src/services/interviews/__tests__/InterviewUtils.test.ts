@@ -10,9 +10,7 @@ import moment from 'moment';
 
 // Mock moment.unix to return a consistent value for testing
 jest.mock('moment', () => {
-    const mockMoment = jest.fn(() => ({
-        unix: jest.fn(() => 1234567890)
-    })) as any;
+    const mockMoment = jest.fn(() => ({ unix: jest.fn(() => 1234567890) })) as any;
     mockMoment.unix = jest.fn(() => mockMoment());
     return mockMoment;
 });
@@ -23,10 +21,9 @@ describe('mapResponseToCorrectedResponse', () => {
             response: { accessCode: '2222', newField: { foo: 'bar' } },
             validations: { accessCode: { is_valid: false }, response: false }
         };
-        const unsetPaths = [ 'response', 'validations' ];
+        const unsetPaths = ['response', 'validations'];
 
-        const { valuesByPath: updatedValues, unsetPaths: updatedUnsetPaths } =
-            mapResponseToCorrectedResponse(valuesByPath, unsetPaths);
+        const { valuesByPath: updatedValues, unsetPaths: updatedUnsetPaths } = mapResponseToCorrectedResponse(valuesByPath, unsetPaths);
 
         expect(updatedValues).toEqual({
             corrected_response: { accessCode: '2222', newField: { foo: 'bar' } },
@@ -42,12 +39,11 @@ describe('mapResponseToCorrectedResponse', () => {
             'validations.accessCode.is_valid': false,
             'validations.response': false,
             'response2.notToBeModified': true,
-            'response2': 'notToBeModified'
+            response2: 'notToBeModified'
         };
-        const unsetPaths = [ 'response.accessCode', 'response2', 'response2.notToBeModified' ];
+        const unsetPaths = ['response.accessCode', 'response2', 'response2.notToBeModified'];
 
-        const { valuesByPath: updatedValues, unsetPaths: updatedUnsetPaths } =
-            mapResponseToCorrectedResponse(valuesByPath, unsetPaths);
+        const { valuesByPath: updatedValues, unsetPaths: updatedUnsetPaths } = mapResponseToCorrectedResponse(valuesByPath, unsetPaths);
 
         expect(updatedValues).toEqual({
             'corrected_response.accessCode': '2222',
@@ -55,7 +51,7 @@ describe('mapResponseToCorrectedResponse', () => {
             'validations.accessCode.is_valid': false,
             'validations.response': false,
             'response2.notToBeModified': true,
-            'response2': 'notToBeModified'
+            response2: 'notToBeModified'
         });
         expect(updatedUnsetPaths).toEqual(['corrected_response.accessCode', 'response2', 'response2.notToBeModified']);
     });
@@ -65,25 +61,15 @@ describe('handleUserActionSideEffect', () => {
     test('sectionChange action without iteration context', () => {
         const interview = {
             id: 'interview-1',
-            response: {
-                _sections: {
-                    _actions: [
-                        { section: 'section1', action: 'start', ts: 1234567880 }
-                    ]
-                }
-            }
+            response: { _sections: { _actions: [{ section: 'section1', action: 'start', ts: 1234567880 }] } }
         } as any;
 
         const valuesByPath = {};
 
         const userAction = {
             type: 'sectionChange' as const,
-            targetSection: {
-                sectionShortname: 'section2'
-            },
-            previousSection: {
-                sectionShortname: 'section1'
-            }
+            targetSection: { sectionShortname: 'section2' },
+            previousSection: { sectionShortname: 'section1' }
         };
 
         const result = handleUserActionSideEffect(interview, _cloneDeep(valuesByPath), userAction);
@@ -101,27 +87,15 @@ describe('handleUserActionSideEffect', () => {
     test('sectionChange action with iteration context', () => {
         const interview = {
             id: 'interview-1',
-            response: {
-                _sections: {
-                    _actions: [
-                        { section: 'section1', iterationContext: ['0'], action: 'start', ts: 1234567880 }
-                    ]
-                }
-            }
+            response: { _sections: { _actions: [{ section: 'section1', iterationContext: ['0'], action: 'start', ts: 1234567880 }] } }
         } as any;
 
         const valuesByPath = { 'response.someField': 'someValue', 'validations.someField': true };
 
         const userAction = {
             type: 'sectionChange' as const,
-            targetSection: {
-                sectionShortname: 'section2',
-                iterationContext: ['person', '1']
-            },
-            previousSection: {
-                sectionShortname: 'section1',
-                iterationContext: ['0']
-            }
+            targetSection: { sectionShortname: 'section2', iterationContext: ['person', '1'] },
+            previousSection: { sectionShortname: 'section1', iterationContext: ['0'] }
         };
 
         const result = handleUserActionSideEffect(interview, _cloneDeep(valuesByPath), userAction);
@@ -139,21 +113,11 @@ describe('handleUserActionSideEffect', () => {
     });
 
     test('widgetInteraction action (should not modify values)', () => {
-        const interview = {
-            id: 'interview-1',
-            response: {}
-        } as any;
+        const interview = { id: 'interview-1', response: {} } as any;
 
-        const valuesByPath = {
-            'response.someField2': 'someValue'
-        };
+        const valuesByPath = { 'response.someField2': 'someValue' };
 
-        const userAction = {
-            type: 'widgetInteraction' as const,
-            widgetType: 'string',
-            path: 'response.someField',
-            value: 'newValue'
-        };
+        const userAction = { type: 'widgetInteraction' as const, widgetType: 'string', path: 'response.someField', value: 'newValue' };
 
         const result = handleUserActionSideEffect(interview, _cloneDeep(valuesByPath), userAction);
 
@@ -162,18 +126,13 @@ describe('handleUserActionSideEffect', () => {
     });
 
     test('sectionChange action with no previous section', () => {
-        const interview = {
-            id: 'interview-1',
-            response: {}
-        } as any;
+        const interview = { id: 'interview-1', response: {} } as any;
 
         const valuesByPath = {};
 
         const userAction = {
             type: 'sectionChange' as const,
-            targetSection: {
-                sectionShortname: 'section1'
-            }
+            targetSection: { sectionShortname: 'section1' }
             // No previousSection
         };
 
@@ -181,30 +140,19 @@ describe('handleUserActionSideEffect', () => {
 
         expect(result).toEqual({
             'response._sections.section1._startedAt': 1234567890,
-            'response._sections._actions': [
-                { section: 'section1', action: 'start', ts: 1234567890 }
-            ]
+            'response._sections._actions': [{ section: 'section1', action: 'start', ts: 1234567890 }]
         });
     });
 
     test('languageChange action', () => {
-        const interview = {
-            id: 'interview-1',
-            response: {}
-        } as any;
+        const interview = { id: 'interview-1', response: {} } as any;
 
         const valuesByPath = { 'response.someField': 'someValue' };
 
-        const userAction = {
-            type: 'languageChange' as const,
-            language: 'fr'
-        };
+        const userAction = { type: 'languageChange' as const, language: 'fr' };
 
         const result = handleUserActionSideEffect(interview, _cloneDeep(valuesByPath), userAction);
 
-        expect(result).toEqual({
-            ...valuesByPath,
-            'response._language': 'fr'
-        });
+        expect(result).toEqual({ ...valuesByPath, 'response._language': 'fr' });
     });
 });

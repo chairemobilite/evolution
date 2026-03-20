@@ -20,29 +20,18 @@ describe('AuditService', () => {
     const mockHouseholdUuid = uuidV4();
     const mockHomeUuid = uuidV4();
 
-    const createMockInterview = (): InterviewAttributes => ({
-        id: 123,
-        uuid: mockInterviewUuid,
-        participant_id: 456,
-        is_valid: false,
-        is_completed: false,
-        response: {
-            _uuid: mockInterviewUuid,
-            household: {
-                _uuid: mockHouseholdUuid,
-                size: 2
-            }
-        },
-        corrected_response: {
-            _uuid: mockInterviewUuid,
-            household: {
-                _uuid: mockHouseholdUuid,
-                size: 2
-            }
-        },
-        validations: {},
-        logs: []
-    } as InterviewAttributes);
+    const createMockInterview = (): InterviewAttributes =>
+        ({
+            id: 123,
+            uuid: mockInterviewUuid,
+            participant_id: 456,
+            is_valid: false,
+            is_completed: false,
+            response: { _uuid: mockInterviewUuid, household: { _uuid: mockHouseholdUuid, size: 2 } },
+            corrected_response: { _uuid: mockInterviewUuid, household: { _uuid: mockHouseholdUuid, size: 2 } },
+            validations: {},
+            logs: []
+        }) as InterviewAttributes;
 
     beforeEach(() => {
         jest.clearAllMocks();
@@ -69,17 +58,19 @@ describe('AuditService', () => {
                 }
             });
 
-        (SurveyObjectAuditor.auditSurveyObjects as jest.Mock) = jest.fn().mockResolvedValue([
-            {
-                objectType: 'interview',
-                objectUuid: mockInterviewUuid,
-                errorCode: 'TEST_AUDIT',
-                version: 1,
-                level: 'warning',
-                message: 'Test audit',
-                ignore: false
-            }
-        ]);
+        (SurveyObjectAuditor.auditSurveyObjects as jest.Mock) = jest
+            .fn()
+            .mockResolvedValue([
+                {
+                    objectType: 'interview',
+                    objectUuid: mockInterviewUuid,
+                    errorCode: 'TEST_AUDIT',
+                    version: 1,
+                    level: 'warning',
+                    message: 'Test audit',
+                    ignore: false
+                }
+            ]);
     });
 
     describe('auditInterview', () => {
@@ -89,12 +80,7 @@ describe('AuditService', () => {
 
             const result = await AuditService.auditInterview(interview);
 
-            expect(result).toEqual({
-                audits: [],
-                interview: undefined,
-                household: undefined,
-                home: undefined
-            });
+            expect(result).toEqual({ audits: [], interview: undefined, household: undefined, home: undefined });
             expect(SurveyObjectsFactory.prototype.createAllObjectsWithErrors).not.toHaveBeenCalled();
             expect(SurveyObjectAuditor.auditSurveyObjects).not.toHaveBeenCalled();
         });
@@ -105,12 +91,7 @@ describe('AuditService', () => {
 
             const result = await AuditService.auditInterview(interview);
 
-            expect(result).toEqual({
-                audits: [],
-                interview: undefined,
-                household: undefined,
-                home: undefined
-            });
+            expect(result).toEqual({ audits: [], interview: undefined, household: undefined, home: undefined });
             expect(SurveyObjectsFactory.prototype.createAllObjectsWithErrors).not.toHaveBeenCalled();
             expect(SurveyObjectAuditor.auditSurveyObjects).not.toHaveBeenCalled();
         });
@@ -121,11 +102,7 @@ describe('AuditService', () => {
             await AuditService.auditInterview(interview);
 
             expect(SurveyObjectAuditor.auditSurveyObjects).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    interview: expect.any(Object),
-                    household: expect.any(Object),
-                    home: expect.any(Object)
-                }),
+                expect.objectContaining({ interview: expect.any(Object), household: expect.any(Object), home: expect.any(Object) }),
                 false
             );
         });
@@ -136,11 +113,7 @@ describe('AuditService', () => {
             await AuditService.auditInterview(interview, true);
 
             expect(SurveyObjectAuditor.auditSurveyObjects).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    interview: expect.any(Object),
-                    household: expect.any(Object),
-                    home: expect.any(Object)
-                }),
+                expect.objectContaining({ interview: expect.any(Object), household: expect.any(Object), home: expect.any(Object) }),
                 true
             );
         });
@@ -151,11 +124,7 @@ describe('AuditService', () => {
             await AuditService.auditInterview(interview, false);
 
             expect(SurveyObjectAuditor.auditSurveyObjects).toHaveBeenCalledWith(
-                expect.objectContaining({
-                    interview: expect.any(Object),
-                    household: expect.any(Object),
-                    home: expect.any(Object)
-                }),
+                expect.objectContaining({ interview: expect.any(Object), household: expect.any(Object), home: expect.any(Object) }),
                 false
             );
         });
@@ -183,12 +152,7 @@ describe('AuditService', () => {
                     interviewUuid: mockInterviewUuid,
                     householdUuid: mockHouseholdUuid,
                     homeUuid: mockHomeUuid,
-                    interview: [
-                        {
-                            path: 'test.path',
-                            message: 'Parameter error'
-                        }
-                    ],
+                    interview: [{ path: 'test.path', message: 'Parameter error' }],
                     household: [],
                     home: [],
                     personsByUuid: {},
@@ -208,4 +172,3 @@ describe('AuditService', () => {
         });
     });
 });
-

@@ -23,7 +23,7 @@ describe('SchoolPlace', () => {
         _uuid: uuidV4(),
         shortname: 'sample-shortname',
         name: 'Sample Weight Method',
-        description: 'Sample weight method description',
+        description: 'Sample weight method description'
     };
 
     const validPlaceAttributes: { [key: string]: unknown } = {
@@ -41,14 +41,7 @@ describe('SchoolPlace', () => {
         lastAction: 'findPlace',
         deviceUsed: 'tablet',
         zoom: 15,
-        geography: {
-            type: 'Feature',
-            geometry: {
-                type: 'Point',
-                coordinates: [0, 0],
-            },
-            properties: {},
-        },
+        geography: { type: 'Feature', geometry: { type: 'Point', coordinates: [0, 0] }, properties: {} },
         _weights: [{ weight: 1.2, method: new WeightMethod(weightMethodAttributes) }],
         _isValid: true
     };
@@ -56,13 +49,13 @@ describe('SchoolPlace', () => {
     const validSchoolPlaceAttributes: { [key: string]: unknown } = {
         ...validPlaceAttributes,
         parkingType: 'interiorAssignedOrGuaranteed',
-        parkingFeeType: 'paidByEmployee',
+        parkingFeeType: 'paidByEmployee'
     };
 
     const extendedSchoolPlaceAttributes: { [key: string]: unknown } = {
         ...validSchoolPlaceAttributes,
         customAttribute1: 'value1',
-        customAttribute2: 'value2',
+        customAttribute2: 'value2'
     };
 
     test('should create a SchoolPlace instance with valid attributes', () => {
@@ -73,13 +66,15 @@ describe('SchoolPlace', () => {
 
     test('should have a validateParams section for each attribute', () => {
         const validateParamsCode = SchoolPlace.validateParams.toString();
-        placeAttributes.filter((attribute) => attribute !== '_uuid' && attribute !== '_weights').forEach((attributeName) => {
-            expect(validateParamsCode).toContain('\''+attributeName+'\'');
-        });
+        placeAttributes
+            .filter((attribute) => attribute !== '_uuid' && attribute !== '_weights')
+            .forEach((attributeName) => {
+                expect(validateParamsCode).toContain('\'' + attributeName + '\'');
+            });
     });
 
     test('should get uuid', () => {
-        const place = new SchoolPlace({ ...validSchoolPlaceAttributes, _uuid: '11b78eb3-a5d8-484d-805d-1f947160bb9e' }, registry    );
+        const place = new SchoolPlace({ ...validSchoolPlaceAttributes, _uuid: '11b78eb3-a5d8-484d-805d-1f947160bb9e' }, registry);
         expect(place._uuid).toBe('11b78eb3-a5d8-484d-805d-1f947160bb9e');
     });
 
@@ -93,7 +88,7 @@ describe('SchoolPlace', () => {
         const invalidAttributes = 'foo' as any;
         const result = SchoolPlace.create(invalidAttributes, registry);
         expect(hasErrors(result)).toBe(true);
-        expect((unwrap(result) as Error[])).toHaveLength(1);
+        expect(unwrap(result) as Error[]).toHaveLength(1);
     });
 
     test('should create a SchoolPlace instance with extended attributes', () => {
@@ -133,14 +128,8 @@ describe('SchoolPlace', () => {
     });
 
     test('should create a SchoolPlace instance with custom attributes', () => {
-        const customAttributes = {
-            customAttribute1: 'value1',
-            customAttribute2: 'value2',
-        };
-        const placeAttributes = {
-            ...validPlaceAttributes,
-            ...customAttributes,
-        };
+        const customAttributes = { customAttribute1: 'value1', customAttribute2: 'value2' };
+        const placeAttributes = { ...validPlaceAttributes, ...customAttributes };
         const place = new SchoolPlace(placeAttributes, registry);
         expect(place).toBeInstanceOf(SchoolPlace);
         expect(place.attributes).toEqual(validPlaceAttributes);
@@ -150,7 +139,7 @@ describe('SchoolPlace', () => {
     describe('validateParams', () => {
         test.each([
             ['parkingType', 123],
-            ['parkingFeeType', 123],
+            ['parkingFeeType', 123]
         ])('should return an error for invalid %s', (param, value) => {
             const invalidAttributes = { ...validSchoolPlaceAttributes, [param]: value };
             const errors = SchoolPlace.validateParams(invalidAttributes);
@@ -169,14 +158,7 @@ describe('SchoolPlace', () => {
             ['parkingType', 'streetside'],
             ['parkingFeeType', 'paidByStudent'],
             ['preData', { importedSchoolPlaceData: 'value', studentCount: 250 }],
-            ['preGeography', {
-                type: 'Feature',
-                geometry: {
-                    type: 'Point',
-                    coordinates: [-73.7, 45.7],
-                },
-                properties: {},
-            }],
+            ['preGeography', { type: 'Feature', geometry: { type: 'Point', coordinates: [-73.7, 45.7] }, properties: {} }]
         ])('should set and get %s', (attribute, value) => {
             const schoolPlace = new SchoolPlace(validSchoolPlaceAttributes, registry);
             schoolPlace[attribute] = value;
@@ -186,11 +168,14 @@ describe('SchoolPlace', () => {
         describe('Getters for attributes with no setters', () => {
             test.each([
                 ['_uuid', validSchoolPlaceAttributes._uuid],
-                ['customAttributes', {
-                    customAttribute1: extendedSchoolPlaceAttributes.customAttribute1,
-                    customAttribute2: extendedSchoolPlaceAttributes.customAttribute2
-                }],
-                ['attributes', validSchoolPlaceAttributes],
+                [
+                    'customAttributes',
+                    {
+                        customAttribute1: extendedSchoolPlaceAttributes.customAttribute1,
+                        customAttribute2: extendedSchoolPlaceAttributes.customAttribute2
+                    }
+                ],
+                ['attributes', validSchoolPlaceAttributes]
             ])('should set and get %s', (attribute, value) => {
                 const schoolPlace = new SchoolPlace(extendedSchoolPlaceAttributes, registry);
                 expect(schoolPlace[attribute]).toEqual(value);
@@ -199,7 +184,7 @@ describe('SchoolPlace', () => {
 
         test.each([
             ['_isValid', false],
-            ['_weights', [{ weight: 2.0, method: new WeightMethod(weightMethodAttributes) }]],
+            ['_weights', [{ weight: 2.0, method: new WeightMethod(weightMethodAttributes) }]]
         ])('should set and get %s', (attribute, value) => {
             const schoolPlace = new SchoolPlace(validSchoolPlaceAttributes, registry);
             schoolPlace[attribute] = value;
@@ -217,14 +202,7 @@ describe('SchoolPlace', () => {
         });
 
         test('should preserve preGeography through (un)serialize', () => {
-            const preGeography = {
-                type: 'Feature' as const,
-                geometry: {
-                    type: 'Point' as const,
-                    coordinates: [-73.7, 45.7],
-                },
-                properties: {},
-            };
+            const preGeography = { type: 'Feature' as const, geometry: { type: 'Point' as const, coordinates: [-73.7, 45.7] }, properties: {} };
             const attrs = { ...validSchoolPlaceAttributes, preGeography };
             const sp1 = new SchoolPlace(attrs, registry);
             const sp2 = SchoolPlace.unserialize(attrs, registry);

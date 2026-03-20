@@ -28,7 +28,7 @@ describe('Interview - validateParams', () => {
         interestRange: 43,
         difficultyRange: 300,
         burdenRange: 200,
-        consideredAbandoning: 'yes',
+        consideredAbandoning: 'yes'
     };
 
     it('should validate valid params', () => {
@@ -169,13 +169,9 @@ describe('Interview - validateParams', () => {
         expect(errors).toHaveLength(0);
     });
 
-    it ('should validate with valid paradata', () => {
-        const params = {
-            ...validParams,
-            paradata: { startedAt: 123456789 }
-        };
+    it('should validate with valid paradata', () => {
+        const params = { ...validParams, paradata: { startedAt: 123456789 } };
         const errors = validateParams(params, { id: 1, participant_id: 1 } as any);
         expect(errors).toHaveLength(0);
     });
-
 });

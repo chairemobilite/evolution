@@ -26,7 +26,7 @@ jest.mock('remark-gfm', () => 'remark-gfm');
 const userAttributes = {
     id: 1,
     username: 'foo',
-    preferences: {  },
+    preferences: {},
     serializedPermissions: [],
     isAuthorized: () => true,
     is_admin: false,
@@ -34,11 +34,7 @@ const userAttributes = {
     showUserInfo: true
 };
 
-const commonWidgetConfig: ButtonWidgetConfig = {
-    type: 'button' as const,
-    label: 'label',
-    action: jest.fn()
-};
+const commonWidgetConfig: ButtonWidgetConfig = { type: 'button' as const, label: 'label', action: jest.fn() };
 
 const defaultWidgetStatus: WidgetStatus = {
     path: 'foo',
@@ -66,29 +62,27 @@ beforeEach(() => {
 
 each([
     ['Default values', commonWidgetConfig],
-    ['All values set', {
-        ...commonWidgetConfig,
-        label: 'newLabel',
-        hideWhenRefreshing: true,
-        containsHtml: true,
-        color: 'red',
-        iconPath: 'path/to/somewhere',
-        align: 'right',
-        saveCallback: jest.fn(),
-        confirmPopup: {
-            title: 'popupTitle',
-            content: 'popupContent',
-        },
-        size: 'small',
-        conditional: jest.fn()
-    }],
+    [
+        'All values set',
+        {
+            ...commonWidgetConfig,
+            label: 'newLabel',
+            hideWhenRefreshing: true,
+            containsHtml: true,
+            color: 'red',
+            iconPath: 'path/to/somewhere',
+            align: 'right',
+            saveCallback: jest.fn(),
+            confirmPopup: { title: 'popupTitle', content: 'popupContent' },
+            size: 'small',
+            conditional: jest.fn()
+        }
+    ]
 ]).describe('Button widget: %s', (_widget, widgetConfig) => {
-
     test('Render widget', () => {
-
         const { container } = render(
             <Button
-                path='home.region'
+                path="home.region"
                 widgetConfig={widgetConfig}
                 interview={runtimeInterviewAttributes}
                 user={userAttributes}
@@ -107,7 +101,7 @@ each([
     test('Widget accessibility', async () => {
         const { container } = render(
             <Button
-                path='home.region'
+                path="home.region"
                 widgetConfig={widgetConfig}
                 interview={runtimeInterviewAttributes}
                 user={userAttributes}
@@ -130,7 +124,7 @@ test('Widget invisible, should be null', () => {
     widgetStatus.isVisible = false;
     const { container } = render(
         <Button
-            path='home.region'
+            path="home.region"
             widgetConfig={commonWidgetConfig}
             interview={runtimeInterviewAttributes}
             user={userAttributes}
@@ -150,11 +144,8 @@ test('Widget loading, should be disabled', () => {
     // Set hideWhenRefreshing to true and loadingState to 1
     const { container } = render(
         <Button
-            path='home.region'
-            widgetConfig={{
-                ...commonWidgetConfig,
-                hideWhenRefreshing: true
-            }}
+            path="home.region"
+            widgetConfig={{ ...commonWidgetConfig, hideWhenRefreshing: true }}
             interview={runtimeInterviewAttributes}
             user={userAttributes}
             widgetStatus={defaultWidgetStatus}
@@ -171,19 +162,21 @@ test('Widget loading, should be disabled', () => {
 
 describe('Button widget: behavioral tests', () => {
     test('Button click, no modal', async () => {
-        render(<Button
-            path='home.region'
-            section='test'
-            loadingState={0}
-            widgetConfig={commonWidgetConfig}
-            interview={runtimeInterviewAttributes}
-            user={userAttributes}
-            widgetStatus={defaultWidgetStatus}
-            startUpdateInterview={startUpdateInterviewMock}
-            startAddGroupedObjects={startAddGroupedObjectsMock}
-            startRemoveGroupedObjects={startRemoveGroupedObjectsMock}
-            startNavigate={startNavigateMock}
-        />);
+        render(
+            <Button
+                path="home.region"
+                section="test"
+                loadingState={0}
+                widgetConfig={commonWidgetConfig}
+                interview={runtimeInterviewAttributes}
+                user={userAttributes}
+                widgetStatus={defaultWidgetStatus}
+                startUpdateInterview={startUpdateInterviewMock}
+                startAddGroupedObjects={startAddGroupedObjectsMock}
+                startRemoveGroupedObjects={startRemoveGroupedObjectsMock}
+                startNavigate={startNavigateMock}
+            />
+        );
         const user = userEvent.setup();
 
         // Find and click (with mousedown/mouseup) on the button itself and make sure the action has been called
@@ -192,12 +185,19 @@ describe('Button widget: behavioral tests', () => {
 
         // The next action should have been called
         expect(commonWidgetConfig.action).toHaveBeenCalledTimes(1);
-        expect(commonWidgetConfig.action).toHaveBeenCalledWith({
-            startUpdateInterview: expect.any(Function),
-            startAddGroupedObjects: startAddGroupedObjectsMock,
-            startRemoveGroupedObjects: startRemoveGroupedObjectsMock,
-            startNavigate: expect.any(Function)
-        }, runtimeInterviewAttributes, 'home.region', 'test', {}, undefined);
+        expect(commonWidgetConfig.action).toHaveBeenCalledWith(
+            {
+                startUpdateInterview: expect.any(Function),
+                startAddGroupedObjects: startAddGroupedObjectsMock,
+                startRemoveGroupedObjects: startRemoveGroupedObjectsMock,
+                startNavigate: expect.any(Function)
+            },
+            runtimeInterviewAttributes,
+            'home.region',
+            'test',
+            {},
+            undefined
+        );
     });
 
     test('Button click, adding user action', async () => {
@@ -206,23 +206,22 @@ describe('Button widget: behavioral tests', () => {
         const actionFunction: ButtonWidgetConfig['action'] = jest.fn().mockImplementation((callbacks: InterviewUpdateCallbacks, _i, _p, section) => {
             callbacks.startUpdateInterview({ sectionShortname: section, valuesByPath: testValuesByPath });
         });
-        const widgetConfig = {
-            ...commonWidgetConfig,
-            action: actionFunction
-        }
-        render(<Button
-            path='home.region'
-            section='test'
-            loadingState={0}
-            widgetConfig={widgetConfig}
-            interview={runtimeInterviewAttributes}
-            user={userAttributes}
-            widgetStatus={defaultWidgetStatus}
-            startUpdateInterview={startUpdateInterviewMock}
-            startAddGroupedObjects={startAddGroupedObjectsMock}
-            startRemoveGroupedObjects={startRemoveGroupedObjectsMock}
-            startNavigate={startNavigateMock}
-        />);
+        const widgetConfig = { ...commonWidgetConfig, action: actionFunction };
+        render(
+            <Button
+                path="home.region"
+                section="test"
+                loadingState={0}
+                widgetConfig={widgetConfig}
+                interview={runtimeInterviewAttributes}
+                user={userAttributes}
+                widgetStatus={defaultWidgetStatus}
+                startUpdateInterview={startUpdateInterviewMock}
+                startAddGroupedObjects={startAddGroupedObjectsMock}
+                startRemoveGroupedObjects={startRemoveGroupedObjectsMock}
+                startNavigate={startNavigateMock}
+            />
+        );
         const user = userEvent.setup();
 
         // Find and click (with mousedown/mouseup) on the button itself and make sure the action has been called
@@ -231,32 +230,29 @@ describe('Button widget: behavioral tests', () => {
 
         // The next action should have been called
         expect(actionFunction).toHaveBeenCalledTimes(1);
-        expect(actionFunction).toHaveBeenCalledWith({
-            startUpdateInterview: expect.any(Function),
-            startAddGroupedObjects: startAddGroupedObjectsMock,
-            startRemoveGroupedObjects: startRemoveGroupedObjectsMock,
-            startNavigate: expect.any(Function)
-        }, runtimeInterviewAttributes, 'home.region', 'test', {}, undefined);
+        expect(actionFunction).toHaveBeenCalledWith(
+            {
+                startUpdateInterview: expect.any(Function),
+                startAddGroupedObjects: startAddGroupedObjectsMock,
+                startRemoveGroupedObjects: startRemoveGroupedObjectsMock,
+                startNavigate: expect.any(Function)
+            },
+            runtimeInterviewAttributes,
+            'home.region',
+            'test',
+            {},
+            undefined
+        );
         expect(startUpdateInterviewMock).toHaveBeenCalledTimes(1);
-        expect(startUpdateInterviewMock).toHaveBeenCalledWith({
-            sectionShortname: 'test',
-            valuesByPath: testValuesByPath,
-            userAction: {
-                type: 'buttonClick',
-                buttonId: 'home.region'
-            }
-        }, undefined);
+        expect(startUpdateInterviewMock).toHaveBeenCalledWith(
+            { sectionShortname: 'test', valuesByPath: testValuesByPath, userAction: { type: 'buttonClick', buttonId: 'home.region' } },
+            undefined
+        );
     });
 
     test('Button click, with modal, confirmed', async () => {
         const modalTitle = 'popupTitle';
-        const widgetConfig = {
-            ...commonWidgetConfig,
-            confirmPopup: {
-                title: modalTitle,
-                content: 'popupContent',
-            },
-        }
+        const widgetConfig = { ...commonWidgetConfig, confirmPopup: { title: modalTitle, content: 'popupContent' } };
         const initialProps = {
             path: 'home.region',
             section: 'test',
@@ -269,10 +265,8 @@ describe('Button widget: behavioral tests', () => {
             startAddGroupedObjects: startAddGroupedObjectsMock,
             startRemoveGroupedObjects: startRemoveGroupedObjectsMock,
             startNavigate: startNavigateMock
-        }
-        render(<Button
-            {...initialProps}
-        />);
+        };
+        render(<Button {...initialProps} />);
         const user = userEvent.setup();
 
         // Find and click on the button itself and make sure the action has been called
@@ -289,23 +283,24 @@ describe('Button widget: behavioral tests', () => {
 
         // The action should have been called
         expect(commonWidgetConfig.action).toHaveBeenCalledTimes(1);
-        expect(commonWidgetConfig.action).toHaveBeenCalledWith({
-            startUpdateInterview: expect.any(Function),
-            startAddGroupedObjects: startAddGroupedObjectsMock,
-            startRemoveGroupedObjects: startRemoveGroupedObjectsMock,
-            startNavigate: expect.any(Function)
-        }, runtimeInterviewAttributes, 'home.region', 'test', {}, undefined);
+        expect(commonWidgetConfig.action).toHaveBeenCalledWith(
+            {
+                startUpdateInterview: expect.any(Function),
+                startAddGroupedObjects: startAddGroupedObjectsMock,
+                startRemoveGroupedObjects: startRemoveGroupedObjectsMock,
+                startNavigate: expect.any(Function)
+            },
+            runtimeInterviewAttributes,
+            'home.region',
+            'test',
+            {},
+            undefined
+        );
     });
 
     test('Button click, with modal, cancelled', async () => {
         const modalTitle = 'popupTitle';
-        const widgetConfig = {
-            ...commonWidgetConfig,
-            confirmPopup: {
-                title: modalTitle,
-                content: 'popupContent',
-            },
-        }
+        const widgetConfig = { ...commonWidgetConfig, confirmPopup: { title: modalTitle, content: 'popupContent' } };
         const initialProps = {
             path: 'home.region',
             section: 'test',
@@ -318,10 +313,8 @@ describe('Button widget: behavioral tests', () => {
             startAddGroupedObjects: startAddGroupedObjectsMock,
             startRemoveGroupedObjects: startRemoveGroupedObjectsMock,
             startNavigate: startNavigateMock
-        }
-        render(<Button
-            {...initialProps}
-        />);
+        };
+        render(<Button {...initialProps} />);
         const user = userEvent.setup();
 
         // Find and click on the button itself and make sure the action has been called
@@ -344,10 +337,7 @@ describe('Button widget: behavioral tests', () => {
 
     test('With loading state and mouse downed and hideWhenRefreshing to true', async () => {
         // Create the original widget
-        const widgetConfig = {
-            ...commonWidgetConfig,
-            hideWhenRefreshing: true
-        };
+        const widgetConfig = { ...commonWidgetConfig, hideWhenRefreshing: true };
         const initialProps = {
             path: 'home.region',
             section: 'test',
@@ -361,9 +351,7 @@ describe('Button widget: behavioral tests', () => {
             startRemoveGroupedObjects: startRemoveGroupedObjectsMock,
             startNavigate: startNavigateMock
         };
-        const { rerender } = render(<Button
-            {...initialProps}
-        />);
+        const { rerender } = render(<Button {...initialProps} />);
 
         // Find and click on the button itself and make sure the action has been called
         expect(screen.getByRole('button')).toBeInTheDocument();
@@ -371,23 +359,24 @@ describe('Button widget: behavioral tests', () => {
         // Simulate the mousedown
         fireEvent.mouseDown(button);
 
-        rerender(<Button
-            {...initialProps}
-            loadingState = {1}
-        />);
+        rerender(<Button {...initialProps} loadingState={1} />);
         expect(commonWidgetConfig.action).not.toHaveBeenCalled();
 
         // Decrement the loading state to 0 again, it should trigger the action
-        rerender(<Button
-            {...initialProps}
-            loadingState = {0}
-        />);
+        rerender(<Button {...initialProps} loadingState={0} />);
         expect(commonWidgetConfig.action).toHaveBeenCalledTimes(1);
-        expect(commonWidgetConfig.action).toHaveBeenCalledWith({
-            startUpdateInterview: expect.any(Function),
-            startAddGroupedObjects: startAddGroupedObjectsMock,
-            startRemoveGroupedObjects: startRemoveGroupedObjectsMock,
-            startNavigate: expect.any(Function)
-        }, runtimeInterviewAttributes, 'home.region', 'test', {}, undefined);
+        expect(commonWidgetConfig.action).toHaveBeenCalledWith(
+            {
+                startUpdateInterview: expect.any(Function),
+                startAddGroupedObjects: startAddGroupedObjectsMock,
+                startRemoveGroupedObjects: startRemoveGroupedObjectsMock,
+                startNavigate: expect.any(Function)
+            },
+            runtimeInterviewAttributes,
+            'home.region',
+            'test',
+            {},
+            undefined
+        );
     });
 });

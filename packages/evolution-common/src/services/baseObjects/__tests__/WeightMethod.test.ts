@@ -14,7 +14,7 @@ describe('WeightMethod', () => {
         _uuid: validUUID,
         shortname: 'ShortName',
         name: 'Test Weight Method',
-        description: 'Description of the weight method',
+        description: 'Description of the weight method'
     };
 
     it('should create a new WeightMethod instance', () => {
@@ -27,11 +27,7 @@ describe('WeightMethod', () => {
     });
 
     it('should create a new WeightMethod instance with minimal attributes', () => {
-        const minimalAttributes: WeightMethodAttributes = {
-            _uuid: validUUID,
-            shortname: 'ShortName',
-            name: 'Minimal Test Weight Method',
-        };
+        const minimalAttributes: WeightMethodAttributes = { _uuid: validUUID, shortname: 'ShortName', name: 'Minimal Test Weight Method' };
 
         const weightMethod = new WeightMethod(minimalAttributes);
         expect(weightMethod).toBeInstanceOf(WeightMethod);
@@ -40,18 +36,11 @@ describe('WeightMethod', () => {
         expect(weightMethod.name).toEqual('Minimal Test Weight Method');
         expect(weightMethod.description).toBeUndefined();
     });
-
-
 });
 
 describe('WeightMethod validateParams', () => {
     it('should return an empty array for valid params', () => {
-        const validParams = {
-            _uuid: uuidV4(),
-            name: 'Valid Weight Method',
-            shortname: 'VWM',
-            description: 'A valid weight method.',
-        };
+        const validParams = { _uuid: uuidV4(), name: 'Valid Weight Method', shortname: 'VWM', description: 'A valid weight method.' };
 
         const errors = WeightMethod.validateParams(validParams);
 
@@ -63,7 +52,7 @@ describe('WeightMethod validateParams', () => {
             _uuid: 12345, // Invalid UUID
             name: 123, // Should be a string
             shortname: 123, // Should be a string
-            description: 123, // Should be a string
+            description: 123 // Should be a string
         };
 
         const errors = WeightMethod.validateParams(invalidParams);
@@ -72,7 +61,7 @@ describe('WeightMethod validateParams', () => {
             new Error('Uuidable validateParams: _uuid should be a valid uuid'),
             new Error('WeightMethod validateParams: name should be a string'),
             new Error('WeightMethod validateParams: shortname should be a string'),
-            new Error('WeightMethod validateParams: description should be a string'),
+            new Error('WeightMethod validateParams: description should be a string')
         ]);
     });
 
@@ -85,7 +74,7 @@ describe('WeightMethod validateParams', () => {
 
         expect(errors).toEqual([
             new Error('WeightMethod validateParams: name is required'),
-            new Error('WeightMethod validateParams: shortname is required'),
+            new Error('WeightMethod validateParams: shortname is required')
         ]);
     });
 });

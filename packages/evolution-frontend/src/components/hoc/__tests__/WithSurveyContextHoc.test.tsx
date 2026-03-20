@@ -41,22 +41,24 @@ export const BaseTestComponent: React.FunctionComponent<{}> = (props: {}) => {
     const [devMode, dispatchSurvey] = React.useReducer(surveyReducer, { devMode: false });
     return (
         <SurveyContext.Provider value={{ sections: testSections, widgets: {}, ...devMode, dispatch: dispatchSurvey }}>
-            <TestComponentWithContext foo='This is a test component'/>
+            <TestComponentWithContext foo="This is a test component" />
         </SurveyContext.Provider>
     );
 };
-  
+
 class TestComponent extends React.Component<TestProps & WithSurveyContextProps> {
     public render() {
-        return <div>{Object.keys(this.props.surveyContext.sections)} {this.props.surveyContext.devMode === false ? 'normal' : 'dev' } {this.props.foo}</div>
+        return (
+            <div>
+                {Object.keys(this.props.surveyContext.sections)} {this.props.surveyContext.devMode === false ? 'normal' : 'dev'} {this.props.foo}
+            </div>
+        );
     }
 }
 
 const TestComponentWithContext = withSurveyContext(TestComponent);
 
 test('Test HOC', () => {
-    const { container } = render(
-        <BaseTestComponent/>
-    );
+    const { container } = render(<BaseTestComponent />);
     expect(container).toMatchSnapshot();
-})
+});

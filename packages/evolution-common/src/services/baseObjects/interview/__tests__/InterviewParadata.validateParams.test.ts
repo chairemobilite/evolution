@@ -15,23 +15,25 @@ describe('InterviewParadata - InterviewParadata.validateParams', () => {
         source: 'web',
         personsRandomSequence: ['uuid1', 'uuid2'],
         languages: [{ language: 'en', startTimestamp: 1632929461, endTimestamp: 1632930461 }],
-        browsers: [{
-            _ua: 'Mozilla/5.0',
-            browser: { name: 'Chrome', version: '93.0' },
-            engine: { name: 'Blink', version: '93.0' },
-            os: { name: 'Windows', version: '10', versionName: 'Windows 10' },
-            platform: { type: 'desktop', vendor: 'Microsoft', model: 'PC' },
-            startTimestamp: 1632929461,
-            endTimestamp: 1632930461
-        }],
-        sections: {
-            home: [{
+        browsers: [
+            {
+                _ua: 'Mozilla/5.0',
+                browser: { name: 'Chrome', version: '93.0' },
+                engine: { name: 'Blink', version: '93.0' },
+                os: { name: 'Windows', version: '10', versionName: 'Windows 10' },
+                platform: { type: 'desktop', vendor: 'Microsoft', model: 'PC' },
                 startTimestamp: 1632929461,
-                endTimestamp: 1632930461,
-                widgets: {
-                    widgetShortname: [{ startTimestamp: 1632929461, endTimestamp: 1632930461 }]
+                endTimestamp: 1632930461
+            }
+        ],
+        sections: {
+            home: [
+                {
+                    startTimestamp: 1632929461,
+                    endTimestamp: 1632930461,
+                    widgets: { widgetShortname: [{ startTimestamp: 1632929461, endTimestamp: 1632930461 }] }
                 }
-            }]
+            ]
         }
     };
 
@@ -40,7 +42,7 @@ describe('InterviewParadata - InterviewParadata.validateParams', () => {
         expect(errors).toHaveLength(0);
     });
 
-    it ('should accept empty params', () => {
+    it('should accept empty params', () => {
         const params = {};
         const errors = InterviewParadata.validateParams(params);
         expect(errors).toHaveLength(0);
@@ -77,25 +79,18 @@ describe('InterviewParadata - InterviewParadata.validateParams', () => {
     });
 
     it('should validate with empty sections array', () => {
-        const params = {
-            ...validParams,
-            sections: {}
-        };
+        const params = { ...validParams, sections: {} };
         const errors = InterviewParadata.validateParams(params);
         expect(errors).toHaveLength(0);
     });
 
     it('should validate with empty languages array', () => {
-        const params = {
-            ...validParams,
-            languages: []
-        };
+        const params = { ...validParams, languages: [] };
         const errors = InterviewParadata.validateParams(params);
         expect(errors).toHaveLength(0);
     });
 
     describe('Languages validation', () => {
-
         it('should make sure languages is an array', () => {
             const params = { ...validParams, languages: 'not-an-array' };
             const errors = InterviewParadata.validateParams(params);
@@ -122,7 +117,6 @@ describe('InterviewParadata - InterviewParadata.validateParams', () => {
     });
 
     describe('Browsers validation', () => {
-
         it('should make sure browsers is an array', () => {
             const params = { ...validParams, browsers: 'not-an-array' };
             const errors = InterviewParadata.validateParams(params);
@@ -142,7 +136,10 @@ describe('InterviewParadata - InterviewParadata.validateParams', () => {
         });
 
         it('should validate browser version field', () => {
-            const params = { ...validParams, browsers: [{ ...validParams.browsers[0], browser: { ...validParams.browsers[0].browser, version: 123 } }] };
+            const params = {
+                ...validParams,
+                browsers: [{ ...validParams.browsers[0], browser: { ...validParams.browsers[0].browser, version: 123 } }]
+            };
             const errors = InterviewParadata.validateParams(params);
             expect(errors.some((e) => e.message.includes('browsers.[0].browser.version'))).toBe(true);
         });
@@ -154,7 +151,10 @@ describe('InterviewParadata - InterviewParadata.validateParams', () => {
         });
 
         it('should validate engine version field', () => {
-            const params = { ...validParams, browsers: [{ ...validParams.browsers[0], engine: { ...validParams.browsers[0].engine, version: 123 } }] };
+            const params = {
+                ...validParams,
+                browsers: [{ ...validParams.browsers[0], engine: { ...validParams.browsers[0].engine, version: 123 } }]
+            };
             const errors = InterviewParadata.validateParams(params);
             expect(errors.some((e) => e.message.includes('browsers.[0].engine.version'))).toBe(true);
         });
@@ -178,19 +178,28 @@ describe('InterviewParadata - InterviewParadata.validateParams', () => {
         });
 
         it('should validate platform type field', () => {
-            const params = { ...validParams, browsers: [{ ...validParams.browsers[0], platform: { ...validParams.browsers[0].platform, type: 123 } }] };
+            const params = {
+                ...validParams,
+                browsers: [{ ...validParams.browsers[0], platform: { ...validParams.browsers[0].platform, type: 123 } }]
+            };
             const errors = InterviewParadata.validateParams(params);
             expect(errors.some((e) => e.message.includes('browsers.[0].platform.type'))).toBe(true);
         });
 
         it('should validate platform vendor field', () => {
-            const params = { ...validParams, browsers: [{ ...validParams.browsers[0], platform: { ...validParams.browsers[0].platform, vendor: 123 } }] };
+            const params = {
+                ...validParams,
+                browsers: [{ ...validParams.browsers[0], platform: { ...validParams.browsers[0].platform, vendor: 123 } }]
+            };
             const errors = InterviewParadata.validateParams(params);
             expect(errors.some((e) => e.message.includes('browsers.[0].platform.vendor'))).toBe(true);
         });
 
         it('should validate platform model field', () => {
-            const params = { ...validParams, browsers: [{ ...validParams.browsers[0], platform: { ...validParams.browsers[0].platform, model: 123 } }] };
+            const params = {
+                ...validParams,
+                browsers: [{ ...validParams.browsers[0], platform: { ...validParams.browsers[0].platform, model: 123 } }]
+            };
             const errors = InterviewParadata.validateParams(params);
             expect(errors.some((e) => e.message.includes('browsers.[0].platform.model'))).toBe(true);
         });
@@ -209,19 +218,10 @@ describe('InterviewParadata - InterviewParadata.validateParams', () => {
     });
 
     describe('Sections validation (legacy format)', () => {
-
         it('should accept legacy sections format with _actions and section objects', () => {
             const params = {
                 ...validParams,
-                sections: {
-                    _actions: [
-                        { section: 'home', action: 'start', ts: 1632929461 }
-                    ],
-                    home: {
-                        _startedAt: 1632929461,
-                        _isCompleted: true
-                    }
-                }
+                sections: { _actions: [{ section: 'home', action: 'start', ts: 1632929461 }], home: { _startedAt: 1632929461, _isCompleted: true } }
             };
             const errors = InterviewParadata.validateParams(params);
             expect(errors).toHaveLength(0);
@@ -231,19 +231,11 @@ describe('InterviewParadata - InterviewParadata.validateParams', () => {
             const params = {
                 ...validParams,
                 sections: {
-                    tripsIntro: {
-                        _startedAt: 1632929461,
-                        _isCompleted: true,
-                        'person/uuid1': {
-                            _startedAt: 1632929461,
-                            _isCompleted: true
-                        }
-                    }
+                    tripsIntro: { _startedAt: 1632929461, _isCompleted: true, 'person/uuid1': { _startedAt: 1632929461, _isCompleted: true } }
                 }
             };
             const errors = InterviewParadata.validateParams(params);
             expect(errors).toHaveLength(0);
         });
     });
-
 });

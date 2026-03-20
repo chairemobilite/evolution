@@ -15,15 +15,13 @@ import * as surveyHelper from '../../../../odSurvey/helpers';
 
 import { shouldShowSameAsReverseTripQuestion, getPreviousTripSingleSegment } from '../helpers';
 
-jest.mock('../helpers', () => ({
-    shouldShowSameAsReverseTripQuestion: jest.fn(),
-    getPreviousTripSingleSegment: jest.fn()
-}));
-const mockedShouldShowSameAsReverseTripQuestion = shouldShowSameAsReverseTripQuestion as jest.MockedFunction<typeof shouldShowSameAsReverseTripQuestion>;
+jest.mock('../helpers', () => ({ shouldShowSameAsReverseTripQuestion: jest.fn(), getPreviousTripSingleSegment: jest.fn() }));
+const mockedShouldShowSameAsReverseTripQuestion = shouldShowSameAsReverseTripQuestion as jest.MockedFunction<
+    typeof shouldShowSameAsReverseTripQuestion
+>;
 const mockedGetPreviousTripSingleSegment = getPreviousTripSingleSegment as jest.MockedFunction<typeof getPreviousTripSingleSegment>;
 
 describe('getSameAsReverseTripWidgetConfig', () => {
-
     test('should return the correct widget config', () => {
         const widgetConfig = getSameAsReverseTripWidgetConfig();
         expect(widgetConfig).toEqual({
@@ -34,20 +32,13 @@ describe('getSameAsReverseTripWidgetConfig', () => {
             datatype: 'boolean',
             label: expect.any(Function),
             choices: [
-                expect.objectContaining({
-                    value: true,
-                    label: expect.any(Function)
-                }),
-                expect.objectContaining({
-                    value: false,
-                    label: expect.any(Function),
-                }),
+                expect.objectContaining({ value: true, label: expect.any(Function) }),
+                expect.objectContaining({ value: false, label: expect.any(Function) })
             ],
             validations: expect.any(Function),
             conditional: expect.any(Function)
         });
     });
-
 });
 
 describe('sameAsReverseTripWidget choice labels', () => {
@@ -68,7 +59,6 @@ describe('sameAsReverseTripWidget choice labels', () => {
 });
 
 describe('sameAsReverseTripWidget conditional', () => {
-
     const widgetConfig = getSameAsReverseTripWidgetConfig({}) as QuestionWidgetConfig & InputRadioType;
     const conditional = widgetConfig.conditional;
     const segmentPath = 'household.persons.personId2.journeys.journeyId2.trips.tripId1P2.segments.segmentId1P2T1';
@@ -95,7 +85,6 @@ describe('sameAsReverseTripWidget conditional', () => {
 });
 
 describe('sameAsReverseTripWidget validations', () => {
-
     // Prepare test data with active person/journey/trip
     const interview = _cloneDeep(interviewAttributesForTestCases);
 
@@ -103,25 +92,46 @@ describe('sameAsReverseTripWidget validations', () => {
     const validations = widgetConfig.validations;
 
     test('Valid response', () => {
-        expect(validations!(true, null, interview, 'household.persons.personId2.journeys.journeyId2.trips.tripId1P2.segments.segmentId1P2T1.sameModeAsReverseTrip'))
-            .toEqual([{ validation: false, errorMessage: expect.anything() }]);
-        expect(validations!(false, null, interview, 'household.persons.personId2.journeys.journeyId2.trips.tripId1P2.segments.segmentId1P2T1.sameModeAsReverseTrip'))
-            .toEqual([{ validation: false, errorMessage: expect.anything() }]);
+        expect(
+            validations!(
+                true,
+                null,
+                interview,
+                'household.persons.personId2.journeys.journeyId2.trips.tripId1P2.segments.segmentId1P2T1.sameModeAsReverseTrip'
+            )
+        ).toEqual([{ validation: false, errorMessage: expect.anything() }]);
+        expect(
+            validations!(
+                false,
+                null,
+                interview,
+                'household.persons.personId2.journeys.journeyId2.trips.tripId1P2.segments.segmentId1P2T1.sameModeAsReverseTrip'
+            )
+        ).toEqual([{ validation: false, errorMessage: expect.anything() }]);
     });
 
     test('empty response', () => {
-        expect(validations!(null, null, interview, 'household.persons.personId2.journeys.journeyId2.trips.tripId1P2.segments.segmentId1P2T1.sameModeAsReverseTrip'))
-            .toEqual([{ validation: true, errorMessage: expect.anything() }]);
+        expect(
+            validations!(
+                null,
+                null,
+                interview,
+                'household.persons.personId2.journeys.journeyId2.trips.tripId1P2.segments.segmentId1P2T1.sameModeAsReverseTrip'
+            )
+        ).toEqual([{ validation: true, errorMessage: expect.anything() }]);
     });
 
     test('should return the right error message', () => {
-        const validation = validations!(null, null, interview, 'household.persons.personId2.journeys.journeyId2.trips.tripId1P2.segments.segmentId1P2T1.sameModeAsReverseTrip');
+        const validation = validations!(
+            null,
+            null,
+            interview,
+            'household.persons.personId2.journeys.journeyId2.trips.tripId1P2.segments.segmentId1P2T1.sameModeAsReverseTrip'
+        );
         const mockedT = jest.fn();
         translateString(validation[0].errorMessage, { t: mockedT } as any, interview, 'path');
         expect(mockedT).toHaveBeenCalledWith(['customSurvey:ResponseIsRequired', 'survey:ResponseIsRequired']);
     });
-
-
 });
 
 describe('sameAsReverseTripWidget label', () => {
@@ -145,7 +155,13 @@ describe('sameAsReverseTripWidget label', () => {
         baseTestInterview.response._activeTripId = 'tripId2P1';
 
         // Return the previous segment
-        mockedGetPreviousTripSingleSegment.mockReturnValueOnce({ _isNew: false, modePre: 'walk', mode: 'walk', _uuid: 'segmentId1P1T1', _sequence: 1 });
+        mockedGetPreviousTripSingleSegment.mockReturnValueOnce({
+            _isNew: false,
+            modePre: 'walk',
+            mode: 'walk',
+            _uuid: 'segmentId1P1T1',
+            _sequence: 1
+        });
 
         // Add a context
         const context = 'currentContext';

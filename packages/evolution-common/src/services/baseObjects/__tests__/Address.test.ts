@@ -11,7 +11,6 @@ import { isOk, hasErrors, unwrap } from '../../../types/Result.type';
 import { SurveyObjectsRegistry } from '../SurveyObjectsRegistry';
 
 describe('Address', () => {
-
     let registry: SurveyObjectsRegistry;
 
     beforeEach(() => {
@@ -44,9 +43,11 @@ describe('Address', () => {
      */
     test('should have a validateParams section for each attribute', () => {
         const validateParamsCode = Address.validateParams.toString();
-        addressAttributes.filter((attribute) => attribute !== '_uuid').forEach((attributeName) => {
-            expect(validateParamsCode).toContain('\'' + attributeName + '\'');
-        });
+        addressAttributes
+            .filter((attribute) => attribute !== '_uuid')
+            .forEach((attributeName) => {
+                expect(validateParamsCode).toContain('\'' + attributeName + '\'');
+            });
     });
 
     test('should get uuid', () => {
@@ -64,7 +65,7 @@ describe('Address', () => {
         const invalidAttributes = 'foo' as any;
         const result = Address.create(invalidAttributes);
         expect(hasErrors(result)).toBe(true);
-        expect((unwrap(result) as Error[])).toHaveLength(1);
+        expect(unwrap(result) as Error[]).toHaveLength(1);
     });
 
     test('should create an Address instance with valid attributes', () => {
@@ -104,13 +105,8 @@ describe('Address', () => {
     });
 
     test('should create an Address instance with custom attributes', () => {
-        const customAttributes: { [key: string]: unknown } = {
-            customAttribute: 'custom value',
-        };
-        const addressAttributes: ExtendedAddressAttributes = {
-            ...validAddressAttributes,
-            ...customAttributes,
-        };
+        const customAttributes: { [key: string]: unknown } = { customAttribute: 'custom value' };
+        const addressAttributes: ExtendedAddressAttributes = { ...validAddressAttributes, ...customAttributes };
         const address = new Address(addressAttributes);
         expect(address).toBeInstanceOf(Address);
         expect(address.attributes).toEqual(validAddressAttributes);
@@ -152,13 +148,12 @@ describe('Address', () => {
             ['postalCode', 'X9Y 8Z7'],
             ['postalId', 'new-postal-id'],
             ['combinedAddressUuid', uuidV4()],
-            ['_isValid', false],
+            ['_isValid', false]
         ])('should set and get %s', (attribute, value) => {
             const address = new Address(validAddressAttributes);
             address[attribute] = value;
             expect(address[attribute]).toEqual(value);
         });
-
     });
 
     describe('validateParams', () => {
@@ -177,7 +172,7 @@ describe('Address', () => {
             ['streetNameHomogenized', 123],
             ['combinedStreetUuid', 'invalid-uuid'],
             ['municipalityCode', 123],
-            ['postalMunicipalityName', 123],
+            ['postalMunicipalityName', 123]
         ])('should return an error for invalid %s', (param, value) => {
             const invalidAttributes = { ...validAddressAttributes, [param]: value };
             const errors = Address.validateParams(invalidAttributes);
@@ -188,7 +183,7 @@ describe('Address', () => {
         describe('Getters for attributes with no setters', () => {
             test.each([
                 ['_uuid', validAddressAttributes._uuid],
-                ['attributes', validAddressAttributes],
+                ['attributes', validAddressAttributes]
             ])('should set and get %s', (attribute, value) => {
                 const address = new Address(validAddressAttributes);
                 expect(address[attribute]).toEqual(value);

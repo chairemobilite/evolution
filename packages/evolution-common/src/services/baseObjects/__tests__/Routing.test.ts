@@ -11,7 +11,6 @@ import { isOk, hasErrors, unwrap } from '../../../types/Result.type';
 import { SurveyObjectsRegistry } from '../SurveyObjectsRegistry';
 
 describe('Routing', () => {
-
     let registry: SurveyObjectsRegistry;
 
     beforeEach(() => {
@@ -28,13 +27,10 @@ describe('Routing', () => {
         mode: 'walking',
         status: 'success',
         travelTimeS: 3600,
-        travelDistanceM: 5000,
+        travelDistanceM: 5000
     };
 
-    const extendedAttributes: { [key: string]: unknown } = {
-        ...validAttributes,
-        customAttribute: 'custom value',
-    };
+    const extendedAttributes: { [key: string]: unknown } = { ...validAttributes, customAttribute: 'custom value' };
 
     test('should create a Routing instance with valid attributes', () => {
         const routing = new Routing(validAttributes);
@@ -64,7 +60,7 @@ describe('Routing', () => {
         const invalidAttributes = 'foo' as any;
         const result = Routing.create(invalidAttributes);
         expect(hasErrors(result)).toBe(true);
-        expect((unwrap(result) as Error[])).toHaveLength(1);
+        expect(unwrap(result) as Error[]).toHaveLength(1);
     });
 
     test('should create a Routing instance with extended attributes', () => {
@@ -112,7 +108,7 @@ describe('Routing', () => {
             ['mode', 123],
             ['status', 123],
             ['travelTimeS', -1],
-            ['travelDistanceM', -1],
+            ['travelDistanceM', -1]
         ])('should return an error for invalid %s', (param, value) => {
             const invalidAttributes = { ...validAttributes, [param]: value };
             const errors = Routing.validateParams(invalidAttributes);
@@ -135,7 +131,7 @@ describe('Routing', () => {
             ['mode', 'cycling'],
             ['status', 'noRoutingFound'],
             ['travelTimeS', 5400],
-            ['travelDistanceM', 7000],
+            ['travelDistanceM', 7000]
         ])('should set and get %s', (attribute, value) => {
             const routing = new Routing(validAttributes);
             routing[attribute] = value;
@@ -147,7 +143,7 @@ describe('Routing', () => {
         test.each([
             ['_uuid', extendedAttributes._uuid],
             ['customAttributes', { customAttribute: extendedAttributes.customAttribute }],
-            ['attributes', validAttributes],
+            ['attributes', validAttributes]
         ])('should set and get %s', (attribute, value) => {
             const routing = new Routing(extendedAttributes);
             expect(routing[attribute]).toEqual(value);

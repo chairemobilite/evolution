@@ -18,15 +18,8 @@ describe('InterviewParadata - Getters and Setters', () => {
             source: 'web',
             personsRandomSequence: ['uuid1', 'uuid2'],
             languages: [{ language: 'en', startTimestamp: 1632929461, endTimestamp: 1632930461 }],
-            browsers: [{
-                _ua: 'Mozilla/5.0',
-                browser: { name: 'Chrome', version: '93.0' },
-                startTimestamp: 1632929461,
-                endTimestamp: 1632930461
-            }],
-            sections: {
-                'section1': [{ startTimestamp: 1632929461, endTimestamp: 1632930461, widgets: {} }]
-            }
+            browsers: [{ _ua: 'Mozilla/5.0', browser: { name: 'Chrome', version: '93.0' }, startTimestamp: 1632929461, endTimestamp: 1632930461 }],
+            sections: { section1: [{ startTimestamp: 1632929461, endTimestamp: 1632930461, widgets: {} }] }
         };
         const result = InterviewParadata.create(validParams) as Result<InterviewParadata>;
         if (isOk(result)) {
@@ -92,12 +85,9 @@ describe('InterviewParadata - Getters and Setters', () => {
         expect(paradata.browsers).toHaveLength(1);
         expect(paradata.browsers?.[0].browser?.name).toBe('Chrome');
 
-        const newBrowsers = [{
-            _ua: 'Mozilla/5.0',
-            browser: { name: 'Firefox', version: '92.0' },
-            startTimestamp: 1632930462,
-            endTimestamp: 1632931462
-        }];
+        const newBrowsers = [
+            { _ua: 'Mozilla/5.0', browser: { name: 'Firefox', version: '92.0' }, startTimestamp: 1632930462, endTimestamp: 1632931462 }
+        ];
         paradata.browsers = newBrowsers;
         expect(paradata.browsers).toEqual(newBrowsers);
 
@@ -114,14 +104,7 @@ describe('InterviewParadata - Getters and Setters', () => {
                 { section: 'section2', action: 'start', ts: 1632930462 },
                 { section: 'section2', action: 'end', ts: 1632931462 }
             ],
-            'section2': {
-                _startedAt: 1632930462,
-                _isCompleted: true,
-                'person/uuid1': {
-                    _startedAt: 1632930462,
-                    _isCompleted: true
-                }
-            }
+            section2: { _startedAt: 1632930462, _isCompleted: true, 'person/uuid1': { _startedAt: 1632930462, _isCompleted: true } }
         };
         paradata.sections = newSections;
         expect(paradata.sections).toEqual(newSections);
@@ -129,5 +112,4 @@ describe('InterviewParadata - Getters and Setters', () => {
         paradata.sections = undefined;
         expect(paradata.sections).toEqual({});
     });
-
 });

@@ -15,40 +15,33 @@ import { Mode } from '../../../../odSurvey/types';
 import { getTripSegmentsIntro } from '../widgetTripSegmentsIntro';
 import { getButtonSaveTripSegmentsConfig } from '../buttonSaveTripSegments';
 
-const segmentSectionConfig = {
-    type: 'segments' as const,
-    enabled: true
-};
+const segmentSectionConfig = { type: 'segments' as const, enabled: true };
 
 describe('PersonsTripsGroupConfigFactory widgets', () => {
-
-    test.each([
-        'personTrips',
-        'segmentIntro',
-        'buttonSaveTrip'
-    ])('should have a widget named %s', (widgetName) => {
+    test.each(['personTrips', 'segmentIntro', 'buttonSaveTrip'])('should have a widget named %s', (widgetName) => {
         const widgetConfigs = new PersonTripsGroupConfigFactory(segmentSectionConfig, widgetFactoryOptions).getWidgetConfigs();
         const widgetNames = Object.keys(widgetConfigs);
         expect(widgetNames).toContain(widgetName);
     });
-    
+
     describe('should also have all the extra widgets from the segments group', () => {
-        const testSegmentSectionConfig = { ...segmentSectionConfig, modesIncludeOnly: ['walking', 'bicycle'] as Mode[]};
+        const testSegmentSectionConfig = { ...segmentSectionConfig, modesIncludeOnly: ['walking', 'bicycle'] as Mode[] };
         const segmentGroupConfig = new SegmentsGroupConfigFactory(testSegmentSectionConfig, widgetFactoryOptions).getWidgetConfigs();
 
         // Make sure there are widgets, then test each one
         const segmentGroupWidgetNames = Object.keys(segmentGroupConfig);
-        test('there should be widgets in the segments group', () =>  {
+        test('there should be widgets in the segments group', () => {
             expect(segmentGroupWidgetNames.length).toBeGreaterThan(0);
         });
 
-        test.each(
-            segmentGroupWidgetNames.map(widgetName => ({ widgetName, expected: segmentGroupConfig[widgetName] }))
-        )('should have the segment group widget named $widgetName', ({ widgetName, expected }: { widgetName: string, expected: WidgetConfig }) => {
-            const widgetConfigs = new PersonTripsGroupConfigFactory(testSegmentSectionConfig, widgetFactoryOptions).getWidgetConfigs();
-            const widgetConfig = widgetConfigs[widgetName];
-            expect(maskFunctions(widgetConfig)).toEqual(maskFunctions(expected));
-        });
+        test.each(segmentGroupWidgetNames.map((widgetName) => ({ widgetName, expected: segmentGroupConfig[widgetName] })))(
+            'should have the segment group widget named $widgetName',
+            ({ widgetName, expected }: { widgetName: string; expected: WidgetConfig }) => {
+                const widgetConfigs = new PersonTripsGroupConfigFactory(testSegmentSectionConfig, widgetFactoryOptions).getWidgetConfigs();
+                const widgetConfig = widgetConfigs[widgetName];
+                expect(maskFunctions(widgetConfig)).toEqual(maskFunctions(expected));
+            }
+        );
     });
 
     test('should not return extra widgets', () => {
@@ -65,21 +58,41 @@ describe('PersonsTripsGroupConfigFactory widgets', () => {
     });
 
     test.each([
-        { widgetName: 'segmentIntro', segmentSectionConfig, expected: (config: SegmentSectionConfiguration) => getTripSegmentsIntro(widgetFactoryOptions) },
-        { widgetName: 'buttonSaveTrip', segmentSectionConfig: { ...segmentSectionConfig, modesIncludeOnly: ['walking', 'bicycle'] as Mode[]}, expected: (config: SegmentSectionConfiguration) => getButtonSaveTripSegmentsConfig(widgetFactoryOptions) },
-    ])('should return the correct widget config for $widgetName', ({ widgetName, segmentSectionConfig, expected }: { widgetName: string, segmentSectionConfig: SegmentSectionConfiguration, expected: (config: SegmentSectionConfiguration) => WidgetConfig }) => {
-        const widgetConfigs = new PersonTripsGroupConfigFactory(segmentSectionConfig, widgetFactoryOptions).getWidgetConfigs();
-        const widgetConfig = widgetConfigs[widgetName];
-        const expectedWidgetConfig = expected(segmentSectionConfig);
-        expect(maskFunctions(widgetConfig)).toEqual(maskFunctions(expectedWidgetConfig));
-    });
+        {
+            widgetName: 'segmentIntro',
+            segmentSectionConfig,
+            expected: (config: SegmentSectionConfiguration) => getTripSegmentsIntro(widgetFactoryOptions)
+        },
+        {
+            widgetName: 'buttonSaveTrip',
+            segmentSectionConfig: { ...segmentSectionConfig, modesIncludeOnly: ['walking', 'bicycle'] as Mode[] },
+            expected: (config: SegmentSectionConfiguration) => getButtonSaveTripSegmentsConfig(widgetFactoryOptions)
+        }
+    ])(
+        'should return the correct widget config for $widgetName',
+        ({
+            widgetName,
+            segmentSectionConfig,
+            expected
+        }: {
+            widgetName: string;
+            segmentSectionConfig: SegmentSectionConfiguration;
+            expected: (config: SegmentSectionConfiguration) => WidgetConfig;
+        }) => {
+            const widgetConfigs = new PersonTripsGroupConfigFactory(segmentSectionConfig, widgetFactoryOptions).getWidgetConfigs();
+            const widgetConfig = widgetConfigs[widgetName];
+            const expectedWidgetConfig = expected(segmentSectionConfig);
+            expect(maskFunctions(widgetConfig)).toEqual(maskFunctions(expectedWidgetConfig));
+        }
+    );
 });
 
 describe('PersonsTripsGroupConfigFactory main group config', () => {
-    const widgetConfig = new PersonTripsGroupConfigFactory(segmentSectionConfig, widgetFactoryOptions).getWidgetConfigs()['personTrips'] as GroupConfig;
-    
-    describe('getPersonsTripsGroupConfig', () => {
+    const widgetConfig = new PersonTripsGroupConfigFactory(segmentSectionConfig, widgetFactoryOptions).getWidgetConfigs()[
+        'personTrips'
+    ] as GroupConfig;
 
+    describe('getPersonsTripsGroupConfig', () => {
         test('should return the correct widget config', () => {
             expect(widgetConfig).toEqual({
                 type: 'group',
@@ -89,14 +102,9 @@ describe('PersonsTripsGroupConfigFactory main group config', () => {
                 showTitle: false,
                 showGroupedObjectDeleteButton: false,
                 showGroupedObjectAddButton: false,
-                widgets: [
-                    'segmentIntro',
-                    'segments',
-                    'buttonSaveTrip'
-                ]
+                widgets: ['segmentIntro', 'segments', 'buttonSaveTrip']
             });
         });
-
     });
 
     describe('getPersonsTripsGroupConfig labels', () => {
@@ -107,19 +115,15 @@ describe('PersonsTripsGroupConfigFactory main group config', () => {
             utilHelpers.translateString(title, { t: mockedT } as any, interviewAttributesForTestCases, 'path');
             expect(mockedT).toHaveBeenCalledWith(['customSurvey:segments:TripsTitle', 'segments:TripsTitle']);
         });
-
     });
 
     describe('getPersonsTripsGroupConfig filter', () => {
         jest.spyOn(utilHelpers, 'getResponse').mockReturnValue({});
         const mockedGetResponse = utilHelpers.getResponse as jest.MockedFunction<typeof utilHelpers.getResponse>;
-        
+
         const filter = widgetConfig.filter;
 
-        const groupedObjects = {
-            trip1: { _uuid: 'trip1', _sequence: 1 },
-            trip2: { _uuid: 'trip2', _sequence: 2 }
-        }
+        const groupedObjects = { trip1: { _uuid: 'trip1', _sequence: 1 }, trip2: { _uuid: 'trip2', _sequence: 2 } };
 
         beforeEach(() => {
             jest.clearAllMocks();
@@ -127,13 +131,13 @@ describe('PersonsTripsGroupConfigFactory main group config', () => {
 
         test('should return empty element is no active trip ID', () => {
             mockedGetResponse.mockReturnValue(null);
-            expect(filter!(interviewAttributesForTestCases, groupedObjects)).toEqual({})
+            expect(filter!(interviewAttributesForTestCases, groupedObjects)).toEqual({});
             expect(mockedGetResponse).toHaveBeenCalledWith(interviewAttributesForTestCases, '_activeTripId', null);
         });
 
         test('should return empty object if active trip ID does not exist in group objects', () => {
             mockedGetResponse.mockReturnValue(null);
-            expect(filter!(interviewAttributesForTestCases, groupedObjects)).toEqual({})
+            expect(filter!(interviewAttributesForTestCases, groupedObjects)).toEqual({});
             expect(mockedGetResponse).toHaveBeenCalledWith(interviewAttributesForTestCases, '_activeTripId', null);
         });
 
@@ -142,7 +146,5 @@ describe('PersonsTripsGroupConfigFactory main group config', () => {
             expect(filter!(interviewAttributesForTestCases, groupedObjects)).toEqual({ trip1: groupedObjects.trip1 });
             expect(mockedGetResponse).toHaveBeenCalledWith(interviewAttributesForTestCases, '_activeTripId', null);
         });
-
     });
-
 });

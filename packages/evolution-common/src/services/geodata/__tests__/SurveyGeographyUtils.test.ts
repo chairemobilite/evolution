@@ -8,12 +8,15 @@ import * as turf from '@turf/turf';
 import { pointsToBezierCurve } from '../SurveyGeographyUtils';
 import { isFeature, isLineString } from 'geojson-validation';
 
-
 describe('pointsToBezierCurve', () => {
     describe('pointsToBezierCurve', () => {
         it('should throw an error if less than 2 points are provided', () => {
-            expect(() => pointsToBezierCurve([], { superposedSequence: 0, additionalProperties: {} })).toThrow('There must be at least 2 points to convert to a bezier curve');
-            expect(() => pointsToBezierCurve([turf.point([0, 0]).geometry], { superposedSequence: 0, additionalProperties: {} })).toThrow('There must be at least 2 points to convert to a bezier curve');
+            expect(() => pointsToBezierCurve([], { superposedSequence: 0, additionalProperties: {} })).toThrow(
+                'There must be at least 2 points to convert to a bezier curve'
+            );
+            expect(() => pointsToBezierCurve([turf.point([0, 0]).geometry], { superposedSequence: 0, additionalProperties: {} })).toThrow(
+                'There must be at least 2 points to convert to a bezier curve'
+            );
         });
 
         it('should return a bezier curve feature from a 2 points array', () => {

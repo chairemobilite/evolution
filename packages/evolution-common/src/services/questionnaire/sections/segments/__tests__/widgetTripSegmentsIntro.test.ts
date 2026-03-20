@@ -30,33 +30,24 @@ const mockedGetCountOrSelfDeclared = odHelpers.getCountOrSelfDeclared as jest.Mo
 
 beforeEach(() => {
     jest.clearAllMocks();
-})
+});
 
 describe('getTripSegmentsIntro', () => {
     it('should return the correct widget config', () => {
-
-        const options = {
-            context: jest.fn()
-        };
+        const options = { context: jest.fn() };
 
         const widgetConfig = getTripSegmentsIntro(options);
 
-        expect(widgetConfig).toEqual({
-            type: 'text',
-            text: expect.any(Function)
-        });
+        expect(widgetConfig).toEqual({ type: 'text', text: expect.any(Function) });
     });
 });
 
 describe('tripSegmentsIntro text', () => {
-
-    const options = {
-        context: jest.fn()
-    };
+    const options = { context: jest.fn() };
 
     const widgetText = getTripSegmentsIntro(options).text as any;
     const mockedT = jest.fn().mockReturnValue('translatedString');
-   
+
     test('should return empty if no person', () => {
         mockedGetPerson.mockReturnValueOnce(null);
         expect(widgetText(mockedT, interviewAttributesForTestCases, 'path')).toEqual('');
@@ -159,5 +150,4 @@ describe('tripSegmentsIntro text', () => {
         });
         expect(options.context).toHaveBeenCalledWith('work');
     });
-
 });

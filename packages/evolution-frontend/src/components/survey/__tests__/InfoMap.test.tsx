@@ -22,7 +22,7 @@ jest.mock('remark-gfm', () => 'remark-gfm');
 const userAttributes = {
     id: 1,
     username: 'foo',
-    preferences: {  },
+    preferences: {},
     serializedPermissions: [],
     isAuthorized: () => true,
     is_admin: false,
@@ -30,11 +30,7 @@ const userAttributes = {
     showUserInfo: true
 };
 
-const commonWidgetConfig = {
-    type: 'infoMap' as const,
-    title: 'title',
-    geojsons: {}
-};
+const commonWidgetConfig = { type: 'infoMap' as const, title: 'title', geojsons: {} };
 
 const defaultWidgetStatus: WidgetStatus = {
     path: 'foo',
@@ -57,23 +53,24 @@ beforeEach(() => {
 
 each([
     ['Default values', commonWidgetConfig],
-    ['All values set', {
-        ...commonWidgetConfig,
-        path: 'home.region',
-        conditional: jest.fn(),
-        defaultCenter: { lat: 0, lon: 0 },
-        maxZoom: 18,
-        defaultZoom: 16,
-        linestringColor: 'blue',
-        linestringActiveColor: 'red'
-    }],
+    [
+        'All values set',
+        {
+            ...commonWidgetConfig,
+            path: 'home.region',
+            conditional: jest.fn(),
+            defaultCenter: { lat: 0, lon: 0 },
+            maxZoom: 18,
+            defaultZoom: 16,
+            linestringColor: 'blue',
+            linestringActiveColor: 'red'
+        }
+    ]
 ]).describe('Button widget: %s', (_widget, widgetConfig) => {
-
     test('Render widget', () => {
-
         const { container } = render(
             <InfoMap
-                path='home.region'
+                path="home.region"
                 widgetConfig={widgetConfig}
                 interview={interviewAttributes}
                 user={userAttributes}
@@ -86,7 +83,7 @@ each([
     test('Widget accessibility', async () => {
         const { container } = render(
             <InfoMap
-                path='home.region'
+                path="home.region"
                 widgetConfig={widgetConfig}
                 interview={interviewAttributes}
                 user={userAttributes}

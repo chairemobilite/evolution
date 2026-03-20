@@ -67,7 +67,6 @@ describe('Audit Locales', () => {
                 expect(translation.trim()).not.toBe(''); // Translation should not be empty
             });
         });
-
     });
 
     describe('Orphaned audit translations', () => {
@@ -84,14 +83,14 @@ describe('Audit Locales', () => {
 
         // Define the mapping between prefixes and audit check modules
         const auditCheckModules: { [prefix: string]: Record<string, unknown> } = {
-            'I_': interviewAuditChecks,
-            'HM_': homeAuditChecks,
-            'HH_': householdAuditChecks,
-            'J_': journeyAuditChecks,
-            'P_': personAuditChecks,
-            'S_': segmentAuditChecks,
-            'T_': tripAuditChecks,
-            'VP_': visitedPlaceAuditChecks
+            I_: interviewAuditChecks,
+            HM_: homeAuditChecks,
+            HH_: householdAuditChecks,
+            J_: journeyAuditChecks,
+            P_: personAuditChecks,
+            S_: segmentAuditChecks,
+            T_: tripAuditChecks,
+            VP_: visitedPlaceAuditChecks
         };
 
         describe.each(languages)('Language: %s', (language) => {
@@ -138,9 +137,7 @@ describe('Audit Locales', () => {
                     Object.assign(auditCheckModules, originalModules);
                     getTranslationKeysFromFile = originalGetKeys;
                 }
-
             });
         });
     });
-
 });

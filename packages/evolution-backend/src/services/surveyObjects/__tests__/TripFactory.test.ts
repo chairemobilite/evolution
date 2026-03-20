@@ -16,18 +16,13 @@ import { createOk, createErrors } from 'evolution-common/lib/types/Result.type';
 import { SurveyObjectsRegistry } from 'evolution-common/lib/services/baseObjects/SurveyObjectsRegistry';
 
 // Mock dependencies
-jest.mock('evolution-common/lib/services/baseObjects/Trip', () => ({
-    Trip: {
-        create: jest.fn()
-    }
-}));
+jest.mock('evolution-common/lib/services/baseObjects/Trip', () => ({ Trip: { create: jest.fn() } }));
 jest.mock('../SegmentFactory');
 
 const MockedTrip = Trip as jest.MockedClass<typeof Trip>;
 const mockedpopulateSegmentsForTrip = populateSegmentsForTrip as jest.MockedFunction<typeof populateSegmentsForTrip>;
 
 describe('TripFactory', () => {
-
     let surveyObjectsRegistry: SurveyObjectsRegistry;
     let surveyObjectsWithErrors: SurveyObjectsWithErrors;
     let person: Person;
@@ -55,28 +50,20 @@ describe('TripFactory', () => {
             }
         };
 
-        const mockOrigin = {
-            _uuid: 'origin-vp-uuid'
-        } as VisitedPlace;
+        const mockOrigin = { _uuid: 'origin-vp-uuid' } as VisitedPlace;
 
-        const mockDestination = {
-            _uuid: 'destination-vp-uuid'
-        } as VisitedPlace;
+        const mockDestination = { _uuid: 'destination-vp-uuid' } as VisitedPlace;
 
         person = {
             _uuid: 'person-uuid',
-            findVisitedPlaceByUuid: jest.fn()
-                .mockImplementation((uuid: string) => {
-                    if (uuid === 'origin-vp-uuid') return mockOrigin;
-                    if (uuid === 'destination-vp-uuid') return mockDestination;
-                    return undefined;
-                })
+            findVisitedPlaceByUuid: jest.fn().mockImplementation((uuid: string) => {
+                if (uuid === 'origin-vp-uuid') return mockOrigin;
+                if (uuid === 'destination-vp-uuid') return mockDestination;
+                return undefined;
+            })
         } as unknown as Person;
 
-        journey = {
-            _uuid: 'journey-uuid',
-            addTrip: jest.fn()
-        } as unknown as Journey;
+        journey = { _uuid: 'journey-uuid', addTrip: jest.fn() } as unknown as Journey;
 
         journeyAttributes = {
             _uuid: 'journey-uuid',
@@ -122,12 +109,18 @@ describe('TripFactory', () => {
                 setupStartAndEndTimes: jest.fn()
             } as unknown as Trip;
 
-            (MockedTrip.create as jest.Mock).mockReturnValueOnce(createOk(mockTrip1))
-                .mockReturnValueOnce(createOk(mockTrip2));
+            (MockedTrip.create as jest.Mock).mockReturnValueOnce(createOk(mockTrip1)).mockReturnValueOnce(createOk(mockTrip2));
 
             mockedpopulateSegmentsForTrip.mockResolvedValue();
 
-            await populateTripsForJourney(surveyObjectsWithErrors, person, journey, journeyAttributes, { uuid: 'test' } as any, surveyObjectsRegistry);
+            await populateTripsForJourney(
+                surveyObjectsWithErrors,
+                person,
+                journey,
+                journeyAttributes,
+                { uuid: 'test' } as any,
+                surveyObjectsRegistry
+            );
 
             // Verify Trip.create was called with correct attributes (segments are omitted)
             expect(MockedTrip.create).toHaveBeenCalledTimes(2);
@@ -174,7 +167,14 @@ describe('TripFactory', () => {
             (MockedTrip.create as jest.Mock).mockReturnValue(createOk(mockTrip));
             mockedpopulateSegmentsForTrip.mockResolvedValue();
 
-            await populateTripsForJourney(surveyObjectsWithErrors, person, journey, journeyAttributes, { uuid: 'test' } as any, surveyObjectsRegistry);
+            await populateTripsForJourney(
+                surveyObjectsWithErrors,
+                person,
+                journey,
+                journeyAttributes,
+                { uuid: 'test' } as any,
+                surveyObjectsRegistry
+            );
 
             // Verify findVisitedPlaceByUuid was called for origin and destination
             expect(person.findVisitedPlaceByUuid).toHaveBeenCalledWith('origin-vp-uuid');
@@ -200,7 +200,14 @@ describe('TripFactory', () => {
             (MockedTrip.create as jest.Mock).mockReturnValue(createOk(mockTrip));
             mockedpopulateSegmentsForTrip.mockResolvedValue();
 
-            await populateTripsForJourney(surveyObjectsWithErrors, person, journey, journeyAttributes, { uuid: 'test' } as any, surveyObjectsRegistry);
+            await populateTripsForJourney(
+                surveyObjectsWithErrors,
+                person,
+                journey,
+                journeyAttributes,
+                { uuid: 'test' } as any,
+                surveyObjectsRegistry
+            );
 
             // Verify origin and destination remain null
             expect(mockTrip.origin).toBeNull();
@@ -223,7 +230,14 @@ describe('TripFactory', () => {
             (MockedTrip.create as jest.Mock).mockReturnValue(createOk(mockTrip));
             mockedpopulateSegmentsForTrip.mockResolvedValue();
 
-            await populateTripsForJourney(surveyObjectsWithErrors, person, journey, journeyAttributes, { uuid: 'test' } as any, surveyObjectsRegistry);
+            await populateTripsForJourney(
+                surveyObjectsWithErrors,
+                person,
+                journey,
+                journeyAttributes,
+                { uuid: 'test' } as any,
+                surveyObjectsRegistry
+            );
 
             // Verify the method was called
             expect(mockTrip.getSegmentsWithoutWalkingInMultimode).toHaveBeenCalled();
@@ -235,19 +249,29 @@ describe('TripFactory', () => {
         it('should handle trip creation errors', async () => {
             const errors = [new Error('Invalid trip data')];
 
-            (MockedTrip.create as jest.Mock).mockReturnValueOnce(createErrors(errors))
-                .mockReturnValueOnce(createOk({
-                    _uuid: 'trip-2',
-                    origin: null,
-                    destination: null,
-                    segments: [],
-                    getSegmentsWithoutWalkingInMultimode: jest.fn().mockReturnValue([]),
-                    setupStartAndEndTimes: jest.fn()
-                } as unknown as Trip));
+            (MockedTrip.create as jest.Mock)
+                .mockReturnValueOnce(createErrors(errors))
+                .mockReturnValueOnce(
+                    createOk({
+                        _uuid: 'trip-2',
+                        origin: null,
+                        destination: null,
+                        segments: [],
+                        getSegmentsWithoutWalkingInMultimode: jest.fn().mockReturnValue([]),
+                        setupStartAndEndTimes: jest.fn()
+                    } as unknown as Trip)
+                );
 
             mockedpopulateSegmentsForTrip.mockResolvedValue();
 
-            await populateTripsForJourney(surveyObjectsWithErrors, person, journey, journeyAttributes, { uuid: 'test' } as any, surveyObjectsRegistry);
+            await populateTripsForJourney(
+                surveyObjectsWithErrors,
+                person,
+                journey,
+                journeyAttributes,
+                { uuid: 'test' } as any,
+                surveyObjectsRegistry
+            );
 
             // Verify error was stored
             expect(surveyObjectsWithErrors.errorsByObject.tripsByUuid['trip-1']).toEqual(errors);
@@ -260,26 +284,26 @@ describe('TripFactory', () => {
         });
 
         it('should skip trips with undefined uuid', async () => {
-            journeyAttributes.trips = {
-                'undefined': {
-                    _uuid: 'undefined',
-                    _sequence: 1
-                },
-                'trip-1': {
-                    _uuid: 'trip-1',
-                    _sequence: 2
-                }
-            } as any;
+            journeyAttributes.trips = { undefined: { _uuid: 'undefined', _sequence: 1 }, 'trip-1': { _uuid: 'trip-1', _sequence: 2 } } as any;
 
-            (MockedTrip.create as jest.Mock).mockReturnValue(createOk({
-                _uuid: 'trip-1',
-                getSegmentsWithoutWalkingInMultimode: jest.fn().mockReturnValue([]),
-                setupStartAndEndTimes: jest.fn()
-            } as unknown as Trip));
+            (MockedTrip.create as jest.Mock).mockReturnValue(
+                createOk({
+                    _uuid: 'trip-1',
+                    getSegmentsWithoutWalkingInMultimode: jest.fn().mockReturnValue([]),
+                    setupStartAndEndTimes: jest.fn()
+                } as unknown as Trip)
+            );
 
             mockedpopulateSegmentsForTrip.mockResolvedValue();
 
-            await populateTripsForJourney(surveyObjectsWithErrors, person, journey, journeyAttributes, { uuid: 'test' } as any, surveyObjectsRegistry);
+            await populateTripsForJourney(
+                surveyObjectsWithErrors,
+                person,
+                journey,
+                journeyAttributes,
+                { uuid: 'test' } as any,
+                surveyObjectsRegistry
+            );
 
             // Should only create one trip (skip undefined)
             expect(MockedTrip.create).toHaveBeenCalledTimes(1);
@@ -289,7 +313,14 @@ describe('TripFactory', () => {
         it('should handle missing trips attributes', async () => {
             journeyAttributes.trips = undefined;
 
-            await populateTripsForJourney(surveyObjectsWithErrors, person, journey, journeyAttributes, { uuid: 'test' } as any, surveyObjectsRegistry);
+            await populateTripsForJourney(
+                surveyObjectsWithErrors,
+                person,
+                journey,
+                journeyAttributes,
+                { uuid: 'test' } as any,
+                surveyObjectsRegistry
+            );
 
             expect(MockedTrip.create).not.toHaveBeenCalled();
             expect(journey.addTrip).not.toHaveBeenCalled();
@@ -298,39 +329,44 @@ describe('TripFactory', () => {
         it('should sort trips by sequence', async () => {
             // Create trips with mixed sequence order
             journeyAttributes.trips = {
-                'trip-3': {
-                    _uuid: 'trip-3',
-                    _sequence: 3
-                },
-                'trip-1': {
-                    _uuid: 'trip-1',
-                    _sequence: 1
-                },
-                'trip-2': {
-                    _uuid: 'trip-2',
-                    _sequence: 2
-                }
+                'trip-3': { _uuid: 'trip-3', _sequence: 3 },
+                'trip-1': { _uuid: 'trip-1', _sequence: 1 },
+                'trip-2': { _uuid: 'trip-2', _sequence: 2 }
             } as any;
 
-            (MockedTrip.create as jest.Mock).mockReturnValueOnce(createOk({
-                _uuid: 'trip-1',
-                getSegmentsWithoutWalkingInMultimode: jest.fn().mockReturnValue([]),
-                setupStartAndEndTimes: jest.fn()
-            } as unknown as Trip))
-                .mockReturnValueOnce(createOk({
-                    _uuid: 'trip-2',
-                    getSegmentsWithoutWalkingInMultimode: jest.fn().mockReturnValue([]),
-                    setupStartAndEndTimes: jest.fn()
-                } as unknown as Trip))
-                .mockReturnValueOnce(createOk({
-                    _uuid: 'trip-3',
-                    getSegmentsWithoutWalkingInMultimode: jest.fn().mockReturnValue([]),
-                    setupStartAndEndTimes: jest.fn()
-                } as unknown as Trip));
+            (MockedTrip.create as jest.Mock)
+                .mockReturnValueOnce(
+                    createOk({
+                        _uuid: 'trip-1',
+                        getSegmentsWithoutWalkingInMultimode: jest.fn().mockReturnValue([]),
+                        setupStartAndEndTimes: jest.fn()
+                    } as unknown as Trip)
+                )
+                .mockReturnValueOnce(
+                    createOk({
+                        _uuid: 'trip-2',
+                        getSegmentsWithoutWalkingInMultimode: jest.fn().mockReturnValue([]),
+                        setupStartAndEndTimes: jest.fn()
+                    } as unknown as Trip)
+                )
+                .mockReturnValueOnce(
+                    createOk({
+                        _uuid: 'trip-3',
+                        getSegmentsWithoutWalkingInMultimode: jest.fn().mockReturnValue([]),
+                        setupStartAndEndTimes: jest.fn()
+                    } as unknown as Trip)
+                );
 
             mockedpopulateSegmentsForTrip.mockResolvedValue();
 
-            await populateTripsForJourney(surveyObjectsWithErrors, person, journey, journeyAttributes, { uuid: 'test' } as any, surveyObjectsRegistry);
+            await populateTripsForJourney(
+                surveyObjectsWithErrors,
+                person,
+                journey,
+                journeyAttributes,
+                { uuid: 'test' } as any,
+                surveyObjectsRegistry
+            );
 
             // Verify trips were created in sequence order (1, 2, 3)
             expect(MockedTrip.create).toHaveBeenNthCalledWith(1, expect.objectContaining({ _sequence: 1 }), surveyObjectsRegistry);
@@ -351,7 +387,14 @@ describe('TripFactory', () => {
             (MockedTrip.create as jest.Mock).mockReturnValue(createOk(mockTrip));
             mockedpopulateSegmentsForTrip.mockResolvedValue();
 
-            await populateTripsForJourney(surveyObjectsWithErrors, person, journey, journeyAttributes, { uuid: 'test' } as any, surveyObjectsRegistry);
+            await populateTripsForJourney(
+                surveyObjectsWithErrors,
+                person,
+                journey,
+                journeyAttributes,
+                { uuid: 'test' } as any,
+                surveyObjectsRegistry
+            );
 
             // Verify segment factory was called with correct parameters
             expect(mockedpopulateSegmentsForTrip).toHaveBeenCalledWith(

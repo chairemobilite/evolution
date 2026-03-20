@@ -36,4 +36,3 @@ describe('HM_M_Geography audit check', () => {
         });
     });
 });
-

@@ -238,30 +238,12 @@ describe('SurveyObjectsRegistry', () => {
         it('should support complete survey object hierarchy', () => {
             // Create mock objects with parent-child relationships
             const mockInterview = { uuid: validUuid } as Interview;
-            const mockHousehold = {
-                uuid: validUuid3,
-                interviewUuid: validUuid
-            } as Household;
-            const mockPerson = {
-                uuid: validUuid4,
-                householdUuid: validUuid3
-            } as Person;
-            const mockJourney = {
-                uuid: validUuid5,
-                personUuid: validUuid4
-            } as Journey;
-            const mockVisitedPlace = {
-                uuid: validUuid6,
-                journeyUuid: validUuid5
-            } as VisitedPlace;
-            const mockTrip = {
-                uuid: validUuid7,
-                journeyUuid: validUuid5
-            } as Trip;
-            const mockSegment = {
-                uuid: validUuid10,
-                tripUuid: validUuid7
-            } as Segment;
+            const mockHousehold = { uuid: validUuid3, interviewUuid: validUuid } as Household;
+            const mockPerson = { uuid: validUuid4, householdUuid: validUuid3 } as Person;
+            const mockJourney = { uuid: validUuid5, personUuid: validUuid4 } as Journey;
+            const mockVisitedPlace = { uuid: validUuid6, journeyUuid: validUuid5 } as VisitedPlace;
+            const mockTrip = { uuid: validUuid7, journeyUuid: validUuid5 } as Trip;
+            const mockSegment = { uuid: validUuid10, tripUuid: validUuid7 } as Segment;
 
             // Register all objects
             registry.registerInterview(mockInterview);

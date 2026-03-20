@@ -15,16 +15,10 @@ import { SectionProps, useSectionTemplate } from '../../../hooks/useSectionTempl
 import * as odSurveyHelper from 'evolution-common/lib/services/odSurvey/helpers';
 
 jest.mock('chaire-lib-frontend/lib/components/pages/LoadingPage', () => () => <div>Loading...</div>);
-jest.mock('../../Widget', () => ({
-    Widget: (props) => <div>Widget {props.currentWidgetShortname}</div>
-}));
-jest.mock('../../GroupWidgets', () => ({
-    GroupedObject: () => <div>GroupedObject</div>
-}));
+jest.mock('../../Widget', () => ({ Widget: (props) => <div>Widget {props.currentWidgetShortname}</div> }));
+jest.mock('../../GroupWidgets', () => ({ GroupedObject: () => <div>GroupedObject</div> }));
 // Mock frontend helper to avoid undefined config error
-jest.mock('../../../../services/display/frontendHelper', () => ({
-    secondsSinceMidnightToTimeStrWithSuffix: jest.fn().mockReturnValue('timeStr')
-}));
+jest.mock('../../../../services/display/frontendHelper', () => ({ secondsSinceMidnightToTimeStrWithSuffix: jest.fn().mockReturnValue('timeStr') }));
 
 // Mock the odSurveyHelper
 jest.mock('evolution-common/lib/services/odSurvey/helpers', () => ({
@@ -65,9 +59,7 @@ jest.mock('../../../hoc/WithSurveyContextHoc', () => ({
     withSurveyContext: (Component: React.ComponentType) => (props: any) => <Component {...props} surveyContext={surveyContext} />
 }));
 
-jest.mock('../../../hooks/useSectionTemplate', () => ({
-    useSectionTemplate: jest.fn().mockReturnValue({ preloaded: true })
-}));
+jest.mock('../../../hooks/useSectionTemplate', () => ({ useSectionTemplate: jest.fn().mockReturnValue({ preloaded: true }) }));
 const mockedUseSectionTemplate = useSectionTemplate as jest.MockedFunction<typeof useSectionTemplate>;
 
 let props: SectionProps;
@@ -79,15 +71,18 @@ beforeEach(() => {
         sectionConfig: {
             previousSection: null,
             nextSection: null,
-            widgets: ['activePersonTitle', 'buttonSwitchPerson', 'personTripsTitle', 'personTrips', 'personVisitedPlacesMap', 'buttonConfirmNextSection']
+            widgets: [
+                'activePersonTitle',
+                'buttonSwitchPerson',
+                'personTripsTitle',
+                'personTrips',
+                'personVisitedPlacesMap',
+                'buttonConfirmNextSection'
+            ]
         },
-        interview: {
-            response: {}
-        } as any,
+        interview: { response: {} } as any,
         errors: {},
-        user: {
-            id: 1
-        } as any,
+        user: { id: 1 } as any,
         loadingState: 0,
         startUpdateInterview: jest.fn(),
         startAddGroupedObjects: jest.fn(),
@@ -103,78 +98,36 @@ const trips = {
         _sequence: 1,
         _originVisitedPlaceUuid: 'place1',
         _destinationVisitedPlaceUuid: 'place2',
-        segments: {
-            segment1: {
-                _uuid: 'segment1',
-                _sequence: 1,
-                _isNew: false,
-                mode: 'walk' as const
-            }
-        }
+        segments: { segment1: { _uuid: 'segment1', _sequence: 1, _isNew: false, mode: 'walk' as const } }
     },
-    trip2: {
-        _uuid: 'trip2',
-        _sequence: 2,
-        _originVisitedPlaceUuid: 'place2',
-        _destinationVisitedPlaceUuid: 'place3'
-    }
+    trip2: { _uuid: 'trip2', _sequence: 2, _originVisitedPlaceUuid: 'place2', _destinationVisitedPlaceUuid: 'place3' }
 };
 
 const visitedPlaces = {
-    place1: {
-        _uuid: 'place1',
-        _sequence: 1,
-        activity: 'activity1',
-        name: 'Lieu 1',
-        departureTime: 3600
-    },
-    place2: {
-        _uuid: 'place2',
-        _sequence: 2,
-        activity: 'activity2',
-        arrivalTime: 7200
-    },
-    place3: {
-        _uuid: 'place3',
-        _sequence: 3,
-        activity: 'activity3',
-        arrivalTime: 10800
-    }
+    place1: { _uuid: 'place1', _sequence: 1, activity: 'activity1', name: 'Lieu 1', departureTime: 3600 },
+    place2: { _uuid: 'place2', _sequence: 2, activity: 'activity2', arrivalTime: 7200 },
+    place3: { _uuid: 'place3', _sequence: 3, activity: 'activity3', arrivalTime: 10800 }
 };
 
-const journey = {
-    _uuid: 'journey1',
-    _sequence: 1,
-    trips,
-    visitedPlaces
-};
-
+const journey = { _uuid: 'journey1', _sequence: 1, trips, visitedPlaces };
 
 describe('SegmentsSection UI display', () => {
-
     it('should render LoadingPage when not preloaded', () => {
         mockedUseSectionTemplate.mockReturnValueOnce({ preloaded: false });
-        const { container } = render(
-            <SegmentsSection {...props} />
-        );
+        const { container } = render(<SegmentsSection {...props} />);
         expect(container).toMatchSnapshot();
     });
 
     describe('SegmentsSection with trips and visited places', () => {
-
         test('should render list of trips and map when no trip selected', () => {
             mockedGetJourneysArray.mockReturnValueOnce([journey]);
-            const { container } = render(
-                <SegmentsSection {...props} />
-            );
+            const { container } = render(<SegmentsSection {...props} />);
             expect(container).toMatchSnapshot();
         });
 
         test('make sure widget is accessible without trip selected', async () => {
             mockedGetJourneysArray.mockReturnValueOnce([journey]);
-            const { container } = render(
-                <SegmentsSection {...props} />
-            );
+            const { container } = render(<SegmentsSection {...props} />);
             const results = await axe(container);
             expect(results).toHaveNoViolations();
         });
@@ -182,18 +135,14 @@ describe('SegmentsSection UI display', () => {
         test('should render list of trips with selected trip widget when trip selected', () => {
             mockedGetJourneysArray.mockReturnValueOnce([journey]);
             mockedGetActiveTrip.mockReturnValueOnce(trips.trip1);
-            const { container } = render(
-                <SegmentsSection {...props} />
-            );
+            const { container } = render(<SegmentsSection {...props} />);
             expect(container).toMatchSnapshot();
         });
 
         test('make sure widget is accessible with trip selected', async () => {
             mockedGetJourneysArray.mockReturnValueOnce([journey]);
             mockedGetActiveTrip.mockReturnValueOnce(trips.trip1);
-            const { container } = render(
-                <SegmentsSection {...props} />
-            );
+            const { container } = render(<SegmentsSection {...props} />);
             const results = await axe(container);
             expect(results).toHaveNoViolations();
         });
@@ -203,9 +152,7 @@ describe('SegmentsSection UI display', () => {
             testVisitedPlaces.place2.activity = 'workOnTheRoad';
             mockedGetJourneysArray.mockReturnValueOnce([{ ...journey, visitedPlaces: testVisitedPlaces }]);
             mockedGetNextVisitedPlace.mockReturnValueOnce(testVisitedPlaces.place3);
-            const { container } = render(
-                <SegmentsSection {...props} />
-            );
+            const { container } = render(<SegmentsSection {...props} />);
             expect(container).toMatchSnapshot();
         });
 
@@ -214,71 +161,44 @@ describe('SegmentsSection UI display', () => {
             testVisitedPlaces.place1.activity = 'workOnTheRoad';
             mockedGetJourneysArray.mockReturnValueOnce([{ ...journey, visitedPlaces: testVisitedPlaces }]);
             mockedGetNextVisitedPlace.mockReturnValueOnce(testVisitedPlaces.place2);
-            const { container } = render(
-                <SegmentsSection {...props} />
-            );
+            const { container } = render(<SegmentsSection {...props} />);
             expect(container).toMatchSnapshot();
         });
-
     });
 
     it('should throw error if no active person', () => {
         // The component will be rendered twice, so we need to mock the value twice (see https://github.com/testing-library/react-testing-library/issues/1291)
         mockedGetActivePerson.mockReturnValueOnce(null);
         mockedGetActivePerson.mockReturnValueOnce(null);
-        expect(() => render(
-            <SegmentsSection {...props} />
-        )).toThrow('SegmentsSection: active person not found');
+        expect(() => render(<SegmentsSection {...props} />)).toThrow('SegmentsSection: active person not found');
     });
 
     it('should throw error if no active journey', () => {
         // The component will be rendered twice, so we need to mock the value twice (see https://github.com/testing-library/react-testing-library/issues/1291)
         mockedGetJourneysArray.mockReturnValueOnce([]);
         mockedGetJourneysArray.mockReturnValueOnce([]);
-        expect(() => render(
-            <SegmentsSection {...props} />
-        )).toThrow('SegmentsSection: there are no journeys');
+        expect(() => render(<SegmentsSection {...props} />)).toThrow('SegmentsSection: there are no journeys');
     });
 
     it('should throw error if no a trip has no origin or destination', () => {
         const trips = {
-            trip1: {
-                _uuid: 'trip1',
-                _sequence: 1,
-                segments: {
-                    segment1: {
-                        _uuid: 'segment1',
-                        _sequence: 1,
-                        _isNew: false,
-                        mode: 'walk' as const
-                    }
-                }
-            },
+            trip1: { _uuid: 'trip1', _sequence: 1, segments: { segment1: { _uuid: 'segment1', _sequence: 1, _isNew: false, mode: 'walk' as const } } }
         };
 
-        const journey = {
-            _uuid: 'journey1',
-            _sequence: 1,
-            trips
-        };
+        const journey = { _uuid: 'journey1', _sequence: 1, trips };
         // The component will be rendered twice, so we need to mock the value twice (see https://github.com/testing-library/react-testing-library/issues/1291)
         mockedGetJourneysArray.mockReturnValueOnce([journey]);
         mockedGetJourneysArray.mockReturnValueOnce([journey]);
-        expect(() => render(
-            <SegmentsSection {...props} />
-        )).toThrow('SegmentsSection: origin or destination not found');
+        expect(() => render(<SegmentsSection {...props} />)).toThrow('SegmentsSection: origin or destination not found');
     });
 });
 
 describe('SegmentsSection behavior', () => {
-
     test('Click on the trip edit button for first trip', () => {
         mockedGetJourneysArray.mockReturnValueOnce([journey]);
-        const { getAllByTitle } = render(
-            <SegmentsSection {...props} />
-        );
+        const { getAllByTitle } = render(<SegmentsSection {...props} />);
         // Find the edit button
-        const editButtons = getAllByTitle("trip.editTrip");
+        const editButtons = getAllByTitle('trip.editTrip');
         expect(editButtons).toBeTruthy();
         const editButton = editButtons[0];
 
@@ -292,11 +212,9 @@ describe('SegmentsSection behavior', () => {
 
     test('Click on the trip edit button for second trip', () => {
         mockedGetJourneysArray.mockReturnValueOnce([journey]);
-        const { getAllByTitle } = render(
-            <SegmentsSection {...props} />
-        );
+        const { getAllByTitle } = render(<SegmentsSection {...props} />);
         // Find the edit button
-        const editButtons = getAllByTitle("trip.editTrip");
+        const editButtons = getAllByTitle('trip.editTrip');
         expect(editButtons).toBeTruthy();
         const editButton = editButtons[1];
 
@@ -307,5 +225,4 @@ describe('SegmentsSection behavior', () => {
             valuesByPath: { ['response._activeTripId']: 'trip2' }
         });
     });
-    
 });

@@ -5,31 +5,29 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import { NextFunction, Request, Response } from 'express';
-import { v4 as uuidV4 } from 'uuid'
+import { v4 as uuidV4 } from 'uuid';
 import { logUserAccessesMiddleware, defaultMiddlewares } from '../queryLoggingMiddleware';
 import each from 'jest-each';
 import interviewsAccessesDbQueries from '../../../models/interviewsAccesses.db.queries';
 
-jest.mock('../../../models/interviewsAccesses.db.queries', () => ({
-    userOpenedInterview: jest.fn(),
-    userUpdatedInterview: jest.fn(),
-}));
-const mockUserOpenedQuery = interviewsAccessesDbQueries.userOpenedInterview as jest.MockedFunction<typeof interviewsAccessesDbQueries.userOpenedInterview>;
-const mockUserUpdatedQuery = interviewsAccessesDbQueries.userUpdatedInterview as jest.MockedFunction<typeof interviewsAccessesDbQueries.userUpdatedInterview>;
+jest.mock('../../../models/interviewsAccesses.db.queries', () => ({ userOpenedInterview: jest.fn(), userUpdatedInterview: jest.fn() }));
+const mockUserOpenedQuery = interviewsAccessesDbQueries.userOpenedInterview as jest.MockedFunction<
+    typeof interviewsAccessesDbQueries.userOpenedInterview
+>;
+const mockUserUpdatedQuery = interviewsAccessesDbQueries.userUpdatedInterview as jest.MockedFunction<
+    typeof interviewsAccessesDbQueries.userUpdatedInterview
+>;
 
 let mockRequest: Partial<Request>;
 let mockResponse: Partial<Response>;
-let nextFunction: NextFunction = jest.fn();
-let mockUser = { id: 3, username: 'notAdmin' };
+const nextFunction: NextFunction = jest.fn();
+const mockUser = { id: 3, username: 'notAdmin' };
 
 const interviewId = uuidV4();
 
 beforeEach(() => {
     mockRequest = {};
-    mockResponse = {
-        json: jest.fn(),
-        status: jest.fn().mockReturnThis()
-    };
+    mockResponse = { json: jest.fn(), status: jest.fn().mockReturnThis() };
     (nextFunction as any).mockClear();
     mockUserOpenedQuery.mockClear();
     mockUserUpdatedQuery.mockClear();
@@ -38,10 +36,9 @@ beforeEach(() => {
 each([
     ['Interview uuid in params', mockUser, { interviewUuid: interviewId }, true],
     ['Interview id in params', mockUser, { interviewUuid: interviewId }, true],
-    ['No interview ID', mockUser, {  }, false],
-    ['No user, should not happen, but not cause exception either', undefined, { interviewUuid: interviewId }, false],
+    ['No interview ID', mockUser, {}, false],
+    ['No user, should not happen, but not cause exception either', undefined, { interviewUuid: interviewId }, false]
 ]).describe('log opening the interview: %s', (_title, user, reqParams, expectedCalled) => {
-
     test('log user access: edit mode', async () => {
         mockRequest.user = user;
         const request = { ...mockRequest, params: reqParams };
@@ -87,9 +84,8 @@ each([
     ['Interview uuid in params', mockUser, { interviewUuid: interviewId }, {}, true],
     ['Interview id in body', mockUser, {}, { interviewId: interviewId }, true],
     ['No interview ID', mockUser, {}, {}, false],
-    ['No user, should not happen, but not cause exception either', undefined, { interviewUuid: interviewId }, {}, false],
+    ['No user, should not happen, but not cause exception either', undefined, { interviewUuid: interviewId }, {}, false]
 ]).describe('log updating the interview: %s', (_title, user, reqParams, body, expectedCalled) => {
-
     test('edit mode', async () => {
         mockRequest.user = user;
         const request = { ...mockRequest, params: reqParams, body: body };

@@ -14,12 +14,7 @@ import { Person } from 'evolution-common/lib/services/baseObjects/Person';
 import { Journey } from 'evolution-common/lib/services/baseObjects/Journey';
 import { VisitedPlace } from 'evolution-common/lib/services/baseObjects/VisitedPlace';
 import { Trip } from 'evolution-common/lib/services/baseObjects/Trip';
-import {
-    runInterviewAuditChecks,
-    runHouseholdAuditChecks,
-    runHomeAuditChecks,
-    runVisitedPlaceAuditChecks
-} from '../auditChecks';
+import { runInterviewAuditChecks, runHouseholdAuditChecks, runHomeAuditChecks, runVisitedPlaceAuditChecks } from '../auditChecks';
 import { Interview } from 'evolution-common/lib/services/baseObjects/interview/Interview';
 
 // Mock the audit functions
@@ -29,52 +24,60 @@ jest.mock('../auditChecks', () => {
     const mockExtendedCheck = jest.fn();
 
     return {
-        runInterviewAuditChecks: jest.fn().mockResolvedValue([
-            {
-                objectType: 'interview',
-                objectUuid: 'interview-uuid',
-                errorCode: 'I_L_InterviewAudited',
-                level: 'info',
-                message: 'Interview audited',
-                version: 1,
-                ignore: false
-            }
-        ]),
-        runHouseholdAuditChecks: jest.fn().mockResolvedValue([
-            {
-                objectType: 'household',
-                objectUuid: 'household-uuid',
-                errorCode: 'HH_I_Size',
-                level: 'error',
-                message: 'Invalid household size',
-                version: 1,
-                ignore: false
-            }
-        ]),
-        runHomeAuditChecks: jest.fn().mockResolvedValue([
-            {
-                objectType: 'home',
-                objectUuid: 'home-uuid',
-                errorCode: 'HM_I_Address',
-                level: 'warning',
-                message: 'Invalid home address',
-                version: 1,
-                ignore: false
-            }
-        ]),
+        runInterviewAuditChecks: jest
+            .fn()
+            .mockResolvedValue([
+                {
+                    objectType: 'interview',
+                    objectUuid: 'interview-uuid',
+                    errorCode: 'I_L_InterviewAudited',
+                    level: 'info',
+                    message: 'Interview audited',
+                    version: 1,
+                    ignore: false
+                }
+            ]),
+        runHouseholdAuditChecks: jest
+            .fn()
+            .mockResolvedValue([
+                {
+                    objectType: 'household',
+                    objectUuid: 'household-uuid',
+                    errorCode: 'HH_I_Size',
+                    level: 'error',
+                    message: 'Invalid household size',
+                    version: 1,
+                    ignore: false
+                }
+            ]),
+        runHomeAuditChecks: jest
+            .fn()
+            .mockResolvedValue([
+                {
+                    objectType: 'home',
+                    objectUuid: 'home-uuid',
+                    errorCode: 'HM_I_Address',
+                    level: 'warning',
+                    message: 'Invalid home address',
+                    version: 1,
+                    ignore: false
+                }
+            ]),
         runPersonAuditChecks: jest.fn().mockResolvedValue([]),
         runJourneyAuditChecks: jest.fn().mockResolvedValue([]),
-        runVisitedPlaceAuditChecks: jest.fn().mockResolvedValue([
-            {
-                objectType: 'visitedPlace',
-                objectUuid: 'visitedplace-uuid',
-                errorCode: 'VP_M_Geography',
-                level: 'warning',
-                message: 'Missing geography',
-                version: 1,
-                ignore: false
-            }
-        ]),
+        runVisitedPlaceAuditChecks: jest
+            .fn()
+            .mockResolvedValue([
+                {
+                    objectType: 'visitedPlace',
+                    objectUuid: 'visitedplace-uuid',
+                    errorCode: 'VP_M_Geography',
+                    level: 'warning',
+                    message: 'Missing geography',
+                    version: 1,
+                    ignore: false
+                }
+            ]),
         runTripAuditChecks: jest.fn().mockResolvedValue([]),
         runSegmentAuditChecks: jest.fn().mockResolvedValue([]),
         interviewAuditChecks: { normalCheck: mockNormalCheck },
@@ -96,7 +99,6 @@ jest.mock('../auditChecks', () => {
     };
 });
 
-
 describe('SurveyObjectAuditor', () => {
     const interviewUuid = uuidV4();
     const householdUuid = uuidV4();
@@ -116,32 +118,15 @@ describe('SurveyObjectAuditor', () => {
             geography: { type: 'Feature', geometry: { type: 'Point', coordinates: [-73.5, 45.5] } }
         } as VisitedPlace;
 
-        const mockTrip = {
-            _uuid: tripUuid,
-            mode: 'transit',
-            segments: []
-        } as unknown as Trip;
+        const mockTrip = { _uuid: tripUuid, mode: 'transit', segments: [] } as unknown as Trip;
 
-        const mockJourney = {
-            _uuid: journeyUuid,
-            visitedPlaces: [mockVisitedPlace],
-            trips: [mockTrip]
-        } as Journey;
+        const mockJourney = { _uuid: journeyUuid, visitedPlaces: [mockVisitedPlace], trips: [mockTrip] } as Journey;
 
-        const mockPerson = {
-            _uuid: personUuid,
-            age: 30,
-            journeys: [mockJourney]
-        } as Person;
+        const mockPerson = { _uuid: personUuid, age: 30, journeys: [mockJourney] } as Person;
 
         mockHousehold.members = [mockPerson];
 
-        return {
-            interview: mockInterview as unknown as Interview,
-            home: mockHome,
-            household: mockHousehold,
-            audits: []
-        };
+        return { interview: mockInterview as unknown as Interview, home: mockHome, household: mockHousehold, audits: [] };
     };
 
     beforeEach(() => {
@@ -154,12 +139,7 @@ describe('SurveyObjectAuditor', () => {
 
             const audits = await SurveyObjectAuditor.auditSurveyObjects(surveyObjects);
 
-            expect(runInterviewAuditChecks).toHaveBeenCalledWith(
-                {
-                    interview: surveyObjects.interview
-                },
-                expect.any(Object)
-            );
+            expect(runInterviewAuditChecks).toHaveBeenCalledWith({ interview: surveyObjects.interview }, expect.any(Object));
 
             expect(audits).toContainEqual({
                 objectType: 'interview',
@@ -178,10 +158,7 @@ describe('SurveyObjectAuditor', () => {
             const audits = await SurveyObjectAuditor.auditSurveyObjects(surveyObjects);
 
             expect(runHouseholdAuditChecks).toHaveBeenCalledWith(
-                {
-                    household: surveyObjects.household,
-                    interview: surveyObjects.interview
-                },
+                { household: surveyObjects.household, interview: surveyObjects.interview },
                 expect.any(Object)
             );
 
@@ -202,11 +179,7 @@ describe('SurveyObjectAuditor', () => {
             const audits = await SurveyObjectAuditor.auditSurveyObjects(surveyObjects);
 
             expect(runHomeAuditChecks).toHaveBeenCalledWith(
-                {
-                    home: surveyObjects.home,
-                    household: surveyObjects.household,
-                    interview: surveyObjects.interview
-                },
+                { home: surveyObjects.home, household: surveyObjects.household, interview: surveyObjects.interview },
                 expect.any(Object)
             );
 
@@ -255,16 +228,7 @@ describe('SurveyObjectAuditor', () => {
                 interview: undefined,
                 household: undefined,
                 home: undefined,
-                auditsByObject: {
-                    interview: [],
-                    household: [],
-                    home: [],
-                    persons: {},
-                    journeys: {},
-                    visitedPlaces: {},
-                    trips: {},
-                    segments: {}
-                }
+                auditsByObject: { interview: [], household: [], home: [], persons: {}, journeys: {}, visitedPlaces: {}, trips: {}, segments: {} }
             };
 
             const audits = await SurveyObjectAuditor.auditSurveyObjects(surveyObjects);

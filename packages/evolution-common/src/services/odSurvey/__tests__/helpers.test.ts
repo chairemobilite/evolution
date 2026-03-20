@@ -13,10 +13,7 @@ import projectConfig from '../../../config/project.config';
 import { Journey, Person, Trip, UserInterviewAttributes } from '../../questionnaire/types';
 import { setProjectConfiguration } from 'chaire-lib-common/lib/config/shared/project.config';
 
-const baseInterviewAttributes: Pick<
-    UserInterviewAttributes,
-    'id' | 'uuid' | 'participant_id' | 'is_completed' | 'is_questionable' | 'is_valid'
-> = {
+const baseInterviewAttributes: Pick<UserInterviewAttributes, 'id' | 'uuid' | 'participant_id' | 'is_completed' | 'is_questionable' | 'is_valid'> = {
     id: 1,
     uuid: 'arbitrary uuid',
     participant_id: 1,
@@ -27,60 +24,19 @@ const baseInterviewAttributes: Pick<
 
 const interviewAttributes: UserInterviewAttributes = {
     ...baseInterviewAttributes,
-    response: {
-        section1: {
-            q1: 'abc',
-            q2: 3
-        },
-        section2: {
-            q1: 'test'
-        }
-    },
-    validations: {
-        section1: {
-            q1: true,
-            q2: false
-        },
-        section2: {
-            q1: true
-        }
-    } as any,
+    response: { section1: { q1: 'abc', q2: 3 }, section2: { q1: 'test' } },
+    validations: { section1: { q1: true, q2: false }, section2: { q1: true } } as any,
     is_valid: true
 };
 
 const interviewAttributesWithHh: UserInterviewAttributes = {
     ...baseInterviewAttributes,
     response: {
-        section1: {
-            q1: 'abc',
-            q2: 3
-        },
-        section2: {
-            q1: 'test'
-        },
-        household: {
-            size: 2,
-            persons: {
-                personId1: {
-                    _uuid: 'personId1',
-                    _sequence: 1
-                },
-                personId2: {
-                    _uuid: 'personId2',
-                    _sequence: 2
-                }
-            }
-        }
+        section1: { q1: 'abc', q2: 3 },
+        section2: { q1: 'test' },
+        household: { size: 2, persons: { personId1: { _uuid: 'personId1', _sequence: 1 }, personId2: { _uuid: 'personId2', _sequence: 2 } } }
     } as any,
-    validations: {
-        section1: {
-            q1: true,
-            q2: false
-        },
-        section2: {
-            q1: true
-        }
-    } as any
+    validations: { section1: { q1: true, q2: false }, section2: { q1: true } } as any
 };
 
 const originalConfig = _cloneDeep(projectConfig);
@@ -91,7 +47,7 @@ beforeEach(() => {
 afterEach(() => {
     // Reset projectConfig to original after each test
     setProjectConfiguration(_cloneDeep(originalConfig));
-})
+});
 
 each([
     ['Has Household', interviewAttributesWithHh.response, interviewAttributesWithHh.response.household],
@@ -103,30 +59,15 @@ each([
 });
 
 each([
-    [
-        'Person 1',
-        interviewAttributesWithHh.response,
-        'personId1',
-        (interviewAttributesWithHh.response as any).household.persons.personId1
-    ],
-    [
-        'Person 2',
-        interviewAttributesWithHh.response,
-        'personId2',
-        (interviewAttributesWithHh.response as any).household.persons.personId2
-    ],
+    ['Person 1', interviewAttributesWithHh.response, 'personId1', (interviewAttributesWithHh.response as any).household.persons.personId1],
+    ['Person 2', interviewAttributesWithHh.response, 'personId2', (interviewAttributesWithHh.response as any).household.persons.personId2],
     [
         'Undefined active person',
         interviewAttributesWithHh.response,
         undefined,
         (interviewAttributesWithHh.response as any).household.persons.personId1
     ],
-    [
-        'Empty persons',
-        { household: { ...interviewAttributesWithHh.response.household, persons: {} } },
-        'personId1',
-        null
-    ],
+    ['Empty persons', { household: { ...interviewAttributesWithHh.response.household, persons: {} } }, 'personId1', null],
     ['Empty household', { household: {} }, undefined, null],
     ['Empty response', {}, 'personId', null]
 ]).test('getActivePerson: %s', (_title, response, currentPersonId, expected) => {
@@ -154,9 +95,7 @@ describe('getPersons', () => {
     });
 
     test('with persons', () => {
-        expect(Helpers.getPersons({ interview: interviewAttributesWithHh })).toEqual(
-            (interviewAttributesWithHh.response as any).household.persons
-        );
+        expect(Helpers.getPersons({ interview: interviewAttributesWithHh })).toEqual((interviewAttributesWithHh.response as any).household.persons);
     });
 
     test('array: test without household', () => {
@@ -199,12 +138,7 @@ each([
         { personId: 'personId1' },
         (interviewAttributesWithHh.response as any).household.persons.personId1
     ],
-    [
-        'personId param provided, non-existent person',
-        interviewAttributesWithHh.response,
-        { personId: 'unexistentPersonId' },
-        null
-    ],
+    ['personId param provided, non-existent person', interviewAttributesWithHh.response, { personId: 'unexistentPersonId' }, null],
     [
         'path param provided, matches household.persons.{personId}.',
         interviewAttributesWithHh.response,
@@ -217,18 +151,10 @@ each([
         { path: 'household.persons.personId2' }, // FIXME Should this case match?
         null
     ],
-    [
-        'path param provided, does not match pattern',
-        interviewAttributesWithHh.response,
-        { path: 'household.something.personId2' },
-        null
-    ],
+    ['path param provided, does not match pattern', interviewAttributesWithHh.response, { path: 'household.something.personId2' }, null],
     [
         'no personId or path, uses _activePersonId',
-        {
-            ...interviewAttributesWithHh.response,
-            _activePersonId: 'personId2'
-        },
+        { ...interviewAttributesWithHh.response, _activePersonId: 'personId2' },
         {},
         (interviewAttributesWithHh.response as any).household.persons.personId2
     ],
@@ -286,12 +212,7 @@ each([
         'One person',
         {
             ...interviewAttributesWithHh.response,
-            household: {
-                ...interviewAttributesWithHh.response.household,
-                persons: {
-                    personId1: { _uuid: 'personId1', _sequence: 1 }
-                }
-            }
+            household: { ...interviewAttributesWithHh.response.household, persons: { personId1: { _uuid: 'personId1', _sequence: 1 } } }
         },
         1
     ],
@@ -310,17 +231,7 @@ each([
         },
         3
     ],
-    [
-        'Empty persons',
-        {
-            ...interviewAttributesWithHh.response,
-            household: {
-                ...interviewAttributesWithHh.response.household,
-                persons: {}
-            }
-        },
-        0
-    ],
+    ['Empty persons', { ...interviewAttributesWithHh.response, household: { ...interviewAttributesWithHh.response.household, persons: {} } }, 0],
     ['Empty household', { household: {} }, 0],
     ['Empty response', {}, 0]
 ]).test('countPersons: %s', (_title, response, expected) => {
@@ -336,12 +247,7 @@ each([
         'One person, no age',
         {
             ...interviewAttributesWithHh.response,
-            household: {
-                ...interviewAttributesWithHh.response.household,
-                persons: {
-                    personId1: { _uuid: 'personId1', _sequence: 1 }
-                }
-            }
+            household: { ...interviewAttributesWithHh.response.household, persons: { personId1: { _uuid: 'personId1', _sequence: 1 } } }
         },
         undefined,
         0
@@ -350,12 +256,7 @@ each([
         'One person, age 17',
         {
             ...interviewAttributesWithHh.response,
-            household: {
-                ...interviewAttributesWithHh.response.household,
-                persons: {
-                    personId1: { _uuid: 'personId1', _sequence: 1, age: 17 }
-                }
-            }
+            household: { ...interviewAttributesWithHh.response.household, persons: { personId1: { _uuid: 'personId1', _sequence: 1, age: 17 } } }
         },
         undefined,
         0
@@ -364,12 +265,7 @@ each([
         'One person, age 18',
         {
             ...interviewAttributesWithHh.response,
-            household: {
-                ...interviewAttributesWithHh.response.household,
-                persons: {
-                    personId1: { _uuid: 'personId1', _sequence: 1, age: 18 }
-                }
-            }
+            household: { ...interviewAttributesWithHh.response.household, persons: { personId1: { _uuid: 'personId1', _sequence: 1, age: 18 } } }
         },
         undefined,
         1
@@ -408,13 +304,7 @@ each([
     ],
     [
         'Empty persons',
-        {
-            ...interviewAttributesWithHh.response,
-            household: {
-                ...interviewAttributesWithHh.response.household,
-                persons: {}
-            }
-        },
+        { ...interviewAttributesWithHh.response, household: { ...interviewAttributesWithHh.response.household, persons: {} } },
         undefined,
         0
     ],
@@ -425,12 +315,7 @@ each([
         'One person, age 21, adultAge 21',
         {
             ...interviewAttributesWithHh.response,
-            household: {
-                ...interviewAttributesWithHh.response.household,
-                persons: {
-                    personId1: { _uuid: 'personId1', _sequence: 1, age: 21 }
-                }
-            }
+            household: { ...interviewAttributesWithHh.response.household, persons: { personId1: { _uuid: 'personId1', _sequence: 1, age: 21 } } }
         },
         21,
         1
@@ -439,12 +324,7 @@ each([
         'One person, age 20, adultAge 21',
         {
             ...interviewAttributesWithHh.response,
-            household: {
-                ...interviewAttributesWithHh.response.household,
-                persons: {
-                    personId1: { _uuid: 'personId1', _sequence: 1, age: 20 }
-                }
-            }
+            household: { ...interviewAttributesWithHh.response.household, persons: { personId1: { _uuid: 'personId1', _sequence: 1, age: 20 } } }
         },
         21,
         0
@@ -500,13 +380,7 @@ describe('getInterviewablePersonsArray', () => {
     });
 
     each([
-        [
-            'Have ages, one interviewable person',
-            {
-                personId1: { _uuid: 'personId1', _sequence: 1, age: 23 }
-            },
-            ['personId1']
-        ],
+        ['Have ages, one interviewable person', { personId1: { _uuid: 'personId1', _sequence: 1, age: 23 } }, ['personId1']],
         [
             'Have ages, some non-interviewable persons',
             {
@@ -518,10 +392,7 @@ describe('getInterviewablePersonsArray', () => {
         ],
         [
             'No age, all interviewable',
-            {
-                personId1: { _uuid: 'personId1', _sequence: 1 },
-                personId2: { _uuid: 'personId2', _sequence: 2 }
-            },
+            { personId1: { _uuid: 'personId1', _sequence: 1 }, personId2: { _uuid: 'personId2', _sequence: 2 } },
             ['personId1', 'personId2']
         ],
         ['No persons', {}, []]
@@ -538,12 +409,7 @@ each([
         'One person-only',
         {
             ...interviewAttributesWithHh.response,
-            household: {
-                ...interviewAttributesWithHh.response.household,
-                persons: {
-                    personId1: { _uuid: 'personId1', _sequence: 1, age: 18 }
-                }
-            }
+            household: { ...interviewAttributesWithHh.response.household, persons: { personId1: { _uuid: 'personId1', _sequence: 1, age: 18 } } }
         },
         'personId1',
         true
@@ -552,12 +418,7 @@ each([
         'One person-only, too young',
         {
             ...interviewAttributesWithHh.response,
-            household: {
-                ...interviewAttributesWithHh.response.household,
-                persons: {
-                    personId1: { _uuid: 'personId1', _sequence: 1, age: 12 }
-                }
-            }
+            household: { ...interviewAttributesWithHh.response.household, persons: { personId1: { _uuid: 'personId1', _sequence: 1, age: 12 } } }
         },
         'personId1',
         false
@@ -644,13 +505,7 @@ each([
     ],
     [
         'Empty persons',
-        {
-            ...interviewAttributesWithHh.response,
-            household: {
-                ...interviewAttributesWithHh.response.household,
-                persons: {}
-            }
-        },
+        { ...interviewAttributesWithHh.response, household: { ...interviewAttributesWithHh.response.household, persons: {} } },
         { _uuid: 'somePersonId', _sequence: 1 },
         false
     ],
@@ -659,8 +514,7 @@ each([
 ]).test('isSelfDeclared: %s', (_title, response, personIdOrPerson: string | Person, expected) => {
     const interview = _cloneDeep(interviewAttributesWithHh);
     interview.response = response;
-    const person =
-        typeof personIdOrPerson === 'string' ? response.household!.persons![personIdOrPerson] : personIdOrPerson;
+    const person = typeof personIdOrPerson === 'string' ? response.household!.persons![personIdOrPerson] : personIdOrPerson;
     expect(Helpers.isSelfDeclared({ interview, person })).toEqual(expected);
 });
 
@@ -669,12 +523,7 @@ each([
         'One person-only',
         {
             ...interviewAttributesWithHh.response,
-            household: {
-                ...interviewAttributesWithHh.response.household,
-                persons: {
-                    personId1: { _uuid: 'personId1', _sequence: 1, age: 18 }
-                }
-            }
+            household: { ...interviewAttributesWithHh.response.household, persons: { personId1: { _uuid: 'personId1', _sequence: 1, age: 18 } } }
         },
         'personId1',
         1
@@ -745,13 +594,7 @@ each([
     ],
     [
         'Empty persons',
-        {
-            ...interviewAttributesWithHh.response,
-            household: {
-                ...interviewAttributesWithHh.response.household,
-                persons: {}
-            }
-        },
+        { ...interviewAttributesWithHh.response, household: { ...interviewAttributesWithHh.response.household, persons: {} } },
         { _uuid: 'somePersonId', _sequence: 1 },
         0
     ],
@@ -760,8 +603,7 @@ each([
 ]).test('getCountOrSelfDeclared: %s', (_title, response, personIdOrPerson: string | Person, expected) => {
     const interview = _cloneDeep(interviewAttributesWithHh);
     interview.response = response;
-    const person =
-        typeof personIdOrPerson === 'string' ? response.household!.persons![personIdOrPerson] : personIdOrPerson;
+    const person = typeof personIdOrPerson === 'string' ? response.household!.persons![personIdOrPerson] : personIdOrPerson;
     expect(Helpers.getCountOrSelfDeclared({ interview, person })).toEqual(expected);
 });
 
@@ -779,23 +621,10 @@ each([
 });
 
 each([
-    [
-        'Undefined household',
-        {
-            ...interviewAttributesWithHh.response,
-            household: undefined
-        },
-        false
-    ],
+    ['Undefined household', { ...interviewAttributesWithHh.response, household: undefined }, false],
     [
         'Empty persons object',
-        {
-            ...interviewAttributesWithHh.response,
-            household: {
-                ...interviewAttributesWithHh.response.household,
-                persons: {}
-            }
-        },
+        { ...interviewAttributesWithHh.response, household: { ...interviewAttributesWithHh.response.household, persons: {} } },
         false
     ],
     [
@@ -821,13 +650,7 @@ each([
                 ...interviewAttributesWithHh.response.household,
                 persons: {
                     personId1: { _uuid: 'personId1', _sequence: 1, age: 5, hasDisability: 'yes' },
-                    personId2: {
-                        _uuid: 'personId2',
-                        _sequence: 2,
-                        age: 30,
-                        whoWillAnswerForThisPerson: 'personId3',
-                        hasDisability: 'yes'
-                    },
+                    personId2: { _uuid: 'personId2', _sequence: 2, age: 30, whoWillAnswerForThisPerson: 'personId3', hasDisability: 'yes' },
                     personId3: { _uuid: 'personId3', _sequence: 3, age: 20, hasDisability: 'yes' }
                 }
             }
@@ -842,13 +665,7 @@ each([
                 ...interviewAttributesWithHh.response.household,
                 persons: {
                     personId1: { _uuid: 'personId1', _sequence: 1, age: 5, hasDisability: 'no' },
-                    personId2: {
-                        _uuid: 'personId2',
-                        _sequence: 2,
-                        age: 30,
-                        whoWillAnswerForThisPerson: 'personId3',
-                        hasDisability: 'no'
-                    },
+                    personId2: { _uuid: 'personId2', _sequence: 2, age: 30, whoWillAnswerForThisPerson: 'personId3', hasDisability: 'no' },
                     personId3: { _uuid: 'personId3', _sequence: 3, age: 20, hasDisability: 'no' }
                 }
             }
@@ -877,23 +694,11 @@ each([
 });
 
 describe('getJourneys', () => {
-    const person: Person = {
-        _uuid: 'arbitraryPerson',
-        _sequence: 1
-    };
+    const person: Person = { _uuid: 'arbitraryPerson', _sequence: 1 };
 
     const journeys = {
-        journeyId1: {
-            _uuid: 'journeyId1',
-            _sequence: 2,
-            visitedPlaces: {},
-            trips: {}
-        },
-        journeyId2: {
-            _uuid: 'journeyId2',
-            _sequence: 1,
-            activity: 'work'
-        }
+        journeyId1: { _uuid: 'journeyId1', _sequence: 2, visitedPlaces: {}, trips: {} },
+        journeyId2: { _uuid: 'journeyId2', _sequence: 1, activity: 'work' }
     };
 
     test('object: test without journeys', () => {
@@ -930,15 +735,7 @@ describe('getJourneys', () => {
 
     each([
         ['null personId, no active person, no journey', interviewAttributesWithHh.response, null, null],
-        [
-            'null personId, get active person, no journey',
-            {
-                ...interviewAttributesWithHh.response,
-                _activePersonId: 'personId2'
-            },
-            null,
-            null
-        ],
+        ['null personId, get active person, no journey', { ...interviewAttributesWithHh.response, _activePersonId: 'personId2' }, null, null],
         [
             'null personId, get active person, with active journey',
             {
@@ -947,10 +744,7 @@ describe('getJourneys', () => {
                     ...interviewAttributesWithHh.response.household,
                     persons: {
                         ...interviewAttributesWithHh.response.household!.persons,
-                        personId2: {
-                            ...interviewAttributesWithHh.response.household!.persons!.personId2,
-                            journeys: journeys
-                        }
+                        personId2: { ...interviewAttributesWithHh.response.household!.persons!.personId2, journeys: journeys }
                     }
                 },
                 _activePersonId: 'personId2',
@@ -967,10 +761,7 @@ describe('getJourneys', () => {
                     ...interviewAttributesWithHh.response.household,
                     persons: {
                         ...interviewAttributesWithHh.response.household!.persons,
-                        personId2: {
-                            ...interviewAttributesWithHh.response.household!.persons!.personId2,
-                            journeys: journeys
-                        }
+                        personId2: { ...interviewAttributesWithHh.response.household!.persons!.personId2, journeys: journeys }
                     }
                 },
                 _activePersonId: 'personId1',
@@ -987,10 +778,7 @@ describe('getJourneys', () => {
                     ...interviewAttributesWithHh.response.household,
                     persons: {
                         ...interviewAttributesWithHh.response.household!.persons,
-                        personId2: {
-                            ...interviewAttributesWithHh.response.household!.persons!.personId2,
-                            journeys: journeys
-                        }
+                        personId2: { ...interviewAttributesWithHh.response.household!.persons!.personId2, journeys: journeys }
                     }
                 },
                 _activePersonId: 'personId1',
@@ -1007,10 +795,7 @@ describe('getJourneys', () => {
                     ...interviewAttributesWithHh.response.household,
                     persons: {
                         ...interviewAttributesWithHh.response.household!.persons,
-                        personId2: {
-                            ...interviewAttributesWithHh.response.household!.persons!.personId2,
-                            journeys: journeys
-                        }
+                        personId2: { ...interviewAttributesWithHh.response.household!.persons!.personId2, journeys: journeys }
                     }
                 },
                 _activePersonId: 'personId2',
@@ -1028,17 +813,9 @@ describe('getJourneys', () => {
                     persons: {
                         personId1: {
                             ...interviewAttributesWithHh.response.household!.persons!.personId2,
-                            journeys: {
-                                someJourneyId: {
-                                    _uuid: 'someJourneyId',
-                                    _sequence: 1
-                                }
-                            }
+                            journeys: { someJourneyId: { _uuid: 'someJourneyId', _sequence: 1 } }
                         },
-                        personId2: {
-                            ...interviewAttributesWithHh.response.household!.persons!.personId2,
-                            journeys: journeys
-                        }
+                        personId2: { ...interviewAttributesWithHh.response.household!.persons!.personId2, journeys: journeys }
                     }
                 },
                 _activePersonId: 'personId1',
@@ -1052,33 +829,17 @@ describe('getJourneys', () => {
     ]).test('getActiveJourney: %s', (_title, response, personId, expected) => {
         const interview = _cloneDeep(interviewAttributesWithHh);
         interview.response = response;
-        const person =
-            personId === null
-                ? null
-                : interview.response?.household?.persons
-                  ? interview.response?.household?.persons[personId]
-                  : null;
+        const person = personId === null ? null : interview.response?.household?.persons ? interview.response?.household?.persons[personId] : null;
         expect(Helpers.getActiveJourney({ interview, person })).toEqual(expected);
     });
 });
 
 describe('getVisitedPlaces', () => {
-    const journey: Journey = {
-        _uuid: 'arbitraryJourney',
-        _sequence: 1
-    };
+    const journey: Journey = { _uuid: 'arbitraryJourney', _sequence: 1 };
 
     const visitedPlaces = {
-        visitedPlace1: {
-            _uuid: 'visitedPlace1',
-            _sequence: 2,
-            activity: 'home'
-        },
-        visitedPlace2: {
-            _uuid: 'visitedPlace2',
-            _sequence: 1,
-            activity: 'work'
-        }
+        visitedPlace1: { _uuid: 'visitedPlace1', _sequence: 2, activity: 'home' },
+        visitedPlace2: { _uuid: 'visitedPlace2', _sequence: 1, activity: 'work' }
     };
 
     test('object: test without visited places', () => {
@@ -1110,10 +871,7 @@ describe('getVisitedPlaces', () => {
     test('array: with visited places, ordered', () => {
         const attributes = _cloneDeep(journey);
         attributes.visitedPlaces = visitedPlaces;
-        expect(Helpers.getVisitedPlacesArray({ journey: attributes })).toEqual([
-            visitedPlaces.visitedPlace2,
-            visitedPlaces.visitedPlace1
-        ]);
+        expect(Helpers.getVisitedPlacesArray({ journey: attributes })).toEqual([visitedPlaces.visitedPlace2, visitedPlaces.visitedPlace1]);
     });
 
     each([
@@ -1141,12 +899,7 @@ describe('getVisitedPlaces', () => {
         ],
         [
             'With journey, no active visitedPlace',
-            {
-                activePersonId: 'personId1',
-                activeJourneyId: 'journeyId1',
-                testPersonId: 'personId1',
-                testJourneyId: 'journeyId1'
-            },
+            { activePersonId: 'personId1', activeJourneyId: 'journeyId1', testPersonId: 'personId1', testJourneyId: 'journeyId1' },
             false
         ],
         [
@@ -1179,13 +932,7 @@ describe('getVisitedPlaces', () => {
                 personId1: {
                     _uuid: 'personId1',
                     _sequence: 1,
-                    journeys: {
-                        journeyId1: {
-                            _uuid: 'journeyId1',
-                            _sequence: 1,
-                            visitedPlaces: visitedPlaces
-                        }
-                    }
+                    journeys: { journeyId1: { _uuid: 'journeyId1', _sequence: 1, visitedPlaces: visitedPlaces } }
                 },
                 personId2: {
                     _uuid: 'personId2',
@@ -1194,12 +941,7 @@ describe('getVisitedPlaces', () => {
                         journeyId2: {
                             _uuid: 'journeyId2',
                             _sequence: 1,
-                            visitedPlaces: {
-                                visitedPlaceP2V1: {
-                                    _uuid: 'visitedPlaceP2V1',
-                                    _sequence: 1
-                                }
-                            }
+                            visitedPlaces: { visitedPlaceP2V1: { _uuid: 'visitedPlaceP2V1', _sequence: 1 } }
                         }
                     }
                 }
@@ -1218,10 +960,9 @@ describe('getVisitedPlaces', () => {
                     ? interview.response.household!.persons![testData.testPersonId].journeys![testData.testJourneyId]
                     : null;
             const result = expectResult
-                ? interview.response.household!.persons![(testData.testPersonId || testData.activePersonId) as string]
-                      .journeys![(testData.testJourneyId || testData.activeJourneyId) as string].visitedPlaces![
-                      testData.activeVisitedPlaceId!
-                  ]
+                ? interview.response.household!.persons![(testData.testPersonId || testData.activePersonId) as string].journeys![
+                      (testData.testJourneyId || testData.activeJourneyId) as string
+                ].visitedPlaces![testData.activeVisitedPlaceId!]
                 : null;
             const activeVisitedPlace = Helpers.getActiveVisitedPlace({ interview, journey });
             if (expectResult) {
@@ -1235,22 +976,11 @@ describe('getVisitedPlaces', () => {
 });
 
 describe('getNext/PreviousVisitedPlace', () => {
-    const journey: Journey = {
-        _uuid: 'arbitraryJourney',
-        _sequence: 1
-    };
+    const journey: Journey = { _uuid: 'arbitraryJourney', _sequence: 1 };
 
     const visitedPlaces = {
-        visitedPlace1: {
-            _uuid: 'visitedPlace1',
-            _sequence: 1,
-            activity: 'home'
-        },
-        visitedPlace2: {
-            _uuid: 'visitedPlace2',
-            _sequence: 2,
-            activity: 'work'
-        }
+        visitedPlace1: { _uuid: 'visitedPlace1', _sequence: 1, activity: 'home' },
+        visitedPlace2: { _uuid: 'visitedPlace2', _sequence: 2, activity: 'work' }
     };
 
     test('Next: without visited places', () => {
@@ -1429,14 +1159,10 @@ describe('replaceVisitedPlaceShortcuts', () => {
         ).toEqual({
             updatedValuesByPath: {
                 ['response.household.persons.person1.journeys.journey1.visitedPlaces.shortcutToShortcut.shortcut']: (
-                    (shortcutInterview.response.household!.persons!.person3.journeys!.journey1.visitedPlaces || {})[
-                        'shortcutToBasic2'
-                    ] as any
+                    (shortcutInterview.response.household!.persons!.person3.journeys!.journey1.visitedPlaces || {})['shortcutToBasic2'] as any
                 ).shortcut,
-                ['response.household.persons.person1.journeys.journey1.visitedPlaces.shortcutToShortcut.geography']:
-                    (shortcutInterview.response.household!.persons!.person3.journeys!.journey1.visitedPlaces || {})[
-                        'shortcutToBasic2'
-                    ].geography
+                ['response.household.persons.person1.journeys.journey1.visitedPlaces.shortcutToShortcut.geography']: (shortcutInterview.response
+                    .household!.persons!.person3.journeys!.journey1.visitedPlaces || {})['shortcutToBasic2'].geography
             },
             unsetPaths: []
         });
@@ -1451,14 +1177,10 @@ describe('replaceVisitedPlaceShortcuts', () => {
         ).toEqual({
             updatedValuesByPath: {
                 ['response.household.persons.person3.journeys.journey1.visitedPlaces.shortcutToBasic2.name']: (
-                    (shortcutInterview.response.household!.persons!.person2.journeys!.journey1.visitedPlaces || {})[
-                        'basicPlace2'
-                    ] as any
+                    (shortcutInterview.response.household!.persons!.person2.journeys!.journey1.visitedPlaces || {})['basicPlace2'] as any
                 ).name,
-                ['response.household.persons.person3.journeys.journey1.visitedPlaces.shortcutToBasic2.geography']:
-                    (shortcutInterview.response.household!.persons!.person2.journeys!.journey1.visitedPlaces || {})[
-                        'basicPlace2'
-                    ].geography
+                ['response.household.persons.person3.journeys.journey1.visitedPlaces.shortcutToBasic2.geography']: (shortcutInterview.response
+                    .household!.persons!.person2.journeys!.journey1.visitedPlaces || {})['basicPlace2'].geography
             },
             unsetPaths: ['response.household.persons.person3.journeys.journey1.visitedPlaces.shortcutToBasic2.shortcut']
         });
@@ -1473,14 +1195,10 @@ describe('replaceVisitedPlaceShortcuts', () => {
         ).toEqual({
             updatedValuesByPath: {
                 ['response.household.persons.person2.journeys.journey1.visitedPlaces.isAShortcut.name']: (
-                    (shortcutInterview.response.household!.persons!.person1.journeys!.journey1.visitedPlaces || {})[
-                        'usedAsShortcut'
-                    ] as any
+                    (shortcutInterview.response.household!.persons!.person1.journeys!.journey1.visitedPlaces || {})['usedAsShortcut'] as any
                 ).name,
-                ['response.household.persons.person2.journeys.journey1.visitedPlaces.isAShortcut.geography']:
-                    (shortcutInterview.response.household!.persons!.person1.journeys!.journey1.visitedPlaces || {})[
-                        'usedAsShortcut'
-                    ].geography,
+                ['response.household.persons.person2.journeys.journey1.visitedPlaces.isAShortcut.geography']: (shortcutInterview.response.household!
+                    .persons!.person1.journeys!.journey1.visitedPlaces || {})['usedAsShortcut'].geography,
                 ['response.household.persons.person3.journeys.journey1.visitedPlaces.isAShortcutToo.shortcut']:
                     'household.persons.person2.journeys.journey1.visitedPlaces.isAShortcut',
                 ['response.household.persons.person3.journeys.journey1.visitedPlaces.againAShortcut.shortcut']:
@@ -1492,21 +1210,9 @@ describe('replaceVisitedPlaceShortcuts', () => {
 });
 
 describe('getTrips', () => {
-    const journey: Journey = {
-        _uuid: 'arbitraryJourney',
-        _sequence: 1
-    };
+    const journey: Journey = { _uuid: 'arbitraryJourney', _sequence: 1 };
 
-    const trips = {
-        trip1: {
-            _uuid: 'trip1',
-            _sequence: 2
-        },
-        trip2: {
-            _uuid: 'trip2',
-            _sequence: 1
-        }
-    };
+    const trips = { trip1: { _uuid: 'trip1', _sequence: 2 }, trip2: { _uuid: 'trip2', _sequence: 1 } };
 
     test('object: test without trips', () => {
         expect(Helpers.getTrips({ journey })).toEqual({});
@@ -1565,12 +1271,7 @@ describe('getTrips', () => {
         ],
         [
             'With journey, no active trip',
-            {
-                activePersonId: 'personId1',
-                activeJourneyId: 'journeyId1',
-                testPersonId: 'personId1',
-                testJourneyId: 'journeyId1'
-            },
+            { activePersonId: 'personId1', activeJourneyId: 'journeyId1', testPersonId: 'personId1', testJourneyId: 'journeyId1' },
             false
         ],
         [
@@ -1588,44 +1289,17 @@ describe('getTrips', () => {
         'getActiveTrip: %s',
         (
             _title,
-            testData: {
-                activePersonId?: string;
-                activeJourneyId?: string;
-                activeTripId?: string;
-                testPersonId?: string;
-                testJourneyId?: string;
-            },
+            testData: { activePersonId?: string; activeJourneyId?: string; activeTripId?: string; testPersonId?: string; testJourneyId?: string },
             expectResult
         ) => {
             const interview = _cloneDeep(interviewAttributesWithHh);
             // Set the persons and journeys for the test
             interview.response.household!.persons = {
-                personId1: {
-                    _uuid: 'personId1',
-                    _sequence: 1,
-                    journeys: {
-                        journeyId1: {
-                            _uuid: 'journeyId1',
-                            _sequence: 1,
-                            trips: trips
-                        }
-                    }
-                },
+                personId1: { _uuid: 'personId1', _sequence: 1, journeys: { journeyId1: { _uuid: 'journeyId1', _sequence: 1, trips: trips } } },
                 personId2: {
                     _uuid: 'personId2',
                     _sequence: 2,
-                    journeys: {
-                        journeyId2: {
-                            _uuid: 'journeyId2',
-                            _sequence: 1,
-                            trips: {
-                                tripP2T1: {
-                                    _uuid: 'tripP2T1',
-                                    _sequence: 1
-                                }
-                            }
-                        }
-                    }
+                    journeys: { journeyId2: { _uuid: 'journeyId2', _sequence: 1, trips: { tripP2T1: { _uuid: 'tripP2T1', _sequence: 1 } } } }
                 }
             };
             if (testData.activePersonId) {
@@ -1642,10 +1316,9 @@ describe('getTrips', () => {
                     ? interview.response.household!.persons![testData.testPersonId].journeys![testData.testJourneyId]
                     : null;
             const result = expectResult
-                ? interview.response.household!.persons![(testData.testPersonId || testData.activePersonId) as string]
-                      .journeys![(testData.testJourneyId || testData.activeJourneyId) as string].trips![
-                      testData.activeTripId!
-                  ]
+                ? interview.response.household!.persons![(testData.testPersonId || testData.activePersonId) as string].journeys![
+                      (testData.testJourneyId || testData.activeJourneyId) as string
+                ].trips![testData.activeTripId!]
                 : null;
             const activeTrip = Helpers.getActiveTrip({ interview, journey });
             if (expectResult) {
@@ -1674,10 +1347,7 @@ describe('selectNextIncompleteTrip', () => {
         segment2: { _uuid: 'segment1', _sequence: 1, mode: 'carDriver' as const, hasNextMode: false, _isNew: false }
     };
 
-    const trips = {
-        trip1: { _uuid: 'trip1', _sequence: 1, segments },
-        trip2: { _uuid: 'trip2', _sequence: 2 }
-    };
+    const trips = { trip1: { _uuid: 'trip1', _sequence: 1, segments }, trip2: { _uuid: 'trip2', _sequence: 2 } };
 
     const journey: Journey = { _uuid: 'arbitraryJourney', _sequence: 1, trips };
 
@@ -1729,16 +1399,14 @@ describe('getOrigin/getDestination', () => {
         const journey = interview.response.household!.persons!.personId2.journeys!.journeyId2;
         // Unset origin
         delete journey.trips!.tripId3P2._originVisitedPlaceUuid;
-        expect(Helpers.getOrigin({ trip: journey.trips!.tripId3P2, visitedPlaces: journey.visitedPlaces! })).toEqual(
-            null
-        );
+        expect(Helpers.getOrigin({ trip: journey.trips!.tripId3P2, visitedPlaces: journey.visitedPlaces! })).toEqual(null);
     });
 
     test('getDestination, existing', () => {
         const journey = interviewAttributesForTestCases.response.household!.persons!.personId1.journeys!.journeyId1;
-        expect(
-            Helpers.getDestination({ trip: journey.trips!.tripId1P1, visitedPlaces: journey.visitedPlaces! })
-        ).toEqual(journey.visitedPlaces!.workPlace1P1);
+        expect(Helpers.getDestination({ trip: journey.trips!.tripId1P1, visitedPlaces: journey.visitedPlaces! })).toEqual(
+            journey.visitedPlaces!.workPlace1P1
+        );
     });
 
     test('getDestination: unexisting', () => {
@@ -1752,9 +1420,7 @@ describe('getOrigin/getDestination', () => {
         const journey = interview.response.household!.persons!.personId2.journeys!.journeyId2;
         // Unset destination
         delete journey.trips!.tripId3P2._destinationVisitedPlaceUuid;
-        expect(
-            Helpers.getDestination({ trip: journey.trips!.tripId3P2, visitedPlaces: journey.visitedPlaces! })
-        ).toEqual(null);
+        expect(Helpers.getDestination({ trip: journey.trips!.tripId3P2, visitedPlaces: journey.visitedPlaces! })).toEqual(null);
     });
 });
 
@@ -1764,40 +1430,30 @@ describe('getVisitedPlaceNames', () => {
     each([
         [
             'Home place',
-            interviewAttributesForTestCases.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!
-                .homePlace1P1,
+            interviewAttributesForTestCases.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.homePlace1P1,
             'survey:visitedPlace:activityCategories:home',
             'mocked'
         ],
         [
             'Place with a name',
-            interviewAttributesForTestCases.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!
-                .workPlace1P1,
+            interviewAttributesForTestCases.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.workPlace1P1,
             undefined,
-            interviewAttributesForTestCases.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!
-                .workPlace1P1.name
+            interviewAttributesForTestCases.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.workPlace1P1.name
         ],
         [
             'Place with a shortcut',
-            interviewAttributesForTestCases.response.household!.persons!.personId2.journeys!.journeyId2.visitedPlaces!
-                .shoppingPlace1P2,
+            interviewAttributesForTestCases.response.household!.persons!.personId2.journeys!.journeyId2.visitedPlaces!.shoppingPlace1P2,
             undefined,
-            interviewAttributesForTestCases.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!
-                .otherPlace2P1.name
+            interviewAttributesForTestCases.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.otherPlace2P1.name
         ],
         [
             'Place with neither name or shortcut',
-            interviewAttributesForTestCases.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!
-                .otherPlaceP1,
+            interviewAttributesForTestCases.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.otherPlaceP1,
             'survey:placeGeneric',
             'mocked 4'
         ]
     ]).test('%s', (_title, visitedPlace, mockedTVal, expected) => {
-        const name = Helpers.getVisitedPlaceName({
-            t: mockedT,
-            visitedPlace,
-            interview: interviewAttributesForTestCases
-        });
+        const name = Helpers.getVisitedPlaceName({ t: mockedT, visitedPlace, interview: interviewAttributesForTestCases });
         if (mockedTVal) {
             expect(mockedT).toHaveBeenCalledWith(mockedTVal);
         } else {
@@ -1811,19 +1467,11 @@ describe('getVisitedPlaceGeography', () => {
     // Add a usual workplace and school place and a place
     const usualWorkPlace = {
         name: 'name of my work place',
-        geography: {
-            type: 'Feature',
-            geometry: { type: 'Point', coordinates: [-73.5, 45.5] },
-            properties: { lastAction: 'mapClicked' }
-        }
+        geography: { type: 'Feature', geometry: { type: 'Point', coordinates: [-73.5, 45.5] }, properties: { lastAction: 'mapClicked' } }
     };
     const usualSchoolPlace = {
         name: 'name of my school place',
-        geography: {
-            type: 'Feature',
-            geometry: { type: 'Point', coordinates: [-73.5673, 45.5017] },
-            properties: { lastAction: 'mapClicked' }
-        }
+        geography: { type: 'Feature', geometry: { type: 'Point', coordinates: [-73.5673, 45.5017] }, properties: { lastAction: 'mapClicked' } }
     };
     const testInterviewAttributes = _cloneDeep(interviewAttributesForTestCases);
     (testInterviewAttributes.response.household!.persons!.personId1 as any).usualWorkPlace = usualWorkPlace;
@@ -1841,54 +1489,42 @@ describe('getVisitedPlaceGeography', () => {
     each([
         [
             'Home place',
-            testInterviewAttributes.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!
-                .homePlace1P1,
+            testInterviewAttributes.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.homePlace1P1,
             testInterviewAttributes.response.household!.persons!.personId1,
             testInterviewAttributes.response.home!.geography
         ],
         [
             'Place with a geography',
-            testInterviewAttributes.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!
-                .workPlace1P1,
+            testInterviewAttributes.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.workPlace1P1,
             testInterviewAttributes.response.household!.persons!.personId1,
-            testInterviewAttributes.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!
-                .workPlace1P1.geography
+            testInterviewAttributes.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.workPlace1P1.geography
         ],
         [
             'Place with a shortcut',
-            testInterviewAttributes.response.household!.persons!.personId2.journeys!.journeyId2.visitedPlaces!
-                .shoppingPlace1P2,
+            testInterviewAttributes.response.household!.persons!.personId2.journeys!.journeyId2.visitedPlaces!.shoppingPlace1P2,
             testInterviewAttributes.response.household!.persons!.personId2,
-            testInterviewAttributes.response.household!.persons!.personId2.journeys!.journeyId2.visitedPlaces!
-                .shoppingPlace1P2.geography
+            testInterviewAttributes.response.household!.persons!.personId2.journeys!.journeyId2.visitedPlaces!.shoppingPlace1P2.geography
         ],
         [
             'Place without a geography',
-            testInterviewAttributes.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!
-                .otherPlaceP1,
+            testInterviewAttributes.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.otherPlaceP1,
             testInterviewAttributes.response.household!.persons!.personId1,
             null
         ],
         [
             'Usual work place',
-            testInterviewAttributes.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!
-                .usualWorkPlace1P1,
+            testInterviewAttributes.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.usualWorkPlace1P1,
             testInterviewAttributes.response.household!.persons!.personId1,
             usualWorkPlace.geography
         ],
         [
             'Usual school place',
-            testInterviewAttributes.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!
-                .usualSchoolPlace1P1,
+            testInterviewAttributes.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.usualSchoolPlace1P1,
             testInterviewAttributes.response.household!.persons!.personId1,
             usualSchoolPlace.geography
         ]
     ]).test('%s', (_title, visitedPlace, person, expected) => {
-        const geography = Helpers.getVisitedPlaceGeography({
-            visitedPlace,
-            interview: testInterviewAttributes,
-            person
-        });
+        const geography = Helpers.getVisitedPlaceGeography({ visitedPlace, interview: testInterviewAttributes, person });
         if (expected) {
             expect(geography).toEqual(expected);
         } else {
@@ -1898,23 +1534,9 @@ describe('getVisitedPlaceGeography', () => {
 });
 
 describe('getSegments', () => {
-    const trip: Trip = {
-        _uuid: 'arbitraryTrip',
-        _sequence: 1
-    };
+    const trip: Trip = { _uuid: 'arbitraryTrip', _sequence: 1 };
 
-    const segments = {
-        segment1: {
-            _uuid: 'segment1',
-            _sequence: 2,
-            _isNew: false
-        },
-        segment2: {
-            _uuid: 'segment2',
-            _sequence: 1,
-            _isNew: false
-        }
-    };
+    const segments = { segment1: { _uuid: 'segment1', _sequence: 2, _isNew: false }, segment2: { _uuid: 'segment2', _sequence: 1, _isNew: false } };
 
     test('object: test without segments', () => {
         expect(Helpers.getSegments({ trip })).toEqual({});

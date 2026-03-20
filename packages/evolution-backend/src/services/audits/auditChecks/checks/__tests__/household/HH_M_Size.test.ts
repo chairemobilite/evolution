@@ -36,4 +36,3 @@ describe('HH_M_Size audit check', () => {
         });
     });
 });
-

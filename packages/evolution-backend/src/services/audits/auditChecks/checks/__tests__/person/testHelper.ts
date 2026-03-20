@@ -18,7 +18,10 @@ export const createMockPerson = (overrides: Partial<Person> = {}, validUuid = uu
     } as Person;
 };
 
-export const createContextWithPerson = (personOverrides: Partial<Person> = {}, validUuid = uuidV4()): PersonAuditCheckContext => {
+export const createContextWithPerson = (
+    personOverrides: Partial<Person> = {},
+    validUuid = uuidV4()
+): PersonAuditCheckContext => {
     return {
         person: createMockPerson(personOverrides, validUuid),
         household: undefined,

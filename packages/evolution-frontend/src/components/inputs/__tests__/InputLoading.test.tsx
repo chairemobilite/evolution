@@ -10,7 +10,7 @@ import '@testing-library/jest-dom';
 
 import InputLoading from '../InputLoading';
 
-test('Should correctly render Input Loading', () =>{
+test('Should correctly render Input Loading', () => {
     const { container } = render(<InputLoading />);
     expect(container).toMatchSnapshot();
 });

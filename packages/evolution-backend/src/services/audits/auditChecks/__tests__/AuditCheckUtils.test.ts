@@ -6,20 +6,10 @@
  */
 
 // Mock the project config directly to avoid loading external files and environment variables
-jest.mock('evolution-common/lib/config/project.config', () => ({
-    __esModule: true,
-    default: {
-        surveyAreaGeojsonPath: undefined
-    }
-}));
+jest.mock('evolution-common/lib/config/project.config', () => ({ __esModule: true, default: { surveyAreaGeojsonPath: undefined } }));
 
 // Mock the file manager directly to avoid dependency on chaire-lib-backend config side effects
-jest.mock('chaire-lib-backend/lib/utils/filesystem/fileManager', () => ({
-    fileManager: {
-        fileExists: jest.fn(),
-        readFile: jest.fn()
-    }
-}));
+jest.mock('chaire-lib-backend/lib/utils/filesystem/fileManager', () => ({ fileManager: { fileExists: jest.fn(), readFile: jest.fn() } }));
 
 describe('AuditCheckUtils', () => {
     test('should return undefined if surveyAreaGeojsonPath is not set', async () => {
@@ -45,16 +35,9 @@ describe('AuditCheckUtils', () => {
                 const mockFileManager = fileManager as jest.Mocked<typeof fileManager>;
 
                 (projectConfig as any).surveyAreaGeojsonPath = testPath;
-                const mockFeature = {
-                    type: 'Feature',
-                    geometry: { type: 'Polygon', coordinates: [] },
-                    properties: { name: 'Test' }
-                };
+                const mockFeature = { type: 'Feature', geometry: { type: 'Polygon', coordinates: [] }, properties: { name: 'Test' } };
                 mockFileManager.fileExists.mockReturnValue(true);
-                mockFileManager.readFile.mockReturnValue(JSON.stringify({
-                    type: 'FeatureCollection',
-                    features: [mockFeature]
-                }));
+                mockFileManager.readFile.mockReturnValue(JSON.stringify({ type: 'FeatureCollection', features: [mockFeature] }));
 
                 const result = getSurveyArea();
                 expect(result).toEqual(mockFeature);
@@ -101,14 +84,12 @@ describe('AuditCheckUtils', () => {
 
                 (projectConfig as any).surveyAreaGeojsonPath = testPath;
                 mockFileManager.fileExists.mockReturnValue(true);
-                mockFileManager.readFile.mockReturnValue(JSON.stringify({
-                    type: 'FeatureCollection',
-                    features: [{
-                        type: 'Feature',
-                        geometry: { type: 'Polygon', coordinates: [] },
-                        properties: {}
-                    }]
-                }));
+                mockFileManager.readFile.mockReturnValue(
+                    JSON.stringify({
+                        type: 'FeatureCollection',
+                        features: [{ type: 'Feature', geometry: { type: 'Polygon', coordinates: [] }, properties: {} }]
+                    })
+                );
 
                 const result1 = getSurveyArea();
                 const result2 = getSurveyArea();

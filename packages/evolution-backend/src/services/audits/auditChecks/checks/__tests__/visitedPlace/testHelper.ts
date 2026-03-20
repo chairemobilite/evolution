@@ -28,7 +28,10 @@ export const createMockVisitedPlace = (overrides: Partial<VisitedPlace> = {}, va
     } as VisitedPlace;
 };
 
-export const createContextWithVisitedPlace = (visitedPlaceOverrides: Partial<VisitedPlace> = {}, validUuid = uuidV4()): VisitedPlaceAuditCheckContext => {
+export const createContextWithVisitedPlace = (
+    visitedPlaceOverrides: Partial<VisitedPlace> = {},
+    validUuid = uuidV4()
+): VisitedPlaceAuditCheckContext => {
     return {
         visitedPlace: createMockVisitedPlace(visitedPlaceOverrides, validUuid),
         person: { _uuid: uuidV4() } as unknown as Person,

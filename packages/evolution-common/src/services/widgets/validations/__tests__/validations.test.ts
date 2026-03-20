@@ -10,7 +10,7 @@ import projectConfig from '../../../../config/project.config';
 
 // Mock the project config to be able to change the postalCodeRegion
 jest.mock('../../../../config/project.config', () => ({
-    postalCodeRegion: 'canada'  // Default for tests
+    postalCodeRegion: 'canada' // Default for tests
 }));
 
 describe('postalCodeValidation', () => {
@@ -26,22 +26,17 @@ describe('postalCodeValidation', () => {
             expect((result[0].errorMessage as any)(mockTranslation)).toEqual('survey:errors:postalCodeRequired');
         });
     });
-    
+
     describe('Canadian postal code validation', () => {
         beforeEach(() => {
             projectConfig.postalCodeRegion = 'canada';
         });
-        
-        test.each([
-            'A1A 1A1', 
-            'A1A1A1',
-            'H3Z 2Y7', 
-            'V8C 1A5'
-        ])('should accept valid Canadian postal code: %s', (postalCode) => {
+
+        test.each(['A1A 1A1', 'A1A1A1', 'H3Z 2Y7', 'V8C 1A5'])('should accept valid Canadian postal code: %s', (postalCode) => {
             const result = validations.postalCodeValidation(postalCode, undefined, {} as any, 'postalCode');
             expect(result[1].validation).toBe(false); // Should be valid
         });
-        
+
         test.each([
             ['D1A 1A1', 'D is not used in Canadian postal codes'],
             ['F1A 1A1', 'F is not used in Canadian postal codes'],
@@ -65,22 +60,17 @@ describe('postalCodeValidation', () => {
             expect(mockTranslation).toHaveBeenLastCalledWith('survey:errors:postalCodeInvalid', { context: 'canada' });
         });
     });
-    
+
     describe('Quebec postal code validation', () => {
         beforeEach(() => {
             projectConfig.postalCodeRegion = 'quebec';
         });
-        
-        test.each([
-            'G1A 1A1',
-            'H3Z 2Y7',
-            'J7V 9Z9',
-            'K2V 1A1'
-        ])('should accept valid Quebec postal code: %s', (postalCode) => {
+
+        test.each(['G1A 1A1', 'H3Z 2Y7', 'J7V 9Z9', 'K2V 1A1'])('should accept valid Quebec postal code: %s', (postalCode) => {
             const result = validations.postalCodeValidation(postalCode, undefined, {} as any, 'postalCode');
             expect(result[1].validation).toBe(false); // Should be valid
         });
-        
+
         test.each([
             ['D1A 1A1', 'D is not used in Canadian postal codes'],
             ['F1A 1A1', 'F is not used in Canadian postal codes'],
@@ -108,12 +98,12 @@ describe('postalCodeValidation', () => {
             expect(mockTranslation).toHaveBeenLastCalledWith('survey:errors:postalCodeInvalid', { context: 'quebec' });
         });
     });
-    
+
     describe('Other postal code validation', () => {
         beforeEach(() => {
             projectConfig.postalCodeRegion = 'other';
         });
-        
+
         test.each([
             ['A1A 1A1', 'Canadian'],
             ['H3Z 2Y7', 'Quebec'],
@@ -139,7 +129,7 @@ describe('getPostalCodeRegex', () => {
         const regex = validations.getPostalCodeRegex();
         expect(regex.test(postalCode)).toBe(expected);
     });
-    
+
     test.each([
         ['H2X 1A1', true, 'Valid Quebec postal code'],
         ['A1A 1A1', false, 'Not a Quebec postal code']
@@ -148,7 +138,7 @@ describe('getPostalCodeRegex', () => {
         const regex = validations.getPostalCodeRegex();
         expect(regex.test(postalCode)).toBe(expected);
     });
-    
+
     test.each([
         ['12345', true, 'US-style postal code'],
         ['ABC-123', true, 'Made up postal code'],
@@ -172,7 +162,7 @@ describe('phoneValidation', () => {
         // Valid format with spaces and dashes
         '223- 456- 7890',
         '  223 - 456 - 7890 ',
-        '223\t\t456\t7890\t',  // tabs
+        '223\t\t456\t7890\t', // tabs
         '223\u00A0456\u00A0\u00A07890\u00A0', // nbsp
         '\u202F223\u202F456\u202F\u202F7890\u202F', // narrow nbsp
         '\u2009223\u2009456\u2009\u20097890\u2009', // thin nbsp
@@ -196,7 +186,7 @@ describe('phoneValidation', () => {
         expect(result[0].validation).toBe(false);
     });
 
-    // Test cases for valid international phone numbers 
+    // Test cases for valid international phone numbers
     test.each([
         // International phone numbers
         '+44 20 7946 0958', // UK number
@@ -216,7 +206,7 @@ describe('phoneValidation', () => {
         '+44\t\t20\t7946\t0958\t', // UK number with tabs
         '+44\u00A020\u00A07946\u00A00958\u00A0', // UK number with nbsp
         '\u202F+44\u202F20\u202F7946\u202F0958\u202F', // UK number with narrow spaces
-        '\u2009+44\u200920\u20097946\u20090958\u2009', // UK number with thin spaces
+        '\u2009+44\u200920\u20097946\u20090958\u2009' // UK number with thin spaces
     ])('should return no validation errors for valid international phone number: %s', (phoneNumber) => {
         const result = validations.phoneValidation(phoneNumber, undefined, {} as any, 'phoneNumber');
         // For valid phone numbers, the validation property should be false
@@ -275,24 +265,19 @@ describe('accessCodeValidation', () => {
             expect((result[0].errorMessage as any)(mockTranslation)).toEqual('survey:errors:accessCodeRequired');
         });
     });
-    
+
     describe('eight digits access code validation', () => {
-        
-        test.each([
-            '2345-2345', 
-            '1234 1234',
-            '12341234'
-        ])('should accept valid 8-digits access codes: %s', (accessCode) => {
+        test.each(['2345-2345', '1234 1234', '12341234'])('should accept valid 8-digits access codes: %s', (accessCode) => {
             const result = validations.accessCodeValidation(accessCode, undefined, {} as any, 'accessCode');
             expect(result[0].validation).toBe(false); // Empty validation passes
             expect(result[1].validation).toBe(false); // Should be valid
         });
-        
+
         test.each([
             ['2345-abcd', 'Contains letters'],
             ['2345 45', 'Too short'],
             ['123412341234', 'Too long'],
-            ['12-345678', 'Misplaced dash'],
+            ['12-345678', 'Misplaced dash']
         ])('should reject invalid 8-digits access code: %s (%s)', (accessCode, _reason) => {
             const result = validations.accessCodeValidation(accessCode, undefined, {} as any, 'accessCode');
             expect(result[0].validation).toBe(false); // Empty validation passes
@@ -302,5 +287,4 @@ describe('accessCodeValidation', () => {
             expect(mockTranslation).toHaveBeenLastCalledWith('survey:errors:accessCodeInvalid');
         });
     });
-    
 });

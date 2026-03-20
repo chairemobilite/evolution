@@ -61,7 +61,6 @@ describe('runHouseholdAuditChecks - Integration', () => {
         expect(audits.some((a) => a.errorCode === 'TEST_FAIL_1')).toBe(true);
         expect(audits.some((a) => a.errorCode === 'TEST_FAIL_2')).toBe(true);
         expect(audits.some((a) => a.errorCode === 'TEST_PASS')).toBe(false);
-
     });
 
     it('should handle empty audit checks object', async () => {

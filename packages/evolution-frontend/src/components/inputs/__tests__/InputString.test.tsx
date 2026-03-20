@@ -14,16 +14,15 @@ import { interviewAttributes } from './interviewData';
 const userAttributes = {
     id: 1,
     username: 'foo',
-    preferences: {  },
+    preferences: {},
     serializedPermissions: [],
     isAuthorized: () => true,
     is_admin: false,
     pages: [],
     showUserInfo: true
-}
+};
 
-test('Should correctly render InputString with all parameters', () =>{
-
+test('Should correctly render InputString with all parameters', () => {
     const widgetConfig = {
         type: 'question' as const,
         twoColumns: true,
@@ -37,16 +36,15 @@ test('Should correctly render InputString with all parameters', () =>{
         placeholder: 'example placeholder' as const,
         containsHtml: true,
         size: 'medium' as const,
-        label: {
-            fr: `Texte en français`,
-            en: `English text`
-        }
-    }
+        label: { fr: 'Texte en français', en: 'English text' }
+    };
 
     const { container } = render(
         <InputString
             id={'test'}
-            onValueChange={() => { /* nothing to do */}}
+            onValueChange={() => {
+                /* nothing to do */
+            }}
             widgetConfig={widgetConfig}
             value={undefined}
             inputRef={React.createRef()}
@@ -59,8 +57,7 @@ test('Should correctly render InputString with all parameters', () =>{
     expect(container).toMatchSnapshot();
 });
 
-test('Should correctly render InputString with default value as function', () =>{
-
+test('Should correctly render InputString with default value as function', () => {
     const widgetConfig = {
         type: 'question' as const,
         twoColumns: true,
@@ -71,16 +68,15 @@ test('Should correctly render InputString with default value as function', () =>
         size: 'medium' as const,
         defaultValue: jest.fn().mockReturnValue('fctDefault'),
         containsHtml: true,
-        label: {
-            fr: `Texte en français`,
-            en: `English text`
-        }
-    }
+        label: { fr: 'Texte en français', en: 'English text' }
+    };
 
     const { container } = render(
         <InputString
             id={'test'}
-            onValueChange={() => { /* nothing to do */}}
+            onValueChange={() => {
+                /* nothing to do */
+            }}
             widgetConfig={widgetConfig}
             value={undefined}
             inputRef={React.createRef()}
@@ -94,22 +90,18 @@ test('Should correctly render InputString with default value as function', () =>
     expect(widgetConfig.defaultValue).toHaveBeenCalledWith(interviewAttributes, 'path', userAttributes);
 });
 
-test('Should correctly render InputString with base parameters', () =>{
-
+test('Should correctly render InputString with base parameters', () => {
     const widgetConfig = {
         type: 'question' as const,
         path: 'test.foo',
         inputType: 'string' as const,
-        label: {
-            fr: `Texte en français`,
-            en: `English text`
-        }
-    }
+        label: { fr: 'Texte en français', en: 'English text' }
+    };
     const { container } = render(
         <InputString
             id={'test'}
             widgetConfig={widgetConfig}
-            value='value'
+            value="value"
             updateKey={0}
             interview={interviewAttributes}
             path={'path'}
@@ -120,17 +112,13 @@ test('Should correctly render InputString with base parameters', () =>{
     expect(container).toMatchSnapshot();
 });
 
-test('Should correctly render InputString with a value of 0', () =>{
-
+test('Should correctly render InputString with a value of 0', () => {
     const widgetConfig = {
         type: 'question' as const,
         path: 'test.foo',
         inputType: 'string' as const,
-        label: {
-            fr: `Texte en français`,
-            en: `English text`
-        }
-    }
+        label: { fr: 'Texte en français', en: 'English text' }
+    };
     const { container } = render(
         <InputString
             id={'test'}
@@ -151,23 +139,22 @@ test('Test update value through props', () => {
         type: 'question' as const,
         path: 'test.foo',
         inputType: 'string' as const,
-        label: {
-            fr: `Texte en français`,
-            en: `English text`
-        }
-    }
+        label: { fr: 'Texte en français', en: 'English text' }
+    };
     const testId = 'test';
     const onValueChangeMock = jest.fn();
-    const { rerender } = render(<InputString
-        id={testId}
-        widgetConfig={widgetConfig}
-        value='value'
-        updateKey={0}
-        interview={interviewAttributes}
-        path={'path'}
-        user={userAttributes}
-        onValueChange={onValueChangeMock}
-    />);
+    const { rerender } = render(
+        <InputString
+            id={testId}
+            widgetConfig={widgetConfig}
+            value="value"
+            updateKey={0}
+            interview={interviewAttributes}
+            path={'path'}
+            user={userAttributes}
+            onValueChange={onValueChangeMock}
+        />
+    );
 
     // Validate initial values
     expect(screen.getByRole('textbox')).toHaveValue('value');
@@ -188,7 +175,7 @@ test('Test update value through props', () => {
         user: userAttributes,
         onValueChange: onValueChangeMock
     };
-    rerender(<InputString  {...newProps} />);
+    rerender(<InputString {...newProps} />);
     expect(screen.getByRole('textbox')).toHaveValue(newValue);
 
     // Change value through props and change updateKey, should be updated
@@ -203,6 +190,6 @@ test('Test update value through props', () => {
         user: userAttributes,
         onValueChange: onValueChangeMock
     };
-    rerender(<InputString  {...newPropsWithUpdateKey} />);
+    rerender(<InputString {...newPropsWithUpdateKey} />);
     expect(screen.getByRole('textbox')).toHaveValue(updateByServerVal);
 });

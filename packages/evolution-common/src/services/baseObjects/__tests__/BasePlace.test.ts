@@ -29,20 +29,14 @@ const baseAddressAttributes: BaseAddressAttributes = {
     country: 'Sample Country',
     postalCode: '12345',
     addressId: 'address123',
-    internalId: 'internal123',
+    internalId: 'internal123'
 };
 
 const geojson = {
     type: 'Feature',
     id: 112223,
-    geometry: {
-        type: 'Point',
-        coordinates: [45.5, -89.0033423],
-    },
-    properties: {
-        foo: 'boo',
-        bar: 'far'
-    },
+    geometry: { type: 'Point', coordinates: [45.5, -89.0033423] },
+    properties: { foo: 'boo', bar: 'far' }
 } as GeoJSON.Feature<GeoJSON.Point, { [key: string]: string }>;
 
 const basePlaceAttributes: BasePlaceAttributes = {
@@ -60,13 +54,12 @@ const basePlaceAttributes: BasePlaceAttributes = {
     geocodingQueryString: 'Sample query',
     lastAction: 'preGeocoded',
     deviceUsed: 'tablet',
-    zoom: 14,
+    zoom: 14
 };
 
 const baseAddress = new BaseAddress(baseAddressAttributes);
 
 describe('BasePlace', () => {
-
     it('should create a new BasePlace instance', () => {
         const place = new BasePlace({ ...basePlaceAttributes, address: baseAddress });
         expect(place).toBeInstanceOf(BasePlace);
@@ -94,11 +87,7 @@ describe('BasePlace', () => {
     });
 
     it('should create a new BasePlace instance with only _uuid and name', () => {
-        const minimalAttributes: BasePlaceAttributes = {
-            geography: undefined,
-            _uuid: validUUID2,
-            name: 'Sample Place',
-        };
+        const minimalAttributes: BasePlaceAttributes = { geography: undefined, _uuid: validUUID2, name: 'Sample Place' };
 
         const place = new BasePlace(minimalAttributes);
         expect(place).toBeInstanceOf(BasePlace);
@@ -136,10 +125,7 @@ describe('validateParams', () => {
             shortname: 'SP',
             geography: {
                 type: 'Feature',
-                geometry: {
-                    type: 'Point',
-                    coordinates: [1, 2]
-                },
+                geometry: { type: 'Point', coordinates: [1, 2] },
                 properties: {
                     name: 'Sample Place',
                     address: {
@@ -162,7 +148,7 @@ describe('validateParams', () => {
             geocodingQueryString: 'Main St, City',
             lastAction: 'findPlace',
             deviceUsed: 'mobile',
-            zoom: 20,
+            zoom: 20
         };
 
         const errors = BasePlace.validateParams(validParams);
@@ -184,7 +170,7 @@ describe('validateParams', () => {
             geocodingQueryString: 'Main St, City',
             lastAction: 'markerDragged',
             deviceUsed: 'desktop',
-            zoom: 18,
+            zoom: 18
         };
 
         const errors = BasePlace.validateParams(validParams);
@@ -201,7 +187,13 @@ describe('validateParams', () => {
                 geometry: {
                     type: 'Polygon', // Invalid, should be Point
                     coordinates: [
-                        [[0, 0], [0, 1], [1, 1], [1, 0], [0, 0]]
+                        [
+                            [0, 0],
+                            [0, 1],
+                            [1, 1],
+                            [1, 0],
+                            [0, 0]
+                        ]
                     ]
                 },
                 properties: {
@@ -226,7 +218,7 @@ describe('validateParams', () => {
             geocodingQueryString: 'Main St, City',
             lastAction: 'mapClicked',
             deviceUsed: 'other',
-            zoom: 10,
+            zoom: 10
         };
 
         const errors = BasePlace.validateParams(invalidParams);
@@ -249,7 +241,7 @@ describe('validateParams', () => {
             geocodingQueryString: 123, // Invalid type,
             lastAction: new Date(), // Invalid type,
             deviceUsed: {}, // Invalid type,
-            zoom: -1.23, // Invalid type,
+            zoom: -1.23 // Invalid type,
         };
 
         const errors = BasePlace.validateParams(params);
@@ -268,7 +260,7 @@ describe('validateParams', () => {
             new Error('BasePlace validateParams: geocodingQueryString should be a string'),
             new Error('BasePlace validateParams: lastAction should be a string'),
             new Error('BasePlace validateParams: deviceUsed should be a string'),
-            new Error('BasePlace validateParams: zoom should be a positive number'),
+            new Error('BasePlace validateParams: zoom should be a positive number')
         ]);
     });
 
@@ -285,5 +277,4 @@ describe('validateParams', () => {
         expect(instance.address).toBeInstanceOf(BaseAddress);
         expect(instance.address?.civicNumber).toEqual(baseAddressAttributes.civicNumber);
     });
-
 });

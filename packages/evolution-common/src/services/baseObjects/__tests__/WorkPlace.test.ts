@@ -20,11 +20,11 @@ describe('WorkPlace', () => {
         registry.clear();
     });
 
-    const weightMethodAttributes : WeightMethodAttributes = {
+    const weightMethodAttributes: WeightMethodAttributes = {
         _uuid: uuidV4(),
         shortname: 'sample-shortname',
         name: 'Sample Weight Method',
-        description: 'Sample weight method description',
+        description: 'Sample weight method description'
     };
 
     const validPlaceAttributes: { [key: string]: unknown } = {
@@ -42,14 +42,7 @@ describe('WorkPlace', () => {
         lastAction: 'findPlace',
         deviceUsed: 'tablet',
         zoom: 15,
-        geography: {
-            type: 'Feature',
-            geometry: {
-                type: 'Point',
-                coordinates: [0, 0],
-            },
-            properties: {},
-        },
+        geography: { type: 'Feature', geometry: { type: 'Point', coordinates: [0, 0] }, properties: {} },
         _weights: [{ weight: 1.2, method: new WeightMethod(weightMethodAttributes) }],
         _isValid: true
     };
@@ -57,13 +50,13 @@ describe('WorkPlace', () => {
     const validWorkPlaceAttributes: { [key: string]: unknown } = {
         ...validPlaceAttributes,
         parkingType: 'interiorAssignedOrGuaranteed',
-        parkingFeeType: 'paidByEmployee',
+        parkingFeeType: 'paidByEmployee'
     };
 
     const extendedWorkPlaceAttributes: { [key: string]: unknown } = {
         ...validWorkPlaceAttributes,
         customAttribute1: 'value1',
-        customAttribute2: 'value2',
+        customAttribute2: 'value2'
     };
 
     test('should create a WorkPlace instance with valid attributes', () => {
@@ -74,9 +67,11 @@ describe('WorkPlace', () => {
 
     test('should have a validateParams section for each attribute', () => {
         const validateParamsCode = WorkPlace.validateParams.toString();
-        placeAttributes.filter((attribute) => attribute !== '_uuid' && attribute !== '_weights').forEach((attributeName) => {
-            expect(validateParamsCode).toContain('\''+attributeName+'\'');
-        });
+        placeAttributes
+            .filter((attribute) => attribute !== '_uuid' && attribute !== '_weights')
+            .forEach((attributeName) => {
+                expect(validateParamsCode).toContain('\'' + attributeName + '\'');
+            });
     });
 
     test('should get uuid', () => {
@@ -100,7 +95,7 @@ describe('WorkPlace', () => {
         const invalidAttributes = 'foo' as any;
         const result = WorkPlace.create(invalidAttributes, registry);
         expect(hasErrors(result)).toBe(true);
-        expect((unwrap(result) as Error[])).toHaveLength(1);
+        expect(unwrap(result) as Error[]).toHaveLength(1);
     });
 
     test('should return errors for invalid attributes', () => {
@@ -134,14 +129,8 @@ describe('WorkPlace', () => {
     });
 
     test('should create a WorkPlace instance with custom attributes', () => {
-        const customAttributes = {
-            customAttribute1: 'value1',
-            customAttribute2: 'value2',
-        };
-        const placeAttributes = {
-            ...validPlaceAttributes,
-            ...customAttributes,
-        };
+        const customAttributes = { customAttribute1: 'value1', customAttribute2: 'value2' };
+        const placeAttributes = { ...validPlaceAttributes, ...customAttributes };
         const place = new WorkPlace(placeAttributes, registry);
         expect(place).toBeInstanceOf(WorkPlace);
         expect(place.attributes).toEqual(validPlaceAttributes);
@@ -151,7 +140,7 @@ describe('WorkPlace', () => {
     describe('validateParams', () => {
         test.each([
             ['parkingType', 123],
-            ['parkingFeeType', 123],
+            ['parkingFeeType', 123]
         ])('should return an error for invalid %s', (param, value) => {
             const invalidAttributes = { ...validWorkPlaceAttributes, [param]: value };
             const errors = WorkPlace.validateParams(invalidAttributes);
@@ -170,14 +159,7 @@ describe('WorkPlace', () => {
             ['parkingType', 'exteriorAssignedOrGuaranteed'],
             ['parkingFeeType', 'free'],
             ['preData', { importedWorkPlaceData: 'value', employeeCount: 50 }],
-            ['preGeography', {
-                type: 'Feature',
-                geometry: {
-                    type: 'Point',
-                    coordinates: [-73.6, 45.6],
-                },
-                properties: {},
-            }],
+            ['preGeography', { type: 'Feature', geometry: { type: 'Point', coordinates: [-73.6, 45.6] }, properties: {} }]
         ])('should set and get %s', (attribute, value) => {
             const workPlace = new WorkPlace(validWorkPlaceAttributes, registry);
             workPlace[attribute] = value;
@@ -187,11 +169,11 @@ describe('WorkPlace', () => {
         describe('Getters for attributes with no setters', () => {
             test.each([
                 ['_uuid', validWorkPlaceAttributes._uuid],
-                ['customAttributes', {
-                    customAttribute1: extendedWorkPlaceAttributes.customAttribute1,
-                    customAttribute2: extendedWorkPlaceAttributes.customAttribute2
-                }],
-                ['attributes', validWorkPlaceAttributes],
+                [
+                    'customAttributes',
+                    { customAttribute1: extendedWorkPlaceAttributes.customAttribute1, customAttribute2: extendedWorkPlaceAttributes.customAttribute2 }
+                ],
+                ['attributes', validWorkPlaceAttributes]
             ])('should set and get %s', (attribute, value) => {
                 const workPlace = new WorkPlace(extendedWorkPlaceAttributes, registry);
                 expect(workPlace[attribute]).toEqual(value);
@@ -200,7 +182,7 @@ describe('WorkPlace', () => {
 
         test.each([
             ['_isValid', false],
-            ['_weights', [{ weight: 2.0, method: new WeightMethod(weightMethodAttributes) }]],
+            ['_weights', [{ weight: 2.0, method: new WeightMethod(weightMethodAttributes) }]]
         ])('should set and get %s', (attribute, value) => {
             const workPlace = new WorkPlace(validWorkPlaceAttributes, registry);
             workPlace[attribute] = value;
@@ -218,14 +200,7 @@ describe('WorkPlace', () => {
         });
 
         test('should preserve preGeography through (un)serialize', () => {
-            const preGeography = {
-                type: 'Feature' as const,
-                geometry: {
-                    type: 'Point' as const,
-                    coordinates: [-73.6, 45.6],
-                },
-                properties: {},
-            };
+            const preGeography = { type: 'Feature' as const, geometry: { type: 'Point' as const, coordinates: [-73.6, 45.6] }, properties: {} };
             const attrs = { ...validWorkPlaceAttributes, preGeography };
             const wp1 = new WorkPlace(attrs, registry);
             const wp2 = WorkPlace.unserialize(attrs, registry);
@@ -233,5 +208,4 @@ describe('WorkPlace', () => {
             expect(wp2.preGeography).toEqual(preGeography);
         });
     });
-
 });

@@ -12,19 +12,15 @@ import { getResponse, setResponse, translateString } from '../../../../../utils/
 import * as surveyHelper from '../../../../odSurvey/helpers';
 import { shouldShowSameAsReverseTripQuestion, getPreviousTripSingleSegment } from '../helpers';
 
-jest.mock('../helpers', () => ({
-    shouldShowSameAsReverseTripQuestion: jest.fn().mockReturnValue(false),
-    getPreviousTripSingleSegment: jest.fn()
-}));
-const mockedShouldShowSameAsReverseTripQuestion = shouldShowSameAsReverseTripQuestion as jest.MockedFunction<typeof shouldShowSameAsReverseTripQuestion>;
+jest.mock('../helpers', () => ({ shouldShowSameAsReverseTripQuestion: jest.fn().mockReturnValue(false), getPreviousTripSingleSegment: jest.fn() }));
+const mockedShouldShowSameAsReverseTripQuestion = shouldShowSameAsReverseTripQuestion as jest.MockedFunction<
+    typeof shouldShowSameAsReverseTripQuestion
+>;
 const mockedGetPreviousTripSingleSegment = getPreviousTripSingleSegment as jest.MockedFunction<typeof getPreviousTripSingleSegment>;
 
 describe('getSegmentHasNextModeWidgetConfig', () => {
     it('should return the correct widget config', () => {
-
-        const options = {
-            context: jest.fn()
-        };
+        const options = { context: jest.fn() };
 
         const widgetConfig = getSegmentHasNextModeWidgetConfig(options);
 
@@ -36,14 +32,8 @@ describe('getSegmentHasNextModeWidgetConfig', () => {
             datatype: 'boolean',
             label: expect.any(Function),
             choices: [
-                expect.objectContaining({
-                    value: true,
-                    label: expect.any(Function)
-                }),
-                expect.objectContaining({
-                    value: false,
-                    label: expect.any(Function),
-                }),
+                expect.objectContaining({ value: true, label: expect.any(Function) }),
+                expect.objectContaining({ value: false, label: expect.any(Function) })
             ],
             validations: expect.any(Function),
             conditional: expect.any(Function)
@@ -59,22 +49,28 @@ describe('segmentHasNextMode validations', () => {
     const validations = widgetConfig.validations;
 
     test('should return no error if value is not empty', () => {
-        expect(validations!(true, null, interview, 'household.persons.personId2.journeys.journeyId2.trips.tripId1P2.segments.segmentId1P2T1.hasNextMode'))
-            .toEqual([{ validation: false, errorMessage: expect.anything() }]);
+        expect(
+            validations!(true, null, interview, 'household.persons.personId2.journeys.journeyId2.trips.tripId1P2.segments.segmentId1P2T1.hasNextMode')
+        ).toEqual([{ validation: false, errorMessage: expect.anything() }]);
     });
 
     test('should return an error if value is empty', () => {
-        expect(validations!(null, null, interview, 'household.persons.personId2.journeys.journeyId2.trips.tripId1P2.segments.segmentId1P2T1.hasNextMode'))
-            .toEqual([{ validation: true, errorMessage: expect.anything() }]);
+        expect(
+            validations!(null, null, interview, 'household.persons.personId2.journeys.journeyId2.trips.tripId1P2.segments.segmentId1P2T1.hasNextMode')
+        ).toEqual([{ validation: true, errorMessage: expect.anything() }]);
     });
 
     test('should return the right error message', () => {
-        const validation = validations!('carDriver', null, interview, 'household.persons.personId2.journeys.journeyId2.trips.tripId1P2.segments.segmentId1P2T1.hasNextMode');
+        const validation = validations!(
+            'carDriver',
+            null,
+            interview,
+            'household.persons.personId2.journeys.journeyId2.trips.tripId1P2.segments.segmentId1P2T1.hasNextMode'
+        );
         const mockedT = jest.fn();
         translateString(validation[0].errorMessage, { t: mockedT } as any, interview, 'path');
         expect(mockedT).toHaveBeenCalledWith(['customSurvey:ResponseIsRequired', 'survey:ResponseIsRequired']);
     });
-
 });
 
 describe('segmentHasNextMode conditional', () => {
@@ -205,7 +201,11 @@ describe('segmentHasNextMode label', () => {
             count: 1
         });
         expect(mockedT).toHaveBeenCalledTimes(2);
-        expect(mockedGetPlaceName).toHaveBeenCalledWith({ t: mockedT, visitedPlace: interview.response.household!.persons!.personId2!.journeys!.journeyId2!.visitedPlaces!.otherWorkPlace1P2, interview });
+        expect(mockedGetPlaceName).toHaveBeenCalledWith({
+            t: mockedT,
+            visitedPlace: interview.response.household!.persons!.personId2!.journeys!.journeyId2!.visitedPlaces!.otherWorkPlace1P2,
+            interview
+        });
         expect(mockedGetCountOrSelfDeclared).toHaveBeenCalledWith({ interview, person: interview.response.household!.persons!.personId2 });
     });
 
@@ -227,14 +227,7 @@ describe('segmentHasNextMode label', () => {
             _sequence: 2,
             _originVisitedPlaceUuid: 'unexistingOrigin',
             _destinationVisitedPlaceUuid: 'unexistingDestination',
-            segments: {
-                segmentId1P2T2: {
-                    _uuid: 'segmentId1P2T2',
-                    _isNew: false,
-                    _sequence: 1,
-                    modePre: 'walk'
-                }
-            }
+            segments: { segmentId1P2T2: { _uuid: 'segmentId1P2T2', _isNew: false, _sequence: 1, modePre: 'walk' } }
         };
 
         // Test label function
@@ -279,7 +272,7 @@ describe('segmentHasNextMode label', () => {
 
     test('undefined context function', () => {
         // New widget config without context function
-        const testWidgetConfig = getSegmentHasNextModeWidgetConfig({ }) as QuestionWidgetConfig & InputRadioType;
+        const testWidgetConfig = getSegmentHasNextModeWidgetConfig({}) as QuestionWidgetConfig & InputRadioType;
         const label = testWidgetConfig.label;
 
         // Prepare mocked data

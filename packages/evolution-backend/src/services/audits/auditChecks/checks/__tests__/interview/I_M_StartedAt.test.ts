@@ -16,14 +16,8 @@ describe('I_M_StartedAt audit check', () => {
 
     describe('should pass when startedAt is present', () => {
         it.each([
-            {
-                description: 'interview has valid startedAt timestamp',
-                startedAt: 1625097600
-            },
-            {
-                description: 'interview has startedAt timestamp of 0',
-                startedAt: 0
-            }
+            { description: 'interview has valid startedAt timestamp', startedAt: 1625097600 },
+            { description: 'interview has startedAt timestamp of 0', startedAt: 0 }
         ])('$description', ({ startedAt }) => {
             const interview = createMockInterview();
             interview.paradata = new InterviewParadata({ startedAt });
@@ -37,71 +31,21 @@ describe('I_M_StartedAt audit check', () => {
 
     describe('should fail when startedAt is missing', () => {
         it.each([
-            {
-                description: 'interview missing startedAt',
-                hasParadata: true,
-                startedAt: undefined
-            },
-            {
-                description: 'interview has no paradata',
-                hasParadata: false,
-                startedAt: undefined
-            },
-            {
-                description: 'interview has null startedAt',
-                hasParadata: true,
-                startedAt: null
-            },
-            {
-                description: 'interview has null startedAt with no paradata',
-                hasParadata: false,
-                startedAt: null
-            },
-            {
-                description: 'interview has negative startedAt timestamp',
-                hasParadata: true,
-                startedAt: -1234567890
-            },
-            {
-                description: 'interview has negative startedAt timestamp with no paradata',
-                hasParadata: false,
-                startedAt: -1234567890
-            },
-            {
-                description: 'interview has NaN startedAt',
-                hasParadata: true,
-                startedAt: NaN
-            },
-            {
-                description: 'interview has NaN startedAt with no paradata',
-                hasParadata: false,
-                startedAt: NaN
-            },
-            {
-                description: 'interview has Infinity startedAt',
-                hasParadata: true,
-                startedAt: Infinity
-            },
-            {
-                description: 'interview has Infinity startedAt with no paradata',
-                hasParadata: false,
-                startedAt: Infinity
-            },
-            {
-                description: 'interview has -Infinity startedAt',
-                hasParadata: true,
-                startedAt: -Infinity
-            },
-            {
-                description: 'interview has -Infinity startedAt with no paradata',
-                hasParadata: false,
-                startedAt: -Infinity
-            }
+            { description: 'interview missing startedAt', hasParadata: true, startedAt: undefined },
+            { description: 'interview has no paradata', hasParadata: false, startedAt: undefined },
+            { description: 'interview has null startedAt', hasParadata: true, startedAt: null },
+            { description: 'interview has null startedAt with no paradata', hasParadata: false, startedAt: null },
+            { description: 'interview has negative startedAt timestamp', hasParadata: true, startedAt: -1234567890 },
+            { description: 'interview has negative startedAt timestamp with no paradata', hasParadata: false, startedAt: -1234567890 },
+            { description: 'interview has NaN startedAt', hasParadata: true, startedAt: NaN },
+            { description: 'interview has NaN startedAt with no paradata', hasParadata: false, startedAt: NaN },
+            { description: 'interview has Infinity startedAt', hasParadata: true, startedAt: Infinity },
+            { description: 'interview has Infinity startedAt with no paradata', hasParadata: false, startedAt: Infinity },
+            { description: 'interview has -Infinity startedAt', hasParadata: true, startedAt: -Infinity },
+            { description: 'interview has -Infinity startedAt with no paradata', hasParadata: false, startedAt: -Infinity }
         ])('$description', ({ hasParadata, startedAt }) => {
             const interview = createMockInterview(undefined, validUuid);
-            interview.paradata = hasParadata
-                ? new InterviewParadata({ startedAt: startedAt as number | undefined })
-                : undefined;
+            interview.paradata = hasParadata ? new InterviewParadata({ startedAt: startedAt as number | undefined }) : undefined;
             const context: InterviewAuditCheckContext = { interview };
 
             const result = interviewAuditChecks.I_M_StartedAt(context);
@@ -118,4 +62,3 @@ describe('I_M_StartedAt audit check', () => {
         });
     });
 });
-

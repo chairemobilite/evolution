@@ -75,14 +75,7 @@ describe('AuditUtils', () => {
                 objectType: 'visitedPlace',
                 objectUuid: 'visited-place-uuid-444'
             },
-            {
-                version: 1,
-                level: 'error',
-                errorCode: 'TRIP_001',
-                message: 'Trip validation error',
-                objectType: 'trip',
-                objectUuid: 'trip-uuid-555'
-            },
+            { version: 1, level: 'error', errorCode: 'TRIP_001', message: 'Trip validation error', objectType: 'trip', objectUuid: 'trip-uuid-555' },
             {
                 version: 1,
                 level: 'info',
@@ -288,12 +281,7 @@ describe('AuditUtils', () => {
 
         it('should handle audits with optional properties', () => {
             const auditsWithOptionalProps: AuditForObject[] = [
-                {
-                    version: 1,
-                    errorCode: 'MINIMAL_001',
-                    objectType: 'interview',
-                    objectUuid: 'interview-uuid-minimal'
-                },
+                { version: 1, errorCode: 'MINIMAL_001', objectType: 'interview', objectUuid: 'interview-uuid-minimal' },
                 {
                     version: 2,
                     level: 'info',
@@ -373,19 +361,9 @@ describe('AuditUtils', () => {
         });
 
         it('should test auditsToAuditArray function', () => {
-            const audits = {
-                TEST_001: {
-                    version: 1,
-                    level: 'error' as const,
-                    errorCode: 'TEST_001',
-                    message: 'Test audit'
-                }
-            };
+            const audits = { TEST_001: { version: 1, level: 'error' as const, errorCode: 'TEST_001', message: 'Test audit' } };
 
-            const objectData = {
-                objectType: 'interview',
-                objectUuid: 'interview-uuid-test'
-            };
+            const objectData = { objectType: 'interview', objectUuid: 'interview-uuid-test' };
 
             const result = auditsToAuditArray(audits, objectData);
             expect(result).toHaveLength(1);

@@ -6,7 +6,7 @@
  */
 import { NextFunction, Request, Response } from 'express';
 import { v4 as uuidV4 } from 'uuid';
-import isAuthorized,  { isUserAllowed } from '../userAuthorization';
+import isAuthorized, { isUserAllowed } from '../userAuthorization';
 import each from 'jest-each';
 import Interviews from '../../interviews/interviews';
 import defineDefaultRoles from '../roleDefinition';
@@ -19,16 +19,13 @@ const nextFunction: NextFunction = jest.fn();
 const mockUser = { id: 3, username: 'notAdmin', is_admin: false };
 const mockAdmin = { id: 4, username: 'admin', is_admin: true };
 
-const mockGetInterviewByUuid = Interviews.getInterviewByUuid = jest.fn();
+const mockGetInterviewByUuid = (Interviews.getInterviewByUuid = jest.fn());
 
 const interviewId = uuidV4();
 
 beforeEach(() => {
     mockRequest = {};
-    mockResponse = {
-        json: jest.fn(),
-        status: jest.fn().mockReturnThis()
-    };
+    mockResponse = { json: jest.fn(), status: jest.fn().mockReturnThis() };
     (nextFunction as any).mockClear();
     mockGetInterviewByUuid.mockClear();
 });
@@ -52,7 +49,14 @@ describe('User interview access', () => {
         ['Get params, Admin user, interview exists', mockAdmin, defaultPostParams, defaultPermissions, true, true],
         ['Get params, Admin user, interview with extra permissions', mockAdmin, defaultPostParams, [...defaultPermissions, 'validate'], true, true],
         ['Post and get params, identical, ok', mockAdmin, { ...defaultPostParams, ...defaultGetParams }, defaultPermissions, true, true],
-        ['Post and get params, not identical, not ok', mockAdmin, { ...defaultGetParams, body: { interviewId: uuidV4() } }, defaultPermissions, true, 400]
+        [
+            'Post and get params, not identical, not ok',
+            mockAdmin,
+            { ...defaultGetParams, body: { interviewId: uuidV4() } },
+            defaultPermissions,
+            true,
+            400
+        ]
     ]).test('%s', async (_title, user, reqParams, requestedPermissions, retUndefined, expectedNextOrCode, is_active = true) => {
         mockRequest.user = user;
         const request = { ...mockRequest, ...reqParams };
@@ -75,7 +79,7 @@ describe('is User allowed', () => {
     each([
         ['Normal user', mockUser, defaultPermissions, false],
         ['Admin user', mockAdmin, defaultPermissions, true],
-        ['Admin user, with extra permissions', mockAdmin, [...defaultPermissions, 'validate'], true],
+        ['Admin user, with extra permissions', mockAdmin, [...defaultPermissions, 'validate'], true]
     ]).test('%s', async (_title, user, requestedPermissions, expectedResult, is_active = true) => {
         const interview = {
             id: 3,

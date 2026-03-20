@@ -14,7 +14,7 @@ beforeAll(async () => {
     await truncate(knex, 'sv_interviews_prefill');
 });
 
-afterAll(async() => {
+afterAll(async () => {
     await truncate(knex, 'sv_interviews_prefill');
     await knex.destroy();
 });
@@ -26,7 +26,7 @@ describe('set/get pre-filled answers', () => {
         ['home.city']: { value: 'Montreal', actionIfPresent: 'doNothing' as const }
     };
 
-    test('Get unexisting response', async() => {
+    test('Get unexisting response', async () => {
         expect(await dbQueries.getByReferenceValue('data')).toBeUndefined();
     });
 
@@ -50,5 +50,4 @@ describe('set/get pre-filled answers', () => {
         const newPreFilledResponse = await dbQueries.getByReferenceValue('foo');
         expect(newPreFilledResponse).toEqual(response);
     });
-
 });

@@ -24,7 +24,7 @@ describe('Organization', () => {
         _uuid: uuidV4(),
         shortname: 'sample-shortname',
         name: 'Sample Weight Method',
-        description: 'Sample weight method description',
+        description: 'Sample weight method description'
     };
 
     const validAttributes: OrganizationAttributes = {
@@ -39,35 +39,21 @@ describe('Organization', () => {
         contactEmail: 'john.doe@example.com',
         revenueLevel: 'High',
         _weights: [{ weight: 1.5, method: new WeightMethod(weightMethodAttributes) }],
-        _isValid: true,
+        _isValid: true
     };
 
     const extendedAttributes: ExtendedOrganizationAttributes = {
         ...validAttributes,
         customAttribute: 'Custom Value',
-        _vehicles: [
-            {
-                _uuid: uuidV4(),
-                make: 'Toyota',
-                model: 'Camry',
-                _isValid: true,
-            },
-        ],
+        _vehicles: [{ _uuid: uuidV4(), make: 'Toyota', model: 'Camry', _isValid: true }],
         _places: [
             {
                 _uuid: uuidV4(),
                 name: 'Headquarters',
-                geography: {
-                    type: 'Feature',
-                    geometry: {
-                        type: 'Point',
-                        coordinates: [0, 0],
-                    },
-                    properties: {},
-                },
-                _isValid: true,
-            },
-        ],
+                geography: { type: 'Feature', geometry: { type: 'Point', coordinates: [0, 0] }, properties: {} },
+                _isValid: true
+            }
+        ]
     };
 
     test('should create an Organization instance with valid attributes', () => {
@@ -78,9 +64,11 @@ describe('Organization', () => {
 
     test('should have a validateParams section for each attribute', () => {
         const validateParamsCode = Organization.validateParams.toString();
-        organizationAttributes.filter((attribute) => attribute !== '_uuid' && attribute !== '_weights').forEach((attributeName) => {
-            expect(validateParamsCode).toContain('\'' + attributeName + '\'');
-        });
+        organizationAttributes
+            .filter((attribute) => attribute !== '_uuid' && attribute !== '_weights')
+            .forEach((attributeName) => {
+                expect(validateParamsCode).toContain('\'' + attributeName + '\'');
+            });
     });
 
     test('should get uuid', () => {
@@ -138,14 +126,8 @@ describe('Organization', () => {
     });
 
     test('should create an Organization instance with custom attributes', () => {
-        const customAttributes = {
-            customAttribute1: 'value1',
-            customAttribute2: 'value2',
-        };
-        const organizationAttributes = {
-            ...validAttributes,
-            ...customAttributes,
-        };
+        const customAttributes = { customAttribute1: 'value1', customAttribute2: 'value2' };
+        const organizationAttributes = { ...validAttributes, ...customAttributes };
         const organization = new Organization(organizationAttributes, registry);
         expect(organization).toBeInstanceOf(Organization);
         expect(organization.attributes).toEqual(validAttributes);
@@ -191,7 +173,7 @@ describe('Organization', () => {
             ['contactPhoneNumber', '9876543210'],
             ['contactEmail', 'jane.smith@example.com'],
             ['revenueLevel', 'Medium'],
-            ['preData', { importedOrgData: 'value', industry: 'tech' }],
+            ['preData', { importedOrgData: 'value', industry: 'tech' }]
         ])('should set and get %s', (attribute, value) => {
             const organization = new Organization(validAttributes, registry);
             organization[attribute] = value;
@@ -202,7 +184,7 @@ describe('Organization', () => {
             test.each([
                 ['_uuid', extendedAttributes._uuid],
                 ['customAttributes', { customAttribute: extendedAttributes.customAttribute }],
-                ['attributes', validAttributes],
+                ['attributes', validAttributes]
             ])('should set and get %s', (attribute, value) => {
                 const organization = new Organization(extendedAttributes, registry);
                 expect(organization[attribute]).toEqual(value);
@@ -213,7 +195,7 @@ describe('Organization', () => {
             ['_isValid', false],
             ['_weights', [{ weight: 2.0, method: new WeightMethod(weightMethodAttributes) }]],
             ['_vehicles', extendedAttributes.vehicles],
-            ['_places', extendedAttributes.places],
+            ['_places', extendedAttributes.places]
         ])('should set and get %s', (attribute, value) => {
             const organization = new Organization(validAttributes, registry);
             organization[attribute] = value;
@@ -233,19 +215,9 @@ describe('Organization', () => {
 
     describe('Composed Attributes', () => {
         test('should create Vehicle instances for vehicles when creating an Organization instance', () => {
-            const vehicleAttributes: VehicleAttributes[] = [
-                {
-                    _uuid: uuidV4(),
-                    make: 'Honda',
-                    model: 'Accord',
-                    _isValid: true,
-                },
-            ];
+            const vehicleAttributes: VehicleAttributes[] = [{ _uuid: uuidV4(), make: 'Honda', model: 'Accord', _isValid: true }];
 
-            const organizationAttributes: ExtendedOrganizationAttributes = {
-                ...validAttributes,
-                _vehicles: vehicleAttributes,
-            };
+            const organizationAttributes: ExtendedOrganizationAttributes = { ...validAttributes, _vehicles: vehicleAttributes };
 
             const result = Organization.create(organizationAttributes, registry);
             expect(isOk(result)).toBe(true);
@@ -260,22 +232,12 @@ describe('Organization', () => {
                 {
                     _uuid: uuidV4(),
                     name: 'Branch Office',
-                    geography: {
-                        type: 'Feature',
-                        geometry: {
-                            type: 'Point',
-                            coordinates: [1, 1],
-                        },
-                        properties: {},
-                    },
-                    _isValid: true,
-                },
+                    geography: { type: 'Feature', geometry: { type: 'Point', coordinates: [1, 1] }, properties: {} },
+                    _isValid: true
+                }
             ];
 
-            const organizationAttributes: ExtendedOrganizationAttributes = {
-                ...validAttributes,
-                _places: placeAttributes,
-            };
+            const organizationAttributes: ExtendedOrganizationAttributes = { ...validAttributes, _places: placeAttributes };
 
             const result = Organization.create(organizationAttributes, registry);
             expect(isOk(result)).toBe(true);

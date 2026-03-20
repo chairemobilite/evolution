@@ -46,19 +46,10 @@ describe('SurveyObjectParsers Integration', () => {
         it('should call interview parser when configured in SurveyObjectsFactory', async () => {
             const mockInterviewParser = jest.fn().mockReturnValue({ _language: 'en' });
 
-            setProjectConfig({
-                surveyObjectParsers: {
-                    interview: mockInterviewParser
-                }
-            });
+            setProjectConfig({ surveyObjectParsers: { interview: mockInterviewParser } });
 
             const factory = new SurveyObjectsFactory();
-            const interviewAttributes: InterviewAttributes = {
-                uuid: uuidV4(),
-                corrected_response: {
-                    _language: 'en'
-                }
-            } as any;
+            const interviewAttributes: InterviewAttributes = { uuid: uuidV4(), corrected_response: { _language: 'en' } } as any;
 
             await factory.createAllObjectsWithErrors(interviewAttributes);
 
@@ -67,58 +58,31 @@ describe('SurveyObjectParsers Integration', () => {
         });
 
         it('should call home parser when configured in SurveyObjectsFactory', async () => {
-            const mockHomeParser = jest.fn().mockReturnValue({
-                _uuid: uuidV4(),
-                address: '123 Test St'
-            });
+            const mockHomeParser = jest.fn().mockReturnValue({ _uuid: uuidV4(), address: '123 Test St' });
 
-            setProjectConfig({
-                surveyObjectParsers: {
-                    home: mockHomeParser
-                }
-            });
+            setProjectConfig({ surveyObjectParsers: { home: mockHomeParser } });
 
             const factory = new SurveyObjectsFactory();
             const interviewAttributes: InterviewAttributes = {
                 uuid: uuidV4(),
-                corrected_response: {
-                    home: {
-                        _uuid: uuidV4(),
-                        address: '123 Test St'
-                    }
-                }
+                corrected_response: { home: { _uuid: uuidV4(), address: '123 Test St' } }
             } as any;
 
             await factory.createAllObjectsWithErrors(interviewAttributes);
 
-            expect(mockHomeParser).toHaveBeenCalledWith(
-                interviewAttributes.corrected_response!.home,
-                interviewAttributes.corrected_response
-            );
+            expect(mockHomeParser).toHaveBeenCalledWith(interviewAttributes.corrected_response!.home, interviewAttributes.corrected_response);
             expect(mockHomeParser).toHaveBeenCalledTimes(1);
         });
 
         it('should call household parser when configured in SurveyObjectsFactory', async () => {
-            const mockHouseholdParser = jest.fn().mockReturnValue({
-                _uuid: uuidV4(),
-                size: 2
-            });
+            const mockHouseholdParser = jest.fn().mockReturnValue({ _uuid: uuidV4(), size: 2 });
 
-            setProjectConfig({
-                surveyObjectParsers: {
-                    household: mockHouseholdParser
-                }
-            });
+            setProjectConfig({ surveyObjectParsers: { household: mockHouseholdParser } });
 
             const factory = new SurveyObjectsFactory();
             const interviewAttributes: InterviewAttributes = {
                 uuid: uuidV4(),
-                corrected_response: {
-                    household: {
-                        _uuid: uuidV4(),
-                        size: 2
-                    }
-                }
+                corrected_response: { household: { _uuid: uuidV4(), size: 2 } }
             } as any;
 
             await factory.createAllObjectsWithErrors(interviewAttributes);
@@ -131,17 +95,9 @@ describe('SurveyObjectParsers Integration', () => {
         });
 
         it('should call person parser when configured in PersonFactory', async () => {
-            const mockPersonParser = jest.fn().mockReturnValue({
-                _uuid: 'person-uuid',
-                _sequence: 1,
-                age: 30
-            });
+            const mockPersonParser = jest.fn().mockReturnValue({ _uuid: 'person-uuid', _sequence: 1, age: 30 });
 
-            setProjectConfig({
-                surveyObjectParsers: {
-                    person: mockPersonParser
-                }
-            });
+            setProjectConfig({ surveyObjectParsers: { person: mockPersonParser } });
 
             const personUuid = 'person-uuid';
             const householdUuid = uuidV4();
@@ -172,42 +128,19 @@ describe('SurveyObjectParsers Integration', () => {
             };
 
             const correctedResponse: CorrectedResponse = {
-                household: {
-                    persons: {
-                        [personUuid]: {
-                            _uuid: personUuid,
-                            _sequence: 1,
-                            age: 30
-                        }
-                    }
-                }
+                household: { persons: { [personUuid]: { _uuid: personUuid, _sequence: 1, age: 30 } } }
             } as any;
 
-            await populatePersonsForHousehold(
-                surveyObjectsWithErrors,
-                surveyObjectsWithErrors.household!,
-                correctedResponse,
-                surveyObjectsRegistry
-            );
+            await populatePersonsForHousehold(surveyObjectsWithErrors, surveyObjectsWithErrors.household!, correctedResponse, surveyObjectsRegistry);
 
-            expect(mockPersonParser).toHaveBeenCalledWith(
-                correctedResponse.household!.persons![personUuid],
-                correctedResponse
-            );
+            expect(mockPersonParser).toHaveBeenCalledWith(correctedResponse.household!.persons![personUuid], correctedResponse);
             expect(mockPersonParser).toHaveBeenCalledTimes(1);
         });
 
         it('should call journey parser when configured in JourneyFactory', async () => {
-            const mockJourneyParser = jest.fn().mockReturnValue({
-                _uuid: 'journey-uuid',
-                _sequence: 1
-            });
+            const mockJourneyParser = jest.fn().mockReturnValue({ _uuid: 'journey-uuid', _sequence: 1 });
 
-            setProjectConfig({
-                surveyObjectParsers: {
-                    journey: mockJourneyParser
-                }
-            });
+            setProjectConfig({ surveyObjectParsers: { journey: mockJourneyParser } });
 
             const surveyObjectsWithErrors: SurveyObjectsWithErrors = {
                 interview: undefined,
@@ -230,18 +163,9 @@ describe('SurveyObjectParsers Integration', () => {
 
             const person = Person.create({ _uuid: 'person-uuid', age: 30 }, surveyObjectsRegistry);
             if ('result' in person) {
-                const personAttributes: ExtendedPersonAttributes = {
-                    journeys: {
-                        'journey-uuid': {
-                            _uuid: 'journey-uuid',
-                            _sequence: 1
-                        }
-                    }
-                } as any;
+                const personAttributes: ExtendedPersonAttributes = { journeys: { 'journey-uuid': { _uuid: 'journey-uuid', _sequence: 1 } } } as any;
 
-                const correctedResponse: CorrectedResponse = {
-                    _language: 'en'
-                } as any;
+                const correctedResponse: CorrectedResponse = { _language: 'en' } as any;
 
                 await populateJourneysForPerson(
                     surveyObjectsWithErrors,
@@ -252,25 +176,15 @@ describe('SurveyObjectParsers Integration', () => {
                     surveyObjectsRegistry
                 );
 
-                expect(mockJourneyParser).toHaveBeenCalledWith(
-                    personAttributes.journeys!['journey-uuid'],
-                    correctedResponse
-                );
+                expect(mockJourneyParser).toHaveBeenCalledWith(personAttributes.journeys!['journey-uuid'], correctedResponse);
                 expect(mockJourneyParser).toHaveBeenCalledTimes(1);
             }
         });
 
         it('should call trip parser when configured in TripFactory', async () => {
-            const mockTripParser = jest.fn().mockReturnValue({
-                _uuid: 'trip-uuid',
-                _sequence: 1
-            });
+            const mockTripParser = jest.fn().mockReturnValue({ _uuid: 'trip-uuid', _sequence: 1 });
 
-            setProjectConfig({
-                surveyObjectParsers: {
-                    trip: mockTripParser
-                }
-            });
+            setProjectConfig({ surveyObjectParsers: { trip: mockTripParser } });
 
             const surveyObjectsWithErrors: SurveyObjectsWithErrors = {
                 interview: undefined,
@@ -295,18 +209,9 @@ describe('SurveyObjectParsers Integration', () => {
             const journey = Journey.create({ _uuid: 'journey-uuid' }, surveyObjectsRegistry);
 
             if ('result' in person && 'result' in journey) {
-                const journeyAttributes: ExtendedJourneyAttributes = {
-                    trips: {
-                        'trip-uuid': {
-                            _uuid: 'trip-uuid',
-                            _sequence: 1
-                        }
-                    }
-                } as any;
+                const journeyAttributes: ExtendedJourneyAttributes = { trips: { 'trip-uuid': { _uuid: 'trip-uuid', _sequence: 1 } } } as any;
 
-                const correctedResponse: CorrectedResponse = {
-                    _language: 'en'
-                } as any;
+                const correctedResponse: CorrectedResponse = { _language: 'en' } as any;
 
                 await populateTripsForJourney(
                     surveyObjectsWithErrors,
@@ -317,26 +222,15 @@ describe('SurveyObjectParsers Integration', () => {
                     surveyObjectsRegistry
                 );
 
-                expect(mockTripParser).toHaveBeenCalledWith(
-                    journeyAttributes.trips!['trip-uuid'],
-                    correctedResponse
-                );
+                expect(mockTripParser).toHaveBeenCalledWith(journeyAttributes.trips!['trip-uuid'], correctedResponse);
                 expect(mockTripParser).toHaveBeenCalledTimes(1);
             }
         });
 
         it('should call segment parser when configured in SegmentFactory', async () => {
-            const mockSegmentParser = jest.fn().mockReturnValue({
-                _uuid: 'segment-uuid',
-                _sequence: 1,
-                mode: 'walk'
-            });
+            const mockSegmentParser = jest.fn().mockReturnValue({ _uuid: 'segment-uuid', _sequence: 1, mode: 'walk' });
 
-            setProjectConfig({
-                surveyObjectParsers: {
-                    segment: mockSegmentParser
-                }
-            });
+            setProjectConfig({ surveyObjectParsers: { segment: mockSegmentParser } });
 
             const surveyObjectsWithErrors: SurveyObjectsWithErrors = {
                 interview: undefined,
@@ -361,47 +255,22 @@ describe('SurveyObjectParsers Integration', () => {
 
             if ('result' in trip) {
                 const tripAttributes: ExtendedTripAttributes = {
-                    segments: {
-                        'segment-uuid': {
-                            _uuid: 'segment-uuid',
-                            _sequence: 1,
-                            mode: 'walk'
-                        }
-                    }
+                    segments: { 'segment-uuid': { _uuid: 'segment-uuid', _sequence: 1, mode: 'walk' } }
                 } as any;
 
-                const correctedResponse: CorrectedResponse = {
-                    _language: 'en'
-                } as any;
+                const correctedResponse: CorrectedResponse = { _language: 'en' } as any;
 
-                await populateSegmentsForTrip(
-                    surveyObjectsWithErrors,
-                    trip.result,
-                    tripAttributes,
-                    correctedResponse,
-                    surveyObjectsRegistry
-                );
+                await populateSegmentsForTrip(surveyObjectsWithErrors, trip.result, tripAttributes, correctedResponse, surveyObjectsRegistry);
 
-                expect(mockSegmentParser).toHaveBeenCalledWith(
-                    tripAttributes.segments!['segment-uuid'],
-                    correctedResponse
-                );
+                expect(mockSegmentParser).toHaveBeenCalledWith(tripAttributes.segments!['segment-uuid'], correctedResponse);
                 expect(mockSegmentParser).toHaveBeenCalledTimes(1);
             }
         });
 
         it('should call visitedPlace parser when configured in VisitedPlaceFactory', async () => {
-            const mockVisitedPlaceParser = jest.fn().mockReturnValue({
-                _uuid: 'place-uuid',
-                _sequence: 1,
-                activity: 'home'
-            });
+            const mockVisitedPlaceParser = jest.fn().mockReturnValue({ _uuid: 'place-uuid', _sequence: 1, activity: 'home' });
 
-            setProjectConfig({
-                surveyObjectParsers: {
-                    visitedPlace: mockVisitedPlaceParser
-                }
-            });
+            setProjectConfig({ surveyObjectParsers: { visitedPlace: mockVisitedPlaceParser } });
 
             const surveyObjectsWithErrors: SurveyObjectsWithErrors = {
                 interview: undefined,
@@ -427,18 +296,10 @@ describe('SurveyObjectParsers Integration', () => {
 
             if ('result' in person && 'result' in journey) {
                 const journeyAttributes: ExtendedJourneyAttributes = {
-                    visitedPlaces: {
-                        'place-uuid': {
-                            _uuid: 'place-uuid',
-                            _sequence: 1,
-                            activity: 'home'
-                        }
-                    }
+                    visitedPlaces: { 'place-uuid': { _uuid: 'place-uuid', _sequence: 1, activity: 'home' } }
                 } as any;
 
-                const correctedResponse: CorrectedResponse = {
-                    _language: 'en'
-                } as any;
+                const correctedResponse: CorrectedResponse = { _language: 'en' } as any;
 
                 await populateVisitedPlacesForJourney(
                     surveyObjectsWithErrors,
@@ -450,34 +311,19 @@ describe('SurveyObjectParsers Integration', () => {
                     surveyObjectsRegistry
                 );
 
-                expect(mockVisitedPlaceParser).toHaveBeenCalledWith(
-                    journeyAttributes.visitedPlaces!['place-uuid'],
-                    correctedResponse
-                );
+                expect(mockVisitedPlaceParser).toHaveBeenCalledWith(journeyAttributes.visitedPlaces!['place-uuid'], correctedResponse);
                 expect(mockVisitedPlaceParser).toHaveBeenCalledTimes(1);
             }
         });
 
         it('should not call parsers when not configured', async () => {
             // Set empty parser configuration
-            setProjectConfig({
-                surveyObjectParsers: {}
-            });
+            setProjectConfig({ surveyObjectParsers: {} });
 
             const factory = new SurveyObjectsFactory();
             const interviewAttributes: InterviewAttributes = {
                 uuid: uuidV4(),
-                corrected_response: {
-                    _language: 'en',
-                    home: {
-                        _uuid: uuidV4(),
-                        address: '123 Test St'
-                    },
-                    household: {
-                        _uuid: uuidV4(),
-                        size: 2
-                    }
-                }
+                corrected_response: { _language: 'en', home: { _uuid: uuidV4(), address: '123 Test St' }, household: { _uuid: uuidV4(), size: 2 } }
             } as any;
 
             // This should not throw errors even without parsers configured
@@ -487,17 +333,10 @@ describe('SurveyObjectParsers Integration', () => {
 
         it('should handle undefined parser configuration gracefully', async () => {
             // Set no parser configuration
-            setProjectConfig({
-                surveyObjectParsers: undefined
-            });
+            setProjectConfig({ surveyObjectParsers: undefined });
 
             const factory = new SurveyObjectsFactory();
-            const interviewAttributes: InterviewAttributes = {
-                uuid: uuidV4(),
-                corrected_response: {
-                    _language: 'en'
-                }
-            } as any;
+            const interviewAttributes: InterviewAttributes = { uuid: uuidV4(), corrected_response: { _language: 'en' } } as any;
 
             // This should not throw errors even without parsers configured
             const result = await factory.createAllObjectsWithErrors(interviewAttributes);

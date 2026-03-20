@@ -10,23 +10,13 @@ import path from 'path';
 declare global {
     // eslint-disable-next-line no-var
     var __CUSTOM_LOCALES_PATH__: string | undefined;
-    var __CONFIG__: Record<string, any> | undefined
+    var __CONFIG__: Record<string, any> | undefined;
 }
 
 // NotFoundPageTitle is only in base, Cancel is in both base and custom
 const baseResources = {
-    en: {
-        main: {
-            NotFoundPageTitle: 'Page Not Found - 404',
-            Cancel: 'Cancel'
-        }
-    },
-    fr: {
-        main: {
-            NotFoundPageTitle: 'Page non trouvée - 404',
-            Cancel: 'Annuler'
-        }
-    }
+    en: { main: { NotFoundPageTitle: 'Page Not Found - 404', Cancel: 'Cancel' } },
+    fr: { main: { NotFoundPageTitle: 'Page non trouvée - 404', Cancel: 'Annuler' } }
 };
 
 const customLocalesPath = path.resolve(__dirname, './fixtures/customLocales.js');
@@ -57,11 +47,7 @@ const loadI18n = (customPath?: string) => {
 
 describe('i18n.config custom locales override', () => {
     beforeEach(() => {
-        (global as any).document = {
-            documentElement: {
-                setAttribute: jest.fn()
-            }
-        };
+        (global as any).document = { documentElement: { setAttribute: jest.fn() } };
         global.__CONFIG__ = { languages: ['en', 'fr'], defaultLocale: 'en', detectLanguage: false, detectLanguageFromUrl: false };
     });
 
@@ -70,27 +56,23 @@ describe('i18n.config custom locales override', () => {
         jest.clearAllMocks();
     });
 
-    test.each([{
-        title: 'without __CUSTOM_LOCALES_PATH__',
-        customPath: undefined,
-        expectWarn: false,
-        expectedShared: 'Cancel',
-        expectedCustom: undefined
-    },
-    {
-        title: 'with invalid __CUSTOM_LOCALES_PATH__',
-        customPath: '/path/does/not/exist',
-        expectWarn: true,
-        expectedShared: 'Cancel',
-        expectedCustom: undefined
-    },
-    {
-        title: 'with valid __CUSTOM_LOCALES_PATH__',
-        customPath: customLocalesPath,
-        expectWarn: false,
-        expectedShared: 'Abort',
-        expectedCustom: 'Custom only (en)'
-    }])('$title', ({ customPath, expectWarn, expectedShared, expectedCustom }) => {
+    test.each([
+        { title: 'without __CUSTOM_LOCALES_PATH__', customPath: undefined, expectWarn: false, expectedShared: 'Cancel', expectedCustom: undefined },
+        {
+            title: 'with invalid __CUSTOM_LOCALES_PATH__',
+            customPath: '/path/does/not/exist',
+            expectWarn: true,
+            expectedShared: 'Cancel',
+            expectedCustom: undefined
+        },
+        {
+            title: 'with valid __CUSTOM_LOCALES_PATH__',
+            customPath: customLocalesPath,
+            expectWarn: false,
+            expectedShared: 'Abort',
+            expectedCustom: 'Custom only (en)'
+        }
+    ])('$title', ({ customPath, expectWarn, expectedShared, expectedCustom }) => {
         const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
         const i18n = loadI18n(customPath);
         const resources = i18n?.options?.resources as any;
@@ -109,4 +91,3 @@ describe('i18n.config custom locales override', () => {
 });
 
 export {};
-

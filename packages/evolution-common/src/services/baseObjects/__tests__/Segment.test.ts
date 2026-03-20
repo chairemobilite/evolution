@@ -26,7 +26,7 @@ describe('Segment', () => {
         _uuid: uuidV4(),
         shortname: 'sample-shortname',
         name: 'Sample Weight Method',
-        description: 'Sample weight method description',
+        description: 'Sample weight method description'
     };
 
     const validAttributes: { [key: string]: unknown } = {
@@ -62,7 +62,7 @@ describe('Segment', () => {
         _transitCalculatedRoutings: [{ mode: 'transit' }],
         _walkingCalculatedRoutings: [{ mode: 'walking' }],
         _cyclingCalculatedRoutings: [{ mode: 'cycling' }],
-        _drivingCalculatedRoutings: [{ mode: 'driving' }],
+        _drivingCalculatedRoutings: [{ mode: 'driving' }]
     };
 
     test('should create a Segment instance with valid attributes', () => {
@@ -73,9 +73,14 @@ describe('Segment', () => {
 
     test('should have a validateParams section for each attribute', () => {
         const validateParamsCode = Segment.validateParams.toString();
-        segmentAttributes.filter((attribute) => attribute !== '_uuid' && attribute !== '_weights' && !(startEndDateAndTimesAttributes as unknown as string[]).includes(attribute)).forEach((attributeName) => {
-            expect(validateParamsCode).toContain('\'' + attributeName + '\'');
-        });
+        segmentAttributes
+            .filter(
+                (attribute) =>
+                    attribute !== '_uuid' && attribute !== '_weights' && !(startEndDateAndTimesAttributes as unknown as string[]).includes(attribute)
+            )
+            .forEach((attributeName) => {
+                expect(validateParamsCode).toContain('\'' + attributeName + '\'');
+            });
     });
 
     test('should get uuid', () => {
@@ -93,7 +98,7 @@ describe('Segment', () => {
         const invalidAttributes = 'foo' as any;
         const result = Segment.create(invalidAttributes, registry);
         expect(hasErrors(result)).toBe(true);
-        expect((unwrap(result) as Error[])).toHaveLength(1);
+        expect(unwrap(result) as Error[]).toHaveLength(1);
     });
 
     test('should create a Segment instance with extended attributes', () => {
@@ -126,14 +131,8 @@ describe('Segment', () => {
     });
 
     test('should create a Segment instance with custom attributes', () => {
-        const customAttributes = {
-            customAttribute1: 'value1',
-            customAttribute2: 'value2',
-        };
-        const segmentAttributes = {
-            ...validAttributes,
-            ...customAttributes,
-        };
+        const customAttributes = { customAttribute1: 'value1', customAttribute2: 'value2' };
+        const segmentAttributes = { ...validAttributes, ...customAttributes };
         const segment = new Segment(segmentAttributes, registry);
         expect(segment).toBeInstanceOf(Segment);
         expect(segment.attributes).toEqual(validAttributes);
@@ -191,7 +190,7 @@ describe('Segment', () => {
             ['paidForParking', false],
             ['onDemandType', 'pickupAtOrigin'],
             ['busLines', ['Line 3', 'Line 4']],
-            ['preData', { importedSegmentData: 'value', mode: 'bus' }],
+            ['preData', { importedSegmentData: 'value', mode: 'bus' }]
         ])('should set and get %s', (attribute, value) => {
             const segment = new Segment(validAttributes, registry);
             segment[attribute] = value;
@@ -210,7 +209,7 @@ describe('Segment', () => {
             ['_transitCalculatedRoutings', () => [new Routing({ mode: 'transit' }), new Routing({ mode: 'transit' })]],
             ['_walkingCalculatedRoutings', () => [new Routing({ mode: 'walking' }), new Routing({ mode: 'walking' })]],
             ['_cyclingCalculatedRoutings', () => [new Routing({ mode: 'cycling' }), new Routing({ mode: 'cycling' })]],
-            ['_drivingCalculatedRoutings', () => [new Routing({ mode: 'driving' }), new Routing({ mode: 'driving' })]],
+            ['_drivingCalculatedRoutings', () => [new Routing({ mode: 'driving' }), new Routing({ mode: 'driving' })]]
         ])('should set and get %s', (attribute, valueFactory) => {
             const segment = new Segment(validAttributes, registry);
             const value = valueFactory();
@@ -223,7 +222,7 @@ describe('Segment', () => {
                 ['_uuid', extendedAttributes._uuid],
                 ['modeCategory', 'transit'],
                 ['customAttributes', { customAttribute: extendedAttributes.customAttribute }],
-                ['attributes', validAttributes],
+                ['attributes', validAttributes]
             ])('should set and get %s', (attribute, value) => {
                 const segment = new Segment(extendedAttributes, registry);
                 expect(segment[attribute]).toEqual(value);
@@ -266,12 +265,9 @@ describe('Segment', () => {
     });
 
     describe('Invalid Routing Attributes', () => {
-
         it('should report errors for invalid transitDeclaredRouting', () => {
-            const invalidRouting = { '_uuid': 'foo' };
-            const segment = Segment.create({
-                _transitDeclaredRouting: invalidRouting
-            }, registry);
+            const invalidRouting = { _uuid: 'foo' };
+            const segment = Segment.create({ _transitDeclaredRouting: invalidRouting }, registry);
             expect(hasErrors(segment)).toBe(true);
             expect(unwrap(segment)).toHaveLength(1);
             expect(unwrap(segment)[0].toString()).toEqual('Error: Uuidable validateParams: _uuid should be a valid uuid');
@@ -279,19 +275,15 @@ describe('Segment', () => {
 
         it('should report errors for invalid transitDeclaredRouting', () => {
             const invalidRouting = 123;
-            const segment = Segment.create({
-                _transitDeclaredRouting: invalidRouting
-            }, registry);
+            const segment = Segment.create({ _transitDeclaredRouting: invalidRouting }, registry);
             expect(hasErrors(segment)).toBe(true);
             expect(unwrap(segment)).toHaveLength(1);
             expect(unwrap(segment)[0].toString()).toEqual('Error: TransitRouting validateParams: params should be a plain object (Record)');
         });
 
         it('should report errors for invalid walkingDeclaredRouting', () => {
-            const invalidRouting = { '_uuid': 'foo' };
-            const segment = Segment.create({
-                _walkingDeclaredRouting: invalidRouting
-            }, registry);
+            const invalidRouting = { _uuid: 'foo' };
+            const segment = Segment.create({ _walkingDeclaredRouting: invalidRouting }, registry);
             expect(hasErrors(segment)).toBe(true);
             expect(unwrap(segment)).toHaveLength(1);
             expect(unwrap(segment)[0].toString()).toEqual('Error: Uuidable validateParams: _uuid should be a valid uuid');
@@ -299,19 +291,15 @@ describe('Segment', () => {
 
         it('should report errors for invalid walkingDeclaredRouting', () => {
             const invalidRouting = 123;
-            const segment = Segment.create({
-                _walkingDeclaredRouting: invalidRouting
-            }, registry);
+            const segment = Segment.create({ _walkingDeclaredRouting: invalidRouting }, registry);
             expect(hasErrors(segment)).toBe(true);
             expect(unwrap(segment)).toHaveLength(1);
             expect(unwrap(segment)[0].toString()).toEqual('Error: WalkingRouting validateParams: params should be a plain object (Record)');
         });
 
         it('should report errors for invalid cyclingDeclaredRouting', () => {
-            const invalidRouting = { '_uuid': 'foo' };
-            const segment = Segment.create({
-                _cyclingDeclaredRouting: invalidRouting
-            }, registry);
+            const invalidRouting = { _uuid: 'foo' };
+            const segment = Segment.create({ _cyclingDeclaredRouting: invalidRouting }, registry);
             expect(hasErrors(segment)).toBe(true);
             expect(unwrap(segment)).toHaveLength(1);
             expect(unwrap(segment)[0].toString()).toEqual('Error: Uuidable validateParams: _uuid should be a valid uuid');
@@ -319,19 +307,15 @@ describe('Segment', () => {
 
         it('should report errors for invalid cyclingDeclaredRouting', () => {
             const invalidRouting = 123;
-            const segment = Segment.create({
-                _cyclingDeclaredRouting: invalidRouting
-            }, registry);
+            const segment = Segment.create({ _cyclingDeclaredRouting: invalidRouting }, registry);
             expect(hasErrors(segment)).toBe(true);
             expect(unwrap(segment)).toHaveLength(1);
             expect(unwrap(segment)[0].toString()).toEqual('Error: CyclingRouting validateParams: params should be a plain object (Record)');
         });
 
         it('should report errors for invalid drivingDeclaredRouting', () => {
-            const invalidRouting = { '_uuid': 'foo' };
-            const segment = Segment.create({
-                _drivingDeclaredRouting: invalidRouting
-            }, registry);
+            const invalidRouting = { _uuid: 'foo' };
+            const segment = Segment.create({ _drivingDeclaredRouting: invalidRouting }, registry);
             expect(hasErrors(segment)).toBe(true);
             expect(unwrap(segment)).toHaveLength(1);
             expect(unwrap(segment)[0].toString()).toEqual('Error: Uuidable validateParams: _uuid should be a valid uuid');
@@ -339,21 +323,16 @@ describe('Segment', () => {
 
         it('should report errors for invalid drivingDeclaredRouting', () => {
             const invalidRouting = 123;
-            const segment = Segment.create({
-                _drivingDeclaredRouting: invalidRouting
-            }, registry);
+            const segment = Segment.create({ _drivingDeclaredRouting: invalidRouting }, registry);
             expect(hasErrors(segment)).toBe(true);
             expect(unwrap(segment)).toHaveLength(1);
             expect(unwrap(segment)[0].toString()).toEqual('Error: DrivingRouting validateParams: params should be a plain object (Record)');
         });
-
 
         // Arrays:
         it('should report errors for invalid transitCalculatedRoutings', () => {
-            const invalidRouting = { '_uuid': 'bar' };
-            const segment = Segment.create({
-                _transitCalculatedRoutings: [invalidRouting]
-            }, registry);
+            const invalidRouting = { _uuid: 'bar' };
+            const segment = Segment.create({ _transitCalculatedRoutings: [invalidRouting] }, registry);
             expect(hasErrors(segment)).toBe(true);
             expect(unwrap(segment)).toHaveLength(1);
             expect(unwrap(segment)[0].toString()).toEqual('Error: Uuidable validateParams: _uuid should be a valid uuid');
@@ -361,19 +340,15 @@ describe('Segment', () => {
 
         it('should report errors for invalid transitCalculatedRoutings', () => {
             const invalidRouting = 123;
-            const segment = Segment.create({
-                _transitCalculatedRoutings: [invalidRouting]
-            }, registry);
+            const segment = Segment.create({ _transitCalculatedRoutings: [invalidRouting] }, registry);
             expect(hasErrors(segment)).toBe(true);
             expect(unwrap(segment)).toHaveLength(1);
             expect(unwrap(segment)[0].toString()).toEqual('Error: TransitRouting validateParams: params should be a plain object (Record)');
         });
 
         it('should report errors for invalid walkingCalculatedRoutings', () => {
-            const invalidRouting = { '_uuid': 'bar' };
-            const segment = Segment.create({
-                _walkingCalculatedRoutings: [invalidRouting]
-            }, registry);
+            const invalidRouting = { _uuid: 'bar' };
+            const segment = Segment.create({ _walkingCalculatedRoutings: [invalidRouting] }, registry);
             expect(hasErrors(segment)).toBe(true);
             expect(unwrap(segment)).toHaveLength(1);
             expect(unwrap(segment)[0].toString()).toEqual('Error: Uuidable validateParams: _uuid should be a valid uuid');
@@ -381,19 +356,15 @@ describe('Segment', () => {
 
         it('should report errors for invalid walkingCalculatedRoutings', () => {
             const invalidRouting = 123;
-            const segment = Segment.create({
-                _walkingCalculatedRoutings: [invalidRouting]
-            }, registry);
+            const segment = Segment.create({ _walkingCalculatedRoutings: [invalidRouting] }, registry);
             expect(hasErrors(segment)).toBe(true);
             expect(unwrap(segment)).toHaveLength(1);
             expect(unwrap(segment)[0].toString()).toEqual('Error: WalkingRouting validateParams: params should be a plain object (Record)');
         });
 
         it('should report errors for invalid cyclingCalculatedRoutings', () => {
-            const invalidRouting = { '_uuid': 'bar' };
-            const segment = Segment.create({
-                _cyclingCalculatedRoutings: [invalidRouting]
-            }, registry);
+            const invalidRouting = { _uuid: 'bar' };
+            const segment = Segment.create({ _cyclingCalculatedRoutings: [invalidRouting] }, registry);
             expect(hasErrors(segment)).toBe(true);
             expect(unwrap(segment)).toHaveLength(1);
             expect(unwrap(segment)[0].toString()).toEqual('Error: Uuidable validateParams: _uuid should be a valid uuid');
@@ -401,19 +372,15 @@ describe('Segment', () => {
 
         it('should report errors for invalid cyclingCalculatedRoutings', () => {
             const invalidRouting = 123;
-            const segment = Segment.create({
-                _cyclingCalculatedRoutings: [invalidRouting]
-            }, registry);
+            const segment = Segment.create({ _cyclingCalculatedRoutings: [invalidRouting] }, registry);
             expect(hasErrors(segment)).toBe(true);
             expect(unwrap(segment)).toHaveLength(1);
             expect(unwrap(segment)[0].toString()).toEqual('Error: CyclingRouting validateParams: params should be a plain object (Record)');
         });
 
         it('should report errors for invalid drivingCalculatedRoutings', () => {
-            const invalidRouting = { '_uuid': 'bar' };
-            const segment = Segment.create({
-                _drivingCalculatedRoutings: [invalidRouting]
-            }, registry);
+            const invalidRouting = { _uuid: 'bar' };
+            const segment = Segment.create({ _drivingCalculatedRoutings: [invalidRouting] }, registry);
             expect(hasErrors(segment)).toBe(true);
             expect(unwrap(segment)).toHaveLength(1);
             expect(unwrap(segment)[0].toString()).toEqual('Error: Uuidable validateParams: _uuid should be a valid uuid');
@@ -421,14 +388,11 @@ describe('Segment', () => {
 
         it('should report errors for invalid drivingCalculatedRoutings', () => {
             const invalidRouting = 123;
-            const segment = Segment.create({
-                _drivingCalculatedRoutings: [invalidRouting]
-            }, registry);
+            const segment = Segment.create({ _drivingCalculatedRoutings: [invalidRouting] }, registry);
             expect(hasErrors(segment)).toBe(true);
             expect(unwrap(segment)).toHaveLength(1);
             expect(unwrap(segment)[0].toString()).toEqual('Error: DrivingRouting validateParams: params should be a plain object (Record)');
         });
-
     });
 
     describe('Mode to Mode Category Mapping', () => {
@@ -467,7 +431,7 @@ describe('Segment', () => {
             ['taxi', false],
             ['schoolBus', false],
             ['other', false],
-            ['dontKnow', false],
+            ['dontKnow', false]
         ])('isTransit("%s") should return %s', (mode, expected) => {
             const segment = new Segment({ mode: mode as Mode }, registry);
             expect(segment.isTransit()).toBe(expected);

@@ -17,23 +17,16 @@ import { registerServerUpdateCallbacks } from '../../../config/projectConfig';
 import TestUtils from 'chaire-lib-common/lib/test/TestUtils';
 import { ParadataLoggingFunction } from '../../logging/paradataLogging';
 
-jest.mock('../../validations/serverValidation', () =>
-    jest.fn()
-);
+jest.mock('../../validations/serverValidation', () => jest.fn());
 const mockedServerValidate = serverValidate as jest.MockedFunction<typeof serverValidate>;
 mockedServerValidate.mockResolvedValue(true);
 
-jest.mock('../serverFieldUpdate', () =>
-    jest.fn()
-);
+jest.mock('../serverFieldUpdate', () => jest.fn());
 const mockedServerUpdate = serverUpdate as jest.MockedFunction<typeof serverUpdate>;
 // Do not use a single return value as the returned object can be mutated by calling function (and tests)
 mockedServerUpdate.mockImplementation(async () => [{}, undefined]);
 
-jest.mock('../../../models/interviews.db.queries', () => ({
-    update: jest.fn(),
-    getInterviewByUuid: jest.fn()
-}));
+jest.mock('../../../models/interviews.db.queries', () => ({ update: jest.fn(), getInterviewByUuid: jest.fn() }));
 const mockUpdate = interviewsQueries.update as jest.MockedFunction<typeof interviewsQueries.update>;
 const mockGetInterviewByUuid = interviewsQueries.getInterviewByUuid as jest.MockedFunction<typeof interviewsQueries.getInterviewByUuid>;
 
@@ -46,13 +39,7 @@ const interviewAttributes: InterviewAttributes = {
     is_valid: true,
     is_active: true,
     is_completed: false,
-    response: {
-        accessCode: '11111',
-        testFields: {
-            fieldA: 'a',
-            fieldB: 'b'
-        }
-    } as any,
+    response: { accessCode: '11111', testFields: { fieldA: 'a', fieldB: 'b' } } as any,
     survey_id: 1,
     validations: {}
 };
@@ -63,14 +50,9 @@ beforeEach(() => {
 });
 
 describe('Set interview fields', () => {
-
     test('Test with valuesByPath with deep string path', () => {
         const testAttributes = _cloneDeep(interviewAttributes);
-        const valuesByPath = {
-            'response.accessCode': '2222',
-            'validations.accessCode': { is_valid: false },
-            'response.newField.foo': 'bar'
-        };
+        const valuesByPath = { 'response.accessCode': '2222', 'validations.accessCode': { is_valid: false }, 'response.newField.foo': 'bar' };
         setInterviewFields(testAttributes, { valuesByPath });
         expect(testAttributes).toEqual({
             uuid: interviewAttributes.uuid,
@@ -79,27 +61,15 @@ describe('Set interview fields', () => {
             is_valid: interviewAttributes.is_valid,
             is_active: interviewAttributes.is_active,
             is_completed: interviewAttributes.is_completed,
-            response: {
-                accessCode: '2222',
-                testFields: {
-                    fieldA: 'a',
-                    fieldB: 'b'
-                },
-                newField: { foo: 'bar' }
-            },
-            validations: {
-                accessCode: { is_valid: false }
-            },
+            response: { accessCode: '2222', testFields: { fieldA: 'a', fieldB: 'b' }, newField: { foo: 'bar' } },
+            validations: { accessCode: { is_valid: false } },
             survey_id: 1
         });
     });
 
     test('Test with objects', () => {
         const testAttributes = _cloneDeep(interviewAttributes);
-        const valuesByPath = {
-            response: { accessCode: '2222', newField: { foo: 'bar' } },
-            validations: { accessCode: { is_valid: false } }
-        };
+        const valuesByPath = { response: { accessCode: '2222', newField: { foo: 'bar' } }, validations: { accessCode: { is_valid: false } } };
         setInterviewFields(testAttributes, { valuesByPath });
         expect(testAttributes).toEqual({
             uuid: interviewAttributes.uuid,
@@ -108,24 +78,16 @@ describe('Set interview fields', () => {
             is_valid: interviewAttributes.is_valid,
             is_active: interviewAttributes.is_active,
             is_completed: interviewAttributes.is_completed,
-            response: {
-                accessCode: '2222',
-                newField: { foo: 'bar' }
-            },
-            validations: {
-                accessCode: { is_valid: false }
-            },
+            response: { accessCode: '2222', newField: { foo: 'bar' } },
+            validations: { accessCode: { is_valid: false } },
             survey_id: 1
         });
     });
 
     test('Test with valuesByPath and unsetPaths', () => {
         const testAttributes = _cloneDeep(interviewAttributes);
-        const valuesByPath = {
-            'response.accessCode': '2222',
-            'response.newField.foo': 'bar'
-        };
-        const unsetPaths = [ 'response.testFields.fieldA' ];
+        const valuesByPath = { 'response.accessCode': '2222', 'response.newField.foo': 'bar' };
+        const unsetPaths = ['response.testFields.fieldA'];
         setInterviewFields(testAttributes, { valuesByPath, unsetPaths });
         expect(testAttributes).toEqual({
             uuid: interviewAttributes.uuid,
@@ -134,13 +96,7 @@ describe('Set interview fields', () => {
             is_valid: interviewAttributes.is_valid,
             is_active: interviewAttributes.is_active,
             is_completed: interviewAttributes.is_completed,
-            response: {
-                accessCode: '2222',
-                testFields: {
-                    fieldB: 'b'
-                },
-                newField: { foo: 'bar' }
-            },
+            response: { accessCode: '2222', testFields: { fieldB: 'b' }, newField: { foo: 'bar' } },
             validations: {},
             survey_id: 1
         });
@@ -148,11 +104,8 @@ describe('Set interview fields', () => {
 
     test('Test with root values', () => {
         const testAttributes = _cloneDeep(interviewAttributes);
-        const valuesByPath = {
-            'is_valid': !interviewAttributes.is_valid,
-            is_active: !interviewAttributes.is_active
-        };
-        const unsetPaths = [ 'response' ];
+        const valuesByPath = { is_valid: !interviewAttributes.is_valid, is_active: !interviewAttributes.is_active };
+        const unsetPaths = ['response'];
         setInterviewFields(testAttributes, { valuesByPath, unsetPaths });
         expect(testAttributes).toEqual({
             uuid: interviewAttributes.uuid,
@@ -165,16 +118,14 @@ describe('Set interview fields', () => {
             survey_id: 1
         });
     });
-
 });
 
 describe('Update Interview', () => {
-
     beforeEach(async () => {
         jest.clearAllMocks();
     });
 
-    test('With values by path', async() => {
+    test('With values by path', async () => {
         const testAttributes = _cloneDeep(interviewAttributes);
         const interview = await updateInterview(testAttributes, { valuesByPath: { 'response.foo': 'abc', 'response.testFields.fieldA': 'new' } });
         expect(interview.interviewId).toEqual(testAttributes.uuid);
@@ -191,11 +142,14 @@ describe('Update Interview', () => {
         expect(mockLog).not.toHaveBeenCalled();
     });
 
-    test('With values by path, and user action of type "buttonClick"', async() => {
+    test('With values by path, and user action of type "buttonClick"', async () => {
         // Prepare test data
         const testAttributes = _cloneDeep(interviewAttributes);
         const userAction = { type: 'buttonClick' as const, buttonId: 'test' };
-        const interview = await updateInterview(testAttributes, { userAction, valuesByPath: { 'response.foo': 'abc', 'response.testFields.fieldA': 'new' } });
+        const interview = await updateInterview(testAttributes, {
+            userAction,
+            valuesByPath: { 'response.foo': 'abc', 'response.testFields.fieldA': 'new' }
+        });
         expect(interview.interviewId).toEqual(testAttributes.uuid);
         expect(interview.serverValidations).toEqual(true);
         expect(interviewsQueries.update).toHaveBeenCalledTimes(1);
@@ -210,7 +164,7 @@ describe('Update Interview', () => {
         expect(mockLog).not.toHaveBeenCalled();
     });
 
-    test('With values by path, unset path and user action of type "widgetInteraction"', async() => {
+    test('With values by path, unset path and user action of type "widgetInteraction"', async () => {
         // Prepare test data
         const testAttributes = _cloneDeep(interviewAttributes);
         const valuesByPath = { 'response.foo': 'abc', 'corrected_response.foo': 'def' };
@@ -237,7 +191,7 @@ describe('Update Interview', () => {
         expect(mockLog).not.toHaveBeenCalled();
     });
 
-    test('Specifying fields to update', async() => {
+    test('Specifying fields to update', async () => {
         const testAttributes = _cloneDeep(interviewAttributes);
         const valuesByPath = { 'corrected_response.foo': 'abc', 'response.bar': 'abc' };
         const interview = await updateInterview(testAttributes, { valuesByPath, fieldsToUpdate: ['corrected_response'] });
@@ -249,17 +203,15 @@ describe('Update Interview', () => {
         expect(mockedServerUpdate).toHaveBeenCalledTimes(1);
         expect(mockedServerUpdate).toHaveBeenCalledWith(testAttributes, [], valuesByPath, undefined, undefined);
 
-        const expectedUpdatedValues = {
-            corrected_response: { foo: 'abc' },
-        };
+        const expectedUpdatedValues = { corrected_response: { foo: 'abc' } };
         expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, expectedUpdatedValues);
         expect(mockLog).not.toHaveBeenCalled();
     });
 
-    test('With completed', async() => {
+    test('With completed', async () => {
         // Test with true value
         let testAttributes = _cloneDeep(interviewAttributes);
-        let valuesByPath = { 'is_completed': true };
+        let valuesByPath = { is_completed: true };
         let interview = await updateInterview(testAttributes, { valuesByPath, fieldsToUpdate: ['is_completed'] });
         expect(interview.interviewId).toEqual(testAttributes.uuid);
         expect(interview.serverValidations).toEqual(true);
@@ -273,7 +225,7 @@ describe('Update Interview', () => {
 
         // Test with false value
         testAttributes = _cloneDeep(interviewAttributes);
-        valuesByPath = { 'is_completed': false };
+        valuesByPath = { is_completed: false };
         interview = await updateInterview(testAttributes, { valuesByPath, fieldsToUpdate: ['is_completed'] });
         expect(interview.interviewId).toEqual(testAttributes.uuid);
         expect(interview.serverValidations).toEqual(true);
@@ -283,7 +235,7 @@ describe('Update Interview', () => {
 
         // Test with null value
         testAttributes = _cloneDeep(interviewAttributes);
-        valuesByPath = { 'is_completed': null } as any;
+        valuesByPath = { is_completed: null } as any;
         interview = await updateInterview(testAttributes, { valuesByPath, fieldsToUpdate: ['is_completed'] });
         expect(interview.interviewId).toEqual(testAttributes.uuid);
         expect(interview.serverValidations).toEqual(true);
@@ -293,10 +245,10 @@ describe('Update Interview', () => {
         expect(mockLog).not.toHaveBeenCalled();
     });
 
-    test('With valid', async() => {
+    test('With valid', async () => {
         // Test with true value
         let testAttributes = _cloneDeep(interviewAttributes);
-        let valuesByPath = { 'is_valid': true };
+        let valuesByPath = { is_valid: true };
         let interview = await updateInterview(testAttributes, { valuesByPath, fieldsToUpdate: ['is_valid'] });
         expect(interview.interviewId).toEqual(testAttributes.uuid);
         expect(interview.serverValidations).toEqual(true);
@@ -310,7 +262,7 @@ describe('Update Interview', () => {
 
         // Test with false value
         testAttributes = _cloneDeep(interviewAttributes);
-        valuesByPath = { 'is_valid': false };
+        valuesByPath = { is_valid: false };
         interview = await updateInterview(testAttributes, { valuesByPath, fieldsToUpdate: ['is_valid'] });
         expect(interview.interviewId).toEqual(testAttributes.uuid);
         expect(interview.serverValidations).toEqual(true);
@@ -320,7 +272,7 @@ describe('Update Interview', () => {
 
         // Test with null value
         testAttributes = _cloneDeep(interviewAttributes);
-        valuesByPath = { 'is_valid': null } as any;
+        valuesByPath = { is_valid: null } as any;
         interview = await updateInterview(testAttributes, { valuesByPath, fieldsToUpdate: ['is_valid'] });
         expect(interview.interviewId).toEqual(testAttributes.uuid);
         expect(interview.serverValidations).toEqual(true);
@@ -330,9 +282,9 @@ describe('Update Interview', () => {
         expect(mockLog).not.toHaveBeenCalled();
     });
 
-    test('With no field to be updated', async() => {
+    test('With no field to be updated', async () => {
         const testAttributes = _cloneDeep(interviewAttributes);
-        const interview = await updateInterview(testAttributes, { valuesByPath: { 'notAnInterviewField': 'abc' } });
+        const interview = await updateInterview(testAttributes, { valuesByPath: { notAnInterviewField: 'abc' } });
         expect(interview.interviewId).toEqual(testAttributes.uuid);
         expect(interview.serverValidations).toEqual(true);
         expect(interviewsQueries.update).toHaveBeenCalledTimes(1);
@@ -345,18 +297,11 @@ describe('Update Interview', () => {
         expect(mockLog).not.toHaveBeenCalled();
     });
 
-    test('With invalid server validations', async() => {
+    test('With invalid server validations', async () => {
         const testAttributes = _cloneDeep(interviewAttributes);
         const valuesByPath = { 'response.foo': 'abc' };
         // Prepare server validations
-        const serverValidations = {
-            foo: {
-                validations: [{
-                    validation: (_val) => true,
-                    errorMessage: { fr: 'erreur', en: 'error' }
-                }]
-            }
-        };
+        const serverValidations = { foo: { validations: [{ validation: (_val) => true, errorMessage: { fr: 'erreur', en: 'error' } }] } };
         const serverValidationErrors = { foo: serverValidations.foo.validations[0].errorMessage };
         mockedServerValidate.mockResolvedValueOnce(serverValidationErrors);
         const interview = await updateInterview(testAttributes, { valuesByPath, serverValidations });
@@ -378,14 +323,16 @@ describe('Update Interview', () => {
         expect(mockLog).not.toHaveBeenCalled();
     });
 
-    test('With server field updates', async() => {
+    test('With server field updates', async () => {
         const testAttributes = _cloneDeep(interviewAttributes);
-        const valuesByPath = { 'response.testFields.fieldB': 'abc', 'response.testFields.fieldA': 'clientVal', 'validations.testFields.fieldA': true };
+        const valuesByPath = {
+            'response.testFields.fieldB': 'abc',
+            'response.testFields.fieldA': 'clientVal',
+            'validations.testFields.fieldA': true
+        };
         const unsetPaths = ['response.accessCode'];
         // Prepare server update response, callbacks won't be called, but we need an object
-        const updateCallbacks = [
-            { field: 'testFields.fieldA', callback: jest.fn().mockResolvedValue({}) }
-        ];
+        const updateCallbacks = [{ field: 'testFields.fieldA', callback: jest.fn().mockResolvedValue({}) }];
         registerServerUpdateCallbacks(updateCallbacks);
         const updatedValuesByPath = { 'response.testFields.fieldB': 'newVal' };
         mockedServerUpdate.mockResolvedValueOnce([updatedValuesByPath, undefined]);
@@ -415,16 +362,18 @@ describe('Update Interview', () => {
         expect(mockLog).not.toHaveBeenCalled();
     });
 
-    test('With server field updates and execution callback, with paradata logging', async() => {
+    test('With server field updates and execution callback, with paradata logging', async () => {
         const deferredUpdateCallback = jest.fn();
         const testAttributes = _cloneDeep(interviewAttributes);
-        const valuesByPath = { 'response.testFields.fieldB': 'abc', 'response.testFields.fieldA': 'clientVal', 'validations.testFields.fieldA': true };
+        const valuesByPath = {
+            'response.testFields.fieldB': 'abc',
+            'response.testFields.fieldA': 'clientVal',
+            'validations.testFields.fieldA': true
+        };
         const unsetPaths = ['response.accessCode'];
 
         // Prepare server update response, callbacks won't be called, but we need an object
-        const updateCallbacks = [
-            { field: 'testFields.fieldA', callback: jest.fn().mockResolvedValue({}) }
-        ];
+        const updateCallbacks = [{ field: 'testFields.fieldA', callback: jest.fn().mockResolvedValue({}) }];
         registerServerUpdateCallbacks(updateCallbacks);
         const updatedValuesByPath = { 'response.testFields.fieldB': 'newVal' };
         const asyncUpdatedValuesByPath = { 'response.testFields.fieldC': 'valC' };
@@ -475,32 +424,24 @@ describe('Update Interview', () => {
         expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, asyncExpectedUpdatedValues);
         expect(mockLog).toHaveBeenCalledTimes(3);
         // Should have been called once with server false with original updated data
-        expect(mockLog).toHaveBeenCalledWith({
-            server: false,
-            valuesByPath,
-            unsetPaths
-        });
+        expect(mockLog).toHaveBeenCalledWith({ server: false, valuesByPath, unsetPaths });
         // Should have been called once with server flag and simple updated values by path
-        expect(mockLog).toHaveBeenCalledWith({
-            server: true,
-            valuesByPath: updatedValuesByPath
-        });
+        expect(mockLog).toHaveBeenCalledWith({ server: true, valuesByPath: updatedValuesByPath });
         // Should have been called once with server flag and async values by path
-        expect(mockLog).toHaveBeenCalledWith({
-            server: true,
-            valuesByPath: asyncUpdatedValuesByPath
-        });
+        expect(mockLog).toHaveBeenCalledWith({ server: true, valuesByPath: asyncUpdatedValuesByPath });
     });
 
-    test('With server field updates and redirect URL', async() => {
+    test('With server field updates and redirect URL', async () => {
         const testRedirectURL = 'http://localhost:8080/test';
         const testAttributes = _cloneDeep(interviewAttributes);
-        const valuesByPath = { 'response.testFields.fieldB': 'abc', 'response.testFields.fieldA': 'clientVal', 'validations.testFields.fieldA': true };
+        const valuesByPath = {
+            'response.testFields.fieldB': 'abc',
+            'response.testFields.fieldA': 'clientVal',
+            'validations.testFields.fieldA': true
+        };
         const unsetPaths = ['response.accessCode'];
         // Prepare server update response, callbacks won't be called, but we need an object
-        const updateCallbacks = [
-            { field: 'testFields.fieldA', callback: jest.fn().mockResolvedValue({}) }
-        ];
+        const updateCallbacks = [{ field: 'testFields.fieldA', callback: jest.fn().mockResolvedValue({}) }];
         registerServerUpdateCallbacks(updateCallbacks);
         const updatedValuesByPath = { 'response.testFields.fieldB': 'newVal' };
         mockedServerUpdate.mockResolvedValueOnce([updatedValuesByPath, testRedirectURL]);
@@ -530,7 +471,7 @@ describe('Update Interview', () => {
         expect(mockLog).not.toHaveBeenCalled();
     });
 
-    test('With logs', async() => {
+    test('With logs', async () => {
         try {
             // Prepare data to update
             const updatedAt = 1234; // Update timestamp
@@ -548,7 +489,7 @@ describe('Update Interview', () => {
 
             const expectedUpdatedValues = {
                 response: _cloneDeep(interviewAttributes.response) as any,
-                validations: _cloneDeep(interviewAttributes.validations),
+                validations: _cloneDeep(interviewAttributes.validations)
             };
             expectedUpdatedValues.response.foo = 'abc';
             expectedUpdatedValues.response._updatedAt = updatedAt;
@@ -559,7 +500,7 @@ describe('Update Interview', () => {
         }
     });
 
-    test('With default logs', async() => {
+    test('With default logs', async () => {
         try {
             // Prepare data to update
             const updatedAt = 1234; // Update timestamp
@@ -588,42 +529,34 @@ describe('Update Interview', () => {
         }
     });
 
-    test('Database error', async() => {
+    test('Database error', async () => {
         const testAttributes = _cloneDeep(interviewAttributes);
         (interviewsQueries.update as any).mockRejectedValueOnce('fake error');
 
         let error: unknown = undefined;
         try {
-            await updateInterview(testAttributes,
-                {
-                    valuesByPath: { 'response.foo': 'abc', 'response.testFields.fieldA': 'new' }
-                }
-            );
+            await updateInterview(testAttributes, { valuesByPath: { 'response.foo': 'abc', 'response.testFields.fieldA': 'new' } });
         } catch (err) {
             error = err;
         }
         expect(error).toBeDefined();
-
     });
 
-    test('Database error and logging', async() => {
+    test('Database error and logging', async () => {
         const testAttributes = _cloneDeep(interviewAttributes);
         (interviewsQueries.update as any).mockRejectedValueOnce('fake error');
 
         let error: unknown = undefined;
         try {
-            await updateInterview(testAttributes,
-                {
-                    logUpdate: mockLog,
-                    valuesByPath: { 'response.foo': 'abc', 'response.testFields.fieldA': 'new' }
-                }
-            );
+            await updateInterview(testAttributes, {
+                logUpdate: mockLog,
+                valuesByPath: { 'response.foo': 'abc', 'response.testFields.fieldA': 'new' }
+            });
         } catch (err) {
             error = err;
         }
         expect(error).toBeDefined();
         expect(mockLog).not.toHaveBeenCalled();
-
     });
 
     test('With values by path to sanitize as top level strings', async () => {
@@ -633,7 +566,9 @@ describe('Update Interview', () => {
         const sanitizedValue = 'Hover over me';
 
         // Execute interview update
-        const { interviewId, serverValuesByPath, serverValidations } = await updateInterview(testAttributes, { valuesByPath: { 'response.foo': scriptInjectionString } });
+        const { interviewId, serverValuesByPath, serverValidations } = await updateInterview(testAttributes, {
+            valuesByPath: { 'response.foo': scriptInjectionString }
+        });
 
         // Validate results
         expect(interviewId).toEqual(testAttributes.uuid);
@@ -658,7 +593,9 @@ describe('Update Interview', () => {
         const sanitizedObject = { someNumber: 42, someString: 'Hover over me' };
 
         // Execute interview update
-        const { interviewId, serverValuesByPath, serverValidations } = await updateInterview(testAttributes, { valuesByPath: { 'response.foo': 'abc', 'response.bar': objectAsAnswer } });
+        const { interviewId, serverValuesByPath, serverValidations } = await updateInterview(testAttributes, {
+            valuesByPath: { 'response.foo': 'abc', 'response.bar': objectAsAnswer }
+        });
 
         // Validate results
         expect(interviewId).toEqual(testAttributes.uuid);
@@ -681,11 +618,13 @@ describe('Update Interview', () => {
         const testAttributes = _cloneDeep(interviewAttributes);
         const scriptInjectionString = '<div onmouseover="(function(){alert(\'XSS vulnerability detected\')})()">Hover over me</div>';
         const sanitizedValue = 'Hover over me';
-        const arrayResponse = [scriptInjectionString, { name: scriptInjectionString}, 42];
-        const sanitizedArray = [sanitizedValue, { name: sanitizedValue}, 42];
+        const arrayResponse = [scriptInjectionString, { name: scriptInjectionString }, 42];
+        const sanitizedArray = [sanitizedValue, { name: sanitizedValue }, 42];
 
         // Execute interview update
-        const { interviewId, serverValuesByPath, serverValidations } = await updateInterview(testAttributes, { valuesByPath: { 'response.foo': arrayResponse } });
+        const { interviewId, serverValuesByPath, serverValidations } = await updateInterview(testAttributes, {
+            valuesByPath: { 'response.foo': arrayResponse }
+        });
 
         // Validate results
         expect(interviewId).toEqual(testAttributes.uuid);
@@ -711,7 +650,9 @@ describe('Update Interview', () => {
         mockedServerUpdate.mockResolvedValueOnce([serverUpdatedValuesByPath, undefined]);
 
         // Execute interview update
-        const { interviewId, serverValuesByPath, serverValidations } = await updateInterview(testAttributes, { valuesByPath: { 'response.foo': scriptInjectionString } });
+        const { interviewId, serverValuesByPath, serverValidations } = await updateInterview(testAttributes, {
+            valuesByPath: { 'response.foo': scriptInjectionString }
+        });
 
         // Validate results
         expect(interviewId).toEqual(testAttributes.uuid);
@@ -727,16 +668,14 @@ describe('Update Interview', () => {
         expect(mockLog).not.toHaveBeenCalled();
         expect(serverValuesByPath).toEqual(serverUpdatedValuesByPath);
     });
-
 });
 
 describe('copyResponseToCorrectedResponse', () => {
-
     beforeEach(async () => {
         mockUpdate.mockClear();
     });
 
-    test('First copy', async() => {
+    test('First copy', async () => {
         const testAttributes = _cloneDeep(interviewAttributes);
 
         expect(testAttributes.corrected_response).not.toBeDefined();
@@ -747,45 +686,36 @@ describe('copyResponseToCorrectedResponse', () => {
         expect(mockUpdate).toHaveBeenCalledWith(testAttributes.uuid, { corrected_response: testAttributes.corrected_response });
     });
 
-    test('Copy with existing validation data', async() => {
+    test('Copy with existing validation data', async () => {
         const testAttributes = _cloneDeep(interviewAttributes);
         const originalTimestamp = moment('2023-09-12 15:02:00').unix();
-        testAttributes.corrected_response = {
+        ((testAttributes.corrected_response = {
             _correctedResponseCopiedAt: originalTimestamp,
             accessCode: '2222',
-            testFields: {
-                fieldA: 'test',
-                fieldB: 'changed'
-            }
-        } as any,
-
-        await copyResponseToCorrectedResponse(testAttributes);
+            testFields: { fieldA: 'test', fieldB: 'changed' }
+        } as any),
+        await copyResponseToCorrectedResponse(testAttributes));
         expect(testAttributes.corrected_response).toEqual(expect.objectContaining(testAttributes.response));
         expect(testAttributes.corrected_response?._correctedResponseCopiedAt).toBeDefined();
         expect(testAttributes.corrected_response?._correctedResponseCopiedAt).not.toEqual(originalTimestamp);
         expect(mockUpdate).toHaveBeenCalledWith(testAttributes.uuid, { corrected_response: testAttributes.corrected_response });
     });
 
-    test('Copy with existing and comment', async() => {
+    test('Copy with existing and comment', async () => {
         const testAttributes = _cloneDeep(interviewAttributes);
         const originalTimestamp = moment('2023-09-12 15:02:00').unix();
 
         const validationComment = 'This was commented previously';
-        testAttributes.corrected_response = {
+        ((testAttributes.corrected_response = {
             _correctedResponseCopiedAt: originalTimestamp,
             accessCode: '2222',
-            testFields: {
-                fieldA: 'test',
-                fieldB: 'changed'
-            },
+            testFields: { fieldA: 'test', fieldB: 'changed' },
             _validationComment: validationComment
-        } as any,
-
-        await copyResponseToCorrectedResponse(testAttributes);
+        } as any),
+        await copyResponseToCorrectedResponse(testAttributes));
         expect(testAttributes.corrected_response).toEqual(expect.objectContaining(testAttributes.response));
         expect(testAttributes.corrected_response?._validationComment).toEqual(validationComment);
         expect(testAttributes.corrected_response?._correctedResponseCopiedAt).toBeDefined();
         expect(mockUpdate).toHaveBeenCalledWith(testAttributes.uuid, { corrected_response: testAttributes.corrected_response });
     });
-
 });

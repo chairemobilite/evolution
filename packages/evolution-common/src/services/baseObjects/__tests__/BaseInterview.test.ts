@@ -14,23 +14,14 @@ import { SurveyableAttributes } from '../Surveyable';
 const validUUID = uuidV4();
 
 describe('BaseInterview', () => {
+    const surveyAttributes: SurveyAttributes = { name: 'Survey name', shortname: 'survey_shortname', startDate: '2023-10-01', endDate: '2023-10-31' };
 
-    const surveyAttributes: SurveyAttributes = {
-        name: 'Survey name',
-        shortname: 'survey_shortname',
-        startDate: '2023-10-01',
-        endDate: '2023-10-31'
-    };
-
-    const sampleAttributes: SampleAttributes = {
-        name: 'Sample name',
-        shortname: 'sample_shortname'
-    };
+    const sampleAttributes: SampleAttributes = { name: 'Sample name', shortname: 'sample_shortname' };
 
     const surveyableAttributes: SurveyableAttributes = {
         survey: new Survey(surveyAttributes),
         sample: new Sample(sampleAttributes),
-        sampleBatchNumber: 123,
+        sampleBatchNumber: 123
     };
 
     const interviewAttributes: BaseInterviewAttributes = {
@@ -47,10 +38,7 @@ describe('BaseInterview', () => {
         _isCompleted: true,
         _device: 'mobile'
     };
-    const baseInterviewAttributes: BaseInterviewAttributes & SurveyableAttributes = {
-        ...surveyableAttributes,
-        ...interviewAttributes
-    };
+    const baseInterviewAttributes: BaseInterviewAttributes & SurveyableAttributes = { ...surveyableAttributes, ...interviewAttributes };
 
     it('should create a new BaseInterview instance', () => {
         const interview = new BaseInterview(baseInterviewAttributes);
@@ -67,14 +55,13 @@ describe('BaseInterview', () => {
         expect(interview._source).toEqual('web');
         expect(interview._isCompleted).toEqual(true);
         expect(interview._device).toEqual('mobile');
-
     });
 
     it('should create a new BaseInterview instance with minimal attributes', () => {
         const minimalAttributes: BaseInterviewAttributes & SurveyableAttributes = {
             _uuid: validUUID,
             survey: surveyableAttributes.survey,
-            sample: surveyableAttributes.sample,
+            sample: surveyableAttributes.sample
         };
 
         const interview = new BaseInterview(minimalAttributes);
@@ -91,7 +78,6 @@ describe('BaseInterview', () => {
         expect(interview._source).toBeUndefined();
         expect(interview._isCompleted).toBeUndefined();
         expect(interview._device).toBeUndefined();
-
     });
 
     it('should validate a BaseInterview instance', () => {
@@ -115,7 +101,7 @@ describe('BaseInterview', () => {
             _language: 'fr',
             _source: 'postal',
             _isCompleted: false,
-            _device: 'unknown',
+            _device: 'unknown'
         };
 
         const validErrors = BaseInterview.validateParams(validParams);
@@ -133,7 +119,7 @@ describe('BaseInterview', () => {
             _language: 'aaa',
             _source: {},
             _isCompleted: 'true',
-            _device: 'foo',
+            _device: 'foo'
         };
 
         const invalidErrors = BaseInterview.validateParams(invalidParams);
@@ -150,7 +136,7 @@ describe('BaseInterview', () => {
             new Error('BaseInterview validateParams: invalid _updatedAt'),
             new Error('BaseInterview validateParams: contactPhoneNumber should be a string'),
             new Error('BaseInterview validateParams: contactEmail should be a string'),
-            new Error('BaseInterview validateParams: _device is invalid'),
+            new Error('BaseInterview validateParams: _device is invalid')
         ]);
     });
 
@@ -168,5 +154,4 @@ describe('BaseInterview', () => {
         expect(instance.sample).toBeInstanceOf(Sample);
         expect(instance.sample.name).toEqual(sampleAttributes.name);
     });
-
 });

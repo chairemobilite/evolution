@@ -14,12 +14,11 @@ import { WeightMethod } from '../WeightMethod';
 const validUUID = uuidV4();
 
 describe('BaseOrganization', () => {
-
     const weightMethodAttributes = {
         _uuid: uuidV4(),
         shortname: 'sample-shortname',
         name: 'Sample Weight Method',
-        description: 'Sample weight method description',
+        description: 'Sample weight method description'
     };
 
     const baseOrganizationAttributes: BaseOrganizationAttributes = {
@@ -33,9 +32,8 @@ describe('BaseOrganization', () => {
         vehicleNumber: 23,
         pluginHybridVehicleNumber: 12,
         electricVehicleNumber: 0,
-        _weights: [{ weight: 0.1, method: new WeightMethod(weightMethodAttributes) }],
+        _weights: [{ weight: 0.1, method: new WeightMethod(weightMethodAttributes) }]
     };
-
 
     it('should create a new BaseOrganization instance', () => {
         const organization = new BaseOrganization(baseOrganizationAttributes);
@@ -54,9 +52,7 @@ describe('BaseOrganization', () => {
     });
 
     it('should create a new BaseOrganization instance with minimal attributes', () => {
-        const minimalAttributes: BaseOrganizationAttributes = {
-            _uuid: validUUID
-        };
+        const minimalAttributes: BaseOrganizationAttributes = { _uuid: validUUID };
 
         const organization = new BaseOrganization(minimalAttributes);
         expect(organization).toBeInstanceOf(BaseOrganization);
@@ -76,10 +72,7 @@ describe('BaseOrganization', () => {
     });
 
     it('should accept extended attributes', () => {
-        const extendedAttributes: ExtendedOrganizationAttributes = {
-            ...baseOrganizationAttributes,
-            customAttribute: 'Custom Value',
-        };
+        const extendedAttributes: ExtendedOrganizationAttributes = { ...baseOrganizationAttributes, customAttribute: 'Custom Value' };
 
         const organization = new BaseOrganization(extendedAttributes);
         expect(organization).toBeInstanceOf(BaseOrganization);
@@ -107,7 +100,7 @@ describe('BaseOrganization', () => {
             electricVehicleNumber: 3,
             contactPhoneNumber: '123-456-7890',
             contactEmail: 'valid@example.com',
-            _weights: [{ weight: 2.333, method: new WeightMethod(weightMethodAttributes) }],
+            _weights: [{ weight: 2.333, method: new WeightMethod(weightMethodAttributes) }]
         };
 
         const errors = BaseOrganization.validateParams(validParams);
@@ -126,7 +119,7 @@ describe('BaseOrganization', () => {
             electricVehicleNumber: 'invalid', // Non-integer electricVehicleNumber
             contactPhoneNumber: 1234567890, // Invalid contactPhoneNumber
             contactEmail: 'invalid-email', // Invalid contactEmail
-            _weights: 'not-an-array', // Invalid _weights
+            _weights: 'not-an-array' // Invalid _weights
         };
 
         const errors = BaseOrganization.validateParams(invalidParams);
@@ -141,15 +134,12 @@ describe('BaseOrganization', () => {
             new Error('BaseOrganization validateParams: vehicleNumber should be a positive integer'),
             new Error('BaseOrganization validateParams: pluginHybridVehicleNumber should be a positive integer'),
             new Error('BaseOrganization validateParams: electricVehicleNumber should be a positive integer'),
-            new Error('BaseOrganization validateParams: contactPhoneNumber should be a string'),
+            new Error('BaseOrganization validateParams: contactPhoneNumber should be a string')
         ]);
     });
 
     it('should validate params with missing optional values', () => {
-        const params = {
-            _uuid: uuidV4(),
-            name: 'Valid Org',
-        };
+        const params = { _uuid: uuidV4(), name: 'Valid Org' };
 
         const errors = BaseOrganization.validateParams(params);
         expect(errors.length).toBe(0);

@@ -12,24 +12,14 @@ import { BasePlace, BasePlaceAttributes } from '../BasePlace';
 const validUUID = uuidV4();
 
 describe('BaseJunction', () => {
-
     const geojson = {
         type: 'Feature',
         id: 444,
-        geometry: {
-            type: 'Point',
-            coordinates: [23.5, -11.0033423],
-        },
-        properties: {
-            foo: 'boo2',
-            bar: 'far2'
-        },
+        geometry: { type: 'Point', coordinates: [23.5, -11.0033423] },
+        properties: { foo: 'boo2', bar: 'far2' }
     } as GeoJSON.Feature<GeoJSON.Point, { [key: string]: string }>;
 
-    const basePlaceAttributes: BasePlaceAttributes = {
-        geography: geojson,
-        _uuid: validUUID,
-    };
+    const basePlaceAttributes: BasePlaceAttributes = { geography: geojson, _uuid: validUUID };
 
     const baseJunctionAttributes: BaseJunctionAttributes = {
         _uuid: validUUID,
@@ -37,7 +27,7 @@ describe('BaseJunction', () => {
         arrivalDate: '2023-10-05',
         departureDate: '2023-10-06',
         arrivalTime: 36000, // 10:00 AM in seconds since midnight
-        departureTime: 45000, // 12:30 PM in seconds since midnight
+        departureTime: 45000 // 12:30 PM in seconds since midnight
     };
 
     it('should create a new BaseJunction instance', () => {
@@ -57,16 +47,9 @@ describe('BaseJunction', () => {
     });
 
     it('should create a new BaseJunction instance with minimal attributes', () => {
-        const minimalBasePlaceAttributes: BasePlaceAttributes = {
-            geography: undefined,
-            _uuid: validUUID,
-            name: 'Minimal Test Place',
-        };
+        const minimalBasePlaceAttributes: BasePlaceAttributes = { geography: undefined, _uuid: validUUID, name: 'Minimal Test Place' };
 
-        const minimalJunctionAttributes: BaseJunctionAttributes = {
-            _uuid: validUUID,
-            uuid: validUUID,
-        };
+        const minimalJunctionAttributes: BaseJunctionAttributes = { _uuid: validUUID, uuid: validUUID };
 
         const junction = new BaseJunction({ ...minimalJunctionAttributes, basePlace: new BasePlace(minimalBasePlaceAttributes) });
         expect(junction).toBeInstanceOf(BaseJunction);
@@ -89,10 +72,7 @@ describe('BaseJunction', () => {
     });
 
     it('should accept extended attributes', () => {
-        const extendedJunctionAttributes: ExtendedJunctionAttributes = {
-            ...baseJunctionAttributes,
-            customAttribute: 'Custom Value',
-        };
+        const extendedJunctionAttributes: ExtendedJunctionAttributes = { ...baseJunctionAttributes, customAttribute: 'Custom Value' };
 
         const junction = new BaseJunction({ ...extendedJunctionAttributes, basePlace: new BasePlace(basePlaceAttributes) });
         expect(junction).toBeInstanceOf(BaseJunction);
@@ -105,7 +85,7 @@ describe('BaseJunction', () => {
             arrivalDate: '2023-01-15',
             departureDate: '2023-01-16',
             arrivalTime: 36000, // 10:00 AM in seconds since midnight
-            departureTime: 43200, // 12:00 PM in seconds since midnight
+            departureTime: 43200 // 12:00 PM in seconds since midnight
         };
         const errors = BaseJunction.validateParams(validParams);
         expect(errors).toEqual([]);
@@ -125,7 +105,7 @@ describe('BaseJunction', () => {
             departureDate: '2023-01-16',
             arrivalTime: 36000,
             departureTime: 43200,
-            additionalAttribute: 'additionalValue',
+            additionalAttribute: 'additionalValue'
         };
         const errors = BaseJunction.validateParams(validParams);
         expect(errors).toEqual([]);
@@ -140,7 +120,7 @@ describe('BaseJunction', () => {
             arrivalTime: -1, // Negative arrival time
             departureTime: '12:00 PM', // Invalid departure time string
             activityCategory: 44, // Invalid activity category
-            activity: -123283764.34534, // Invalid activity
+            activity: -123283764.34534 // Invalid activity
         };
 
         const errors = BaseJunction.validateParams(invalidParams);
@@ -161,7 +141,7 @@ describe('BaseJunction', () => {
             arrivalTime: -1, // Negative arrival time
             departureTime: '12:00 PM', // Invalid departure time string
             activityCategory: 44, // Invalid activity category
-            activity: -123283764.34534, // Invalid activity
+            activity: -123283764.34534 // Invalid activity
         };
         const validParams = {
             _uuid: uuidV4(), // Invalid UUID
@@ -170,7 +150,7 @@ describe('BaseJunction', () => {
             departureDate: '2023-01-16',
             arrivalTime: 36000,
             departureTime: 43200,
-            additionalAttribute: 'additionalValue',
+            additionalAttribute: 'additionalValue'
         };
 
         const invalidResult = BaseJunction.create(invalidParams);

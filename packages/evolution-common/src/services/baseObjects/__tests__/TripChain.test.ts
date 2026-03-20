@@ -24,7 +24,7 @@ describe('TripChain', () => {
         _uuid: uuidV4(),
         shortname: 'sample-shortname',
         name: 'Sample Weight Method',
-        description: 'Sample weight method description',
+        description: 'Sample weight method description'
     };
 
     const validAttributes: TripChainAttributes = {
@@ -41,7 +41,7 @@ describe('TripChain', () => {
         mainActivity: 'work',
         mainActivityCategory: 'work',
         _weights: [{ weight: 1.5, method: new WeightMethod(weightMethodAttributes) }],
-        _isValid: true,
+        _isValid: true
     };
 
     const extendedAttributes: ExtendedTripChainAttributes = {
@@ -56,7 +56,7 @@ describe('TripChain', () => {
                 endTime: 5400,
                 startTimePeriod: 'am',
                 endTimePeriod: 'pm',
-                _isValid: true,
+                _isValid: true
             },
             {
                 _uuid: uuidV4(),
@@ -66,35 +66,13 @@ describe('TripChain', () => {
                 endTime: 7200,
                 startTimePeriod: 'am',
                 endTimePeriod: 'pm',
-                _isValid: true,
-            },
+                _isValid: true
+            }
         ],
         _visitedPlaces: [
-            {
-                _uuid: uuidV4(),
-                geography: {
-                    type: 'Feature',
-                    geometry: {
-                        type: 'Point',
-                        coordinates: [0, 0],
-                    },
-                    properties: {},
-                },
-                _isValid: true,
-            },
-            {
-                _uuid: uuidV4(),
-                geography: {
-                    type: 'Feature',
-                    geometry: {
-                        type: 'Point',
-                        coordinates: [1, 1],
-                    },
-                    properties: {},
-                },
-                _isValid: true,
-            },
-        ],
+            { _uuid: uuidV4(), geography: { type: 'Feature', geometry: { type: 'Point', coordinates: [0, 0] }, properties: {} }, _isValid: true },
+            { _uuid: uuidV4(), geography: { type: 'Feature', geometry: { type: 'Point', coordinates: [1, 1] }, properties: {} }, _isValid: true }
+        ]
     };
 
     test('should create a TripChain instance with valid attributes', () => {
@@ -105,9 +83,14 @@ describe('TripChain', () => {
 
     test('should have a validateParams section for each attribute', () => {
         const validateParamsCode = TripChain.validateParams.toString();
-        tripChainAttributes.filter((attribute) => attribute !== '_uuid' && attribute !== '_weights' && !(startEndDateAndTimesAttributes as unknown as string[]).includes(attribute)).forEach((attributeName) => {
-            expect(validateParamsCode).toContain('\'' + attributeName + '\'');
-        });
+        tripChainAttributes
+            .filter(
+                (attribute) =>
+                    attribute !== '_uuid' && attribute !== '_weights' && !(startEndDateAndTimesAttributes as unknown as string[]).includes(attribute)
+            )
+            .forEach((attributeName) => {
+                expect(validateParamsCode).toContain('\'' + attributeName + '\'');
+            });
     });
 
     test('should get uuid', () => {
@@ -165,14 +148,8 @@ describe('TripChain', () => {
     });
 
     test('should create a TripChain instance with custom attributes', () => {
-        const customAttributes = {
-            customAttribute1: 'value1',
-            customAttribute2: 'value2',
-        };
-        const tripChainAttributes = {
-            ...validAttributes,
-            ...customAttributes,
-        };
+        const customAttributes = { customAttribute1: 'value1', customAttribute2: 'value2' };
+        const tripChainAttributes = { ...validAttributes, ...customAttributes };
         const tripChain = new TripChain(tripChainAttributes, registry);
         expect(tripChain).toBeInstanceOf(TripChain);
         expect(tripChain.attributes).toEqual(validAttributes);
@@ -222,7 +199,7 @@ describe('TripChain', () => {
             ['isConstrained', false],
             ['mainActivity', 'school'],
             ['mainActivityCategory', 'education'],
-            ['preData', { importedTripChainData: 'value', purpose: 'work' }],
+            ['preData', { importedTripChainData: 'value', purpose: 'work' }]
         ])('should set and get %s', (attribute, value) => {
             const tripChain = new TripChain(validAttributes, registry);
             tripChain[attribute] = value;
@@ -233,7 +210,7 @@ describe('TripChain', () => {
             test.each([
                 ['_uuid', extendedAttributes._uuid],
                 ['customAttributes', { customAttribute: extendedAttributes.customAttribute }],
-                ['attributes', validAttributes],
+                ['attributes', validAttributes]
             ])('should set and get %s', (attribute, value) => {
                 const tripChain = new TripChain(extendedAttributes, registry);
                 expect(tripChain[attribute]).toEqual(value);
@@ -245,7 +222,7 @@ describe('TripChain', () => {
             ['_weights', [{ weight: 2.0, method: new WeightMethod(weightMethodAttributes) }]],
             ['_trips', extendedAttributes._trips],
             ['_visitedPlaces', extendedAttributes._visitedPlaces],
-            ['journeyUuid', uuidV4()],
+            ['journeyUuid', uuidV4()]
         ])('should set and get %s', (attribute, value) => {
             const tripChain = new TripChain(validAttributes, registry);
             tripChain[attribute] = value;
@@ -274,7 +251,7 @@ describe('TripChain', () => {
                     endTime: 5400,
                     startTimePeriod: 'am',
                     endTimePeriod: 'pm',
-                    _isValid: true,
+                    _isValid: true
                 },
                 {
                     _uuid: uuidV4(),
@@ -284,14 +261,11 @@ describe('TripChain', () => {
                     endTime: 7200,
                     startTimePeriod: 'am',
                     endTimePeriod: 'pm',
-                    _isValid: true,
-                },
+                    _isValid: true
+                }
             ];
 
-            const tripChainAttributes: ExtendedTripChainAttributes = {
-                ...validAttributes,
-                _trips: tripAttributes,
-            };
+            const tripChainAttributes: ExtendedTripChainAttributes = { ...validAttributes, _trips: tripAttributes };
 
             const result = TripChain.create(tripChainAttributes, registry);
             expect(isOk(result)).toBe(true);
@@ -309,39 +283,22 @@ describe('TripChain', () => {
                     _isValid: true,
                     _place: {
                         _uuid: uuidV4(),
-                        geography: {
-                            type: 'Feature',
-                            geometry: {
-                                type: 'Point',
-                                coordinates: [0, 0],
-                            },
-                            properties: {},
-                        },
-                        _isValid: true,
-                    },
+                        geography: { type: 'Feature', geometry: { type: 'Point', coordinates: [0, 0] }, properties: {} },
+                        _isValid: true
+                    }
                 },
                 {
                     _uuid: uuidV4(),
                     _isValid: true,
                     _place: {
                         _uuid: uuidV4(),
-                        geography: {
-                            type: 'Feature',
-                            geometry: {
-                                type: 'Point',
-                                coordinates: [1, 1],
-                            },
-                            properties: {},
-                        },
-                        _isValid: true,
-                    },
-                },
+                        geography: { type: 'Feature', geometry: { type: 'Point', coordinates: [1, 1] }, properties: {} },
+                        _isValid: true
+                    }
+                }
             ];
 
-            const tripChainAttributes: ExtendedTripChainAttributes = {
-                ...validAttributes,
-                _visitedPlaces: visitedPlaceAttributes,
-            };
+            const tripChainAttributes: ExtendedTripChainAttributes = { ...validAttributes, _visitedPlaces: visitedPlaceAttributes };
 
             const result = TripChain.create(tripChainAttributes, registry);
             expect(isOk(result)).toBe(true);

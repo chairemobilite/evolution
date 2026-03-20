@@ -14,13 +14,15 @@ jest.mock('../../../models/paradataEvents.db.queries', () => ({
     createParadataWithWidgetPathTable: jest.fn(),
     getIncompleteInterviewsLastEventCounts: jest.fn()
 }));
-const createParadataTblMock = paradataQueries.createParadataWithWidgetPathTable as jest.MockedFunction<typeof paradataQueries.createParadataWithWidgetPathTable>;
-const getIncompleteInterviewsLastEventCountsMock = paradataQueries.getIncompleteInterviewsLastEventCounts as jest.MockedFunction<typeof paradataQueries.getIncompleteInterviewsLastEventCounts>;
+const createParadataTblMock = paradataQueries.createParadataWithWidgetPathTable as jest.MockedFunction<
+    typeof paradataQueries.createParadataWithWidgetPathTable
+>;
+const getIncompleteInterviewsLastEventCountsMock = paradataQueries.getIncompleteInterviewsLastEventCounts as jest.MockedFunction<
+    typeof paradataQueries.getIncompleteInterviewsLastEventCounts
+>;
 
 // Mock the knex transaction function used by the service
-jest.mock('chaire-lib-backend/lib/config/shared/db.config', () => ({
-    transaction: jest.fn()
-}));
+jest.mock('chaire-lib-backend/lib/config/shared/db.config', () => ({ transaction: jest.fn() }));
 const transactionMock = knex.transaction as jest.MockedFunction<typeof knex.transaction>;
 
 beforeEach(() => {
@@ -38,9 +40,7 @@ describe('RespondentBehaviorService', () => {
         });
 
         // Mock the paradata queries to return one row
-        getIncompleteInterviewsLastEventCountsMock.mockResolvedValueOnce([
-            { event_type: 'button_click', count: '7' }
-        ]);
+        getIncompleteInterviewsLastEventCountsMock.mockResolvedValueOnce([{ event_type: 'button_click', count: '7' }]);
 
         // Call the service
         const metrics = await RespondentBehaviorService.getRespondentBehaviorMetrics();

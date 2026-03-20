@@ -9,7 +9,6 @@ import { Uuidable } from '../Uuidable';
 import { validate as uuidValidate, v4 as uuidV4 } from 'uuid';
 
 describe('Uuidable Class', () => {
-
     it('should have a _uuid property when instantiated without parameters', () => {
         const uuidBaseInstance = new Uuidable();
         expect(uuidBaseInstance).toHaveProperty('_uuid');
@@ -35,7 +34,9 @@ describe('Uuidable Class', () => {
 
     it('should return errors for invalid params and accept empty or valid uuid', () => {
         expect(Uuidable.validateParams({ _uuid: 'invalid-uuid' })).toEqual([new Error('Uuidable validateParams: _uuid should be a valid uuid')]);
-        expect(Uuidable.validateParams({ _uuid: 'invalid-uuid' }, 'testName')).toEqual([new Error('testName Uuidable validateParams: _uuid should be a valid uuid')]);
+        expect(Uuidable.validateParams({ _uuid: 'invalid-uuid' }, 'testName')).toEqual([
+            new Error('testName Uuidable validateParams: _uuid should be a valid uuid')
+        ]);
         expect(Uuidable.validateParams({})).toEqual([]);
         expect(Uuidable.validateParams({ _uuid: uuidV4() })).toEqual([]);
     });

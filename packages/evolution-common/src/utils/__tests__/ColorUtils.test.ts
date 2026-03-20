@@ -8,8 +8,9 @@
 import { hexToRgb } from '../ColorUtils';
 
 describe('hexToRgb', () => {
-
-    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => { return; });
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {
+        return;
+    });
     afterEach(() => consoleErrorSpy.mockClear());
 
     test.each([
@@ -41,5 +42,4 @@ describe('hexToRgb', () => {
         expect(hexToRgb(input)).toBeUndefined();
         expect(consoleErrorSpy).toHaveBeenCalledTimes(1);
     });
-
 });

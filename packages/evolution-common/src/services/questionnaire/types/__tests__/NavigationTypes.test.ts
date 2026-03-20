@@ -18,18 +18,12 @@ describe('sectionToUrlPath', () => {
     });
 
     it('should return the full path with iterationContext', () => {
-        const section: NavigationSection = {
-            sectionShortname: 'visitedPlaces',
-            iterationContext: ['person', '123']
-        };
+        const section: NavigationSection = { sectionShortname: 'visitedPlaces', iterationContext: ['person', '123'] };
         expect(sectionToUrlPath(section)).toBe('visitedPlaces/person/123');
     });
 
     it('should handle iterationContext with multiple parts', () => {
-        const section: NavigationSection = {
-            sectionShortname: 'segments',
-            iterationContext: ['person', '123', 'journey', '456']
-        };
+        const section: NavigationSection = { sectionShortname: 'segments', iterationContext: ['person', '123', 'journey', '456'] };
         expect(sectionToUrlPath(section)).toBe('segments/person/123/journey/456');
     });
 });

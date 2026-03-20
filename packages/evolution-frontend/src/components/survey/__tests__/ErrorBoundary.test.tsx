@@ -16,22 +16,14 @@ import { logClientSideMessage } from '../../../services/errorManagement/errorHan
 
 import ErrorBoundary from '../ErrorBoundary';
 
-jest.mock('../../../services/errorManagement/errorHandling', () => ({
-    logClientSideMessage: jest.fn()
-}));
+jest.mock('../../../services/errorManagement/errorHandling', () => ({ logClientSideMessage: jest.fn() }));
 const logClientSideMessageMock = logClientSideMessage as jest.MockedFunction<typeof logClientSideMessage>;
 
 let store = configureStore();
 beforeEach(() => {
     jest.clearAllMocks();
     // Initialise store with interview id
-    store = configureStore({
-        survey: {
-            interview: {
-                id: 1
-            }
-        }
-    } as any);
+    store = configureStore({ survey: { interview: { id: 1 } } } as any);
 });
 
 test('Render child widget if no error', () => {
@@ -70,7 +62,7 @@ test('Render error page if widget has error', () => {
 });
 
 test('Reset the error boundary when clicking', async () => {
-    let shouldThrow = true
+    let shouldThrow = true;
     const ErrorComponent = () => {
         if (shouldThrow) {
             throw new Error('Error component');
@@ -81,7 +73,7 @@ test('Reset the error boundary when clicking', async () => {
     // Add initial keys for snapshots to work with enzyme without random keys (https://github.com/remix-run/react-router/issues/5579)
     const { container } = render(
         <Provider store={store}>
-            <MemoryRouter initialEntries={[ { pathname: '/', key: 'testKey' } ]}>
+            <MemoryRouter initialEntries={[{ pathname: '/', key: 'testKey' }]}>
                 <ErrorBoundary>
                     <ErrorComponent />
                 </ErrorBoundary>

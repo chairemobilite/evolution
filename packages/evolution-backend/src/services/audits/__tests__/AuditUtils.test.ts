@@ -42,44 +42,14 @@ describe('convertParamsErrorsToAudits', () => {
 describe('mergeWithExisting', () => {
     it('should merge new audits with existing audits', async () => {
         const existingAudits: Audits = {
-            'test-error': {
-                version: 1,
-                errorCode: 'test-error',
-                message: 'Test error message',
-                level: 'error',
-                ignore: true,
-            },
-            'outdated-error': {
-                version: 1,
-                errorCode: 'oudated-error',
-                message: 'Outdated error message',
-                level: 'error',
-                ignore: true,
-            },
-            'version-changed-error': {
-                version: 1,
-                errorCode: 'oudated-error',
-                message: 'Outdated error message',
-                level: 'error',
-                ignore: true,
-            },
+            'test-error': { version: 1, errorCode: 'test-error', message: 'Test error message', level: 'error', ignore: true },
+            'outdated-error': { version: 1, errorCode: 'oudated-error', message: 'Outdated error message', level: 'error', ignore: true },
+            'version-changed-error': { version: 1, errorCode: 'oudated-error', message: 'Outdated error message', level: 'error', ignore: true }
         };
 
         const newAudits: Audits = {
-            'test-error': {
-                version: 1,
-                errorCode: 'test-error',
-                message: 'Test error message updated',
-                level: 'warning',
-                ignore: false,
-            },
-            'version-changed-error': {
-                version: 2,
-                errorCode: 'oudated-error',
-                message: 'Outdated error message',
-                level: 'error',
-                ignore: false,
-            },
+            'test-error': { version: 1, errorCode: 'test-error', message: 'Test error message updated', level: 'warning', ignore: false },
+            'version-changed-error': { version: 2, errorCode: 'oudated-error', message: 'Outdated error message', level: 'error', ignore: false }
         };
 
         const mergedAudits = mergeWithExisting(existingAudits, newAudits);
@@ -135,10 +105,7 @@ describe('fieldIsRequired', () => {
             const { fieldIsRequired } = await import('../AuditUtils');
 
             // Set config for this test
-            projectConfig.requiredFieldsBySurveyObject = {
-                ...projectConfig.requiredFieldsBySurveyObject,
-                [objectType]: isRequired ? [field] : []
-            };
+            projectConfig.requiredFieldsBySurveyObject = { ...projectConfig.requiredFieldsBySurveyObject, [objectType]: isRequired ? [field] : [] };
 
             const result = fieldIsRequired(objectType, field);
 
@@ -189,9 +156,7 @@ describe('fieldIsRequired', () => {
                 const { fieldIsRequired } = await import('../AuditUtils');
 
                 // Remove key entirely for this test
-                projectConfig.requiredFieldsBySurveyObject = {
-                    ...projectConfig.requiredFieldsBySurveyObject,
-                };
+                projectConfig.requiredFieldsBySurveyObject = { ...projectConfig.requiredFieldsBySurveyObject };
                 delete (projectConfig.requiredFieldsBySurveyObject as any).organization;
 
                 expect(fieldIsRequired('organization', 'name')).toBe(false);

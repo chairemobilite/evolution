@@ -38,12 +38,7 @@ describe('HorizontalBarMonitoringChart', () => {
         mockFetch.mockClear();
     });
 
-    const defaultProps = {
-        apiUrl: 'http://example.com/api/data',
-        chartTitle: 'Test Chart Title',
-        xAxisTitle: 'X Axis',
-        yAxisTitle: 'Y Axis'
-    };
+    const defaultProps = { apiUrl: 'http://example.com/api/data', chartTitle: 'Test Chart Title', xAxisTitle: 'X Axis', yAxisTitle: 'Y Axis' };
 
     // const mockData = [
     //     { label: 'A', percentage: 60, count: 6 },
@@ -92,9 +87,7 @@ describe('HorizontalBarMonitoringChart', () => {
     });
 
     it('shows error when server returns 500', async () => {
-        mockFetch.mockResolvedValueOnce({
-            status: 500
-        } as Response);
+        mockFetch.mockResolvedValueOnce({ status: 500 } as Response);
 
         render(<HorizontalBarMonitoringChart {...defaultProps} />);
         await waitFor(() => {
@@ -117,10 +110,7 @@ describe('HorizontalBarMonitoringChart', () => {
     });
 
     it('shows error when JSON parsing fails', async () => {
-        mockFetch.mockResolvedValueOnce({
-            status: 200,
-            json: jest.fn().mockRejectedValueOnce(new Error('Invalid JSON'))
-        } as unknown as Response);
+        mockFetch.mockResolvedValueOnce({ status: 200, json: jest.fn().mockRejectedValueOnce(new Error('Invalid JSON')) } as unknown as Response);
 
         render(<HorizontalBarMonitoringChart {...defaultProps} />);
         await waitFor(() => {
@@ -129,10 +119,7 @@ describe('HorizontalBarMonitoringChart', () => {
     });
 
     it('POSTs with expected payload and credentials', async () => {
-        (fetch as jest.Mock).mockResolvedValueOnce({
-            status: 200,
-            json: async () => ({ status: 'ok', result: { distribution: [] } })
-        } as Response);
+        (fetch as jest.Mock).mockResolvedValueOnce({ status: 200, json: async () => ({ status: 'ok', result: { distribution: [] } }) } as Response);
         render(<HorizontalBarMonitoringChart {...defaultProps} />);
         await waitFor(() => expect(fetch).toHaveBeenCalled());
         const [url, init] = (fetch as jest.Mock).mock.calls[0];
@@ -143,10 +130,7 @@ describe('HorizontalBarMonitoringChart', () => {
     });
 
     it('renders nothing if data is empty', async () => {
-        mockFetch.mockResolvedValueOnce({
-            status: 200,
-            json: async () => ({ status: 'ok', result: { distribution: [] } })
-        } as Response);
+        mockFetch.mockResolvedValueOnce({ status: 200, json: async () => ({ status: 'ok', result: { distribution: [] } }) } as Response);
 
         const { container } = render(<HorizontalBarMonitoringChart {...defaultProps} />);
         await waitFor(() => {

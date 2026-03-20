@@ -19,7 +19,7 @@ const interview: InterviewListAttributes = {
     username: 'test',
     facebook: false,
     google: false,
-    audits: { 'errorMsg': 2, 'errorMsg2': 5 }
+    audits: { errorMsg: 2, errorMsg2: 5 }
 };
 
 const nullResponseInterview = {
@@ -48,18 +48,20 @@ describe('Validation List Filter', () => {
                 commonProjectConfig.hasAccessCode = false;
 
                 const interviewStatus = projectConfig.validationListFilter(interview);
-                expect(interviewStatus).toEqual(expect.objectContaining({
-                    id: interview.id,
-                    uuid: interview.uuid,
-                    is_valid: interview.is_valid,
-                    is_validated: undefined,
-                    is_completed: interview.is_completed,
-                    username: interview.username,
-                    facebook: interview.facebook,
-                    google: interview.google,
-                    response: { household: { size: 0 }, _isCompleted: undefined, _validationComment: undefined },
-                    audits: interview.audits
-                }));
+                expect(interviewStatus).toEqual(
+                    expect.objectContaining({
+                        id: interview.id,
+                        uuid: interview.uuid,
+                        is_valid: interview.is_valid,
+                        is_validated: undefined,
+                        is_completed: interview.is_completed,
+                        username: interview.username,
+                        facebook: interview.facebook,
+                        google: interview.google,
+                        response: { household: { size: 0 }, _isCompleted: undefined, _validationComment: undefined },
+                        audits: interview.audits
+                    })
+                );
                 expect((interviewStatus.response as InterviewResponse).accessCode).toBeUndefined();
             });
         });
@@ -72,17 +74,19 @@ describe('Validation List Filter', () => {
                 commonProjectConfig.hasAccessCode = false;
 
                 const interviewStatus = projectConfig.validationListFilter(nullResponseInterview as unknown as InterviewListAttributes);
-                expect(interviewStatus).toEqual(expect.objectContaining({
-                    id: interview.id,
-                    uuid: interview.uuid,
-                    is_valid: interview.is_valid,
-                    is_validated: undefined,
-                    is_completed: interview.is_completed,
-                    username: interview.username,
-                    facebook: interview.facebook,
-                    google: interview.google,
-                    response: { household: { size: undefined }, _isCompleted: undefined, _validationComment: undefined }
-                }));
+                expect(interviewStatus).toEqual(
+                    expect.objectContaining({
+                        id: interview.id,
+                        uuid: interview.uuid,
+                        is_valid: interview.is_valid,
+                        is_validated: undefined,
+                        is_completed: interview.is_completed,
+                        username: interview.username,
+                        facebook: interview.facebook,
+                        google: interview.google,
+                        response: { household: { size: undefined }, _isCompleted: undefined, _validationComment: undefined }
+                    })
+                );
                 expect((interviewStatus.response as InterviewResponse).accessCode).toBeUndefined();
             });
         });
@@ -97,18 +101,20 @@ describe('Validation List Filter', () => {
                 commonProjectConfig.hasAccessCode = true;
 
                 const interviewStatus = projectConfig.validationListFilter(interview);
-                expect(interviewStatus).toEqual(expect.objectContaining({
-                    id: interview.id,
-                    uuid: interview.uuid,
-                    is_valid: interview.is_valid,
-                    is_validated: undefined,
-                    is_completed: interview.is_completed,
-                    username: interview.username,
-                    facebook: interview.facebook,
-                    google: interview.google,
-                    response: { accessCode: 'notsure', household: { size: 0 }, _isCompleted: undefined, _validationComment: undefined },
-                    audits: interview.audits
-                }));
+                expect(interviewStatus).toEqual(
+                    expect.objectContaining({
+                        id: interview.id,
+                        uuid: interview.uuid,
+                        is_valid: interview.is_valid,
+                        is_validated: undefined,
+                        is_completed: interview.is_completed,
+                        username: interview.username,
+                        facebook: interview.facebook,
+                        google: interview.google,
+                        response: { accessCode: 'notsure', household: { size: 0 }, _isCompleted: undefined, _validationComment: undefined },
+                        audits: interview.audits
+                    })
+                );
             });
         });
 
@@ -120,17 +126,19 @@ describe('Validation List Filter', () => {
                 commonProjectConfig.hasAccessCode = true;
 
                 const interviewStatus = projectConfig.validationListFilter(nullResponseInterview as unknown as InterviewListAttributes);
-                expect(interviewStatus).toEqual(expect.objectContaining({
-                    id: interview.id,
-                    uuid: interview.uuid,
-                    is_valid: interview.is_valid,
-                    is_validated: undefined,
-                    is_completed: interview.is_completed,
-                    username: interview.username,
-                    facebook: interview.facebook,
-                    google: interview.google,
-                    response: { accessCode: undefined, household: { size: undefined }, _isCompleted: undefined, _validationComment: undefined }
-                }));
+                expect(interviewStatus).toEqual(
+                    expect.objectContaining({
+                        id: interview.id,
+                        uuid: interview.uuid,
+                        is_valid: interview.is_valid,
+                        is_validated: undefined,
+                        is_completed: interview.is_completed,
+                        username: interview.username,
+                        facebook: interview.facebook,
+                        google: interview.google,
+                        response: { accessCode: undefined, household: { size: undefined }, _isCompleted: undefined, _validationComment: undefined }
+                    })
+                );
             });
         });
     });
@@ -142,26 +150,30 @@ describe('Validation List Filter', () => {
 
             commonProjectConfig.hasAccessCode = true;
 
-            setProjectConfig({ validationListFilter: (interview: InterviewListAttributes) => {
-                const status = defaultConfig.validationListFilter(interview) as InterviewStatusAttributesBase;
-                // Add custom field to response
-                (status.response as unknown as { foo: string }).foo = (interview.response as unknown as { foo: string }).foo;
-                return status;
-            } });
+            setProjectConfig({
+                validationListFilter: (interview: InterviewListAttributes) => {
+                    const status = defaultConfig.validationListFilter(interview) as InterviewStatusAttributesBase;
+                    // Add custom field to response
+                    (status.response as unknown as { foo: string }).foo = (interview.response as unknown as { foo: string }).foo;
+                    return status;
+                }
+            });
 
             const interviewStatus = projectConfig.validationListFilter(interview);
-            expect(interviewStatus).toEqual(expect.objectContaining({
-                id: interview.id,
-                uuid: interview.uuid,
-                is_valid: interview.is_valid,
-                is_validated: undefined,
-                is_completed: interview.is_completed,
-                username: interview.username,
-                facebook: interview.facebook,
-                google: interview.google,
-                response: { accessCode: 'notsure', foo: 'bar', household: { size: 0 }, _isCompleted: undefined, _validationComment: undefined },
-                audits: interview.audits
-            }));
+            expect(interviewStatus).toEqual(
+                expect.objectContaining({
+                    id: interview.id,
+                    uuid: interview.uuid,
+                    is_valid: interview.is_valid,
+                    is_validated: undefined,
+                    is_completed: interview.is_completed,
+                    username: interview.username,
+                    facebook: interview.facebook,
+                    google: interview.google,
+                    response: { accessCode: 'notsure', foo: 'bar', household: { size: 0 }, _isCompleted: undefined, _validationComment: undefined },
+                    audits: interview.audits
+                })
+            );
         });
     });
 });
@@ -194,11 +206,7 @@ describe('Transition API configuration', () => {
             setProjectConfig({
                 // Nothing to set
             });
-            expect(projectConfig.transitionApi).toEqual({
-                url: 'https://transition.from.env',
-                username: 'username.env',
-                password: 'password.env'
-            });
+            expect(projectConfig.transitionApi).toEqual({ url: 'https://transition.from.env', username: 'username.env', password: 'password.env' });
 
             // Cleanup
             delete process.env.TRANSITION_API_URL;
@@ -233,18 +241,8 @@ describe('Transition API configuration', () => {
 
             const { default: projectConfig, setProjectConfig } = await import('../projectConfig');
 
-            setProjectConfig({
-                transitionApi: {
-                    url: 'http://transition',
-                    username: 'user',
-                    password: 'password'
-                }
-            });
-            expect(projectConfig.transitionApi).toEqual({
-                url: 'http://transition',
-                username: 'user',
-                password: 'password'
-            });
+            setProjectConfig({ transitionApi: { url: 'http://transition', username: 'user', password: 'password' } });
+            expect(projectConfig.transitionApi).toEqual({ url: 'http://transition', username: 'user', password: 'password' });
         });
     });
 
@@ -256,18 +254,8 @@ describe('Transition API configuration', () => {
 
             const { default: projectConfig, setProjectConfig } = await import('../projectConfig');
 
-            setProjectConfig({
-                transitionApi: {
-                    url: 'http://transition',
-                    username: 'user',
-                    password: 'password'
-                }
-            });
-            expect(projectConfig.transitionApi).toEqual({
-                url: 'http://transition',
-                username: 'user',
-                password: 'password'
-            });
+            setProjectConfig({ transitionApi: { url: 'http://transition', username: 'user', password: 'password' } });
+            expect(projectConfig.transitionApi).toEqual({ url: 'http://transition', username: 'user', password: 'password' });
 
             // Cleanup
             delete process.env.TRANSITION_API_URL;

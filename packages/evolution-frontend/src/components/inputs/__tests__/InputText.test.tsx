@@ -13,16 +13,15 @@ import { InputText } from '../InputText';
 const userAttributes = {
     id: 1,
     username: 'foo',
-    preferences: {  },
+    preferences: {},
     serializedPermissions: [],
     isAuthorized: () => true,
     is_admin: false,
     pages: [],
     showUserInfo: true
-}
+};
 
-test('Should correctly render InputText with all parameters', () =>{
-
+test('Should correctly render InputText with all parameters', () => {
     const widgetConfig = {
         type: 'question' as const,
         twoColumns: true,
@@ -35,18 +34,17 @@ test('Should correctly render InputText with all parameters', () =>{
         rows: 10,
         size: 'medium' as const,
         containsHtml: true,
-        label: {
-            fr: `Texte en français`,
-            en: `English text`
-        }
-    }
+        label: { fr: 'Texte en français', en: 'English text' }
+    };
 
     const { container } = render(
         <InputText
             id={'test'}
-            onValueChange={() => { /* nothing to do */}}
+            onValueChange={() => {
+                /* nothing to do */
+            }}
             widgetConfig={widgetConfig}
-            value='value'
+            value="value"
             inputRef={React.createRef()}
             interview={interviewAttributes}
             path={'path'}
@@ -56,22 +54,18 @@ test('Should correctly render InputText with all parameters', () =>{
     expect(container).toMatchSnapshot();
 });
 
-test('Should correctly render InputText with base parameters', () =>{
-
+test('Should correctly render InputText with base parameters', () => {
     const widgetConfig = {
         type: 'question' as const,
         path: 'test.foo',
         inputType: 'text' as const,
-        label: {
-            fr: `Texte en français`,
-            en: `English text`
-        }
-    }
+        label: { fr: 'Texte en français', en: 'English text' }
+    };
     const { container } = render(
         <InputText
             id={'test'}
             widgetConfig={widgetConfig}
-            value='value'
+            value="value"
             interview={interviewAttributes}
             path={'path'}
             user={userAttributes}
@@ -81,23 +75,19 @@ test('Should correctly render InputText with base parameters', () =>{
     expect(container).toMatchSnapshot();
 });
 
-test('Should correctly render InputText with defaultValue', () =>{
-
+test('Should correctly render InputText with defaultValue', () => {
     const widgetConfig = {
         type: 'question' as const,
         path: 'test.foo',
         inputType: 'text' as const,
         defaultValue: 'This is the text that should be present',
-        label: {
-            fr: `Texte en français`,
-            en: `English text`
-        }
-    }
+        label: { fr: 'Texte en français', en: 'English text' }
+    };
     const { container } = render(
         <InputText
             id={'test'}
             widgetConfig={widgetConfig}
-            value=''
+            value=""
             interview={interviewAttributes}
             path={'path'}
             user={userAttributes}

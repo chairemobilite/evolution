@@ -24,7 +24,7 @@ describe('Home', () => {
         _uuid: uuidV4(),
         shortname: 'sample-shortname',
         name: 'Sample Weight Method',
-        description: 'Sample weight method description',
+        description: 'Sample weight method description'
     });
 
     // Factory function to create fresh valid home attributes
@@ -47,9 +47,9 @@ describe('Home', () => {
             type: 'Feature',
             geometry: {
                 type: 'Point',
-                coordinates: [-73.561668, 45.508888], // Montreal coordinates
+                coordinates: [-73.561668, 45.508888] // Montreal coordinates
             },
-            properties: {},
+            properties: {}
         },
         _weights: [{ weight: 1.5, method: new WeightMethod(createWeightMethodAttributes()) }],
         _isValid: true
@@ -59,7 +59,7 @@ describe('Home', () => {
     const createExtendedHomeAttributes = (): { [key: string]: unknown } => ({
         ...createValidHomeAttributes(),
         customAttribute1: 'home-value1',
-        customAttribute2: 'home-value2',
+        customAttribute2: 'home-value2'
     });
 
     // Factory function to create extended attributes with address
@@ -173,10 +173,7 @@ describe('Home', () => {
 
         it('should return errors for invalid geography', () => {
             const validHomeAttributes = createValidHomeAttributes();
-            const invalidGeography = {
-                ...validHomeAttributes,
-                geography: { type: 'InvalidType' }
-            };
+            const invalidGeography = { ...validHomeAttributes, geography: { type: 'InvalidType' } };
             const result = Home.create(invalidGeography, registry);
             expect(hasErrors(result)).toBe(true);
             if (hasErrors(result)) {
@@ -202,10 +199,7 @@ describe('Home', () => {
 
         it('should unserialize a Home instance with serialized data structure', () => {
             const validHomeAttributes = createValidHomeAttributes();
-            const serializedData = {
-                _attributes: validHomeAttributes,
-                _customAttributes: { custom1: 'value1' }
-            };
+            const serializedData = { _attributes: validHomeAttributes, _customAttributes: { custom1: 'value1' } };
             const home = Home.unserialize(serializedData, registry);
             expect(home).toBeInstanceOf(Home);
             expect(home.name).toBe('Home Location');
@@ -229,10 +223,7 @@ describe('Home', () => {
 
         it('should invalidate invalid GeoJSON', () => {
             const validHomeAttributes = createValidHomeAttributes();
-            const invalidGeographyParams = {
-                ...validHomeAttributes,
-                geography: { type: 'Invalid' } as unknown as GeoJSON.Feature<GeoJSON.Point>
-            };
+            const invalidGeographyParams = { ...validHomeAttributes, geography: { type: 'Invalid' } as unknown as GeoJSON.Feature<GeoJSON.Point> };
             const home = new Home(invalidGeographyParams, registry);
             expect(home.geographyIsValid()).toBe(false);
         });
@@ -245,9 +236,12 @@ describe('Home', () => {
                     type: 'Feature',
                     geometry: {
                         type: 'LineString',
-                        coordinates: [[0, 0], [1, 1]],
+                        coordinates: [
+                            [0, 0],
+                            [1, 1]
+                        ]
                     },
-                    properties: {},
+                    properties: {}
                 } as unknown as GeoJSON.Feature<GeoJSON.Point>
             };
             const home = new Home(invalidGeometryParams, registry);
@@ -276,14 +270,7 @@ describe('Home', () => {
             const validHomeAttributes = createValidHomeAttributes();
             const home = new Home(validHomeAttributes, registry);
             expect(home.geography).toBeDefined();
-            const newGeography = {
-                type: 'Feature' as const,
-                geometry: {
-                    type: 'Point' as const,
-                    coordinates: [-74.0, 40.7],
-                },
-                properties: {},
-            };
+            const newGeography = { type: 'Feature' as const, geometry: { type: 'Point' as const, coordinates: [-74.0, 40.7] }, properties: {} };
             home.geography = newGeography;
             expect(home.geography).toEqual(newGeography);
         });
@@ -310,14 +297,7 @@ describe('Home', () => {
         it('should get and set preGeography', () => {
             const validHomeAttributes = createValidHomeAttributes();
             const home = new Home(validHomeAttributes, registry);
-            const preGeography = {
-                type: 'Feature' as const,
-                geometry: {
-                    type: 'Point' as const,
-                    coordinates: [-73.5, 45.5],
-                },
-                properties: {},
-            };
+            const preGeography = { type: 'Feature' as const, geometry: { type: 'Point' as const, coordinates: [-73.5, 45.5] }, properties: {} };
             // This seems useless, but it is actually testing the getters and setters
             home.preGeography = preGeography;
             expect(home.preGeography).toEqual(preGeography);
@@ -388,14 +368,7 @@ describe('Home', () => {
 
         test('should preserve preGeography through (un)serialize', () => {
             const validHomeAttributes = createValidHomeAttributes();
-            const preGeography = {
-                type: 'Feature' as const,
-                geometry: {
-                    type: 'Point' as const,
-                    coordinates: [-73.5, 45.5],
-                },
-                properties: {},
-            };
+            const preGeography = { type: 'Feature' as const, geometry: { type: 'Point' as const, coordinates: [-73.5, 45.5] }, properties: {} };
             const attrs = { ...validHomeAttributes, preGeography };
             const h1 = new Home(attrs, registry);
             const h2 = Home.unserialize(attrs, registry);
@@ -404,4 +377,3 @@ describe('Home', () => {
         });
     });
 });
-
