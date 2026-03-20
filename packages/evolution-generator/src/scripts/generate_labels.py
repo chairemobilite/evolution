@@ -8,7 +8,6 @@ import os  # For interacting with the operating system
 import ruamel.yaml  # For working with YAML files
 from helpers.generator_helpers import get_data_from_excel
 
-
 # Initialize YAML parser
 yaml = ruamel.yaml.YAML()
 yaml.indent(sequence=4, offset=4, mapping=4)

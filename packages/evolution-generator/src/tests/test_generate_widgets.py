@@ -21,7 +21,6 @@ from scripts.generate_widgets import (
     GenderFields,
 )
 
-
 # TODO: Test generate_widgets
 # TODO: Test generate_widget_statement
 # TODO: Test generate_widget_name
