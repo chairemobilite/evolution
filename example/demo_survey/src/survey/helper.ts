@@ -16,7 +16,11 @@ import {
     validateButtonAction,
     validateButtonActionWithCompleteSection
 } from 'evolution-frontend/lib/services/display/frontendHelper';
-import { SegmentSectionConfiguration, VisitedPlace } from 'evolution-common/lib/services/questionnaire/types';
+import {
+    SegmentSectionConfiguration,
+    VisitedPlace,
+    VisitedPlacesSectionConfiguration
+} from 'evolution-common/lib/services/questionnaire/types';
 import { Mode } from 'evolution-common/lib/services/odSurvey/types';
 import { WidgetFactoryOptions } from 'evolution-common/lib/services/questionnaire/sections/types';
 import { faCheckCircle } from '@fortawesome/free-solid-svg-icons/faCheckCircle';
@@ -77,6 +81,13 @@ export const segmentSectionConfig: SegmentSectionConfiguration = {
         'tripJunctionQueryString',
         'tripJunctionGeography'
     ]
+};
+
+// Configuration for the visited places section
+// FIXME As sections and their widgets become more builtin, this thould be moved elsewhere. For now, it just needs to be available for both widgets.ts and sections.ts files
+export const visitedPlacesSectionConfig: VisitedPlacesSectionConfiguration = {
+    type: 'visitedPlaces' as const,
+    enabled: true
 };
 
 // FIXME Move elsewhere. It is not here to be available for widgets.ts, sections.ts and questionnaire.ts files

@@ -23,7 +23,7 @@ import config from 'chaire-lib-common/lib/config/shared/project.config';
 import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
 import * as odSurveyHelper from 'evolution-common/lib/services/odSurvey/helpers';
 import i18n from 'evolution-frontend/lib/config/i18n.config';
-import helper from '../helper';
+import helper, { visitedPlacesSectionConfig, widgetFactoryOptions } from '../helper';
 import {
     ButtonWidgetConfig,
     InterviewUpdateCallbacks,
@@ -33,6 +33,11 @@ import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { GroupConfig } from 'evolution-common/lib/services/questionnaire/types';
 import { getPersonVisitedPlacesMapConfig } from 'evolution-common/lib/services/questionnaire/sections/common/widgetPersonVisitedPlacesMap';
 import { getFormattedDate, validateButtonAction } from 'evolution-frontend/lib/services/display/frontendHelper';
+import { ActivityWidgetFactory } from 'evolution-common/lib/services/questionnaire/sections/visitedPlaces';
+import { activityToDisplayCategory } from 'evolution-common/lib/services/odSurvey/types';
+
+const activityWidgetFactory = new ActivityWidgetFactory(visitedPlacesSectionConfig, widgetFactoryOptions);
+const activityWidgets = activityWidgetFactory.getWidgetConfigs();
 
 export const visitedPlacesIntro = {
     type: 'text',
@@ -244,6 +249,7 @@ export const personVisitedPlaces: GroupConfig = {
     showGroupedObjectAddButton: true,
     addButtonLocation: 'both' as const,
     widgets: [
+        'visitedPlaceActivityCategory',
         'visitedPlaceActivity',
         'visitedPlaceAlreadyVisited',
         'visitedPlaceShortcut',
@@ -312,379 +318,19 @@ export const visitedPlaceName = {
     }
 };
 
-export const visitedPlaceActivity = {
-    type: 'question',
-    path: 'activity',
-    inputType: 'radio',
-    datatype: 'string',
-    columns: 2,
-    label: {
-        fr: function (interview, path) {
-            const person = odSurveyHelper.getPerson({ interview }) as any;
-            const journey = odSurveyHelper.getJourneysArray({ person })[0];
-            const visitedPlaces = odSurveyHelper.getVisitedPlacesArray({ journey });
-            const householdSize = surveyHelperNew.getResponse(interview, 'household.size', null);
-            if (householdSize === 1) {
-                return visitedPlaces.length === 1
-                    ? 'Quelle était l\'activité principale au lieu où vous étiez avant d\'effectuer votre premier déplacement de la journée?'
-                    : 'Quelle était l\'activité principale à ce lieu?';
-            }
-            //const visitedPlace                      = surveyHelperNew.getResponse(interview, path, null, "../");
-            //const visitedPlaces                     = helper.getVisitedPlaces(person);
-            //const previousVisitedPlace              = helper.getPreviousVisitedPlace(visitedPlace._uuid, visitedPlaces);
-            //const previousVisitedPlaceDesc          = helper.getVisitedPlaceDescription(previousVisitedPlace);
-            //const previousVisitedPlaceDepartureTime = secondsSinceMidnightToTimeStr(previousVisitedPlace.departureTime);
-            return visitedPlaces.length === 1
-                ? `Quelle était l'activité principale au lieu où ${person.nickname} était avant d'effectuer son premier déplacement de la journée?`
-                : 'Quelle était l\'activité principale à ce lieu?';
-        },
-        en: function (interview, path) {
-            const person = odSurveyHelper.getPerson({ interview }) as any;
-            const journey = odSurveyHelper.getJourneysArray({ person })[0];
-            const visitedPlaces = odSurveyHelper.getVisitedPlacesArray({ journey });
-            const householdSize = surveyHelperNew.getResponse(interview, 'household.size', null);
-            if (householdSize === 1) {
-                return visitedPlaces.length === 1
-                    ? 'What was the main activity at the location where you were before making the first trip of the day?'
-                    : 'What was the main activity at this location?';
-            }
-            //const visitedPlace                      = surveyHelperNew.getResponse(interview, path, null, "../");
-            //const visitedPlaces                     = helper.getVisitedPlaces(person);
-            //const previousVisitedPlace              = helper.getPreviousVisitedPlace(visitedPlace._uuid, visitedPlaces);
-            //const previousVisitedPlaceDesc          = helper.getVisitedPlaceDescription(previousVisitedPlace);
-            //const previousVisitedPlaceDepartureTime = secondsSinceMidnightToTimeStr(previousVisitedPlace.departureTime);
-            return visitedPlaces.length === 1
-                ? `What was the main activity at the location where ${person.nickname} was before making the first trip of the day?`
-                : 'What was the main activity at this location?';
-        }
-    },
-    choices: [
-        {
-            value: 'home',
-            label: {
-                fr: 'Domicile',
-                en: 'Home'
-            },
-            internalId: 11,
-            iconPath: '/dist/images/activities_icons/home_round.svg',
-            conditional: function (interview, path) {
-                // hide if previous visited place is home:
-                const person = odSurveyHelper.getPerson({ interview }) as any;
-                const visitedPlace: any = surveyHelperNew.getResponse(interview, path, null, '../');
-                const journey = odSurveyHelper.getJourneysArray({ person })[0] as any;
-                const previousVisitedPlace = odSurveyHelper.getPreviousVisitedPlace({
-                    journey,
-                    visitedPlaceId: visitedPlace._uuid
-                });
-                const nextVisitedPlace = odSurveyHelper.getNextVisitedPlace({
-                    visitedPlaceId: visitedPlace._uuid,
-                    journey
-                });
-                return (
-                    (!previousVisitedPlace || (previousVisitedPlace && previousVisitedPlace.activity !== 'home')) &&
-                    (!nextVisitedPlace || (nextVisitedPlace && nextVisitedPlace.activity !== 'home'))
-                );
-            }
-        },
-        {
-            value: 'workUsual',
-            label: {
-                fr: 'Travail au lieu habituel',
-                en: 'Work at usual work place'
-            },
-            internalId: 1,
-            iconPath: '/dist/images/activities_icons/workUsual_round.svg',
-            conditional: function (interview, path) {
-                // hide if younger than 15:
-                const person = odSurveyHelper.getPerson({ interview }) as any;
-                const usualWorkPlace = person.usualWorkPlace;
-                if (person.age >= 15 && person.workOnTheRoad !== true && usualWorkPlace && usualWorkPlace.geometry) {
-                    const visitedPlace: any = surveyHelperNew.getResponse(interview, path, null, '../');
-                    const journey = odSurveyHelper.getJourneysArray({ person })[0] as any;
-                    const previousVisitedPlace = odSurveyHelper.getPreviousVisitedPlace({
-                        visitedPlaceId: visitedPlace._uuid,
-                        journey
-                    });
-                    const nextVisitedPlace = odSurveyHelper.getNextVisitedPlace({
-                        visitedPlaceId: visitedPlace._uuid,
-                        journey
-                    });
-                    return (
-                        (!previousVisitedPlace ||
-                            (previousVisitedPlace && previousVisitedPlace.activity !== 'workUsual')) &&
-                        (!nextVisitedPlace || (nextVisitedPlace && nextVisitedPlace.activity !== 'workUsual'))
-                    );
-                }
-                return false;
-            }
-        },
-        {
-            value: 'workOnTheRoadFromUsualWork',
-            label: {
-                fr: 'Travail sur la route avec départ du lieu habituel de travail',
-                en: 'Work on the road departing from usual work place'
-            },
-            internalId: 3,
-            iconPath: '/dist/images/activities_icons/workOnTheRoadFromUsualWork_round.svg',
-            conditional: function (interview, path) {
-                //return true;
-                // hide if younger than 15 or not on the road worker:
-                const person = odSurveyHelper.getPerson({ interview }) as any;
-                const usualWorkPlace = person.usualWorkPlace;
-                return (
-                    person.age >= 15 &&
-                    usualWorkPlace &&
-                    person.workOnTheRoad === true &&
-                    person.usualWorkPlaceIsHome !== true
-                );
-            }
-        },
-        {
-            value: 'workOnTheRoadFromHome',
-            label: {
-                fr: 'Travail sur la route avec départ du domicile',
-                en: 'Work on the road departing from home'
-            },
-            internalId: 3,
-            iconPath: '/dist/images/activities_icons/workOnTheRoadFromHome_round.svg',
-            conditional: function (interview, path) {
-                //return true;
-                // hide if younger than 15 or not on the road worker:
-                const person = odSurveyHelper.getPerson({ interview }) as any;
-                return person.age >= 15 && person.workOnTheRoad === true && person.usualWorkPlaceIsHome === true;
-            }
-        },
-        {
-            value: 'workOnTheRoad',
-            label: {
-                fr: 'Travail sur la route avec départ d\'un autre lieu',
-                en: 'Work on the road departing from another location'
-            },
-            internalId: 3,
-            iconPath: '/dist/images/activities_icons/workOnTheRoad_round.svg',
-            conditional: function (interview, path) {
-                //return true;
-                // hide if younger than 15 or not on the road worker:
-                const person = odSurveyHelper.getPerson({ interview }) as any;
-                return person.age >= 15 && person.workOnTheRoad === true;
-            }
-        },
-        {
-            value: 'workNotUsual',
-            label: {
-                fr: function (interview) {
-                    const person = odSurveyHelper.getPerson({ interview }) as any;
-                    const usualWorkPlace = person.usualWorkPlace;
-                    return usualWorkPlace && usualWorkPlace.geometry
-                        ? 'Travail ailleurs qu\'au lieu habituel (rendez-vous d\'affaires, congrès, etc.)'
-                        : 'Travail, rendez-vous d\'affaires, congrès, etc.';
-                },
-                en: function (interview) {
-                    const person = odSurveyHelper.getPerson({ interview }) as any;
-                    const usualWorkPlace = person.usualWorkPlace;
-                    return usualWorkPlace && usualWorkPlace.geometry
-                        ? 'Work not at the usual work place (business meeting, conference, etc.)'
-                        : 'Work, business meeting, conference, etc.';
-                }
-            },
-            internalId: 2,
-            iconPath: '/dist/images/activities_icons/workNotUsual_round.svg',
-            conditional: function (interview, path) {
-                // hide if younger than 15:
-                const person = odSurveyHelper.getPerson({ interview }) as any;
-                return person.age >= 15;
-            }
-        },
-        {
-            value: 'schoolUsual',
-            label: {
-                fr: 'École, études au lieu habituel',
-                en: 'School, studies at usual place'
-            },
-            internalId: 4,
-            conditional: function (interview, path) {
-                const person = odSurveyHelper.getPerson({ interview }) as any;
-                const usualSchoolPlace = person.usualSchoolPlace;
-                const journey = odSurveyHelper.getJourneysArray({ person })[0] as any;
-                if (person.age >= 5 && usualSchoolPlace && usualSchoolPlace.geometry) {
-                    const visitedPlace: any = surveyHelperNew.getResponse(interview, path, null, '../');
-                    const previousVisitedPlace = odSurveyHelper.getPreviousVisitedPlace({
-                        visitedPlaceId: visitedPlace._uuid,
-                        journey
-                    });
-                    const nextVisitedPlace = odSurveyHelper.getNextVisitedPlace({
-                        visitedPlaceId: visitedPlace._uuid,
-                        journey
-                    });
-                    return (
-                        (!previousVisitedPlace ||
-                            (previousVisitedPlace && previousVisitedPlace.activity !== 'schoolUsual')) &&
-                        (!nextVisitedPlace || (nextVisitedPlace && nextVisitedPlace.activity !== 'schoolUsual'))
-                    );
-                }
-                return false;
-            },
-            iconPath: '/dist/images/activities_icons/schoolUsual_round.svg'
-        },
-        {
-            value: 'schoolNotUsual',
-            label: {
-                fr: function (interview) {
-                    const person = odSurveyHelper.getPerson({ interview }) as any;
-                    const usualSchoolPlace = person.usualSchoolPlace;
-                    return usualSchoolPlace && usualSchoolPlace.geometry
-                        ? 'École, études ailleurs qu\'au lieu habituel'
-                        : 'École, études';
-                },
-                en: function (interview) {
-                    const person = odSurveyHelper.getPerson({ interview }) as any;
-                    const usualSchoolPlace = person.usualSchoolPlace;
-                    return usualSchoolPlace && usualSchoolPlace.geometry
-                        ? 'School, studies not at the usual place'
-                        : 'School, studies';
-                }
-            },
-            internalId: 4,
-            conditional: function (interview, path) {
-                const person = odSurveyHelper.getPerson({ interview }) as any;
-                return helper.isStudent(person.occupation);
-            },
-            iconPath: '/dist/images/activities_icons/schoolNotUsual_round.svg'
-        },
-        {
-            value: 'shopping',
-            label: {
-                fr: 'Magasinage (achats, station-service, épicerie, etc.)',
-                en: 'Shopping (store, gas station, grocery, etc.)'
-            },
-            internalId: 5,
-            iconPath: '/dist/images/activities_icons/shopping_round.svg'
-        },
-        {
-            value: 'service',
-            label: {
-                fr: 'Service (coiffeur, réparations, avocat, banque, etc.)',
-                en: 'Service (hairdresser, repairs, lawyer, bank, etc.)'
-            },
-            internalId: 12,
-            iconPath: '/dist/images/activities_icons/service_round.svg'
-        },
-        {
-            value: 'dropSomeone',
-            label: {
-                fr: 'Reconduire ou accompagner quelqu\'un',
-                en: 'Drop, give a ride or accompany someone'
-            },
-            internalId: 9,
-            iconPath: '/dist/images/activities_icons/dropSomeone_round.svg'
-        },
-        {
-            value: 'fetchSomeone',
-            label: {
-                fr: 'Aller chercher quelqu\'un',
-                en: 'Pick someone up'
-            },
-            internalId: 10,
-            iconPath: '/dist/images/activities_icons/fetchSomeone_round.svg'
-        },
-        {
-            value: 'leisure',
-            label: {
-                fr: 'Loisirs (sports, arts, plein air, tourisme, etc.)',
-                en: 'Leisure (sports, arts, outdoors, tourism, etc.)'
-            },
-            internalId: 6,
-            iconPath: '/dist/images/activities_icons/leisure_round.svg'
-        },
-        {
-            value: 'restaurant',
-            label: {
-                fr: 'Restaurant, bar, café',
-                en: 'Restaurant, bar, coffee shop'
-            },
-            internalId: 6,
-            iconPath: '/dist/images/activities_icons/restaurant_round.svg'
-        },
-        {
-            value: 'visiting',
-            label: {
-                fr: 'Visite d\'un ami ou famille',
-                en: 'Visiting friends or family'
-            },
-            internalId: 7,
-            iconPath: '/dist/images/activities_icons/visiting_round.svg'
-        },
-        {
-            value: 'medical',
-            label: {
-                fr: 'Santé (clinique, hôpital, physiothérapie, etc.)',
-                en: 'Health (clinic, hospital, physiotherapy, etc.)'
-            },
-            internalId: 8,
-            iconPath: '/dist/images/activities_icons/medical_round.svg'
-        },
-        {
-            value: 'worship',
-            label: {
-                fr: 'Lieu de culte (église, mosquée, synagogue, pagode, etc.)',
-                en: 'Place of worship (church, mosque, synagogue, pagoda, etc.)'
-            },
-            internalId: 12,
-            iconPath: '/dist/images/activities_icons/worship_round.svg'
-        },
-        {
-            value: 'schoolNotStudent',
-            label: {
-                fr: 'Études',
-                en: 'School/Studies'
-            },
-            internalId: 4,
-            conditional: function (interview, path) {
-                const person = odSurveyHelper.getPerson({ interview }) as any;
-                return !helper.isStudent(person.occupation);
-            },
-            iconPath: '/dist/images/activities_icons/schoolNotUsual_round.svg'
-        },
-        {
-            value: 'secondaryHome',
-            label: {
-                fr: 'Résidence secondaire ou chalet',
-                en: 'Secondary home or cottage'
-            },
-            internalId: 7,
-            iconPath: '/dist/images/activities_icons/secondaryHome_round.svg'
-        },
-        {
-            value: 'other',
-            label: {
-                fr: 'Autre',
-                en: 'Other'
-            },
-            internalId: 12,
-            iconPath: '/dist/images/activities_icons/other_round.svg'
-        }
-    ],
-    validations: function (value, customValue, interview, path, customPath) {
-        return [
-            {
-                validation: _isBlank(value),
-                errorMessage: {
-                    fr: 'L\'activité est requise.',
-                    en: 'Activity is required.'
-                }
-            }
-        ];
-    },
-    conditional: function (interview, path) {
+export const visitedPlaceActivityCategory = {
+    ...activityWidgets.activityCategory,
+    defaultValue: (interview, path) => {
+        // For backward compatibility, since this widget was added later, if it is blank and the activity has a value, take the first category that applies
         const visitedPlace: any = surveyHelperNew.getResponse(interview, path, null, '../');
         const activity = visitedPlace.activity;
-        const departureTime = visitedPlace.departureTime;
-        if (visitedPlace && activity === 'home' && (_isBlank(visitedPlace._isNew) || visitedPlace._isNew === true)) {
-            return [false, activity];
+        if (_isBlank(visitedPlace.activityCategory) && !_isBlank(activity) && activityToDisplayCategory[activity]) {
+            return activityToDisplayCategory[activity][0];
         }
-        return [true, activity];
+        return null;
     }
 };
+export const visitedPlaceActivity = activityWidgets.activity;
 
 export const visitedPlaceAlreadyVisited = {
     type: 'question',
