@@ -233,5 +233,14 @@
                 "button_click": "Button click"
             }
         }
+    },
+    "generator": {
+        "GeneratorTitle": "Evolution Generator",
+        "GeneratorDescription": "Check that your Excel questionnaire file works correctly with the Evolution Generator before you rely on it in production.",
+        "GeneratorFileLabel": "Upload your Excel questionnaire file",
+        "GeneratorFileHint": "Only Excel workbooks (.xlsx, .xls) are accepted.",
+        "GeneratorDropzonePrompt": "Drag and drop your file here, or click to browse.",
+        "GeneratorRemoveFile": "Remove file",
+        "GeneratorButton": "Verify Excel file"
     }
 }

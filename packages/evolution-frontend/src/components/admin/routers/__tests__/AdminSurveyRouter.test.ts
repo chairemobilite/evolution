@@ -125,6 +125,11 @@ jest.mock('../../pages/AdminHomePage', () => ({
     default: () => React.createElement('div', null, 'AdminHomePage')
 }));
 
+jest.mock('../../pages/AdminGeneratorPage', () => ({
+    __esModule: true,
+    default: () => React.createElement('div', null, 'AdminGeneratorPage')
+}));
+
 // Mock config
 jest.mock('chaire-lib-common/lib/config/shared/project.config', () => ({
     __esModule: true,
@@ -183,6 +188,7 @@ describe('getAdminSurveyRoutes', () => {
         { path: '/interviews/byCode', wrapperType: 'PrivateRoute' },
         { path: '/interviews', wrapperType: 'PrivateRoute' },
         { path: '/admin/validation', wrapperType: 'PrivateRoute' },
+        { path: '/admin/generator', wrapperType: 'PrivateRoute' },
         { path: '/home', wrapperType: 'PrivateRoute' },
         { path: '/unavailable', wrapperType: 'PrivateRoute' },
         { path: '/admin/monitoring', wrapperType: 'AdminRoute' },

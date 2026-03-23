@@ -31,6 +31,7 @@ import InterviewsByAccessCode from '../interviews/InterviewsByAccessCode';
 import InterviewsPage from '../pages/InterviewsPage';
 import { setShowUserInfoPerm } from 'chaire-lib-frontend/lib/actions/Auth';
 import AdminHomePage from '../pages/AdminHomePage';
+import AdminGeneratorPage from '../pages/AdminGeneratorPage';
 import AdminRootLayout from './AdminRootLayout';
 
 // Only show user info for users that are not simple respondents
@@ -184,6 +185,10 @@ const getAdminSurveyRoutes = (): RouteObject[] => [
                         path="/admin/validation"
                     />
                 )
+            },
+            {
+                path: '/admin/generator',
+                element: <PrivateRoute component={AdminGeneratorPage} path="/admin/generator" />
             },
             {
                 path: '/admin/users',
