@@ -279,7 +279,6 @@ const isSchoolEnrolledTrueValues: SchoolType[] = [
  * Return whether the person is enrolled in school, from the school type field
  *
  * @param {Object} options - The options object.
- * @param {UserInterviewAttributes} options.interview The interview
  * @param {Person} options.person The current person
  * @returns {boolean} `true` if the person is enrolled in school, `false`
  * otherwise.
@@ -287,6 +286,25 @@ const isSchoolEnrolledTrueValues: SchoolType[] = [
 export const isStudentFromSchoolType = ({ person }: { person: Person }): boolean => {
     const schoolType = person.schoolType;
     return schoolType !== undefined && schoolType !== null && isSchoolEnrolledTrueValues.includes(schoolType);
+};
+
+/**
+ * Return whether the person has a driving license or not. A person is
+ * considered to have a driving license if they self-declare having one, or if
+ * they are of driving age and did not answer the question about driving license
+ * ownership.
+ *
+ * @param {Object} options - The options object.
+ * @param {Person} options.person The current person
+ * @returns {boolean} `true` if the person either has a driving license or the
+ *  information is not available, but is of driving age, `false` otherwise.
+ */
+export const hasOrUnknownDrivingLicense = ({ person }: { person: Person }): boolean => {
+    const drivingLicenseOwnership = person.drivingLicenseOwnership ?? 'dontKnow';
+    return (
+        drivingLicenseOwnership === 'yes' ||
+        (!_isBlank(person.age) && person.age! >= config.drivingLicenseAge && drivingLicenseOwnership === 'dontKnow')
+    );
 };
 
 /**
