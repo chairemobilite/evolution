@@ -18,7 +18,7 @@ import {
     UserRuntimeInterviewAttributes
 } from './Data';
 import { WidgetConfig } from './WidgetConfig';
-import { Mode } from '../../odSurvey/types';
+import { Activity, Mode } from '../../odSurvey/types';
 
 export type SectionPreload = (
     interview: UserInterviewAttributes,
@@ -514,11 +514,48 @@ export type SegmentSectionConfiguration = {
     additionalSegmentWidgetNames?: string[];
 };
 
+/**
+ * Configuration for the visited places section of the questionnaire
+ *
+ * TODO Consider merging with the SegmentSectionConfiguration in a single
+ * `TripDiaryConfiguration` to configure and build the whole trip diary with one
+ * call. We can do this once the whole VisitedPlaces section is available in
+ * Evolution.
+ */
+export type VisitedPlacesSectionConfiguration = {
+    type: 'visitedPlaces';
+    /**
+     * Set to `true` to enable the visited places section, `false` to
+     * disable it. Defaults to `false`.
+     */
+    enabled: boolean;
+    /**
+     * If set, restricts the activities and activity categories that can be
+     * selected in the visited place activity question to the specified
+     * activities and categories. This will impact the choices in the activity
+     * question, as well as the order in which they are presented. If using this
+     * property, the `other`, `dontKnow` and `preferNotToAnswer` options need to
+     * be explicitly stated here too. Only one of `activitiesIncludeOnly` and
+     * `activityExclude` can be set, not both.
+     */
+    activitiesIncludeOnly?: Activity[];
+    /**
+     * If set, removes the specified activities and activity categories from the
+     * choices in the visited place activity question. Only one of
+     * `activitiesIncludeOnly` and `activityExclude` can be set, not both.
+     */
+    activityExclude?: Activity[];
+};
+
 // TODO Add more section configuration types as we support more
-export type SectionConfigurationType = SegmentSectionConfiguration;
+export type SectionConfigurationType = SegmentSectionConfiguration | VisitedPlacesSectionConfiguration;
 
 /**
  * Configuration for the questionnaire's builtin sections. The keys are the
  * section names and the values are the configuration for that section.
+ *
+ * TODO When segments and visited places section are merged, this cannot have a
+ * section as key anymore, we'll need a complete questionnaire configuration
+ * type to replace it.
  */
 export type QuestionnaireConfiguration = Record<string, SectionConfigurationType>;
