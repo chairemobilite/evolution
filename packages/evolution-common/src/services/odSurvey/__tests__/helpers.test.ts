@@ -766,6 +766,45 @@ each([
 });
 
 each([
+    ['Explicit yes, no age needed', { _uuid: 'personId1', _sequence: 1, drivingLicenseOwnership: 'yes' }, 18, true],
+    ['Explicit no, adult age', { _uuid: 'personId1', _sequence: 1, age: 35, drivingLicenseOwnership: 'no' }, 18, false],
+    [
+        'Dont know, below driving age',
+        { _uuid: 'personId1', _sequence: 1, age: 17, drivingLicenseOwnership: 'dontKnow' },
+        18,
+        false
+    ],
+    [
+        'Dont know, at driving age threshold',
+        { _uuid: 'personId1', _sequence: 1, age: 18, drivingLicenseOwnership: 'dontKnow' },
+        18,
+        true
+    ],
+    [
+        'Undefined ownership, above driving age',
+        { _uuid: 'personId1', _sequence: 1, age: 20 },
+        18,
+        true
+    ],
+    [
+        'Undefined ownership, below driving age',
+        { _uuid: 'personId1', _sequence: 1, age: 10 },
+        18,
+        false
+    ],
+    ['Undefined ownership and age', { _uuid: 'personId1', _sequence: 1 }, 18, false],
+    [
+        'Custom threshold is respected',
+        { _uuid: 'personId1', _sequence: 1, age: 20, drivingLicenseOwnership: 'dontKnow' },
+        21,
+        false
+    ]
+]).test('hasOrUnknownDrivingLicense: %s', (_title, person, drivingLicenseAge, expected) => {
+    projectConfig.drivingLicenseAge = drivingLicenseAge;
+    expect(Helpers.hasOrUnknownDrivingLicense({ person: person as Person })).toEqual(expected);
+});
+
+each([
     ['Undefined disability', undefined, false],
     ['Disability yes', 'yes', true],
     ['Disability no', 'no', false],
