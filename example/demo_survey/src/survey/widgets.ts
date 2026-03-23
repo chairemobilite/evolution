@@ -8,6 +8,7 @@ import { faPlay } from '@fortawesome/free-solid-svg-icons/faPlay';
 
 import { validateButtonActionWithCompleteSection } from 'evolution-frontend/lib/services/display/frontendHelper';
 import { getButtonValidateAndGotoNextSection } from 'evolution-common/lib/services/questionnaire/sections/common/buttonValidateAndGotoNextSection';
+import { WidgetConfig } from 'evolution-common/lib/services/questionnaire/types';
 
 import * as homeWidgets from './widgets/home';
 
@@ -81,7 +82,8 @@ export const personVisitedPlaces: any = visitedPlacesWidgets.personVisitedPlaces
 export const personVisitedPlacesMap: any = visitedPlacesWidgets.personVisitedPlacesMap;
 export const personLastVisitedPlaceNotHome: any = visitedPlacesWidgets.personLastVisitedPlaceNotHome;
 export const visitedPlaceName: any = visitedPlacesWidgets.visitedPlaceName;
-export const visitedPlaceActivity: any = visitedPlacesWidgets.visitedPlaceActivity;
+export const visitedPlaceActivityCategory: WidgetConfig = visitedPlacesWidgets.visitedPlaceActivityCategory;
+export const visitedPlaceActivity: WidgetConfig = visitedPlacesWidgets.visitedPlaceActivity;
 export const visitedPlaceAlreadyVisited: any = visitedPlacesWidgets.visitedPlaceAlreadyVisited;
 export const visitedPlaceShortcut: any = visitedPlacesWidgets.visitedPlaceShortcut;
 export const visitedPlaceGeography: any = visitedPlacesWidgets.visitedPlaceGeography;
