@@ -938,6 +938,94 @@ each([
     expect(Helpers.householdMayHaveDisability({ interview })).toEqual(expected);
 });
 
+each([
+    [
+        'Undefined household',
+        {
+            ...interviewAttributesWithHh.response,
+            household: undefined
+        },
+        0
+    ],
+    [
+        'Empty persons object',
+        {
+            ...interviewAttributesWithHh.response,
+            household: {
+                ...interviewAttributesWithHh.response.household,
+                persons: {}
+            }
+        },
+        0
+    ],
+    [
+        'Car sharing members not defined for persons',
+        {
+            ...interviewAttributesWithHh.response,
+            household: {
+                ...interviewAttributesWithHh.response.household,
+                persons: {
+                    personId1: { _uuid: 'personId1', _sequence: 1 },
+                    personId2: { _uuid: 'personId2', _sequence: 2 },
+                    personId3: { _uuid: 'personId3', _sequence: 3 }
+                }
+            }
+        },
+        0
+    ],
+    [
+        'No car sharing members',
+        {
+            ...interviewAttributesWithHh.response,
+            household: {
+                ...interviewAttributesWithHh.response.household,
+                persons: {
+                    personId1: { _uuid: 'personId1', _sequence: 1, carsharingMember: 'no' },
+                    personId2: { _uuid: 'personId2', _sequence: 2, carsharingMember: 'dontKnow' },
+                    personId3: { _uuid: 'personId3', _sequence: 3, carsharingMember: 'nonApplicable' }
+                }
+            }
+        },
+        0
+    ],
+    [
+        'One car sharing member',
+        {
+            ...interviewAttributesWithHh.response,
+            household: {
+                ...interviewAttributesWithHh.response.household,
+                persons: {
+                    personId1: { _uuid: 'personId1', _sequence: 1, carsharingMember: 'yes' },
+                    personId2: { _uuid: 'personId2', _sequence: 2, carsharingMember: 'no' },
+                    personId3: { _uuid: 'personId3', _sequence: 3 }
+                }
+            }
+        },
+        1
+    ],
+    [
+        'Two car sharing members',
+        {
+            ...interviewAttributesWithHh.response,
+            household: {
+                ...interviewAttributesWithHh.response.household,
+                persons: {
+                    personId1: { _uuid: 'personId1', _sequence: 1, carsharingMember: 'yes' },
+                    personId2: { _uuid: 'personId2', _sequence: 2, carsharingMember: 'yes' },
+                    personId3: { _uuid: 'personId3', _sequence: 3, carsharingMember: 'no' }
+                }
+            }
+        },
+        2
+    ]
+]).test('getCarsharingMembersCount: %s', (_title, response, expected) => {
+    const interview = _cloneDeep(interviewAttributesWithHh);
+    interview.response = response;
+    expect(Helpers.getCarsharingMembersCount({ interview })).toEqual(expected);
+});
+
+
+
 describe('getJourneys', () => {
     const person: Person = {
         _uuid: 'arbitraryPerson',
