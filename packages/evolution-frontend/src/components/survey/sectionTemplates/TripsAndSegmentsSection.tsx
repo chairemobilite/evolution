@@ -122,15 +122,21 @@ export const SegmentsSection: React.FC<SectionProps & WithTranslation & WithSurv
             ? (getResponse(props.interview, destination.shortcut, destination) as VisitedPlace)
             : destination;
         // ignore all but the first trip if the origin is a loop activity. When loop activity is the first, we still need to ask the segments for it
-        if (origin && origin._sequence !== 1 && loopActivities.includes(origin.activity || '')) {
+        if (
+            origin &&
+            origin._sequence !== 1 &&
+            !_isBlank(origin.activity) &&
+            loopActivities.includes(origin.activity!)
+        ) {
             continue;
         }
-        const isOnTheRoadOrLeisureStrollTrip = destination && loopActivities.includes(destination.activity || '');
+        const isDestinationLoopActivity =
+            destination && !_isBlank(destination.activity) && loopActivities.includes(destination.activity!);
 
         const tripPath = `household.persons.${person._uuid}.journeys.${currentJourney._uuid}.trips.${trip._uuid}`;
 
-        // for isOnTheRoadOrLeisureStrollTrip, we need next trip destination:
-        const nextDestination = isOnTheRoadOrLeisureStrollTrip
+        // for isDestinationLoopActivity, we need next trip destination:
+        const nextDestination = isDestinationLoopActivity
             ? odSurveyHelper.getNextVisitedPlace({
                 visitedPlaceId: trip._destinationVisitedPlaceUuid!,
                 journey: currentJourney
@@ -232,7 +238,7 @@ export const SegmentsSection: React.FC<SectionProps & WithTranslation & WithSurv
                             )}
                         </span>
                     </span>
-                    {isOnTheRoadOrLeisureStrollTrip && nextDestination && (
+                    {isDestinationLoopActivity && nextDestination && (
                         <React.Fragment>
                             <span className="survey-trip-item-element survey-trip-item-arrow">
                                 <FontAwesomeIcon

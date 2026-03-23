@@ -10,7 +10,7 @@ import { TFunction } from 'i18next';
 import { interviewAttributesForTestCases } from '../../../tests/surveys';
 import * as Helpers from '../helpers';
 import projectConfig from '../../../config/project.config';
-import { Journey, Person, Trip, UserInterviewAttributes } from '../../questionnaire/types';
+import { Journey, Person, Trip, UserInterviewAttributes, VisitedPlace } from '../../questionnaire/types';
 import { setProjectConfiguration } from 'chaire-lib-common/lib/config/shared/project.config';
 
 const baseInterviewAttributes: Pick<
@@ -1218,7 +1218,7 @@ describe('getVisitedPlaces', () => {
         _sequence: 1
     };
 
-    const visitedPlaces = {
+    const visitedPlaces: { [key: string]: VisitedPlace } = {
         visitedPlace1: {
             _uuid: 'visitedPlace1',
             _sequence: 2,
@@ -1227,7 +1227,7 @@ describe('getVisitedPlaces', () => {
         visitedPlace2: {
             _uuid: 'visitedPlace2',
             _sequence: 1,
-            activity: 'work'
+            activity: 'workUsual'
         }
     };
 
@@ -1390,7 +1390,7 @@ describe('getNext/PreviousVisitedPlace', () => {
         _sequence: 1
     };
 
-    const visitedPlaces = {
+    const visitedPlaces: { [key: string]: VisitedPlace } = {
         visitedPlace1: {
             _uuid: 'visitedPlace1',
             _sequence: 1,
@@ -1399,7 +1399,7 @@ describe('getNext/PreviousVisitedPlace', () => {
         visitedPlace2: {
             _uuid: 'visitedPlace2',
             _sequence: 2,
-            activity: 'work'
+            activity: 'workUsual'
         }
     };
 

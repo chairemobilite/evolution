@@ -11,8 +11,8 @@ import { SegmentsSectionFactory } from '../sectionSegments';
 import { interviewAttributesForTestCases, maskFunctions, widgetFactoryOptions } from '../../../../../tests/surveys';
 import * as utilHelpers from '../../../../../utils/helpers';
 import * as odHelpers from '../../../../odSurvey/helpers';
-import { SegmentSectionConfiguration, WidgetConfig } from '../../../types';
-import { Mode } from '../../../../odSurvey/types';
+import { SegmentSectionConfiguration, VisitedPlace, WidgetConfig } from '../../../types';
+import { Activity, Mode } from '../../../../odSurvey/types';
 import { PersonTripsGroupConfigFactory } from '../groupPersonTrips';
 import { getPersonsTripsTitleWidgetConfig } from '../widgetPersonTripsTitle';
 import { getPersonVisitedPlacesMapConfig } from '../../common/widgetPersonVisitedPlacesMap';
@@ -274,7 +274,7 @@ describe('sectionConfig functionalities', () => {
         test('should add trips when there are no trips', () => {
             const testInterview = _cloneDeep(interviewWithTestPerson);
             // 2 places
-            const places = [
+            const places: VisitedPlace[] = [
                 { _uuid: 'testPlace1', _sequence: 1, activity: 'home' },
                 { _uuid: 'testPlace2', _sequence: 2, activity: 'workUsual' }
             ];
@@ -303,7 +303,7 @@ describe('sectionConfig functionalities', () => {
             const testInterview = _cloneDeep(interviewWithTestPerson);
             
             // 2 places
-            const places = [
+            const places: VisitedPlace[] = [
                 { _uuid: 'testPlace1', _sequence: 1, activity: 'home' },
                 { _uuid: 'testPlace2', _sequence: 2, activity: 'workUsual' }
             ];
@@ -338,7 +338,7 @@ describe('sectionConfig functionalities', () => {
         test('should not set an active trip if incomplete trip is to be deleted', () => {
             const testInterview = _cloneDeep(interviewWithTestPerson);
             // 2 places
-            const places = [
+            const places: VisitedPlace[] = [
                 { _uuid: 'testPlace1', _sequence: 1, activity: 'home' },
                 { _uuid: 'testPlace2', _sequence: 2, activity: 'workUsual' }
             ];
@@ -375,7 +375,7 @@ describe('sectionConfig functionalities', () => {
         test('should update trips and initialize segments when origins and destinations have changed', () => {
             const testInterview = _cloneDeep(interviewWithTestPerson);
             // 3 places
-            const places = [
+            const places: VisitedPlace[] = [
                 { _uuid: 'testPlace1', _sequence: 1, activity: 'home' },
                 { _uuid: 'testPlace2', _sequence: 2, activity: 'workUsual' },
                 { _uuid: 'testPlace3', _sequence: 3, activity: 'home' }
@@ -411,7 +411,7 @@ describe('sectionConfig functionalities', () => {
         test('should set the active trip ID to the next incomplete trip', () => {
             const testInterview = _cloneDeep(interviewWithTestPerson);
             // 3 places
-            const places = [
+            const places: VisitedPlace[] = [
                 { _uuid: 'testPlace1', _sequence: 1, activity: 'home' },
                 { _uuid: 'testPlace2', _sequence: 2, activity: 'workUsual' },
                 { _uuid: 'testPlace3', _sequence: 3, activity: 'home' }
@@ -446,7 +446,7 @@ describe('sectionConfig functionalities', () => {
         test('should set the active trip ID to null if no incomplete trip', () => {
             const testInterview = _cloneDeep(interviewWithTestPerson);
             // 3 places
-            const places = [
+            const places: VisitedPlace[] = [
                 { _uuid: 'testPlace1', _sequence: 1, activity: 'home' },
                 { _uuid: 'testPlace2', _sequence: 2, activity: 'workUsual' },
                 { _uuid: 'testPlace3', _sequence: 3, activity: 'home' }
@@ -479,7 +479,7 @@ describe('sectionConfig functionalities', () => {
         test('should add a new trip and select it if new trips have been added since last complete trip', () => {
             
             // 4 places
-            const places = [
+            const places: VisitedPlace[] = [
                 { _uuid: 'testPlace1', _sequence: 1, activity: 'home' },
                 { _uuid: 'testPlace2', _sequence: 2, activity: 'workUsual' },
                 { _uuid: 'testPlace3', _sequence: 3, activity: 'shopping' },

@@ -5,7 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import { Activity, ActivityCategory } from '../../../baseObjects/attributeTypes/VisitedPlaceAttributes';
+import type { Activity, ActivityCategory } from '../../../odSurvey/types';
 
 /**
  * Maps activities and activity categories to their corresponding icon paths

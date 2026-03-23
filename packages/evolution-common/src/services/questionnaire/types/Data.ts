@@ -10,12 +10,11 @@ import { TFunction } from 'i18next';
 import { PersonAttributes } from '../../baseObjects/Person';
 import { JourneyAttributes } from '../../baseObjects/Journey';
 import { TripAttributes } from '../../baseObjects/Trip';
-import * as VPAttr from '../../baseObjects/attributeTypes/VisitedPlaceAttributes';
 import { Optional } from '../../../types/Optional.type';
 import { SegmentAttributes } from '../../baseObjects/Segment';
 import { HouseholdAttributes } from '../../baseObjects/Household';
 import { NavigationSection } from './NavigationTypes';
-import { Mode, ModePre } from '../../odSurvey/types';
+import type { Activity, ActivityCategory, Mode, ModePre } from '../../odSurvey/types';
 
 export type ParsingFunction<T> = (interview: UserInterviewAttributes, path: string, user?: CliUser) => T;
 
@@ -132,8 +131,8 @@ export type Journey = JourneyAttributes & {
 export type VisitedPlace = {
     _sequence: number;
     _uuid: string;
-    activity?: Optional<VPAttr.Activity>;
-    activityCategory?: Optional<VPAttr.ActivityCategory>;
+    activity?: Optional<Activity>;
+    activityCategory?: Optional<ActivityCategory>;
     geography?: GeoJSON.Feature<GeoJSON.Point, SurveyPointProperties>;
     departureTime?: number;
     arrivalTime?: number;

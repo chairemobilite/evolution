@@ -19,7 +19,6 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import { MapboxOverlay } from '@deck.gl/mapbox';
 import { PathLayer } from '@deck.gl/layers';
 import { hexToRgb } from 'evolution-common/lib/utils/ColorUtils';
-import * as VPAttr from 'evolution-common/lib/services/baseObjects/attributeTypes/VisitedPlaceAttributes';
 import { getActivityMarkerIcon } from 'evolution-common/lib/services/questionnaire/sections/visitedPlaces/activityIconMapping';
 import AnimatedArrowPathExtension from './AnimatedArrowPathExtension';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -30,6 +29,7 @@ import { faLayerGroup } from '@fortawesome/free-solid-svg-icons/faLayerGroup';
 import { Position } from '@deck.gl/core/dist/types/layer-props';
 import { PickingInfo } from '@deck.gl/core/dist/lib/picking/pick-info';
 import { LayersList } from '@deck.gl/core/dist/lib/layer-manager';
+import type { Activity } from 'evolution-common/lib/services/odSurvey/types';
 
 /*
     TODO: implement clustering for visited places at same location, but with distinct activities
@@ -67,7 +67,7 @@ const DeckGLControl: React.FC<{
 };
 
 export type SurveyMapPointProperties = {
-    activity: VPAttr.Activity;
+    activity: Activity;
     iconPath?: string;
     active: boolean;
     path?: string;
@@ -534,7 +534,7 @@ const InterviewMap: React.FunctionComponent<InterviewMapProps> = (props: Intervi
                     const activity = feature.properties?.activity;
                     const active = feature.properties?.active;
                     const placePath = feature.properties?.path;
-                    const iconPath = getActivityMarkerIcon(activity as VPAttr.Activity);
+                    const iconPath = getActivityMarkerIcon(activity);
 
                     if (!iconPath) return null;
 

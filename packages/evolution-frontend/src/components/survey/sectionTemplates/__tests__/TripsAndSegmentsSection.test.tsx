@@ -13,6 +13,8 @@ expect.extend(toHaveNoViolations);
 
 import { SectionProps, useSectionTemplate } from '../../../hooks/useSectionTemplate';
 import * as odSurveyHelper from 'evolution-common/lib/services/odSurvey/helpers';
+import { Activity } from 'evolution-common/lib/services/odSurvey/types';
+import { VisitedPlace } from 'evolution-common/lib/services/questionnaire/types';
 
 jest.mock('chaire-lib-frontend/lib/components/pages/LoadingPage', () => () => <div>Loading...</div>);
 jest.mock('../../Widget', () => ({
@@ -120,24 +122,27 @@ const trips = {
     }
 };
 
-const visitedPlaces = {
+const visitedPlaces: Record<string, VisitedPlace> = {
     place1: {
         _uuid: 'place1',
         _sequence: 1,
-        activity: 'activity1',
+        activityCategory: 'home',
+        activity: 'home',
         name: 'Lieu 1',
         departureTime: 3600
     },
     place2: {
         _uuid: 'place2',
         _sequence: 2,
-        activity: 'activity2',
+        activityCategory: 'shoppingServiceRestaurant',
+        activity: 'restaurant',
         arrivalTime: 7200
     },
     place3: {
         _uuid: 'place3',
         _sequence: 3,
-        activity: 'activity3',
+        activityCategory: 'shoppingServiceRestaurant',
+        activity: 'shopping',
         arrivalTime: 10800
     }
 };
