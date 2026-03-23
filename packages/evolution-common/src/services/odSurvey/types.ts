@@ -10,13 +10,13 @@
 /**
  * Activities that do not involve a destination
  */
-export const loopActivities = ['workOnTheRoad', 'leisureStroll'];
+export const loopActivities: Activity[] = ['workOnTheRoad', 'leisureStroll'];
 
 /**
  * Simple modes, ie individual modes that involve no or private vehicles and are
  * often used multiple times in a journey
  */
-export const simpleModes = ['carDriver', 'walk', 'bicycle', 'bicycleElectric', 'kickScooterElectric'];
+export const simpleModes: Mode[] = ['carDriver', 'walk', 'bicycle', 'bicycleElectric', 'kickScooterElectric'];
 
 /**
  * Modes of transportation. The elements in this array can identify are meant to
@@ -161,3 +161,104 @@ export const modePreToModeMap: { [modePre in ModePre]: Mode[] } = Object.entries
         return acc;
     }, {}) as { [key in ModePre]: Mode[] }
 );
+
+export const activityCategoryValues = [
+    'home',
+    'work',
+    'school',
+    'shoppingServiceRestaurant',
+    'dropFetchSomeone',
+    'leisure',
+    'otherParentHome',
+    'other',
+    'dontKnow',
+    'preferNotToAnswer'
+] as const;
+export type ActivityCategory = (typeof activityCategoryValues)[number];
+
+export const activityValues = [
+    'home',
+    'workUsual',
+    'workNotUsual',
+    'workOnTheRoad',
+    'schoolUsual',
+    'schoolNotUsual',
+    'shopping',
+    'restaurant',
+    'service',
+    'dropSomeone',
+    'fetchSomeone',
+    'accompanySomeone',
+    'leisureStroll',
+    'leisureSports',
+    'leisureArtsMusicCulture',
+    'leisureTourism',
+    'visiting',
+    'medical',
+    'veterinarian',
+    'worship',
+    'volunteering',
+    'secondaryHome',
+    'schoolNotStudent',
+    'carElectricChargingStation',
+    'carsharingStation',
+    'pickClassifiedPurchase',
+    'otherParentHome',
+    'other',
+    'dontKnow',
+    'preferNotToAnswer'
+] as const;
+export type Activity = (typeof activityValues)[number];
+
+/**
+ * Map each activity to the activity categories under which they should appear
+ * in the UI. A single activity may appear under more than one category.
+ */
+export const activityToDisplayCategory: { [activity in Activity]: ActivityCategory[] } = {
+    workUsual: ['work'],
+    workNotUsual: ['work'],
+    workOnTheRoad: ['work'],
+    schoolUsual: ['school'],
+    schoolNotUsual: ['school'],
+    shopping: ['shoppingServiceRestaurant'],
+    restaurant: ['shoppingServiceRestaurant', 'leisure', 'other'],
+    service: ['shoppingServiceRestaurant', 'other'],
+    dropSomeone: ['dropFetchSomeone', 'other'],
+    fetchSomeone: ['dropFetchSomeone', 'other'],
+    accompanySomeone: ['dropFetchSomeone', 'other'],
+    leisureStroll: ['leisure', 'other'],
+    leisureSports: ['leisure'],
+    leisureArtsMusicCulture: ['leisure'],
+    leisureTourism: ['leisure'],
+    visiting: ['leisure', 'other'],
+    medical: ['other', 'shoppingServiceRestaurant'],
+    veterinarian: ['other', 'shoppingServiceRestaurant'],
+    worship: ['other', 'shoppingServiceRestaurant', 'leisure'],
+    volunteering: ['other', 'leisure', 'work'],
+    secondaryHome: ['leisure', 'other'],
+    schoolNotStudent: ['other'],
+    carElectricChargingStation: ['other', 'shoppingServiceRestaurant'],
+    carsharingStation: ['other', 'shoppingServiceRestaurant'],
+    pickClassifiedPurchase: ['shoppingServiceRestaurant', 'other'],
+    home: ['home'],
+    otherParentHome: ['otherParentHome'],
+    other: ['other'],
+    dontKnow: ['dontKnow'],
+    preferNotToAnswer: ['preferNotToAnswer']
+};
+
+// Maps activities to other activities that should not be selected for the
+// previous or next visited place. Typically activities where places have a
+// single geography and that would cause no trip if one after the other, or
+// activities that do not have a location.
+export const incompatibleConsecutiveActivities: Partial<{ [activity in Activity]: Activity[] }> = {
+    home: ['home'],
+    otherParentHome: ['otherParentHome'],
+    workUsual: ['workUsual'],
+    schoolUsual: ['schoolUsual']
+};
+// A loop activity is not compatible with another loop activity, as there needs
+// to be a place in between where the activity changes.
+loopActivities.forEach((activity) => {
+    incompatibleConsecutiveActivities[activity] = loopActivities;
+});

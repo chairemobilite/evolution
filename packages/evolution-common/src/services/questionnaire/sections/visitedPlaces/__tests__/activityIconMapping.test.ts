@@ -6,7 +6,7 @@
  */
 
 import { getActivityIcon, getActivityMarkerIcon } from '../activityIconMapping';
-import { Activity } from '../../../../baseObjects/attributeTypes/VisitedPlaceAttributes';
+import { Activity, ActivityCategory } from '../../../../odSurvey/types';
 
 describe('activityIconMapping', () => {
     describe('getActivityIcon', () => {
@@ -19,7 +19,7 @@ describe('activityIconMapping', () => {
         });
 
         test('should return correct icon for specific activity', () => {
-            expect(getActivityIcon('home' as Activity)).toBe('/dist/icons/activities/home/home.svg');
+            expect(getActivityIcon('home')).toBe('/dist/icons/activities/home/home.svg');
         });
 
         test('should return default icon for non-existent activity', () => {
@@ -37,15 +37,15 @@ describe('activityIconMapping', () => {
         });
 
         test('should return correct round marker icon for specific activity', () => {
-            expect(getActivityMarkerIcon('work' as Activity)).toBe('/dist/icons/activities/work/briefcase-marker_round.svg');
+            expect(getActivityMarkerIcon('work')).toBe('/dist/icons/activities/work/briefcase-marker_round.svg');
         });
 
         test('should return correct round marker icon for specific activity, with round specified', () => {
-            expect(getActivityMarkerIcon('volunteering' as Activity, 'round')).toBe('/dist/icons/activities/other/volunteering-marker_round.svg');
+            expect(getActivityMarkerIcon('volunteering', 'round')).toBe('/dist/icons/activities/other/volunteering-marker_round.svg');
         });
 
         test('should return correct square marker icon for specific activity', () => {
-            expect(getActivityMarkerIcon('school' as Activity, 'square')).toBe('/dist/icons/activities/school/graduation_cap-marker_square.svg');
+            expect(getActivityMarkerIcon('school', 'square')).toBe('/dist/icons/activities/school/graduation_cap-marker_square.svg');
         });
     });
     

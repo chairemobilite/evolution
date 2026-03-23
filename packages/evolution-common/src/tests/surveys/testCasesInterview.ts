@@ -68,12 +68,14 @@ export const interviewAttributesForTestCases: UserRuntimeInterviewAttributes = {
                                 homePlace1P1: {
                                     _uuid: 'homePlace1P1',
                                     _sequence: 1,
+                                    activityCategory: 'home',
                                     activity: 'home'
                                 },
                                 workPlace1P1: {
                                     _uuid: 'workPlace1P1',
                                     _sequence: 2,
-                                    activity: 'work',
+                                    activityCategory: 'work',
+                                    activity: 'workUsual',
                                     name: 'This is my work',
                                     geography: {
                                         type: 'Feature',
@@ -84,16 +86,19 @@ export const interviewAttributesForTestCases: UserRuntimeInterviewAttributes = {
                                 homePlace2P1: {
                                     _uuid: 'homePlace2P1',
                                     _sequence: 3,
+                                    activityCategory: 'home',
                                     activity: 'home'
                                 },
                                 otherPlaceP1: {
                                     _uuid: 'otherPlaceP1',
                                     _sequence: 4,
+                                    activityCategory: 'shoppingServiceRestaurant',
                                     activity: 'shopping'
                                 },
                                 otherPlace2P1: {
                                     _uuid: 'otherPlace2P1',
                                     _sequence: 4,
+                                    activityCategory: 'shoppingServiceRestaurant',
                                     activity: 'shopping',
                                     name: 'This is a shopping place',
                                     geography: {
@@ -146,11 +151,13 @@ export const interviewAttributesForTestCases: UserRuntimeInterviewAttributes = {
                                 homePlace1P2: {
                                     _uuid: 'homePlace1P2',
                                     _sequence: 1,
+                                    activityCategory: 'home',
                                     activity: 'home'
                                 },
                                 shoppingPlace1P2: {
                                     _uuid: 'shoppingPlace1P2',
                                     _sequence: 2,
+                                    activityCategory: 'shoppingServiceRestaurant',
                                     activity: 'shopping',
                                     alreadyVisitedBySelfOrAnotherHouseholdMember: true,
                                     shortcut:
@@ -165,6 +172,7 @@ export const interviewAttributesForTestCases: UserRuntimeInterviewAttributes = {
                                     _uuid: 'otherWorkPlace1P2',
                                     _sequence: 3,
                                     activity: 'other',
+                                    activityCategory: 'other',
                                     name: 'This is my work',
                                     geography: {
                                         type: 'Feature',
@@ -175,6 +183,7 @@ export const interviewAttributesForTestCases: UserRuntimeInterviewAttributes = {
                                 homePlace2P2: {
                                     _uuid: 'homePlace2P2',
                                     _sequence: 4,
+                                    activityCategory: 'home',
                                     activity: 'home'
                                 }
                             },
@@ -234,12 +243,14 @@ export const interviewAttributesForTestCases: UserRuntimeInterviewAttributes = {
                                 homePlace1P3: {
                                     _uuid: 'homePlace1P3',
                                     _sequence: 1,
+                                    activityCategory: 'home',
                                     activity: 'home'
                                 },
                                 schoolPlace1P3: {
                                     _uuid: 'schoolPlace1P3',
                                     _sequence: 2,
-                                    activity: 'other',
+                                    activityCategory: 'school',
+                                    activity: 'schoolUsual',
                                     name: 'Polytechnique Montréal',
                                     geography: {
                                         type: 'Feature',
@@ -250,6 +261,7 @@ export const interviewAttributesForTestCases: UserRuntimeInterviewAttributes = {
                                 homePlace2P3: {
                                     _uuid: 'homePlace2P3',
                                     _sequence: 3,
+                                    activityCategory: 'home',
                                     activity: 'home'
                                 }
                             },

@@ -201,7 +201,7 @@ describe('personVisitedPlacesMapConfig geojsons', () => {
             _uuid: 'place2',
             _sequence: 2,
             name: 'place2',
-            activity: 'work',
+            activity: 'workUsual',
             geography: { type: 'Feature', properties: { lastAction: 'mapClicked' }, geometry: { type: 'Point', coordinates: [1, 1] } }
         }, {
             _uuid: 'place3',
@@ -270,7 +270,7 @@ describe('personVisitedPlacesMapConfig geojsons', () => {
             _uuid: 'place2',
             _sequence: 2,
             name: 'place2',
-            activity: 'work',
+            activity: 'workUsual',
             geography: { type: 'Feature', properties: { lastAction: 'mapClicked' }, geometry: { type: 'Point', coordinates: [1, 1] } }
         }, {
             _uuid: 'place3',

@@ -294,7 +294,7 @@ describe('getVisitedPlaceDescription', () => {
 
     test('without times or html, place with name', () => {
         const description = getVisitedPlaceDescription(visitedPlaces.workPlace1P1, false, false);
-        expect(description).toEqual('survey:visitedPlace:activities:work • This is my work');
+        expect(description).toEqual('survey:visitedPlace:activities:workUsual • This is my work');
     });
 
     test('with times and html, complete place with no name', () => {
@@ -318,7 +318,7 @@ describe('getVisitedPlaceDescription', () => {
         visitedPlace.departureTime = 3600;
         visitedPlace.arrivalTime = 1800;
         const description = getVisitedPlaceDescription(visitedPlace, true, true);
-        expect(description).toEqual('survey:visitedPlace:activities:work • <em>This is my work</em> 0:30 -> 1:00');
+        expect(description).toEqual('survey:visitedPlace:activities:workUsual • <em>This is my work</em> 0:30 -> 1:00');
     });
 
     test('with times, but place with no times', () => {
@@ -326,6 +326,6 @@ describe('getVisitedPlaceDescription', () => {
         delete visitedPlace.departureTime;
         delete visitedPlace.arrivalTime;
         const description = getVisitedPlaceDescription(visitedPlace, true, true);
-        expect(description).toEqual('survey:visitedPlace:activities:work • <em>This is my work</em>');
+        expect(description).toEqual('survey:visitedPlace:activities:workUsual • <em>This is my work</em>');
     });
 });
