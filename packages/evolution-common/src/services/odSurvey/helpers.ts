@@ -328,6 +328,16 @@ export const personMayHaveDisability = ({ person }: { person: Person }): boolean
 export const householdMayHaveDisability = ({ interview }: { interview: UserInterviewAttributes }): boolean =>
     getPersonsArray({ interview }).some((person) => personMayHaveDisability({ person }));
 
+/**
+ * Get the number of car sharing members in the household
+ *
+ * @param {Object} options - The options object.
+ * @param {UserInterviewAttributes} options.interview The interview object
+ * @returns {number} The number of car sharing members in the household.
+ */
+export const getCarsharingMembersCount = ({ interview }: { interview: UserInterviewAttributes }): number =>
+    getPersonsArray({ interview }).filter((person) => person.carsharingMember === 'yes').length;
+
 // *** Journey-related functions
 
 /**
