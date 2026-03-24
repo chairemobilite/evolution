@@ -103,7 +103,6 @@ export const segmentParkingType: any = segmentsWidgets.segmentParkingType;
 export const segmentParkingPaymentType: any = segmentsWidgets.segmentParkingPaymentType;
 export const segmentVehicleOccupancy: any = segmentsWidgets.segmentVehicleOccupancy;
 export const segmentVehicleType: any = segmentsWidgets.segmentVehicleType;
-export const segmentDriver: any = segmentsWidgets.segmentDriver;
 export const segmentBridgesAndTunnels: any = segmentsWidgets.segmentBridgesAndTunnels;
 export const segmentHighways: any = segmentsWidgets.segmentHighways;
 export const segmentUsedBikesharing: any = segmentsWidgets.segmentUsedBikesharing;
