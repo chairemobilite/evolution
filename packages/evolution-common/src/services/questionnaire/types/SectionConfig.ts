@@ -512,6 +512,12 @@ export type SegmentSectionConfiguration = {
      * will be added after the mode question, before the hasNextMode question.
      */
     additionalSegmentWidgetNames?: string[];
+    /**
+     * Whether to ask the segment driver question to car passengers in the
+     * segments section.  Defaults to `false`. If set to `true`, the segment
+     * driver question will be added with the additional questions
+     */
+    askSegmentDriver?: boolean;
 };
 
 /**

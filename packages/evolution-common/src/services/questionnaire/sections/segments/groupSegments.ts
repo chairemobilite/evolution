@@ -5,15 +5,16 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import { GroupConfig, SegmentSectionConfiguration, WidgetConfig } from '../../../questionnaire/types';
+import type { GroupConfig, SegmentSectionConfiguration, WidgetConfig } from '../../../questionnaire/types';
 import { getResponse } from '../../../../utils/helpers';
-import { TFunction } from 'i18next';
-import { Segment } from '../../types';
-import { WidgetConfigFactory, WidgetFactoryOptions } from '../types';
+import type { TFunction } from 'i18next';
+import type { Segment } from '../../types';
+import type { WidgetConfigFactory, WidgetFactoryOptions } from '../types';
 import { getSameAsReverseTripWidgetConfig } from './widgetSameAsReverseTrip';
 import { getModePreWidgetConfig } from './widgetSegmentModePre';
 import { getModeWidgetConfig } from './widgetSegmentMode';
 import { getSegmentHasNextModeWidgetConfig } from './widgetSegmentHasNextMode';
+import { getSegmentDriverWidgetConfig } from './widgetDriver';
 
 export class SegmentsGroupConfigFactory implements WidgetConfigFactory {
     constructor(
@@ -23,9 +24,24 @@ export class SegmentsGroupConfigFactory implements WidgetConfigFactory {
         /** Nothing to do */
     }
 
-    private getSegmentsGroupConfig = (): GroupConfig => {
+    private getGroupWidgetNames = (): string[] => {
         const additionalWidgetNames = this.sectionConfig.additionalSegmentWidgetNames || [];
-        // TODO These should be some configuration receive here to fine-tune the section's content
+        const optionalWidgetNames = Object.keys(this.getOptionalWidgetConfigs());
+        const segmentGroupWidgetNames = [
+            // Hard-coded, mandatory questions
+            'segmentSameModeAsReverseTrip',
+            'segmentModePre',
+            'segmentMode',
+            // Optional questions based on configuration
+            ...optionalWidgetNames,
+            // Additional custom widgets are added here
+            ...additionalWidgetNames,
+            'segmentHasNextMode'
+        ];
+        return Array.from(new Set(segmentGroupWidgetNames));
+    };
+
+    private getSegmentsGroupConfig = (): GroupConfig => {
         return {
             type: 'group',
             path: 'segments',
@@ -52,24 +68,26 @@ export class SegmentsGroupConfigFactory implements WidgetConfigFactory {
                 return t(['customSurvey:segments:AddButtonLabel', 'segments:AddButtonLabel'], { count: segmentsCount });
             },
             addButtonLocation: 'bottom' as const,
-            widgets: [
-                // TODO Those widget names do not link to anything! They should accompany their actual widgets somewhere
-                // Hard-coded, mandatory questions
-                'segmentSameModeAsReverseTrip',
-                'segmentModePre',
-                'segmentMode',
-                // Additional widgets are added here
-                ...additionalWidgetNames,
-                'segmentHasNextMode'
-            ]
+            widgets: this.getGroupWidgetNames()
         };
     };
 
-    getWidgetConfigs = (): Record<string, WidgetConfig> => ({
+    getDefaultWidgetConfigs = (): Record<string, WidgetConfig> => ({
         segments: this.getSegmentsGroupConfig(),
         segmentSameModeAsReverseTrip: getSameAsReverseTripWidgetConfig(this.options),
         segmentModePre: getModePreWidgetConfig(this.sectionConfig, this.options),
         segmentMode: getModeWidgetConfig(this.sectionConfig, this.options),
         segmentHasNextMode: getSegmentHasNextModeWidgetConfig(this.options)
     });
+
+    getOptionalWidgetConfigs(): Record<string, WidgetConfig> {
+        const additionalWidgets = {};
+        if (this.sectionConfig.askSegmentDriver) {
+            additionalWidgets['segmentDriver'] = getSegmentDriverWidgetConfig(this.sectionConfig, this.options);
+        }
+        return additionalWidgets;
+    }
+
+    getWidgetConfigs = (): Record<string, WidgetConfig> =>
+        Object.assign({}, this.getDefaultWidgetConfigs(), this.getOptionalWidgetConfigs());
 }
