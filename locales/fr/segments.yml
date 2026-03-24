@@ -41,7 +41,9 @@ mode:
     AllTerrainVehicle: <strong>Véhicule tout-terrain</strong> (quad/VTT)
     TransitBus: <strong>Bus</strong>
     TransitBRT: <strong>Service rapide par bus</strong>
-    TransitSchoolBus: <strong>Bus</strong> (<strong>Lignes scolaires</strong> opérée par une agence de transport collectif)
+    TransitSchoolBus: >-
+        <strong>Bus</strong> (<strong>Lignes scolaires</strong> opérée par une
+        agence de transport collectif)
     TransitStreetCar: <strong>Tramway</strong> sur rue
     TransitFerry: <strong>Traversier</strong>
     TransitGondola: <strong>Gondole</strong>
@@ -115,23 +117,36 @@ ModeThen_cati: >-
     {{originName}} à {{destinationName}}?
 ModeSpecify: 'Veuillez préciser:'
 SegmentSameModeReturnHome: >-
-    Était-ce le même mode de transport utilisé pour le retour au domicile ({{previousMode}})?
+    Était-ce le même mode de transport utilisé pour le retour au domicile
+    ({{previousMode}})?
 SegmentSameModeReturn: >-
-    Était-ce le même mode de transport utilisé que le déplacement précédent ({{previousMode}})?
-SegmentHasNextModeLoop: Autre mode utilisé pour compléter {{thisTrip}}
-    avant l'arrivée?
+    Était-ce le même mode de transport utilisé que le déplacement précédent
+    ({{previousMode}})?
+SegmentHasNextModeLoop: Autre mode utilisé pour compléter {{thisTrip}} avant l'arrivée?
 SegmentHasNextMode: Autre mode utilisé pour compléter {{thisTrip}} avant l'arrivée?
-AddButtonLabel_zero: Sélectionner le premier (ou le seul) mode de transport utilisé pour ce déplacement
+AddButtonLabel_zero: >-
+    Sélectionner le premier (ou le seul) mode de transport utilisé pour ce
+    déplacement
 AddButtonLabel: Sélectionner le mode de transport suivant
 CurrentTripSegmentsIntro: >-
-    Veuillez indiquer tous les modes de transport utilisés pour effectuer ce déplacement
-    (de {{originName}} à {{destinationName}}), dans l'ordre chronologique:
+    Veuillez indiquer tous les modes de transport utilisés pour effectuer ce
+    déplacement (de {{originName}} à {{destinationName}}), dans l'ordre
+    chronologique:
 CurrentTripSegmentsIntro_workOnTheRoad: >-
-    Veuillez indiquer tous les modes de transport utilisés pour effectuer les déplacements
-    sur la route, dans l'ordre chronologique:
+    Veuillez indiquer tous les modes de transport utilisés pour effectuer les
+    déplacements sur la route, dans l'ordre chronologique:
 CurrentTripSegmentsIntro_leisureStroll: >-
-    Veuillez indiquer tous les modes de transport utilisés pour effectuer la promenade,
-    dans l'ordre chronologique:
+    Veuillez indiquer tous les modes de transport utilisés pour effectuer la
+    promenade, dans l'ordre chronologique:
 SaveTripLabel: Confirmer ce déplacement
 deleteThisGroupedObject: Supprimer ce mode de transport
-addGroupedObject": Ajouter un mode de transport
+addGroupedObject: Ajouter un mode de transport
+Driver: Qui conduisait ?
+DriverFamily: Ami ou famille
+DriverColleague: Un collègue de travail ou d'études
+DriverTaxi: Chauffeur Taxi ou Uber
+DriverTransitTaxi: Chauffeur Taxi collectif / transport à la demande
+DriverParaTransit: Chauffeur Transport adapté
+DriverCarpool: 'Chauffeur Covoiturage (ex: Amigo Express, Kangaride)'
+DriverOther: Une autre personne
+DriverDontKnow: Je ne sais pas
