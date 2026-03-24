@@ -65,7 +65,6 @@ export const segmentSectionConfig: SegmentSectionConfiguration = {
         'segmentParkingPaymentType',
         'segmentVehicleOccupancy',
         'segmentVehicleType',
-        'segmentDriver',
         'segmentBridgesAndTunnels',
         'segmentHighways',
         'segmentUsedBikesharing',
@@ -80,7 +79,8 @@ export const segmentSectionConfig: SegmentSectionConfiguration = {
         'segmentOnDemandType',
         'tripJunctionQueryString',
         'tripJunctionGeography'
-    ]
+    ],
+    askSegmentDriver: true
 };
 
 // Configuration for the visited places section
