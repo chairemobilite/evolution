@@ -308,6 +308,18 @@ export const hasOrUnknownDrivingLicense = ({ person }: { person: Person }): bool
 };
 
 /**
+ * Get the list of possible drivers in the household. Drivers are household
+ * members that have a driving license or are of driving age and did not answer
+ * the question about driving license ownership.
+ *
+ * @param {Object} options - The options object.
+ * @param {UserInterviewAttributes} options.interview The interview object
+ * @returns {Person[]} The list of potential drivers in the household.
+ */
+export const getPotentialDrivers = ({ interview }: { interview: UserInterviewAttributes }): Person[] =>
+    getPersonsArray({ interview }).filter((person) => hasOrUnknownDrivingLicense({ person }));
+
+/**
  * Return whether this person may have a disability
  *
  * @param {Object} options - The options object.

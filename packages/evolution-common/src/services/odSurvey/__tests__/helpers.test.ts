@@ -805,6 +805,60 @@ each([
 });
 
 each([
+    ['Empty response', {}, 16, []],
+    [
+        'Empty persons',
+        {
+            ...interviewAttributesWithHh.response,
+            household: {
+                ...interviewAttributesWithHh.response.household,
+                persons: {}
+            }
+        },
+        16,
+        []
+    ],
+    [
+        'Mixed license ownership and ages',
+        {
+            ...interviewAttributesWithHh.response,
+            household: {
+                ...interviewAttributesWithHh.response.household,
+                persons: {
+                    personId1: { _uuid: 'personId1', _sequence: 3, age: 20, drivingLicenseOwnership: 'yes' },
+                    personId2: { _uuid: 'personId2', _sequence: 2, age: 15, drivingLicenseOwnership: 'dontKnow' },
+                    personId3: { _uuid: 'personId3', _sequence: 1, age: 25, drivingLicenseOwnership: 'no' },
+                    personId4: { _uuid: 'personId4', _sequence: 4, age: 16, drivingLicenseOwnership: 'dontKnow' },
+                    personId5: { _uuid: 'personId5', _sequence: 5, age: 19 }
+                }
+            }
+        },
+        16,
+        ['personId1', 'personId4', 'personId5']
+    ],
+    [
+        'Uses configured driving license threshold',
+        {
+            ...interviewAttributesWithHh.response,
+            household: {
+                ...interviewAttributesWithHh.response.household,
+                persons: {
+                    personId1: { _uuid: 'personId1', _sequence: 1, age: 20, drivingLicenseOwnership: 'dontKnow' },
+                    personId2: { _uuid: 'personId2', _sequence: 2, age: 21, drivingLicenseOwnership: 'dontKnow' }
+                }
+            }
+        },
+        21,
+        ['personId2']
+    ]
+]).test('getPotentialDrivers: %s', (_title, response, drivingLicenseAge, expectedDriverIds) => {
+    const interview = _cloneDeep(interviewAttributesWithHh);
+    interview.response = response;
+    projectConfig.drivingLicenseAge = drivingLicenseAge;
+    expect(Helpers.getPotentialDrivers({ interview }).map((person) => person._uuid)).toEqual(expectedDriverIds);
+});
+
+each([
     ['Undefined disability', undefined, false],
     ['Disability yes', 'yes', true],
     ['Disability no', 'no', false],
