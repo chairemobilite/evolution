@@ -51,6 +51,9 @@ hisHerTheir: their
 hisHerTheir_male: his
 hisHerTheir_female: her
 hisHerTheir_custom: their
+personWithSequenceAndAge: "Person #{{sequence}} ({{age}} years old)"
+personWithSequenceAndAge_male: "Person #{{sequence}} (man, {{age}} years old)"
+personWithSequenceAndAge_female: "Person #{{sequence}} (woman, {{age}} years old)"
 
 # generic label contents
 noNickname: this person
