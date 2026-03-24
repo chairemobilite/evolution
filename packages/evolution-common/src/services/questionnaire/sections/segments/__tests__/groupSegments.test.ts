@@ -14,12 +14,21 @@ import { getModePreWidgetConfig } from '../widgetSegmentModePre';
 import { getSameAsReverseTripWidgetConfig } from '../widgetSameAsReverseTrip';
 import { getModeWidgetConfig } from '../widgetSegmentMode';
 import { getSegmentHasNextModeWidgetConfig } from '../widgetSegmentHasNextMode';
+import { getSegmentDriverWidgetConfig } from '../widgetDriver';
 import { Mode } from '../../../../odSurvey/types';
 
+// Basic configuration
 const segmentSectionConfig = {
     type: 'segments' as const,
     enabled: true
 };
+
+// Configuration with optional widgets
+const segmentConfigWithOptionalWidgets: SegmentSectionConfiguration = {
+    ...segmentSectionConfig,
+    askSegmentDriver: true
+};
+
 
 describe('SegmentsGroupConfigFactory widgets', () => {
 
@@ -50,6 +59,32 @@ describe('SegmentsGroupConfigFactory widgets', () => {
         const widgetConfigs = new SegmentsGroupConfigFactory(segmentSectionConfig, widgetFactoryOptions).getWidgetConfigs();
         const widgetConfig = widgetConfigs[widgetName];
         const expectedWidgetConfig = expected(segmentSectionConfig);
+        expect(maskFunctions(widgetConfig)).toEqual(maskFunctions(expectedWidgetConfig));
+    });
+});
+
+describe('SegmentsGroupConfigFactory widgets optional widgets', () => {
+
+    test.each([
+        'segmentDriver',
+    ])('should have a widget named %s', (widgetName) => {
+        const widgetConfigs = new SegmentsGroupConfigFactory(segmentConfigWithOptionalWidgets, widgetFactoryOptions).getWidgetConfigs();
+        const widgetNames = Object.keys(widgetConfigs);
+        expect(widgetNames).toContain(widgetName);
+    });
+
+    test('should not return extra widgets', () => {
+        const widgetConfigs = new SegmentsGroupConfigFactory(segmentConfigWithOptionalWidgets, widgetFactoryOptions).getWidgetConfigs();
+        const widgetNames = Object.keys(widgetConfigs);
+        expect(widgetNames.length).toBe(5 + 1); // 5 default widgets + 1 optional widget
+    });
+
+    test.each([
+        { widgetName: 'segmentDriver', expected: (config: SegmentSectionConfiguration) => getSegmentDriverWidgetConfig(config, widgetFactoryOptions) },
+    ])('should return the correct widget config for $widgetName', ({ widgetName, expected }: { widgetName: string, expected: (config: SegmentSectionConfiguration) => WidgetConfig }) => {
+        const widgetConfigs = new SegmentsGroupConfigFactory(segmentConfigWithOptionalWidgets, widgetFactoryOptions).getWidgetConfigs();
+        const widgetConfig = widgetConfigs[widgetName];
+        const expectedWidgetConfig = expected(segmentConfigWithOptionalWidgets);
         expect(maskFunctions(widgetConfig)).toEqual(maskFunctions(expectedWidgetConfig));
     });
 });
@@ -197,27 +232,56 @@ describe('SegmentsGroupConfigFactory segments GroupConfig widget', () => {
     });
 });
 
-test('SegmentsGroupConfigFactory segments GroupConfig widget with additional widget names', () => {
-    const segmentSectionConfigWithWidgets: SegmentSectionConfiguration = _cloneDeep(segmentSectionConfig);
-    segmentSectionConfigWithWidgets.additionalSegmentWidgetNames = ['customWidget1', 'customWidget2'];
-    const widgetConfig = new SegmentsGroupConfigFactory(segmentSectionConfigWithWidgets, widgetFactoryOptions).getWidgetConfigs()['segments'] as GroupConfig;
-    expect(widgetConfig).toEqual({
-        type: 'group',
-        path: 'segments',
-        title: expect.any(Function),
-        name: expect.any(Function),
-        showTitle: false,
-        showGroupedObjectDeleteButton: expect.any(Function),
-        showGroupedObjectAddButton: expect.any(Function),
-        groupedObjectAddButtonLabel: expect.any(Function),
-        addButtonLocation: 'bottom' as const,
-        widgets: [
-            'segmentSameModeAsReverseTrip',
-            'segmentModePre',
-            'segmentMode',
-            'customWidget1',
-            'customWidget2',
-            'segmentHasNextMode'
-        ]
+describe('SegmentsGroupConfigFactory segments GroupConfig widget with additional widget names', () => {
+    test('should return correct widget names when no duplicate', () => {
+        const segmentSectionConfigWithWidgets: SegmentSectionConfiguration = _cloneDeep(segmentConfigWithOptionalWidgets);
+        segmentSectionConfigWithWidgets.additionalSegmentWidgetNames = ['customWidget1', 'customWidget2'];
+        const widgetConfig = new SegmentsGroupConfigFactory(segmentSectionConfigWithWidgets, widgetFactoryOptions).getWidgetConfigs()['segments'] as GroupConfig;
+        expect(widgetConfig).toEqual({
+            type: 'group',
+            path: 'segments',
+            title: expect.any(Function),
+            name: expect.any(Function),
+            showTitle: false,
+            showGroupedObjectDeleteButton: expect.any(Function),
+            showGroupedObjectAddButton: expect.any(Function),
+            groupedObjectAddButtonLabel: expect.any(Function),
+            addButtonLocation: 'bottom' as const,
+            widgets: [
+                'segmentSameModeAsReverseTrip',
+                'segmentModePre',
+                'segmentMode',
+                'segmentDriver',
+                'customWidget1',
+                'customWidget2',
+                'segmentHasNextMode'
+            ]
+        });
+    });
+
+    test('should not return duplicate widget names', () => {
+        const segmentSectionConfigWithWidgets: SegmentSectionConfiguration = _cloneDeep(segmentConfigWithOptionalWidgets);
+        segmentSectionConfigWithWidgets.additionalSegmentWidgetNames = ['customWidget1', 'segmentMode', 'customWidget2', 'segmentDriver'];
+        const widgetConfig = new SegmentsGroupConfigFactory(segmentSectionConfigWithWidgets, widgetFactoryOptions).getWidgetConfigs()['segments'] as GroupConfig;
+        expect(widgetConfig).toEqual({
+            type: 'group',
+            path: 'segments',
+            title: expect.any(Function),
+            name: expect.any(Function),
+            showTitle: false,
+            showGroupedObjectDeleteButton: expect.any(Function),
+            showGroupedObjectAddButton: expect.any(Function),
+            groupedObjectAddButtonLabel: expect.any(Function),
+            addButtonLocation: 'bottom' as const,
+            widgets: [
+                'segmentSameModeAsReverseTrip',
+                'segmentModePre',
+                'segmentMode',
+                'segmentDriver',
+                'customWidget1',
+                'customWidget2',
+                'segmentHasNextMode'
+            ]
+        });
     });
 });
