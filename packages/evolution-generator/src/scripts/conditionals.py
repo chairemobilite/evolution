@@ -86,19 +86,30 @@ class Conditionals:
         """Return error prefix for a given sheet so users know where the error is."""
         return f"Error in {sheet_name} sheet - "
 
-    def check(self, excel_file_path: str) -> bool:
-        """Check the integrity of the Excel file. Returns True if valid, False on error."""
+    def check_with_messages(self, excel_file_path: str) -> tuple[bool, list[str]]:
+        """
+        Check the integrity of the Excel file.
+
+        Returns (True, []) when valid, or (False, messages) with human-readable issues.
+        """
+        msgs: list[str] = []
         try:
-            # Ensure .xlsx and load workbook before running any sheet checks.
             is_excel_file(excel_file_path)
             workbook = get_workbook(excel_file_path)
-            result = self._check_conditionals_sheet(workbook)
-            return result
+            result = self._check_conditionals_sheet(workbook, msgs)
+            return result, msgs
         except Exception as e:
-            print(f"An error occurred with check_excel_integrity: {e}")
-            return False
+            msgs.append(f"An error occurred with check_excel_integrity: {e}")
+            return False, msgs
 
-    def _check_conditionals_sheet(self, workbook: Workbook) -> bool:
+    def check(self, excel_file_path: str) -> bool:
+        """Check the integrity of the Excel file. Returns True if valid, False on error."""
+        ok, msgs = self.check_with_messages(excel_file_path)
+        for message in msgs:
+            print(message)
+        return ok
+
+    def _check_conditionals_sheet(self, workbook: Workbook, msgs: list[str] | None = None) -> bool:
         """Check the integrity of the Conditionals sheet."""
         try:
             # Require the Conditionals sheet and validate its column headers.
@@ -123,7 +134,10 @@ class Conditionals:
                 except Exception as e:
                     # Collect row-level validation errors so users can fix multiple issues at once.
                     message = str(e)
-                    print(message)
+                    if msgs is not None:
+                        msgs.append(message)
+                    else:
+                        print(message)
                     row_errors.append(message)
 
             # If any row-level validation failed, skip cross-row logical checks and report failure.
@@ -135,7 +149,11 @@ class Conditionals:
 
             return True
         except Exception as e:
-            print(f"{self._sheet_error_prefix('Conditionals')}{e}")
+            line = f"{self._sheet_error_prefix('Conditionals')}{e}"
+            if msgs is not None:
+                msgs.append(line)
+            else:
+                print(line)
             return False
 
     def _validate_conditionals_row(self, row_dict: dict, row_number: int) -> None:

@@ -5,7 +5,10 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import moment from 'moment';
+import path from 'path';
 import { Response, Request } from 'express';
+import { execFile } from 'child_process';
+import { promisify } from 'util';
 import knex from 'chaire-lib-backend/lib/config/shared/db.config';
 import router from 'chaire-lib-backend/lib/api/admin.routes';
 import { addExportRoutes } from './admin/exports.routes';
@@ -19,6 +22,7 @@ import {
 } from '../models/monitoring.db.queries';
 
 addExportRoutes();
+const execFileAsync = promisify(execFile);
 
 // Helper function to respond with an OK status
 function respondOk<T>({ res, result }: { res: Response; result: T }): Response {
@@ -71,6 +75,92 @@ router.all('/data/widgets/:widget/', (req: Request, res: Response, _next) => {
         break;
     default:
         return respondError({ res, message: `Admin monitoring widget '${widgetName}' not found`, httpStatus: 404 });
+    }
+});
+
+// Verify the Excel file for the generator
+router.get('/generator/verify', async (req: Request, res: Response) => {
+    // Temporary hard-coded path while wiring the backend/frontend flow.
+    // Intended final version is to read the file path from req.query.excelFilePath.
+    // const excelFilePath = req.query.excelFilePath;
+    const excelFilePath = '../../example/demo_generator/references/Household_Travel_Generate_Survey.xlsx';
+    if (typeof excelFilePath !== 'string' || excelFilePath.length === 0) {
+        return respondError({ res, message: 'Provide a valid excelFilePath query parameter', httpStatus: 400 });
+    }
+
+    // Run the CLI via Poetry so generator deps (openpyxl, etc.) match pyproject.toml.
+    const generatorPackageDirectory = path.resolve(__dirname, '../../../evolution-generator');
+    const cliScriptPath = path.resolve(generatorPackageDirectory, 'src/scripts/check_excel_integrity_cli.py');
+
+    try {
+        // Spawn Poetry in the generator package so `poetry run` uses that project's venv and pyproject.toml.
+        // Args: run python <script> <excel path> — the script prints one JSON object per run on stdout.
+        const { stdout, stderr } = await execFileAsync('poetry', ['run', 'python', cliScriptPath, excelFilePath], {
+            cwd: generatorPackageDirectory
+        });
+
+        // Stderr may contain warnings even on success; log it but do not treat it as failure by itself.
+        if (stderr?.trim()) {
+            console.warn('Python stderr for /api/admin/generator/verify:', stderr);
+        }
+
+        // Normalize stdout to non-empty lines (handles trailing newlines, accidental blank lines).
+        const outputLines = stdout
+            .trim()
+            .split('\n')
+            .map((line) => line.trim())
+            .filter((line) => line.length > 0);
+        // Contract: stdout is a single JSON object (human-readable issues are inside `errors`, see check_excel_integrity_cli.py).
+        const lastLine = outputLines[outputLines.length - 1];
+        const parsedResult = JSON.parse(lastLine) as {
+            ok: boolean;
+            integrityOk?: boolean;
+            error?: string;
+            errors?: string[];
+            excelFilePath?: string;
+        };
+
+        // `ok: false` means the check raised an exception or could not complete; message is in `error`.
+        if (!parsedResult.ok) {
+            return respondError({
+                res,
+                message: `Excel integrity check failed: ${parsedResult.error ?? 'Unknown Python error'}`,
+                httpStatus: 500
+            });
+        }
+
+        // `ok: true` only means the script executed. Failed checks include `errors` from captured Python prints.
+        if (!parsedResult.integrityOk) {
+            const detail =
+                parsedResult.errors && parsedResult.errors.length > 0
+                    ? parsedResult.errors.join('\n')
+                    : 'Excel integrity check failed';
+            return respondError({
+                res,
+                message: detail,
+                httpStatus: 422
+            });
+        }
+
+        // If we reach here, script ran and integrity check passed.
+        return respondOk({
+            res,
+            result: {
+                integrityOk: Boolean(parsedResult.integrityOk),
+                output: outputLines
+            }
+        });
+    } catch (error) {
+        // Covers: poetry missing, venv not installed, process non-zero, invalid JSON, empty stdout, etc.
+        console.error('Failed to execute generator integrity check:', error);
+        if (error instanceof Error) {
+            return respondError({
+                res,
+                message: `Failed to execute Excel integrity check: ${error.message}`,
+                httpStatus: 500
+            });
+        }
+        return respondError({ res, message: 'Failed to execute Excel integrity check', httpStatus: 500 });
     }
 });
 
