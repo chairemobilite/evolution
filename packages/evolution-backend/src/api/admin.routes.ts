@@ -6,6 +6,8 @@
  */
 import fs from 'fs';
 import moment from 'moment';
+import multer from 'multer';
+import os from 'os';
 import path from 'path';
 import { Response, Request } from 'express';
 import { execFile } from 'child_process';
@@ -24,6 +26,58 @@ import {
 
 addExportRoutes();
 const execFileAsync = promisify(execFile);
+
+/** Subfolder under OS temp dir for generator Excel uploads; cleaned per request after processing. */
+const GENERATOR_UPLOAD_SUBDIR = 'evolution-generator-temp';
+const GENERATOR_UPLOAD_FIELD = 'generatorFile';
+
+// Unique basename for generator Excel uploads.
+const uniqueGeneratorUploadBasename = (): string => {
+    return `${Date.now()}-${process.pid}-${Math.random().toString(36).slice(2, 12)}`;
+};
+
+// Multer upload middleware for generator Excel files.
+const generatorExcelUpload = multer({
+    storage: multer.diskStorage({
+        // Create the generator upload directory if it does not exist.
+        destination: (_req, _file, cb) => {
+            const dir = path.join(os.tmpdir(), GENERATOR_UPLOAD_SUBDIR);
+            fs.mkdirSync(dir, { recursive: true });
+            cb(null, dir);
+        },
+        // Generate a unique basename for the uploaded file.
+        filename: (_req, file, cb) => {
+            const ext = path.extname(file.originalname).toLowerCase();
+            cb(null, `${uniqueGeneratorUploadBasename()}${ext === '.xls' || ext === '.xlsx' ? ext : '.xlsx'}`);
+        }
+    }),
+    limits: { fileSize: 50 * 1024 * 1024 }, // 50MB
+    // Only allow Excel files (.xlsx, .xls) or the correct MIME type.
+    fileFilter: (_req, file, cb) => {
+        const ext = path.extname(file.originalname).toLowerCase();
+        const extOk = ext === '.xlsx' || ext === '.xls';
+        const mimeOk =
+            file.mimetype === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
+            file.mimetype === 'application/vnd.ms-excel';
+        if (extOk || mimeOk) {
+            cb(null, true);
+        } else {
+            cb(new Error('Only Excel (.xlsx, .xls) files are allowed'));
+        }
+    }
+});
+
+// Unlink the generator Excel file quietly when the request is done.
+const unlinkGeneratorUploadQuiet = async (filePath: string | undefined): Promise<void> => {
+    if (!filePath) {
+        return;
+    }
+    try {
+        await fs.promises.unlink(filePath);
+    } catch {
+        // File may already be removed or the temp dir cleared elsewhere.
+    }
+};
 
 // Helper function to respond with an OK status
 function respondOk<T>({ res, result }: { res: Response; result: T }): Response {
@@ -79,100 +133,120 @@ router.all('/data/widgets/:widget/', (req: Request, res: Response, _next) => {
     }
 });
 
-// POST /generator/verify — run Excel integrity CLI (generator package).
-router.post('/generator/verify', async (req: Request, res: Response) => {
-    // TODO: replace with upload
-    const excelFilePath = '../../example/demo_generator/references/Household_Travel_Generate_Survey_bad.xlsx';
-    if (typeof excelFilePath !== 'string' || excelFilePath.length === 0) {
-        return respondError({ res, message: 'Provide a valid excelFilePath in the request body', httpStatus: 400 });
-    }
-
-    // Run the CLI via Poetry so generator deps (openpyxl, etc.) match pyproject.toml.
-    const generatorPackageDirectory = path.resolve(__dirname, '../../../evolution-generator');
-    const cliScriptPath = path.resolve(generatorPackageDirectory, 'src/scripts/check_excel_integrity_cli.py');
-
-    // Absolute path so Python does not depend on process cwd.
-    const resolvedExcelPath = path.isAbsolute(excelFilePath)
-        ? excelFilePath
-        : path.resolve(generatorPackageDirectory, excelFilePath);
-    if (!fs.existsSync(resolvedExcelPath)) {
-        return respondError({
-            res,
-            message: `Excel file not found at ${resolvedExcelPath}`,
-            httpStatus: 400
-        });
-    }
-
-    try {
-        // Spawn Poetry in the generator package so `poetry run` uses that project's venv and pyproject.toml.
-        // Args: run python <script> <excel path> — the script prints one JSON object per run on stdout.
-        const { stdout, stderr } = await execFileAsync('poetry', ['run', 'python', cliScriptPath, resolvedExcelPath], {
-            cwd: generatorPackageDirectory
-        });
-
-        // Stderr may contain warnings even on success; log it but do not treat it as failure by itself.
-        if (stderr?.trim()) {
-            console.warn('Python stderr for /api/admin/generator/verify:', stderr);
+// POST /generator/verify — multipart upload (multer field: generatorFile), temp file, then Excel integrity CLI (generator package).
+router.post('/generator/verify', (req: Request, res: Response) => {
+    generatorExcelUpload.single(GENERATOR_UPLOAD_FIELD)(req, res, (err: unknown) => {
+        if (err) {
+            if (err instanceof multer.MulterError) {
+                return respondError({ res, message: err.message, httpStatus: 400 });
+            }
+            if (err instanceof Error) {
+                return respondError({ res, message: err.message, httpStatus: 400 });
+            }
+            return respondError({ res, message: 'File upload failed', httpStatus: 400 });
         }
 
-        // Last non-empty line: one JSON object from the CLI.
-        const outputLines = stdout
-            .trim()
-            .split('\n')
-            .map((line) => line.trim())
-            .filter((line) => line.length > 0);
-        // Contract: stdout is a single JSON object (human-readable issues are inside `errors`, see check_excel_integrity_cli.py).
-        const lastLine = outputLines[outputLines.length - 1];
-        const parsedResult = JSON.parse(lastLine) as {
-            ok: boolean;
-            integrityOk?: boolean;
-            error?: string;
-            errors?: string[];
-            excelFilePath?: string;
-        };
+        void (async () => {
+            const uploaded = req.file;
+            if (!uploaded?.path) {
+                return respondError({ res, message: 'No Excel file uploaded', httpStatus: 400 });
+            }
 
-        // Python exception or crash → ok: false
-        if (parsedResult.ok !== true) {
-            return respondError({
-                res,
-                message: `Excel integrity check failed: ${parsedResult.error ?? 'Unknown Python error'}`,
-                httpStatus: 500
-            });
-        }
+            const resolvedExcelPath = uploaded.path;
 
-        // Validation failed → integrityOk false and/or errors[]
-        const errorMessages =
-            Array.isArray(parsedResult.errors) && parsedResult.errors.length > 0
-                ? parsedResult.errors.join('\n')
-                : null;
-        if (parsedResult.integrityOk !== true || errorMessages !== null) {
-            return respondError({
-                res,
-                message: errorMessages ?? 'Excel integrity check failed',
-                httpStatus: 422
-            });
-        }
+            // Run the CLI via Poetry so generator deps (openpyxl, etc.) match pyproject.toml.
+            const generatorPackageDirectory = path.resolve(__dirname, '../../../evolution-generator');
+            const cliScriptPath = path.resolve(generatorPackageDirectory, 'src/scripts/check_excel_integrity_cli.py');
 
-        // If we reach here, script ran and integrity check passed.
-        return respondOk({
-            res,
-            result: {
-                integrityOk: true,
-                output: outputLines
+            try {
+                if (!fs.existsSync(resolvedExcelPath)) {
+                    return respondError({
+                        res,
+                        message: `Excel file not found at ${resolvedExcelPath}`,
+                        httpStatus: 400
+                    });
+                }
+
+                // Spawn Poetry in the generator package so `poetry run` uses that project's venv and pyproject.toml.
+                // Args: run python <script> <excel path> — the script prints one JSON object per run on stdout.
+                const { stdout, stderr } = await execFileAsync(
+                    'poetry',
+                    ['run', 'python', cliScriptPath, resolvedExcelPath],
+                    { cwd: generatorPackageDirectory }
+                );
+
+                // Stderr may contain warnings even on success; log it but do not treat it as failure by itself.
+                if (stderr?.trim()) {
+                    console.warn('Python stderr for /api/admin/generator/verify:', stderr);
+                }
+
+                // Last non-empty line: one JSON object from the CLI.
+                const outputLines = stdout
+                    .trim()
+                    .split('\n')
+                    .map((line) => line.trim())
+                    .filter((line) => line.length > 0);
+                // Contract: stdout is a single JSON object (human-readable issues are inside `errors`, see check_excel_integrity_cli.py).
+                const lastLine = outputLines[outputLines.length - 1];
+                const parsedResult = JSON.parse(lastLine) as {
+                    ok: boolean;
+                    integrityOk?: boolean;
+                    error?: string;
+                    errors?: string[];
+                    excelFilePath?: string;
+                };
+
+                // Python exception or crash → ok: false
+                if (parsedResult.ok !== true) {
+                    return respondError({
+                        res,
+                        message: `Excel integrity check failed: ${parsedResult.error ?? 'Unknown Python error'}`,
+                        httpStatus: 500
+                    });
+                }
+
+                // Validation failed → integrityOk false and/or errors[]
+                const errorMessages =
+                    Array.isArray(parsedResult.errors) && parsedResult.errors.length > 0
+                        ? parsedResult.errors.join('\n')
+                        : null;
+                if (parsedResult.integrityOk !== true || errorMessages !== null) {
+                    return respondError({
+                        res,
+                        message: errorMessages ?? 'Excel integrity check failed',
+                        httpStatus: 422
+                    });
+                }
+
+                // If we reach here, script ran and integrity check passed.
+                return respondOk({
+                    res,
+                    result: {
+                        integrityOk: true,
+                        output: outputLines
+                    }
+                });
+            } catch (error) {
+                // Covers: poetry missing, venv not installed, process non-zero, invalid JSON, empty stdout, etc.
+                console.error('Failed to execute generator integrity check:', error);
+                if (error instanceof Error) {
+                    return respondError({
+                        res,
+                        message: `Failed to execute Excel integrity check: ${error.message}`,
+                        httpStatus: 500
+                    });
+                }
+                return respondError({ res, message: 'Failed to execute Excel integrity check', httpStatus: 500 });
+            } finally {
+                await unlinkGeneratorUploadQuiet(resolvedExcelPath);
+            }
+        })().catch((unhandled) => {
+            console.error('Unhandled error in /generator/verify:', unhandled);
+            if (!res.headersSent) {
+                respondError({ res, message: 'Unexpected error during verification', httpStatus: 500 });
             }
         });
-    } catch (error) {
-        // Covers: poetry missing, venv not installed, process non-zero, invalid JSON, empty stdout, etc.
-        console.error('Failed to execute generator integrity check:', error);
-        if (error instanceof Error) {
-            return respondError({
-                res,
-                message: `Failed to execute Excel integrity check: ${error.message}`,
-                httpStatus: 500
-            });
-        }
-        return respondError({ res, message: 'Failed to execute Excel integrity check', httpStatus: 500 });
-    }
+    });
 });
 
 // TODO: add CSV export for this widget.

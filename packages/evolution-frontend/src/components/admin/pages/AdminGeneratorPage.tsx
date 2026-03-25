@@ -176,15 +176,17 @@ const AdminGeneratorPage: React.FunctionComponent = () => {
             return;
         }
         try {
-            // POST /api/admin/generator/verify — run Excel integrity CLI (generator package).
+            const formData = new FormData();
+            formData.append('generatorFile', excelFile);
+
+            // POST /api/admin/generator/verify — multipart field `generatorFile`, backend saves to temp then runs CLI.
             const response = await fetch('/api/admin/generator/verify', {
                 method: 'POST',
                 credentials: 'include',
                 headers: {
-                    Accept: 'application/json',
-                    'Content-Type': 'application/json'
-                }
-                // body: JSON.stringify({ excelFile })
+                    Accept: 'application/json'
+                },
+                body: formData
             });
             const data = (await response.json()) as Status.Status<unknown>;
 
