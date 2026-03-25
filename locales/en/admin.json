@@ -241,6 +241,10 @@
         "GeneratorFileHint": "Only Excel workbooks (.xlsx, .xls) are accepted.",
         "GeneratorDropzonePrompt": "Drag and drop your file here, or click to browse.",
         "GeneratorRemoveFile": "Remove file",
-        "GeneratorButton": "Verify Excel file"
+        "GeneratorButton": "Verify Excel file",
+        "GeneratorVerifySuccess": "Excel file passed the integrity check.",
+        "GeneratorVerifyNoFile": "Select an Excel file to verify.",
+        "GeneratorVerifyRequestFailed": "Could not reach the server.",
+        "GeneratorVerifyErrorFallback": "Verification failed."
     }
 }

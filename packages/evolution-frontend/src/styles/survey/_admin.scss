@@ -738,7 +738,7 @@ header {
     }
 
     .admin-generator-excel-file__label {
-        font-size: 1.5rem; 
+        font-size: 1.5rem;
         font-weight: 700;
         color: black;
     }
@@ -831,4 +831,23 @@ header {
             border-color: rgba(0, 0, 0, 0.45);
         }
     }
+}
+
+// Sonner is in 'sonner' package. It is used to render success and error messages in the admin.
+[data-sonner-toaster] .admin-sonner-toast--success[data-styled='true'],
+[data-sonner-toaster] .admin-sonner-toast--error[data-styled='true'] {
+    border: 1px solid black;
+}
+
+[data-sonner-toaster] .admin-sonner-toast--success [data-icon] {
+    color: #16a34a;
+}
+
+[data-sonner-toaster] .admin-sonner-toast--error [data-icon] {
+    color: #dc2626;
+}
+
+[data-sonner-toaster] .admin-sonner-toast--success [data-title],
+[data-sonner-toaster] .admin-sonner-toast--error [data-title] {
+    font-weight: 700;
 }

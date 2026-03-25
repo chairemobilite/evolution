@@ -97,7 +97,9 @@ class Conditionals:
             is_excel_file(excel_file_path)
             workbook = get_workbook(excel_file_path)
             result = self._check_conditionals_sheet(workbook, msgs)
-            return result, msgs
+            # Pass only if the sheet check succeeded and nothing was appended to msgs.
+            integrity_ok = bool(result) and len(msgs) == 0
+            return integrity_ok, msgs
         except Exception as e:
             msgs.append(f"An error occurred with check_excel_integrity: {e}")
             return False, msgs

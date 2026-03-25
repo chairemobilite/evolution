@@ -4,6 +4,7 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
+import fs from 'fs';
 import moment from 'moment';
 import path from 'path';
 import { Response, Request } from 'express';
@@ -78,24 +79,34 @@ router.all('/data/widgets/:widget/', (req: Request, res: Response, _next) => {
     }
 });
 
-// Verify the Excel file for the generator
-router.get('/generator/verify', async (req: Request, res: Response) => {
-    // Temporary hard-coded path while wiring the backend/frontend flow.
-    // Intended final version is to read the file path from req.query.excelFilePath.
-    // const excelFilePath = req.query.excelFilePath;
-    const excelFilePath = '../../example/demo_generator/references/Household_Travel_Generate_Survey.xlsx';
+// POST /generator/verify — run Excel integrity CLI (generator package).
+router.post('/generator/verify', async (req: Request, res: Response) => {
+    // TODO: replace with upload
+    const excelFilePath = '../../example/demo_generator/references/Household_Travel_Generate_Survey_bad.xlsx';
     if (typeof excelFilePath !== 'string' || excelFilePath.length === 0) {
-        return respondError({ res, message: 'Provide a valid excelFilePath query parameter', httpStatus: 400 });
+        return respondError({ res, message: 'Provide a valid excelFilePath in the request body', httpStatus: 400 });
     }
 
     // Run the CLI via Poetry so generator deps (openpyxl, etc.) match pyproject.toml.
     const generatorPackageDirectory = path.resolve(__dirname, '../../../evolution-generator');
     const cliScriptPath = path.resolve(generatorPackageDirectory, 'src/scripts/check_excel_integrity_cli.py');
 
+    // Absolute path so Python does not depend on process cwd.
+    const resolvedExcelPath = path.isAbsolute(excelFilePath)
+        ? excelFilePath
+        : path.resolve(generatorPackageDirectory, excelFilePath);
+    if (!fs.existsSync(resolvedExcelPath)) {
+        return respondError({
+            res,
+            message: `Excel file not found at ${resolvedExcelPath}`,
+            httpStatus: 400
+        });
+    }
+
     try {
         // Spawn Poetry in the generator package so `poetry run` uses that project's venv and pyproject.toml.
         // Args: run python <script> <excel path> — the script prints one JSON object per run on stdout.
-        const { stdout, stderr } = await execFileAsync('poetry', ['run', 'python', cliScriptPath, excelFilePath], {
+        const { stdout, stderr } = await execFileAsync('poetry', ['run', 'python', cliScriptPath, resolvedExcelPath], {
             cwd: generatorPackageDirectory
         });
 
@@ -104,7 +115,7 @@ router.get('/generator/verify', async (req: Request, res: Response) => {
             console.warn('Python stderr for /api/admin/generator/verify:', stderr);
         }
 
-        // Normalize stdout to non-empty lines (handles trailing newlines, accidental blank lines).
+        // Last non-empty line: one JSON object from the CLI.
         const outputLines = stdout
             .trim()
             .split('\n')
@@ -120,8 +131,8 @@ router.get('/generator/verify', async (req: Request, res: Response) => {
             excelFilePath?: string;
         };
 
-        // `ok: false` means the check raised an exception or could not complete; message is in `error`.
-        if (!parsedResult.ok) {
+        // Python exception or crash → ok: false
+        if (parsedResult.ok !== true) {
             return respondError({
                 res,
                 message: `Excel integrity check failed: ${parsedResult.error ?? 'Unknown Python error'}`,
@@ -129,15 +140,15 @@ router.get('/generator/verify', async (req: Request, res: Response) => {
             });
         }
 
-        // `ok: true` only means the script executed. Failed checks include `errors` from captured Python prints.
-        if (!parsedResult.integrityOk) {
-            const detail =
-                parsedResult.errors && parsedResult.errors.length > 0
-                    ? parsedResult.errors.join('\n')
-                    : 'Excel integrity check failed';
+        // Validation failed → integrityOk false and/or errors[]
+        const errorMessages =
+            Array.isArray(parsedResult.errors) && parsedResult.errors.length > 0
+                ? parsedResult.errors.join('\n')
+                : null;
+        if (parsedResult.integrityOk !== true || errorMessages !== null) {
             return respondError({
                 res,
-                message: detail,
+                message: errorMessages ?? 'Excel integrity check failed',
                 httpStatus: 422
             });
         }
@@ -146,7 +157,7 @@ router.get('/generator/verify', async (req: Request, res: Response) => {
         return respondOk({
             res,
             result: {
-                integrityOk: Boolean(parsedResult.integrityOk),
+                integrityOk: true,
                 output: outputLines
             }
         });

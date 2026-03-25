@@ -6,10 +6,13 @@
  */
 import React, { useCallback, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { toast } from 'sonner';
+import * as Status from 'chaire-lib-common/lib/utils/Status';
 
 const EXCEL_ACCEPT =
     '.xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel';
 
+// Check if the file is an Excel file
 const isExcelFile = (file: File): boolean => {
     const name = file.name.toLowerCase();
     if (name.endsWith('.xlsx') || name.endsWith('.xls')) {
@@ -115,6 +118,7 @@ const GeneratorExcelFileInput: React.FunctionComponent<GeneratorExcelFileInputPr
         [onFileChange]
     );
 
+    // Hidden file input and dropzone.
     return (
         <div className="admin-generator-excel-file">
             <span className="admin-generator-excel-file__label" id="admin-generator-file-label">
@@ -165,22 +169,50 @@ const AdminGeneratorPage: React.FunctionComponent = () => {
     const { t } = useTranslation();
     const [excelFile, setExcelFile] = useState<File | null>(null);
 
+    // Verify the Excel file and show a toast for the outcome.
+    const onVerifyClick = useCallback(async () => {
+        if (!excelFile) {
+            toast.error(t('admin:generator:GeneratorVerifyNoFile'));
+            return;
+        }
+        try {
+            // POST /api/admin/generator/verify — run Excel integrity CLI (generator package).
+            const response = await fetch('/api/admin/generator/verify', {
+                method: 'POST',
+                credentials: 'include',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json'
+                }
+                // body: JSON.stringify({ excelFile })
+            });
+            const data = (await response.json()) as Status.Status<unknown>;
+
+            // 4xx/5xx: show API error string when present
+            if (!response.ok) {
+                const serverMessage = Status.isStatusError(data) && typeof data.error === 'string' ? data.error : null;
+                toast.error(serverMessage ?? t('admin:generator:GeneratorVerifyErrorFallback'));
+                return;
+            }
+            if (Status.isStatusOk(data)) {
+                toast.success(t('admin:generator:GeneratorVerifySuccess'));
+                return;
+            }
+            // 200 but not Status.ok
+            toast.error(t('admin:generator:GeneratorVerifyErrorFallback'));
+        } catch (error) {
+            const message = error instanceof Error ? error.message : t('admin:generator:GeneratorVerifyRequestFailed');
+            toast.error(message);
+        }
+    }, [excelFile, t]);
+
     return (
         <div className="admin" id="adminGeneratorPage">
             <div className="survey-section__content apptr__form-container">
                 <h2>{t('admin:generator:GeneratorTitle')}</h2>
                 <p>{t('admin:generator:GeneratorDescription')}</p>
                 <GeneratorExcelFileInput file={excelFile} onFileChange={setExcelFile} />
-                <button
-                    type="button"
-                    onClick={() => {
-                        if (excelFile) {
-                            console.log('Verify:', excelFile.name);
-                        } else {
-                            console.log('No Excel file selected');
-                        }
-                    }}
-                >
+                <button type="button" onClick={onVerifyClick}>
                     {t('admin:generator:GeneratorButton')}
                 </button>
             </div>
