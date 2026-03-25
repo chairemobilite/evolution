@@ -31,7 +31,11 @@ def main() -> int:
         print(json.dumps(payload))
         return 0
     except Exception as error:
-        print(json.dumps({"ok": False, "error": str(error), "excelFilePath": excel_file_path}))
+        print(
+            json.dumps(
+                {"ok": False, "error": str(error), "excelFilePath": excel_file_path}
+            )
+        )
         return 1
 
 

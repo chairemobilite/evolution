@@ -111,7 +111,9 @@ class Conditionals:
             print(message)
         return ok
 
-    def _check_conditionals_sheet(self, workbook: Workbook, msgs: list[str] | None = None) -> bool:
+    def _check_conditionals_sheet(
+        self, workbook: Workbook, msgs: list[str] | None = None
+    ) -> bool:
         """Check the integrity of the Conditionals sheet."""
         try:
             # Require the Conditionals sheet and validate its column headers.
