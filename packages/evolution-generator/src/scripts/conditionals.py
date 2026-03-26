@@ -153,7 +153,10 @@ class Conditionals:
 
             return True
         except Exception as e:
-            line = f"{self._sheet_error_prefix('Conditionals')}{e}"
+            message = str(e)
+            prefix = self._sheet_error_prefix("Conditionals")
+            # If the message does not start with the prefix, add the prefix to the message.
+            line = message if message.startswith(prefix) else f"{prefix}{message}"
             if msgs is not None:
                 msgs.append(line)
             else:

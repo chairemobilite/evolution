@@ -43,15 +43,19 @@ const GeneratorExcelFileInput: React.FunctionComponent<GeneratorExcelFileInputPr
         (list: FileList | null) => {
             // Empty selection (user cancelled dialog) or nothing in the DataTransfer — nothing to do.
             if (!list?.length) {
+                toast.info(t('admin:generator:GeneratorFileSelectionCancelled'));
                 return;
             }
             const next = list[0];
-            // Reject non-Excel files quietly so we do not replace a good pick with a bad one.
+            // Reject non-Excel files and keep the currently selected file unchanged.
             if (isExcelFile(next)) {
                 onFileChange(next);
+                toast.success(t('admin:generator:GeneratorFileSelected', { fileName: next.name }));
+                return;
             }
+            toast.error(t('admin:generator:GeneratorInvalidFileType'));
         },
-        [onFileChange]
+        [onFileChange, t]
     );
 
     /**
@@ -111,11 +115,12 @@ const GeneratorExcelFileInput: React.FunctionComponent<GeneratorExcelFileInputPr
             e.stopPropagation();
             e.preventDefault();
             onFileChange(null);
+            toast.info(t('admin:generator:GeneratorFileCleared'));
             if (inputRef.current) {
                 inputRef.current.value = '';
             }
         },
-        [onFileChange]
+        [onFileChange, t]
     );
 
     // Hidden file input and dropzone.
@@ -168,13 +173,18 @@ const GeneratorExcelFileInput: React.FunctionComponent<GeneratorExcelFileInputPr
 const AdminGeneratorPage: React.FunctionComponent = () => {
     const { t } = useTranslation();
     const [excelFile, setExcelFile] = useState<File | null>(null);
+    const [isVerifying, setIsVerifying] = useState(false);
 
     // Verify the Excel file and show a toast for the outcome.
     const onVerifyClick = useCallback(async () => {
+        if (isVerifying) {
+            return;
+        }
         if (!excelFile) {
             toast.error(t('admin:generator:GeneratorVerifyNoFile'));
             return;
         }
+        setIsVerifying(true);
         try {
             const formData = new FormData();
             formData.append('generatorFile', excelFile);
@@ -205,8 +215,10 @@ const AdminGeneratorPage: React.FunctionComponent = () => {
         } catch (error) {
             const message = error instanceof Error ? error.message : t('admin:generator:GeneratorVerifyRequestFailed');
             toast.error(message);
+        } finally {
+            setIsVerifying(false);
         }
-    }, [excelFile, t]);
+    }, [excelFile, isVerifying, t]);
 
     return (
         <div className="admin" id="adminGeneratorPage">
@@ -214,7 +226,7 @@ const AdminGeneratorPage: React.FunctionComponent = () => {
                 <h2>{t('admin:generator:GeneratorTitle')}</h2>
                 <p>{t('admin:generator:GeneratorDescription')}</p>
                 <GeneratorExcelFileInput file={excelFile} onFileChange={setExcelFile} />
-                <button type="button" onClick={onVerifyClick}>
+                <button type="button" onClick={onVerifyClick} disabled={isVerifying}>
                     {t('admin:generator:GeneratorButton')}
                 </button>
             </div>

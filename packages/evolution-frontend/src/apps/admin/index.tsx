@@ -66,7 +66,8 @@ export default () => {
                                 toastOptions={{
                                     classNames: {
                                         success: 'admin-sonner-toast--success',
-                                        error: 'admin-sonner-toast--error'
+                                        error: 'admin-sonner-toast--error',
+                                        info: 'admin-sonner-toast--info'
                                     }
                                 }}
                             />

@@ -172,7 +172,11 @@ router.post('/generator/verify', (req: Request, res: Response) => {
                 const { stdout, stderr } = await execFileAsync(
                     'poetry',
                     ['run', 'python', cliScriptPath, resolvedExcelPath],
-                    { cwd: generatorPackageDirectory }
+                    {
+                        cwd: generatorPackageDirectory,
+                        timeout: 60_000, // 60 seconds before killing the process
+                        killSignal: 'SIGKILL'
+                    }
                 );
 
                 // Stderr may contain warnings even on success; log it but do not treat it as failure by itself.
@@ -222,8 +226,7 @@ router.post('/generator/verify', (req: Request, res: Response) => {
                 return respondOk({
                     res,
                     result: {
-                        integrityOk: true,
-                        output: outputLines
+                        integrityOk: true
                     }
                 });
             } catch (error) {

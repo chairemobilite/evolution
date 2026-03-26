@@ -78,7 +78,6 @@ describe('/generator/verify route', () => {
                 integrityOk: true
             }
         });
-        expect(response.body.result.output).toEqual([stdout]);
     });
 
     it('Should return 422 when Excel integrity check fails', async () => {
@@ -103,6 +102,30 @@ describe('/generator/verify route', () => {
             status: 'error',
             error: errors.join('\n')
         });
+    });
+
+    it('Should return 500 when child process execution fails', async () => {
+        execFileMock.mockImplementationOnce(() => {
+            throw new Error('boom');
+        });
+
+        const response = await request(app)
+            .post('/api/admin/generator/verify')
+            .attach(
+                'generatorFile',
+                Buffer.from('dummy'),
+                {
+                    filename: 'test.xlsx',
+                    contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                }
+            );
+
+        expect(response.status).toBe(500);
+        expect(response.body).toMatchObject({
+            status: 'error'
+        });
+        expect(response.body.error).toContain('Failed to execute Excel integrity check');
+        expect(response.body.error).toContain('boom');
     });
 });
 
