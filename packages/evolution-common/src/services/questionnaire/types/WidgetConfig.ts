@@ -249,7 +249,7 @@ type InputMapType = {
     defaultZoom?: number;
     canBeCollapsed?: boolean;
     shortname?: string;
-    defaultValue?: GeoJSON.Point | ParsingFunction<GeoJSON.Point>;
+    defaultValue?: GeoJSON.Point | ParsingFunction<GeoJSON.Point | undefined>;
 };
 
 export type InputMapPointType = InputMapType &
