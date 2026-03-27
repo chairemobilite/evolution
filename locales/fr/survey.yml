@@ -164,3 +164,9 @@ errors:
   phoneNumberInvalid: "Le numéro de téléphone est invalide. (ex.: 514-123-1234 ou +33 1 23 45 67 89)."
   accessCodeRequired: "Veuillez spécifier votre code d'accès."
   accessCodeInvalid: "Le code d'accès est invalide."
+forExampleAbbreviation: ex
+geography:
+    geocodingStringImpreciseError: >-
+        <strong>Le nom du lieu utilisé pour effectuer la recherche
+        {{geocodingTextInput}} n'est pas assez précis.</strong> Ajoutez de
+        l'information ou précisez l'emplacement à l'aide de la carte.

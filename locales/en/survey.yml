@@ -154,3 +154,9 @@ errors:
   phoneNumberInvalid: "Phone number is invalid (e.g.: 514-123-1234 or +44 20 7946 0958)."
   accessCodeRequired: "Please specify your access code."
   accessCodeInvalid: "Access code is invalid."
+forExampleAbbreviation: ex
+geography:
+    geocodingStringImpreciseError: >-
+        <strong>The location name used for searching {{geocodingTextInput}} is
+        not specific enough.</strong> Please add more information or specify the
+        location more precisely using the map.

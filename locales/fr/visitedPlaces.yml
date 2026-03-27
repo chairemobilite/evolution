@@ -52,3 +52,38 @@ activityCategories:
     dontKnow: Ne sait pas
     preferNotToAnswer: Préfère ne pas répondre
 Activity: 'Spécifier:'
+LocationNameAddress: Nom ou adresse du lieu
+LocationNameAddressExample: 50 rue des Fleurs, coin 1er avenue / 3e rue, etc.
+LocationNameAddressExample_workUsual: Édifice du Phare, CPE les petits génies
+LocationNameAddressExample_workNotUsual: Palais des congrès de Montréal, Le Co-work du lac Long
+LocationNameAddressExample_schoolUsual: École Marguerite-Bourgeoys, Collège CDI Québec, UQAR
+LocationNameAddressExample_schoolNotUsual: Bibliothèque à Livre ouvert, École de musique Dorémi
+LocationNameAddressExample_shopping: Centre d’achat Le Carrefour, Provigo St-Félicien, IKEA Boucherville
+LocationNameAddressExample_restaurant: Normandin de Lévis, Snack bar chez Raymond, Resto Subway de Rawdon
+LocationNameAddressExample_dropSomeone: Gare d’autocar, Aréna des Collines, École des Pionniers
+LocationNameAddressExample_fetchSomeone: Gare d’autocar, Aréna des Collines, École des Pionniers
+LocationNameAddressExample_leisureArtsMusicCulture: Cinéma des chutes, Théâtre de Verdure, Musée national des petits pots Masson
+LocationNameAddressExample_leisureSports: Nautilus St-Georges, Escalade La Grimpe, Parc de la Rose
+LocationNameAddressExample_leisureTourism: Camping Ste-Madeleine, Paris France, Hôtel Days Inn St-Flavien
+LocationNameAddressExample_leisureStroll: Parc au bord de l’eau, Petit train du nord, Stroll de la Montagne
+LocationNameAddressExample_visiting: Adresse de la personne visitée, Coin des Rossignols et de l’Étang
+LocationNameAddressExample_medical: >-
+    Clinique Médicale des Marguerites, Hôpital régional de Rimouski, CLSC des
+    Rivières
+LocationNameAddressExample_service: Coiffure Dans le Vent, Caisse Desjardins de Limoilou
+LocationNameAddressExample_worship: Église Saint-Nicéphore, Mosquée de la Capitale, Synagogue Maison Chabad
+LocationNameAddressExample_secondaryHome: Adresse de la résidence secondaire ou du chalet
+LocationNameAddressExample_schoolNotStudent: Institut Linguistique, École de conduite Tecnic
+activityNameIsRequiredError: La description est requise.
+geography: >-
+    Veuillez positionner le lieu sur la carte<br /><span class="_pale
+    _oblique">Naviguez, zoomez, et cliquez sur la carte pour localiser le lieu.
+    Une fois localisé, vous pourrez déplacer le point pour davantage de
+    précision. Vous pouvez également chercher le lieu en utilisant le nom ou
+    l'adresse avec le bouton ci-dessous.</span>
+refreshGeocodingButton: Chercher le lieu à partir du nom
+locationIsRequiredError: Le positionnement du lieu est requis.
+locationIsNotPreciseError: >-
+    Le positionnement du lieu n'est pas assez précis. Utilisez le zoom + pour
+    vous rapprocher davantage, puis précisez la localisation en déplaçant
+    l'icône.
