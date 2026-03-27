@@ -19,6 +19,13 @@ const baseInterviewAttributes: Pick<
     is_valid: true
 };
 
+export const homeGeographyCoordinates = [-73.5932, 45.5016] as [number, number];
+export const workPlace1P1Coordinates = [-73, 45] as [number, number];
+export const otherPlace2P1Coordinates = [-73.6149, 45.5362] as [number, number];
+export const shoppingPlace1P2Coordinates = [-73.6149, 45.5362] as [number, number];
+export const otherWorkPlace1P2Coordinates = [-73.6347, 45.5608] as [number, number];
+export const schoolPlace1P3Coordinates = [-73.6131, 45.504] as [number, number];
+
 /**
  * Interview attributes with complete data. For sake of testing, the data for
  * similar objects are not all present. For example, some information is missing
@@ -48,7 +55,7 @@ export const interviewAttributesForTestCases: UserRuntimeInterviewAttributes = {
         home: {
             geography: {
                 type: 'Feature',
-                geometry: { type: 'Point', coordinates: [-73.5932, 45.5016] },
+                geometry: { type: 'Point', coordinates: homeGeographyCoordinates },
                 properties: { lastAction: 'mapClicked' }
             }
         },
@@ -79,7 +86,7 @@ export const interviewAttributesForTestCases: UserRuntimeInterviewAttributes = {
                                     name: 'This is my work',
                                     geography: {
                                         type: 'Feature',
-                                        geometry: { type: 'Point', coordinates: [-73, 45] },
+                                        geometry: { type: 'Point', coordinates: workPlace1P1Coordinates },
                                         properties: { lastAction: 'mapClicked' }
                                     }
                                 },
@@ -103,7 +110,7 @@ export const interviewAttributesForTestCases: UserRuntimeInterviewAttributes = {
                                     name: 'This is a shopping place',
                                     geography: {
                                         type: 'Feature',
-                                        geometry: { type: 'Point', coordinates: [-73.6149, 45.5362] },
+                                        geometry: { type: 'Point', coordinates: otherPlace2P1Coordinates },
                                         properties: { lastAction: 'mapClicked' }
                                     }
                                 }
@@ -164,7 +171,7 @@ export const interviewAttributesForTestCases: UserRuntimeInterviewAttributes = {
                                         'household.persons.personId1.journeys.journeyId1.visitedPlaces.otherPlace2P1',
                                     geography: {
                                         type: 'Feature',
-                                        geometry: { type: 'Point', coordinates: [-73.6149, 45.5362] },
+                                        geometry: { type: 'Point', coordinates: shoppingPlace1P2Coordinates },
                                         properties: { lastAction: 'mapClicked' }
                                     }
                                 },
@@ -176,7 +183,7 @@ export const interviewAttributesForTestCases: UserRuntimeInterviewAttributes = {
                                     name: 'This is my work',
                                     geography: {
                                         type: 'Feature',
-                                        geometry: { type: 'Point', coordinates: [-73.6347, 45.5608] },
+                                        geometry: { type: 'Point', coordinates: otherWorkPlace1P2Coordinates },
                                         properties: { lastAction: 'mapClicked' }
                                     }
                                 },
@@ -254,7 +261,7 @@ export const interviewAttributesForTestCases: UserRuntimeInterviewAttributes = {
                                     name: 'Polytechnique Montréal',
                                     geography: {
                                         type: 'Feature',
-                                        geometry: { type: 'Point', coordinates: [-73.6131, 45.504] },
+                                        geometry: { type: 'Point', coordinates: schoolPlace1P3Coordinates },
                                         properties: { lastAction: 'mapClicked' }
                                     }
                                 },
