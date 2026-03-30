@@ -6,6 +6,7 @@
  */
 
 import _get from 'lodash/get';
+import _escape from 'lodash/escape';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { getResponse } from '../../utils/helpers';
 import {
@@ -243,7 +244,7 @@ export const isSelfDeclared = ({
  *
  * @param {Object} options - The options object.
  * @param {UserInterviewAttributes} options.interview The interview
- * @param {Person} options.person The current person being interviews
+ * @param {Person} options.person The current person being interviewed
  * @returns {number} The number of persons in the household or 1 if the person is self-declared.
  */
 export const getCountOrSelfDeclared = ({
@@ -258,6 +259,48 @@ export const getCountOrSelfDeclared = ({
         return 1;
     }
     return personsCount;
+};
+
+/**
+ * Get the gender context for a person. This can be used for localization
+ * purposes, in the `context` field of the translation function.
+ *
+ * // FIXME Evolution questionnaires do not currently support
+ * gender/sexAssignedAtBirth in a satisfactory way. Make sure this is still
+ * correct when we have full support
+ *
+ * @param {Object} options - The options object.
+ * @param {Person} options.person The current person being interviewed
+ * @returns {string | undefined} The gender context for the person, or
+ * `undefined` if not available.
+ */
+export const getPersonGenderContext = ({ person }: { person: Person }): string | undefined =>
+    person.gender ?? person.sexAssignedAtBirth ?? undefined;
+
+/**
+ * Get a html-safe string that identifies a person, either by their nickname or
+ * by their sequence and age.
+ *
+ * @param {Object} options - The options object.
+ * @param {Person} options.person The person to identify
+ * @param {TFunction} options.t The translation function
+ * @returns {string} A translated and/or escaped string that identifies the
+ * person, either by their nickname or by their sequence and age.
+ */
+export const getPersonIdentificationString = ({ person, t }: { person: Person; t: TFunction }): string => {
+    if (typeof person.nickname === 'string' && !_isBlank(person.nickname.trim())) {
+        return _escape(person.nickname);
+    }
+    return _isBlank(person.age)
+        ? t('survey:personWithSequence', {
+            sequence: person._sequence,
+            context: getPersonGenderContext({ person })
+        })
+        : t('survey:personWithSequenceAndAge', {
+            sequence: person._sequence,
+            age: person.age,
+            context: getPersonGenderContext({ person })
+        });
 };
 
 /* Various functions related to a person's occupation */

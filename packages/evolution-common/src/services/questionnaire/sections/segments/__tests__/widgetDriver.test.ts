@@ -101,7 +101,7 @@ describe('widgetDriver choices', () => {
             groupShortname: '',
             groupLabel: '',
             choices: [
-                { value: 'personId2', label: 'The Dude' },
+                { value: 'personId2', label: expect.any(Function) },
                 { value: 'personId3', label: expect.any(Function) }
             ]
         }, {
@@ -123,6 +123,17 @@ describe('widgetDriver choices', () => {
                 { value: 'dontKnow', label: expect.any(Function), conditional: expect.any(Function) }
             ]
         }]);
+
+        // Make sure the labels for household drivers are correctly generated using the person helper
+        const mockedT = jest.fn();
+        // person ID2 should return the nickname since it is defined
+        const personId2Choice = choices[0].choices.find((choice: any) => choice.value === 'personId2');
+        expect(translateString(personId2Choice.label, { t: mockedT } as any, interview, 'some.path.driver')).toEqual('The Dude');
+        expect(mockedT).not.toHaveBeenCalled();
+        // person ID3 should call the `t` function with the personWithSequence key since there is no nickname and no age defined
+        const personId3Choice = choices[0].choices.find((choice: any) => choice.value === 'personId3');
+        translateString(personId3Choice.label, { t: mockedT } as any, interview, 'some.path.driver');
+        expect(mockedT).toHaveBeenCalledWith('survey:personWithSequence', { sequence: 3, context: undefined });
 	});
 
     test('should not contain household members if the person is the only driver in the household', () => {

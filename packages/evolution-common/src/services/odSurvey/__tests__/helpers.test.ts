@@ -765,6 +765,48 @@ each([
     expect(Helpers.getCountOrSelfDeclared({ interview, person })).toEqual(expected);
 });
 
+describe('getPersonGenderContext', () => {
+    it.each([
+        [{ gender: 'male', sexAssignedAtBirth: 'male' }, 'male'],
+        [{ gender: 'female', sexAssignedAtBirth: 'male' }, 'female'],
+        [{ gender: undefined, sexAssignedAtBirth: 'female' }, 'female'],
+        [{ gender: 'non-binary', sexAssignedAtBirth: undefined }, 'non-binary'],
+        [{ gender: undefined, sexAssignedAtBirth: undefined }, undefined],
+        [{}, undefined]
+    ])
+    ('returns %s for person %o', (person: any, expected) => {
+        expect(Helpers.getPersonGenderContext({ person })).toBe(expected);
+    });
+});
+
+
+describe('getPersonIdentificationString', () => {
+    const mockT = jest.fn() as unknown as jest.MockedFunction<TFunction>;
+    mockT.mockImplementation(((key: any, options?: any) => {
+        if (key === 'survey:personWithSequenceAndAge') {
+            return `Person ${options.sequence}, Age ${options.age}, Gender ${options.context}`;
+        } else if (key === 'survey:personWithSequence') {
+            return `Person ${options.sequence}, Gender ${options.context}`;
+        }
+        return '';
+    }) as any);
+
+    it.each([
+        [{ nickname: 'Bob', _sequence: 1, age: 30 }, 'Bob'],
+        [{ nickname: '<strong>Bob!!</strong>', _sequence: 1, age: 30 }, '&lt;strong&gt;Bob!!&lt;/strong&gt;'],
+        [{ nickname: '', _sequence: 2, age: 25 }, 'Person 2, Age 25, Gender undefined'],
+        [{ nickname: '  ', _sequence: 2, age: 25 }, 'Person 2, Age 25, Gender undefined'],
+        [{ nickname: '  ', _sequence: 2, age: 25, gender: 'female' as const }, 'Person 2, Age 25, Gender female'],
+        [{ _sequence: 3, age: undefined }, 'Person 3, Gender undefined'],
+        [{ _sequence: 3, age: null }, 'Person 3, Gender undefined'],
+        [{ _sequence: 3, gender: 'male' }, 'Person 3, Gender male'],
+        [{ _sequence: 3 }, 'Person 3, Gender undefined'],
+    ])
+    ('returns correct identification for person %o', (person: any, expected) => {
+        expect(Helpers.getPersonIdentificationString({ person, t: mockT })).toEqual(expected);
+    });
+});
+
 each([
     ['Explicit yes, no age needed', { _uuid: 'personId1', _sequence: 1, drivingLicenseOwnership: 'yes' }, 18, true],
     ['Explicit no, adult age', { _uuid: 'personId1', _sequence: 1, age: 35, drivingLicenseOwnership: 'no' }, 18, false],
