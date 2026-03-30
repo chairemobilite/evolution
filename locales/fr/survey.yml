@@ -59,9 +59,15 @@ hisHerTheir: ""
 hisHerTheir_male: "son"
 hisHerTheir_female: "sa"
 hisHerTheir_custom: "ses"
-personWithSequenceAndAge: "Personne #{{sequence}} ({{age}} ans)"
-personWithSequenceAndAge_male: "Personne #{{sequence}} (homme, {{age}} ans)"
-personWithSequenceAndAge_female: "Personne #{{sequence}} (femme, {{age}} ans)"
+personWithSequenceAndAge: "Personne #{{sequence}} ($t(survey:age, {\"count\": {{age}} }))"
+personWithSequenceAndAge_male: "Personne #{{sequence}} (homme, $t(survey:age, {\"count\": {{age}} }))"
+personWithSequenceAndAge_female: "Personne #{{sequence}} (femme, $t(survey:age, {\"count\": {{age}} }))"
+age_zero: "0 an"
+age_one: "1 an"
+age: "{{count}} ans"
+personWithSequence: "Personne #{{sequence}}"
+personWithSequence_male: "Personne #{{sequence}} (homme)"
+personWithSequence_female: "Personne #{{sequence}} (femme)"
 
 # generic label contents
 noNickname: cette personne

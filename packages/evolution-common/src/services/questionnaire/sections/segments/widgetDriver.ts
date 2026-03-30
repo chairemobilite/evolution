@@ -90,16 +90,7 @@ const getDriverChoices = (interview: UserInterviewAttributes): (GroupedChoiceTyp
         if (typeof driver._uuid === 'string' && driver._uuid !== person._uuid) {
             hhDrivers.push({
                 value: driver._uuid,
-                label:
-                    typeof driver.nickname === 'string' && !_isBlank(driver.nickname.trim())
-                        ? driver.nickname
-                        : // FIXME Evolution questionnaires do not currently support gender/sexAssignedAtBirth in a satisfactory way. Make sure this is still correct when we have full support
-                        (t: TFunction) =>
-                            t('survey:personWithSequenceAndAge', {
-                                sequence: driver['_sequence'],
-                                age: driver['age'] ?? '-',
-                                context: driver.gender ?? driver.sexAssignedAtBirth
-                            })
+                label: (t: TFunction) => odHelpers.getPersonIdentificationString({ person: driver, t })
             });
         }
     }
