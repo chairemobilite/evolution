@@ -13,12 +13,13 @@ expect.extend(toHaveNoViolations);
 
 import { SectionProps, useSectionTemplate } from '../../../hooks/useSectionTemplate';
 import * as odSurveyHelper from 'evolution-common/lib/services/odSurvey/helpers';
-import { Activity } from 'evolution-common/lib/services/odSurvey/types';
-import { VisitedPlace } from 'evolution-common/lib/services/questionnaire/types';
+import type { VisitedPlace } from 'evolution-common/lib/services/questionnaire/types';
+import type { WidgetProps } from '../../Widget';
+import { SurveyContext } from '../../../../contexts/SurveyContext';
 
 jest.mock('chaire-lib-frontend/lib/components/pages/LoadingPage', () => () => <div>Loading...</div>);
 jest.mock('../../Widget', () => ({
-    Widget: (props) => <div>Widget {props.currentWidgetShortname}</div>
+    Widget: (props: WidgetProps) => <div>Widget {props.currentWidgetShortname}</div>
 }));
 jest.mock('../../GroupWidgets', () => ({
     GroupedObject: () => <div>GroupedObject</div>
@@ -54,6 +55,7 @@ mockedGetNextVisitedPlace.mockReturnValue(null);
 
 // FIXME Get the trips widgets from somewhere when they are moved to evolution
 const surveyContext = {
+    sections: {},
     widgets: {
         segmentMode: {
             choices: [
@@ -67,12 +69,16 @@ const surveyContext = {
         buttonSwitchPerson: {},
         personVisitedPlacesMap: {},
         buttonConfirmNextSection: {}
-    }
+    },
+    devMode: false, dispatch: jest.fn()
 };
-// Mock the HOC
-jest.mock('../../../hoc/WithSurveyContextHoc', () => ({
-    withSurveyContext: (Component: React.ComponentType) => (props: any) => <Component {...props} surveyContext={surveyContext} />
-}));
+
+// Create a wrapper component to provide context
+const TestContextProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => (
+    <SurveyContext.Provider value={surveyContext}>
+        {children}
+    </SurveyContext.Provider>
+);
 
 jest.mock('../../../hooks/useSectionTemplate', () => ({
     useSectionTemplate: jest.fn().mockReturnValue({ preloaded: true })
@@ -167,7 +173,9 @@ describe('SegmentsSection UI display', () => {
     it('should render LoadingPage when not preloaded', () => {
         mockedUseSectionTemplate.mockReturnValueOnce({ preloaded: false });
         const { container } = render(
-            <SegmentsSection {...props} />
+            <TestContextProvider>
+                <SegmentsSection {...props} />
+            </TestContextProvider>
         );
         expect(container).toMatchSnapshot();
     });
@@ -177,7 +185,9 @@ describe('SegmentsSection UI display', () => {
         test('should render list of trips and map when no trip selected', () => {
             mockedGetJourneysArray.mockReturnValueOnce([journey]);
             const { container } = render(
-                <SegmentsSection {...props} />
+                <TestContextProvider>
+                    <SegmentsSection {...props} />
+                </TestContextProvider>
             );
             expect(container).toMatchSnapshot();
         });
@@ -185,7 +195,9 @@ describe('SegmentsSection UI display', () => {
         test('make sure widget is accessible without trip selected', async () => {
             mockedGetJourneysArray.mockReturnValueOnce([journey]);
             const { container } = render(
-                <SegmentsSection {...props} />
+                <TestContextProvider>
+                    <SegmentsSection {...props} />
+                </TestContextProvider>
             );
             const results = await axe(container);
             expect(results).toHaveNoViolations();
@@ -195,7 +207,9 @@ describe('SegmentsSection UI display', () => {
             mockedGetJourneysArray.mockReturnValueOnce([journey]);
             mockedGetActiveTrip.mockReturnValueOnce(trips.trip1);
             const { container } = render(
-                <SegmentsSection {...props} />
+                <TestContextProvider>
+                    <SegmentsSection {...props} />
+                </TestContextProvider>
             );
             expect(container).toMatchSnapshot();
         });
@@ -204,7 +218,9 @@ describe('SegmentsSection UI display', () => {
             mockedGetJourneysArray.mockReturnValueOnce([journey]);
             mockedGetActiveTrip.mockReturnValueOnce(trips.trip1);
             const { container } = render(
-                <SegmentsSection {...props} />
+                <TestContextProvider>
+                    <SegmentsSection {...props} />
+                </TestContextProvider>
             );
             const results = await axe(container);
             expect(results).toHaveNoViolations();
@@ -216,7 +232,9 @@ describe('SegmentsSection UI display', () => {
             mockedGetJourneysArray.mockReturnValueOnce([{ ...journey, visitedPlaces: testVisitedPlaces }]);
             mockedGetNextVisitedPlace.mockReturnValueOnce(testVisitedPlaces.place3);
             const { container } = render(
-                <SegmentsSection {...props} />
+                <TestContextProvider>
+                    <SegmentsSection {...props} />
+                </TestContextProvider>
             );
             expect(container).toMatchSnapshot();
         });
@@ -227,7 +245,9 @@ describe('SegmentsSection UI display', () => {
             mockedGetJourneysArray.mockReturnValueOnce([{ ...journey, visitedPlaces: testVisitedPlaces }]);
             mockedGetNextVisitedPlace.mockReturnValueOnce(testVisitedPlaces.place2);
             const { container } = render(
-                <SegmentsSection {...props} />
+                <TestContextProvider>
+                    <SegmentsSection {...props} />
+                </TestContextProvider>
             );
             expect(container).toMatchSnapshot();
         });
@@ -239,7 +259,9 @@ describe('SegmentsSection UI display', () => {
         mockedGetActivePerson.mockReturnValueOnce(null);
         mockedGetActivePerson.mockReturnValueOnce(null);
         expect(() => render(
-            <SegmentsSection {...props} />
+            <TestContextProvider>
+                <SegmentsSection {...props} />
+            </TestContextProvider>
         )).toThrow('SegmentsSection: active person not found');
     });
 
@@ -248,7 +270,9 @@ describe('SegmentsSection UI display', () => {
         mockedGetJourneysArray.mockReturnValueOnce([]);
         mockedGetJourneysArray.mockReturnValueOnce([]);
         expect(() => render(
-            <SegmentsSection {...props} />
+            <TestContextProvider>
+                <SegmentsSection {...props} />
+            </TestContextProvider>
         )).toThrow('SegmentsSection: there are no journeys');
     });
 
@@ -277,7 +301,9 @@ describe('SegmentsSection UI display', () => {
         mockedGetJourneysArray.mockReturnValueOnce([journey]);
         mockedGetJourneysArray.mockReturnValueOnce([journey]);
         expect(() => render(
-            <SegmentsSection {...props} />
+            <TestContextProvider>
+                <SegmentsSection {...props} />
+            </TestContextProvider>
         )).toThrow('SegmentsSection: origin or destination not found');
     });
 });
@@ -287,7 +313,9 @@ describe('SegmentsSection behavior', () => {
     test('Click on the trip edit button for first trip', () => {
         mockedGetJourneysArray.mockReturnValueOnce([journey]);
         const { getAllByTitle } = render(
-            <SegmentsSection {...props} />
+            <TestContextProvider>
+                <SegmentsSection {...props} />
+            </TestContextProvider>
         );
         // Find the edit button
         const editButtons = getAllByTitle("trip.editTrip");
@@ -305,7 +333,9 @@ describe('SegmentsSection behavior', () => {
     test('Click on the trip edit button for second trip', () => {
         mockedGetJourneysArray.mockReturnValueOnce([journey]);
         const { getAllByTitle } = render(
-            <SegmentsSection {...props} />
+            <TestContextProvider>
+                <SegmentsSection {...props} />
+            </TestContextProvider>
         );
         // Find the edit button
         const editButtons = getAllByTitle("trip.editTrip");
