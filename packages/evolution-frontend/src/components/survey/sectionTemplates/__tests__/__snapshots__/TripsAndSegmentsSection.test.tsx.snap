@@ -102,12 +102,12 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
               class="survey-trip-item-element survey-trip-item-origin-description"
             >
               <img
-                alt="visitedPlaces/activities/home"
+                alt="activities.home"
                 src="/dist/icons/activities/home/home-marker_round.svg"
                 style="height: 4rem;"
               />
               <span>
-                visitedPlace.activities.home
+                activities.home
                 <br />
                 <em>
                    • 
@@ -137,12 +137,12 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
               class="survey-trip-item-element survey-trip-item-destination-description"
             >
               <img
-                alt="visitedPlaces/activities/restaurant"
+                alt="activities.restaurant"
                 src="/dist/icons/activities/other/restaurant-marker_round.svg"
                 style="height: 4rem;"
               />
               <span>
-                visitedPlace.activities.restaurant
+                activities.restaurant
               </span>
             </span>
           </li>
@@ -226,12 +226,12 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
               class="survey-trip-item-element survey-trip-item-origin-description"
             >
               <img
-                alt="visitedPlaces/activities/restaurant"
+                alt="activities.restaurant"
                 src="/dist/icons/activities/other/restaurant-marker_round.svg"
                 style="height: 4rem;"
               />
               <span>
-                visitedPlace.activities.restaurant
+                activities.restaurant
               </span>
             </span>
             <span
@@ -256,12 +256,12 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
               class="survey-trip-item-element survey-trip-item-destination-description"
             >
               <img
-                alt="visitedPlaces/activities/shopping"
+                alt="activities.shopping"
                 src="/dist/icons/activities/shopping/shopping_cart-marker_round.svg"
                 style="height: 4rem;"
               />
               <span>
-                visitedPlace.activities.shopping
+                activities.shopping
               </span>
             </span>
           </li>
@@ -393,12 +393,12 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
               class="survey-trip-item-element survey-trip-item-origin-description"
             >
               <img
-                alt="visitedPlaces/activities/home"
+                alt="activities.home"
                 src="/dist/icons/activities/home/home-marker_round.svg"
                 style="height: 4rem;"
               />
               <span>
-                visitedPlace.activities.home
+                activities.home
                 <br />
                 <em>
                    • 
@@ -428,12 +428,12 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
               class="survey-trip-item-element survey-trip-item-destination-description"
             >
               <img
-                alt="visitedPlaces/activities/workOnTheRoad"
+                alt="activities.workOnTheRoad"
                 src="/dist/icons/activities/work/truck-marker_round.svg"
                 style="height: 4rem;"
               />
               <span>
-                visitedPlace.activities.workOnTheRoad
+                activities.workOnTheRoad
               </span>
             </span>
             <span
@@ -458,12 +458,12 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
               class="survey-trip-item-element survey-trip-item-destination-description"
             >
               <img
-                alt="visitedPlaces/activities/shopping"
+                alt="activities.shopping"
                 src="/dist/icons/activities/shopping/shopping_cart-marker_round.svg"
                 style="height: 4rem;"
               />
               <span>
-                visitedPlace.activities.shopping
+                activities.shopping
               </span>
             </span>
           </li>
@@ -601,12 +601,12 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
               class="survey-trip-item-element survey-trip-item-origin-description"
             >
               <img
-                alt="visitedPlaces/activities/workOnTheRoad"
+                alt="activities.workOnTheRoad"
                 src="/dist/icons/activities/work/truck-marker_round.svg"
                 style="height: 4rem;"
               />
               <span>
-                visitedPlace.activities.workOnTheRoad
+                activities.workOnTheRoad
                 <br />
                 <em>
                    • 
@@ -636,12 +636,12 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
               class="survey-trip-item-element survey-trip-item-destination-description"
             >
               <img
-                alt="visitedPlaces/activities/restaurant"
+                alt="activities.restaurant"
                 src="/dist/icons/activities/other/restaurant-marker_round.svg"
                 style="height: 4rem;"
               />
               <span>
-                visitedPlace.activities.restaurant
+                activities.restaurant
               </span>
             </span>
           </li>
@@ -725,12 +725,12 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
               class="survey-trip-item-element survey-trip-item-origin-description"
             >
               <img
-                alt="visitedPlaces/activities/restaurant"
+                alt="activities.restaurant"
                 src="/dist/icons/activities/other/restaurant-marker_round.svg"
                 style="height: 4rem;"
               />
               <span>
-                visitedPlace.activities.restaurant
+                activities.restaurant
               </span>
             </span>
             <span
@@ -755,12 +755,12 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
               class="survey-trip-item-element survey-trip-item-destination-description"
             >
               <img
-                alt="visitedPlaces/activities/shopping"
+                alt="activities.shopping"
                 src="/dist/icons/activities/shopping/shopping_cart-marker_round.svg"
                 style="height: 4rem;"
               />
               <span>
-                visitedPlace.activities.shopping
+                activities.shopping
               </span>
             </span>
           </li>
@@ -872,12 +872,12 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
               class="survey-trip-item-element survey-trip-item-origin-description"
             >
               <img
-                alt="visitedPlaces/activities/home"
+                alt="activities.home"
                 src="/dist/icons/activities/home/home-marker_round.svg"
                 style="height: 4rem;"
               />
               <span>
-                visitedPlace.activities.home
+                activities.home
                 <br />
                 <em>
                    • 
@@ -907,12 +907,12 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
               class="survey-trip-item-element survey-trip-item-destination-description"
             >
               <img
-                alt="visitedPlaces/activities/restaurant"
+                alt="activities.restaurant"
                 src="/dist/icons/activities/other/restaurant-marker_round.svg"
                 style="height: 4rem;"
               />
               <span>
-                visitedPlace.activities.restaurant
+                activities.restaurant
               </span>
             </span>
           </li>
@@ -984,12 +984,12 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
               class="survey-trip-item-element survey-trip-item-origin-description"
             >
               <img
-                alt="visitedPlaces/activities/restaurant"
+                alt="activities.restaurant"
                 src="/dist/icons/activities/other/restaurant-marker_round.svg"
                 style="height: 4rem;"
               />
               <span>
-                visitedPlace.activities.restaurant
+                activities.restaurant
               </span>
             </span>
             <span
@@ -1014,12 +1014,12 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
               class="survey-trip-item-element survey-trip-item-destination-description"
             >
               <img
-                alt="visitedPlaces/activities/shopping"
+                alt="activities.shopping"
                 src="/dist/icons/activities/shopping/shopping_cart-marker_round.svg"
                 style="height: 4rem;"
               />
               <span>
-                visitedPlace.activities.shopping
+                activities.shopping
               </span>
             </span>
           </li>

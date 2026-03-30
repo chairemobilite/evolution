@@ -5,7 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import React, { JSX } from 'react';
-import { WithTranslation, withTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPencilAlt } from '@fortawesome/free-solid-svg-icons/faPencilAlt';
 import { faClock } from '@fortawesome/free-solid-svg-icons/faClock';
@@ -15,7 +15,6 @@ import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { Widget } from '../Widget';
 import { GroupedObject } from '../GroupWidgets';
 import LoadingPage from 'chaire-lib-frontend/lib/components/pages/LoadingPage';
-import { withSurveyContext, WithSurveyContextProps } from '../../hoc/WithSurveyContextHoc';
 import { getResponse } from 'evolution-common/lib/utils/helpers';
 import { SectionProps, useSectionTemplate } from '../../hooks/useSectionTemplate';
 import * as odSurveyHelper from 'evolution-common/lib/services/odSurvey/helpers';
@@ -23,14 +22,15 @@ import * as helpers from 'evolution-common/lib/utils/helpers';
 import { secondsSinceMidnightToTimeStrWithSuffix } from '../../../services/display/frontendHelper';
 import { VisitedPlace } from 'evolution-common/lib/services/questionnaire/types';
 import { getActivityMarkerIcon } from 'evolution-common/lib/services/questionnaire/sections/visitedPlaces/activityIconMapping';
+import { SurveyContext } from '../../../contexts/SurveyContext';
 
-export const SegmentsSection: React.FC<SectionProps & WithTranslation & WithSurveyContextProps> = (
-    props: SectionProps & WithTranslation & WithSurveyContextProps
-) => {
+export const SegmentsSection: React.FC<SectionProps> = (props: SectionProps) => {
     const { preloaded } = useSectionTemplate(props);
+    const { t } = useTranslation(['survey', 'segments', 'visitedPlaces']);
+    const surveyContext = React.useContext(SurveyContext);
     const iconPathsByMode = React.useMemo(() => {
         const iconPathsByMode = {};
-        const modes = props.surveyContext.widgets['segmentMode'].choices;
+        const modes = surveyContext.widgets['segmentMode'].choices;
         for (let i = 0, count = modes.length; i < count; i++) {
             const mode = modes[i].value;
             const iconPath = modes[i].iconPath;
@@ -56,7 +56,7 @@ export const SegmentsSection: React.FC<SectionProps & WithTranslation & WithSurv
     helpers.devLog('%c rendering section ' + props.shortname, 'background: rgba(0,0,255,0.1);');
     const widgetsComponentsByShortname = {};
     // FIXME We need to make sure a widget by that name exists in the survey context
-    const personTripsConfig = props.surveyContext.widgets['personTrips'];
+    const personTripsConfig = surveyContext.widgets['personTrips'];
 
     // Get the trips of the active journey/person
     const person = odSurveyHelper.getActivePerson({ interview: props.interview });
@@ -147,7 +147,7 @@ export const SegmentsSection: React.FC<SectionProps & WithTranslation & WithSurv
                             <img
                                 src={iconPathsByMode[segment.mode]}
                                 style={{ height: '1.5em', marginLeft: '0.3em' }}
-                                alt={props.t(`segments:mode:short:${segment.mode}`)}
+                                alt={t(`segments:mode:short:${segment.mode}`)}
                             />
                         </React.Fragment>
                     );
@@ -164,7 +164,7 @@ export const SegmentsSection: React.FC<SectionProps & WithTranslation & WithSurv
                 key={`survey-trip-item__${i}`}
             >
                 <span className="survey-trip-item-element survey-trip-item-sequence-and-icon">
-                    <em>{props.t('survey:trip:tripSeq', { seq: tripSequence })}</em>
+                    <em>{t('survey:trip:tripSeq', { seq: tripSequence })}</em>
                 </span>
                 <span className="survey-trip-item-element survey-trip-item-buttons">
                     <FontAwesomeIcon icon={faClock} style={{ marginRight: '0.3rem', marginLeft: '0.6rem' }} />
@@ -179,7 +179,7 @@ export const SegmentsSection: React.FC<SectionProps & WithTranslation & WithSurv
                             className={'survey-section__button button blue small'}
                             onClick={(e) => selectTrip(trip._uuid!, e)}
                             style={{ marginLeft: '0.5rem' }}
-                            title={props.t('survey:trip:editTrip')}
+                            title={t('survey:trip:editTrip')}
                         >
                             <FontAwesomeIcon icon={faPencilAlt} className="" />
                         </button>
@@ -200,10 +200,10 @@ export const SegmentsSection: React.FC<SectionProps & WithTranslation & WithSurv
                         <img
                             src={getActivityMarkerIcon(origin.activity)}
                             style={{ height: '4rem' }}
-                            alt={props.t(`visitedPlaces/activities/${origin.activity}`)}
+                            alt={t(`visitedPlaces:activities:${origin.activity}`)}
                         />
                         <span>
-                            {props.t(`survey:visitedPlace:activities:${origin.activity}`)}
+                            {t(`visitedPlaces:activities:${origin.activity}`)}
                             {actualOrigin.name && (
                                 <React.Fragment>
                                     <br />
@@ -219,10 +219,10 @@ export const SegmentsSection: React.FC<SectionProps & WithTranslation & WithSurv
                         <img
                             src={getActivityMarkerIcon(destination.activity)}
                             style={{ height: '4rem' }}
-                            alt={props.t(`visitedPlaces/activities/${destination.activity}`)}
+                            alt={t(`visitedPlaces:activities:${destination.activity}`)}
                         />
                         <span>
-                            {props.t(`survey:visitedPlace:activities:${destination.activity}`)}
+                            {t(`visitedPlaces:activities:${destination.activity}`)}
                             {actualDestination.name && (
                                 <React.Fragment>
                                     <br />
@@ -243,10 +243,10 @@ export const SegmentsSection: React.FC<SectionProps & WithTranslation & WithSurv
                                 <img
                                     src={getActivityMarkerIcon(nextDestination.activity)}
                                     style={{ height: '4rem' }}
-                                    alt={props.t(`visitedPlaces/activities/${nextDestination.activity}`)}
+                                    alt={t(`visitedPlaces:activities:${nextDestination.activity}`)}
                                 />
                                 <span>
-                                    {props.t(`survey:visitedPlace:activities:${nextDestination.activity}`)}
+                                    {t(`visitedPlaces:activities:${nextDestination.activity}`)}
                                     {nextDestination.name && (
                                         <React.Fragment>
                                             <br />
@@ -332,4 +332,4 @@ export const SegmentsSection: React.FC<SectionProps & WithTranslation & WithSurv
     );
 };
 
-export default withTranslation()(withSurveyContext(SegmentsSection));
+export default SegmentsSection;
