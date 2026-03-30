@@ -8,6 +8,7 @@ import request from 'supertest';
 import express, { RequestHandler } from 'express';
 import { execFile } from 'child_process';
 import router from 'chaire-lib-backend/lib/api/admin.routes';
+import '../admin.routes';
 
 jest.mock('child_process', () => {
     const execFileMock = jest.fn();
@@ -26,10 +27,9 @@ jest.mock('chaire-lib-backend/lib/services/auth/authorization', () => ({
     isAdmin: jest.fn().mockReturnValue(jest.fn().mockImplementation((_req, _res, next) => next()))
 }));
 
-const execFileMock = execFile as unknown as jest.MockedFunction<typeof execFile>;
+const execFileMock = execFile as jest.MockedFunction<typeof execFile>;
 
-// Register evolution-specific admin routes onto the shared admin router.
-import '../admin.routes';
+
 
 let app: express.Application;
 
@@ -101,6 +101,27 @@ describe('/generator/verify route', () => {
         expect(response.body).toEqual({
             status: 'error',
             error: errors.join('\n')
+        });
+    });
+
+    it('Should return 500 when Excel integrity check produces no output', async () => {
+        execFileMock.mockReturnValueOnce({ stdout: '', stderr: '' } as unknown as ReturnType<typeof execFile>);
+
+        const response = await request(app)
+            .post('/api/admin/generator/verify')
+            .attach(
+                'generatorFile',
+                Buffer.from('dummy'),
+                {
+                    filename: 'test.xlsx',
+                    contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                }
+            );
+
+        expect(response.status).toBe(500);
+        expect(response.body).toMatchObject({
+            status: 'error',
+            error: 'Excel integrity check produced no output'
         });
     });
 

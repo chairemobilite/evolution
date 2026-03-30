@@ -190,6 +190,16 @@ router.post('/generator/verify', (req: Request, res: Response) => {
                     .split('\n')
                     .map((line) => line.trim())
                     .filter((line) => line.length > 0);
+
+                // No output from the CLI → error
+                if (outputLines.length === 0) {
+                    return respondError({
+                        res,
+                        message: 'Excel integrity check produced no output',
+                        httpStatus: 500
+                    });
+                }
+
                 // Contract: stdout is a single JSON object (human-readable issues are inside `errors`, see check_excel_integrity_cli.py).
                 const lastLine = outputLines[outputLines.length - 1];
                 const parsedResult = JSON.parse(lastLine) as {

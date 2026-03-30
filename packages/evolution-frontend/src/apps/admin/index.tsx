@@ -63,6 +63,7 @@ export default () => {
                             {/* This is to render success and error messages in the admin */}
                             <Toaster
                                 duration={8000}
+                                // closeButton={true} // Allow closing the toast by clicking the close button
                                 toastOptions={{
                                     classNames: {
                                         success: 'admin-sonner-toast--success',

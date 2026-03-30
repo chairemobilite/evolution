@@ -213,7 +213,11 @@ const AdminGeneratorPage: React.FunctionComponent = () => {
             // 200 but not Status.ok
             toast.error(t('admin:generator:GeneratorVerifyErrorFallback'));
         } catch (error) {
-            const message = error instanceof Error ? error.message : t('admin:generator:GeneratorVerifyRequestFailed');
+            const isNetworkFailure =
+                error instanceof Error && (error.message.includes('Failed to fetch') || error.name === 'TypeError');
+            const message = isNetworkFailure
+                ? t('admin:generator:GeneratorVerifyRequestFailed')
+                : t('admin:generator:GeneratorVerifyErrorFallback');
             toast.error(message);
         } finally {
             setIsVerifying(false);
