@@ -328,7 +328,7 @@ export const sectionConfig: SectionConfig = {
     enableConditional: function (interview) {
         return isSectionComplete({ interview, sectionName: previousSectionName });
     },
-    // Allow to click on the section menu
+    // Determine if the current section is completed
     completionConditional: function (interview) {
         return isSectionComplete({ interview, sectionName: currentSectionName });
     }
