@@ -194,7 +194,9 @@ def generate_section_configs(excel_file_path: str, section_config_output_folder:
                     )
                     ts_section_code += f"{INDENT}{INDENT}return isSectionCompleted({{ interview, sectionName: previousSectionName }});\n"
                     ts_section_code += f"{INDENT}}},\n"
-                ts_section_code += f"{INDENT}// Allow to click on the section menu\n"
+                ts_section_code += (
+                    f"{INDENT}// Determine if the current section is completed\n"
+                )
                 ts_section_code += (
                     f"{INDENT}completionConditional: function (interview) {{\n"
                 )
