@@ -1,4 +1,4 @@
-@use "settings";
+@use 'settings';
 
 .admin {
     display: flex;
@@ -351,7 +351,6 @@ table {
     background: none; // For list items (ex. list of lines in agency) we have our own background color, so we disable react-collapsible's.
 }
 
-
 // Show the user name in the top header
 header {
     #item-nav-user {
@@ -533,7 +532,8 @@ header {
     transition:
         width 0.1s ease,
         height 0.1s ease;
-    filter: drop-shadow(1px 0 0 white) drop-shadow(-1px 0 0 white) drop-shadow(0px 1px 0 white) drop-shadow(0px -1px 0 white);
+    filter: drop-shadow(1px 0 0 white) drop-shadow(-1px 0 0 white) drop-shadow(0px 1px 0 white)
+        drop-shadow(0px -1px 0 white);
     pointer-events: none;
 
     &.dragging {
@@ -843,6 +843,18 @@ header {
 [data-sonner-toaster] .admin-sonner-toast--error[data-styled='true'],
 [data-sonner-toaster] .admin-sonner-toast--info[data-styled='true'] {
     border: 1px solid black;
+}
+
+// Note: we need to use !important to override the default styles of the sonner package.
+[data-sonner-toaster] .admin-sonner-toast--close-button {
+    border-color: black !important;
+    width: 30px !important;
+    height: 30px !important;
+    
+    svg {
+        width: 16px !important;
+        height: 16px !important;
+    }
 }
 
 [data-sonner-toaster] .admin-sonner-toast--success [data-icon] {
