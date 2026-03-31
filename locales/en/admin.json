@@ -249,6 +249,11 @@
         "GeneratorVerifySuccess": "Excel file passed the integrity check.",
         "GeneratorVerifyNoFile": "Select an Excel file to verify.",
         "GeneratorVerifyRequestFailed": "Could not reach the server.",
-        "GeneratorVerifyErrorFallback": "Verification failed."
+        "GeneratorVerifyErrorFallback": "Verification failed.",
+        "GeneratorVerifyErrorTitle": "Verification errors",
+        "GeneratorVerifyErrorCopy": "Copy",
+        "GeneratorVerifyErrorDismiss": "Dismiss",
+        "GeneratorVerifyErrorCopied": "Copied to clipboard.",
+        "GeneratorVerifyErrorCopyFailed": "Could not copy to clipboard."
     }
 }

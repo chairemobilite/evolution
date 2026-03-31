@@ -174,6 +174,7 @@ const AdminGeneratorPage: React.FunctionComponent = () => {
     const { t } = useTranslation();
     const [excelFile, setExcelFile] = useState<File | null>(null);
     const [isVerifying, setIsVerifying] = useState(false);
+    const [verifyError, setVerifyError] = useState<string | null>(null); // Excel validation error message to display to the user
 
     // Verify the Excel file and show a toast for the outcome.
     const onVerifyClick = useCallback(async () => {
@@ -184,6 +185,7 @@ const AdminGeneratorPage: React.FunctionComponent = () => {
             toast.error(t('admin:generator:GeneratorVerifyNoFile'));
             return;
         }
+        setVerifyError(null);
         setIsVerifying(true);
         try {
             const formData = new FormData();
@@ -203,22 +205,23 @@ const AdminGeneratorPage: React.FunctionComponent = () => {
             // 4xx/5xx: show API error string when present
             if (!response.ok) {
                 const serverMessage = Status.isStatusError(data) && typeof data.error === 'string' ? data.error : null;
-                toast.error(serverMessage ?? t('admin:generator:GeneratorVerifyErrorFallback'));
+                setVerifyError(serverMessage ?? t('admin:generator:GeneratorVerifyErrorFallback'));
                 return;
             }
             if (Status.isStatusOk(data)) {
+                setVerifyError(null);
                 toast.success(t('admin:generator:GeneratorVerifySuccess'));
                 return;
             }
             // 200 but not Status.ok
-            toast.error(t('admin:generator:GeneratorVerifyErrorFallback'));
+            setVerifyError(t('admin:generator:GeneratorVerifyErrorFallback'));
         } catch (error) {
             const isNetworkFailure =
                 error instanceof Error && (error.message.includes('Failed to fetch') || error.name === 'TypeError');
             const message = isNetworkFailure
                 ? t('admin:generator:GeneratorVerifyRequestFailed')
                 : t('admin:generator:GeneratorVerifyErrorFallback');
-            toast.error(message);
+            setVerifyError(message);
         } finally {
             setIsVerifying(false);
         }
@@ -229,10 +232,44 @@ const AdminGeneratorPage: React.FunctionComponent = () => {
             <div className="survey-section__content apptr__form-container">
                 <h2>{t('admin:generator:GeneratorTitle')}</h2>
                 <p>{t('admin:generator:GeneratorDescription')}</p>
-                <GeneratorExcelFileInput file={excelFile} onFileChange={setExcelFile} />
+                <GeneratorExcelFileInput
+                    file={excelFile}
+                    onFileChange={(file) => {
+                        setExcelFile(file);
+                        setVerifyError(null);
+                    }}
+                />
                 <button type="button" onClick={onVerifyClick} disabled={isVerifying}>
                     {t('admin:generator:GeneratorButton')}
                 </button>
+
+                {/* Display the validation error message to the user if it exists */}
+                {verifyError && (
+                    <div className="admin-generator-verify-error" role="alert" aria-live="polite">
+                        <div className="admin-generator-verify-error__header">
+                            <strong>{t('admin:generator:GeneratorVerifyErrorTitle')}</strong>
+                            <div className="admin-generator-verify-error__actions">
+                                <button
+                                    type="button"
+                                    onClick={async () => {
+                                        try {
+                                            await navigator.clipboard.writeText(verifyError);
+                                            toast.success(t('admin:generator:GeneratorVerifyErrorCopied'));
+                                        } catch {
+                                            toast.error(t('admin:generator:GeneratorVerifyErrorCopyFailed'));
+                                        }
+                                    }}
+                                >
+                                    {t('admin:generator:GeneratorVerifyErrorCopy')}
+                                </button>
+                                <button type="button" onClick={() => setVerifyError(null)}>
+                                    {t('admin:generator:GeneratorVerifyErrorDismiss')}
+                                </button>
+                            </div>
+                        </div>
+                        <pre className="admin-generator-verify-error__content">{verifyError}</pre>
+                    </div>
+                )}
             </div>
         </div>
     );

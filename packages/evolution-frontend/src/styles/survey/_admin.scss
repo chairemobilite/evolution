@@ -732,6 +732,50 @@ header {
         }
     }
 
+    .admin-generator-verify-error {
+        width: 100%;
+        max-width: 40rem;
+        border: 1px solid rgba(0, 0, 0, 0.25);
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.9);
+        padding: 0.75rem 0.75rem;
+        text-align: left;
+    }
+
+    .admin-generator-verify-error__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .admin-generator-verify-error__actions {
+        display: flex;
+        gap: 0.5rem;
+
+        button {
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: settings.$font-size-small;
+        }
+    }
+
+    .admin-generator-verify-error__content {
+        margin: 0;
+        white-space: pre-wrap;
+        word-break: break-word;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+        font-size: settings.$font-size-small;
+        color: rgba(0, 0, 0, 0.85);
+        max-height: 18rem;
+        overflow: auto;
+        background: rgba(0, 0, 0, 0.03);
+        border-radius: 10px;
+        padding: 0.75rem;
+        border: 1px solid rgba(0, 0, 0, 0.12);
+    }
+
     .admin-generator-excel-file {
         position: relative;
         width: 100%;

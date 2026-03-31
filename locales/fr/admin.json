@@ -249,6 +249,11 @@
         "GeneratorVerifySuccess": "Le fichier Excel a réussi la vérification d'intégrité.",
         "GeneratorVerifyNoFile": "Sélectionnez un fichier Excel à vérifier.",
         "GeneratorVerifyRequestFailed": "Impossible de joindre le serveur.",
-        "GeneratorVerifyErrorFallback": "La vérification a échoué."
+        "GeneratorVerifyErrorFallback": "La vérification a échoué.",
+        "GeneratorVerifyErrorTitle": "Erreurs de vérification",
+        "GeneratorVerifyErrorCopy": "Copier",
+        "GeneratorVerifyErrorDismiss": "Fermer",
+        "GeneratorVerifyErrorCopied": "Copié dans le presse-papiers.",
+        "GeneratorVerifyErrorCopyFailed": "Impossible de copier dans le presse-papiers."
     }
 }
