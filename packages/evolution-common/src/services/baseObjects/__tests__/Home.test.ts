@@ -119,6 +119,30 @@ describe('Home', () => {
         });
     });
 
+    describe('completeness mixin values', () => {
+        it('should leave completeness undefined when not provided', () => {
+            const home = new Home(createValidHomeAttributes(), registry);
+            expect(home.hasMinimum).toBeUndefined();
+            expect(home.isStarted).toBeUndefined();
+            expect(home.isCompleted).toBeUndefined();
+        });
+
+        it('should preserve provided completeness booleans', () => {
+            const home = new Home(
+                {
+                    ...createValidHomeAttributes(),
+                    hasMinimum: true,
+                    isStarted: true,
+                    isCompleted: false
+                },
+                registry
+            );
+            expect(home.hasMinimum).toBe(true);
+            expect(home.isStarted).toBe(true);
+            expect(home.isCompleted).toBe(false);
+        });
+    });
+
     describe('create', () => {
         it('should create a Home instance with valid attributes', () => {
             const validHomeAttributes = createValidHomeAttributes();

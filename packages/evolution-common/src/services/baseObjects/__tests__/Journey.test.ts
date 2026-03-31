@@ -14,6 +14,7 @@ import { WeightMethod, WeightMethodAttributes } from '../WeightMethod';
 import { isOk, hasErrors, unwrap } from '../../../types/Result.type';
 import { startEndDateAndTimesAttributes } from '../StartEndable';
 import { SurveyObjectsRegistry } from '../SurveyObjectsRegistry';
+import { completableAttributeNames } from '../attributeTypes/CompletableAttributes';
 
 describe('Journey', () => {
     let registry: SurveyObjectsRegistry;
@@ -91,9 +92,17 @@ describe('Journey', () => {
 
     test('should have a validateParams section for each attribute', () => {
         const validateParamsCode = Journey.validateParams.toString();
-        journeyAttributes.filter((attribute) => attribute !== '_uuid' && attribute !== '_weights' && !(startEndDateAndTimesAttributes as unknown as string[]).includes(attribute)).forEach((attributeName) => {
-            expect(validateParamsCode).toContain('\'' + attributeName + '\'');
-        });
+        journeyAttributes
+            .filter(
+                (attribute) =>
+                    attribute !== '_uuid' &&
+                    attribute !== '_weights' &&
+                    !completableAttributeNames.includes(attribute as 'hasMinimum' | 'isCompleted' | 'isStarted') &&
+                    !(startEndDateAndTimesAttributes as unknown as string[]).includes(attribute)
+            )
+            .forEach((attributeName) => {
+                expect(validateParamsCode).toContain('\'' + attributeName + '\'');
+            });
     });
 
     test('should get uuid', () => {
@@ -150,6 +159,30 @@ describe('Journey', () => {
         expect(journey.isValid()).toBe(true);
     });
 
+    describe('completeness mixin values', () => {
+        test('should leave completeness undefined when not provided', () => {
+            const journey = new Journey(validAttributes, registry);
+            expect(journey.hasMinimum).toBeUndefined();
+            expect(journey.isStarted).toBeUndefined();
+            expect(journey.isCompleted).toBeUndefined();
+        });
+
+        test('should preserve provided completeness booleans', () => {
+            const journey = new Journey(
+                {
+                    ...validAttributes,
+                    hasMinimum: true,
+                    isStarted: true,
+                    isCompleted: false
+                },
+                registry
+            );
+            expect(journey.hasMinimum).toBe(true);
+            expect(journey.isStarted).toBe(true);
+            expect(journey.isCompleted).toBe(false);
+        });
+    });
+
     test('should create a Journey instance with custom attributes', () => {
         const customAttributes = {
             customAttribute1: 'value1',
@@ -182,6 +215,9 @@ describe('Journey', () => {
             ['didTrips', 123],
             ['previousWeekRemoteWorkDays', 'invalid'],
             ['previousWeekTravelToWorkDays', 'invalid'],
+            ['hasMinimum', 'invalid'],
+            ['isCompleted', 'invalid'],
+            ['isStarted', 'invalid'],
             ['preData', 'invalid'],
             ['preData', []],
             ['preData', new Date() as any],

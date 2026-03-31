@@ -14,6 +14,7 @@ import { Routing } from '../Routing';
 import { startEndDateAndTimesAttributes } from '../StartEndable';
 import { modeValues, mapModeToModeCategory, modeCategoryValues, Mode } from '../attributeTypes/SegmentAttributes';
 import { SurveyObjectsRegistry } from '../SurveyObjectsRegistry';
+import { completableAttributeNames } from '../attributeTypes/CompletableAttributes';
 
 describe('Segment', () => {
     let registry: SurveyObjectsRegistry;
@@ -73,9 +74,17 @@ describe('Segment', () => {
 
     test('should have a validateParams section for each attribute', () => {
         const validateParamsCode = Segment.validateParams.toString();
-        segmentAttributes.filter((attribute) => attribute !== '_uuid' && attribute !== '_weights' && !(startEndDateAndTimesAttributes as unknown as string[]).includes(attribute)).forEach((attributeName) => {
-            expect(validateParamsCode).toContain('\'' + attributeName + '\'');
-        });
+        segmentAttributes
+            .filter(
+                (attribute) =>
+                    attribute !== '_uuid' &&
+                    attribute !== '_weights' &&
+                    !completableAttributeNames.includes(attribute as 'hasMinimum' | 'isCompleted' | 'isStarted') &&
+                    !(startEndDateAndTimesAttributes as unknown as string[]).includes(attribute)
+            )
+            .forEach((attributeName) => {
+                expect(validateParamsCode).toContain('\'' + attributeName + '\'');
+            });
     });
 
     test('should get uuid', () => {
@@ -125,6 +134,30 @@ describe('Segment', () => {
         expect(segment.isValid()).toBe(true);
     });
 
+    describe('completeness mixin values', () => {
+        test('should leave completeness undefined when not provided', () => {
+            const segment = new Segment(validAttributes, registry);
+            expect(segment.hasMinimum).toBeUndefined();
+            expect(segment.isStarted).toBeUndefined();
+            expect(segment.isCompleted).toBeUndefined();
+        });
+
+        test('should preserve provided completeness booleans', () => {
+            const segment = new Segment(
+                {
+                    ...validAttributes,
+                    hasMinimum: true,
+                    isStarted: true,
+                    isCompleted: false
+                },
+                registry
+            );
+            expect(segment.hasMinimum).toBe(true);
+            expect(segment.isStarted).toBe(true);
+            expect(segment.isCompleted).toBe(false);
+        });
+    });
+
     test('should create a Segment instance with custom attributes', () => {
         const customAttributes = {
             customAttribute1: 'value1',
@@ -158,6 +191,9 @@ describe('Segment', () => {
             ['onDemandType', 123],
             ['busLines', 'invalid'],
             ['busLines', [undefined, 'Line']],
+            ['hasMinimum', 'invalid'],
+            ['isCompleted', 'invalid'],
+            ['isStarted', 'invalid'],
             ['preData', 'invalid'],
             ['preData', []],
             ['preData', new Date() as any],

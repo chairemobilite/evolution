@@ -7,6 +7,7 @@
 
 import { SchoolPlace } from '../SchoolPlace';
 import { placeAttributes } from '../Place';
+import { completableAttributeNames } from '../attributeTypes/CompletableAttributes';
 import { v4 as uuidV4 } from 'uuid';
 import { WeightMethod, WeightMethodAttributes } from '../WeightMethod';
 import { isOk, hasErrors, unwrap } from '../../../types/Result.type';
@@ -73,9 +74,16 @@ describe('SchoolPlace', () => {
 
     test('should have a validateParams section for each attribute', () => {
         const validateParamsCode = SchoolPlace.validateParams.toString();
-        placeAttributes.filter((attribute) => attribute !== '_uuid' && attribute !== '_weights').forEach((attributeName) => {
-            expect(validateParamsCode).toContain('\''+attributeName+'\'');
-        });
+        placeAttributes
+            .filter(
+                (attribute) =>
+                    attribute !== '_uuid' &&
+                    attribute !== '_weights' &&
+                    !completableAttributeNames.includes(attribute as 'hasMinimum' | 'isCompleted' | 'isStarted')
+            )
+            .forEach((attributeName) => {
+                expect(validateParamsCode).toContain('\'' + attributeName + '\'');
+            });
     });
 
     test('should get uuid', () => {
@@ -130,6 +138,30 @@ describe('SchoolPlace', () => {
         const schoolPlace = new SchoolPlace(validPlaceAttributes, registry);
         expect(schoolPlace.validate()).toBe(true);
         expect(schoolPlace.isValid()).toBe(true);
+    });
+
+    describe('completeness mixin values', () => {
+        test('should leave completeness undefined when not provided', () => {
+            const schoolPlace = new SchoolPlace(validSchoolPlaceAttributes, registry);
+            expect(schoolPlace.hasMinimum).toBeUndefined();
+            expect(schoolPlace.isStarted).toBeUndefined();
+            expect(schoolPlace.isCompleted).toBeUndefined();
+        });
+
+        test('should preserve provided completeness booleans', () => {
+            const schoolPlace = new SchoolPlace(
+                {
+                    ...validSchoolPlaceAttributes,
+                    hasMinimum: true,
+                    isStarted: true,
+                    isCompleted: false
+                },
+                registry
+            );
+            expect(schoolPlace.hasMinimum).toBe(true);
+            expect(schoolPlace.isStarted).toBe(true);
+            expect(schoolPlace.isCompleted).toBe(false);
+        });
     });
 
     test('should create a SchoolPlace instance with custom attributes', () => {

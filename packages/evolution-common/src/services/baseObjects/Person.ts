@@ -10,6 +10,8 @@ import _omit from 'lodash/omit';
 import { Optional } from '../../types/Optional.type';
 import { PreData } from '../../types/shared';
 import { IValidatable, ValidatebleAttributes } from './IValidatable';
+import { CompletableAttributes, completableAttributeNames } from './attributeTypes/CompletableAttributes';
+import { Completable, validateCompletableParams } from './Completable';
 import { WeightableAttributes, Weight, validateWeights } from './Weight';
 import { Uuidable, UuidableAttributes } from './Uuidable';
 import { WorkPlace } from './WorkPlace';
@@ -32,6 +34,7 @@ export const personAttributes = [
     '_weights',
     '_isValid',
     '_uuid',
+    ...completableAttributeNames,
     '_sequence',
     '_color',
     '_keepDiscard',
@@ -82,6 +85,7 @@ export const nonStringAttributes = [
     '_weights',
     '_isValid',
     '_uuid',
+    ...completableAttributeNames,
     '_sequence',
     'age',
     'transitPasses',
@@ -140,7 +144,8 @@ export type PersonAttributes = {
     preData?: Optional<PreData>;
 } & UuidableAttributes &
     WeightableAttributes &
-    ValidatebleAttributes;
+    ValidatebleAttributes &
+    CompletableAttributes;
 
 export type PersonWithComposedAttributes = PersonAttributes & {
     _workPlaces?: Optional<ExtendedPlaceAttributes[]>;
@@ -164,7 +169,7 @@ export type SerializedExtendedPersonAttributes = {
  * A person is a member of a household. it can have these composed objects:
  * workPlaces, schoolPlaces, journeys, vehicles
  */
-export class Person extends Uuidable implements IValidatable {
+export class Person extends Completable(Uuidable) implements IValidatable {
     private _surveyObjectsRegistry: SurveyObjectsRegistry;
     private _attributes: PersonAttributes;
     private _customAttributes: { [key: string]: unknown };
@@ -892,6 +897,8 @@ export class Person extends Uuidable implements IValidatable {
 
         // Validate _isValid:
         errors.push(...ParamsValidatorUtils.isBoolean('_isValid', dirtyParams._isValid, displayName));
+
+        errors.push(...validateCompletableParams(dirtyParams, displayName));
 
         errors.push(...ParamsValidatorUtils.isPositiveInteger('_sequence', dirtyParams._sequence, displayName));
 

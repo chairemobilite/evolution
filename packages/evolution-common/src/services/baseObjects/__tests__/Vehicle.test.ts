@@ -10,6 +10,7 @@ import { v4 as uuidV4 } from 'uuid';
 import { WeightMethod, WeightMethodAttributes } from '../WeightMethod';
 import { isOk, hasErrors, unwrap } from '../../../types/Result.type';
 import { SurveyObjectsRegistry } from '../SurveyObjectsRegistry';
+import { completableAttributeNames } from '../attributeTypes/CompletableAttributes';
 
 describe('Vehicle', () => {
     let registry: SurveyObjectsRegistry;
@@ -57,9 +58,16 @@ describe('Vehicle', () => {
 
     test('should have a validateParams section for each attribute', () => {
         const validateParamsCode = Vehicle.validateParams.toString();
-        vehicleAttributes.filter((attribute) => attribute !== '_uuid' && attribute !== '_weights').forEach((attributeName) => {
-            expect(validateParamsCode).toContain('\'' + attributeName + '\'');
-        });
+        vehicleAttributes
+            .filter(
+                (attribute) =>
+                    attribute !== '_uuid' &&
+                    attribute !== '_weights' &&
+                    !completableAttributeNames.includes(attribute as 'hasMinimum' | 'isCompleted' | 'isStarted')
+            )
+            .forEach((attributeName) => {
+                expect(validateParamsCode).toContain('\'' + attributeName + '\'');
+            });
     });
 
     test('should get uuid', () => {
@@ -114,6 +122,9 @@ describe('Vehicle', () => {
         ['isElectric', 'invalid'],
         ['isPluginHybrid', 'invalid'],
         ['isHybrid', 'invalid'],
+        ['hasMinimum', 'invalid'],
+        ['isCompleted', 'invalid'],
+        ['isStarted', 'invalid'],
         ['acquiredYear', 'invalid'],
         ['licensePlateNumber', 123],
         ['internalId', 123],
@@ -132,6 +143,30 @@ describe('Vehicle', () => {
         const vehicle = new Vehicle(validAttributes, registry);
         expect(vehicle.validate()).toBe(true);
         expect(vehicle.isValid()).toBe(true);
+    });
+
+    describe('completeness mixin values', () => {
+        test('should leave completeness undefined when not provided', () => {
+            const vehicle = new Vehicle(validAttributes, registry);
+            expect(vehicle.hasMinimum).toBeUndefined();
+            expect(vehicle.isStarted).toBeUndefined();
+            expect(vehicle.isCompleted).toBeUndefined();
+        });
+
+        test('should preserve provided completeness booleans', () => {
+            const vehicle = new Vehicle(
+                {
+                    ...validAttributes,
+                    hasMinimum: true,
+                    isStarted: true,
+                    isCompleted: false
+                },
+                registry
+            );
+            expect(vehicle.hasMinimum).toBe(true);
+            expect(vehicle.isStarted).toBe(true);
+            expect(vehicle.isCompleted).toBe(false);
+        });
     });
 
     test('should create a Vehicle instance with custom attributes', () => {

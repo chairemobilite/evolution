@@ -18,6 +18,8 @@ import { Result, createErrors, createOk } from '../../types/Result.type';
 import { ParamsValidatorUtils } from '../../utils/ParamsValidatorUtils';
 import { Uuidable, UuidableAttributes } from './Uuidable';
 import { IValidatable, ValidatebleAttributes } from './IValidatable';
+import { CompletableAttributes, completableAttributeNames } from './attributeTypes/CompletableAttributes';
+import { Completable, validateCompletableParams } from './Completable';
 import { WeightableAttributes, Weight, validateWeights } from './Weight';
 import { ConstructorUtils } from '../../utils/ConstructorUtils';
 import { SerializedExtendedAddressAttributes } from './Address';
@@ -28,6 +30,7 @@ export const placeAttributes = [
     '_weights',
     '_isValid',
     '_uuid',
+    ...completableAttributeNames,
     'geography',
     'name',
     'shortname',
@@ -71,7 +74,8 @@ export type PlaceAttributes = {
     preGeography?: Optional<GeoJSON.Feature<GeoJSON.Point>>;
 } & UuidableAttributes &
     WeightableAttributes &
-    ValidatebleAttributes;
+    ValidatebleAttributes &
+    CompletableAttributes;
 
 export type PlaceWithComposedAttributes = PlaceAttributes & {
     _address?: Optional<AddressAttributes>;
@@ -89,7 +93,7 @@ export type SerializedExtendedPlaceAttributes = {
  * A place is a location (GeoJSON point) with attributes.
  * Classes can inherit this class and add their own attributes (like a work place, a school place, a junction, etc.).
  */
-export class Place extends Uuidable implements IValidatable {
+export class Place extends Completable(Uuidable) implements IValidatable {
     private _surveyObjectsRegistry: SurveyObjectsRegistry;
     protected _attributes: ExtendedPlaceAttributes;
     protected _customAttributes: { [key: string]: unknown };
@@ -380,6 +384,8 @@ export class Place extends Uuidable implements IValidatable {
 
         // Validate _isValid:
         errors.push(...ParamsValidatorUtils.isBoolean('_isValid', dirtyParams._isValid, displayName));
+
+        errors.push(...validateCompletableParams(dirtyParams, displayName));
 
         // Validate _weights:
         errors.push(...validateWeights(dirtyParams._weights as Optional<Weight[]>));

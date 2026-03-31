@@ -10,6 +10,8 @@ import _omit from 'lodash/omit';
 import { Optional } from '../../types/Optional.type';
 import { PreData } from '../../types/shared';
 import { IValidatable, ValidatebleAttributes } from './IValidatable';
+import { CompletableAttributes, completableAttributeNames } from './attributeTypes/CompletableAttributes';
+import { Completable, validateCompletableParams } from './Completable';
 import { Uuidable, UuidableAttributes } from './Uuidable';
 import { WeightableAttributes, Weight, validateWeights } from './Weight';
 import * as SAttr from './attributeTypes/SegmentAttributes';
@@ -32,6 +34,7 @@ export const segmentAttributes = [
     '_weights',
     '_isValid',
     '_uuid',
+    ...completableAttributeNames,
     '_sequence',
     'mode',
     'modeOtherSpecify',
@@ -93,7 +96,8 @@ export type SegmentAttributes = {
 } & StartEndDateAndTimesAttributes &
     UuidableAttributes &
     WeightableAttributes &
-    ValidatebleAttributes;
+    ValidatebleAttributes &
+    CompletableAttributes;
 
 export type ExtendedSegmentAttributes = SegmentAttributes & SegmentWithComposedAttributes & { [key: string]: unknown };
 
@@ -119,7 +123,7 @@ export type SerializedExtendedSegmentAttributes = {
  * like subway station, a parking or another or the trip origin
  * and/or destination when the segment is first or last for the trip
  */
-export class Segment extends Uuidable implements IValidatable {
+export class Segment extends Completable(Uuidable) implements IValidatable {
     private _surveyObjectsRegistry: SurveyObjectsRegistry;
     private _attributes: SegmentAttributes;
     private _customAttributes: { [key: string]: unknown };
@@ -557,6 +561,8 @@ export class Segment extends Uuidable implements IValidatable {
         errors.push(...ParamsValidatorUtils.isPositiveInteger('_sequence', dirtyParams._sequence, displayName));
 
         errors.push(...ParamsValidatorUtils.isBoolean('_isValid', dirtyParams._isValid, displayName));
+
+        errors.push(...validateCompletableParams(dirtyParams, displayName));
 
         errors.push(...validateWeights(dirtyParams._weights as Optional<Weight[]>));
 

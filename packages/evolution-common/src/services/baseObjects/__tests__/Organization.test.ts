@@ -12,6 +12,7 @@ import { v4 as uuidV4 } from 'uuid';
 import { WeightMethod, WeightMethodAttributes } from '../WeightMethod';
 import { isOk, hasErrors, unwrap } from '../../../types/Result.type';
 import { SurveyObjectsRegistry } from '../SurveyObjectsRegistry';
+import { completableAttributeNames } from '../attributeTypes/CompletableAttributes';
 
 describe('Organization', () => {
     let registry: SurveyObjectsRegistry;
@@ -78,9 +79,16 @@ describe('Organization', () => {
 
     test('should have a validateParams section for each attribute', () => {
         const validateParamsCode = Organization.validateParams.toString();
-        organizationAttributes.filter((attribute) => attribute !== '_uuid' && attribute !== '_weights').forEach((attributeName) => {
-            expect(validateParamsCode).toContain('\'' + attributeName + '\'');
-        });
+        organizationAttributes
+            .filter(
+                (attribute) =>
+                    attribute !== '_uuid' &&
+                    attribute !== '_weights' &&
+                    !completableAttributeNames.includes(attribute as 'hasMinimum' | 'isCompleted' | 'isStarted')
+            )
+            .forEach((attributeName) => {
+                expect(validateParamsCode).toContain('\'' + attributeName + '\'');
+            });
     });
 
     test('should get uuid', () => {
@@ -137,6 +145,30 @@ describe('Organization', () => {
         expect(organization.isValid()).toBe(true);
     });
 
+    describe('completeness mixin values', () => {
+        test('should leave completeness undefined when not provided', () => {
+            const organization = new Organization(validAttributes, registry);
+            expect(organization.hasMinimum).toBeUndefined();
+            expect(organization.isStarted).toBeUndefined();
+            expect(organization.isCompleted).toBeUndefined();
+        });
+
+        test('should preserve provided completeness booleans', () => {
+            const organization = new Organization(
+                {
+                    ...validAttributes,
+                    hasMinimum: true,
+                    isStarted: true,
+                    isCompleted: false
+                },
+                registry
+            );
+            expect(organization.hasMinimum).toBe(true);
+            expect(organization.isStarted).toBe(true);
+            expect(organization.isCompleted).toBe(false);
+        });
+    });
+
     test('should create an Organization instance with custom attributes', () => {
         const customAttributes = {
             customAttribute1: 'value1',
@@ -163,6 +195,9 @@ describe('Organization', () => {
             ['contactPhoneNumber', 123],
             ['contactEmail', 123],
             ['revenueLevel', 123],
+            ['hasMinimum', 'invalid'],
+            ['isCompleted', 'invalid'],
+            ['isStarted', 'invalid'],
             ['preData', 'invalid'],
             ['preData', []],
             ['preData', new Date() as any],

@@ -7,6 +7,7 @@
 
 import { WorkPlace } from '../WorkPlace';
 import { placeAttributes } from '../Place';
+import { completableAttributeNames } from '../attributeTypes/CompletableAttributes';
 import { v4 as uuidV4 } from 'uuid';
 import { WeightMethod, WeightMethodAttributes } from '../WeightMethod';
 import { isOk, hasErrors, unwrap } from '../../../types/Result.type';
@@ -74,9 +75,16 @@ describe('WorkPlace', () => {
 
     test('should have a validateParams section for each attribute', () => {
         const validateParamsCode = WorkPlace.validateParams.toString();
-        placeAttributes.filter((attribute) => attribute !== '_uuid' && attribute !== '_weights').forEach((attributeName) => {
-            expect(validateParamsCode).toContain('\''+attributeName+'\'');
-        });
+        placeAttributes
+            .filter(
+                (attribute) =>
+                    attribute !== '_uuid' &&
+                    attribute !== '_weights' &&
+                    !completableAttributeNames.includes(attribute as 'hasMinimum' | 'isCompleted' | 'isStarted')
+            )
+            .forEach((attributeName) => {
+                expect(validateParamsCode).toContain('\'' + attributeName + '\'');
+            });
     });
 
     test('should get uuid', () => {
@@ -131,6 +139,30 @@ describe('WorkPlace', () => {
         const workPlace = new WorkPlace(validPlaceAttributes, registry);
         expect(workPlace.validate()).toBe(true);
         expect(workPlace.isValid()).toBe(true);
+    });
+
+    describe('completeness mixin values', () => {
+        test('should leave completeness undefined when not provided', () => {
+            const workPlace = new WorkPlace(validWorkPlaceAttributes, registry);
+            expect(workPlace.hasMinimum).toBeUndefined();
+            expect(workPlace.isStarted).toBeUndefined();
+            expect(workPlace.isCompleted).toBeUndefined();
+        });
+
+        test('should preserve provided completeness booleans', () => {
+            const workPlace = new WorkPlace(
+                {
+                    ...validWorkPlaceAttributes,
+                    hasMinimum: true,
+                    isStarted: true,
+                    isCompleted: false
+                },
+                registry
+            );
+            expect(workPlace.hasMinimum).toBe(true);
+            expect(workPlace.isStarted).toBe(true);
+            expect(workPlace.isCompleted).toBe(false);
+        });
     });
 
     test('should create a WorkPlace instance with custom attributes', () => {

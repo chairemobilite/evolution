@@ -10,6 +10,8 @@ import _omit from 'lodash/omit';
 import { Optional } from '../../types/Optional.type';
 import { PreData } from '../../types/shared';
 import { IValidatable, ValidatebleAttributes } from './IValidatable';
+import { CompletableAttributes, completableAttributeNames } from './attributeTypes/CompletableAttributes';
+import { Completable, validateCompletableParams } from './Completable';
 import { WeightableAttributes, Weight, validateWeights } from './Weight';
 import { Uuidable, UuidableAttributes } from './Uuidable';
 import * as TCAttr from './attributeTypes/TripChainAttributes';
@@ -32,6 +34,7 @@ export const tripChainAttributes = [
     '_weights',
     '_isValid',
     '_uuid',
+    ...completableAttributeNames,
     'category',
     'isMultiLoop',
     'isConstrained',
@@ -52,7 +55,8 @@ export type TripChainAttributes = {
 } & StartEndDateAndTimesAttributes &
     UuidableAttributes &
     WeightableAttributes &
-    ValidatebleAttributes;
+    ValidatebleAttributes &
+    CompletableAttributes;
 
 export type TripChainWithComposedAttributes = TripChainAttributes & {
     _trips?: Optional<ExtendedTripAttributes[]>;
@@ -79,7 +83,7 @@ export type SerializedExtendedTripChainAttributes = {
  * for which the timing and/or location is usually fixed/not flexible
  * TODO: document the official academic/students definition of the trip chain with more examples
  */
-export class TripChain extends Uuidable implements IValidatable {
+export class TripChain extends Completable(Uuidable) implements IValidatable {
     private _surveyObjectsRegistry: SurveyObjectsRegistry;
     private _attributes: TripChainAttributes;
     private _customAttributes: { [key: string]: unknown };
@@ -325,6 +329,8 @@ export class TripChain extends Uuidable implements IValidatable {
         errors.push(...StartEndable.validateParams(dirtyParams, displayName));
 
         errors.push(...ParamsValidatorUtils.isBoolean('_isValid', dirtyParams._isValid, displayName));
+
+        errors.push(...validateCompletableParams(dirtyParams, displayName));
 
         errors.push(...validateWeights(dirtyParams._weights as Optional<Weight[]>));
 

@@ -10,6 +10,8 @@ import _omit from 'lodash/omit';
 import { Optional } from '../../types/Optional.type';
 import { PreData } from '../../types/shared';
 import { IValidatable, ValidatebleAttributes } from './IValidatable';
+import { CompletableAttributes, completableAttributeNames } from './attributeTypes/CompletableAttributes';
+import { Completable, validateCompletableParams } from './Completable';
 import { Uuidable, UuidableAttributes } from './Uuidable';
 import { WeightableAttributes, Weight, validateWeights } from './Weight';
 import { Place, ExtendedPlaceAttributes, SerializedExtendedPlaceAttributes } from './Place';
@@ -31,6 +33,7 @@ export const visitedPlaceAttributes = [
     '_weights',
     '_isValid',
     '_uuid',
+    ...completableAttributeNames,
     '_sequence',
     'activity',
     'activityCategory',
@@ -58,7 +61,8 @@ export type VisitedPlaceAttributes = {
 } & StartEndDateAndTimesAttributes &
     UuidableAttributes &
     WeightableAttributes &
-    ValidatebleAttributes;
+    ValidatebleAttributes &
+    CompletableAttributes;
 
 export type VisitedPlaceWithComposedAttributes = VisitedPlaceAttributes & {
     _place?: Optional<ExtendedPlaceAttributes>;
@@ -78,7 +82,7 @@ export type SerializedExtendedVisitedPlaceAttributes = {
  * It could be home, a work place, a school place, a restaurant, a place of leisure,
  * a shopping place, etc.
  */
-export class VisitedPlace extends Uuidable implements IValidatable {
+export class VisitedPlace extends Completable(Uuidable) implements IValidatable {
     private _surveyObjectsRegistry: SurveyObjectsRegistry;
     private _attributes: VisitedPlaceAttributes;
     private _customAttributes: { [key: string]: unknown };
@@ -319,6 +323,8 @@ export class VisitedPlace extends Uuidable implements IValidatable {
 
         // Validate _isValid:
         errors.push(...ParamsValidatorUtils.isBoolean('_isValid', dirtyParams._isValid, displayName));
+
+        errors.push(...validateCompletableParams(dirtyParams, displayName));
 
         errors.push(...validateWeights(dirtyParams._weights as Optional<Weight[]>));
 

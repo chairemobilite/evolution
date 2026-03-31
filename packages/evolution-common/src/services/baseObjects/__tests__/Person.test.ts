@@ -6,6 +6,7 @@
  */
 
 import { Person, nonStringAttributes, stringAttributes } from '../Person';
+import { completableAttributeNames } from '../attributeTypes/CompletableAttributes';
 import { v4 as uuidV4 } from 'uuid';
 import { Weight } from '../Weight';
 import { WorkPlace } from '../WorkPlace';
@@ -107,9 +108,16 @@ describe('Person', () => {
     test('should have a validateParams section for each attribute', () => {
         const validateParamsCode = Person.validateParams.toString();
         // exclude string attributes, since they are validated automatically in a loop:
-        nonStringAttributes.filter((attribute) => attribute !== '_uuid' && attribute !== '_weights').forEach((attributeName) => {
-            expect(validateParamsCode).toContain('\'' + attributeName + '\'');
-        });
+        nonStringAttributes
+            .filter(
+                (attribute) =>
+                    attribute !== '_uuid' &&
+                    attribute !== '_weights' &&
+                    !completableAttributeNames.includes(attribute as 'hasMinimum' | 'isCompleted' | 'isStarted')
+            )
+            .forEach((attributeName) => {
+                expect(validateParamsCode).toContain('\'' + attributeName + '\'');
+            });
     });
 
     nonStringAttributes.forEach((attribute) => {
@@ -150,6 +158,30 @@ describe('Person', () => {
         const person = new Person(validAttributes, registry);
         expect(person.validate()).toBe(true);
         expect(person.isValid()).toBe(true);
+    });
+
+    describe('completeness mixin values', () => {
+        test('should leave completeness undefined when not provided', () => {
+            const person = new Person(validAttributes, registry);
+            expect(person.hasMinimum).toBeUndefined();
+            expect(person.isStarted).toBeUndefined();
+            expect(person.isCompleted).toBeUndefined();
+        });
+
+        test('should preserve provided completeness booleans', () => {
+            const person = new Person(
+                {
+                    ...validAttributes,
+                    hasMinimum: true,
+                    isStarted: true,
+                    isCompleted: false
+                },
+                registry
+            );
+            expect(person.hasMinimum).toBe(true);
+            expect(person.isStarted).toBe(true);
+            expect(person.isCompleted).toBe(false);
+        });
     });
 
     test('should get uuid', () => {
@@ -222,6 +254,9 @@ describe('Person', () => {
             ['age', 'invalid'],
             ['_isValid', 'invalid'],
             ['_weights', 'invalid'],
+            ['hasMinimum', 'invalid'],
+            ['isCompleted', 'invalid'],
+            ['isStarted', 'invalid'],
             ['whoWillAnswerForThisPerson', 'invalid-uuid'],
             ['isProxy', 'invalid'],
         ])('should return an error for invalid %s', (param, value) => {

@@ -10,6 +10,8 @@ import _omit from 'lodash/omit';
 import { Optional } from '../../types/Optional.type';
 import { PreData } from '../../types/shared';
 import { IValidatable, ValidatebleAttributes } from './IValidatable';
+import { CompletableAttributes, completableAttributeNames } from './attributeTypes/CompletableAttributes';
+import { Completable, validateCompletableParams } from './Completable';
 import { Uuidable, UuidableAttributes } from './Uuidable';
 import { WeightableAttributes, Weight, validateWeights } from './Weight';
 import * as PlAttr from './attributeTypes/PlaceAttributes';
@@ -28,6 +30,7 @@ export const junctionAttributes = [
     '_weights',
     '_isValid',
     '_uuid',
+    ...completableAttributeNames,
     'parkingType',
     'parkingFeeType',
     'transitPlaceType',
@@ -44,7 +47,8 @@ export type JunctionAttributes = {
 } & StartEndDateAndTimesAttributes &
     UuidableAttributes &
     WeightableAttributes &
-    ValidatebleAttributes;
+    ValidatebleAttributes &
+    CompletableAttributes;
 
 export type JunctionWithComposedAttributes = JunctionAttributes & {
     _place?: Optional<ExtendedPlaceAttributes>;
@@ -63,7 +67,7 @@ export type SerializedExtendedJunctionAttributes = {
  * Usually, junctions are used as origin and/or destination for segments
  * Junctions are optional in most surveys
  */
-export class Junction extends Uuidable implements IValidatable {
+export class Junction extends Completable(Uuidable) implements IValidatable {
     private _surveyObjectsRegistry: SurveyObjectsRegistry;
     private _attributes: JunctionAttributes;
     private _customAttributes: { [key: string]: unknown };
@@ -279,6 +283,8 @@ export class Junction extends Uuidable implements IValidatable {
 
         // Validate _isValid:
         errors.push(...ParamsValidatorUtils.isBoolean('_isValid', dirtyParams._isValid, displayName));
+
+        errors.push(...validateCompletableParams(dirtyParams, displayName));
 
         // Validate _weights:
         errors.push(...validateWeights(dirtyParams._weights as Optional<Weight[]>));

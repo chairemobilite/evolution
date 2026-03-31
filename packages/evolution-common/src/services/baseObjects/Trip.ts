@@ -11,6 +11,8 @@ import _uniq from 'lodash/uniq';
 import { Optional } from '../../types/Optional.type';
 import { PreData } from '../../types/shared';
 import { IValidatable, ValidatebleAttributes } from './IValidatable';
+import { CompletableAttributes, completableAttributeNames } from './attributeTypes/CompletableAttributes';
+import { Completable, validateCompletableParams } from './Completable';
 import { WeightableAttributes, Weight, validateWeights } from './Weight';
 import { Uuidable, UuidableAttributes } from './Uuidable';
 import { Result, createErrors, createOk } from '../../types/Result.type';
@@ -35,6 +37,7 @@ export const tripAttributes = [
     '_weights',
     '_isValid',
     '_uuid',
+    ...completableAttributeNames,
     '_sequence',
     'preData'
 ];
@@ -59,7 +62,8 @@ export type TripAttributes = {
 } & StartEndDateAndTimesAttributes &
     UuidableAttributes &
     WeightableAttributes &
-    ValidatebleAttributes;
+    ValidatebleAttributes &
+    CompletableAttributes;
 
 export type TripWithComposedAttributes = TripAttributes & {
     _startPlace?: Optional<ExtendedVisitedPlaceAttributes>; // origin
@@ -83,7 +87,7 @@ export type SerializedExtendedTripAttributes = {
  * A trip include the travelling action between two places (visited places: origin|destination)
  * Start and end dates and times could be generated from the origin and destination data
  */
-export class Trip extends Uuidable implements IValidatable {
+export class Trip extends Completable(Uuidable) implements IValidatable {
     private _surveyObjectsRegistry: SurveyObjectsRegistry;
     private _attributes: TripAttributes;
     private _customAttributes: { [key: string]: unknown };
@@ -596,6 +600,8 @@ export class Trip extends Uuidable implements IValidatable {
         errors.push(...ParamsValidatorUtils.isPositiveInteger('_sequence', dirtyParams._sequence, displayName));
 
         errors.push(...ParamsValidatorUtils.isBoolean('_isValid', dirtyParams._isValid, displayName));
+
+        errors.push(...validateCompletableParams(dirtyParams, displayName));
 
         errors.push(...validateWeights(dirtyParams._weights as Optional<Weight[]>));
 

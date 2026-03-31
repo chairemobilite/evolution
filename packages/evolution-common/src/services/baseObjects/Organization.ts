@@ -10,6 +10,8 @@ import _omit from 'lodash/omit';
 import { Optional } from '../../types/Optional.type';
 import { PreData } from '../../types/shared';
 import { IValidatable, ValidatebleAttributes } from './IValidatable';
+import { CompletableAttributes, completableAttributeNames } from './attributeTypes/CompletableAttributes';
+import { Completable, validateCompletableParams } from './Completable';
 import { WeightableAttributes, Weight, validateWeights } from './Weight';
 import { Uuidable, UuidableAttributes } from './Uuidable';
 import * as OAttr from './attributeTypes/OrganizationAttributes';
@@ -26,6 +28,7 @@ export const organizationAttributes = [
     '_weights',
     '_isValid',
     '_uuid',
+    ...completableAttributeNames,
     'name',
     'shortname',
     'numberOfEmployees',
@@ -53,7 +56,8 @@ export type OrganizationAttributes = {
     preData?: Optional<PreData>;
 } & UuidableAttributes &
     WeightableAttributes &
-    ValidatebleAttributes;
+    ValidatebleAttributes &
+    CompletableAttributes;
 
 export type OrganizationWithComposedAttributes = OrganizationAttributes & {
     /**
@@ -80,7 +84,7 @@ export type SerializedExtendedOrganizationAttributes = {
  * Organization is a base object that represents an organization,
  * a company, a place with employees, or a group of persons other than a household.
  */
-export class Organization extends Uuidable implements IValidatable {
+export class Organization extends Completable(Uuidable) implements IValidatable {
     private _surveyObjectsRegistry: SurveyObjectsRegistry;
     private _attributes: OrganizationAttributes;
     private _customAttributes: { [key: string]: unknown };
@@ -301,6 +305,8 @@ export class Organization extends Uuidable implements IValidatable {
         errors.push(...Uuidable.validateParams(dirtyParams));
 
         errors.push(...ParamsValidatorUtils.isBoolean('_isValid', dirtyParams._isValid, displayName));
+
+        errors.push(...validateCompletableParams(dirtyParams, displayName));
 
         errors.push(...validateWeights(dirtyParams._weights as Optional<Weight[]>));
 

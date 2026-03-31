@@ -12,6 +12,7 @@ import { WeightMethod, WeightMethodAttributes } from '../WeightMethod';
 import { isOk, hasErrors, unwrap } from '../../../types/Result.type';
 import { startEndDateAndTimesAttributes } from '../StartEndable';
 import { SurveyObjectsRegistry } from '../SurveyObjectsRegistry';
+import { completableAttributeNames } from '../attributeTypes/CompletableAttributes';
 
 let registry: SurveyObjectsRegistry;
 
@@ -105,9 +106,17 @@ describe('TripChain', () => {
 
     test('should have a validateParams section for each attribute', () => {
         const validateParamsCode = TripChain.validateParams.toString();
-        tripChainAttributes.filter((attribute) => attribute !== '_uuid' && attribute !== '_weights' && !(startEndDateAndTimesAttributes as unknown as string[]).includes(attribute)).forEach((attributeName) => {
-            expect(validateParamsCode).toContain('\'' + attributeName + '\'');
-        });
+        tripChainAttributes
+            .filter(
+                (attribute) =>
+                    attribute !== '_uuid' &&
+                    attribute !== '_weights' &&
+                    !completableAttributeNames.includes(attribute as 'hasMinimum' | 'isCompleted' | 'isStarted') &&
+                    !(startEndDateAndTimesAttributes as unknown as string[]).includes(attribute)
+            )
+            .forEach((attributeName) => {
+                expect(validateParamsCode).toContain('\'' + attributeName + '\'');
+            });
     });
 
     test('should get uuid', () => {
@@ -164,6 +173,30 @@ describe('TripChain', () => {
         expect(tripChain.isValid()).toBe(true);
     });
 
+    describe('completeness mixin values', () => {
+        test('should leave completeness undefined when not provided', () => {
+            const tripChain = new TripChain(validAttributes, registry);
+            expect(tripChain.hasMinimum).toBeUndefined();
+            expect(tripChain.isStarted).toBeUndefined();
+            expect(tripChain.isCompleted).toBeUndefined();
+        });
+
+        test('should preserve provided completeness booleans', () => {
+            const tripChain = new TripChain(
+                {
+                    ...validAttributes,
+                    hasMinimum: true,
+                    isStarted: true,
+                    isCompleted: false
+                },
+                registry
+            );
+            expect(tripChain.hasMinimum).toBe(true);
+            expect(tripChain.isStarted).toBe(true);
+            expect(tripChain.isCompleted).toBe(false);
+        });
+    });
+
     test('should create a TripChain instance with custom attributes', () => {
         const customAttributes = {
             customAttribute1: 'value1',
@@ -192,6 +225,9 @@ describe('TripChain', () => {
             ['isConstrained', 'invalid'],
             ['mainActivity', 123],
             ['mainActivityCategory', 123],
+            ['hasMinimum', 'invalid'],
+            ['isCompleted', 'invalid'],
+            ['isStarted', 'invalid'],
             ['preData', 'invalid'],
             ['preData', []],
             ['preData', new Date() as any],

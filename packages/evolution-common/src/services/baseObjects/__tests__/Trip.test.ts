@@ -14,6 +14,7 @@ import { WeightMethod, WeightMethodAttributes } from '../WeightMethod';
 import { isOk, hasErrors, unwrap } from '../../../types/Result.type';
 import { startEndDateAndTimesAttributes } from '../StartEndable';
 import { SurveyObjectsRegistry } from '../SurveyObjectsRegistry';
+import { completableAttributeNames } from '../attributeTypes/CompletableAttributes';
 
 describe('Trip', () => {
     let registry: SurveyObjectsRegistry;
@@ -148,9 +149,17 @@ describe('Trip', () => {
 
     test('should have a validateParams section for each attribute', () => {
         const validateParamsCode = Trip.validateParams.toString();
-        tripAttributes.filter((attribute) => attribute !== '_uuid' && attribute !== '_weights' && !(startEndDateAndTimesAttributes as unknown as string[]).includes(attribute)).forEach((attributeName) => {
-            expect(validateParamsCode).toContain('\'' + attributeName + '\'');
-        });
+        tripAttributes
+            .filter(
+                (attribute) =>
+                    attribute !== '_uuid' &&
+                    attribute !== '_weights' &&
+                    !completableAttributeNames.includes(attribute as 'hasMinimum' | 'isCompleted' | 'isStarted') &&
+                    !(startEndDateAndTimesAttributes as unknown as string[]).includes(attribute)
+            )
+            .forEach((attributeName) => {
+                expect(validateParamsCode).toContain('\'' + attributeName + '\'');
+            });
     });
 
     test('should get uuid', () => {
@@ -207,6 +216,30 @@ describe('Trip', () => {
         expect(trip.isValid()).toBe(true);
     });
 
+    describe('completeness mixin values', () => {
+        test('should leave completeness undefined when not provided', () => {
+            const trip = new Trip(validAttributes, registry);
+            expect(trip.hasMinimum).toBeUndefined();
+            expect(trip.isStarted).toBeUndefined();
+            expect(trip.isCompleted).toBeUndefined();
+        });
+
+        test('should preserve provided completeness booleans', () => {
+            const trip = new Trip(
+                {
+                    ...validAttributes,
+                    hasMinimum: true,
+                    isStarted: true,
+                    isCompleted: false
+                },
+                registry
+            );
+            expect(trip.hasMinimum).toBe(true);
+            expect(trip.isStarted).toBe(true);
+            expect(trip.isCompleted).toBe(false);
+        });
+    });
+
     test('should create a Trip instance with custom attributes', () => {
         const customAttributes = {
             customAttribute1: 'value1',
@@ -230,6 +263,9 @@ describe('Trip', () => {
             ['endTime', 'invalid'],
             ['startTimePeriod', 123],
             ['endTimePeriod', 123],
+            ['hasMinimum', 'invalid'],
+            ['isCompleted', 'invalid'],
+            ['isStarted', 'invalid'],
             ['preData', 'invalid'],
             ['preData', []],
             ['preData', new Date() as any],

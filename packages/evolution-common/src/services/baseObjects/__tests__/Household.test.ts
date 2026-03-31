@@ -12,6 +12,7 @@ import { v4 as uuidV4 } from 'uuid';
 import { WeightMethod, WeightMethodAttributes } from '../WeightMethod';
 import { isOk, hasErrors, unwrap } from '../../../types/Result.type';
 import { SurveyObjectsRegistry } from '../SurveyObjectsRegistry';
+import { completableAttributeNames } from '../attributeTypes/CompletableAttributes';
 
 describe('Household', () => {
     let registry: SurveyObjectsRegistry;
@@ -47,7 +48,6 @@ describe('Household', () => {
         _weights: [{ weight: 1.5, method: new WeightMethod(weightMethodAttributes) }],
         _isValid: true,
     };
-
     const extendedAttributes: { [key: string]: unknown } = {
         ...validAttributes,
         customAttribute: 'custom value',
@@ -93,9 +93,16 @@ describe('Household', () => {
 
     test('should have a validateParams section for each attribute', () => {
         const validateParamsCode = Household.validateParams.toString();
-        householdAttributes.filter((attribute) => attribute !== '_uuid' && attribute !== '_weights').forEach((attributeName) => {
-            expect(validateParamsCode).toContain('\'' + attributeName + '\'');
-        });
+        householdAttributes
+            .filter(
+                (attribute) =>
+                    attribute !== '_uuid' &&
+                    attribute !== '_weights' &&
+                    !completableAttributeNames.includes(attribute as 'hasMinimum' | 'isCompleted' | 'isStarted')
+            )
+            .forEach((attributeName) => {
+                expect(validateParamsCode).toContain('\'' + attributeName + '\'');
+            });
     });
 
     test('should get uuid', () => {
@@ -188,6 +195,30 @@ describe('Household', () => {
         const household = new Household(validAttributes, registry);
         expect(household.validate()).toBe(true);
         expect(household.isValid()).toBe(true);
+    });
+
+    describe('completeness mixin values', () => {
+        test('should leave completeness undefined when not provided', () => {
+            const household = new Household(validAttributes, registry);
+            expect(household.hasMinimum).toBeUndefined();
+            expect(household.isStarted).toBeUndefined();
+            expect(household.isCompleted).toBeUndefined();
+        });
+
+        test('should preserve provided completeness booleans', () => {
+            const household = new Household(
+                {
+                    ...validAttributes,
+                    hasMinimum: true,
+                    isStarted: true,
+                    isCompleted: false
+                },
+                registry
+            );
+            expect(household.hasMinimum).toBe(true);
+            expect(household.isStarted).toBe(true);
+            expect(household.isCompleted).toBe(false);
+        });
     });
 
     test('should create a Household instance with custom attributes', () => {

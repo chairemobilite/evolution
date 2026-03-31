@@ -6,6 +6,7 @@
  */
 
 import { Place, ExtendedPlaceAttributes, placeAttributes } from '../Place';
+import { completableAttributeNames } from '../attributeTypes/CompletableAttributes';
 import { v4 as uuidV4 } from 'uuid';
 import { Weight } from '../Weight';
 import { WeightMethod, WeightMethodAttributes } from '../WeightMethod';
@@ -100,9 +101,16 @@ describe('Place', () => {
 
     test('should have a validateParams section for each attribute', () => {
         const validateParamsCode = Place.validateParams.toString();
-        placeAttributes.filter((attribute) => attribute !== '_uuid' && attribute !== '_weights').forEach((attributeName) => {
-            expect(validateParamsCode).toContain('\'' + attributeName + '\'');
-        });
+        placeAttributes
+            .filter(
+                (attribute) =>
+                    attribute !== '_uuid' &&
+                    attribute !== '_weights' &&
+                    !completableAttributeNames.includes(attribute as 'hasMinimum' | 'isCompleted' | 'isStarted')
+            )
+            .forEach((attributeName) => {
+                expect(validateParamsCode).toContain('\'' + attributeName + '\'');
+            });
     });
 
     test('should create a Place instance with valid attributes using constructor', () => {
@@ -174,6 +182,30 @@ describe('Place', () => {
         expect(place.isValid()).toBe(true);
     });
 
+    describe('completeness mixin values', () => {
+        test('should leave completeness undefined when not provided', () => {
+            const place = new Place(validPlaceAttributes, registry);
+            expect(place.hasMinimum).toBeUndefined();
+            expect(place.isStarted).toBeUndefined();
+            expect(place.isCompleted).toBeUndefined();
+        });
+
+        test('should preserve provided completeness booleans', () => {
+            const place = new Place(
+                {
+                    ...validPlaceAttributes,
+                    hasMinimum: true,
+                    isStarted: true,
+                    isCompleted: false
+                },
+                registry
+            );
+            expect(place.hasMinimum).toBe(true);
+            expect(place.isStarted).toBe(true);
+            expect(place.isCompleted).toBe(false);
+        });
+    });
+
     test('should create a Place instance with custom attributes', () => {
         const customAttributes = {
             customAttribute1: 'value1',
@@ -229,6 +261,9 @@ describe('Place', () => {
             ['preData', new Date() as any],
             ['preData', true as any],
             ['preGeography', 'invalid'],
+            ['hasMinimum', 'invalid'],
+            ['isCompleted', 'invalid'],
+            ['isStarted', 'invalid'],
         ])('should return an error for invalid %s', (param, value) => {
             const invalidAttributes = { ...validPlaceAttributes, [param]: value };
             const errors = Place.validateParams(invalidAttributes);

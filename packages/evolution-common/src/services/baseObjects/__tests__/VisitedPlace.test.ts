@@ -12,6 +12,7 @@ import { WeightMethod, WeightMethodAttributes } from '../WeightMethod';
 import { isOk, hasErrors, unwrap } from '../../../types/Result.type';
 import { startEndDateAndTimesAttributes } from '../StartEndable';
 import { SurveyObjectsRegistry } from '../SurveyObjectsRegistry';
+import { completableAttributeNames } from '../attributeTypes/CompletableAttributes';
 
 describe('VisitedPlace', () => {
     let registry: SurveyObjectsRegistry;
@@ -89,9 +90,17 @@ describe('VisitedPlace', () => {
 
     test('should have a validateParams section for each attribute', () => {
         const validateParamsCode = VisitedPlace.validateParams.toString();
-        visitedPlaceAttributes.filter((attribute) => attribute !== '_uuid' && attribute !== '_weights' && !(startEndDateAndTimesAttributes as unknown as string[]).includes(attribute)).forEach((attributeName) => {
-            expect(validateParamsCode).toContain('\'' + attributeName + '\'');
-        });
+        visitedPlaceAttributes
+            .filter(
+                (attribute) =>
+                    attribute !== '_uuid' &&
+                    attribute !== '_weights' &&
+                    !completableAttributeNames.includes(attribute as 'hasMinimum' | 'isCompleted' | 'isStarted') &&
+                    !(startEndDateAndTimesAttributes as unknown as string[]).includes(attribute)
+            )
+            .forEach((attributeName) => {
+                expect(validateParamsCode).toContain('\'' + attributeName + '\'');
+            });
     });
 
     test('should get uuid', () => {
@@ -162,6 +171,30 @@ describe('VisitedPlace', () => {
         expect(visitedPlace.isValid()).toBe(true);
     });
 
+    describe('completeness mixin values', () => {
+        test('should leave completeness undefined when not provided', () => {
+            const visitedPlace = new VisitedPlace(validVisitedPlaceAttributesWithPlace, registry);
+            expect(visitedPlace.hasMinimum).toBeUndefined();
+            expect(visitedPlace.isStarted).toBeUndefined();
+            expect(visitedPlace.isCompleted).toBeUndefined();
+        });
+
+        test('should preserve provided completeness booleans', () => {
+            const visitedPlace = new VisitedPlace(
+                {
+                    ...validVisitedPlaceAttributesWithPlace,
+                    hasMinimum: true,
+                    isStarted: true,
+                    isCompleted: false
+                },
+                registry
+            );
+            expect(visitedPlace.hasMinimum).toBe(true);
+            expect(visitedPlace.isStarted).toBe(true);
+            expect(visitedPlace.isCompleted).toBe(false);
+        });
+    });
+
     test('should create a VisitedPlace instance with custom attributes', () => {
         const customAttributes = {
             customAttribute1: 'value1',
@@ -189,6 +222,9 @@ describe('VisitedPlace', () => {
             ['activityCategory', 123],
             ['shortcut', 'invalid-uuid'],
             ['_sequence', 'invalid'],
+            ['hasMinimum', 'invalid'],
+            ['isCompleted', 'invalid'],
+            ['isStarted', 'invalid'],
             ['preData', 'invalid'],
             ['preData', []],
             ['preData', new Date() as any],

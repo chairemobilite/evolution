@@ -12,6 +12,7 @@ import { WeightMethod, WeightMethodAttributes } from '../WeightMethod';
 import { isOk, hasErrors, unwrap } from '../../../types/Result.type';
 import { startEndDateAndTimesAttributes } from '../StartEndable';
 import { SurveyObjectsRegistry } from '../SurveyObjectsRegistry';
+import { completableAttributeNames } from '../attributeTypes/CompletableAttributes';
 
 describe('Junction', () => {
     let registry: SurveyObjectsRegistry;
@@ -88,9 +89,17 @@ describe('Junction', () => {
 
     test('should have a validateParams section for each attribute', () => {
         const validateParamsCode = Junction.validateParams.toString();
-        junctionAttributes.filter((attribute) => attribute !== '_uuid' && attribute !== '_weights' && !(startEndDateAndTimesAttributes as unknown as string[]).includes(attribute)).forEach((attributeName) => {
-            expect(validateParamsCode).toContain('\'' + attributeName + '\'');
-        });
+        junctionAttributes
+            .filter(
+                (attribute) =>
+                    attribute !== '_uuid' &&
+                    attribute !== '_weights' &&
+                    !completableAttributeNames.includes(attribute as 'hasMinimum' | 'isCompleted' | 'isStarted') &&
+                    !(startEndDateAndTimesAttributes as unknown as string[]).includes(attribute)
+            )
+            .forEach((attributeName) => {
+                expect(validateParamsCode).toContain('\'' + attributeName + '\'');
+            });
     });
 
     test('should get uuid', () => {
@@ -147,6 +156,30 @@ describe('Junction', () => {
         expect(junction.isValid()).toBe(true);
     });
 
+    describe('completeness mixin values', () => {
+        test('should leave completeness undefined when not provided', () => {
+            const junction = new Junction(validJunctionAttributesWithPlace, registry);
+            expect(junction.hasMinimum).toBeUndefined();
+            expect(junction.isStarted).toBeUndefined();
+            expect(junction.isCompleted).toBeUndefined();
+        });
+
+        test('should preserve provided completeness booleans', () => {
+            const junction = new Junction(
+                {
+                    ...validJunctionAttributesWithPlace,
+                    hasMinimum: true,
+                    isStarted: true,
+                    isCompleted: false
+                },
+                registry
+            );
+            expect(junction.hasMinimum).toBe(true);
+            expect(junction.isStarted).toBe(true);
+            expect(junction.isCompleted).toBe(false);
+        });
+    });
+
     test('should create a Junction instance with custom attributes', () => {
         const customAttributes = {
             customAttribute1: 'value1',
@@ -173,6 +206,9 @@ describe('Junction', () => {
             ['parkingType', 123],
             ['parkingFeeType', 123],
             ['transitPlaceType', 123],
+            ['hasMinimum', 'invalid'],
+            ['isCompleted', 'invalid'],
+            ['isStarted', 'invalid'],
             ['preData', 'invalid'],
             ['preData', []],
             ['preData', new Date() as any],
