@@ -9,9 +9,11 @@ import _omit from 'lodash/omit';
 
 import { Optional } from '../../types/Optional.type';
 import { PreData } from '../../types/shared';
-import { IValidatable, ValidatebleAttributes } from './IValidatable';
-import { WeightableAttributes, Weight, validateWeights } from './Weight';
-import { Uuidable, UuidableAttributes } from './Uuidable';
+import { validatableAttributeNames, type ValidatableAttributes } from './IValidatable';
+import { completableAttributeNames, type CompletableAttributes } from './attributeTypes/CompletableAttributes';
+import { SurveyObject } from './SurveyObject';
+import { weightableAttributeNames, type WeightableAttributes, type Weight, validateWeights } from './Weight';
+import { uuidableAttributeNames, type UuidableAttributes, Uuidable } from './Uuidable';
 import * as JAttr from './attributeTypes/JourneyAttributes';
 import * as PAttr from './attributeTypes/PersonAttributes';
 import { Result, createErrors, createOk } from '../../types/Result.type';
@@ -29,9 +31,10 @@ import { Household } from './Household';
 
 export const journeyAttributes = [
     ...startEndDateAndTimesAttributes,
-    '_weights',
-    '_isValid',
-    '_uuid',
+    ...weightableAttributeNames,
+    ...validatableAttributeNames,
+    ...uuidableAttributeNames,
+    ...completableAttributeNames,
     '_sequence',
     'name',
     'type',
@@ -77,7 +80,8 @@ export type JourneyAttributes = {
 } & StartEndDateAndTimesAttributes &
     UuidableAttributes &
     WeightableAttributes &
-    ValidatebleAttributes;
+    ValidatableAttributes &
+    CompletableAttributes;
 
 export type JourneyWithComposedAttributes = JourneyAttributes & {
     _visitedPlaces?: Optional<ExtendedVisitedPlaceAttributes[]>;
@@ -99,7 +103,7 @@ export type SerializedExtendedJourneyAttributes = {
  * They can be all the visited places for a single person for a day, part of a day,
  * a week, a weekend or a long distance trip
  */
-export class Journey extends Uuidable implements IValidatable {
+export class Journey extends SurveyObject {
     private _surveyObjectsRegistry: SurveyObjectsRegistry;
     private _attributes: JourneyAttributes;
     private _customAttributes: { [key: string]: unknown };
@@ -162,14 +166,6 @@ export class Journey extends Uuidable implements IValidatable {
 
     get customAttributes(): { [key: string]: unknown } {
         return this._customAttributes;
-    }
-
-    get _isValid(): Optional<boolean> {
-        return this._attributes._isValid;
-    }
-
-    set _isValid(value: Optional<boolean>) {
-        this._attributes._isValid = value;
     }
 
     get _weights(): Optional<Weight[]> {
@@ -576,15 +572,6 @@ export class Journey extends Uuidable implements IValidatable {
         return createOk(journey as Journey);
     }
 
-    validate(): Optional<boolean> {
-        this._attributes._isValid = true;
-        return true;
-    }
-
-    isValid(): Optional<boolean> {
-        return this._isValid;
-    }
-
     static validateParams(dirtyParams: { [key: string]: unknown }, displayName = 'Journey'): Error[] {
         const errors: Error[] = [];
 
@@ -597,6 +584,8 @@ export class Journey extends Uuidable implements IValidatable {
         errors.push(...ParamsValidatorUtils.isPositiveInteger('_sequence', dirtyParams._sequence, displayName));
 
         errors.push(...ParamsValidatorUtils.isBoolean('_isValid', dirtyParams._isValid, displayName));
+
+        errors.push(...SurveyObject.validateCompletableParams(dirtyParams, displayName));
 
         errors.push(...validateWeights(dirtyParams._weights as Optional<Weight[]>));
 

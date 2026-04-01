@@ -14,6 +14,11 @@ import { Routing } from '../Routing';
 import { startEndDateAndTimesAttributes } from '../StartEndable';
 import { modeValues, mapModeToModeCategory, modeCategoryValues, Mode } from '../attributeTypes/SegmentAttributes';
 import { SurveyObjectsRegistry } from '../SurveyObjectsRegistry';
+import { completableAttributeNames, type CompletableAttributeName } from '../attributeTypes/CompletableAttributes';
+import {
+    describeCompletableSurveyObjectMixinValues,
+    describeCreateRejectsNonBooleanCompletableParams
+} from './completableSurveyObjectTestHelpers';
 
 describe('Segment', () => {
     let registry: SurveyObjectsRegistry;
@@ -73,9 +78,17 @@ describe('Segment', () => {
 
     test('should have a validateParams section for each attribute', () => {
         const validateParamsCode = Segment.validateParams.toString();
-        segmentAttributes.filter((attribute) => attribute !== '_uuid' && attribute !== '_weights' && !(startEndDateAndTimesAttributes as unknown as string[]).includes(attribute)).forEach((attributeName) => {
-            expect(validateParamsCode).toContain('\'' + attributeName + '\'');
-        });
+        segmentAttributes
+            .filter(
+                (attribute) =>
+                    attribute !== '_uuid' &&
+                    attribute !== '_weights' &&
+                    !completableAttributeNames.includes(attribute as CompletableAttributeName) &&
+                    !(startEndDateAndTimesAttributes as unknown as string[]).includes(attribute)
+            )
+            .forEach((attributeName) => {
+                expect(validateParamsCode).toContain('\'' + attributeName + '\'');
+            });
     });
 
     test('should get uuid', () => {
@@ -125,6 +138,12 @@ describe('Segment', () => {
         expect(segment.isValid()).toBe(true);
     });
 
+    describeCompletableSurveyObjectMixinValues<Segment>({
+        createDefault: () => new Segment(validAttributes, registry)
+    });
+
+    describeCreateRejectsNonBooleanCompletableParams('Segment', Segment.create, () => validAttributes, () => registry);
+
     test('should create a Segment instance with custom attributes', () => {
         const customAttributes = {
             customAttribute1: 'value1',
@@ -158,6 +177,9 @@ describe('Segment', () => {
             ['onDemandType', 123],
             ['busLines', 'invalid'],
             ['busLines', [undefined, 'Line']],
+            ['hasMinimum', 'invalid'],
+            ['isCompleted', 'invalid'],
+            ['isStarted', 'invalid'],
             ['preData', 'invalid'],
             ['preData', []],
             ['preData', new Date() as any],

@@ -12,6 +12,12 @@ import { v4 as uuidV4 } from 'uuid';
 import { WeightMethod, WeightMethodAttributes } from '../WeightMethod';
 import { isOk, hasErrors, unwrap } from '../../../types/Result.type';
 import { SurveyObjectsRegistry } from '../SurveyObjectsRegistry';
+import { completableAttributeNames, type CompletableAttributeName } from '../attributeTypes/CompletableAttributes';
+import {
+    completableInvalidParamRows,
+    describeCompletableSurveyObjectMixinValues,
+    describeCreateRejectsNonBooleanCompletableParams
+} from './completableSurveyObjectTestHelpers';
 
 describe('Household', () => {
     let registry: SurveyObjectsRegistry;
@@ -47,7 +53,6 @@ describe('Household', () => {
         _weights: [{ weight: 1.5, method: new WeightMethod(weightMethodAttributes) }],
         _isValid: true,
     };
-
     const extendedAttributes: { [key: string]: unknown } = {
         ...validAttributes,
         customAttribute: 'custom value',
@@ -93,9 +98,16 @@ describe('Household', () => {
 
     test('should have a validateParams section for each attribute', () => {
         const validateParamsCode = Household.validateParams.toString();
-        householdAttributes.filter((attribute) => attribute !== '_uuid' && attribute !== '_weights').forEach((attributeName) => {
-            expect(validateParamsCode).toContain('\'' + attributeName + '\'');
-        });
+        householdAttributes
+            .filter(
+                (attribute) =>
+                    attribute !== '_uuid' &&
+                    attribute !== '_weights' &&
+                    !completableAttributeNames.includes(attribute as CompletableAttributeName)
+            )
+            .forEach((attributeName) => {
+                expect(validateParamsCode).toContain('\'' + attributeName + '\'');
+            });
     });
 
     test('should get uuid', () => {
@@ -161,11 +173,12 @@ describe('Household', () => {
         ['contactPhoneNumber', 123],
         ['contactEmail', 123],
         ['atLeastOnePersonWithDisability', 123],
+        ...completableInvalidParamRows(),
         ['preData', 'invalid'],
         ['preData', []],
         ['preData', new Date() as any],
         ['preData', true as any]
-    ])('should return an error for invalid %s', (param, value) => {
+    ] as [string, unknown][])('should return an error for invalid %s', (param, value) => {
         const invalidAttributes = { ...validAttributes, [param]: value };
         const errors = Household.validateParams(invalidAttributes);
         expect(errors[0].toString()).toContain(param);
@@ -189,6 +202,12 @@ describe('Household', () => {
         expect(household.validate()).toBe(true);
         expect(household.isValid()).toBe(true);
     });
+
+    describeCompletableSurveyObjectMixinValues<Household>({
+        createDefault: () => new Household(validAttributes, registry)
+    });
+
+    describeCreateRejectsNonBooleanCompletableParams('Household', Household.create, () => validAttributes, () => registry);
 
     test('should create a Household instance with custom attributes', () => {
         const customAttributes = {

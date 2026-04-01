@@ -12,6 +12,11 @@ import { v4 as uuidV4 } from 'uuid';
 import { WeightMethod, WeightMethodAttributes } from '../WeightMethod';
 import { isOk, hasErrors, unwrap } from '../../../types/Result.type';
 import { SurveyObjectsRegistry } from '../SurveyObjectsRegistry';
+import { completableAttributeNames, type CompletableAttributeName } from '../attributeTypes/CompletableAttributes';
+import {
+    describeCompletableSurveyObjectMixinValues,
+    describeCreateRejectsNonBooleanCompletableParams
+} from './completableSurveyObjectTestHelpers';
 
 describe('Organization', () => {
     let registry: SurveyObjectsRegistry;
@@ -78,9 +83,16 @@ describe('Organization', () => {
 
     test('should have a validateParams section for each attribute', () => {
         const validateParamsCode = Organization.validateParams.toString();
-        organizationAttributes.filter((attribute) => attribute !== '_uuid' && attribute !== '_weights').forEach((attributeName) => {
-            expect(validateParamsCode).toContain('\'' + attributeName + '\'');
-        });
+        organizationAttributes
+            .filter(
+                (attribute) =>
+                    attribute !== '_uuid' &&
+                    attribute !== '_weights' &&
+                    !completableAttributeNames.includes(attribute as CompletableAttributeName)
+            )
+            .forEach((attributeName) => {
+                expect(validateParamsCode).toContain('\'' + attributeName + '\'');
+            });
     });
 
     test('should get uuid', () => {
@@ -137,6 +149,17 @@ describe('Organization', () => {
         expect(organization.isValid()).toBe(true);
     });
 
+    describeCompletableSurveyObjectMixinValues<Organization>({
+        createDefault: () => new Organization(validAttributes, registry)
+    });
+
+    describeCreateRejectsNonBooleanCompletableParams(
+        'Organization',
+        Organization.create,
+        () => validAttributes,
+        () => registry
+    );
+
     test('should create an Organization instance with custom attributes', () => {
         const customAttributes = {
             customAttribute1: 'value1',
@@ -163,6 +186,9 @@ describe('Organization', () => {
             ['contactPhoneNumber', 123],
             ['contactEmail', 123],
             ['revenueLevel', 123],
+            ['hasMinimum', 'invalid'],
+            ['isCompleted', 'invalid'],
+            ['isStarted', 'invalid'],
             ['preData', 'invalid'],
             ['preData', []],
             ['preData', new Date() as any],

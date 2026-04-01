@@ -9,9 +9,11 @@ import _omit from 'lodash/omit';
 
 import { Optional } from '../../types/Optional.type';
 import { PreData } from '../../types/shared';
-import { IValidatable, ValidatebleAttributes } from './IValidatable';
-import { WeightableAttributes, Weight, validateWeights } from './Weight';
-import { Uuidable, UuidableAttributes } from './Uuidable';
+import { validatableAttributeNames, type ValidatableAttributes } from './IValidatable';
+import { completableAttributeNames, type CompletableAttributes } from './attributeTypes/CompletableAttributes';
+import { SurveyObject } from './SurveyObject';
+import { weightableAttributeNames, type WeightableAttributes, type Weight, validateWeights } from './Weight';
+import { uuidableAttributeNames, type UuidableAttributes, Uuidable } from './Uuidable';
 import * as OAttr from './attributeTypes/OrganizationAttributes';
 import { Result, createErrors, createOk } from '../../types/Result.type';
 import { ParamsValidatorUtils } from '../../utils/ParamsValidatorUtils';
@@ -23,9 +25,10 @@ import { SurveyObjectsRegistry } from './SurveyObjectsRegistry';
 import { Interview } from './interview/Interview';
 
 export const organizationAttributes = [
-    '_weights',
-    '_isValid',
-    '_uuid',
+    ...weightableAttributeNames,
+    ...validatableAttributeNames,
+    ...uuidableAttributeNames,
+    ...completableAttributeNames,
     'name',
     'shortname',
     'numberOfEmployees',
@@ -53,7 +56,8 @@ export type OrganizationAttributes = {
     preData?: Optional<PreData>;
 } & UuidableAttributes &
     WeightableAttributes &
-    ValidatebleAttributes;
+    ValidatableAttributes &
+    CompletableAttributes;
 
 export type OrganizationWithComposedAttributes = OrganizationAttributes & {
     /**
@@ -80,7 +84,7 @@ export type SerializedExtendedOrganizationAttributes = {
  * Organization is a base object that represents an organization,
  * a company, a place with employees, or a group of persons other than a household.
  */
-export class Organization extends Uuidable implements IValidatable {
+export class Organization extends SurveyObject {
     private _surveyObjectsRegistry: SurveyObjectsRegistry;
     private _attributes: OrganizationAttributes;
     private _customAttributes: { [key: string]: unknown };
@@ -129,14 +133,6 @@ export class Organization extends Uuidable implements IValidatable {
 
     get customAttributes(): { [key: string]: unknown } {
         return this._customAttributes;
-    }
-
-    get _isValid(): Optional<boolean> {
-        return this._attributes._isValid;
-    }
-
-    set _isValid(value: Optional<boolean>) {
-        this._attributes._isValid = value;
     }
 
     get _weights(): Optional<Weight[]> {
@@ -283,15 +279,6 @@ export class Organization extends Uuidable implements IValidatable {
         return createOk(organization as Organization);
     }
 
-    validate(): Optional<boolean> {
-        this._attributes._isValid = true;
-        return true;
-    }
-
-    isValid(): Optional<boolean> {
-        return this._isValid;
-    }
-
     static validateParams(dirtyParams: { [key: string]: unknown }, displayName = 'Organization'): Error[] {
         const errors: Error[] = [];
 
@@ -301,6 +288,8 @@ export class Organization extends Uuidable implements IValidatable {
         errors.push(...Uuidable.validateParams(dirtyParams));
 
         errors.push(...ParamsValidatorUtils.isBoolean('_isValid', dirtyParams._isValid, displayName));
+
+        errors.push(...SurveyObject.validateCompletableParams(dirtyParams, displayName));
 
         errors.push(...validateWeights(dirtyParams._weights as Optional<Weight[]>));
 

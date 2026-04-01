@@ -9,9 +9,11 @@ import _omit from 'lodash/omit';
 
 import { Optional } from '../../types/Optional.type';
 import { PreData } from '../../types/shared';
-import { IValidatable, ValidatebleAttributes } from './IValidatable';
-import { Uuidable, UuidableAttributes } from './Uuidable';
-import { WeightableAttributes, Weight, validateWeights } from './Weight';
+import { validatableAttributeNames, type ValidatableAttributes } from './IValidatable';
+import { completableAttributeNames, type CompletableAttributes } from './attributeTypes/CompletableAttributes';
+import { SurveyObject } from './SurveyObject';
+import { weightableAttributeNames, type WeightableAttributes, type Weight, validateWeights } from './Weight';
+import { uuidableAttributeNames, type UuidableAttributes, Uuidable } from './Uuidable';
 import { Place, ExtendedPlaceAttributes, SerializedExtendedPlaceAttributes } from './Place';
 import * as VPAttr from './attributeTypes/VisitedPlaceAttributes';
 import { ParamsValidatorUtils } from '../../utils/ParamsValidatorUtils';
@@ -28,9 +30,10 @@ import { SurveyObjectsRegistry } from './SurveyObjectsRegistry';
 
 export const visitedPlaceAttributes = [
     ...startEndDateAndTimesAttributes,
-    '_weights',
-    '_isValid',
-    '_uuid',
+    ...weightableAttributeNames,
+    ...validatableAttributeNames,
+    ...uuidableAttributeNames,
+    ...completableAttributeNames,
     '_sequence',
     'activity',
     'activityCategory',
@@ -58,7 +61,8 @@ export type VisitedPlaceAttributes = {
 } & StartEndDateAndTimesAttributes &
     UuidableAttributes &
     WeightableAttributes &
-    ValidatebleAttributes;
+    ValidatableAttributes &
+    CompletableAttributes;
 
 export type VisitedPlaceWithComposedAttributes = VisitedPlaceAttributes & {
     _place?: Optional<ExtendedPlaceAttributes>;
@@ -78,7 +82,7 @@ export type SerializedExtendedVisitedPlaceAttributes = {
  * It could be home, a work place, a school place, a restaurant, a place of leisure,
  * a shopping place, etc.
  */
-export class VisitedPlace extends Uuidable implements IValidatable {
+export class VisitedPlace extends SurveyObject {
     private _surveyObjectsRegistry: SurveyObjectsRegistry;
     private _attributes: VisitedPlaceAttributes;
     private _customAttributes: { [key: string]: unknown };
@@ -120,14 +124,6 @@ export class VisitedPlace extends Uuidable implements IValidatable {
 
     get customAttributes(): { [key: string]: unknown } {
         return this._customAttributes;
-    }
-
-    get _isValid(): Optional<boolean> {
-        return this._attributes._isValid;
-    }
-
-    set _isValid(value: Optional<boolean>) {
-        this._attributes._isValid = value;
     }
 
     get _weights(): Optional<Weight[]> {
@@ -298,15 +294,6 @@ export class VisitedPlace extends Uuidable implements IValidatable {
         return createOk(visitedPlace as VisitedPlace);
     }
 
-    validate(): Optional<boolean> {
-        this._attributes._isValid = true;
-        return true;
-    }
-
-    isValid(): Optional<boolean> {
-        return this._isValid;
-    }
-
     static validateParams(dirtyParams: { [key: string]: unknown }, displayName = 'VisitedPlace'): Error[] {
         const errors: Error[] = [];
 
@@ -319,6 +306,8 @@ export class VisitedPlace extends Uuidable implements IValidatable {
 
         // Validate _isValid:
         errors.push(...ParamsValidatorUtils.isBoolean('_isValid', dirtyParams._isValid, displayName));
+
+        errors.push(...SurveyObject.validateCompletableParams(dirtyParams, displayName));
 
         errors.push(...validateWeights(dirtyParams._weights as Optional<Weight[]>));
 

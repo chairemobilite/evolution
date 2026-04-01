@@ -9,9 +9,11 @@ import _omit from 'lodash/omit';
 
 import { Optional } from '../../types/Optional.type';
 import { PreData } from '../../types/shared';
-import { IValidatable, ValidatebleAttributes } from './IValidatable';
-import { WeightableAttributes, Weight, validateWeights } from './Weight';
-import { Uuidable, UuidableAttributes } from './Uuidable';
+import { validatableAttributeNames, type ValidatableAttributes } from './IValidatable';
+import { completableAttributeNames, type CompletableAttributes } from './attributeTypes/CompletableAttributes';
+import { SurveyObject } from './SurveyObject';
+import { weightableAttributeNames, type WeightableAttributes, type Weight, validateWeights } from './Weight';
+import { uuidableAttributeNames, type UuidableAttributes, Uuidable } from './Uuidable';
 import { Person, ExtendedPersonAttributes, SerializedExtendedPersonAttributes } from './Person';
 import * as HAttr from './attributeTypes/HouseholdAttributes';
 import { Result, createErrors, createOk } from '../../types/Result.type';
@@ -24,9 +26,10 @@ import { Home } from './Home';
 import { Interview } from './interview/Interview';
 
 export const householdAttributes = [
-    '_weights',
-    '_isValid',
-    '_uuid',
+    ...weightableAttributeNames,
+    ...validatableAttributeNames,
+    ...uuidableAttributeNames,
+    ...completableAttributeNames,
     'size',
     'carNumber',
     'twoWheelNumber',
@@ -66,7 +69,8 @@ export type HouseholdAttributes = {
     preData?: Optional<PreData>;
 } & UuidableAttributes &
     WeightableAttributes &
-    ValidatebleAttributes;
+    ValidatableAttributes &
+    CompletableAttributes;
 
 export type HouseholdWithComposedAttributes = HouseholdAttributes & {
     _members?: Optional<ExtendedPersonAttributes[]>;
@@ -87,7 +91,7 @@ export type SerializedExtendedHouseholdAttributes = {
  * the members composed array includes Person objects.
  * uuid for the household must be equal to the uuid of the interview
  */
-export class Household extends Uuidable implements IValidatable {
+export class Household extends SurveyObject {
     private _surveyObjectsRegistry: SurveyObjectsRegistry;
     private _attributes: HouseholdAttributes;
     private _customAttributes: { [key: string]: unknown };
@@ -138,14 +142,6 @@ export class Household extends Uuidable implements IValidatable {
 
     get customAttributes(): { [key: string]: unknown } {
         return this._customAttributes;
-    }
-
-    get _isValid(): Optional<boolean> {
-        return this._attributes._isValid;
-    }
-
-    set _isValid(value: Optional<boolean>) {
-        this._attributes._isValid = value;
     }
 
     get _weights(): Optional<Weight[]> {
@@ -355,15 +351,6 @@ export class Household extends Uuidable implements IValidatable {
         return createOk(household as Household);
     }
 
-    validate(): Optional<boolean> {
-        this._attributes._isValid = true;
-        return true;
-    }
-
-    isValid(): Optional<boolean> {
-        return this._isValid;
-    }
-
     static validateParams(dirtyParams: { [key: string]: unknown }, displayName = 'Household'): Error[] {
         const errors: Error[] = [];
 
@@ -373,6 +360,7 @@ export class Household extends Uuidable implements IValidatable {
         errors.push(...Uuidable.validateParams(dirtyParams));
 
         errors.push(...ParamsValidatorUtils.isBoolean('_isValid', dirtyParams._isValid, displayName));
+        errors.push(...SurveyObject.validateCompletableParams(dirtyParams, displayName));
 
         errors.push(...validateWeights(dirtyParams._weights as Optional<Weight[]>));
 

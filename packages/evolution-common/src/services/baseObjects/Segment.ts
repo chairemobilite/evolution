@@ -9,9 +9,11 @@ import _omit from 'lodash/omit';
 
 import { Optional } from '../../types/Optional.type';
 import { PreData } from '../../types/shared';
-import { IValidatable, ValidatebleAttributes } from './IValidatable';
-import { Uuidable, UuidableAttributes } from './Uuidable';
-import { WeightableAttributes, Weight, validateWeights } from './Weight';
+import { validatableAttributeNames, type ValidatableAttributes } from './IValidatable';
+import { completableAttributeNames, type CompletableAttributes } from './attributeTypes/CompletableAttributes';
+import { SurveyObject } from './SurveyObject';
+import { weightableAttributeNames, type WeightableAttributes, type Weight, validateWeights } from './Weight';
+import { uuidableAttributeNames, type UuidableAttributes, Uuidable } from './Uuidable';
 import * as SAttr from './attributeTypes/SegmentAttributes';
 import { Junction, ExtendedJunctionAttributes, SerializedExtendedJunctionAttributes } from './Junction';
 import { Routing, RoutingAttributes, SerializedExtendedRoutingAttributes } from './Routing';
@@ -29,9 +31,10 @@ import { Household } from './Household';
 
 export const segmentAttributes = [
     ...startEndDateAndTimesAttributes,
-    '_weights',
-    '_isValid',
-    '_uuid',
+    ...weightableAttributeNames,
+    ...validatableAttributeNames,
+    ...uuidableAttributeNames,
+    ...completableAttributeNames,
     '_sequence',
     'mode',
     'modeOtherSpecify',
@@ -93,7 +96,8 @@ export type SegmentAttributes = {
 } & StartEndDateAndTimesAttributes &
     UuidableAttributes &
     WeightableAttributes &
-    ValidatebleAttributes;
+    ValidatableAttributes &
+    CompletableAttributes;
 
 export type ExtendedSegmentAttributes = SegmentAttributes & SegmentWithComposedAttributes & { [key: string]: unknown };
 
@@ -119,7 +123,7 @@ export type SerializedExtendedSegmentAttributes = {
  * like subway station, a parking or another or the trip origin
  * and/or destination when the segment is first or last for the trip
  */
-export class Segment extends Uuidable implements IValidatable {
+export class Segment extends SurveyObject {
     private _surveyObjectsRegistry: SurveyObjectsRegistry;
     private _attributes: SegmentAttributes;
     private _customAttributes: { [key: string]: unknown };
@@ -249,14 +253,6 @@ export class Segment extends Uuidable implements IValidatable {
 
     get customAttributes(): { [key: string]: unknown } {
         return this._customAttributes;
-    }
-
-    get _isValid(): Optional<boolean> {
-        return this._attributes._isValid;
-    }
-
-    set _isValid(value: Optional<boolean>) {
-        this._attributes._isValid = value;
     }
 
     get _weights(): Optional<Weight[]> {
@@ -530,15 +526,6 @@ export class Segment extends Uuidable implements IValidatable {
         return createOk(segment as Segment);
     }
 
-    validate(): Optional<boolean> {
-        this._attributes._isValid = true;
-        return true;
-    }
-
-    isValid(): Optional<boolean> {
-        return this._isValid;
-    }
-
     /**
      * Validates attributes types for Segment.
      * @param dirtyParams The parameters to validate.
@@ -557,6 +544,8 @@ export class Segment extends Uuidable implements IValidatable {
         errors.push(...ParamsValidatorUtils.isPositiveInteger('_sequence', dirtyParams._sequence, displayName));
 
         errors.push(...ParamsValidatorUtils.isBoolean('_isValid', dirtyParams._isValid, displayName));
+
+        errors.push(...SurveyObject.validateCompletableParams(dirtyParams, displayName));
 
         errors.push(...validateWeights(dirtyParams._weights as Optional<Weight[]>));
 

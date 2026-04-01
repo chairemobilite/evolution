@@ -7,6 +7,12 @@
 
 import { SchoolPlace } from '../SchoolPlace';
 import { placeAttributes } from '../Place';
+import { completableAttributeNames, type CompletableAttributeName } from '../attributeTypes/CompletableAttributes';
+import {
+    completableInvalidParamRows,
+    describeCompletableSurveyObjectMixinValues,
+    describeCreateRejectsNonBooleanCompletableParams
+} from './completableSurveyObjectTestHelpers';
 import { v4 as uuidV4 } from 'uuid';
 import { WeightMethod, WeightMethodAttributes } from '../WeightMethod';
 import { isOk, hasErrors, unwrap } from '../../../types/Result.type';
@@ -73,9 +79,16 @@ describe('SchoolPlace', () => {
 
     test('should have a validateParams section for each attribute', () => {
         const validateParamsCode = SchoolPlace.validateParams.toString();
-        placeAttributes.filter((attribute) => attribute !== '_uuid' && attribute !== '_weights').forEach((attributeName) => {
-            expect(validateParamsCode).toContain('\''+attributeName+'\'');
-        });
+        placeAttributes
+            .filter(
+                (attribute) =>
+                    attribute !== '_uuid' &&
+                    attribute !== '_weights' &&
+                    !completableAttributeNames.includes(attribute as CompletableAttributeName)
+            )
+            .forEach((attributeName) => {
+                expect(validateParamsCode).toContain('\'' + attributeName + '\'');
+            });
     });
 
     test('should get uuid', () => {
@@ -132,6 +145,17 @@ describe('SchoolPlace', () => {
         expect(schoolPlace.isValid()).toBe(true);
     });
 
+    describeCompletableSurveyObjectMixinValues<SchoolPlace>({
+        createDefault: () => new SchoolPlace(validSchoolPlaceAttributes, registry)
+    });
+
+    describeCreateRejectsNonBooleanCompletableParams(
+        'SchoolPlace',
+        SchoolPlace.create,
+        () => validSchoolPlaceAttributes,
+        () => registry
+    );
+
     test('should create a SchoolPlace instance with custom attributes', () => {
         const customAttributes = {
             customAttribute1: 'value1',
@@ -148,10 +172,13 @@ describe('SchoolPlace', () => {
     });
 
     describe('validateParams', () => {
-        test.each([
-            ['parkingType', 123],
-            ['parkingFeeType', 123],
-        ])('should return an error for invalid %s', (param, value) => {
+        test.each(
+            [
+                ['parkingType', 123],
+                ['parkingFeeType', 123],
+                ...completableInvalidParamRows()
+            ] as [string, string | number][]
+        )('should return an error for invalid %s', (param, value) => {
             const invalidAttributes = { ...validSchoolPlaceAttributes, [param]: value };
             const errors = SchoolPlace.validateParams(invalidAttributes);
             expect(errors[0].toString()).toContain(param);
