@@ -13,6 +13,8 @@ import {
     Journey,
     Person,
     Segment,
+    StartRemoveGroupedObjects,
+    StartUpdateInterview,
     Trip,
     UserInterviewAttributes,
     VisitedPlace
@@ -952,6 +954,103 @@ export const reconcileVisitedPlaces = ({
         updateValuesByPath['response._activeVisitedPlaceId'] = nextIncompletePlace?._uuid || null;
     }
     return updateValuesByPath;
+};
+
+/**
+ * Delete a single visited place and update the interview accordingly, by
+ * replacing shortcuts to this place by the place data and deleting the next
+ * visited place if both previous and next are redundant activities. The
+ * interview will be updated after all grouped objects are removed, with the new
+ * values for the visited places and the new active visited place.
+ *
+ * // FIXME Copied from od_nationale_quebecConsider making it async and
+ * returning a promise so the caller can await the end of the process if needed.
+ * Now, when this function returns, there may still be a few calls to the server
+ * pending before the interview is fully updated.
+ *
+ * @param {Object} options - The options object.
+ * @param {UserInterviewAttributes} options.interview The interview object
+ * @param {Person} options.person The person the visited place belongs to
+ * @param {Journey} options.journey The journey the visited place is part of
+ * @param {VisitedPlace} options.visitedPlace The visited place to delete
+ * @param {Function} options.startRemoveGroupedObjects Function to start
+ * removing grouped objects
+ * @param {Function} options.startUpdateInterview Function to start updating the
+ * interview
+ * @returns
+ */
+export const deleteVisitedPlace = ({
+    interview,
+    person,
+    journey,
+    visitedPlace,
+    startRemoveGroupedObjects,
+    startUpdateInterview
+}: {
+    interview: UserInterviewAttributes;
+    person: Person;
+    journey: Journey;
+    visitedPlace: VisitedPlace;
+    startRemoveGroupedObjects: StartRemoveGroupedObjects;
+    startUpdateInterview: StartUpdateInterview;
+}) => {
+    const visitedPlacePath = `household.persons.${person._uuid}.journeys.${journey._uuid}.visitedPlaces.${visitedPlace._uuid}`;
+    const visitedPlacePathsToDelete = [visitedPlacePath];
+    const previousVisitedPlace = getPreviousVisitedPlace({
+        visitedPlaceId: visitedPlace._uuid,
+        journey
+    });
+    const nextVisitedPlace = getNextVisitedPlace({ visitedPlaceId: visitedPlace._uuid, journey });
+    const valuesByPathAfterDeletion = {};
+
+    // Delete the next visited place if both previous and next are home
+    // activities. Update the previous places' departure time to match the one
+    // from the deleted next place
+    // FIXME Should we also do this for other activities? Like workUsual, schoolUsual and loop activities?
+    // FIXME Should this be part of the reconcileVisitedPlaces function? So the delete
+    // only does the delete and the reconcile will handle the rest. See if this logic is used anywhere else or worth generalizing.
+    if (
+        nextVisitedPlace &&
+        nextVisitedPlace.activity === 'home' &&
+        previousVisitedPlace &&
+        previousVisitedPlace.activity === 'home'
+    ) {
+        const nextVisitedPlacePath = `household.persons.${person._uuid}.journeys.${journey._uuid}.visitedPlaces.${nextVisitedPlace._uuid}`;
+        const previousVisitedPlacePath = `household.persons.${person._uuid}.journeys.${journey._uuid}.visitedPlaces.${previousVisitedPlace._uuid}`;
+        valuesByPathAfterDeletion[`response.${previousVisitedPlacePath}.departureTime`] =
+            nextVisitedPlace.departureTime;
+        visitedPlacePathsToDelete.push(nextVisitedPlacePath);
+    }
+    // Before deleting, replace the location shortcuts by original data, the will be updated after group removal
+    const updatedValues = visitedPlacePathsToDelete
+        .map((placePath) => replaceVisitedPlaceShortcuts({ interview, shortcutTo: placePath }))
+        .filter((updatedPaths) => updatedPaths !== undefined)
+        .reduce(
+            (previous, current) => ({
+                updatedValuesByPath: Object.assign(previous.updatedValuesByPath, current.updatedValuesByPath),
+                unsetPaths: [...previous.unsetPaths, ...current.unsetPaths]
+            }),
+            { updatedValuesByPath: {}, unsetPaths: [] }
+        );
+
+    startRemoveGroupedObjects(visitedPlacePathsToDelete, (updatedInterview) => {
+        const updatedPerson = getPerson({ interview: updatedInterview }) as Person;
+        const updatedJourney = getActiveJourney({ interview: updatedInterview, person: updatedPerson }) as Journey;
+        const updateValuesByPath = reconcileVisitedPlaces({
+            person: updatedPerson,
+            journey: updatedJourney,
+            interview: updatedInterview,
+            includeSelectedVisitedPlaceId: true
+        });
+        startUpdateInterview({
+            valuesByPath: Object.assign(
+                updatedValues.updatedValuesByPath,
+                valuesByPathAfterDeletion,
+                updateValuesByPath
+            ),
+            unsetPaths: updatedValues.unsetPaths
+        });
+    });
 };
 
 // *** Segments-related functions

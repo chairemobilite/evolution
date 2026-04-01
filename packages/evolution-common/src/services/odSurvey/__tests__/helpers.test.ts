@@ -13,6 +13,7 @@ import projectConfig from '../../../config/project.config';
 import { Journey, Person, Trip, UserInterviewAttributes, VisitedPlace } from '../../questionnaire/types';
 import { setProjectConfiguration } from 'chaire-lib-common/lib/config/shared/project.config';
 import { loopActivities } from '../types';
+import { otherPlace2P1Coordinates } from '../../../tests/surveys/testCasesInterview';
 
 const baseInterviewAttributes: Pick<
     UserInterviewAttributes,
@@ -1794,6 +1795,117 @@ describe('reconcileVisitedPlaces', () => {
                 includeSelectedVisitedPlaceId: true
             })
         ).toEqual({ 'response._activeVisitedPlaceId': visitedPlaces[1]._uuid });
+    });
+});
+
+describe('deleteVisitedPlace', () => {
+    const deletePath = (obj: Record<string, any>, dottedPath: string) => {
+        const pathParts = dottedPath.split('.');
+        const lastPart = pathParts.pop();
+        if (!lastPart) {
+            return;
+        }
+        const parent = pathParts.reduce((current, key) => {
+            if (!current || typeof current !== 'object') {
+                return undefined;
+            }
+            return current[key];
+        }, obj as any);
+        if (parent && typeof parent === 'object') {
+            delete parent[lastPart];
+        }
+    };
+
+    each([
+        [
+            'deletes only selected place when previous and next are not both home',
+            {
+                visitedPlaceId: 'otherPlaceP1',
+                expectedDeletedPaths: ['household.persons.personId1.journeys.journeyId1.visitedPlaces.otherPlaceP1'],
+                expectedUpdateInterviewArgs: {
+                    valuesByPath: {
+                        'response._activeVisitedPlaceId': null
+                    },
+                    unsetPaths: []
+                }
+            }
+        ],
+        [
+            'deletes selected place and next home place, when previous and next are both home, and updates previous departure time',
+            {
+                visitedPlaceId: 'workPlace1P1',
+                expectedDeletedPaths: [
+                    'household.persons.personId1.journeys.journeyId1.visitedPlaces.workPlace1P1',
+                    'household.persons.personId1.journeys.journeyId1.visitedPlaces.homePlace2P1'
+                ],
+                expectedUpdateInterviewArgs: {
+                    valuesByPath: {
+                        'response.household.persons.personId1.journeys.journeyId1.visitedPlaces.homePlace1P1.departureTime':
+                            14 * 60 * 60,
+                        'response._activeVisitedPlaceId': null
+                    },
+                    unsetPaths: []
+                }
+            }
+        ],
+        [
+            'replaces shortcuts to deleted place before deletion and reconciles remaining places',
+            {
+                // person2's visited place shoppingPlace1P2 is a shortcut to person1's otherPlace2P1, so it should be updated to copy the data
+                visitedPlaceId: 'otherPlace2P1',
+                expectedDeletedPaths: ['household.persons.personId1.journeys.journeyId1.visitedPlaces.otherPlace2P1'],
+                expectedUpdateInterviewArgs: {
+                    valuesByPath: {
+                        'response.household.persons.personId2.journeys.journeyId2.visitedPlaces.shoppingPlace1P2.name':
+                            'This is a shopping place',
+                        'response.household.persons.personId2.journeys.journeyId2.visitedPlaces.shoppingPlace1P2.geography': {
+                            type: 'Feature',
+                            geometry: { type: 'Point', coordinates: otherPlace2P1Coordinates },
+                            properties: { lastAction: 'mapClicked' }
+                        },
+                        'response.household.persons.personId1.journeys.journeyId1.visitedPlaces.otherPlaceP1.nextPlaceCategory':
+                            null,
+                        'response._activeVisitedPlaceId': 'otherPlaceP1'
+                    },
+                    unsetPaths: [
+                        'response.household.persons.personId2.journeys.journeyId2.visitedPlaces.shoppingPlace1P2.shortcut'
+                    ]
+                }
+            }
+        ]
+    ]).test('deleteVisitedPlace: %s', (_title, testCase) => {
+        const interview = _cloneDeep(interviewAttributesForTestCases);
+        interview.response._activePersonId = 'personId1';
+        interview.response._activeJourneyId = 'journeyId1';
+
+        const person = interview.response.household!.persons!.personId1 as Person;
+        const journey = person.journeys!.journeyId1 as Journey;
+        const visitedPlace = journey.visitedPlaces![testCase.visitedPlaceId] as VisitedPlace;
+
+        const startUpdateInterview = jest.fn();
+        // Mock startRemoveGroupedObjects to simulate the deletion of the visited place: just delete the paths and call the callback with the updated interview
+        const startRemoveGroupedObjects = jest.fn((pathsToDelete, callback) => {
+            const updatedInterview = _cloneDeep(interview);
+            pathsToDelete.forEach((pathToDelete: string) => deletePath(updatedInterview.response as any, pathToDelete));
+            callback(updatedInterview);
+        });
+
+        Helpers.deleteVisitedPlace({
+            interview,
+            person,
+            journey,
+            visitedPlace,
+            startRemoveGroupedObjects,
+            startUpdateInterview
+        });
+
+        expect(startRemoveGroupedObjects).toHaveBeenCalledTimes(1);
+        expect(startRemoveGroupedObjects).toHaveBeenCalledWith(
+            testCase.expectedDeletedPaths,
+            expect.any(Function)
+        );
+        expect(startUpdateInterview).toHaveBeenCalledTimes(1);
+        expect(startUpdateInterview).toHaveBeenCalledWith(testCase.expectedUpdateInterviewArgs);
     });
 });
 
