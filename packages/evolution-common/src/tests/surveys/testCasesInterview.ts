@@ -76,7 +76,9 @@ export const interviewAttributesForTestCases: UserRuntimeInterviewAttributes = {
                                     _uuid: 'homePlace1P1',
                                     _sequence: 1,
                                     activityCategory: 'home',
-                                    activity: 'home'
+                                    activity: 'home',
+                                    departureTime: 8 * 60 * 60, // 8AM
+                                    nextPlaceCategory: 'visitedAnotherPlace'
                                 },
                                 workPlace1P1: {
                                     _uuid: 'workPlace1P1',
@@ -84,35 +86,51 @@ export const interviewAttributesForTestCases: UserRuntimeInterviewAttributes = {
                                     activityCategory: 'work',
                                     activity: 'workUsual',
                                     name: 'This is my work',
+                                    arrivalTime: 8 * 60 * 60 + 10 * 60, // 8:10AM
+                                    departureTime: 9 * 60 * 60, // 9AM
                                     geography: {
                                         type: 'Feature',
                                         geometry: { type: 'Point', coordinates: workPlace1P1Coordinates },
                                         properties: { lastAction: 'mapClicked' }
-                                    }
+                                    },
+                                    nextPlaceCategory: 'wentBackHome'
                                 },
                                 homePlace2P1: {
                                     _uuid: 'homePlace2P1',
                                     _sequence: 3,
                                     activityCategory: 'home',
-                                    activity: 'home'
+                                    activity: 'home',
+                                    arrivalTime: 9 * 60 * 60 + 10 * 60, // 9:10AM
+                                    departureTime: 14 * 60 * 60, // 2PM
+                                    nextPlaceCategory: 'visitedAnotherPlace'
                                 },
                                 otherPlaceP1: {
                                     _uuid: 'otherPlaceP1',
                                     _sequence: 4,
                                     activityCategory: 'shoppingServiceRestaurant',
-                                    activity: 'shopping'
+                                    activity: 'shopping',
+                                    arrivalTime: 14 * 60 * 60 + 15 * 60, // 2:15PM
+                                    departureTime: 15 * 60 * 60, // 3PM
+                                    nextPlaceCategory: 'visitedAnotherPlace',
+                                    geography: {
+                                        type: 'Feature',
+                                        geometry: { type: 'Point', coordinates: [-73.6096, 45.5287] },
+                                        properties: { lastAction: 'mapClicked' }
+                                    }
                                 },
                                 otherPlace2P1: {
                                     _uuid: 'otherPlace2P1',
-                                    _sequence: 4,
+                                    _sequence: 5,
                                     activityCategory: 'shoppingServiceRestaurant',
                                     activity: 'shopping',
                                     name: 'This is a shopping place',
+                                    arrivalTime: 15 * 60 * 60 + 15 * 60, // 3:15PM
                                     geography: {
                                         type: 'Feature',
                                         geometry: { type: 'Point', coordinates: otherPlace2P1Coordinates },
                                         properties: { lastAction: 'mapClicked' }
-                                    }
+                                    },
+                                    nextPlaceCategory: 'stayedThereUntilTheNextDay'
                                 }
                             },
                             trips: {

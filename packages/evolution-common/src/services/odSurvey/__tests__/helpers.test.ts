@@ -1079,8 +1079,6 @@ each([
     expect(Helpers.getCarsharingMembersCount({ interview })).toEqual(expected);
 });
 
-
-
 describe('getJourneys', () => {
     const person: Person = {
         _uuid: 'arbitraryPerson',
@@ -1500,6 +1498,139 @@ describe('isLoopActivity', () => {
             activity: activity
         };
         expect(Helpers.isLoopActivity({ visitedPlace })).toEqual(expected);
+    });
+});
+
+describe('getFirstIncompleteVisitedPlace', () => {
+    // personId1 and journeyId1 are used, as the test data has complete data for
+    // visited places for this journey.
+    const baseTestInterviewAttributes = _cloneDeep(interviewAttributesForTestCases);
+    const visitedPlacesArray = Helpers.getVisitedPlacesArray({
+        journey: baseTestInterviewAttributes.response.household!.persons!.personId1.journeys!.journeyId1
+    });
+    
+    each([
+        [
+            'All visited places complete - returns null',
+            {
+                setup: (_interview: UserInterviewAttributes) => {
+                    // No modification needed, baseTestInterviewAttributes has complete visited places
+                },
+                expectedUuid: null
+            }
+        ],
+        [
+            'Missing activity in first visited place',
+            {
+                setup: (interview: UserInterviewAttributes) => {
+                    const journey = interview.response.household!.persons!.personId1.journeys!.journeyId1;
+                    const visitedPlaces = Object.values(journey.visitedPlaces!);
+                    visitedPlaces[0].activity = undefined; // Missing activity
+                },
+                expectedUuid: visitedPlacesArray[0]._uuid
+            }
+        ],
+        [
+            'Missing nextPlaceCategory on last visited place',
+            {
+                setup: (interview: UserInterviewAttributes) => {
+                    const journey = interview.response.household!.persons!.personId1.journeys!.journeyId1;
+                    const visitedPlaces = Object.values(journey.visitedPlaces!);
+                    visitedPlaces[visitedPlaces.length - 1].nextPlaceCategory = undefined;
+                },
+                expectedUuid: visitedPlacesArray[visitedPlacesArray.length - 1]._uuid
+            }
+        ],
+        [
+            'Missing arrivalTime for non-first visited place',
+            {
+                setup: (interview: UserInterviewAttributes) => {
+                    const journey = interview.response.household!.persons!.personId1.journeys!.journeyId1;
+                    const visitedPlaces = Object.values(journey.visitedPlaces!);
+                    visitedPlaces[1].arrivalTime = undefined; // Missing arrival time for sequence > 1
+                },
+                expectedUuid: visitedPlacesArray[1]._uuid
+            }
+        ],
+        [
+            'Missing geography for non-loop activity',
+            {
+                setup: (interview: UserInterviewAttributes) => {
+                    const journey = interview.response.household!.persons!.personId1.journeys!.journeyId1;
+                    const visitedPlaces = Object.values(journey.visitedPlaces!);
+                    // Set geography to undefined for a non-loop activity
+                    visitedPlaces[1].activity = 'workUsual'; // Ensure it's a non-loop activity
+                    visitedPlaces[1].geography = undefined;
+                },
+                expectedUuid: visitedPlacesArray[1]._uuid
+            }
+        ],
+        [
+            'Missing geography on loop activity',
+            {
+                setup: (interview: UserInterviewAttributes) => {
+                    const journey = interview.response.household!.persons!.personId1.journeys!.journeyId1;
+                    const visitedPlaces = Object.values(journey.visitedPlaces!);
+                    // Set geography to undefined and first activity to a loop activity
+                    visitedPlaces[1].activity = 'workOnTheRoad'; // Ensure it's a loop activity
+                    visitedPlaces[1].geography = undefined;
+                },
+                expectedUuid: null
+            }
+        ],
+        [
+            'Last visited place without stayedThereUntilTheNextDay',
+            {
+                setup: (interview: UserInterviewAttributes) => {
+                    const journey = interview.response.household!.persons!.personId1.journeys!.journeyId1;
+                    const visitedPlaces = Object.values(journey.visitedPlaces!);
+                    // Not stayed until next day
+                    visitedPlaces[visitedPlaces.length - 1].nextPlaceCategory = 'visitedAnotherPlace'; 
+                },
+                expectedUuid: visitedPlacesArray[visitedPlacesArray.length - 1]._uuid
+            }
+        ],
+        [
+            'Empty visited places array',
+            {
+                setup: (interview: UserInterviewAttributes) => {
+                    const journey = interview.response.household!.persons!.personId1.journeys!.journeyId1;
+                    journey.visitedPlaces = {};
+                },
+                expectedUuid: null
+            }
+        ],
+        [
+            'Missing nextPlaceCategory on non-last visited place with no next place',
+            {
+                setup: (interview: UserInterviewAttributes) => {
+                    const journey = interview.response.household!.persons!.personId1.journeys!.journeyId1;
+                    const visitedPlaces = Object.values(journey.visitedPlaces!) as VisitedPlace[];
+                    visitedPlaces[visitedPlaces.length - 2].nextPlaceCategory = undefined;
+                    // Make sure there is a next place to avoid triggering the !nextVisitedPlace condition
+                },
+                expectedUuid: null // Can be imputed from actual next place, so should not be considered incomplete
+            }
+        ]
+    ]).test('getFirstIncompleteVisitedPlace: %s', (_title, testCase) => {
+        const interview = _cloneDeep(baseTestInterviewAttributes);
+        testCase.setup(interview);
+
+        const person = interview.response.household!.persons!.personId1 as any;
+        const journey = person.journeys!.journeyId1;
+
+        const result = Helpers.getFirstIncompleteVisitedPlace({
+            interview,
+            journey,
+            person
+        });
+
+        if (testCase.expectedUuid === null) {
+            expect(result).toBeNull();
+        } else {
+            expect(result).not.toBeNull();
+            expect(result?._uuid).toBe(testCase.expectedUuid);
+        }
     });
 });
 
@@ -2059,6 +2190,9 @@ describe('getVisitedPlaceGeography', () => {
         _sequence: 7,
         activity: 'schoolUsual'
     };
+    // Remove geography otherPlaceP1 of person 1
+    testInterviewAttributes.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.otherPlaceP1.geography = undefined
+
     each([
         [
             'Home place',
