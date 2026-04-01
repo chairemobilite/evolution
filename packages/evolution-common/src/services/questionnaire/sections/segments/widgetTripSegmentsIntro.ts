@@ -8,7 +8,6 @@
 import { TextWidgetConfig } from '../../../questionnaire/types';
 import * as odHelpers from '../../../odSurvey/helpers';
 import { TFunction } from 'i18next';
-import { loopActivities } from '../../../odSurvey/types';
 
 export const getTripSegmentsIntro = (
     // FIXME: Type this when there is a few more widgets implemented
@@ -35,8 +34,9 @@ export const getTripSegmentsIntro = (
             ? odHelpers.getVisitedPlaceName({ visitedPlace: destination, t, interview })
             : '';
         // If origin or destination is a loopActivity, use this activity as context, otherwise, it's the destination
-        const activityContext =
-            origin.activity && loopActivities.includes(origin.activity) ? origin.activity : destination.activity;
+        const activityContext = odHelpers.isLoopActivity({ visitedPlace: origin })
+            ? origin.activity
+            : destination.activity;
         return t(['customSurvey:segments:CurrentTripSegmentsIntro', 'segments:CurrentTripSegmentsIntro'], {
             context: options.context?.(activityContext) || activityContext,
             count: odHelpers.getCountOrSelfDeclared({ interview, person }),

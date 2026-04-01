@@ -9,16 +9,23 @@ import { getTripSegmentsIntro } from '../widgetTripSegmentsIntro';
 import { interviewAttributesForTestCases } from '../../../../../tests/surveys';
 import * as odHelpers from '../../../../odSurvey/helpers';
 
-jest.mock('../../../../odSurvey/helpers', () => ({
-    getPerson: jest.fn().mockReturnValue({}),
-    getActiveJourney: jest.fn().mockReturnValue({}),
-    getActiveTrip: jest.fn().mockReturnValue({}),
-    getVisitedPlaces: jest.fn().mockReturnValue({}),
-    getOrigin: jest.fn().mockReturnValue({ activity: 'home', _uuid: 'originuuid', _sequence: 1 }),
-    getDestination: jest.fn().mockReturnValue({ activity: 'work', _uuid: 'originuuid', _sequence: 2 }),
-    getVisitedPlaceName: jest.fn().mockReturnValue('visitedPlaceName'),
-    getCountOrSelfDeclared: jest.fn().mockReturnValue(1)
-}));
+jest.mock('../../../../odSurvey/helpers', () => {
+    // Do not mock what does not need to be mocked, to avoid mocking everything.
+    const originalModule = jest.requireActual('../../../../odSurvey/helpers');
+
+    // FIXME Initially, we mocked everything that was called, it may not be necessary to mock them all
+    return {
+        ...originalModule,
+        getPerson: jest.fn().mockReturnValue({}),
+        getActiveJourney: jest.fn().mockReturnValue({}),
+        getActiveTrip: jest.fn().mockReturnValue({}),
+        getVisitedPlaces: jest.fn().mockReturnValue({}),
+        getOrigin: jest.fn().mockReturnValue({ activity: 'home', _uuid: 'originuuid', _sequence: 1 }),
+        getDestination: jest.fn().mockReturnValue({ activity: 'work', _uuid: 'originuuid', _sequence: 2 }),
+        getVisitedPlaceName: jest.fn().mockReturnValue('visitedPlaceName'),
+        getCountOrSelfDeclared: jest.fn().mockReturnValue(1),
+    };
+});
 const mockedGetPerson = odHelpers.getPerson as jest.MockedFunction<typeof odHelpers.getPerson>;
 const mockedGetActiveJourney = odHelpers.getActiveJourney as jest.MockedFunction<typeof odHelpers.getActiveJourney>;
 const mockedGetActiveTrip = odHelpers.getActiveTrip as jest.MockedFunction<typeof odHelpers.getActiveTrip>;

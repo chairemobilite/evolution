@@ -12,6 +12,7 @@ import * as Helpers from '../helpers';
 import projectConfig from '../../../config/project.config';
 import { Journey, Person, Trip, UserInterviewAttributes, VisitedPlace } from '../../questionnaire/types';
 import { setProjectConfiguration } from 'chaire-lib-common/lib/config/shared/project.config';
+import { loopActivities } from '../types';
 
 const baseInterviewAttributes: Pick<
     UserInterviewAttributes,
@@ -1483,6 +1484,22 @@ describe('getNext/PreviousVisitedPlace', () => {
         const attributes = _cloneDeep(journey);
         attributes.visitedPlaces = visitedPlaces;
         expect(Helpers.getPreviousVisitedPlace({ journey: attributes, visitedPlaceId })).toEqual(expected);
+    });
+});
+
+describe('isLoopActivity', () => {
+    test.each([
+        ...loopActivities.map((activity) => [`Loop activity ${activity}`, activity, true] as any),
+        ['Non-loop activity', 'workUsual', false],
+        ['Undefined activity', undefined, false],
+        ['Null activity', null as any, false]
+    ])('isLoopActivity: %s', (_title, activity, expected) => {
+        const visitedPlace = {
+            _uuid: 'visitedPlace1',
+            _sequence: 1,
+            activity: activity
+        };
+        expect(Helpers.isLoopActivity({ visitedPlace })).toEqual(expected);
     });
 });
 

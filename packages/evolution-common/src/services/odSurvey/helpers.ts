@@ -496,7 +496,7 @@ export const selectNextIncompleteTrip = ({ journey }: { journey: Journey }): Tri
 
         // ignore on the road/leisure stroll second trip:
         // FIXME Review how we handle loop activities in trips
-        if (origin && origin.activity && loopActivities.includes(origin.activity)) {
+        if (origin && isLoopActivity({ visitedPlace: origin })) {
             continue;
         }
         // FIXME The content of this function should depend on the survey's
@@ -807,6 +807,16 @@ export const getPreviousVisitedPlace = function ({
     }
     return null; // provided visitedPlace was the first or not part of this journey
 };
+
+/**
+ * Determine whether the visited place has a loop activity.
+ *
+ * @param {Object} options - The options object.
+ * @param {VisitedPlace} options.visitedPlace The visited place to check
+ * @returns {boolean} `true` if the visited place has a loop activity, `false` otherwise
+ */
+export const isLoopActivity = ({ visitedPlace }: { visitedPlace: VisitedPlace }): boolean =>
+    visitedPlace.activity !== undefined && loopActivities.includes(visitedPlace.activity);
 
 // *** Segments-related functions
 

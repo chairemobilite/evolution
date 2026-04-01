@@ -7,15 +7,7 @@
 
 import _isEqual from 'lodash/isEqual';
 import * as odHelpers from '../../../odSurvey/helpers';
-import {
-    loopActivities,
-    simpleModes,
-    Mode,
-    ModePre,
-    modeValues,
-    modePreValues,
-    modeToModePreMap
-} from '../../../odSurvey/types';
+import { simpleModes, Mode, ModePre, modeValues, modePreValues, modeToModePreMap } from '../../../odSurvey/types';
 import type { Optional } from '../../../../types/Optional.type';
 import type {
     Journey,
@@ -101,10 +93,7 @@ export const isSimpleChainSingleModeReturnTrip = ({
     }
 
     // ignore loop/moving activities:
-    if (
-        (origin.activity && loopActivities.includes(origin.activity)) ||
-        (destination.activity && loopActivities.includes(destination.activity))
-    ) {
+    if (odHelpers.isLoopActivity({ visitedPlace: origin }) || odHelpers.isLoopActivity({ visitedPlace: destination })) {
         return false;
     }
     // If the trip already has more than one segment, it is not a simple chain
