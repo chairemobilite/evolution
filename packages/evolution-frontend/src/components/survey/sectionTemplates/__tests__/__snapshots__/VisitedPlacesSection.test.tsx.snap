@@ -1,0 +1,1514 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`VisitedPlacesSection UI display should render LoadingPage when not preloaded 1`] = `
+<div>
+  <div>
+    Loading...
+  </div>
+</div>
+`;
+
+exports[`VisitedPlacesSection UI display should render the default visited places list and map 1`] = `
+<div>
+  <section
+    class="survey-section survey-section-shortname-visitedPlaces"
+  >
+    <div
+      class="survey-section__content"
+    >
+      <div>
+        Widget 
+        activePersonTitle
+      </div>
+      <div>
+        Widget 
+        buttonSwitchPerson
+      </div>
+      <div
+        class="survey-visited-places-schedules"
+      >
+        <div
+          class="survey-visited-places-schedule-person-container"
+        >
+          <p
+            class="HTML _orange"
+          >
+            <span>
+              Schedule for survey:personWithSequenceAndAge
+            </span>
+          </p>
+          <div
+            class="survey-visited-places-schedule-person"
+          >
+            <div
+              class="survey-visited-places-schedule-visited-place hand-cursor-on-hover"
+              style="left: 0%; width: 28.5714%;"
+              title="visitedPlaceDescription"
+            >
+              <div
+                class="survey-visited-places-schedule-visited-place-icon"
+              >
+                <img
+                  alt="visitedPlaces:activities:home"
+                  src="/dist/icons/activities/home/home.svg"
+                  style="height: 1.8em; padding: 0.1em;"
+                />
+                <p>
+                  <svg
+                    aria-hidden="true"
+                    class="svg-inline--fa fa-clock"
+                    data-icon="clock"
+                    data-prefix="fas"
+                    role="img"
+                    style="margin-right: 0.3rem; margin-left: 0.6rem;"
+                    viewBox="0 0 512 512"
+                  >
+                    <path
+                      d="M256 0a256 256 0 1 1 0 512 256 256 0 1 1 0-512zM232 120l0 136c0 8 4 15.5 10.7 20l96 64c11 7.4 25.9 4.4 33.3-6.7s4.4-25.9-6.7-33.3L280 243.2 280 120c0-13.3-10.7-24-24-24s-24 10.7-24 24z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                  <svg
+                    aria-hidden="true"
+                    class="svg-inline--fa fa-arrow-right"
+                    data-icon="arrow-right"
+                    data-prefix="fas"
+                    role="img"
+                    style="margin-right: 0.3rem; margin-left: 0.3rem;"
+                    viewBox="0 0 512 512"
+                  >
+                    <path
+                      d="M502.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L402.7 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l370.7 0-105.4 105.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                  time-28800
+                </p>
+              </div>
+            </div>
+            <div
+              class="survey-visited-places-schedule-visited-place hand-cursor-on-hover"
+              style="left: 29.1667%; width: 2.9762%;"
+              title="visitedPlaceDescription"
+            >
+              <div
+                class="survey-visited-places-schedule-visited-place-icon"
+              >
+                <img
+                  alt="visitedPlaces:activities:workUsual"
+                  src="/dist/icons/activities/work/briefcase.svg"
+                  style="height: 1.8em; padding: 0.1em;"
+                />
+                <p>
+                  <svg
+                    aria-hidden="true"
+                    class="svg-inline--fa fa-clock"
+                    data-icon="clock"
+                    data-prefix="fas"
+                    role="img"
+                    style="margin-right: 0.3rem; margin-left: 0.6rem;"
+                    viewBox="0 0 512 512"
+                  >
+                    <path
+                      d="M256 0a256 256 0 1 1 0 512 256 256 0 1 1 0-512zM232 120l0 136c0 8 4 15.5 10.7 20l96 64c11 7.4 25.9 4.4 33.3-6.7s4.4-25.9-6.7-33.3L280 243.2 280 120c0-13.3-10.7-24-24-24s-24 10.7-24 24z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                  time-29400
+                  <svg
+                    aria-hidden="true"
+                    class="svg-inline--fa fa-arrow-right"
+                    data-icon="arrow-right"
+                    data-prefix="fas"
+                    role="img"
+                    style="margin-right: 0.3rem; margin-left: 0.3rem;"
+                    viewBox="0 0 512 512"
+                  >
+                    <path
+                      d="M502.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L402.7 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l370.7 0-105.4 105.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                  time-32400
+                </p>
+              </div>
+            </div>
+            <div
+              class="survey-visited-places-schedule-visited-place hand-cursor-on-hover"
+              style="left: 32.7381%; width: 17.2619%;"
+              title="visitedPlaceDescription"
+            >
+              <div
+                class="survey-visited-places-schedule-visited-place-icon"
+              >
+                <img
+                  alt="visitedPlaces:activities:home"
+                  src="/dist/icons/activities/home/home.svg"
+                  style="height: 1.8em; padding: 0.1em;"
+                />
+                <p>
+                  <svg
+                    aria-hidden="true"
+                    class="svg-inline--fa fa-clock"
+                    data-icon="clock"
+                    data-prefix="fas"
+                    role="img"
+                    style="margin-right: 0.3rem; margin-left: 0.6rem;"
+                    viewBox="0 0 512 512"
+                  >
+                    <path
+                      d="M256 0a256 256 0 1 1 0 512 256 256 0 1 1 0-512zM232 120l0 136c0 8 4 15.5 10.7 20l96 64c11 7.4 25.9 4.4 33.3-6.7s4.4-25.9-6.7-33.3L280 243.2 280 120c0-13.3-10.7-24-24-24s-24 10.7-24 24z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                  time-33000
+                  <svg
+                    aria-hidden="true"
+                    class="svg-inline--fa fa-arrow-right"
+                    data-icon="arrow-right"
+                    data-prefix="fas"
+                    role="img"
+                    style="margin-right: 0.3rem; margin-left: 0.3rem;"
+                    viewBox="0 0 512 512"
+                  >
+                    <path
+                      d="M502.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L402.7 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l370.7 0-105.4 105.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                  time-50400
+                </p>
+              </div>
+            </div>
+            <div
+              class="survey-visited-places-schedule-visited-place hand-cursor-on-hover"
+              style="left: 50.8929%; width: 2.6785%;"
+              title="visitedPlaceDescription"
+            >
+              <div
+                class="survey-visited-places-schedule-visited-place-icon"
+              >
+                <img
+                  alt="visitedPlaces:activities:shopping"
+                  src="/dist/icons/activities/shopping/shopping_cart.svg"
+                  style="height: 1.8em; padding: 0.1em;"
+                />
+                <p>
+                  <svg
+                    aria-hidden="true"
+                    class="svg-inline--fa fa-clock"
+                    data-icon="clock"
+                    data-prefix="fas"
+                    role="img"
+                    style="margin-right: 0.3rem; margin-left: 0.6rem;"
+                    viewBox="0 0 512 512"
+                  >
+                    <path
+                      d="M256 0a256 256 0 1 1 0 512 256 256 0 1 1 0-512zM232 120l0 136c0 8 4 15.5 10.7 20l96 64c11 7.4 25.9 4.4 33.3-6.7s4.4-25.9-6.7-33.3L280 243.2 280 120c0-13.3-10.7-24-24-24s-24 10.7-24 24z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                  time-51300
+                  <svg
+                    aria-hidden="true"
+                    class="svg-inline--fa fa-arrow-right"
+                    data-icon="arrow-right"
+                    data-prefix="fas"
+                    role="img"
+                    style="margin-right: 0.3rem; margin-left: 0.3rem;"
+                    viewBox="0 0 512 512"
+                  >
+                    <path
+                      d="M502.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L402.7 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l370.7 0-105.4 105.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                  time-54000
+                </p>
+              </div>
+            </div>
+            <div
+              class="survey-visited-places-schedule-visited-place hand-cursor-on-hover"
+              style="left: 54.4643%; width: 45.5357%;"
+              title="visitedPlaceDescription"
+            >
+              <div
+                class="survey-visited-places-schedule-visited-place-icon"
+              >
+                <img
+                  alt="visitedPlaces:activities:shopping"
+                  src="/dist/icons/activities/shopping/shopping_cart.svg"
+                  style="height: 1.8em; padding: 0.1em;"
+                />
+                <p>
+                  <svg
+                    aria-hidden="true"
+                    class="svg-inline--fa fa-clock"
+                    data-icon="clock"
+                    data-prefix="fas"
+                    role="img"
+                    style="margin-right: 0.3rem; margin-left: 0.6rem;"
+                    viewBox="0 0 512 512"
+                  >
+                    <path
+                      d="M256 0a256 256 0 1 1 0 512 256 256 0 1 1 0-512zM232 120l0 136c0 8 4 15.5 10.7 20l96 64c11 7.4 25.9 4.4 33.3-6.7s4.4-25.9-6.7-33.3L280 243.2 280 120c0-13.3-10.7-24-24-24s-24 10.7-24 24z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                  time-54900
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="survey-visited-places-list-and-map-container"
+      >
+        <ul
+          class="survey-visited-places-list "
+        >
+          <li
+            class="no-bullet"
+          >
+            <div>
+              Widget 
+              personVisitedPlacesTitle
+            </div>
+          </li>
+          <li
+            class="no-bullet survey-visited-place-item"
+          >
+            <span
+              class="survey-visited-place-item-element survey-visited-place-item-sequence-and-icon"
+            >
+              1
+              .
+               
+              <div
+                class="survey-visited-place-item-icon-container"
+              >
+                <img
+                  alt="visitedPlaces:activities:home"
+                  src="/dist/icons/activities/home/home.svg"
+                  style="height: 3rem;"
+                />
+              </div>
+            </span>
+            <span
+              class="survey-visited-place-item-element survey-visited-place-item-description text-box-ellipsis"
+            >
+              <span
+                class=""
+              >
+                visitedPlaces:activities:home
+              </span>
+            </span>
+            <span
+              class="survey-visited-place-item-element survey-visited-place-item-buttons"
+            >
+              <svg
+                aria-hidden="true"
+                class="svg-inline--fa fa-clock"
+                data-icon="clock"
+                data-prefix="fas"
+                role="img"
+                style="margin-right: 0.3rem; margin-left: 0.6rem;"
+                viewBox="0 0 512 512"
+              >
+                <path
+                  d="M256 0a256 256 0 1 1 0 512 256 256 0 1 1 0-512zM232 120l0 136c0 8 4 15.5 10.7 20l96 64c11 7.4 25.9 4.4 33.3-6.7s4.4-25.9-6.7-33.3L280 243.2 280 120c0-13.3-10.7-24-24-24s-24 10.7-24 24z"
+                  fill="currentColor"
+                />
+              </svg>
+              <svg
+                aria-hidden="true"
+                class="svg-inline--fa fa-arrow-right"
+                data-icon="arrow-right"
+                data-prefix="fas"
+                role="img"
+                style="margin-right: 0.3rem; margin-left: 0.3rem;"
+                viewBox="0 0 512 512"
+              >
+                <path
+                  d="M502.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L402.7 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l370.7 0-105.4 105.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
+                  fill="currentColor"
+                />
+              </svg>
+              time-28800
+              <button
+                class="survey-section__button button blue small"
+                style="margin-left: 0.5rem;"
+                title="visitedPlaces:editVisitedPlace"
+                type="button"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="svg-inline--fa fa-pencil"
+                  data-icon="pencil"
+                  data-prefix="fas"
+                  role="img"
+                  viewBox="0 0 512 512"
+                >
+                  <path
+                    d="M36.4 353.2c4.1-14.6 11.8-27.9 22.6-38.7l181.2-181.2 33.9-33.9c16.6 16.6 51.3 51.3 104 104l33.9 33.9-33.9 33.9-181.2 181.2c-10.7 10.7-24.1 18.5-38.7 22.6L30.4 510.6c-8.3 2.3-17.3 0-23.4-6.2S-1.4 489.3 .9 481L36.4 353.2zm55.6-3.7c-4.4 4.7-7.6 10.4-9.3 16.6l-24.1 86.9 86.9-24.1c6.4-1.8 12.2-5.1 17-9.7L91.9 349.5zm354-146.1c-16.6-16.6-51.3-51.3-104-104L308 65.5C334.5 39 349.4 24.1 352.9 20.6 366.4 7 384.8-.6 404-.6S441.6 7 455.1 20.6l35.7 35.7C504.4 69.9 512 88.3 512 107.4s-7.6 37.6-21.2 51.1c-3.5 3.5-18.4 18.4-44.9 44.9z"
+                    fill="currentColor"
+                  />
+                </svg>
+              </button>
+              <button
+                class="survey-section__button button red small"
+                title="visitedPlaces:deleteVisitedPlace"
+                type="button"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="svg-inline--fa fa-trash-can"
+                  data-icon="trash-can"
+                  data-prefix="fas"
+                  role="img"
+                  viewBox="0 0 448 512"
+                >
+                  <path
+                    d="M136.7 5.9C141.1-7.2 153.3-16 167.1-16l113.9 0c13.8 0 26 8.8 30.4 21.9L320 32 416 32c17.7 0 32 14.3 32 32s-14.3 32-32 32L32 96C14.3 96 0 81.7 0 64S14.3 32 32 32l96 0 8.7-26.1zM32 144l384 0 0 304c0 35.3-28.7 64-64 64L96 512c-35.3 0-64-28.7-64-64l0-304zm88 64c-13.3 0-24 10.7-24 24l0 192c0 13.3 10.7 24 24 24s24-10.7 24-24l0-192c0-13.3-10.7-24-24-24zm104 0c-13.3 0-24 10.7-24 24l0 192c0 13.3 10.7 24 24 24s24-10.7 24-24l0-192c0-13.3-10.7-24-24-24zm104 0c-13.3 0-24 10.7-24 24l0 192c0 13.3 10.7 24 24 24s24-10.7 24-24l0-192c0-13.3-10.7-24-24-24z"
+                    fill="currentColor"
+                  />
+                </svg>
+              </button>
+            </span>
+          </li>
+          <li
+            class="no-bullet survey-visited-place-insert"
+            style="margin-top: -0.4em; margin-left: 2rem; padding: 0px;"
+          >
+            <button
+              class="button blue center small"
+              title="visitedPlaces:insertVisitedPlace"
+              type="button"
+            >
+              <svg
+                aria-hidden="true"
+                class="svg-inline--fa fa-circle-plus faIconLeft"
+                data-icon="circle-plus"
+                data-prefix="fas"
+                role="img"
+                viewBox="0 0 512 512"
+              >
+                <path
+                  d="M256 512a256 256 0 1 0 0-512 256 256 0 1 0 0 512zM232 344l0-64-64 0c-13.3 0-24-10.7-24-24s10.7-24 24-24l64 0 0-64c0-13.3 10.7-24 24-24s24 10.7 24 24l0 64 64 0c13.3 0 24 10.7 24 24s-10.7 24-24 24l-64 0 0 64c0 13.3-10.7 24-24 24s-24-10.7-24-24z"
+                  fill="currentColor"
+                />
+              </svg>
+              visitedPlaces:insertVisitedPlace
+            </button>
+          </li>
+          <li
+            class="no-bullet survey-visited-place-item"
+          >
+            <span
+              class="survey-visited-place-item-element survey-visited-place-item-sequence-and-icon"
+            >
+              2
+              .
+               
+              <div
+                class="survey-visited-place-item-icon-container"
+              >
+                <img
+                  alt="visitedPlaces:activities:workUsual"
+                  src="/dist/icons/activities/work/briefcase.svg"
+                  style="height: 3rem;"
+                />
+              </div>
+            </span>
+            <span
+              class="survey-visited-place-item-element survey-visited-place-item-description text-box-ellipsis"
+            >
+              <span
+                class=""
+              >
+                visitedPlaces:activities:workUsual
+                <em>
+                   • 
+                  This is my work
+                </em>
+              </span>
+            </span>
+            <span
+              class="survey-visited-place-item-element survey-visited-place-item-buttons"
+            >
+              <svg
+                aria-hidden="true"
+                class="svg-inline--fa fa-clock"
+                data-icon="clock"
+                data-prefix="fas"
+                role="img"
+                style="margin-right: 0.3rem; margin-left: 0.6rem;"
+                viewBox="0 0 512 512"
+              >
+                <path
+                  d="M256 0a256 256 0 1 1 0 512 256 256 0 1 1 0-512zM232 120l0 136c0 8 4 15.5 10.7 20l96 64c11 7.4 25.9 4.4 33.3-6.7s4.4-25.9-6.7-33.3L280 243.2 280 120c0-13.3-10.7-24-24-24s-24 10.7-24 24z"
+                  fill="currentColor"
+                />
+              </svg>
+              time-29400
+              <svg
+                aria-hidden="true"
+                class="svg-inline--fa fa-arrow-right"
+                data-icon="arrow-right"
+                data-prefix="fas"
+                role="img"
+                style="margin-right: 0.3rem; margin-left: 0.3rem;"
+                viewBox="0 0 512 512"
+              >
+                <path
+                  d="M502.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L402.7 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l370.7 0-105.4 105.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
+                  fill="currentColor"
+                />
+              </svg>
+              time-32400
+              <button
+                class="survey-section__button button blue small"
+                style="margin-left: 0.5rem;"
+                title="visitedPlaces:editVisitedPlace"
+                type="button"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="svg-inline--fa fa-pencil"
+                  data-icon="pencil"
+                  data-prefix="fas"
+                  role="img"
+                  viewBox="0 0 512 512"
+                >
+                  <path
+                    d="M36.4 353.2c4.1-14.6 11.8-27.9 22.6-38.7l181.2-181.2 33.9-33.9c16.6 16.6 51.3 51.3 104 104l33.9 33.9-33.9 33.9-181.2 181.2c-10.7 10.7-24.1 18.5-38.7 22.6L30.4 510.6c-8.3 2.3-17.3 0-23.4-6.2S-1.4 489.3 .9 481L36.4 353.2zm55.6-3.7c-4.4 4.7-7.6 10.4-9.3 16.6l-24.1 86.9 86.9-24.1c6.4-1.8 12.2-5.1 17-9.7L91.9 349.5zm354-146.1c-16.6-16.6-51.3-51.3-104-104L308 65.5C334.5 39 349.4 24.1 352.9 20.6 366.4 7 384.8-.6 404-.6S441.6 7 455.1 20.6l35.7 35.7C504.4 69.9 512 88.3 512 107.4s-7.6 37.6-21.2 51.1c-3.5 3.5-18.4 18.4-44.9 44.9z"
+                    fill="currentColor"
+                  />
+                </svg>
+              </button>
+              <button
+                class="survey-section__button button red small"
+                title="visitedPlaces:deleteVisitedPlace"
+                type="button"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="svg-inline--fa fa-trash-can"
+                  data-icon="trash-can"
+                  data-prefix="fas"
+                  role="img"
+                  viewBox="0 0 448 512"
+                >
+                  <path
+                    d="M136.7 5.9C141.1-7.2 153.3-16 167.1-16l113.9 0c13.8 0 26 8.8 30.4 21.9L320 32 416 32c17.7 0 32 14.3 32 32s-14.3 32-32 32L32 96C14.3 96 0 81.7 0 64S14.3 32 32 32l96 0 8.7-26.1zM32 144l384 0 0 304c0 35.3-28.7 64-64 64L96 512c-35.3 0-64-28.7-64-64l0-304zm88 64c-13.3 0-24 10.7-24 24l0 192c0 13.3 10.7 24 24 24s24-10.7 24-24l0-192c0-13.3-10.7-24-24-24zm104 0c-13.3 0-24 10.7-24 24l0 192c0 13.3 10.7 24 24 24s24-10.7 24-24l0-192c0-13.3-10.7-24-24-24zm104 0c-13.3 0-24 10.7-24 24l0 192c0 13.3 10.7 24 24 24s24-10.7 24-24l0-192c0-13.3-10.7-24-24-24z"
+                    fill="currentColor"
+                  />
+                </svg>
+              </button>
+            </span>
+          </li>
+          <li
+            class="no-bullet survey-visited-place-insert"
+            style="margin-top: -0.4em; margin-left: 2rem; padding: 0px;"
+          >
+            <button
+              class="button blue center small"
+              title="visitedPlaces:insertVisitedPlace"
+              type="button"
+            >
+              <svg
+                aria-hidden="true"
+                class="svg-inline--fa fa-circle-plus faIconLeft"
+                data-icon="circle-plus"
+                data-prefix="fas"
+                role="img"
+                viewBox="0 0 512 512"
+              >
+                <path
+                  d="M256 512a256 256 0 1 0 0-512 256 256 0 1 0 0 512zM232 344l0-64-64 0c-13.3 0-24-10.7-24-24s10.7-24 24-24l64 0 0-64c0-13.3 10.7-24 24-24s24 10.7 24 24l0 64 64 0c13.3 0 24 10.7 24 24s-10.7 24-24 24l-64 0 0 64c0 13.3-10.7 24-24 24s-24-10.7-24-24z"
+                  fill="currentColor"
+                />
+              </svg>
+              visitedPlaces:insertVisitedPlace
+            </button>
+          </li>
+          <li
+            class="no-bullet survey-visited-place-item"
+          >
+            <span
+              class="survey-visited-place-item-element survey-visited-place-item-sequence-and-icon"
+            >
+              3
+              .
+               
+              <div
+                class="survey-visited-place-item-icon-container"
+              >
+                <img
+                  alt="visitedPlaces:activities:home"
+                  src="/dist/icons/activities/home/home.svg"
+                  style="height: 3rem;"
+                />
+              </div>
+            </span>
+            <span
+              class="survey-visited-place-item-element survey-visited-place-item-description text-box-ellipsis"
+            >
+              <span
+                class=""
+              >
+                visitedPlaces:activities:home
+              </span>
+            </span>
+            <span
+              class="survey-visited-place-item-element survey-visited-place-item-buttons"
+            >
+              <svg
+                aria-hidden="true"
+                class="svg-inline--fa fa-clock"
+                data-icon="clock"
+                data-prefix="fas"
+                role="img"
+                style="margin-right: 0.3rem; margin-left: 0.6rem;"
+                viewBox="0 0 512 512"
+              >
+                <path
+                  d="M256 0a256 256 0 1 1 0 512 256 256 0 1 1 0-512zM232 120l0 136c0 8 4 15.5 10.7 20l96 64c11 7.4 25.9 4.4 33.3-6.7s4.4-25.9-6.7-33.3L280 243.2 280 120c0-13.3-10.7-24-24-24s-24 10.7-24 24z"
+                  fill="currentColor"
+                />
+              </svg>
+              time-33000
+              <svg
+                aria-hidden="true"
+                class="svg-inline--fa fa-arrow-right"
+                data-icon="arrow-right"
+                data-prefix="fas"
+                role="img"
+                style="margin-right: 0.3rem; margin-left: 0.3rem;"
+                viewBox="0 0 512 512"
+              >
+                <path
+                  d="M502.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L402.7 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l370.7 0-105.4 105.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
+                  fill="currentColor"
+                />
+              </svg>
+              time-50400
+              <button
+                class="survey-section__button button blue small"
+                style="margin-left: 0.5rem;"
+                title="visitedPlaces:editVisitedPlace"
+                type="button"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="svg-inline--fa fa-pencil"
+                  data-icon="pencil"
+                  data-prefix="fas"
+                  role="img"
+                  viewBox="0 0 512 512"
+                >
+                  <path
+                    d="M36.4 353.2c4.1-14.6 11.8-27.9 22.6-38.7l181.2-181.2 33.9-33.9c16.6 16.6 51.3 51.3 104 104l33.9 33.9-33.9 33.9-181.2 181.2c-10.7 10.7-24.1 18.5-38.7 22.6L30.4 510.6c-8.3 2.3-17.3 0-23.4-6.2S-1.4 489.3 .9 481L36.4 353.2zm55.6-3.7c-4.4 4.7-7.6 10.4-9.3 16.6l-24.1 86.9 86.9-24.1c6.4-1.8 12.2-5.1 17-9.7L91.9 349.5zm354-146.1c-16.6-16.6-51.3-51.3-104-104L308 65.5C334.5 39 349.4 24.1 352.9 20.6 366.4 7 384.8-.6 404-.6S441.6 7 455.1 20.6l35.7 35.7C504.4 69.9 512 88.3 512 107.4s-7.6 37.6-21.2 51.1c-3.5 3.5-18.4 18.4-44.9 44.9z"
+                    fill="currentColor"
+                  />
+                </svg>
+              </button>
+              <button
+                class="survey-section__button button red small"
+                title="visitedPlaces:deleteVisitedPlace"
+                type="button"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="svg-inline--fa fa-trash-can"
+                  data-icon="trash-can"
+                  data-prefix="fas"
+                  role="img"
+                  viewBox="0 0 448 512"
+                >
+                  <path
+                    d="M136.7 5.9C141.1-7.2 153.3-16 167.1-16l113.9 0c13.8 0 26 8.8 30.4 21.9L320 32 416 32c17.7 0 32 14.3 32 32s-14.3 32-32 32L32 96C14.3 96 0 81.7 0 64S14.3 32 32 32l96 0 8.7-26.1zM32 144l384 0 0 304c0 35.3-28.7 64-64 64L96 512c-35.3 0-64-28.7-64-64l0-304zm88 64c-13.3 0-24 10.7-24 24l0 192c0 13.3 10.7 24 24 24s24-10.7 24-24l0-192c0-13.3-10.7-24-24-24zm104 0c-13.3 0-24 10.7-24 24l0 192c0 13.3 10.7 24 24 24s24-10.7 24-24l0-192c0-13.3-10.7-24-24-24zm104 0c-13.3 0-24 10.7-24 24l0 192c0 13.3 10.7 24 24 24s24-10.7 24-24l0-192c0-13.3-10.7-24-24-24z"
+                    fill="currentColor"
+                  />
+                </svg>
+              </button>
+            </span>
+          </li>
+          <li
+            class="no-bullet survey-visited-place-insert"
+            style="margin-top: -0.4em; margin-left: 2rem; padding: 0px;"
+          >
+            <button
+              class="button blue center small"
+              title="visitedPlaces:insertVisitedPlace"
+              type="button"
+            >
+              <svg
+                aria-hidden="true"
+                class="svg-inline--fa fa-circle-plus faIconLeft"
+                data-icon="circle-plus"
+                data-prefix="fas"
+                role="img"
+                viewBox="0 0 512 512"
+              >
+                <path
+                  d="M256 512a256 256 0 1 0 0-512 256 256 0 1 0 0 512zM232 344l0-64-64 0c-13.3 0-24-10.7-24-24s10.7-24 24-24l64 0 0-64c0-13.3 10.7-24 24-24s24 10.7 24 24l0 64 64 0c13.3 0 24 10.7 24 24s-10.7 24-24 24l-64 0 0 64c0 13.3-10.7 24-24 24s-24-10.7-24-24z"
+                  fill="currentColor"
+                />
+              </svg>
+              visitedPlaces:insertVisitedPlace
+            </button>
+          </li>
+          <li
+            class="no-bullet survey-visited-place-item"
+          >
+            <span
+              class="survey-visited-place-item-element survey-visited-place-item-sequence-and-icon"
+            >
+              4
+              .
+               
+              <div
+                class="survey-visited-place-item-icon-container"
+              >
+                <img
+                  alt="visitedPlaces:activities:shopping"
+                  src="/dist/icons/activities/shopping/shopping_cart.svg"
+                  style="height: 3rem;"
+                />
+              </div>
+            </span>
+            <span
+              class="survey-visited-place-item-element survey-visited-place-item-description text-box-ellipsis"
+            >
+              <span
+                class=""
+              >
+                visitedPlaces:activities:shopping
+              </span>
+            </span>
+            <span
+              class="survey-visited-place-item-element survey-visited-place-item-buttons"
+            >
+              <svg
+                aria-hidden="true"
+                class="svg-inline--fa fa-clock"
+                data-icon="clock"
+                data-prefix="fas"
+                role="img"
+                style="margin-right: 0.3rem; margin-left: 0.6rem;"
+                viewBox="0 0 512 512"
+              >
+                <path
+                  d="M256 0a256 256 0 1 1 0 512 256 256 0 1 1 0-512zM232 120l0 136c0 8 4 15.5 10.7 20l96 64c11 7.4 25.9 4.4 33.3-6.7s4.4-25.9-6.7-33.3L280 243.2 280 120c0-13.3-10.7-24-24-24s-24 10.7-24 24z"
+                  fill="currentColor"
+                />
+              </svg>
+              time-51300
+              <svg
+                aria-hidden="true"
+                class="svg-inline--fa fa-arrow-right"
+                data-icon="arrow-right"
+                data-prefix="fas"
+                role="img"
+                style="margin-right: 0.3rem; margin-left: 0.3rem;"
+                viewBox="0 0 512 512"
+              >
+                <path
+                  d="M502.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L402.7 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l370.7 0-105.4 105.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
+                  fill="currentColor"
+                />
+              </svg>
+              time-54000
+              <button
+                class="survey-section__button button blue small"
+                style="margin-left: 0.5rem;"
+                title="visitedPlaces:editVisitedPlace"
+                type="button"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="svg-inline--fa fa-pencil"
+                  data-icon="pencil"
+                  data-prefix="fas"
+                  role="img"
+                  viewBox="0 0 512 512"
+                >
+                  <path
+                    d="M36.4 353.2c4.1-14.6 11.8-27.9 22.6-38.7l181.2-181.2 33.9-33.9c16.6 16.6 51.3 51.3 104 104l33.9 33.9-33.9 33.9-181.2 181.2c-10.7 10.7-24.1 18.5-38.7 22.6L30.4 510.6c-8.3 2.3-17.3 0-23.4-6.2S-1.4 489.3 .9 481L36.4 353.2zm55.6-3.7c-4.4 4.7-7.6 10.4-9.3 16.6l-24.1 86.9 86.9-24.1c6.4-1.8 12.2-5.1 17-9.7L91.9 349.5zm354-146.1c-16.6-16.6-51.3-51.3-104-104L308 65.5C334.5 39 349.4 24.1 352.9 20.6 366.4 7 384.8-.6 404-.6S441.6 7 455.1 20.6l35.7 35.7C504.4 69.9 512 88.3 512 107.4s-7.6 37.6-21.2 51.1c-3.5 3.5-18.4 18.4-44.9 44.9z"
+                    fill="currentColor"
+                  />
+                </svg>
+              </button>
+              <button
+                class="survey-section__button button red small"
+                title="visitedPlaces:deleteVisitedPlace"
+                type="button"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="svg-inline--fa fa-trash-can"
+                  data-icon="trash-can"
+                  data-prefix="fas"
+                  role="img"
+                  viewBox="0 0 448 512"
+                >
+                  <path
+                    d="M136.7 5.9C141.1-7.2 153.3-16 167.1-16l113.9 0c13.8 0 26 8.8 30.4 21.9L320 32 416 32c17.7 0 32 14.3 32 32s-14.3 32-32 32L32 96C14.3 96 0 81.7 0 64S14.3 32 32 32l96 0 8.7-26.1zM32 144l384 0 0 304c0 35.3-28.7 64-64 64L96 512c-35.3 0-64-28.7-64-64l0-304zm88 64c-13.3 0-24 10.7-24 24l0 192c0 13.3 10.7 24 24 24s24-10.7 24-24l0-192c0-13.3-10.7-24-24-24zm104 0c-13.3 0-24 10.7-24 24l0 192c0 13.3 10.7 24 24 24s24-10.7 24-24l0-192c0-13.3-10.7-24-24-24zm104 0c-13.3 0-24 10.7-24 24l0 192c0 13.3 10.7 24 24 24s24-10.7 24-24l0-192c0-13.3-10.7-24-24-24z"
+                    fill="currentColor"
+                  />
+                </svg>
+              </button>
+            </span>
+          </li>
+          <li
+            class="no-bullet survey-visited-place-insert"
+            style="margin-top: -0.4em; margin-left: 2rem; padding: 0px;"
+          >
+            <button
+              class="button blue center small"
+              title="visitedPlaces:insertVisitedPlace"
+              type="button"
+            >
+              <svg
+                aria-hidden="true"
+                class="svg-inline--fa fa-circle-plus faIconLeft"
+                data-icon="circle-plus"
+                data-prefix="fas"
+                role="img"
+                viewBox="0 0 512 512"
+              >
+                <path
+                  d="M256 512a256 256 0 1 0 0-512 256 256 0 1 0 0 512zM232 344l0-64-64 0c-13.3 0-24-10.7-24-24s10.7-24 24-24l64 0 0-64c0-13.3 10.7-24 24-24s24 10.7 24 24l0 64 64 0c13.3 0 24 10.7 24 24s-10.7 24-24 24l-64 0 0 64c0 13.3-10.7 24-24 24s-24-10.7-24-24z"
+                  fill="currentColor"
+                />
+              </svg>
+              visitedPlaces:insertVisitedPlace
+            </button>
+          </li>
+          <li
+            class="no-bullet survey-visited-place-item"
+          >
+            <span
+              class="survey-visited-place-item-element survey-visited-place-item-sequence-and-icon"
+            >
+              5
+              .
+               
+              <div
+                class="survey-visited-place-item-icon-container"
+              >
+                <img
+                  alt="visitedPlaces:activities:shopping"
+                  src="/dist/icons/activities/shopping/shopping_cart.svg"
+                  style="height: 3rem;"
+                />
+              </div>
+            </span>
+            <span
+              class="survey-visited-place-item-element survey-visited-place-item-description text-box-ellipsis"
+            >
+              <span
+                class=""
+              >
+                visitedPlaces:activities:shopping
+                <em>
+                   • 
+                  This is a shopping place
+                </em>
+              </span>
+            </span>
+            <span
+              class="survey-visited-place-item-element survey-visited-place-item-buttons"
+            >
+              <svg
+                aria-hidden="true"
+                class="svg-inline--fa fa-clock"
+                data-icon="clock"
+                data-prefix="fas"
+                role="img"
+                style="margin-right: 0.3rem; margin-left: 0.6rem;"
+                viewBox="0 0 512 512"
+              >
+                <path
+                  d="M256 0a256 256 0 1 1 0 512 256 256 0 1 1 0-512zM232 120l0 136c0 8 4 15.5 10.7 20l96 64c11 7.4 25.9 4.4 33.3-6.7s4.4-25.9-6.7-33.3L280 243.2 280 120c0-13.3-10.7-24-24-24s-24 10.7-24 24z"
+                  fill="currentColor"
+                />
+              </svg>
+              time-54900
+              <button
+                class="survey-section__button button blue small"
+                style="margin-left: 0.5rem;"
+                title="visitedPlaces:editVisitedPlace"
+                type="button"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="svg-inline--fa fa-pencil"
+                  data-icon="pencil"
+                  data-prefix="fas"
+                  role="img"
+                  viewBox="0 0 512 512"
+                >
+                  <path
+                    d="M36.4 353.2c4.1-14.6 11.8-27.9 22.6-38.7l181.2-181.2 33.9-33.9c16.6 16.6 51.3 51.3 104 104l33.9 33.9-33.9 33.9-181.2 181.2c-10.7 10.7-24.1 18.5-38.7 22.6L30.4 510.6c-8.3 2.3-17.3 0-23.4-6.2S-1.4 489.3 .9 481L36.4 353.2zm55.6-3.7c-4.4 4.7-7.6 10.4-9.3 16.6l-24.1 86.9 86.9-24.1c6.4-1.8 12.2-5.1 17-9.7L91.9 349.5zm354-146.1c-16.6-16.6-51.3-51.3-104-104L308 65.5C334.5 39 349.4 24.1 352.9 20.6 366.4 7 384.8-.6 404-.6S441.6 7 455.1 20.6l35.7 35.7C504.4 69.9 512 88.3 512 107.4s-7.6 37.6-21.2 51.1c-3.5 3.5-18.4 18.4-44.9 44.9z"
+                    fill="currentColor"
+                  />
+                </svg>
+              </button>
+              <button
+                class="survey-section__button button red small"
+                title="visitedPlaces:deleteVisitedPlace"
+                type="button"
+              >
+                <svg
+                  aria-hidden="true"
+                  class="svg-inline--fa fa-trash-can"
+                  data-icon="trash-can"
+                  data-prefix="fas"
+                  role="img"
+                  viewBox="0 0 448 512"
+                >
+                  <path
+                    d="M136.7 5.9C141.1-7.2 153.3-16 167.1-16l113.9 0c13.8 0 26 8.8 30.4 21.9L320 32 416 32c17.7 0 32 14.3 32 32s-14.3 32-32 32L32 96C14.3 96 0 81.7 0 64S14.3 32 32 32l96 0 8.7-26.1zM32 144l384 0 0 304c0 35.3-28.7 64-64 64L96 512c-35.3 0-64-28.7-64-64l0-304zm88 64c-13.3 0-24 10.7-24 24l0 192c0 13.3 10.7 24 24 24s24-10.7 24-24l0-192c0-13.3-10.7-24-24-24zm104 0c-13.3 0-24 10.7-24 24l0 192c0 13.3 10.7 24 24 24s24-10.7 24-24l0-192c0-13.3-10.7-24-24-24zm104 0c-13.3 0-24 10.7-24 24l0 192c0 13.3 10.7 24 24 24s24-10.7 24-24l0-192c0-13.3-10.7-24-24-24z"
+                    fill="currentColor"
+                  />
+                </svg>
+              </button>
+            </span>
+          </li>
+          <li
+            class="no-bullet survey-visited-place-insert"
+            style="margin-top: -0.4em; margin-left: 2rem; padding: 0px;"
+          >
+            <button
+              class="button blue center small"
+              title="visitedPlaces:insertVisitedPlace"
+              type="button"
+            >
+              <svg
+                aria-hidden="true"
+                class="svg-inline--fa fa-circle-plus faIconLeft"
+                data-icon="circle-plus"
+                data-prefix="fas"
+                role="img"
+                viewBox="0 0 512 512"
+              >
+                <path
+                  d="M256 512a256 256 0 1 0 0-512 256 256 0 1 0 0 512zM232 344l0-64-64 0c-13.3 0-24-10.7-24-24s10.7-24 24-24l64 0 0-64c0-13.3 10.7-24 24-24s24 10.7 24 24l0 64 64 0c13.3 0 24 10.7 24 24s-10.7 24-24 24l-64 0 0 64c0 13.3-10.7 24-24 24s-24-10.7-24-24z"
+                  fill="currentColor"
+                />
+              </svg>
+              visitedPlaces:insertVisitedPlace
+            </button>
+          </li>
+        </ul>
+        <div
+          class="survey-visited-places-map"
+        >
+          <div>
+            Widget 
+            personVisitedPlacesMap
+          </div>
+        </div>
+      </div>
+      <div>
+        Widget 
+        buttonVisitedPlacesConfirmNextSection
+      </div>
+    </div>
+  </section>
+</div>
+`;
+
+exports[`VisitedPlacesSection UI display should render the selected visited place grouped object 1`] = `
+<div>
+  <section
+    class="survey-section survey-section-shortname-visitedPlaces"
+  >
+    <div
+      class="survey-section__content"
+    >
+      <div>
+        Widget 
+        activePersonTitle
+      </div>
+      <div>
+        Widget 
+        buttonSwitchPerson
+      </div>
+      <div
+        class="survey-visited-places-schedules"
+      >
+        <div
+          class="survey-visited-places-schedule-person-container"
+        >
+          <p
+            class="HTML _orange"
+          >
+            <span>
+              Schedule for survey:personWithSequenceAndAge
+            </span>
+          </p>
+          <div
+            class="survey-visited-places-schedule-person"
+          >
+            <div
+              class="survey-visited-places-schedule-visited-place"
+              style="left: 0%; width: 28.5714%;"
+              title="visitedPlaceDescription"
+            >
+              <div
+                class="survey-visited-places-schedule-visited-place-icon"
+              >
+                <img
+                  alt="visitedPlaces:activities:home"
+                  src="/dist/icons/activities/home/home.svg"
+                  style="height: 1.8em; padding: 0.1em;"
+                />
+                <p>
+                  <svg
+                    aria-hidden="true"
+                    class="svg-inline--fa fa-clock"
+                    data-icon="clock"
+                    data-prefix="fas"
+                    role="img"
+                    style="margin-right: 0.3rem; margin-left: 0.6rem;"
+                    viewBox="0 0 512 512"
+                  >
+                    <path
+                      d="M256 0a256 256 0 1 1 0 512 256 256 0 1 1 0-512zM232 120l0 136c0 8 4 15.5 10.7 20l96 64c11 7.4 25.9 4.4 33.3-6.7s4.4-25.9-6.7-33.3L280 243.2 280 120c0-13.3-10.7-24-24-24s-24 10.7-24 24z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                  <svg
+                    aria-hidden="true"
+                    class="svg-inline--fa fa-arrow-right"
+                    data-icon="arrow-right"
+                    data-prefix="fas"
+                    role="img"
+                    style="margin-right: 0.3rem; margin-left: 0.3rem;"
+                    viewBox="0 0 512 512"
+                  >
+                    <path
+                      d="M502.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L402.7 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l370.7 0-105.4 105.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                  time-28800
+                </p>
+              </div>
+            </div>
+            <div
+              class="survey-visited-places-schedule-visited-place"
+              style="left: 29.1667%; width: 2.9762%;"
+              title="visitedPlaceDescription"
+            >
+              <div
+                class="survey-visited-places-schedule-visited-place-icon"
+              >
+                <img
+                  alt="visitedPlaces:activities:workUsual"
+                  src="/dist/icons/activities/work/briefcase.svg"
+                  style="height: 1.8em; padding: 0.1em;"
+                />
+                <p>
+                  <svg
+                    aria-hidden="true"
+                    class="svg-inline--fa fa-clock"
+                    data-icon="clock"
+                    data-prefix="fas"
+                    role="img"
+                    style="margin-right: 0.3rem; margin-left: 0.6rem;"
+                    viewBox="0 0 512 512"
+                  >
+                    <path
+                      d="M256 0a256 256 0 1 1 0 512 256 256 0 1 1 0-512zM232 120l0 136c0 8 4 15.5 10.7 20l96 64c11 7.4 25.9 4.4 33.3-6.7s4.4-25.9-6.7-33.3L280 243.2 280 120c0-13.3-10.7-24-24-24s-24 10.7-24 24z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                  time-29400
+                  <svg
+                    aria-hidden="true"
+                    class="svg-inline--fa fa-arrow-right"
+                    data-icon="arrow-right"
+                    data-prefix="fas"
+                    role="img"
+                    style="margin-right: 0.3rem; margin-left: 0.3rem;"
+                    viewBox="0 0 512 512"
+                  >
+                    <path
+                      d="M502.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L402.7 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l370.7 0-105.4 105.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                  time-32400
+                </p>
+              </div>
+            </div>
+            <div
+              class="survey-visited-places-schedule-visited-place"
+              style="left: 32.7381%; width: 17.2619%;"
+              title="visitedPlaceDescription"
+            >
+              <div
+                class="survey-visited-places-schedule-visited-place-icon"
+              >
+                <img
+                  alt="visitedPlaces:activities:home"
+                  src="/dist/icons/activities/home/home.svg"
+                  style="height: 1.8em; padding: 0.1em;"
+                />
+                <p>
+                  <svg
+                    aria-hidden="true"
+                    class="svg-inline--fa fa-clock"
+                    data-icon="clock"
+                    data-prefix="fas"
+                    role="img"
+                    style="margin-right: 0.3rem; margin-left: 0.6rem;"
+                    viewBox="0 0 512 512"
+                  >
+                    <path
+                      d="M256 0a256 256 0 1 1 0 512 256 256 0 1 1 0-512zM232 120l0 136c0 8 4 15.5 10.7 20l96 64c11 7.4 25.9 4.4 33.3-6.7s4.4-25.9-6.7-33.3L280 243.2 280 120c0-13.3-10.7-24-24-24s-24 10.7-24 24z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                  time-33000
+                  <svg
+                    aria-hidden="true"
+                    class="svg-inline--fa fa-arrow-right"
+                    data-icon="arrow-right"
+                    data-prefix="fas"
+                    role="img"
+                    style="margin-right: 0.3rem; margin-left: 0.3rem;"
+                    viewBox="0 0 512 512"
+                  >
+                    <path
+                      d="M502.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L402.7 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l370.7 0-105.4 105.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                  time-50400
+                </p>
+              </div>
+            </div>
+            <div
+              class="survey-visited-places-schedule-visited-place"
+              style="left: 50.8929%; width: 2.6785%;"
+              title="visitedPlaceDescription"
+            >
+              <div
+                class="survey-visited-places-schedule-visited-place-icon"
+              >
+                <img
+                  alt="visitedPlaces:activities:shopping"
+                  src="/dist/icons/activities/shopping/shopping_cart.svg"
+                  style="height: 1.8em; padding: 0.1em;"
+                />
+                <p>
+                  <svg
+                    aria-hidden="true"
+                    class="svg-inline--fa fa-clock"
+                    data-icon="clock"
+                    data-prefix="fas"
+                    role="img"
+                    style="margin-right: 0.3rem; margin-left: 0.6rem;"
+                    viewBox="0 0 512 512"
+                  >
+                    <path
+                      d="M256 0a256 256 0 1 1 0 512 256 256 0 1 1 0-512zM232 120l0 136c0 8 4 15.5 10.7 20l96 64c11 7.4 25.9 4.4 33.3-6.7s4.4-25.9-6.7-33.3L280 243.2 280 120c0-13.3-10.7-24-24-24s-24 10.7-24 24z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                  time-51300
+                  <svg
+                    aria-hidden="true"
+                    class="svg-inline--fa fa-arrow-right"
+                    data-icon="arrow-right"
+                    data-prefix="fas"
+                    role="img"
+                    style="margin-right: 0.3rem; margin-left: 0.3rem;"
+                    viewBox="0 0 512 512"
+                  >
+                    <path
+                      d="M502.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L402.7 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l370.7 0-105.4 105.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                  time-54000
+                </p>
+              </div>
+            </div>
+            <div
+              class="survey-visited-places-schedule-visited-place"
+              style="left: 54.4643%; width: 45.5357%;"
+              title="visitedPlaceDescription"
+            >
+              <div
+                class="survey-visited-places-schedule-visited-place-icon"
+              >
+                <img
+                  alt="visitedPlaces:activities:shopping"
+                  src="/dist/icons/activities/shopping/shopping_cart.svg"
+                  style="height: 1.8em; padding: 0.1em;"
+                />
+                <p>
+                  <svg
+                    aria-hidden="true"
+                    class="svg-inline--fa fa-clock"
+                    data-icon="clock"
+                    data-prefix="fas"
+                    role="img"
+                    style="margin-right: 0.3rem; margin-left: 0.6rem;"
+                    viewBox="0 0 512 512"
+                  >
+                    <path
+                      d="M256 0a256 256 0 1 1 0 512 256 256 0 1 1 0-512zM232 120l0 136c0 8 4 15.5 10.7 20l96 64c11 7.4 25.9 4.4 33.3-6.7s4.4-25.9-6.7-33.3L280 243.2 280 120c0-13.3-10.7-24-24-24s-24 10.7-24 24z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                  time-54900
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="survey-visited-places-list-and-map-container"
+      >
+        <ul
+          class="survey-visited-places-list full-width"
+        >
+          <li
+            class="no-bullet"
+          >
+            <div>
+              Widget 
+              personVisitedPlacesTitle
+            </div>
+          </li>
+          <li
+            class="no-bullet survey-visited-place-item"
+          >
+            <span
+              class="survey-visited-place-item-element survey-visited-place-item-sequence-and-icon"
+            >
+              1
+              .
+               
+              <div
+                class="survey-visited-place-item-icon-container"
+              >
+                <img
+                  alt="visitedPlaces:activities:home"
+                  src="/dist/icons/activities/home/home.svg"
+                  style="height: 3rem;"
+                />
+              </div>
+            </span>
+            <span
+              class="survey-visited-place-item-element survey-visited-place-item-description text-box-ellipsis"
+            >
+              <span
+                class=""
+              >
+                visitedPlaces:activities:home
+              </span>
+            </span>
+            <span
+              class="survey-visited-place-item-element survey-visited-place-item-buttons"
+            >
+              <svg
+                aria-hidden="true"
+                class="svg-inline--fa fa-clock"
+                data-icon="clock"
+                data-prefix="fas"
+                role="img"
+                style="margin-right: 0.3rem; margin-left: 0.6rem;"
+                viewBox="0 0 512 512"
+              >
+                <path
+                  d="M256 0a256 256 0 1 1 0 512 256 256 0 1 1 0-512zM232 120l0 136c0 8 4 15.5 10.7 20l96 64c11 7.4 25.9 4.4 33.3-6.7s4.4-25.9-6.7-33.3L280 243.2 280 120c0-13.3-10.7-24-24-24s-24 10.7-24 24z"
+                  fill="currentColor"
+                />
+              </svg>
+              <svg
+                aria-hidden="true"
+                class="svg-inline--fa fa-arrow-right"
+                data-icon="arrow-right"
+                data-prefix="fas"
+                role="img"
+                style="margin-right: 0.3rem; margin-left: 0.3rem;"
+                viewBox="0 0 512 512"
+              >
+                <path
+                  d="M502.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L402.7 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l370.7 0-105.4 105.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
+                  fill="currentColor"
+                />
+              </svg>
+              time-28800
+            </span>
+          </li>
+          <li
+            class="no-bullet survey-visited-place-item survey-visited-place-item-selected"
+          >
+            <span
+              class="survey-visited-place-item-element survey-visited-place-item-sequence-and-icon"
+            >
+              2
+              .
+               
+              <div
+                class="survey-visited-place-item-icon-container"
+              >
+                <img
+                  alt="visitedPlaces:activities:workUsual"
+                  src="/dist/icons/activities/work/briefcase.svg"
+                  style="height: 3rem;"
+                />
+              </div>
+            </span>
+            <span
+              class="survey-visited-place-item-element survey-visited-place-item-description text-box-ellipsis"
+            >
+              <span
+                class="_strong"
+              >
+                visitedPlaces:activities:workUsual
+                <em>
+                   • 
+                  This is my work
+                </em>
+              </span>
+            </span>
+            <span
+              class="survey-visited-place-item-element survey-visited-place-item-buttons"
+            >
+              <svg
+                aria-hidden="true"
+                class="svg-inline--fa fa-clock"
+                data-icon="clock"
+                data-prefix="fas"
+                role="img"
+                style="margin-right: 0.3rem; margin-left: 0.6rem;"
+                viewBox="0 0 512 512"
+              >
+                <path
+                  d="M256 0a256 256 0 1 1 0 512 256 256 0 1 1 0-512zM232 120l0 136c0 8 4 15.5 10.7 20l96 64c11 7.4 25.9 4.4 33.3-6.7s4.4-25.9-6.7-33.3L280 243.2 280 120c0-13.3-10.7-24-24-24s-24 10.7-24 24z"
+                  fill="currentColor"
+                />
+              </svg>
+              time-29400
+              <svg
+                aria-hidden="true"
+                class="svg-inline--fa fa-arrow-right"
+                data-icon="arrow-right"
+                data-prefix="fas"
+                role="img"
+                style="margin-right: 0.3rem; margin-left: 0.3rem;"
+                viewBox="0 0 512 512"
+              >
+                <path
+                  d="M502.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L402.7 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l370.7 0-105.4 105.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
+                  fill="currentColor"
+                />
+              </svg>
+              time-32400
+            </span>
+          </li>
+          <li
+            class="no-bullet"
+            style="margin-top: -0.4rem;"
+          >
+            <div>
+              GroupedObject 
+              workPlace1P1
+            </div>
+          </li>
+          <li
+            class="no-bullet survey-visited-place-item"
+          >
+            <span
+              class="survey-visited-place-item-element survey-visited-place-item-sequence-and-icon"
+            >
+              3
+              .
+               
+              <div
+                class="survey-visited-place-item-icon-container"
+              >
+                <img
+                  alt="visitedPlaces:activities:home"
+                  src="/dist/icons/activities/home/home.svg"
+                  style="height: 3rem;"
+                />
+              </div>
+            </span>
+            <span
+              class="survey-visited-place-item-element survey-visited-place-item-description text-box-ellipsis"
+            >
+              <span
+                class=""
+              >
+                visitedPlaces:activities:home
+              </span>
+            </span>
+            <span
+              class="survey-visited-place-item-element survey-visited-place-item-buttons"
+            >
+              <svg
+                aria-hidden="true"
+                class="svg-inline--fa fa-clock"
+                data-icon="clock"
+                data-prefix="fas"
+                role="img"
+                style="margin-right: 0.3rem; margin-left: 0.6rem;"
+                viewBox="0 0 512 512"
+              >
+                <path
+                  d="M256 0a256 256 0 1 1 0 512 256 256 0 1 1 0-512zM232 120l0 136c0 8 4 15.5 10.7 20l96 64c11 7.4 25.9 4.4 33.3-6.7s4.4-25.9-6.7-33.3L280 243.2 280 120c0-13.3-10.7-24-24-24s-24 10.7-24 24z"
+                  fill="currentColor"
+                />
+              </svg>
+              time-33000
+              <svg
+                aria-hidden="true"
+                class="svg-inline--fa fa-arrow-right"
+                data-icon="arrow-right"
+                data-prefix="fas"
+                role="img"
+                style="margin-right: 0.3rem; margin-left: 0.3rem;"
+                viewBox="0 0 512 512"
+              >
+                <path
+                  d="M502.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L402.7 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l370.7 0-105.4 105.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
+                  fill="currentColor"
+                />
+              </svg>
+              time-50400
+            </span>
+          </li>
+          <li
+            class="no-bullet survey-visited-place-item"
+          >
+            <span
+              class="survey-visited-place-item-element survey-visited-place-item-sequence-and-icon"
+            >
+              4
+              .
+               
+              <div
+                class="survey-visited-place-item-icon-container"
+              >
+                <img
+                  alt="visitedPlaces:activities:shopping"
+                  src="/dist/icons/activities/shopping/shopping_cart.svg"
+                  style="height: 3rem;"
+                />
+              </div>
+            </span>
+            <span
+              class="survey-visited-place-item-element survey-visited-place-item-description text-box-ellipsis"
+            >
+              <span
+                class=""
+              >
+                visitedPlaces:activities:shopping
+              </span>
+            </span>
+            <span
+              class="survey-visited-place-item-element survey-visited-place-item-buttons"
+            >
+              <svg
+                aria-hidden="true"
+                class="svg-inline--fa fa-clock"
+                data-icon="clock"
+                data-prefix="fas"
+                role="img"
+                style="margin-right: 0.3rem; margin-left: 0.6rem;"
+                viewBox="0 0 512 512"
+              >
+                <path
+                  d="M256 0a256 256 0 1 1 0 512 256 256 0 1 1 0-512zM232 120l0 136c0 8 4 15.5 10.7 20l96 64c11 7.4 25.9 4.4 33.3-6.7s4.4-25.9-6.7-33.3L280 243.2 280 120c0-13.3-10.7-24-24-24s-24 10.7-24 24z"
+                  fill="currentColor"
+                />
+              </svg>
+              time-51300
+              <svg
+                aria-hidden="true"
+                class="svg-inline--fa fa-arrow-right"
+                data-icon="arrow-right"
+                data-prefix="fas"
+                role="img"
+                style="margin-right: 0.3rem; margin-left: 0.3rem;"
+                viewBox="0 0 512 512"
+              >
+                <path
+                  d="M502.6 278.6c12.5-12.5 12.5-32.8 0-45.3l-160-160c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L402.7 224 32 224c-17.7 0-32 14.3-32 32s14.3 32 32 32l370.7 0-105.4 105.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0l160-160z"
+                  fill="currentColor"
+                />
+              </svg>
+              time-54000
+            </span>
+          </li>
+          <li
+            class="no-bullet survey-visited-place-item"
+          >
+            <span
+              class="survey-visited-place-item-element survey-visited-place-item-sequence-and-icon"
+            >
+              5
+              .
+               
+              <div
+                class="survey-visited-place-item-icon-container"
+              >
+                <img
+                  alt="visitedPlaces:activities:shopping"
+                  src="/dist/icons/activities/shopping/shopping_cart.svg"
+                  style="height: 3rem;"
+                />
+              </div>
+            </span>
+            <span
+              class="survey-visited-place-item-element survey-visited-place-item-description text-box-ellipsis"
+            >
+              <span
+                class=""
+              >
+                visitedPlaces:activities:shopping
+                <em>
+                   • 
+                  This is a shopping place
+                </em>
+              </span>
+            </span>
+            <span
+              class="survey-visited-place-item-element survey-visited-place-item-buttons"
+            >
+              <svg
+                aria-hidden="true"
+                class="svg-inline--fa fa-clock"
+                data-icon="clock"
+                data-prefix="fas"
+                role="img"
+                style="margin-right: 0.3rem; margin-left: 0.6rem;"
+                viewBox="0 0 512 512"
+              >
+                <path
+                  d="M256 0a256 256 0 1 1 0 512 256 256 0 1 1 0-512zM232 120l0 136c0 8 4 15.5 10.7 20l96 64c11 7.4 25.9 4.4 33.3-6.7s4.4-25.9-6.7-33.3L280 243.2 280 120c0-13.3-10.7-24-24-24s-24 10.7-24 24z"
+                  fill="currentColor"
+                />
+              </svg>
+              time-54900
+            </span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </section>
+</div>
+`;

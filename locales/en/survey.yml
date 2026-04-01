@@ -94,17 +94,9 @@ support:
   helpButtonLabel: "Open support form"
   close: "Close"
   captchaRequired: "Please complete the CAPTCHA to submit your message."
-person:
-  dayScheduleFor: Day schedule for <strong>{{nickname}}</strong>
-  dayScheduleFor_one: Your day schedule
 visitedPlace:
-  addVisitedPlace: Add the next location
-  deleteVisitedPlace: Delete
   addGroupedObject: Add the next location
-  deleteThisGroupedObject: Delete this location
   cancelEditVisitedPlaces: Cancel
-  editVisitedPlace: Edit
-  insertVisitedPlace: Insert a location here
   activities:
     accompanySomeone: Accompany someone
     carElectricChargingStation: Car charging station
