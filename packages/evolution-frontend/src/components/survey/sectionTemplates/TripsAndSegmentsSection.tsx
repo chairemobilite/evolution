@@ -21,7 +21,6 @@ import { SectionProps, useSectionTemplate } from '../../hooks/useSectionTemplate
 import * as odSurveyHelper from 'evolution-common/lib/services/odSurvey/helpers';
 import * as helpers from 'evolution-common/lib/utils/helpers';
 import { secondsSinceMidnightToTimeStrWithSuffix } from '../../../services/display/frontendHelper';
-import { loopActivities } from 'evolution-common/lib/services/odSurvey/types';
 import { VisitedPlace } from 'evolution-common/lib/services/questionnaire/types';
 import { getActivityMarkerIcon } from 'evolution-common/lib/services/questionnaire/sections/visitedPlaces/activityIconMapping';
 
@@ -122,16 +121,10 @@ export const SegmentsSection: React.FC<SectionProps & WithTranslation & WithSurv
             ? (getResponse(props.interview, destination.shortcut, destination) as VisitedPlace)
             : destination;
         // ignore all but the first trip if the origin is a loop activity. When loop activity is the first, we still need to ask the segments for it
-        if (
-            origin &&
-            origin._sequence !== 1 &&
-            !_isBlank(origin.activity) &&
-            loopActivities.includes(origin.activity!)
-        ) {
+        if (origin && origin._sequence !== 1 && odSurveyHelper.isLoopActivity({ visitedPlace: origin })) {
             continue;
         }
-        const isDestinationLoopActivity =
-            destination && !_isBlank(destination.activity) && loopActivities.includes(destination.activity!);
+        const isDestinationLoopActivity = destination && odSurveyHelper.isLoopActivity({ visitedPlace: destination });
 
         const tripPath = `household.persons.${person._uuid}.journeys.${currentJourney._uuid}.trips.${trip._uuid}`;
 

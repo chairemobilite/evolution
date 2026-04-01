@@ -29,12 +29,19 @@ jest.mock('../../../../services/display/frontendHelper', () => ({
 }));
 
 // Mock the odSurveyHelper
-jest.mock('evolution-common/lib/services/odSurvey/helpers', () => ({
-    getActivePerson: jest.fn(),
-    getJourneysArray: jest.fn(),
-    getActiveTrip: jest.fn(),
-    getNextVisitedPlace: jest.fn()
-}));
+jest.mock('evolution-common/lib/services/odSurvey/helpers', () => {
+    // Do not mock what does not need to be mocked, to avoid mocking everything.
+    const originalModule = jest.requireActual('evolution-common/lib/services/odSurvey/helpers');
+
+    // FIXME Initially, we mocked everything that was called, it may not be necessary to mock them all
+    return {
+        ...originalModule,
+        getActivePerson: jest.fn(),
+        getJourneysArray: jest.fn(),
+        getActiveTrip: jest.fn(),
+        getNextVisitedPlace: jest.fn()
+    };
+});
 const mockedGetActivePerson = odSurveyHelper.getActivePerson as jest.MockedFunction<typeof odSurveyHelper.getActivePerson>;
 const mockedGetJourneysArray = odSurveyHelper.getJourneysArray as jest.MockedFunction<typeof odSurveyHelper.getJourneysArray>;
 const mockedGetActiveTrip = odSurveyHelper.getActiveTrip as jest.MockedFunction<typeof odSurveyHelper.getActiveTrip>;

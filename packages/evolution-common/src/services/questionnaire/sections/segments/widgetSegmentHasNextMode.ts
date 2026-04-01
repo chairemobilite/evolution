@@ -9,7 +9,6 @@ import { WidgetConfig } from '../../../questionnaire/types';
 import { getResponse } from '../../../../utils/helpers';
 import { TFunction } from 'i18next';
 import * as odHelpers from '../../../odSurvey/helpers';
-import { loopActivities } from '../../../odSurvey/types';
 import { getPreviousTripSingleSegment, shouldShowSameAsReverseTripQuestion } from './helpers';
 import { Journey, Person } from '../../types';
 
@@ -32,10 +31,10 @@ export const getSegmentHasNextModeWidgetConfig = (
             const destination = trip ? odHelpers.getDestination({ trip, visitedPlaces }) : undefined;
             const destinationActivity = destination ? destination.activity : '';
             const tripLoopActivity =
-                origin?.activity && loopActivities.includes(origin.activity)
+                origin && odHelpers.isLoopActivity({ visitedPlace: origin })
                     ? origin.activity
-                    : destinationActivity && loopActivities.includes(destinationActivity)
-                        ? destinationActivity
+                    : destination && odHelpers.isLoopActivity({ visitedPlace: destination })
+                        ? destination.activity
                         : undefined;
             if (tripLoopActivity) {
                 return t(['customSurvey:segments:SegmentHasNextModeLoop', 'segments:SegmentHasNextModeLoop'], {
