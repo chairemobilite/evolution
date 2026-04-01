@@ -861,6 +861,53 @@ export const getPreviousVisitedPlace = function ({
 export const isLoopActivity = ({ visitedPlace }: { visitedPlace: VisitedPlace }): boolean =>
     visitedPlace.activity !== undefined && loopActivities.includes(visitedPlace.activity);
 
+/**
+ * Get the next incomplete visited place, or return `null` if all visited places
+ * are complete.
+ *
+ * @param {Object} options - The options object.
+ * @param {Person} options.person The person the visited places belong to
+ * @param {UserInterviewAttributes} options.interview The interview object
+ * @param {Journey} options.journey The journey object
+ * @returns {VisitedPlace | null} The next incomplete visited place, or `null`
+ * if they are all complete
+ */
+export const getFirstIncompleteVisitedPlace = ({
+    interview,
+    journey,
+    person
+}: {
+    interview: UserInterviewAttributes;
+    journey: Journey;
+    person: Person;
+}): VisitedPlace | null => {
+    const visitedPlaces = getVisitedPlacesArray({ journey });
+    const count = visitedPlaces.length;
+    // Last visited place will have a category of 'stayedThereUntilTheNextDay',
+    // that's how we know the trip diary is completed
+    const lastVisitedlaces = visitedPlaces[visitedPlaces.length - 1];
+    const lastSequence = lastVisitedlaces ? lastVisitedlaces._sequence : null;
+    for (let i = 0; i < count; i++) {
+        const visitedPlace = visitedPlaces[i];
+        const nextVisitedPlace = visitedPlaces[i + 1];
+        const geography = getVisitedPlaceGeography({ visitedPlace, interview, person });
+
+        // FIXME The content of this function should depend on the survey's
+        // configuration. Now we suppose check only the activity and geography
+        if (
+            _isBlank(visitedPlace.activity) ||
+            (visitedPlace._sequence === lastSequence &&
+                visitedPlace.nextPlaceCategory !== 'stayedThereUntilTheNextDay') ||
+            (_isBlank(visitedPlace.arrivalTime) && visitedPlace._sequence > 1) ||
+            (_isBlank(visitedPlace.nextPlaceCategory) && !nextVisitedPlace) ||
+            (_isBlank(geography) && !isLoopActivity({ visitedPlace }))
+        ) {
+            return visitedPlace;
+        }
+    }
+    return null;
+};
+
 // *** Segments-related functions
 
 /**
