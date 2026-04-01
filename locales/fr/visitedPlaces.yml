@@ -4,6 +4,11 @@ ActivityCategoryAfterHome: >-
     quitté le domicile
 ActivityCategory: Activité principale à ce lieu
 activityIsRequiredError: L'activité est requise
+editVisitedPlace: Modifier
+deleteVisitedPlace: Supprimer
+deleteThisGroupedObject: Supprimer ce lieu
+insertVisitedPlace: Insérer un lieu ici
+addVisitedPlace: Ajouter le prochain lieu
 activities:
     accompanySomeone: Accompagner quelqu'un
     carElectricChargingStation: Borne de recharge de véhicule électrique
@@ -87,3 +92,6 @@ locationIsNotPreciseError: >-
     Le positionnement du lieu n'est pas assez précis. Utilisez le zoom + pour
     vous rapprocher davantage, puis précisez la localisation en déplaçant
     l'icône.
+ConfirmDeleteVisitedPlace: Confirmez-vous que vous voulez retirer ce lieu?
+dayScheduleFor: Horaire de la journée de <strong>{{nickname}}</strong>
+dayScheduleFor_one: Votre horaire de la journée

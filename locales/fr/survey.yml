@@ -105,17 +105,9 @@ support:
   helpButtonLabel: "Ouvrir le formulaire d'aide"
   close: "Fermer"
   captchaRequired: "Veuillez confirmer que vous n'êtes pas un robot en cochant la case ci-dessous."
-person:
-  dayScheduleFor: Horaire de la journée de <strong>{{nickname}}</strong>
-  dayScheduleFor_one: Votre horaire de la journée
 visitedPlace:
-  addVisitedPlace: Ajouter le prochain lieu
-  deleteVisitedPlace: Supprimer
   addGroupedObject: Ajouter le prochain lieu
-  deleteThisGroupedObject: Supprimer ce lieu
   cancelEditVisitedPlaces: Annuler
-  editVisitedPlace: Modifier
-  insertVisitedPlace: Insérer un lieu ici
   activities:
     accompanySomeone: Accompagner quelqu'un
     carElectricChargingStation: Borne de recharge de véhicule électrique
