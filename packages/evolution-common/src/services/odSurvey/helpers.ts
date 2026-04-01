@@ -908,6 +908,95 @@ export const getFirstIncompleteVisitedPlace = ({
     return null;
 };
 
+/**
+ * Reconcile the visited places to make sure next place category matches the
+ * activity and other functionalities
+ *
+ * FIXME Copy-pasted from od_nationale, but should we also reset some times when
+ * they don't make sense anymore?  FIXME2 Also, should we call this function in
+ * other places, like after saving a place that may have
+ * _previousPreviousNextPreviousTimes? Currently, this is done in the save
+ * callback, but it can be automatically done here too
+ *
+ * @param {Object} options - The options object.
+ * @param {Person} options.person The person the visited places belong to
+ * @param {UserInterviewAttributes} options.interview The interview object
+ * @param {Journey} options.journey The journey object
+ * @param {boolean} options.includeSelectedVisitedPlaceId Whether to include the
+ * next incomplete visited place id in the returned update values.
+ * @returns {Record<string, unknown>} The values to update in the interview
+ * after reconciliation.
+ */
+export const reconcileVisitedPlaces = ({
+    person,
+    interview,
+    journey,
+    includeSelectedVisitedPlaceId = true
+}: {
+    person: Person;
+    interview: UserInterviewAttributes;
+    journey: Journey;
+    includeSelectedVisitedPlaceId?: boolean;
+}): Record<string, unknown> => {
+    const visitedPlacesArray = getVisitedPlacesArray({ journey });
+    const count = visitedPlacesArray.length;
+    const updateValuesByPath = {};
+    for (let i = 0; i < count; i++) {
+        const visitedPlace = visitedPlacesArray[i];
+        const visitedPlacePath = `household.persons.${person._uuid}.journeys.${journey._uuid}.visitedPlaces.${visitedPlace._uuid}`;
+        const nextVisitedPlace = i + 1 < count ? visitedPlacesArray[i + 1] : null;
+        if (
+            nextVisitedPlace &&
+            nextVisitedPlace.activity === 'home' &&
+            visitedPlace.nextPlaceCategory !== 'wentBackHome'
+        ) {
+            // Set next place category to 'wentBackHome' if the next visited place is a home activity
+            updateValuesByPath[`response.${visitedPlacePath}.nextPlaceCategory`] = 'wentBackHome';
+        }
+        if (
+            nextVisitedPlace &&
+            nextVisitedPlace.activity !== 'home' &&
+            visitedPlace.nextPlaceCategory === 'wentBackHome'
+        ) {
+            // If next place is not home anymore, update the next place category to 'visitedAnotherPlace'
+            updateValuesByPath[`response.${visitedPlacePath}.nextPlaceCategory`] = 'visitedAnotherPlace';
+        }
+        if (
+            !nextVisitedPlace &&
+            !_isBlank(visitedPlace.nextPlaceCategory) &&
+            visitedPlace.nextPlaceCategory !== 'stayedThereUntilTheNextDay'
+        ) {
+            // if no next place, we need to nullify path for the previous
+            // visited place's next place category, so that it can be selected
+            // as incomplete and edited automatically:
+
+            // FIXME If we re-use this function in other places, this logic will
+            // reset to null the next place category if the next place is not
+            // added yet, so careful to check the usage and update if necessary
+            updateValuesByPath[`response.${visitedPlacePath}.nextPlaceCategory`] = null;
+        }
+        if (i === 0 && !_isBlank(visitedPlace.arrivalTime)) {
+            // If the place is the first one, make sure there is no arrival time
+            updateValuesByPath[`response.${visitedPlacePath}.arrivalTime`] = null;
+        }
+        if (
+            visitedPlace.nextPlaceCategory === 'stayedThereUntilTheNextDay' &&
+            i === count - 1 &&
+            !_isBlank(visitedPlace.departureTime)
+        ) {
+            // If the place is the last one and the next place category is
+            // 'stayedThereUntilTheNextDay', make sure there is no departure
+            // time
+            updateValuesByPath[`response.${visitedPlacePath}.departureTime`] = null;
+        }
+    }
+    if (includeSelectedVisitedPlaceId) {
+        const nextIncompletePlace = getFirstIncompleteVisitedPlace({ interview, journey, person });
+        updateValuesByPath['response._activeVisitedPlaceId'] = nextIncompletePlace?._uuid || null;
+    }
+    return updateValuesByPath;
+};
+
 // *** Segments-related functions
 
 /**

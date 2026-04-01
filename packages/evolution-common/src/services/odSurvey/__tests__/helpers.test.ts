@@ -1676,6 +1676,171 @@ describe('getFirstIncompleteVisitedPlace', () => {
     });
 });
 
+describe('reconcileVisitedPlaces', () => {
+    const getPersonAndJourney = (interview: UserInterviewAttributes) => {
+        const person = interview.response.household!.persons!.personId1 as Person;
+        const journey = person.journeys!.journeyId1 as Journey;
+        const visitedPlaces = Helpers.getVisitedPlacesArray({ journey });
+        return { person, journey, visitedPlaces };
+    };
+
+    each([
+        [
+            'sets nextPlaceCategory to wentBackHome when the next place is home',
+            {
+                setup: (interview: UserInterviewAttributes) => {
+                    const { visitedPlaces } = getPersonAndJourney(interview);
+                    visitedPlaces[1].nextPlaceCategory = 'visitedAnotherPlace';
+                    visitedPlaces[2].activity = 'home';
+                },
+                expectedValuesByPath: (interview: UserInterviewAttributes) => {
+                    const { person, journey, visitedPlaces } = getPersonAndJourney(interview);
+                    return {
+                        [`response.household.persons.${person._uuid}.journeys.${journey._uuid}.visitedPlaces.${visitedPlaces[1]._uuid}.nextPlaceCategory`]: 'wentBackHome',
+                        'response._activeVisitedPlaceId': null
+                    };
+                }
+            }
+        ],
+        [
+            'sets nextPlaceCategory to visitedAnotherPlace when the next place is not home anymore',
+            {
+                setup: (interview: UserInterviewAttributes) => {
+                    const { visitedPlaces } = getPersonAndJourney(interview);
+                    visitedPlaces[0].nextPlaceCategory = 'wentBackHome';
+                    visitedPlaces[1].activity = 'workUsual';
+                },
+                expectedValuesByPath: (interview: UserInterviewAttributes) => {
+                    const { person, journey, visitedPlaces } = getPersonAndJourney(interview);
+                    return {
+                        [`response.household.persons.${person._uuid}.journeys.${journey._uuid}.visitedPlaces.${visitedPlaces[0]._uuid}.nextPlaceCategory`]: 'visitedAnotherPlace',
+                        'response._activeVisitedPlaceId': null
+                    };
+                }
+            }
+        ],
+        [
+            'clears nextPlaceCategory on the last visited place when it should be reselected',
+            {
+                setup: (interview: UserInterviewAttributes) => {
+                    const { visitedPlaces } = getPersonAndJourney(interview);
+                    visitedPlaces[visitedPlaces.length - 1].nextPlaceCategory = 'wentBackHome';
+                },
+                expectedValuesByPath: (interview: UserInterviewAttributes) => {
+                    const { person, journey, visitedPlaces } = getPersonAndJourney(interview);
+                    const lastVisitedPlace = visitedPlaces[visitedPlaces.length - 1];
+                    return {
+                        [`response.household.persons.${person._uuid}.journeys.${journey._uuid}.visitedPlaces.${lastVisitedPlace._uuid}.nextPlaceCategory`]: null,
+                        'response._activeVisitedPlaceId': lastVisitedPlace._uuid
+                    };
+                }
+            }
+        ],
+        [
+            'clears arrivalTime on the first visited place',
+            {
+                setup: (interview: UserInterviewAttributes) => {
+                    const { visitedPlaces } = getPersonAndJourney(interview);
+                    visitedPlaces[0].arrivalTime = 480;
+                },
+                expectedValuesByPath: (interview: UserInterviewAttributes) => {
+                    const { person, journey, visitedPlaces } = getPersonAndJourney(interview);
+                    return {
+                        [`response.household.persons.${person._uuid}.journeys.${journey._uuid}.visitedPlaces.${visitedPlaces[0]._uuid}.arrivalTime`]: null,
+                        'response._activeVisitedPlaceId': null
+                    };
+                }
+            }
+        ],
+        [
+            'clears departureTime on the last stayed-there-until-the-next-day visited place',
+            {
+                setup: (interview: UserInterviewAttributes) => {
+                    const { visitedPlaces } = getPersonAndJourney(interview);
+                    const lastVisitedPlace = visitedPlaces[visitedPlaces.length - 1];
+                    lastVisitedPlace.nextPlaceCategory = 'stayedThereUntilTheNextDay';
+                    lastVisitedPlace.departureTime = 1320;
+                },
+                expectedValuesByPath: (interview: UserInterviewAttributes) => {
+                    const { person, journey, visitedPlaces } = getPersonAndJourney(interview);
+                    const lastVisitedPlace = visitedPlaces[visitedPlaces.length - 1];
+                    return {
+                        [`response.household.persons.${person._uuid}.journeys.${journey._uuid}.visitedPlaces.${lastVisitedPlace._uuid}.departureTime`]: null,
+                        'response._activeVisitedPlaceId': null
+                    };
+                }
+            }
+        ],
+        [
+            'updates the active visited place id to the next incomplete place',
+            {
+                setup: (interview: UserInterviewAttributes) => {
+                    const { visitedPlaces } = getPersonAndJourney(interview);
+                    visitedPlaces[1].arrivalTime = undefined;
+                },
+                expectedValuesByPath: (interview: UserInterviewAttributes) => {
+                    const { visitedPlaces } = getPersonAndJourney(interview);
+                    return {
+                        'response._activeVisitedPlaceId': visitedPlaces[1]._uuid
+                    };
+                }
+            }
+        ],
+        [
+            'no change if everything is fine',
+            {
+                setup: (interview: UserInterviewAttributes) => {
+                    // Nothing to do
+                },
+                expectedValuesByPath: (interview: UserInterviewAttributes) => {
+                    // Nullify the active visited place
+                    return {
+                        'response._activeVisitedPlaceId': null
+                    };
+                }
+            }
+        ]
+    ]).test('reconcileVisitedPlaces and select next incomplete: %s', (_title, testCase) => {
+        const interview = _cloneDeep(interviewAttributesForTestCases);
+        testCase.setup(interview);
+        const { person, journey } = getPersonAndJourney(interview);
+
+        expect(Helpers.reconcileVisitedPlaces({ interview, person, journey })).toEqual(
+            testCase.expectedValuesByPath(interview)
+        );
+    });
+
+    test('reconcileVisitedPlaces omits active visited place when includeSelectedVisitedPlaceId is false', () => {
+        const interview = _cloneDeep(interviewAttributesForTestCases);
+        const { person, journey, visitedPlaces } = getPersonAndJourney(interview);
+        // Visited place 1 has arrival time missing, so it should be the active
+        // place, but we set includeSelectedVisitedPlaceId to false, so it
+        // should not be included in the result
+        visitedPlaces[1].arrivalTime = undefined;
+
+        expect(
+            Helpers.reconcileVisitedPlaces({
+                interview,
+                person,
+                journey,
+                includeSelectedVisitedPlaceId: false
+            })
+        ).toEqual({});
+
+        // Make sure the true returns the expected active visited place id
+        expect(
+            Helpers.reconcileVisitedPlaces({
+                interview,
+                person,
+                journey,
+                includeSelectedVisitedPlaceId: true
+            })
+        ).toEqual({ 'response._activeVisitedPlaceId': visitedPlaces[1]._uuid });
+    });
+});
+
+
+
 describe('replaceVisitedPlaceShortcuts', () => {
     const shortcutInterview = _cloneDeep(interviewAttributes);
     shortcutInterview.response.household = {
