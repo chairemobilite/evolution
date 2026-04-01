@@ -136,6 +136,12 @@ export type VisitedPlace = {
     geography?: GeoJSON.Feature<GeoJSON.Point, SurveyPointProperties>;
     departureTime?: number;
     arrivalTime?: number;
+    /**
+     * The category of the next place. The 'wentToUsualWorkPlace' category is
+     * used for workOnTheRoad trips. It is imputed by values entered by
+     * participant
+     */
+    nextPlaceCategory?: 'wentBackHome' | 'visitedAnotherPlace' | 'stayedThereUntilTheNextDay' | 'wentToUsualWorkPlace';
 } & (
     | { alreadyVisitedBySelfOrAnotherHouseholdMember?: false; name?: string; shortcut?: never }
     | { alreadyVisitedBySelfOrAnotherHouseholdMember: true; name?: never; shortcut?: string }
