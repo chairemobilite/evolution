@@ -9,9 +9,11 @@ import _omit from 'lodash/omit';
 
 import { Optional } from '../../types/Optional.type';
 import { PreData } from '../../types/shared';
-import { IValidatable, ValidatebleAttributes } from './IValidatable';
-import { WeightableAttributes, Weight, validateWeights } from './Weight';
-import { Uuidable, UuidableAttributes } from './Uuidable';
+import { validatableAttributeNames, type ValidatableAttributes } from './IValidatable';
+import { completableAttributeNames, type CompletableAttributes } from './attributeTypes/CompletableAttributes';
+import { SurveyObject } from './SurveyObject';
+import { weightableAttributeNames, type WeightableAttributes, type Weight, validateWeights } from './Weight';
+import { uuidableAttributeNames, type UuidableAttributes, Uuidable } from './Uuidable';
 import * as TCAttr from './attributeTypes/TripChainAttributes';
 import * as VPAttr from './attributeTypes/VisitedPlaceAttributes';
 import { Result, createErrors, createOk } from '../../types/Result.type';
@@ -29,9 +31,10 @@ import { Household } from './Household';
 
 export const tripChainAttributes = [
     ...startEndDateAndTimesAttributes,
-    '_weights',
-    '_isValid',
-    '_uuid',
+    ...weightableAttributeNames,
+    ...validatableAttributeNames,
+    ...uuidableAttributeNames,
+    ...completableAttributeNames,
     'category',
     'isMultiLoop',
     'isConstrained',
@@ -52,7 +55,8 @@ export type TripChainAttributes = {
 } & StartEndDateAndTimesAttributes &
     UuidableAttributes &
     WeightableAttributes &
-    ValidatebleAttributes;
+    ValidatableAttributes &
+    CompletableAttributes;
 
 export type TripChainWithComposedAttributes = TripChainAttributes & {
     _trips?: Optional<ExtendedTripAttributes[]>;
@@ -79,7 +83,7 @@ export type SerializedExtendedTripChainAttributes = {
  * for which the timing and/or location is usually fixed/not flexible
  * TODO: document the official academic/students definition of the trip chain with more examples
  */
-export class TripChain extends Uuidable implements IValidatable {
+export class TripChain extends SurveyObject {
     private _surveyObjectsRegistry: SurveyObjectsRegistry;
     private _attributes: TripChainAttributes;
     private _customAttributes: { [key: string]: unknown };
@@ -128,14 +132,6 @@ export class TripChain extends Uuidable implements IValidatable {
 
     get customAttributes(): { [key: string]: unknown } {
         return this._customAttributes;
-    }
-
-    get _isValid(): Optional<boolean> {
-        return this._attributes._isValid;
-    }
-
-    set _isValid(value: Optional<boolean>) {
-        this._attributes._isValid = value;
     }
 
     get _weights(): Optional<Weight[]> {
@@ -306,15 +302,6 @@ export class TripChain extends Uuidable implements IValidatable {
         return createOk(tripChain as TripChain);
     }
 
-    validate(): Optional<boolean> {
-        this._attributes._isValid = true;
-        return true;
-    }
-
-    isValid(): Optional<boolean> {
-        return this._isValid;
-    }
-
     static validateParams(dirtyParams: { [key: string]: unknown }, displayName = 'TripChain'): Error[] {
         const errors: Error[] = [];
 
@@ -325,6 +312,8 @@ export class TripChain extends Uuidable implements IValidatable {
         errors.push(...StartEndable.validateParams(dirtyParams, displayName));
 
         errors.push(...ParamsValidatorUtils.isBoolean('_isValid', dirtyParams._isValid, displayName));
+
+        errors.push(...SurveyObject.validateCompletableParams(dirtyParams, displayName));
 
         errors.push(...validateWeights(dirtyParams._weights as Optional<Weight[]>));
 

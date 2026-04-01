@@ -14,6 +14,11 @@ import { WeightMethod, WeightMethodAttributes } from '../WeightMethod';
 import { isOk, hasErrors, unwrap } from '../../../types/Result.type';
 import { startEndDateAndTimesAttributes } from '../StartEndable';
 import { SurveyObjectsRegistry } from '../SurveyObjectsRegistry';
+import { completableAttributeNames, type CompletableAttributeName } from '../attributeTypes/CompletableAttributes';
+import {
+    describeCompletableSurveyObjectMixinValues,
+    describeCreateRejectsNonBooleanCompletableParams
+} from './completableSurveyObjectTestHelpers';
 
 describe('Journey', () => {
     let registry: SurveyObjectsRegistry;
@@ -91,9 +96,17 @@ describe('Journey', () => {
 
     test('should have a validateParams section for each attribute', () => {
         const validateParamsCode = Journey.validateParams.toString();
-        journeyAttributes.filter((attribute) => attribute !== '_uuid' && attribute !== '_weights' && !(startEndDateAndTimesAttributes as unknown as string[]).includes(attribute)).forEach((attributeName) => {
-            expect(validateParamsCode).toContain('\'' + attributeName + '\'');
-        });
+        journeyAttributes
+            .filter(
+                (attribute) =>
+                    attribute !== '_uuid' &&
+                    attribute !== '_weights' &&
+                    !completableAttributeNames.includes(attribute as CompletableAttributeName) &&
+                    !(startEndDateAndTimesAttributes as unknown as string[]).includes(attribute)
+            )
+            .forEach((attributeName) => {
+                expect(validateParamsCode).toContain('\'' + attributeName + '\'');
+            });
     });
 
     test('should get uuid', () => {
@@ -150,6 +163,12 @@ describe('Journey', () => {
         expect(journey.isValid()).toBe(true);
     });
 
+    describeCompletableSurveyObjectMixinValues<Journey>({
+        createDefault: () => new Journey(validAttributes, registry)
+    });
+
+    describeCreateRejectsNonBooleanCompletableParams('Journey', Journey.create, () => validAttributes, () => registry);
+
     test('should create a Journey instance with custom attributes', () => {
         const customAttributes = {
             customAttribute1: 'value1',
@@ -182,6 +201,9 @@ describe('Journey', () => {
             ['didTrips', 123],
             ['previousWeekRemoteWorkDays', 'invalid'],
             ['previousWeekTravelToWorkDays', 'invalid'],
+            ['hasMinimum', 'invalid'],
+            ['isCompleted', 'invalid'],
+            ['isStarted', 'invalid'],
             ['preData', 'invalid'],
             ['preData', []],
             ['preData', new Date() as any],

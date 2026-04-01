@@ -9,9 +9,11 @@ import _omit from 'lodash/omit';
 
 import { Optional } from '../../types/Optional.type';
 import { PreData } from '../../types/shared';
-import { IValidatable, ValidatebleAttributes } from './IValidatable';
-import { Uuidable, UuidableAttributes } from './Uuidable';
-import { WeightableAttributes, Weight, validateWeights } from './Weight';
+import { validatableAttributeNames, type ValidatableAttributes } from './IValidatable';
+import { completableAttributeNames, type CompletableAttributes } from './attributeTypes/CompletableAttributes';
+import { SurveyObject } from './SurveyObject';
+import { weightableAttributeNames, type WeightableAttributes, type Weight, validateWeights } from './Weight';
+import { uuidableAttributeNames, type UuidableAttributes, Uuidable } from './Uuidable';
 import * as PlAttr from './attributeTypes/PlaceAttributes';
 import { ParamsValidatorUtils } from '../../utils/ParamsValidatorUtils';
 import { Place, ExtendedPlaceAttributes, SerializedExtendedPlaceAttributes } from './Place';
@@ -25,9 +27,10 @@ import { Trip } from './Trip';
 
 export const junctionAttributes = [
     ...startEndDateAndTimesAttributes,
-    '_weights',
-    '_isValid',
-    '_uuid',
+    ...weightableAttributeNames,
+    ...validatableAttributeNames,
+    ...uuidableAttributeNames,
+    ...completableAttributeNames,
     'parkingType',
     'parkingFeeType',
     'transitPlaceType',
@@ -44,7 +47,8 @@ export type JunctionAttributes = {
 } & StartEndDateAndTimesAttributes &
     UuidableAttributes &
     WeightableAttributes &
-    ValidatebleAttributes;
+    ValidatableAttributes &
+    CompletableAttributes;
 
 export type JunctionWithComposedAttributes = JunctionAttributes & {
     _place?: Optional<ExtendedPlaceAttributes>;
@@ -63,7 +67,7 @@ export type SerializedExtendedJunctionAttributes = {
  * Usually, junctions are used as origin and/or destination for segments
  * Junctions are optional in most surveys
  */
-export class Junction extends Uuidable implements IValidatable {
+export class Junction extends SurveyObject {
     private _surveyObjectsRegistry: SurveyObjectsRegistry;
     private _attributes: JunctionAttributes;
     private _customAttributes: { [key: string]: unknown };
@@ -106,14 +110,6 @@ export class Junction extends Uuidable implements IValidatable {
 
     get customAttributes(): { [key: string]: unknown } {
         return this._customAttributes;
-    }
-
-    get _isValid(): Optional<boolean> {
-        return this._attributes._isValid;
-    }
-
-    set _isValid(value: Optional<boolean>) {
-        this._attributes._isValid = value;
     }
 
     get _weights(): Optional<Weight[]> {
@@ -252,15 +248,6 @@ export class Junction extends Uuidable implements IValidatable {
         return createOk(junction as Junction);
     }
 
-    validate(): Optional<boolean> {
-        this._attributes._isValid = true;
-        return true;
-    }
-
-    isValid(): Optional<boolean> {
-        return this._isValid;
-    }
-
     /**
      * Validates attributes types for Junction.
      * @param dirtyParams The parameters to validate.
@@ -279,6 +266,8 @@ export class Junction extends Uuidable implements IValidatable {
 
         // Validate _isValid:
         errors.push(...ParamsValidatorUtils.isBoolean('_isValid', dirtyParams._isValid, displayName));
+
+        errors.push(...SurveyObject.validateCompletableParams(dirtyParams, displayName));
 
         // Validate _weights:
         errors.push(...validateWeights(dirtyParams._weights as Optional<Weight[]>));

@@ -6,8 +6,8 @@
  */
 
 import { Optional } from '../../types/Optional.type';
-import { IValidatable, ValidatebleAttributes } from './IValidatable';
-import { Uuidable, UuidableAttributes } from './Uuidable';
+import { IValidatable, type ValidatableAttributes, validatableAttributeNames } from './IValidatable';
+import { Uuidable, type UuidableAttributes, uuidableAttributeNames } from './Uuidable';
 import { Result, createErrors, createOk } from '../../types/Result.type';
 import { ParamsValidatorUtils } from '../../utils/ParamsValidatorUtils';
 import { ConstructorUtils } from '../../utils/ConstructorUtils';
@@ -17,8 +17,8 @@ import { SurveyObjectsRegistry } from './SurveyObjectsRegistry';
 // TODO: make this class more international. For now, it fits Canadian addresses only.
 
 export const addressAttributes = [
-    '_uuid',
-    '_isValid',
+    ...uuidableAttributeNames,
+    ...validatableAttributeNames,
     'fullAddress', // full address string, when coming from the survey and/or entered by humans
     'civicNumber',
     'civicNumberSuffix',
@@ -74,7 +74,7 @@ export type AddressAttributes = {
      */
     combinedAddressUuid?: Optional<string>;
 } & UuidableAttributes &
-    ValidatebleAttributes;
+    ValidatableAttributes;
 
 export type ExtendedAddressAttributes = AddressAttributes & { [key: string]: unknown };
 

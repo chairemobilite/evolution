@@ -6,12 +6,17 @@
  */
 
 import { Place, ExtendedPlaceAttributes, placeAttributes } from '../Place';
+import { completableAttributeNames, type CompletableAttributeName } from '../attributeTypes/CompletableAttributes';
 import { v4 as uuidV4 } from 'uuid';
 import { Weight } from '../Weight';
 import { WeightMethod, WeightMethodAttributes } from '../WeightMethod';
 import { isOk, hasErrors, unwrap } from '../../../types/Result.type';
 import { Address, AddressAttributes } from '../Address';
 import { SurveyObjectsRegistry } from '../SurveyObjectsRegistry';
+import {
+    describeCompletableSurveyObjectMixinValues,
+    describeCreateRejectsNonBooleanCompletableParams
+} from './completableSurveyObjectTestHelpers';
 
 describe('Place', () => {
     let registry: SurveyObjectsRegistry;
@@ -100,9 +105,16 @@ describe('Place', () => {
 
     test('should have a validateParams section for each attribute', () => {
         const validateParamsCode = Place.validateParams.toString();
-        placeAttributes.filter((attribute) => attribute !== '_uuid' && attribute !== '_weights').forEach((attributeName) => {
-            expect(validateParamsCode).toContain('\'' + attributeName + '\'');
-        });
+        placeAttributes
+            .filter(
+                (attribute) =>
+                    attribute !== '_uuid' &&
+                    attribute !== '_weights' &&
+                    !completableAttributeNames.includes(attribute as CompletableAttributeName)
+            )
+            .forEach((attributeName) => {
+                expect(validateParamsCode).toContain('\'' + attributeName + '\'');
+            });
     });
 
     test('should create a Place instance with valid attributes using constructor', () => {
@@ -174,6 +186,12 @@ describe('Place', () => {
         expect(place.isValid()).toBe(true);
     });
 
+    describeCompletableSurveyObjectMixinValues<Place>({
+        createDefault: () => new Place(validPlaceAttributes, registry)
+    });
+
+    describeCreateRejectsNonBooleanCompletableParams('Place', Place.create, () => validPlaceAttributes, () => registry);
+
     test('should create a Place instance with custom attributes', () => {
         const customAttributes = {
             customAttribute1: 'value1',
@@ -229,6 +247,9 @@ describe('Place', () => {
             ['preData', new Date() as any],
             ['preData', true as any],
             ['preGeography', 'invalid'],
+            ['hasMinimum', 'invalid'],
+            ['isCompleted', 'invalid'],
+            ['isStarted', 'invalid'],
         ])('should return an error for invalid %s', (param, value) => {
             const invalidAttributes = { ...validPlaceAttributes, [param]: value };
             const errors = Place.validateParams(invalidAttributes);
