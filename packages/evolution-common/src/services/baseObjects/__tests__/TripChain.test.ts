@@ -12,6 +12,11 @@ import { WeightMethod, WeightMethodAttributes } from '../WeightMethod';
 import { isOk, hasErrors, unwrap } from '../../../types/Result.type';
 import { startEndDateAndTimesAttributes } from '../StartEndable';
 import { SurveyObjectsRegistry } from '../SurveyObjectsRegistry';
+import { completableAttributeNames, type CompletableAttributeName } from '../attributeTypes/CompletableAttributes';
+import {
+    describeCompletableSurveyObjectMixinValues,
+    describeCreateRejectsNonBooleanCompletableParams
+} from './completableSurveyObjectTestHelpers';
 
 let registry: SurveyObjectsRegistry;
 
@@ -105,9 +110,17 @@ describe('TripChain', () => {
 
     test('should have a validateParams section for each attribute', () => {
         const validateParamsCode = TripChain.validateParams.toString();
-        tripChainAttributes.filter((attribute) => attribute !== '_uuid' && attribute !== '_weights' && !(startEndDateAndTimesAttributes as unknown as string[]).includes(attribute)).forEach((attributeName) => {
-            expect(validateParamsCode).toContain('\'' + attributeName + '\'');
-        });
+        tripChainAttributes
+            .filter(
+                (attribute) =>
+                    attribute !== '_uuid' &&
+                    attribute !== '_weights' &&
+                    !completableAttributeNames.includes(attribute as CompletableAttributeName) &&
+                    !(startEndDateAndTimesAttributes as unknown as string[]).includes(attribute)
+            )
+            .forEach((attributeName) => {
+                expect(validateParamsCode).toContain('\'' + attributeName + '\'');
+            });
     });
 
     test('should get uuid', () => {
@@ -164,6 +177,17 @@ describe('TripChain', () => {
         expect(tripChain.isValid()).toBe(true);
     });
 
+    describeCompletableSurveyObjectMixinValues<TripChain>({
+        createDefault: () => new TripChain(validAttributes, registry)
+    });
+
+    describeCreateRejectsNonBooleanCompletableParams(
+        'TripChain',
+        TripChain.create,
+        () => validAttributes,
+        () => registry
+    );
+
     test('should create a TripChain instance with custom attributes', () => {
         const customAttributes = {
             customAttribute1: 'value1',
@@ -192,6 +216,9 @@ describe('TripChain', () => {
             ['isConstrained', 'invalid'],
             ['mainActivity', 123],
             ['mainActivityCategory', 123],
+            ['hasMinimum', 'invalid'],
+            ['isCompleted', 'invalid'],
+            ['isStarted', 'invalid'],
             ['preData', 'invalid'],
             ['preData', []],
             ['preData', new Date() as any],

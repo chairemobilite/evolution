@@ -16,18 +16,21 @@ import { Address, AddressAttributes } from './Address';
 import { Device } from './attributeTypes/InterviewParadataAttributes';
 import { Result, createErrors, createOk } from '../../types/Result.type';
 import { ParamsValidatorUtils } from '../../utils/ParamsValidatorUtils';
-import { Uuidable, UuidableAttributes } from './Uuidable';
-import { IValidatable, ValidatebleAttributes } from './IValidatable';
-import { WeightableAttributes, Weight, validateWeights } from './Weight';
+import { validatableAttributeNames, type ValidatableAttributes } from './IValidatable';
+import { completableAttributeNames, type CompletableAttributes } from './attributeTypes/CompletableAttributes';
+import { SurveyObject } from './SurveyObject';
+import { weightableAttributeNames, type WeightableAttributes, type Weight, validateWeights } from './Weight';
+import { uuidableAttributeNames, type UuidableAttributes, Uuidable } from './Uuidable';
 import { ConstructorUtils } from '../../utils/ConstructorUtils';
 import { SerializedExtendedAddressAttributes } from './Address';
 import { SurveyObjectUnserializer } from './SurveyObjectUnserializer';
 import { SurveyObjectsRegistry } from './SurveyObjectsRegistry';
 
 export const placeAttributes = [
-    '_weights',
-    '_isValid',
-    '_uuid',
+    ...weightableAttributeNames,
+    ...validatableAttributeNames,
+    ...uuidableAttributeNames,
+    ...completableAttributeNames,
     'geography',
     'name',
     'shortname',
@@ -71,7 +74,8 @@ export type PlaceAttributes = {
     preGeography?: Optional<GeoJSON.Feature<GeoJSON.Point>>;
 } & UuidableAttributes &
     WeightableAttributes &
-    ValidatebleAttributes;
+    ValidatableAttributes &
+    CompletableAttributes;
 
 export type PlaceWithComposedAttributes = PlaceAttributes & {
     _address?: Optional<AddressAttributes>;
@@ -89,7 +93,7 @@ export type SerializedExtendedPlaceAttributes = {
  * A place is a location (GeoJSON point) with attributes.
  * Classes can inherit this class and add their own attributes (like a work place, a school place, a junction, etc.).
  */
-export class Place extends Uuidable implements IValidatable {
+export class Place extends SurveyObject {
     private _surveyObjectsRegistry: SurveyObjectsRegistry;
     protected _attributes: ExtendedPlaceAttributes;
     protected _customAttributes: { [key: string]: unknown };
@@ -149,14 +153,6 @@ export class Place extends Uuidable implements IValidatable {
 
     get customAttributes(): { [key: string]: unknown } {
         return this._customAttributes;
-    }
-
-    get _isValid(): Optional<boolean> {
-        return this._attributes._isValid;
-    }
-
-    set _isValid(value: Optional<boolean>) {
-        this._attributes._isValid = value;
     }
 
     get _weights(): Optional<Weight[]> {
@@ -352,16 +348,6 @@ export class Place extends Uuidable implements IValidatable {
         return createOk(place as Place);
     }
 
-    validate(): Optional<boolean> {
-        // TODO: implement:
-        this._attributes._isValid = true;
-        return true;
-    }
-
-    isValid(): Optional<boolean> {
-        return this._isValid;
-    }
-
     /**
      * Validates attributes types
      * @param dirtyParams The params input
@@ -380,6 +366,8 @@ export class Place extends Uuidable implements IValidatable {
 
         // Validate _isValid:
         errors.push(...ParamsValidatorUtils.isBoolean('_isValid', dirtyParams._isValid, displayName));
+
+        errors.push(...SurveyObject.validateCompletableParams(dirtyParams, displayName));
 
         // Validate _weights:
         errors.push(...validateWeights(dirtyParams._weights as Optional<Weight[]>));

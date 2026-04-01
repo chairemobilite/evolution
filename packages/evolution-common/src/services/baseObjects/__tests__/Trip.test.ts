@@ -14,6 +14,11 @@ import { WeightMethod, WeightMethodAttributes } from '../WeightMethod';
 import { isOk, hasErrors, unwrap } from '../../../types/Result.type';
 import { startEndDateAndTimesAttributes } from '../StartEndable';
 import { SurveyObjectsRegistry } from '../SurveyObjectsRegistry';
+import { completableAttributeNames, type CompletableAttributeName } from '../attributeTypes/CompletableAttributes';
+import {
+    describeCompletableSurveyObjectMixinValues,
+    describeCreateRejectsNonBooleanCompletableParams
+} from './completableSurveyObjectTestHelpers';
 
 describe('Trip', () => {
     let registry: SurveyObjectsRegistry;
@@ -148,9 +153,17 @@ describe('Trip', () => {
 
     test('should have a validateParams section for each attribute', () => {
         const validateParamsCode = Trip.validateParams.toString();
-        tripAttributes.filter((attribute) => attribute !== '_uuid' && attribute !== '_weights' && !(startEndDateAndTimesAttributes as unknown as string[]).includes(attribute)).forEach((attributeName) => {
-            expect(validateParamsCode).toContain('\'' + attributeName + '\'');
-        });
+        tripAttributes
+            .filter(
+                (attribute) =>
+                    attribute !== '_uuid' &&
+                    attribute !== '_weights' &&
+                    !completableAttributeNames.includes(attribute as CompletableAttributeName) &&
+                    !(startEndDateAndTimesAttributes as unknown as string[]).includes(attribute)
+            )
+            .forEach((attributeName) => {
+                expect(validateParamsCode).toContain('\'' + attributeName + '\'');
+            });
     });
 
     test('should get uuid', () => {
@@ -207,6 +220,12 @@ describe('Trip', () => {
         expect(trip.isValid()).toBe(true);
     });
 
+    describeCompletableSurveyObjectMixinValues<Trip>({
+        createDefault: () => new Trip(validAttributes, registry)
+    });
+
+    describeCreateRejectsNonBooleanCompletableParams('Trip', Trip.create, () => validAttributes, () => registry);
+
     test('should create a Trip instance with custom attributes', () => {
         const customAttributes = {
             customAttribute1: 'value1',
@@ -230,6 +249,9 @@ describe('Trip', () => {
             ['endTime', 'invalid'],
             ['startTimePeriod', 123],
             ['endTimePeriod', 123],
+            ['hasMinimum', 'invalid'],
+            ['isCompleted', 'invalid'],
+            ['isStarted', 'invalid'],
             ['preData', 'invalid'],
             ['preData', []],
             ['preData', new Date() as any],

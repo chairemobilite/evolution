@@ -11,6 +11,10 @@ import { v4 as uuidV4 } from 'uuid';
 import { WeightMethod, WeightMethodAttributes } from '../WeightMethod';
 import { isOk, hasErrors } from '../../../types/Result.type';
 import { SurveyObjectsRegistry } from '../SurveyObjectsRegistry';
+import {
+    describeCompletableSurveyObjectMixinValues,
+    describeCreateRejectsNonBooleanCompletableParams
+} from './completableSurveyObjectTestHelpers';
 
 describe('Home', () => {
     let registry: SurveyObjectsRegistry;
@@ -118,6 +122,12 @@ describe('Home', () => {
             expect(registry.getPlace(home.uuid!)).toBe(home);
         });
     });
+
+    describeCompletableSurveyObjectMixinValues<Home>({
+        createDefault: () => new Home(createValidHomeAttributes(), registry)
+    });
+
+    describeCreateRejectsNonBooleanCompletableParams('Home', Home.create, createValidHomeAttributes, () => registry);
 
     describe('create', () => {
         it('should create a Home instance with valid attributes', () => {

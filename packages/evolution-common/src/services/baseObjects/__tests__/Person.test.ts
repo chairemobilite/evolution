@@ -6,6 +6,7 @@
  */
 
 import { Person, nonStringAttributes, stringAttributes } from '../Person';
+import { completableAttributeNames, type CompletableAttributeName } from '../attributeTypes/CompletableAttributes';
 import { v4 as uuidV4 } from 'uuid';
 import { Weight } from '../Weight';
 import { WorkPlace } from '../WorkPlace';
@@ -16,6 +17,10 @@ import { VisitedPlace } from '../VisitedPlace';
 import { isOk, hasErrors, unwrap } from '../../../types/Result.type';
 import { WeightMethod, WeightMethodAttributes } from '../WeightMethod';
 import { SurveyObjectsRegistry } from '../SurveyObjectsRegistry';
+import {
+    describeCompletableSurveyObjectMixinValues,
+    describeCreateRejectsNonBooleanCompletableParams
+} from './completableSurveyObjectTestHelpers';
 
 describe('Person', () => {
     let registry: SurveyObjectsRegistry;
@@ -107,9 +112,16 @@ describe('Person', () => {
     test('should have a validateParams section for each attribute', () => {
         const validateParamsCode = Person.validateParams.toString();
         // exclude string attributes, since they are validated automatically in a loop:
-        nonStringAttributes.filter((attribute) => attribute !== '_uuid' && attribute !== '_weights').forEach((attributeName) => {
-            expect(validateParamsCode).toContain('\'' + attributeName + '\'');
-        });
+        nonStringAttributes
+            .filter(
+                (attribute) =>
+                    attribute !== '_uuid' &&
+                    attribute !== '_weights' &&
+                    !completableAttributeNames.includes(attribute as CompletableAttributeName)
+            )
+            .forEach((attributeName) => {
+                expect(validateParamsCode).toContain('\'' + attributeName + '\'');
+            });
     });
 
     nonStringAttributes.forEach((attribute) => {
@@ -151,6 +163,12 @@ describe('Person', () => {
         expect(person.validate()).toBe(true);
         expect(person.isValid()).toBe(true);
     });
+
+    describeCompletableSurveyObjectMixinValues<Person>({
+        createDefault: () => new Person(validAttributes, registry)
+    });
+
+    describeCreateRejectsNonBooleanCompletableParams('Person', Person.create, () => validAttributes, () => registry);
 
     test('should get uuid', () => {
         const person = new Person({ ...validAttributes, _uuid: '11b78eb3-a5d8-484d-805d-1f947160bb9e' }, registry);
@@ -222,6 +240,9 @@ describe('Person', () => {
             ['age', 'invalid'],
             ['_isValid', 'invalid'],
             ['_weights', 'invalid'],
+            ['hasMinimum', 'invalid'],
+            ['isCompleted', 'invalid'],
+            ['isStarted', 'invalid'],
             ['whoWillAnswerForThisPerson', 'invalid-uuid'],
             ['isProxy', 'invalid'],
         ])('should return an error for invalid %s', (param, value) => {

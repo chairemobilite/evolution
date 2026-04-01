@@ -10,6 +10,11 @@ import { v4 as uuidV4 } from 'uuid';
 import { WeightMethod, WeightMethodAttributes } from '../WeightMethod';
 import { isOk, hasErrors, unwrap } from '../../../types/Result.type';
 import { SurveyObjectsRegistry } from '../SurveyObjectsRegistry';
+import { completableAttributeNames, type CompletableAttributeName } from '../attributeTypes/CompletableAttributes';
+import {
+    describeCompletableSurveyObjectMixinValues,
+    describeCreateRejectsNonBooleanCompletableParams
+} from './completableSurveyObjectTestHelpers';
 
 describe('Vehicle', () => {
     let registry: SurveyObjectsRegistry;
@@ -57,9 +62,16 @@ describe('Vehicle', () => {
 
     test('should have a validateParams section for each attribute', () => {
         const validateParamsCode = Vehicle.validateParams.toString();
-        vehicleAttributes.filter((attribute) => attribute !== '_uuid' && attribute !== '_weights').forEach((attributeName) => {
-            expect(validateParamsCode).toContain('\'' + attributeName + '\'');
-        });
+        vehicleAttributes
+            .filter(
+                (attribute) =>
+                    attribute !== '_uuid' &&
+                    attribute !== '_weights' &&
+                    !completableAttributeNames.includes(attribute as CompletableAttributeName)
+            )
+            .forEach((attributeName) => {
+                expect(validateParamsCode).toContain('\'' + attributeName + '\'');
+            });
     });
 
     test('should get uuid', () => {
@@ -114,6 +126,9 @@ describe('Vehicle', () => {
         ['isElectric', 'invalid'],
         ['isPluginHybrid', 'invalid'],
         ['isHybrid', 'invalid'],
+        ['hasMinimum', 'invalid'],
+        ['isCompleted', 'invalid'],
+        ['isStarted', 'invalid'],
         ['acquiredYear', 'invalid'],
         ['licensePlateNumber', 123],
         ['internalId', 123],
@@ -133,6 +148,12 @@ describe('Vehicle', () => {
         expect(vehicle.validate()).toBe(true);
         expect(vehicle.isValid()).toBe(true);
     });
+
+    describeCompletableSurveyObjectMixinValues<Vehicle>({
+        createDefault: () => new Vehicle(validAttributes, registry)
+    });
+
+    describeCreateRejectsNonBooleanCompletableParams('Vehicle', Vehicle.create, () => validAttributes, () => registry);
 
     test('should create a Vehicle instance with custom attributes', () => {
         const customAttributes = {

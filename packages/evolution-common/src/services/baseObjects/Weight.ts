@@ -12,6 +12,8 @@ import { Optional } from '../../types/Optional.type';
  * This is for interview objects that can be individually weighted after validation, using a specific weight method.
  */
 
+export const weightableAttributeNames = ['_weights'];
+
 export type Weight = {
     weight: number;
     method?: Optional<WeightMethod>;
