@@ -7,7 +7,9 @@
 
 import { Optional } from '../../types/Optional.type';
 
-export type ValidatebleAttributes = {
+export const validatableAttributeNames = ['_isValid'];
+
+export type ValidatableAttributes = {
     _isValid?: Optional<boolean>; // undefined means not yet validated
 };
 

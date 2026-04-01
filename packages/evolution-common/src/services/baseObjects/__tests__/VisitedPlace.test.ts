@@ -12,6 +12,11 @@ import { WeightMethod, WeightMethodAttributes } from '../WeightMethod';
 import { isOk, hasErrors, unwrap } from '../../../types/Result.type';
 import { startEndDateAndTimesAttributes } from '../StartEndable';
 import { SurveyObjectsRegistry } from '../SurveyObjectsRegistry';
+import { completableAttributeNames, type CompletableAttributeName } from '../attributeTypes/CompletableAttributes';
+import {
+    describeCompletableSurveyObjectMixinValues,
+    describeCreateRejectsNonBooleanCompletableParams
+} from './completableSurveyObjectTestHelpers';
 
 describe('VisitedPlace', () => {
     let registry: SurveyObjectsRegistry;
@@ -89,9 +94,17 @@ describe('VisitedPlace', () => {
 
     test('should have a validateParams section for each attribute', () => {
         const validateParamsCode = VisitedPlace.validateParams.toString();
-        visitedPlaceAttributes.filter((attribute) => attribute !== '_uuid' && attribute !== '_weights' && !(startEndDateAndTimesAttributes as unknown as string[]).includes(attribute)).forEach((attributeName) => {
-            expect(validateParamsCode).toContain('\'' + attributeName + '\'');
-        });
+        visitedPlaceAttributes
+            .filter(
+                (attribute) =>
+                    attribute !== '_uuid' &&
+                    attribute !== '_weights' &&
+                    !completableAttributeNames.includes(attribute as CompletableAttributeName) &&
+                    !(startEndDateAndTimesAttributes as unknown as string[]).includes(attribute)
+            )
+            .forEach((attributeName) => {
+                expect(validateParamsCode).toContain('\'' + attributeName + '\'');
+            });
     });
 
     test('should get uuid', () => {
@@ -162,6 +175,17 @@ describe('VisitedPlace', () => {
         expect(visitedPlace.isValid()).toBe(true);
     });
 
+    describeCompletableSurveyObjectMixinValues<VisitedPlace>({
+        createDefault: () => new VisitedPlace(validVisitedPlaceAttributesWithPlace, registry)
+    });
+
+    describeCreateRejectsNonBooleanCompletableParams(
+        'VisitedPlace',
+        VisitedPlace.create,
+        () => validVisitedPlaceAttributesWithPlace,
+        () => registry
+    );
+
     test('should create a VisitedPlace instance with custom attributes', () => {
         const customAttributes = {
             customAttribute1: 'value1',
@@ -189,6 +213,9 @@ describe('VisitedPlace', () => {
             ['activityCategory', 123],
             ['shortcut', 'invalid-uuid'],
             ['_sequence', 'invalid'],
+            ['hasMinimum', 'invalid'],
+            ['isCompleted', 'invalid'],
+            ['isStarted', 'invalid'],
             ['preData', 'invalid'],
             ['preData', []],
             ['preData', new Date() as any],

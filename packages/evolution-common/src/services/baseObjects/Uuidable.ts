@@ -9,11 +9,13 @@ import { v4 as uuidV4, validate as uuidValidate } from 'uuid';
 import { Optional } from '../../types/Optional.type';
 import { ParamsValidatorUtils } from '../../utils/ParamsValidatorUtils';
 
+export const uuidableAttributeNames = ['_uuid'];
+
 export type UuidableAttributes = {
     _uuid?: Optional<string>; // UUID v4
 };
 
-export class Uuidable {
+export abstract class Uuidable {
     readonly _uuid?: Optional<string>; // UUID v4 // required, will be generated if undefined in constructor
 
     constructor(_uuid?: Optional<string>) {

@@ -9,9 +9,11 @@ import _omit from 'lodash/omit';
 
 import { Optional } from '../../types/Optional.type';
 import { PreData } from '../../types/shared';
-import { IValidatable, ValidatebleAttributes } from './IValidatable';
-import { WeightableAttributes, Weight, validateWeights } from './Weight';
-import { Uuidable, UuidableAttributes } from './Uuidable';
+import { validatableAttributeNames, type ValidatableAttributes } from './IValidatable';
+import { completableAttributeNames, type CompletableAttributes } from './attributeTypes/CompletableAttributes';
+import { SurveyObject } from './SurveyObject';
+import { weightableAttributeNames, type WeightableAttributes, type Weight, validateWeights } from './Weight';
+import { uuidableAttributeNames, type UuidableAttributes, Uuidable } from './Uuidable';
 import * as VAttr from './attributeTypes/VehicleAttributes';
 import { Result, createErrors, createOk } from '../../types/Result.type';
 import { ParamsValidatorUtils } from '../../utils/ParamsValidatorUtils';
@@ -21,9 +23,10 @@ import { Organization } from './Organization';
 import { Person } from './Person';
 
 export const vehicleAttributes = [
-    '_weights',
-    '_isValid',
-    '_uuid',
+    ...weightableAttributeNames,
+    ...validatableAttributeNames,
+    ...uuidableAttributeNames,
+    ...completableAttributeNames,
     'make',
     'model',
     'type',
@@ -57,7 +60,8 @@ export type VehicleAttributes = {
     preData?: Optional<PreData>;
 } & UuidableAttributes &
     WeightableAttributes &
-    ValidatebleAttributes;
+    ValidatableAttributes &
+    CompletableAttributes;
 
 export type ExtendedVehicleAttributes = VehicleAttributes & { [key: string]: unknown };
 
@@ -71,7 +75,7 @@ export type SerializedExtendedVehicleAttributes = {
  * and could be used during a trip or a segment of a trip
  * It could include cars, trucks, planes, buses, boats, bicycles, scooters, etc.
  */
-export class Vehicle extends Uuidable implements IValidatable {
+export class Vehicle extends SurveyObject {
     private _surveyObjectsRegistry: SurveyObjectsRegistry;
     private _attributes: VehicleAttributes;
     private _customAttributes: { [key: string]: unknown };
@@ -108,14 +112,6 @@ export class Vehicle extends Uuidable implements IValidatable {
 
     get customAttributes(): { [key: string]: unknown } {
         return this._customAttributes;
-    }
-
-    get _isValid(): Optional<boolean> {
-        return this._attributes._isValid;
-    }
-
-    set _isValid(value: Optional<boolean>) {
-        this._attributes._isValid = value;
     }
 
     get _weights(): Optional<Weight[]> {
@@ -293,15 +289,6 @@ export class Vehicle extends Uuidable implements IValidatable {
         return createOk(vehicle as Vehicle);
     }
 
-    validate(): Optional<boolean> {
-        this._attributes._isValid = true;
-        return true;
-    }
-
-    isValid(): Optional<boolean> {
-        return this._isValid;
-    }
-
     static validateParams(dirtyParams: { [key: string]: unknown }, displayName = 'Vehicle'): Error[] {
         const errors: Error[] = [];
 
@@ -311,6 +298,8 @@ export class Vehicle extends Uuidable implements IValidatable {
         errors.push(...Uuidable.validateParams(dirtyParams));
 
         errors.push(...ParamsValidatorUtils.isBoolean('_isValid', dirtyParams._isValid, displayName));
+
+        errors.push(...SurveyObject.validateCompletableParams(dirtyParams, displayName));
 
         errors.push(...validateWeights(dirtyParams._weights as Optional<Weight[]>));
 
