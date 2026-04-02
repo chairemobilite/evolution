@@ -173,9 +173,14 @@ def delete_file_if_exists(file_path: str) -> None:
 # Check if the input file is an Excel file
 def is_excel_file(file: str) -> None:
     file_lower = file.lower()
-    if not (file_lower.endswith(".xlsx") or file_lower.endswith(".xls")):
+    if not (
+        file_lower.endswith(".xlsx")
+        or file_lower.endswith(".xlsm")
+        or file_lower.endswith(".xltx")
+        or file_lower.endswith(".xltm")
+    ):
         raise Exception(
-            f"Invalid input file extension for {file} : must be an Excel .xlsx or .xls file"
+            f"Invalid input file extension for {file} : must be an Excel 2010+ .xlsx, .xlsm, .xltx or .xltm file"
         )
 
 

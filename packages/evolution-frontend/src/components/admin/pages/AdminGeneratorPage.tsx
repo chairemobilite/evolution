@@ -9,19 +9,28 @@ import { useTranslation } from 'react-i18next';
 import { toast } from 'sonner';
 import * as Status from 'chaire-lib-common/lib/utils/Status';
 
+// OpenPyXL supports Excel 2010+ formats: xlsx/xlsm/xltx/xltm (not legacy .xls).
 const EXCEL_ACCEPT =
-    '.xlsx,.xls,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel';
+    '.xlsx,.xlsm,.xltx,.xltm,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel.sheet.macroEnabled.12,application/vnd.openxmlformats-officedocument.spreadsheetml.template,application/vnd.ms-excel.template.macroEnabled.12';
 
 // Check if the file is an Excel file
+// We support Excel 2010+ formats: xlsx/xlsm/xltx/xltm (not legacy .xls).
 const isExcelFile = (file: File): boolean => {
     const name = file.name.toLowerCase();
-    if (name.endsWith('.xlsx') || name.endsWith('.xls')) {
+    if (
+        name.endsWith('.xlsx') ||
+        name.endsWith('.xlsm') ||
+        name.endsWith('.xltx') ||
+        name.endsWith('.xltm')
+    ) {
         return true;
     }
     const mime = file.type;
     return (
         mime === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
-        mime === 'application/vnd.ms-excel'
+        mime === 'application/vnd.ms-excel.sheet.macroEnabled.12' ||
+        mime === 'application/vnd.openxmlformats-officedocument.spreadsheetml.template' ||
+        mime === 'application/vnd.ms-excel.template.macroEnabled.12'
     );
 };
 

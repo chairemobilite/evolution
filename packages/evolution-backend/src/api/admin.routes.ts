@@ -48,21 +48,26 @@ const generatorExcelUpload = multer({
         // Generate a unique basename for the uploaded file.
         filename: (_req, file, cb) => {
             const ext = path.extname(file.originalname).toLowerCase();
-            cb(null, `${uniqueGeneratorUploadBasename()}${ext === '.xls' || ext === '.xlsx' ? ext : '.xlsx'}`);
+            const supportedExts = new Set(['.xlsx', '.xlsm', '.xltx', '.xltm']);
+            cb(null, `${uniqueGeneratorUploadBasename()}${supportedExts.has(ext) ? ext : '.xlsx'}`);
         }
     }),
     limits: { fileSize: 50 * 1024 * 1024 }, // 50MB
-    // Only allow Excel files (.xlsx, .xls) or the correct MIME type.
+    // Only allow Excel 2010+ files (.xlsx, .xlsm, .xltx, .xltm) or the correct MIME type.
     fileFilter: (_req, file, cb) => {
         const ext = path.extname(file.originalname).toLowerCase();
-        const extOk = ext === '.xlsx' || ext === '.xls';
+        const extOk = ext === '.xlsx' || ext === '.xlsm' || ext === '.xltx' || ext === '.xltm';
         const mimeOk =
             file.mimetype === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
-            file.mimetype === 'application/vnd.ms-excel';
-        if (extOk || mimeOk) {
+            file.mimetype === 'application/vnd.ms-excel.sheet.macroEnabled.12' ||
+            file.mimetype === 'application/vnd.openxmlformats-officedocument.spreadsheetml.template' ||
+            file.mimetype === 'application/vnd.ms-excel.template.macroEnabled.12';
+        // Require BOTH the filename extension (file.originalname) and MIME type (file.mimetype) to match.
+        // So we don't accept corrupted files with the wrong extension or MIME type.
+        if (extOk && mimeOk) {
             cb(null, true);
         } else {
-            cb(new Error('Only Excel (.xlsx, .xls) files are allowed'));
+            cb(new Error('Only Excel 2010+ (.xlsx, .xlsm, .xltx, .xltm) files are allowed'));
         }
     }
 });

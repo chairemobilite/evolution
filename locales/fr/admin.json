@@ -238,7 +238,7 @@
         "GeneratorTitle": "Evolution Generator",
         "GeneratorDescription": "Vérifier que votre fichier Excel de questionnaire fonctionne correctement avec Evolution Generator avant de l'utiliser en production.",
         "GeneratorFileLabel": "Téléversez votre fichier de questionnaire Excel.",
-        "GeneratorFileHint": "Seuls les classeurs Excel (.xlsx, .xls) sont acceptés.",
+        "GeneratorFileHint": "Seuls les classeurs Excel (.xlsx, .xlsm, .xltx, .xltm) sont acceptés.",
         "GeneratorDropzonePrompt": "Glissez-déposez votre fichier ici, ou cliquez pour parcourir.",
         "GeneratorRemoveFile": "Retirer le fichier",
         "GeneratorButton": "Vérifier le fichier Excel",
