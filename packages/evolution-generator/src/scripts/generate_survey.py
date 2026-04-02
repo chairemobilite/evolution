@@ -201,3 +201,17 @@ def check_excel_integrity(excel_file_path: str) -> bool:
         for message in messages:
             print(message)
     return ok
+
+
+def verify_excel_cli_main() -> int:
+    """
+    Console entry for ``verifyExcel`` (see pyproject ``[tool.poetry.scripts]``).
+
+    Usage: ``verifyExcel <path-to-file.xlsx>``
+    """
+    import sys
+
+    if len(sys.argv) < 2:
+        print("Usage: verifyExcel <path-to-file.xlsx>", file=sys.stderr)
+        return 2
+    return 0 if check_excel_integrity(sys.argv[1]) else 1

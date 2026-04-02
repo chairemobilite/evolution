@@ -21,6 +21,7 @@
     "format:python": "poetry run black .",
     "format:all": "yarn format && yarn format:python",
     "generateSurvey": "poetry run generateSurvey",
+    "verifyExcel": "poetry run verifyExcel",
     "test:python": "poetry run pytest -v --disable-warnings --tb=short"
   }
 }

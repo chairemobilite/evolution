@@ -77,6 +77,10 @@ The following instructions explain how to prepare and compile the application
 - `yarn migrate`: Update the database schema with latest changes. This can be run whenever the source code is updated
 - Optionally `yarn create-user`: Run this task to create a new user in the database. The user will be able to login to the web interface. This command can be run entirely in a non-interactive mode with the following parameters: `yarn create-user --username <username> --email <email> --password <clearTextPassword> [--first_name <firstName> --last_name <lastName> --[no-]admin --[no-]valid --[no-]confirmed --prefs <jsonStringOfPreferences>]`. For example, to create and administrator user with the english language as preference, run the following command `yarn create-user --username admin --email admin@example.org --password MyAdminPassword --admin --prefs '{ "lang": "en" }'`
 
+## Verify Excel (generator)
+
+Check a survey workbook with `yarn verifyExcel '/absolute/path/to/file.xlsx'` (run `poetry install` in `packages/evolution-generator` first). Exit code `0` when valid. If invalid, exit code is non-zero and the terminal prints that the check failed, then each validation error message.
+
 ## Run the example application
 
 The example application contains 2 distinct application. For local development, we will run the participant app on port 8080 (the default port) and the administrative app on port 8082. Each application needs to build the client app and run the server.
