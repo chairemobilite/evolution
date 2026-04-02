@@ -80,7 +80,7 @@ describe('/generator/verify route', () => {
         });
     });
 
-    it('Should return 422 when Excel integrity check fails', async () => {
+    it('Should return 200 with integrityOk false when Excel integrity check fails', async () => {
         const errors = ['Missing required sheet', 'Invalid data'];
         const stdout = JSON.stringify({ ok: true, integrityOk: false, errors });
 
@@ -97,10 +97,13 @@ describe('/generator/verify route', () => {
                 }
             );
 
-        expect(response.status).toBe(422);
+        expect(response.status).toBe(200);
         expect(response.body).toEqual({
-            status: 'error',
-            error: errors
+            status: 'ok',
+            result: {
+                integrityOk: false,
+                errors
+            }
         });
     });
 

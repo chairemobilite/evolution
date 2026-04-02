@@ -224,22 +224,23 @@ router.post('/generator/verify', (req: Request, res: Response) => {
                     });
                 }
 
-                // Validation failed → integrityOk false and/or errors[]
-                const errors =
-                    Array.isArray(parsedResult.errors) && parsedResult.errors.length > 0 ? parsedResult.errors : null;
-                if (parsedResult.integrityOk !== true || errors !== null) {
-                    return respondError({
+                // Excel validation issues: HTTP 200 with status ok; integrityOk is false and errors list the problems.
+                if (parsedResult.integrityOk === true) {
+                    return respondOk({
                         res,
-                        error: errors ?? 'Excel integrity check failed',
-                        httpStatus: 422
+                        result: {
+                            integrityOk: true
+                        }
                     });
                 }
 
-                // If we reach here, script ran and integrity check passed.
+                // Excel validation issues: HTTP 200 with status ok; integrityOk is false and errors list the problems.
+                const errorMessages = Array.isArray(parsedResult.errors) ? parsedResult.errors : [];
                 return respondOk({
                     res,
                     result: {
-                        integrityOk: true
+                        integrityOk: false,
+                        errors: errorMessages
                     }
                 });
             } catch (error) {

@@ -15,6 +15,17 @@ const EXCEL_ACCEPT =
 
 // Check if the file is an Excel file
 // We support Excel 2010+ formats: xlsx/xlsm/xltx/xltm (not legacy .xls).
+/** Lines to show in the verify error panel (API may send a string[] or omit empty lists). */
+const normalizeVerifyErrorMessages = (errors: unknown): string[] => {
+    if (Array.isArray(errors)) {
+        return errors.filter((e): e is string => typeof e === 'string');
+    }
+    if (typeof errors === 'string') {
+        return [errors];
+    }
+    return [];
+};
+
 const isExcelFile = (file: File): boolean => {
     const name = file.name.toLowerCase();
     if (name.endsWith('.xlsx') || name.endsWith('.xlsm') || name.endsWith('.xltx') || name.endsWith('.xltm')) {
@@ -204,7 +215,7 @@ const AdminGeneratorPage: React.FunctionComponent = () => {
                 },
                 body: formData
             });
-            const data = (await response.json()) as Status.Status<unknown>;
+            const data = (await response.json()) as Status.Status<unknown> & Record<string, unknown>;
 
             // 4xx/5xx: show API error(s) when present
             if (!response.ok) {
@@ -220,12 +231,24 @@ const AdminGeneratorPage: React.FunctionComponent = () => {
                 toast.error(t('admin:generator:GeneratorVerifyFailedIntegrity'));
                 return;
             }
-            if (Status.isStatusOk(data)) {
-                setVerifyErrors(null);
-                toast.success(t('admin:generator:GeneratorVerifySuccess'));
+
+            // HTTP 200: read body structurally so we always surface `result.errors` (do not rely only on type guards).
+            if (data.status === 'ok' && data.result !== null && typeof data.result === 'object') {
+                const result = data.result as { integrityOk?: unknown; errors?: unknown };
+                if (result.integrityOk === true) {
+                    setVerifyErrors(null);
+                    toast.success(t('admin:generator:GeneratorVerifySuccess'));
+                    return;
+                }
+                const serverErrors = normalizeVerifyErrorMessages(result.errors);
+                setVerifyErrors(
+                    serverErrors.length > 0 ? serverErrors : [t('admin:generator:GeneratorVerifyErrorFallback')]
+                );
+                toast.error(t('admin:generator:GeneratorVerifyFailedIntegrity'));
                 return;
             }
-            // 200 but not Status.ok
+
+            // 200 but unexpected JSON shape
             setVerifyErrors([t('admin:generator:GeneratorVerifyErrorFallback')]);
             toast.error(t('admin:generator:GeneratorVerifyFailedIntegrity'));
         } catch (error) {

@@ -27,9 +27,9 @@ def main() -> int:
             "ok": True,
             "integrityOk": integrity_ok,
             "excelFilePath": excel_file_path,
+            # Always send the list so the admin API can forward every validation line to the UI.
+            "errors": errors,
         }
-        if errors:
-            payload["errors"] = errors
         print(json.dumps(payload))
         return 0
     except Exception as error:
