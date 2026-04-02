@@ -17,12 +17,7 @@ const EXCEL_ACCEPT =
 // We support Excel 2010+ formats: xlsx/xlsm/xltx/xltm (not legacy .xls).
 const isExcelFile = (file: File): boolean => {
     const name = file.name.toLowerCase();
-    if (
-        name.endsWith('.xlsx') ||
-        name.endsWith('.xlsm') ||
-        name.endsWith('.xltx') ||
-        name.endsWith('.xltm')
-    ) {
+    if (name.endsWith('.xlsx') || name.endsWith('.xlsm') || name.endsWith('.xltx') || name.endsWith('.xltm')) {
         return true;
     }
     const mime = file.type;
@@ -214,11 +209,13 @@ const AdminGeneratorPage: React.FunctionComponent = () => {
             // 4xx/5xx: show API error(s) when present
             if (!response.ok) {
                 const serverErrors =
-                    Status.isStatusError(data) && Array.isArray(data.error) && data.error.every((e) => typeof e === 'string')
+                    Status.isStatusError(data) &&
+                    Array.isArray(data.error) &&
+                    data.error.every((e) => typeof e === 'string')
                         ? (data.error as string[])
                         : Status.isStatusError(data) && typeof data.error === 'string'
-                          ? [data.error]
-                          : null;
+                            ? [data.error]
+                            : null;
                 setVerifyErrors(serverErrors ?? [t('admin:generator:GeneratorVerifyErrorFallback')]);
                 toast.error(t('admin:generator:GeneratorVerifyFailedIntegrity'));
                 return;
