@@ -215,6 +215,7 @@ const AdminGeneratorPage: React.FunctionComponent = () => {
             if (!response.ok) {
                 const serverMessage = Status.isStatusError(data) && typeof data.error === 'string' ? data.error : null;
                 setVerifyError(serverMessage ?? t('admin:generator:GeneratorVerifyErrorFallback'));
+                toast.error(t('admin:generator:GeneratorVerifyFailedIntegrity'));
                 return;
             }
             if (Status.isStatusOk(data)) {
@@ -224,6 +225,7 @@ const AdminGeneratorPage: React.FunctionComponent = () => {
             }
             // 200 but not Status.ok
             setVerifyError(t('admin:generator:GeneratorVerifyErrorFallback'));
+            toast.error(t('admin:generator:GeneratorVerifyFailedIntegrity'));
         } catch (error) {
             const isNetworkFailure =
                 error instanceof Error && (error.message.includes('Failed to fetch') || error.name === 'TypeError');
@@ -231,6 +233,7 @@ const AdminGeneratorPage: React.FunctionComponent = () => {
                 ? t('admin:generator:GeneratorVerifyRequestFailed')
                 : t('admin:generator:GeneratorVerifyErrorFallback');
             setVerifyError(message);
+            toast.error(t('admin:generator:GeneratorVerifyFailedIntegrity'));
         } finally {
             setIsVerifying(false);
         }
