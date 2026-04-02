@@ -774,6 +774,11 @@ header {
         border-radius: 10px;
         padding: 0.75rem;
         border: 1px solid rgba(0, 0, 0, 0.12);
+
+        // Add some space between the error messages.
+        li + li {
+            margin-top: 1rem;
+        }
     }
 
     .admin-generator-excel-file {

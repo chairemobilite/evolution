@@ -27,6 +27,8 @@ MOCKED_EXCEL_FILE = "src/tests/references/test.xlsx"
 class TestCheckExcelIntegrity:
     """Tests for the public entry point check_excel_integrity(excel_file_path)."""
 
+    checker = Conditionals()
+
     def test_valid_file_returns_true(self):
         """Full flow: load .xlsx from path and validate Conditionals sheet returns True."""
         create_mocked_excel_data(
@@ -83,6 +85,29 @@ class TestCheckExcelIntegrity:
         assert "Excel integrity check FAILED for" in captured.out
         assert "survey.txt" in captured.out
 
+    def test_check_with_messages_returns_two_errors_for_two_bad_rows(self):
+        """
+        One verify run can return multiple error strings: two invalid data rows
+        each produce a distinct message (no early exit after the first).
+        """
+        rows = [
+            [None, "", "some.path", "===", "42", ""],
+            ["cond2", "", "some.path", "==", "42", ""],
+        ]
+        create_mocked_excel_data(
+            "Conditionals",
+            list(Conditionals.CONDITIONALS_ALL_HEADERS),
+            rows,
+        )
+        try:
+            ok, msgs = self.checker.check_with_messages(MOCKED_EXCEL_FILE)
+            assert ok is False
+            assert len(msgs) == 2
+            assert "Missing fields: ['conditional_name']" in msgs[0]
+            assert "comparison_operator" in msgs[1] and "=='" in msgs[1]
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
 
 class TestCheckConditionalsSheet:
     """
@@ -91,6 +116,8 @@ class TestCheckConditionalsSheet:
     Row constants are lists of cell values in header order:
     conditional_name, logical_operator, path, comparison_operator, value, parentheses.
     """
+
+    checker = Conditionals()
 
     # Constants for test cases.
     CORRECT_SHEET_NAME = "Conditionals"
@@ -232,9 +259,9 @@ class TestCheckConditionalsSheet:
                 case["rows"],
             )
 
-            checker = Conditionals()
             assert (
-                checker._check_conditionals_sheet(workbook) is case["expected_result"]
+                self.checker._check_conditionals_sheet(workbook)
+                is case["expected_result"]
             )
 
             # When validation fails, the script prints the error with "Error in Conditionals sheet - " prefix; we assert the full message.
@@ -264,8 +291,7 @@ class TestCheckConditionalsSheet:
             rows,
         )
 
-        checker = Conditionals()
-        result = checker._check_conditionals_sheet(workbook)
+        result = self.checker._check_conditionals_sheet(workbook)
         assert result is False
 
         captured = capsys.readouterr().out
@@ -311,89 +337,92 @@ class TestValidateConditionalsRow:
         }
 
     def test_valid_row_does_not_raise(self):
-        """Row with all valid fields does not raise."""
-        self.checker._validate_conditionals_row(self._row(), self.ROW_NUMBER)
-
-    def test_missing_required_field_raises(self):
-        """Missing required field (e.g. conditional_name) raises."""
-        with pytest.raises(Exception) as exc_info:
-            self.checker._validate_conditionals_row(
-                self._row(conditional_name=None), self.ROW_NUMBER
-            )
-        assert str(exc_info.value) == (
-            "Error in Conditionals sheet - Required field is missing in row 2. "
-            "Missing fields: ['conditional_name']"
+        """Row with all valid fields returns no issues."""
+        assert (
+            self.checker._validate_conditionals_row(self._row(), self.ROW_NUMBER) == []
         )
 
+    def test_missing_required_field_raises(self):
+        """Missing required field (e.g. conditional_name) returns one issue."""
+        assert self.checker._validate_conditionals_row(
+            self._row(conditional_name=None), self.ROW_NUMBER
+        ) == [
+            "Error in Conditionals sheet - Required field is missing in row 2. "
+            "Missing fields: ['conditional_name']"
+        ]
+
     def test_missing_optional_field_does_not_raise(self):
-        """Missing optional field (e.g. logical_operator empty/None) does not raise."""
-        self.checker._validate_conditionals_row(
-            self._row(logical_operator=None), self.ROW_NUMBER
+        """Missing optional field (e.g. logical_operator empty/None) returns no issues."""
+        assert (
+            self.checker._validate_conditionals_row(
+                self._row(logical_operator=None), self.ROW_NUMBER
+            )
+            == []
         )
 
     def test_invalid_conditional_name_raises(self):
         """conditional_name must be a non-empty string (e.g. not a number)."""
-        with pytest.raises(Exception) as exc_info:
-            self.checker._validate_conditionals_row(
-                self._row(conditional_name=10), self.ROW_NUMBER
-            )
-        assert str(exc_info.value) == (
+        assert self.checker._validate_conditionals_row(
+            self._row(conditional_name=10), self.ROW_NUMBER
+        ) == [
             "Error in Conditionals sheet - Invalid conditional_name in row 2: "
             "must be one of types (str), got int with value 10"
-        )
+        ]
 
     def test_invalid_path_raises(self):
         """path must be a non-empty string."""
-        with pytest.raises(Exception) as exc_info:
-            self.checker._validate_conditionals_row(self._row(path=5), self.ROW_NUMBER)
-        assert str(exc_info.value) == (
+        assert self.checker._validate_conditionals_row(
+            self._row(path=5), self.ROW_NUMBER
+        ) == [
             "Error in Conditionals sheet - Invalid path in row 2: "
             "must be one of types (str), got int with value 5"
-        )
+        ]
 
     def test_invalid_logical_operator_raises(self):
         """logical_operator must be '||', '&&', or empty."""
-        with pytest.raises(Exception) as exc_info:
-            self.checker._validate_conditionals_row(
-                self._row(logical_operator="OR"), self.ROW_NUMBER
-            )
-        assert str(exc_info.value) == (
+        assert self.checker._validate_conditionals_row(
+            self._row(logical_operator="OR"), self.ROW_NUMBER
+        ) == [
             "Error in Conditionals sheet - Invalid logical_operator in row 2: "
             "must be one of ['&&', '||'] or empty, got 'OR'"
-        )
+        ]
 
     def test_invalid_comparison_operator_raises(self):
         """comparison_operator must be one of the allowed operators or empty."""
-        with pytest.raises(Exception) as exc_info:
-            self.checker._validate_conditionals_row(
-                self._row(comparison_operator="=="), self.ROW_NUMBER
-            )
-        assert str(exc_info.value) == (
+        assert self.checker._validate_conditionals_row(
+            self._row(comparison_operator="=="), self.ROW_NUMBER
+        ) == [
             "Error in Conditionals sheet - Invalid comparison_operator in row 2: "
             "must be one of ['!==', '<', '<=', '===', '>', '>='] or empty, got '=='"
-        )
+        ]
 
     def test_invalid_parentheses_raises(self):
         """parentheses must be '(', ')', or empty."""
-        with pytest.raises(Exception) as exc_info:
-            self.checker._validate_conditionals_row(
-                self._row(parentheses="(("), self.ROW_NUMBER
-            )
-        assert str(exc_info.value) == (
+        assert self.checker._validate_conditionals_row(
+            self._row(parentheses="(("), self.ROW_NUMBER
+        ) == [
             "Error in Conditionals sheet - Invalid parentheses in row 2: "
             "must be one of ['(', ')'] or empty, got '(('"
-        )
+        ]
 
     def test_invalid_value_type_raises(self):
         """value must be int, float, str (e.g. not date)."""
-        with pytest.raises(Exception) as exc_info:
-            self.checker._validate_conditionals_row(
-                self._row(value=datetime.date(2024, 1, 1)), self.ROW_NUMBER
-            )
-        assert str(exc_info.value) == (
+        assert self.checker._validate_conditionals_row(
+            self._row(value=datetime.date(2024, 1, 1)), self.ROW_NUMBER
+        ) == [
             "Error in Conditionals sheet - Invalid value in row 2: "
             "must be one of types (int, float, str), got date with value datetime.date(2024, 1, 1)"
+        ]
+
+    def test_same_row_can_report_two_validation_issues(self):
+        """When all required cells are present, every invalid optional/column is reported."""
+        issues = self.checker._collect_row_validation_issues(
+            self._row(logical_operator="OR", parentheses="(("),
+            self.ROW_NUMBER,
         )
+        assert len(issues) == 2
+        assert any("logical_operator" in msg for msg in issues)
+        assert any("parentheses" in msg for msg in issues)
 
 
 class TestValidateConditionalsParenthesesBalance:
@@ -406,42 +435,45 @@ class TestValidateConditionalsParenthesesBalance:
 
     checker = Conditionals()
 
+    def setup_method(self):
+        self.checker._clear_validation_errors()
+
     def _row(self, conditional_name: str, parentheses: str | None) -> dict:
         """Minimal row dict for balance checks."""
         return {"conditional_name": conditional_name, "parentheses": parentheses}
 
     def test_balanced_single_row_no_parentheses(self):
-        """One row with no parentheses does not raise."""
+        """One row with no parentheses collects no issues."""
         row_data = [(2, self._row("cond1", ""))]
         self.checker._validate_conditionals_parentheses_balance(row_data)
+        assert self.checker._validation_errors == []
 
     def test_balanced_open_then_close(self):
-        """Group with '(' then ')' does not raise."""
+        """Group with '(' then ')' collects no issues."""
         row_data = [
             (2, self._row("cond1", "(")),
             (3, self._row("cond1", ")")),
         ]
         self.checker._validate_conditionals_parentheses_balance(row_data)
+        assert self.checker._validation_errors == []
 
     def test_unbalanced_too_many_closing_raises(self):
-        """')' without matching '(' raises with the expected message."""
+        """')' without matching '(' appends the expected message."""
         row_data = [(2, self._row("cond1", ")"))]
-        with pytest.raises(Exception) as exc_info:
-            self.checker._validate_conditionals_parentheses_balance(row_data)
-        assert str(exc_info.value) == (
+        self.checker._validate_conditionals_parentheses_balance(row_data)
+        assert self.checker._validation_errors == [
             "Error in Conditionals sheet - Unbalanced parentheses for conditional_name 'cond1' in row 2: "
             "too many ')' (closing parenthesis without matching opening)."
-        )
+        ]
 
     def test_unbalanced_unclosed_opening_raises(self):
-        """'(' without matching ')' raises with the expected message."""
+        """'(' without matching ')' appends the expected message."""
         row_data = [(2, self._row("cond1", "("))]
-        with pytest.raises(Exception) as exc_info:
-            self.checker._validate_conditionals_parentheses_balance(row_data)
-        assert str(exc_info.value) == (
+        self.checker._validate_conditionals_parentheses_balance(row_data)
+        assert self.checker._validation_errors == [
             "Error in Conditionals sheet - Unbalanced parentheses for conditional_name 'cond1' (e.g. row 2): "
             "1 unclosed opening parenthesis/parentheses."
-        )
+        ]
 
     def test_two_groups_each_balanced(self):
         """Consecutive groups with different conditional_name are checked separately; both balanced passes."""
@@ -451,6 +483,7 @@ class TestValidateConditionalsParenthesesBalance:
             (4, self._row("condB", "")),
         ]
         self.checker._validate_conditionals_parentheses_balance(row_data)
+        assert self.checker._validation_errors == []
 
     def test_same_name_non_consecutive_balanced(self):
         """Same conditional_name appearing again later: condA, condB, condA; parentheses balanced across condA rows."""
@@ -460,20 +493,20 @@ class TestValidateConditionalsParenthesesBalance:
             (4, self._row("condA", ")")),
         ]
         self.checker._validate_conditionals_parentheses_balance(row_data)
+        assert self.checker._validation_errors == []
 
     def test_same_name_non_consecutive_unbalanced_raises(self):
-        """Same conditional_name appearing again later with unclosed '(' in the combined group raises."""
+        """Same conditional_name appearing again later with unclosed '(' in the combined group appends an issue."""
         row_data = [
             (2, self._row("condA", "(")),
             (3, self._row("condB", "")),
             (4, self._row("condA", "(")),
         ]
-        with pytest.raises(Exception) as exc_info:
-            self.checker._validate_conditionals_parentheses_balance(row_data)
-        assert str(exc_info.value) == (
+        self.checker._validate_conditionals_parentheses_balance(row_data)
+        assert self.checker._validation_errors == [
             "Error in Conditionals sheet - Unbalanced parentheses for conditional_name 'condA' (e.g. row 4): "
             "2 unclosed opening parenthesis/parentheses."
-        )
+        ]
 
 
 class TestValidateConditionalsFirstRowNoLogicalOperator:
@@ -486,6 +519,9 @@ class TestValidateConditionalsFirstRowNoLogicalOperator:
 
     checker = Conditionals()
 
+    def setup_method(self):
+        self.checker._clear_validation_errors()
+
     def _row(self, conditional_name: str, logical_operator: str | None) -> dict:
         """Minimal row dict for first-row logical_operator checks."""
         return {
@@ -494,9 +530,10 @@ class TestValidateConditionalsFirstRowNoLogicalOperator:
         }
 
     def test_first_row_empty_does_not_raise(self):
-        """First row with empty logical_operator does not raise."""
+        """First row with empty logical_operator records no issues."""
         row_data = [(2, self._row("cond1", ""))]
         self.checker._validate_conditionals_first_row_no_logical_operator(row_data)
+        assert self.checker._validation_errors == []
 
     def test_first_row_empty_second_has_operator_does_not_raise(self):
         """First row empty, second row has '||' is valid."""
@@ -505,39 +542,39 @@ class TestValidateConditionalsFirstRowNoLogicalOperator:
             (3, self._row("cond1", "||")),
         ]
         self.checker._validate_conditionals_first_row_no_logical_operator(row_data)
+        assert self.checker._validation_errors == []
 
     def test_first_row_has_logical_operator_raises(self):
-        """First row with '||' or '&&' raises (first row of a conditional must be empty)."""
+        """First row with '||' or '&&' records an issue (first row of a conditional must be empty)."""
         row_data = [(2, self._row("cond1", "&&"))]
-        with pytest.raises(Exception) as exc_info:
-            self.checker._validate_conditionals_first_row_no_logical_operator(row_data)
-        assert str(exc_info.value) == (
+        self.checker._validate_conditionals_first_row_no_logical_operator(row_data)
+        assert self.checker._validation_errors == [
             "Error in Conditionals sheet - Invalid logical_operator in row 2: "
             "first row of a conditional must have empty logical_operator, got '&&'"
-        )
+        ]
 
     def test_two_groups_both_valid(self):
-        """Two conditionals, each with first row empty, does not raise."""
+        """Two conditionals, each with first row empty, records no issues."""
         row_data = [
             (2, self._row("condA", "")),
             (3, self._row("condA", "&&")),
             (4, self._row("condB", "")),
         ]
         self.checker._validate_conditionals_first_row_no_logical_operator(row_data)
+        assert self.checker._validation_errors == []
 
     def test_second_group_first_row_has_operator_raises(self):
-        """Second conditional's first row has '&&' raises (row 4)."""
+        """Second conditional's first row has '&&' records an issue (row 4)."""
         row_data = [
             (2, self._row("condA", "")),
             (3, self._row("condA", "||")),
             (4, self._row("condB", "&&")),
         ]
-        with pytest.raises(Exception) as exc_info:
-            self.checker._validate_conditionals_first_row_no_logical_operator(row_data)
-        assert str(exc_info.value) == (
+        self.checker._validate_conditionals_first_row_no_logical_operator(row_data)
+        assert self.checker._validation_errors == [
             "Error in Conditionals sheet - Invalid logical_operator in row 4: "
             "first row of a conditional must have empty logical_operator, got '&&'"
-        )
+        ]
 
     def test_same_name_comes_back_later_first_row_has_operator_raises(self):
         """When condA appears again after condB, the first occurrence of condA (row 2) must have empty logical_operator."""
@@ -546,12 +583,11 @@ class TestValidateConditionalsFirstRowNoLogicalOperator:
             (3, self._row("condB", "")),
             (4, self._row("condA", "")),
         ]
-        with pytest.raises(Exception) as exc_info:
-            self.checker._validate_conditionals_first_row_no_logical_operator(row_data)
-        assert str(exc_info.value) == (
+        self.checker._validate_conditionals_first_row_no_logical_operator(row_data)
+        assert self.checker._validation_errors == [
             "Error in Conditionals sheet - Invalid logical_operator in row 2: "
             "first row of a conditional must have empty logical_operator, got '&&'"
-        )
+        ]
 
     def test_same_name_comes_back_later_first_row_empty_passes(self):
         """When condA appears again after condB, first occurrence of each name is checked; both empty passes."""
@@ -561,6 +597,21 @@ class TestValidateConditionalsFirstRowNoLogicalOperator:
             (4, self._row("condA", "||")),
         ]
         self.checker._validate_conditionals_first_row_no_logical_operator(row_data)
+        assert self.checker._validation_errors == []
+
+    def test_two_conditional_groups_invalid_first_row_yields_two_errors(self):
+        """Two different conditional_name blocks can each produce a first-row logical_operator error."""
+        row_data = [
+            (2, self._row("condA", "&&")),
+            (3, self._row("condB", "||")),
+        ]
+        self.checker._validate_conditionals_first_row_no_logical_operator(row_data)
+        assert len(self.checker._validation_errors) == 2
+        assert all(
+            "Invalid logical_operator" in m for m in self.checker._validation_errors
+        )
+        assert "row 2" in self.checker._validation_errors[0]
+        assert "row 3" in self.checker._validation_errors[1]
 
 
 class TestEmptyToNone:

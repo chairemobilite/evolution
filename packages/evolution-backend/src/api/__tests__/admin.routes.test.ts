@@ -100,7 +100,7 @@ describe('/generator/verify route', () => {
         expect(response.status).toBe(422);
         expect(response.body).toEqual({
             status: 'error',
-            error: errors.join('\n')
+            error: errors
         });
     });
 

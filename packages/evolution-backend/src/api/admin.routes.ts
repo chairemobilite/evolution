@@ -93,14 +93,14 @@ function respondOk<T>({ res, result }: { res: Response; result: T }): Response {
 // Helper function to respond with an error status
 function respondError({
     res,
-    message,
+    error,
     httpStatus = 500
 }: {
     res: Response;
-    message: string;
+    error: unknown;
     httpStatus?: number;
 }): Response {
-    const payload: Status.StatusError = Status.createError(message);
+    const payload: Status.StatusError = Status.createError(error);
     return res.status(httpStatus).json(payload);
 }
 
@@ -108,7 +108,7 @@ router.all('/data/widgets/:widget/', (req: Request, res: Response, _next) => {
     const widgetName = req.params.widget;
 
     if (!widgetName) {
-        return respondError({ res, message: 'Provide a valid widget name', httpStatus: 400 });
+        return respondError({ res, error: 'Provide a valid widget name', httpStatus: 400 });
     }
     switch (widgetName) {
     case 'started-and-completed-interviews-by-day':
@@ -134,7 +134,7 @@ router.all('/data/widgets/:widget/', (req: Request, res: Response, _next) => {
         handleSurveyDifficultyDistribution(res);
         break;
     default:
-        return respondError({ res, message: `Admin monitoring widget '${widgetName}' not found`, httpStatus: 404 });
+        return respondError({ res, error: `Admin monitoring widget '${widgetName}' not found`, httpStatus: 404 });
     }
 });
 
@@ -143,18 +143,18 @@ router.post('/generator/verify', (req: Request, res: Response) => {
     generatorExcelUpload.single(GENERATOR_UPLOAD_FIELD)(req, res, (err: unknown) => {
         if (err) {
             if (err instanceof multer.MulterError) {
-                return respondError({ res, message: err.message, httpStatus: 400 });
+                return respondError({ res, error: err.message, httpStatus: 400 });
             }
             if (err instanceof Error) {
-                return respondError({ res, message: err.message, httpStatus: 400 });
+                return respondError({ res, error: err.message, httpStatus: 400 });
             }
-            return respondError({ res, message: 'File upload failed', httpStatus: 400 });
+            return respondError({ res, error: 'File upload failed', httpStatus: 400 });
         }
 
         void (async () => {
             const uploaded = req.file;
             if (!uploaded?.path) {
-                return respondError({ res, message: 'No Excel file uploaded', httpStatus: 400 });
+                return respondError({ res, error: 'No Excel file uploaded', httpStatus: 400 });
             }
 
             const resolvedExcelPath = uploaded.path;
@@ -167,7 +167,7 @@ router.post('/generator/verify', (req: Request, res: Response) => {
                 if (!fs.existsSync(resolvedExcelPath)) {
                     return respondError({
                         res,
-                        message: `Excel file not found at ${resolvedExcelPath}`,
+                        error: `Excel file not found at ${resolvedExcelPath}`,
                         httpStatus: 400
                     });
                 }
@@ -200,7 +200,7 @@ router.post('/generator/verify', (req: Request, res: Response) => {
                 if (outputLines.length === 0) {
                     return respondError({
                         res,
-                        message: 'Excel integrity check produced no output',
+                        error: 'Excel integrity check produced no output',
                         httpStatus: 500
                     });
                 }
@@ -219,20 +219,18 @@ router.post('/generator/verify', (req: Request, res: Response) => {
                 if (parsedResult.ok !== true) {
                     return respondError({
                         res,
-                        message: `Excel integrity check failed: ${parsedResult.error ?? 'Unknown Python error'}`,
+                        error: `Excel integrity check failed: ${parsedResult.error ?? 'Unknown Python error'}`,
                         httpStatus: 500
                     });
                 }
 
                 // Validation failed → integrityOk false and/or errors[]
-                const errorMessages =
-                    Array.isArray(parsedResult.errors) && parsedResult.errors.length > 0
-                        ? parsedResult.errors.join('\n')
-                        : null;
-                if (parsedResult.integrityOk !== true || errorMessages !== null) {
+                const errors =
+                    Array.isArray(parsedResult.errors) && parsedResult.errors.length > 0 ? parsedResult.errors : null;
+                if (parsedResult.integrityOk !== true || errors !== null) {
                     return respondError({
                         res,
-                        message: errorMessages ?? 'Excel integrity check failed',
+                        error: errors ?? 'Excel integrity check failed',
                         httpStatus: 422
                     });
                 }
@@ -250,18 +248,18 @@ router.post('/generator/verify', (req: Request, res: Response) => {
                 if (error instanceof Error) {
                     return respondError({
                         res,
-                        message: `Failed to execute Excel integrity check: ${error.message}`,
+                        error: `Failed to execute Excel integrity check: ${error.message}`,
                         httpStatus: 500
                     });
                 }
-                return respondError({ res, message: 'Failed to execute Excel integrity check', httpStatus: 500 });
+                return respondError({ res, error: 'Failed to execute Excel integrity check', httpStatus: 500 });
             } finally {
                 await unlinkGeneratorUploadQuiet(resolvedExcelPath);
             }
         })().catch((unhandled) => {
             console.error('Unhandled error in /generator/verify:', unhandled);
             if (!res.headersSent) {
-                respondError({ res, message: 'Unexpected error during verification', httpStatus: 500 });
+                respondError({ res, error: 'Unexpected error during verification', httpStatus: 500 });
             }
         });
     });
@@ -316,7 +314,7 @@ const handleStartedInterviewsCount = async (res: Response): Promise<Response> =>
         return respondOk({ res, result: { startedInterviewsCount } });
     } catch (error) {
         console.error('Error fetching started interviews count:', error);
-        return respondError({ res, message: 'Failed to fetch started interviews count', httpStatus: 500 });
+        return respondError({ res, error: 'Failed to fetch started interviews count', httpStatus: 500 });
     }
 };
 
@@ -327,7 +325,7 @@ const handleCompletedInterviewsCount = async (res: Response): Promise<Response> 
         return respondOk({ res, result: { completedInterviewsCount } });
     } catch (error) {
         console.error('Error fetching completed interviews count:', error);
-        return respondError({ res, message: 'Failed to fetch completed interviews count', httpStatus: 500 });
+        return respondError({ res, error: 'Failed to fetch completed interviews count', httpStatus: 500 });
     }
 };
 
@@ -338,7 +336,7 @@ const handleInterviewsCompletionRate = async (res: Response): Promise<Response> 
         return respondOk({ res, result: { interviewsCompletionRate } });
     } catch (error) {
         console.error('Error fetching interviews completion rate:', error);
-        return respondError({ res, message: 'Failed to fetch interviews completion rate', httpStatus: 500 });
+        return respondError({ res, error: 'Failed to fetch interviews completion rate', httpStatus: 500 });
     }
 };
 
@@ -349,7 +347,7 @@ const handleRespondentBehaviorMetrics = async (res: Response): Promise<Response>
         return respondOk({ res, result: metrics });
     } catch (error) {
         console.error('Error fetching respondent behavior metrics:', error);
-        return respondError({ res, message: 'Failed to fetch respondent behavior metrics', httpStatus: 500 });
+        return respondError({ res, error: 'Failed to fetch respondent behavior metrics', httpStatus: 500 });
     }
 };
 
@@ -360,7 +358,7 @@ const handleSurveyDifficultyDistribution = async (res: Response): Promise<Respon
         return respondOk({ res, result: { distribution } });
     } catch (error) {
         console.error('Error fetching survey difficulty distribution:', error);
-        return respondError({ res, message: 'Failed to fetch survey difficulty distribution', httpStatus: 500 });
+        return respondError({ res, error: 'Failed to fetch survey difficulty distribution', httpStatus: 500 });
     }
 };
 

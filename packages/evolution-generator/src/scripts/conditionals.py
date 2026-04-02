@@ -2,8 +2,8 @@
 # This file is licensed under the MIT License.
 # License text available at https://opensource.org/licenses/MIT
 
-# Note: This script includes functions that validate and generate conditionals from the Excel sheet.
-# These functions are intended to be invoked from the generate_survey.py script.
+# Note: This module defines the Conditionals class: Excel validation (integrity checks) and
+# TypeScript generation for survey conditionals. It is used from generate_survey.py and from CLI/API checks.
 
 from collections import defaultdict
 from dataclasses import dataclass
@@ -12,7 +12,6 @@ from openpyxl import Workbook
 from helpers.generator_helpers import (
     INDENT,
     add_generator_comment,
-    error_when_missing_required_fields,
     get_headers,
     get_values_from_row,
     get_workbook,
@@ -29,7 +28,7 @@ class _ColumnSpec:
 
     # The name of the column.
     name: str
-    # If True, this column is in expected_headers (sheet must have this header).
+    # If True, the column name is included in CONDITIONALS_EXPECTED_HEADERS and must appear in row 1 (see get_headers).
     required: bool
     # If not None, the cell (after treating "" as None) must be one of these values.
     allowed_values: frozenset[str | None] | None = None
@@ -74,17 +73,30 @@ class Conditionals:
         ),
     )
 
-    # Expected headers (for get_headers): columns with required=True.
+    # Column names that get_headers requires in row 1 (required=True only; optional columns may still be present as extra headers).
     CONDITIONALS_EXPECTED_HEADERS = tuple(
         s.name for s in CONDITIONALS_COLUMN_SPECS if s.required
     )
     # All column names in spec order (e.g. for building a full sheet in tests).
     CONDITIONALS_ALL_HEADERS = tuple(s.name for s in CONDITIONALS_COLUMN_SPECS)
 
+    def __init__(self) -> None:
+        self._validation_errors = []
+
     @staticmethod
     def _sheet_error_prefix(sheet_name: str) -> str:
         """Return error prefix for a given sheet so users know where the error is."""
         return f"Error in {sheet_name} sheet - "
+
+    def _clear_validation_errors(self) -> None:
+        """Start a fresh validation run."""
+        self._validation_errors.clear()
+
+    def _append_validation_error(self, message: str, *, echo: bool = False) -> None:
+        """Append one issue to ``_validation_errors``; when echo is True, also print (human-facing check). When False, messages stay in the list only (e.g. check_with_messages / JSON)."""
+        self._validation_errors.append(message)
+        if echo:
+            print(message)
 
     def check_with_messages(self, excel_file_path: str) -> tuple[bool, list[str]]:
         """
@@ -92,17 +104,19 @@ class Conditionals:
 
         Returns (True, []) when valid, or (False, messages) with human-readable issues.
         """
-        msgs: list[str] = []
+        self._clear_validation_errors()
         try:
             is_excel_file(excel_file_path)
             workbook = get_workbook(excel_file_path)
-            result = self._check_conditionals_sheet(workbook, msgs)
-            # Pass only if the sheet check succeeded and nothing was appended to msgs.
-            integrity_ok = bool(result) and len(msgs) == 0
-            return integrity_ok, msgs
+            result = self._check_conditionals_sheet(workbook, print_errors=False)
+            # Pass only if the sheet check returned True and the error list is still empty (see _check_conditionals_sheet).
+            integrity_ok = bool(result) and len(self._validation_errors) == 0
+            return integrity_ok, self._validation_errors
         except Exception as e:
-            msgs.append(f"An error occurred with check_excel_integrity: {e}")
-            return False, msgs
+            self._append_validation_error(
+                f"An error occurred during the Excel integrity check: {e}"
+            )
+            return False, self._validation_errors
 
     def check(self, excel_file_path: str) -> bool:
         """Check the integrity of the Excel file. Returns True if valid, False on error."""
@@ -112,9 +126,10 @@ class Conditionals:
         return ok
 
     def _check_conditionals_sheet(
-        self, workbook: Workbook, msgs: list[str] | None = None
+        self, workbook: Workbook, *, print_errors: bool = True
     ) -> bool:
-        """Check the integrity of the Conditionals sheet."""
+        """Check the integrity of the Conditionals sheet. Issues are appended to ``self._validation_errors``; row-level issues echo when print_errors is True, and cross-row issues print only when that flag is True."""
+        self._clear_validation_errors()
         try:
             # Require the Conditionals sheet and validate its column headers.
             sheet_exists(workbook, "Conditionals")
@@ -132,24 +147,26 @@ class Conditionals:
             for row_number, row in enumerate(rows[1:], start=2):
                 values = get_values_from_row(row, headers)
                 row_dict = dict(zip(headers, values, strict=True))
-                try:
-                    self._validate_conditionals_row(row_dict, row_number)
+                row_issues = self._collect_row_validation_issues(row_dict, row_number)
+                if row_issues:
+                    for message in row_issues:
+                        self._append_validation_error(message, echo=print_errors)
+                        row_errors.append(message)
+                else:
                     row_data.append((row_number, row_dict))
-                except Exception as e:
-                    # Collect row-level validation errors so users can fix multiple issues at once.
-                    message = str(e)
-                    if msgs is not None:
-                        msgs.append(message)
-                    else:
-                        print(message)
-                    row_errors.append(message)
 
             # If any row-level validation failed, skip cross-row logical checks and report failure.
             if row_errors:
                 return False
 
-            # Cross-row rules: apply per conditional block (consecutive rows with same conditional_name).
+            # Cross-row rules: collect every issue (do not stop at the first group or first rule).
+            cross_before = len(self._validation_errors)
             self._validate_conditional_logic(row_data)
+            if len(self._validation_errors) > cross_before:
+                if print_errors:
+                    for line in self._validation_errors[cross_before:]:
+                        print(line)
+                return False
 
             return True
         except Exception as e:
@@ -157,55 +174,72 @@ class Conditionals:
             prefix = self._sheet_error_prefix("Conditionals")
             # If the message does not start with the prefix, add the prefix to the message.
             line = message if message.startswith(prefix) else f"{prefix}{message}"
-            if msgs is not None:
-                msgs.append(line)
-            else:
-                print(line)
+            self._append_validation_error(line, echo=print_errors)
             return False
 
-    def _validate_conditionals_row(self, row_dict: dict, row_number: int) -> None:
-        """Validate a single row of the Conditionals sheet."""
-        # Require columns that are in expected_headers (required=True) to be non-None.
+    def _collect_row_validation_issues(
+        self, row_dict: dict, row_number: int
+    ) -> list[str]:
+        """
+        Return every validation issue for this row (empty if the row is valid).
+
+        Collects all missing required fields and all invalid columns in one pass (no early exit on the first problem) so one verify run can list every row issue.
+        """
+        issues: list[str] = []
+        prefix = self._sheet_error_prefix("Conditionals")
         required_values = [
             row_dict.get(name) for name in self.CONDITIONALS_EXPECTED_HEADERS
         ]
-        try:
-            error_when_missing_required_fields(
-                list(self.CONDITIONALS_EXPECTED_HEADERS),
-                required_values,
-                row_number,
+        missing_fields = [
+            field_name
+            for field_value, field_name in zip(
+                required_values, self.CONDITIONALS_EXPECTED_HEADERS, strict=True
             )
-        except Exception as e:
-            raise Exception(f"{self._sheet_error_prefix('Conditionals')}{e}") from e
+            if field_value is None
+        ]
+        if missing_fields:
+            issues.append(
+                f"{prefix}Required field is missing in row {row_number}. "
+                f"Missing fields: {missing_fields}"
+            )
 
-        # Validate per-column rules from the specs (allowed values, string/number types, etc.).
+        missing_set = set(missing_fields)
+
         for spec in self.CONDITIONALS_COLUMN_SPECS:
             raw_value = row_dict.get(spec.name)
+            # Do not re-validate cells already covered by the missing-required message.
+            if spec.name in missing_set:
+                continue
 
             if spec.allowed_types is not None and raw_value is not None:
                 if not isinstance(raw_value, spec.allowed_types):
                     type_names = ", ".join(t.__name__ for t in spec.allowed_types)
-                    raise Exception(
-                        f"{self._sheet_error_prefix('Conditionals')}Invalid {spec.name} in row {row_number}: "
+                    issues.append(
+                        f"{prefix}Invalid {spec.name} in row {row_number}: "
                         f"must be one of types ({type_names}), got {type(raw_value).__name__} with value {repr(raw_value)}"
                     )
 
             if spec.allowed_values is not None:
                 cell_value = self._empty_to_none(raw_value)
                 if cell_value not in spec.allowed_values:
-                    raise Exception(
-                        f"{self._sheet_error_prefix('Conditionals')}Invalid {spec.name} in row {row_number}: "
+                    issues.append(
+                        f"{prefix}Invalid {spec.name} in row {row_number}: "
                         f"must be one of {sorted(spec.allowed_values - {None})!r} or empty, got {repr(cell_value)}"
                     )
+
+        return issues
+
+    def _validate_conditionals_row(self, row_dict: dict, row_number: int) -> list[str]:
+        """Return all validation issues for this row (empty if valid); for unit tests."""
+        return self._collect_row_validation_issues(row_dict, row_number)
 
     def _group_row_data_by_conditional_name(
         self, row_data: list[tuple[int, dict]]
     ) -> dict:
         """
-        Build one ordered group per conditional_name across the entire row_data.
-        Returns a dict mapping conditional_name -> list of (row_number, row_dict)
-        in original order (order of first occurrence of each name; rows within
-        each name preserve their order in row_data).
+        Build one list per distinct conditional_name across the entire sheet (not split by consecutive blocks).
+        Returns a dict mapping conditional_name -> list of (row_number, row_dict) in sheet order for that name
+        (dict insertion order follows first occurrence of each name; all rows sharing a name are grouped).
         """
         groups = {}
         for row_number, row_dict in row_data:
@@ -219,9 +253,7 @@ class Conditionals:
         """
         Run all cross-row logical validations that depend on grouping by conditional_name.
 
-        Currently this includes:
-        - Parentheses balance per conditional_name group.
-        - First-row logical_operator rules per conditional_name group.
+        Appends every violation to ``self._validation_errors`` (never raises).
         """
         self._validate_conditionals_parentheses_balance(row_data)
         self._validate_conditionals_first_row_no_logical_operator(row_data)
@@ -233,6 +265,7 @@ class Conditionals:
         Validate that for each conditional_name group (all rows with that name),
         parentheses are balanced: every '(' has a matching ')' and the balance never goes negative.
         """
+        prefix = self._sheet_error_prefix("Conditionals")
         groups = self._group_row_data_by_conditional_name(row_data)
         for name, group_rows in groups.items():
             # Collect (row_number, paren) for this group in order.
@@ -244,20 +277,25 @@ class Conditionals:
             # Running balance: '(' +1, ')' -1. Must never go negative and must end at 0.
             balance = 0
             start_row_number = group_rows[0][0] if group_rows else 0
+            bad_negative = False
             for rn, paren in group:
                 if paren == "(":
                     balance += 1
                 elif paren == ")":
                     balance -= 1
                     if balance < 0:
-                        raise Exception(
-                            f"{self._sheet_error_prefix('Conditionals')}Unbalanced parentheses for conditional_name '{name}' in row {rn}: "
+                        self._validation_errors.append(
+                            f"{prefix}Unbalanced parentheses for conditional_name '{name}' in row {rn}: "
                             "too many ')' (closing parenthesis without matching opening)."
                         )
+                        bad_negative = True
+                        break
+            if bad_negative:
+                continue
             if balance != 0:
                 last_row = group[-1][0] if group else start_row_number
-                raise Exception(
-                    f"{self._sheet_error_prefix('Conditionals')}Unbalanced parentheses for conditional_name '{name}' (e.g. row {last_row}): "
+                self._validation_errors.append(
+                    f"{prefix}Unbalanced parentheses for conditional_name '{name}' (e.g. row {last_row}): "
                     f"{balance} unclosed opening parenthesis/parentheses."
                 )
 
@@ -265,9 +303,10 @@ class Conditionals:
         self, row_data: list[tuple[int, dict]]
     ) -> None:
         """
-        Validate that the first row of each conditional_name group (in document order)
-        has empty logical_operator (no "||" or "&&").
+        For each distinct conditional_name, require empty logical_operator on that name's first sheet row only;
+        later rows with the same name may use "||" or "&&".
         """
+        prefix = self._sheet_error_prefix("Conditionals")
         groups = self._group_row_data_by_conditional_name(row_data)
         for name, group_rows in groups.items():
             if not group_rows:
@@ -277,8 +316,8 @@ class Conditionals:
                 first_row_dict.get("logical_operator")
             )
             if logical_operator is not None:
-                raise Exception(
-                    f"{self._sheet_error_prefix('Conditionals')}Invalid logical_operator in row {first_row_number}: "
+                self._validation_errors.append(
+                    f"{prefix}Invalid logical_operator in row {first_row_number}: "
                     f"first row of a conditional must have empty logical_operator, got {repr(logical_operator)}"
                 )
 
@@ -346,7 +385,7 @@ class Conditionals:
                 f"{NEWLINE}"
             )
 
-            # Create a TypeScript function for each conditional_name
+            # Emit one exported WidgetConditional (const) per conditional_name
             for conditional_name, conditionals in conditional_by_name.items():
                 # Check if any conditional has a path that contains "${relativePath}"
                 conditionals_has_relative_path = any(
@@ -358,7 +397,7 @@ class Conditionals:
                     f"// Remove the last key from the path{NEWLINE}"
                 )
 
-                #  Check if any conditional has a path that contains "${currentPerson}"
+                # Check if any conditional has a path that contains "${currentPerson}"
                 conditionals_has_current_person = any(
                     "${currentPerson}" in conditional["path"]
                     for conditional in conditionals
@@ -447,7 +486,7 @@ class Conditionals:
 
     @classmethod
     def generate_conditionals(cls, input_file: str, output_file: str) -> None:
-        """Generate conditionals.tsx file based on input Excel file."""
+        """Read the Conditionals sheet from ``input_file`` and write generated TypeScript to ``output_file`` (e.g. conditionals.tsx)."""
         rows, headers = get_data_from_excel(input_file, sheet_name="Conditionals")
         conditional_by_name = cls.extract_conditionals_from_data(rows, headers)
         ts_code = cls.generate_typescript_code(conditional_by_name)
