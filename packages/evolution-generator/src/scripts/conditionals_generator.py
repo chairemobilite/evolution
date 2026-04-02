@@ -2,7 +2,7 @@
 # This file is licensed under the MIT License.
 # License text available at https://opensource.org/licenses/MIT
 
-# Note: This module defines the Conditionals class: Excel validation (integrity checks) and
+# Note: This module defines ConditionalsGenerator: Excel validation (integrity checks) and
 # TypeScript generation for survey conditionals. It is used from generate_survey.py and from CLI/API checks.
 
 from collections import defaultdict
@@ -36,8 +36,8 @@ class _ColumnSpec:
     allowed_types: tuple[type, ...] | None = None
 
 
-class Conditionals:
-    """Shared logic for validating and generating Conditionals from the Excel sheet."""
+class ConditionalsGenerator:
+    """Validate the Conditionals Excel sheet and generate TypeScript (conditionals.tsx) output."""
 
     # Conditionals sheet: single source of truth for column order and per-column rules.
     CONDITIONALS_COLUMN_SPECS: tuple[_ColumnSpec, ...] = (
@@ -117,13 +117,6 @@ class Conditionals:
                 f"An error occurred during the Excel integrity check: {e}"
             )
             return False, self._validation_errors
-
-    def check(self, excel_file_path: str) -> bool:
-        """Check the integrity of the Excel file. Returns True if valid, False on error."""
-        ok, msgs = self.check_with_messages(excel_file_path)
-        for message in msgs:
-            print(message)
-        return ok
 
     def _check_conditionals_sheet(
         self, workbook: Workbook, *, print_errors: bool = True

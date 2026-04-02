@@ -20,7 +20,7 @@ from scripts.generate_labels import generate_labels
 from scripts.generate_UI_tests import generate_UI_tests
 from scripts.generate_questionnaire_list import generate_questionnaire_list
 from scripts.generate_questionnaire_dictionary import generate_questionnaire_dictionary
-from scripts.conditionals import Conditionals
+from scripts.conditionals_generator import ConditionalsGenerator
 
 
 # TODO: Add some validation for the config file
@@ -115,7 +115,7 @@ def generate_survey(config_path):
         conditionals_output_file_path = os.path.join(
             survey_folder_path, "src", "survey", "common", "conditionals.tsx"
         )
-        Conditionals.generate_conditionals(
+        ConditionalsGenerator.generate_conditionals(
             excel_file_path, conditionals_output_file_path
         )
 
@@ -193,7 +193,7 @@ def main():
 # Check the integrity of the Excel file to avoid generating the survey with invalid data
 def check_excel_integrity(excel_file_path: str) -> bool:
     """Check the integrity of the Excel file. Entry point for scripts and UI."""
-    result = Conditionals().check(excel_file_path)
+    result = ConditionalsGenerator().check_with_messages(excel_file_path)
     if result is True:
         print(f"Excel integrity check passed for {excel_file_path}")
     else:

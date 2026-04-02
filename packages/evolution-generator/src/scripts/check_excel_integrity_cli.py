@@ -7,9 +7,9 @@ import json
 import sys
 
 try:
-    from scripts.conditionals import Conditionals
+    from scripts.conditionals_generator import ConditionalsGenerator
 except ModuleNotFoundError:
-    from conditionals import Conditionals
+    from conditionals_generator import ConditionalsGenerator
 
 
 def main() -> int:
@@ -20,7 +20,9 @@ def main() -> int:
     excel_file_path = sys.argv[1]
 
     try:
-        integrity_ok, errors = Conditionals().check_with_messages(excel_file_path)
+        integrity_ok, errors = ConditionalsGenerator().check_with_messages(
+            excel_file_path
+        )
         payload: dict = {
             "ok": True,
             "integrityOk": integrity_ok,

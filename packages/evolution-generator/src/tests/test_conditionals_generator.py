@@ -2,20 +2,19 @@
 # This file is licensed under the MIT License.
 # License text available at https://opensource.org/licenses/MIT
 
-# Note: This script tests the conditionals functions.
+# Note: Tests for scripts/conditionals_generator.py (ConditionalsGenerator).
 
 import datetime
 import pytest  # pyright: ignore[reportMissingImports]
 
-from scripts.conditionals import Conditionals
+from scripts.conditionals_generator import ConditionalsGenerator
 from scripts.generate_survey import check_excel_integrity
 from helpers.generator_helpers import create_mocked_excel_data, delete_file_if_exists
 
-# TODO: Add tests for the remaining Conditionals class methods:
-# - Conditionals.check (directly, without going through check_excel_integrity).
-# - Conditionals.extract_conditionals_from_data (grouping logic for raw rows/headers).
-# - Conditionals.generate_typescript_code (shape and content of generated TS code).
-# - Conditionals.generate_conditionals (end-to-end generation from Excel to file).
+# TODO: Add tests for the remaining ConditionalsGenerator class methods:
+# - ConditionalsGenerator.extract_conditionals_from_data (grouping logic for raw rows/headers).
+# - ConditionalsGenerator.generate_typescript_code (shape and content of generated TS code).
+# - ConditionalsGenerator.generate_conditionals (end-to-end generation from Excel to file).
 
 
 # Path where create_mocked_excel_data writes the workbook; we delete it after each test.
@@ -27,13 +26,13 @@ MOCKED_EXCEL_FILE = "src/tests/references/test.xlsx"
 class TestCheckExcelIntegrity:
     """Tests for the public entry point check_excel_integrity(excel_file_path)."""
 
-    checker = Conditionals()
+    checker = ConditionalsGenerator()
 
     def test_valid_file_returns_true(self):
         """Full flow: load .xlsx from path and validate Conditionals sheet returns True."""
         create_mocked_excel_data(
             "Conditionals",
-            list(Conditionals.CONDITIONALS_ALL_HEADERS),
+            list(ConditionalsGenerator.CONDITIONALS_ALL_HEADERS),
             [["cond1", "", "some.path", "===", "42", ""]],
         )
         try:
@@ -45,7 +44,7 @@ class TestCheckExcelIntegrity:
         """When the workbook has no 'Conditionals' sheet, check_excel_integrity returns False."""
         create_mocked_excel_data(
             "OtherSheet",
-            list(Conditionals.CONDITIONALS_ALL_HEADERS),
+            list(ConditionalsGenerator.CONDITIONALS_ALL_HEADERS),
             [["cond1", "", "some.path", "===", "42", ""]],
         )
         try:
@@ -66,7 +65,7 @@ class TestCheckExcelIntegrity:
         """When validation passes, check_excel_integrity prints a success message."""
         create_mocked_excel_data(
             "Conditionals",
-            list(Conditionals.CONDITIONALS_ALL_HEADERS),
+            list(ConditionalsGenerator.CONDITIONALS_ALL_HEADERS),
             [["cond1", "", "some.path", "===", "42", ""]],
         )
         try:
@@ -96,7 +95,7 @@ class TestCheckExcelIntegrity:
         ]
         create_mocked_excel_data(
             "Conditionals",
-            list(Conditionals.CONDITIONALS_ALL_HEADERS),
+            list(ConditionalsGenerator.CONDITIONALS_ALL_HEADERS),
             rows,
         )
         try:
@@ -117,11 +116,11 @@ class TestCheckConditionalsSheet:
     conditional_name, logical_operator, path, comparison_operator, value, parentheses.
     """
 
-    checker = Conditionals()
+    checker = ConditionalsGenerator()
 
     # Constants for test cases.
     CORRECT_SHEET_NAME = "Conditionals"
-    CORRECT_HEADERS = list(Conditionals.CONDITIONALS_ALL_HEADERS)
+    CORRECT_HEADERS = list(ConditionalsGenerator.CONDITIONALS_ALL_HEADERS)
     # Headers missing 'conditional_name' to trigger missing-header error.
     INCORRECT_HEADERS = [
         "conditional_name_bad",
@@ -314,7 +313,7 @@ class TestValidateConditionalsRow:
     and asserts that the method either passes or raises the expected error.
     """
 
-    checker = Conditionals()
+    checker = ConditionalsGenerator()
     ROW_NUMBER = 2
 
     def _row(
@@ -433,7 +432,7 @@ class TestValidateConditionalsParenthesesBalance:
     "conditional_name" and "parentheses" (other keys are ignored for this check).
     """
 
-    checker = Conditionals()
+    checker = ConditionalsGenerator()
 
     def setup_method(self):
         self.checker._clear_validation_errors()
@@ -517,7 +516,7 @@ class TestValidateConditionalsFirstRowNoLogicalOperator:
     must have empty logical_operator (no "||" or "&&"); subsequent rows may have one.
     """
 
-    checker = Conditionals()
+    checker = ConditionalsGenerator()
 
     def setup_method(self):
         self.checker._clear_validation_errors()
@@ -621,17 +620,17 @@ class TestEmptyToNone:
         """
         Empty string should be converted to None.
         """
-        assert Conditionals._empty_to_none("") is None
+        assert ConditionalsGenerator._empty_to_none("") is None
 
     def test_none_stays_none(self):
         """
         None should remain None.
         """
-        assert Conditionals._empty_to_none(None) is None
+        assert ConditionalsGenerator._empty_to_none(None) is None
 
     def test_non_empty_string_unchanged(self):
         """
         Non-empty strings should be returned unchanged.
         """
-        assert Conditionals._empty_to_none("foo") == "foo"
-        assert Conditionals._empty_to_none(" ") == " "
+        assert ConditionalsGenerator._empty_to_none("foo") == "foo"
+        assert ConditionalsGenerator._empty_to_none(" ") == " "
