@@ -193,9 +193,11 @@ def main():
 # Check the integrity of the Excel file to avoid generating the survey with invalid data
 def check_excel_integrity(excel_file_path: str) -> bool:
     """Check the integrity of the Excel file. Entry point for scripts and UI."""
-    result = ConditionalsGenerator().check_with_messages(excel_file_path)
-    if result is True:
+    ok, messages = ConditionalsGenerator().check_with_messages(excel_file_path)
+    if ok:
         print(f"Excel integrity check passed for {excel_file_path}")
     else:
         print(f"Excel integrity check FAILED for {excel_file_path}")
-    return result
+        for message in messages:
+            print(message)
+    return ok
