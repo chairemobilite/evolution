@@ -7,13 +7,14 @@
 
 import { v4 as uuidV4 } from 'uuid';
 import { householdAuditChecks } from '../../HouseholdAuditChecks';
-import { createContextWithHousehold } from './testHelper';
+import { createContextWithHouseholdAndHome } from './testHelper';
 
 describe('HH_M_Size audit check', () => {
-    const validUuid = uuidV4();
+    const validHouseholdUuid = uuidV4();
+    const validHomeUuid = uuidV4();
 
     it('should pass when household has valid size', () => {
-        const context = createContextWithHousehold({ size: 3 }, validUuid);
+        const context = createContextWithHouseholdAndHome({ size: 3 }, undefined, validHouseholdUuid, validHomeUuid);
 
         const result = householdAuditChecks.HH_M_Size(context);
 
@@ -21,13 +22,13 @@ describe('HH_M_Size audit check', () => {
     });
 
     it('should error when household size is undefined', () => {
-        const context = createContextWithHousehold({ size: undefined }, validUuid);
+        const context = createContextWithHouseholdAndHome({ size: undefined }, undefined, validHouseholdUuid, validHomeUuid);
 
         const result = householdAuditChecks.HH_M_Size(context);
 
         expect(result).toMatchObject({
             objectType: 'household',
-            objectUuid: validUuid,
+            objectUuid: validHouseholdUuid,
             errorCode: 'HH_M_Size',
             version: 1,
             level: 'error',

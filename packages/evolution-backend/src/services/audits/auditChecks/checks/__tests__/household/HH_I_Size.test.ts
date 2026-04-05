@@ -7,13 +7,14 @@
 
 import { v4 as uuidV4 } from 'uuid';
 import { householdAuditChecks } from '../../HouseholdAuditChecks';
-import { createContextWithHousehold } from './testHelper';
+import { createContextWithHouseholdAndHome } from './testHelper';
 
 describe('HH_I_Size audit check', () => {
-    const validUuid = uuidV4();
+    const validHouseholdUuid = uuidV4();
+    const validHomeUuid = uuidV4();
 
     it('should pass when household has valid size', () => {
-        const context = createContextWithHousehold({ size: 3 }, validUuid);
+        const context = createContextWithHouseholdAndHome({ size: 3 }, undefined, validHouseholdUuid, validHomeUuid);
 
         const result = householdAuditChecks.HH_I_Size(context);
 
@@ -21,13 +22,13 @@ describe('HH_I_Size audit check', () => {
     });
 
     it('should error when household size is too small', () => {
-        const context = createContextWithHousehold({ size: 0 }, validUuid);
+        const context = createContextWithHouseholdAndHome({ size: 0 }, undefined, validHouseholdUuid, validHomeUuid);
 
         const result = householdAuditChecks.HH_I_Size(context);
 
         expect(result).toMatchObject({
             objectType: 'household',
-            objectUuid: validUuid,
+            objectUuid: validHouseholdUuid,
             errorCode: 'HH_I_Size',
             version: 1,
             level: 'error',
@@ -37,13 +38,13 @@ describe('HH_I_Size audit check', () => {
     });
 
     it('should error when household size is too large', () => {
-        const context = createContextWithHousehold({ size: 25 }, validUuid);
+        const context = createContextWithHouseholdAndHome({ size: 25 }, undefined, validHouseholdUuid, validHomeUuid);
 
         const result = householdAuditChecks.HH_I_Size(context);
 
         expect(result).toMatchObject({
             objectType: 'household',
-            objectUuid: validUuid,
+            objectUuid: validHouseholdUuid,
             errorCode: 'HH_I_Size',
             version: 1,
             level: 'error',
@@ -53,13 +54,13 @@ describe('HH_I_Size audit check', () => {
     });
 
     it('should pass when household size is at minimum boundary', () => {
-        const context = createContextWithHousehold({ size: 1 });
+        const context = createContextWithHouseholdAndHome({ size: 1 }, undefined, validHouseholdUuid, validHomeUuid);
         const result = householdAuditChecks.HH_I_Size(context);
         expect(result).toBeUndefined();
     });
 
     it('should pass when household size is at maximum boundary', () => {
-        const context = createContextWithHousehold({ size: 20 });
+        const context = createContextWithHouseholdAndHome({ size: 20 }, undefined, validHouseholdUuid, validHomeUuid);
         const result = householdAuditChecks.HH_I_Size(context);
         expect(result).toBeUndefined();
     });

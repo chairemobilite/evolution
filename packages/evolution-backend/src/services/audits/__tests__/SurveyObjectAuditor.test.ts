@@ -179,6 +179,7 @@ describe('SurveyObjectAuditor', () => {
 
             expect(runHouseholdAuditChecks).toHaveBeenCalledWith(
                 {
+                    home: surveyObjects.home,
                     household: surveyObjects.household,
                     interview: surveyObjects.interview
                 },
