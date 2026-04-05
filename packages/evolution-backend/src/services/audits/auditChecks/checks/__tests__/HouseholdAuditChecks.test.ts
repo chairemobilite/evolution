@@ -9,13 +9,14 @@ import { v4 as uuidV4 } from 'uuid';
 import { runHouseholdAuditChecks } from '../../AuditCheckRunners';
 import type { HouseholdAuditCheckFunction } from '../../AuditCheckContexts';
 import type { AuditForObject } from 'evolution-common/lib/services/audits/types';
-import { createContextWithHousehold } from './household/testHelper';
+import { createContextWithHouseholdAndHome } from './household/testHelper';
 
 describe('runHouseholdAuditChecks - Integration', () => {
-    const validUuid = uuidV4();
+    const validHouseholdUuid = uuidV4();
+    const validHomeUuid = uuidV4();
 
     it('should run all audit checks and return empty array when all checks pass', async () => {
-        const context = createContextWithHousehold();
+        const context = createContextWithHouseholdAndHome();
 
         // Mock audit checks that all pass (return undefined)
         const mockAuditChecks: { [errorCode: string]: HouseholdAuditCheckFunction } = {
@@ -30,14 +31,14 @@ describe('runHouseholdAuditChecks - Integration', () => {
     });
 
     it('should aggregate results from multiple failing checks', async () => {
-        const context = createContextWithHousehold(undefined, validUuid);
+        const context = createContextWithHouseholdAndHome(undefined, undefined, validHouseholdUuid, validHomeUuid);
 
         // Mock audit checks where some fail (return audit objects)
         const mockAuditChecks: { [errorCode: string]: HouseholdAuditCheckFunction } = {
             TEST_PASS: () => undefined,
             TEST_FAIL_1: (): AuditForObject => ({
                 objectType: 'household',
-                objectUuid: validUuid,
+                objectUuid: validHouseholdUuid,
                 errorCode: 'TEST_FAIL_1',
                 version: 1,
                 level: 'error',
@@ -46,7 +47,7 @@ describe('runHouseholdAuditChecks - Integration', () => {
             }),
             TEST_FAIL_2: (): AuditForObject => ({
                 objectType: 'household',
-                objectUuid: validUuid,
+                objectUuid: validHouseholdUuid,
                 errorCode: 'TEST_FAIL_2',
                 version: 1,
                 level: 'warning',
@@ -65,7 +66,7 @@ describe('runHouseholdAuditChecks - Integration', () => {
     });
 
     it('should handle empty audit checks object', async () => {
-        const context = createContextWithHousehold();
+        const context = createContextWithHouseholdAndHome();
 
         const mockAuditChecks: { [errorCode: string]: HouseholdAuditCheckFunction } = {};
 

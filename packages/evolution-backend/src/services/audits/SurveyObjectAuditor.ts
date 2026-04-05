@@ -47,6 +47,7 @@ export class SurveyObjectAuditor {
         // Run household audit checks
         if (surveyObjectsWithAudits.household) {
             const householdContext: auditChecks.HouseholdAuditCheckContext = {
+                home: surveyObjectsWithAudits.home,
                 household: surveyObjectsWithAudits.household,
                 interview: surveyObjectsWithAudits.interview
             };

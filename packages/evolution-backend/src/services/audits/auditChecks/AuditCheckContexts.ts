@@ -27,6 +27,7 @@ export type InterviewAuditCheckContext = {
  * Context for household audit checks (includes parent objects)
  */
 export type HouseholdAuditCheckContext = {
+    home: Optional<Home>;
     household: Household;
     interview: Interview;
 };
