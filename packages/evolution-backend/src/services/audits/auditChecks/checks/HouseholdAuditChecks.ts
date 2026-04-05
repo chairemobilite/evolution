@@ -56,5 +56,28 @@ export const householdAuditChecks: { [errorCode: string]: HouseholdAuditCheckFun
         }
 
         return undefined; // No audit needed
+    },
+
+    /**
+     * Check if home is missing
+     * @param context - HouseholdAuditCheckContext
+     * @returns AuditForObject
+     */
+    HH_M_Home: (context: HouseholdAuditCheckContext): AuditForObject | undefined => {
+        const { home, household } = context;
+
+        if (!home) {
+            return {
+                objectType: 'household',
+                objectUuid: household._uuid!,
+                errorCode: 'HH_M_Home',
+                version: 1,
+                level: 'error',
+                message: 'Home is missing',
+                ignore: false
+            };
+        }
+
+        return undefined; // No audit needed
     }
 };
