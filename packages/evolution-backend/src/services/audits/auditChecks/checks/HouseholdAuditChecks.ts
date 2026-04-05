@@ -34,8 +34,10 @@ export const householdAuditChecks: { [errorCode: string]: HouseholdAuditCheckFun
     },
 
     /**
-     * Check if household size is invalid
-     * validate size is between 1 and 20
+     * Check if household size is invalid.
+     * Validates an integer in [1, 18], consistent with the participant form rule.
+     *
+     * @see {@link import('evolution-common/lib/services/widgets/validations/validations').householdSizeValidation}
      * @param context - HouseholdAuditCheckContext
      * @returns AuditForObject
      */
@@ -43,14 +45,15 @@ export const householdAuditChecks: { [errorCode: string]: HouseholdAuditCheckFun
         const { household } = context;
         const size = household.size;
 
-        if (size !== undefined && (size < 1 || size > 20)) {
+        // Upper bound 18 must stay in sync with householdSizeValidation (same module as @see above).
+        if (size !== undefined && (size < 1 || size > 18)) {
             return {
                 objectType: 'household',
                 objectUuid: household._uuid!,
                 errorCode: 'HH_I_Size',
                 version: 1,
                 level: 'error',
-                message: 'Household size is out of range (should be between 1 and 20)',
+                message: 'Household size is out of range (should be between 1 and 18)',
                 ignore: false
             };
         }
