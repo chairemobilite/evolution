@@ -8,8 +8,12 @@
     "I_I_ContactEmail": "Le courriel de contact est invalide",
     "I_I_HelpContactEmail": "Le courriel de contact d'aide est invalide",
 
-    "HH_I_Size": "La taille du ménage est en dehors de la plage autorisée (devrait être entre 1 et 18)",
+    "HH_I_Size": "La taille du ménage est en dehors de la plage autorisée (devrait être un entier entre 1 et 18)",
     "HH_M_Size": "La taille du ménage est manquante",
+    "HH_M_CarNumber": "Le nombre de véhicules automobiles est manquant",
+    "HH_I_CarNumber": "Le nombre de véhicules automobiles est en dehors de la plage autorisée (devrait être un entier entre 0 et 13)",
+    "HH_L_SizeMembersCountMismatch": "La taille du ménage et le nombre de personnes ne correspondent pas",
+    "HH_L_CarNumberVehiclesCountMismatch": "Le nombre de véhicules automobiles et le nombre de véhicules déclarés ne correspondent pas",
     "HH_M_Home": "Le domicile est manquant",
 
     "HM_I_preGeographyAndHomeGeographyTooFarApartError": "Les géographies pré-remplie et déclarée du domicile sont éloignées",

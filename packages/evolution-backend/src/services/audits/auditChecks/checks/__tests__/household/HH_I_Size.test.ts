@@ -32,7 +32,7 @@ describe('HH_I_Size audit check', () => {
             errorCode: 'HH_I_Size',
             version: 1,
             level: 'error',
-            message: 'Household size is out of range (should be between 1 and 18)',
+            message: 'Household size is out of range (should be an integer between 1 and 18)',
             ignore: false
         });
     });
@@ -48,7 +48,23 @@ describe('HH_I_Size audit check', () => {
             errorCode: 'HH_I_Size',
             version: 1,
             level: 'error',
-            message: 'Household size is out of range (should be between 1 and 18)',
+            message: 'Household size is out of range (should be an integer between 1 and 18)',
+            ignore: false
+        });
+    });
+
+    it('should error when household size is not an integer', () => {
+        const context = createContextWithHouseholdAndHome({ size: 2.5 }, undefined, validHouseholdUuid, validHomeUuid);
+
+        const result = householdAuditChecks.HH_I_Size(context);
+
+        expect(result).toMatchObject({
+            objectType: 'household',
+            objectUuid: validHouseholdUuid,
+            errorCode: 'HH_I_Size',
+            version: 1,
+            level: 'error',
+            message: 'Household size is out of range (should be an integer between 1 and 18)',
             ignore: false
         });
     });
@@ -74,7 +90,7 @@ describe('HH_I_Size audit check', () => {
             errorCode: 'HH_I_Size',
             version: 1,
             level: 'error',
-            message: 'Household size is out of range (should be between 1 and 18)',
+            message: 'Household size is out of range (should be an integer between 1 and 18)',
             ignore: false
         });
     });

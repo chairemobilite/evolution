@@ -8,8 +8,12 @@
     "I_I_ContactEmail": "Contact email is invalid",
     "I_I_HelpContactEmail": "Help contact email is invalid",
 
-    "HH_I_Size": "Household size is out of range (should be between 1 and 18)",
+    "HH_I_Size": "Household size is out of range (should be an integer between 1 and 18)",
     "HH_M_Size": "Household size is missing",
+    "HH_M_CarNumber": "Car number is missing",
+    "HH_I_CarNumber": "Car number is out of range (should be an integer between 0 and 13)",
+    "HH_L_SizeMembersCountMismatch": "Size and members count mismatch",
+    "HH_L_CarNumberVehiclesCountMismatch": "Car number and vehicles count mismatch",
     "HH_M_Home": "Home is missing",
 
     "HM_I_preGeographyAndHomeGeographyTooFarApartError": "Pre-filled and declared home geographies are far apart",
