@@ -43,20 +43,3 @@ export type SurveyObjectParsers = {
     trip?: SurveyObjectParser<ExtendedTripAttributes, CorrectedResponse>;
     segment?: SurveyObjectParser<ExtendedSegmentAttributes, CorrectedResponse>;
 };
-
-/** Custom completeness configuration for survey objects.
- * This allows to define the completeness of the survey objects, customized for the survey.
- * Evolution does include default completeness configuration for the survey objects.
- * The main objective of these is to estimate the level of completeness of each section in
- * the questionnaire, by aggregating the completeness of each object.
- */
-/*export type SurveyObjectsCompleteness = {
-    interview?: ICompletable;
-    household?: ICompletable;
-    home?: ICompletable;
-    person?: ICompletable;
-    journey?: ICompletable;
-    visitedPlace?: ICompletable;
-    trip?: ICompletable;
-    segment?: ICompletable;
-};*/
