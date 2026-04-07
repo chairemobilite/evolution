@@ -22,6 +22,7 @@ import '../../styles/survey/styles-admin-survey.scss';
 import verifyAuthentication from 'chaire-lib-frontend/lib/services/auth/verifyAuthentication';
 import SegmentsSection from '../../components/survey/sectionTemplates/TripsAndSegmentsSection';
 import { UserPermissions } from 'chaire-lib-common/lib/services/user/userType';
+import { Toaster } from 'sonner';
 
 // TODO This is a workaround to get the links to the user, until some more complete solution is implemented (see https://github.com/chairemobilite/transition/issues/1516)
 const pages: { path: string; permissions: UserPermissions; title: string }[] = [
@@ -54,9 +55,26 @@ export default () => {
                 }}
             >
                 <InterviewContext.Provider value={{ state, dispatch }}>
+                    {/* Redux */}
                     <Provider store={store}>
                         <I18nextProvider i18n={i18n}>
                             <RouterProvider router={router} />
+
+                            {/* This is to render success and error messages in the admin */}
+                            <Toaster
+                                closeButton={true} // Allow closing the toast by clicking the close button
+                                visibleToasts={4} // Maximum number of toasts to show at once
+                                expand={true} // Expand each toast on a new line
+                                duration={20000} // Close the toast after 20 seconds
+                                toastOptions={{
+                                    classNames: {
+                                        success: 'admin-sonner-toast--success',
+                                        error: 'admin-sonner-toast--error',
+                                        info: 'admin-sonner-toast--info',
+                                        closeButton: 'admin-sonner-toast--close-button'
+                                    }
+                                }}
+                            />
                         </I18nextProvider>
                     </Provider>
                 </InterviewContext.Provider>

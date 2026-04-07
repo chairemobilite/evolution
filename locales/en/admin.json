@@ -233,5 +233,28 @@
                 "button_click": "Button click"
             }
         }
+    },
+    "generator": {
+        "GeneratorTitle": "Evolution Generator",
+        "GeneratorDescription": "Check that your Excel questionnaire file works correctly with the Evolution Generator before you rely on it in production.",
+        "GeneratorFileLabel": "Upload your Excel questionnaire file",
+        "GeneratorFileHint": "Only Excel workbooks (.xlsx, .xlsm, .xltx, .xltm) are accepted.",
+        "GeneratorDropzonePrompt": "Drag and drop your file here, or click to browse.",
+        "GeneratorRemoveFile": "Remove file",
+        "GeneratorButton": "Verify Excel file",
+        "GeneratorFileSelectionCancelled": "No file selected.",
+        "GeneratorFileSelected": "Selected file: {{fileName}}",
+        "GeneratorFileCleared": "File removed.",
+        "GeneratorInvalidFileType": "Invalid file type - please upload an Excel file.",
+        "GeneratorVerifySuccess": "Excel file passed the integrity check.",
+        "GeneratorVerifyFailedIntegrity": "Excel file failed the integrity check.",
+        "GeneratorVerifyNoFile": "Select an Excel file to verify.",
+        "GeneratorVerifyRequestFailed": "Could not reach the server.",
+        "GeneratorVerifyErrorFallback": "Verification failed.",
+        "GeneratorVerifyErrorTitle": "Verification errors",
+        "GeneratorVerifyErrorCopy": "Copy",
+        "GeneratorVerifyErrorDismiss": "Dismiss",
+        "GeneratorVerifyErrorCopied": "Copied to clipboard.",
+        "GeneratorVerifyErrorCopyFailed": "Could not copy to clipboard."
     }
 }

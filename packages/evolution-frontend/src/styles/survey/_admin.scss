@@ -1,4 +1,4 @@
-@use "settings";
+@use 'settings';
 
 .admin {
     display: flex;
@@ -351,7 +351,6 @@ table {
     background: none; // For list items (ex. list of lines in agency) we have our own background color, so we disable react-collapsible's.
 }
 
-
 // Show the user name in the top header
 header {
     #item-nav-user {
@@ -533,7 +532,8 @@ header {
     transition:
         width 0.1s ease,
         height 0.1s ease;
-    filter: drop-shadow(1px 0 0 white) drop-shadow(-1px 0 0 white) drop-shadow(0px 1px 0 white) drop-shadow(0px -1px 0 white);
+    filter: drop-shadow(1px 0 0 white) drop-shadow(-1px 0 0 white) drop-shadow(0px 1px 0 white)
+        drop-shadow(0px -1px 0 white);
     pointer-events: none;
 
     &.dragging {
@@ -679,4 +679,243 @@ header {
             background: none;
         }
     }
+}
+
+#adminGeneratorPage {
+    box-sizing: border-box;
+    min-height: calc(100vh - 5rem); // Fallback for browsers that don't support dvh
+    min-height: calc(100dvh - 5rem);
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    .survey-section__content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        max-width: 40rem;
+        width: 100%;
+        text-align: center;
+        gap: 30px;
+    }
+
+    h2,
+    p {
+        text-align: center;
+    }
+
+    h2 {
+        font-size: 40px;
+        font-weight: 700;
+        color: black;
+    }
+
+    button {
+        background-color: black;
+        color: white;
+        border: none;
+        border-radius: 10px;
+        padding: 10px 20px;
+        font-size: 16px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+
+        &:hover,
+        &:active,
+        &:focus {
+            background-color: #333333;
+        }
+
+        &:disabled {
+            cursor: not-allowed;
+        }
+    }
+
+    .admin-generator-verify-error {
+        width: 100%;
+        max-width: 40rem;
+        border: 1px solid rgba(0, 0, 0, 0.25);
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.9);
+        padding: 0.75rem 0.75rem;
+        text-align: left;
+    }
+
+    .admin-generator-verify-error__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .admin-generator-verify-error__actions {
+        display: flex;
+        gap: 0.5rem;
+
+        button {
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: settings.$font-size-small;
+        }
+    }
+
+    .admin-generator-verify-error__content {
+        margin: 0;
+        white-space: pre-wrap;
+        word-break: break-word;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+        font-size: settings.$font-size-small;
+        color: rgba(0, 0, 0, 0.85);
+        max-height: 18rem;
+        overflow: auto;
+        background: rgba(0, 0, 0, 0.03);
+        border-radius: 10px;
+        padding: 0.75rem;
+        border: 1px solid rgba(0, 0, 0, 0.12);
+
+        // Add some space between the error messages.
+        li + li {
+            margin-top: 1rem;
+        }
+    }
+
+    .admin-generator-excel-file {
+        position: relative;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        text-align: center;
+    }
+
+    .admin-generator-excel-file__label {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: black;
+    }
+
+    .admin-generator-excel-file__hint {
+        margin: 0;
+        font-size: settings.$font-size-small;
+        color: rgba(0, 0, 0, 0.65);
+    }
+
+    .admin-generator-excel-file__native {
+        position: absolute;
+        width: 0;
+        height: 0;
+        opacity: 0;
+        pointer-events: none;
+    }
+
+    .admin-generator-excel-file__dropzone {
+        width: 100%;
+        max-width: 28rem;
+        min-height: 8rem;
+        padding: 1.25rem 1rem;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.75rem;
+        border: 2px dashed rgba(0, 0, 0, 0.25);
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.9);
+        cursor: pointer;
+        transition:
+            border-color 0.2s ease,
+            background-color 0.2s ease,
+            box-shadow 0.2s ease;
+
+        &:hover,
+        &:focus-visible {
+            outline: none;
+            border-color: rgba(0, 0, 0, 0.45);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+        }
+
+        &--dragging {
+            border-color: black;
+            background: rgba(0, 0, 0, 0.04);
+        }
+    }
+
+    .admin-generator-excel-file__dropzone-text {
+        font-size: settings.$font-size-small;
+        color: rgba(0, 0, 0, 0.75);
+    }
+
+    .admin-generator-excel-file__file-name {
+        font-size: settings.$font-size-small;
+        font-weight: 700;
+        color: black;
+        word-break: break-all;
+    }
+
+    .admin-generator-excel-file__selection {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.75rem;
+        max-width: 100%;
+    }
+
+    .admin-generator-excel-file__remove {
+        background-color: transparent;
+        color: rgba(0, 0, 0, 0.65);
+        border: 1px solid rgba(0, 0, 0, 0.25);
+        border-radius: 8px;
+        padding: 6px 14px;
+        font-size: settings.$font-size-small;
+        font-weight: 600;
+        cursor: pointer;
+        transition:
+            color 0.2s ease,
+            border-color 0.2s ease,
+            background-color 0.2s ease;
+
+        &:hover,
+        &:active,
+        &:focus-visible {
+            background-color: rgba(0, 0, 0, 0.05);
+            color: black;
+            border-color: rgba(0, 0, 0, 0.45);
+        }
+    }
+}
+
+// Sonner is in 'sonner' package. It is used to render success and error messages in the admin.
+[data-sonner-toaster] .admin-sonner-toast--success[data-styled='true'],
+[data-sonner-toaster] .admin-sonner-toast--error[data-styled='true'],
+[data-sonner-toaster] .admin-sonner-toast--info[data-styled='true'] {
+    border: 1px solid black;
+}
+
+// Note: we need to use !important to override the default styles of the sonner package.
+[data-sonner-toaster] .admin-sonner-toast--close-button {
+    border-color: black !important;
+    width: 30px !important;
+    height: 30px !important;
+    
+    svg {
+        width: 16px !important;
+        height: 16px !important;
+    }
+}
+
+[data-sonner-toaster] .admin-sonner-toast--success [data-icon] {
+    color: #16a34a;
+}
+
+[data-sonner-toaster] .admin-sonner-toast--error [data-icon] {
+    color: #dc2626;
+}
+
+[data-sonner-toaster] .admin-sonner-toast--success [data-title],
+[data-sonner-toaster] .admin-sonner-toast--error [data-title],
+[data-sonner-toaster] .admin-sonner-toast--info [data-title] {
+    font-weight: 700;
 }

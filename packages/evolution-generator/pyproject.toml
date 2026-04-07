@@ -30,6 +30,7 @@ urllib3 = "2.6.3"
 
 [tool.poetry.scripts]
 generateSurvey = "scripts.generate_survey:main"
+verifyExcel = "scripts.generate_survey:verify_excel_cli_main"
 
 [tool.poetry.group.dev.dependencies]
 black = "^26.3.1"

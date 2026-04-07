@@ -163,7 +163,7 @@ BAD_ROWS_DATA = [["badRowData"]]
             GOOD_ROWS_DATA,
             BAD_INPUT_FILE,
             GOOD_OUPUT_FILE,
-            f"Invalid input file extension for {BAD_INPUT_FILE} : must be an Excel .xlsx file",
+            f"Invalid input file extension for {BAD_INPUT_FILE} : must be an Excel 2010+ .xlsx, .xlsm, .xltx or .xltm file",
         ),
         # Test that the function catch bad output file type
         (

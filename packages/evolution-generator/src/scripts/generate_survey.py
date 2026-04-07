@@ -20,7 +20,7 @@ from scripts.generate_labels import generate_labels
 from scripts.generate_UI_tests import generate_UI_tests
 from scripts.generate_questionnaire_list import generate_questionnaire_list
 from scripts.generate_questionnaire_dictionary import generate_questionnaire_dictionary
-from scripts.conditionals import Conditionals
+from scripts.conditionals_generator import ConditionalsGenerator
 
 
 # TODO: Add some validation for the config file
@@ -115,7 +115,7 @@ def generate_survey(config_path):
         conditionals_output_file_path = os.path.join(
             survey_folder_path, "src", "survey", "common", "conditionals.tsx"
         )
-        Conditionals.generate_conditionals(
+        ConditionalsGenerator.generate_conditionals(
             excel_file_path, conditionals_output_file_path
         )
 
@@ -193,9 +193,25 @@ def main():
 # Check the integrity of the Excel file to avoid generating the survey with invalid data
 def check_excel_integrity(excel_file_path: str) -> bool:
     """Check the integrity of the Excel file. Entry point for scripts and UI."""
-    result = Conditionals().check(excel_file_path)
-    if result is True:
+    ok, messages = ConditionalsGenerator().check_with_messages(excel_file_path)
+    if ok:
         print(f"Excel integrity check passed for {excel_file_path}")
     else:
         print(f"Excel integrity check FAILED for {excel_file_path}")
-    return result
+        for message in messages:
+            print(message)
+    return ok
+
+
+def verify_excel_cli_main() -> int:
+    """
+    Console entry for ``verifyExcel`` (see pyproject ``[tool.poetry.scripts]``).
+
+    Usage: ``verifyExcel <path-to-file.xlsx>``
+    """
+    import sys
+
+    if len(sys.argv) < 2:
+        print("Usage: verifyExcel <path-to-file.xlsx>", file=sys.stderr)
+        return 2
+    return 0 if check_excel_integrity(sys.argv[1]) else 1

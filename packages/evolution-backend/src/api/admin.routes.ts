@@ -4,8 +4,14 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
+import fs from 'fs';
 import moment from 'moment';
+import multer from 'multer';
+import os from 'os';
+import path from 'path';
 import { Response, Request } from 'express';
+import { execFile } from 'child_process';
+import { promisify } from 'util';
 import knex from 'chaire-lib-backend/lib/config/shared/db.config';
 import router from 'chaire-lib-backend/lib/api/admin.routes';
 import { addExportRoutes } from './admin/exports.routes';
@@ -19,6 +25,64 @@ import {
 } from '../models/monitoring.db.queries';
 
 addExportRoutes();
+const execFileAsync = promisify(execFile);
+
+/** Subfolder under OS temp dir for generator Excel uploads; cleaned per request after processing. */
+const GENERATOR_UPLOAD_SUBDIR = 'evolution-generator-temp';
+const GENERATOR_UPLOAD_FIELD = 'generatorFile';
+
+// Unique basename for generator Excel uploads.
+const uniqueGeneratorUploadBasename = (): string => {
+    return `${Date.now()}-${process.pid}-${Math.random().toString(36).slice(2, 12)}`;
+};
+
+// Multer upload middleware for generator Excel files.
+const generatorExcelUpload = multer({
+    storage: multer.diskStorage({
+        // Create the generator upload directory if it does not exist.
+        destination: (_req, _file, cb) => {
+            const dir = path.join(os.tmpdir(), GENERATOR_UPLOAD_SUBDIR);
+            fs.mkdirSync(dir, { recursive: true });
+            cb(null, dir);
+        },
+        // Generate a unique basename for the uploaded file.
+        filename: (_req, file, cb) => {
+            const ext = path.extname(file.originalname).toLowerCase();
+            const supportedExts = new Set(['.xlsx', '.xlsm', '.xltx', '.xltm']);
+            cb(null, `${uniqueGeneratorUploadBasename()}${supportedExts.has(ext) ? ext : '.xlsx'}`);
+        }
+    }),
+    limits: { fileSize: 50 * 1024 * 1024 }, // 50MB
+    // Only allow Excel 2010+ files (.xlsx, .xlsm, .xltx, .xltm) or the correct MIME type.
+    fileFilter: (_req, file, cb) => {
+        const ext = path.extname(file.originalname).toLowerCase();
+        const extOk = ext === '.xlsx' || ext === '.xlsm' || ext === '.xltx' || ext === '.xltm';
+        const mimeOk =
+            file.mimetype === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' ||
+            file.mimetype === 'application/vnd.ms-excel.sheet.macroEnabled.12' ||
+            file.mimetype === 'application/vnd.openxmlformats-officedocument.spreadsheetml.template' ||
+            file.mimetype === 'application/vnd.ms-excel.template.macroEnabled.12';
+        // Require BOTH the filename extension (file.originalname) and MIME type (file.mimetype) to match.
+        // So we don't accept corrupted files with the wrong extension or MIME type.
+        if (extOk && mimeOk) {
+            cb(null, true);
+        } else {
+            cb(new Error('Only Excel 2010+ (.xlsx, .xlsm, .xltx, .xltm) files are allowed'));
+        }
+    }
+});
+
+// Unlink the generator Excel file quietly when the request is done.
+const unlinkGeneratorUploadQuiet = async (filePath: string | undefined): Promise<void> => {
+    if (!filePath) {
+        return;
+    }
+    try {
+        await fs.promises.unlink(filePath);
+    } catch {
+        // File may already be removed or the temp dir cleared elsewhere.
+    }
+};
 
 // Helper function to respond with an OK status
 function respondOk<T>({ res, result }: { res: Response; result: T }): Response {
@@ -29,14 +93,14 @@ function respondOk<T>({ res, result }: { res: Response; result: T }): Response {
 // Helper function to respond with an error status
 function respondError({
     res,
-    message,
+    error,
     httpStatus = 500
 }: {
     res: Response;
-    message: string;
+    error: unknown;
     httpStatus?: number;
 }): Response {
-    const payload: Status.StatusError = Status.createError(message);
+    const payload: Status.StatusError = Status.createError(error);
     return res.status(httpStatus).json(payload);
 }
 
@@ -44,7 +108,7 @@ router.all('/data/widgets/:widget/', (req: Request, res: Response, _next) => {
     const widgetName = req.params.widget;
 
     if (!widgetName) {
-        return respondError({ res, message: 'Provide a valid widget name', httpStatus: 400 });
+        return respondError({ res, error: 'Provide a valid widget name', httpStatus: 400 });
     }
     switch (widgetName) {
     case 'started-and-completed-interviews-by-day':
@@ -70,8 +134,136 @@ router.all('/data/widgets/:widget/', (req: Request, res: Response, _next) => {
         handleSurveyDifficultyDistribution(res);
         break;
     default:
-        return respondError({ res, message: `Admin monitoring widget '${widgetName}' not found`, httpStatus: 404 });
+        return respondError({ res, error: `Admin monitoring widget '${widgetName}' not found`, httpStatus: 404 });
     }
+});
+
+// POST /generator/verify — multipart upload (multer field: generatorFile), temp file, then Excel integrity CLI (generator package).
+router.post('/generator/verify', (req: Request, res: Response) => {
+    generatorExcelUpload.single(GENERATOR_UPLOAD_FIELD)(req, res, (err: unknown) => {
+        if (err) {
+            if (err instanceof multer.MulterError) {
+                return respondError({ res, error: err.message, httpStatus: 400 });
+            }
+            if (err instanceof Error) {
+                return respondError({ res, error: err.message, httpStatus: 400 });
+            }
+            return respondError({ res, error: 'File upload failed', httpStatus: 400 });
+        }
+
+        void (async () => {
+            const uploaded = req.file;
+            if (!uploaded?.path) {
+                return respondError({ res, error: 'No Excel file uploaded', httpStatus: 400 });
+            }
+
+            const resolvedExcelPath = uploaded.path;
+
+            // Run the CLI via Poetry so generator deps (openpyxl, etc.) match pyproject.toml.
+            const generatorPackageDirectory = path.resolve(__dirname, '../../../evolution-generator');
+            const cliScriptPath = path.resolve(generatorPackageDirectory, 'src/scripts/check_excel_integrity_cli.py');
+
+            try {
+                if (!fs.existsSync(resolvedExcelPath)) {
+                    return respondError({
+                        res,
+                        error: `Excel file not found at ${resolvedExcelPath}`,
+                        httpStatus: 400
+                    });
+                }
+
+                // Spawn Poetry in the generator package so `poetry run` uses that project's venv and pyproject.toml.
+                // Args: run python <script> <excel path> — the script prints one JSON object per run on stdout.
+                const { stdout, stderr } = await execFileAsync(
+                    'poetry',
+                    ['run', 'python', cliScriptPath, resolvedExcelPath],
+                    {
+                        cwd: generatorPackageDirectory,
+                        timeout: 60_000, // 60 seconds before killing the process
+                        killSignal: 'SIGKILL'
+                    }
+                );
+
+                // Stderr may contain warnings even on success; log it but do not treat it as failure by itself.
+                if (stderr?.trim()) {
+                    console.warn('Python stderr for /api/admin/generator/verify:', stderr);
+                }
+
+                // Last non-empty line: one JSON object from the CLI.
+                const outputLines = stdout
+                    .trim()
+                    .split('\n')
+                    .map((line) => line.trim())
+                    .filter((line) => line.length > 0);
+
+                // No output from the CLI → error
+                if (outputLines.length === 0) {
+                    return respondError({
+                        res,
+                        error: 'Excel integrity check produced no output',
+                        httpStatus: 500
+                    });
+                }
+
+                // Contract: stdout is a single JSON object (human-readable issues are inside `errors`, see check_excel_integrity_cli.py).
+                const lastLine = outputLines[outputLines.length - 1];
+                const parsedResult = JSON.parse(lastLine) as {
+                    ok: boolean;
+                    integrityOk?: boolean;
+                    error?: string;
+                    errors?: string[];
+                    excelFilePath?: string;
+                };
+
+                // Python exception or crash → ok: false
+                if (parsedResult.ok !== true) {
+                    return respondError({
+                        res,
+                        error: `Excel integrity check failed: ${parsedResult.error ?? 'Unknown Python error'}`,
+                        httpStatus: 500
+                    });
+                }
+
+                // Excel validation issues: HTTP 200 with status ok; integrityOk is false and errors list the problems.
+                if (parsedResult.integrityOk === true) {
+                    return respondOk({
+                        res,
+                        result: {
+                            integrityOk: true
+                        }
+                    });
+                }
+
+                // Excel validation issues: HTTP 200 with status ok; integrityOk is false and errors list the problems.
+                const errorMessages = Array.isArray(parsedResult.errors) ? parsedResult.errors : [];
+                return respondOk({
+                    res,
+                    result: {
+                        integrityOk: false,
+                        errors: errorMessages
+                    }
+                });
+            } catch (error) {
+                // Covers: poetry missing, venv not installed, process non-zero, invalid JSON, empty stdout, etc.
+                console.error('Failed to execute generator integrity check:', error);
+                if (error instanceof Error) {
+                    return respondError({
+                        res,
+                        error: `Failed to execute Excel integrity check: ${error.message}`,
+                        httpStatus: 500
+                    });
+                }
+                return respondError({ res, error: 'Failed to execute Excel integrity check', httpStatus: 500 });
+            } finally {
+                await unlinkGeneratorUploadQuiet(resolvedExcelPath);
+            }
+        })().catch((unhandled) => {
+            console.error('Unhandled error in /generator/verify:', unhandled);
+            if (!res.headersSent) {
+                respondError({ res, error: 'Unexpected error during verification', httpStatus: 500 });
+            }
+        });
+    });
 });
 
 // TODO: add CSV export for this widget.
@@ -123,7 +315,7 @@ const handleStartedInterviewsCount = async (res: Response): Promise<Response> =>
         return respondOk({ res, result: { startedInterviewsCount } });
     } catch (error) {
         console.error('Error fetching started interviews count:', error);
-        return respondError({ res, message: 'Failed to fetch started interviews count', httpStatus: 500 });
+        return respondError({ res, error: 'Failed to fetch started interviews count', httpStatus: 500 });
     }
 };
 
@@ -134,7 +326,7 @@ const handleCompletedInterviewsCount = async (res: Response): Promise<Response> 
         return respondOk({ res, result: { completedInterviewsCount } });
     } catch (error) {
         console.error('Error fetching completed interviews count:', error);
-        return respondError({ res, message: 'Failed to fetch completed interviews count', httpStatus: 500 });
+        return respondError({ res, error: 'Failed to fetch completed interviews count', httpStatus: 500 });
     }
 };
 
@@ -145,7 +337,7 @@ const handleInterviewsCompletionRate = async (res: Response): Promise<Response> 
         return respondOk({ res, result: { interviewsCompletionRate } });
     } catch (error) {
         console.error('Error fetching interviews completion rate:', error);
-        return respondError({ res, message: 'Failed to fetch interviews completion rate', httpStatus: 500 });
+        return respondError({ res, error: 'Failed to fetch interviews completion rate', httpStatus: 500 });
     }
 };
 
@@ -156,7 +348,7 @@ const handleRespondentBehaviorMetrics = async (res: Response): Promise<Response>
         return respondOk({ res, result: metrics });
     } catch (error) {
         console.error('Error fetching respondent behavior metrics:', error);
-        return respondError({ res, message: 'Failed to fetch respondent behavior metrics', httpStatus: 500 });
+        return respondError({ res, error: 'Failed to fetch respondent behavior metrics', httpStatus: 500 });
     }
 };
 
@@ -167,7 +359,7 @@ const handleSurveyDifficultyDistribution = async (res: Response): Promise<Respon
         return respondOk({ res, result: { distribution } });
     } catch (error) {
         console.error('Error fetching survey difficulty distribution:', error);
-        return respondError({ res, message: 'Failed to fetch survey difficulty distribution', httpStatus: 500 });
+        return respondError({ res, error: 'Failed to fetch survey difficulty distribution', httpStatus: 500 });
     }
 };
 
