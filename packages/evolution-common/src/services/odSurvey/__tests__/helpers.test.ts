@@ -1951,7 +1951,152 @@ describe('deleteVisitedPlace', () => {
     });
 });
 
+describe('addVisitedPlace', () => {
+    const insertedVisitedPlaceUuid = 'insertedVisitedPlace';
 
+    const getPathObject = (obj: Record<string, any>, dottedPath: string) => {
+        return dottedPath.split('.').reduce((current, key) => {
+            if (!current || typeof current !== 'object') {
+                return undefined;
+            }
+            return current[key];
+        }, obj as any);
+    };
+
+    const addGroupedObjects = (
+        interview: UserInterviewAttributes,
+        newObjectsCount: number,
+        insertSequence: number | undefined,
+        path: string,
+        attributes: { [objectField: string]: unknown }[] = []
+    ) => {
+        const groupedObjects = getPathObject(interview.response as any, path);
+        if (!groupedObjects || typeof groupedObjects !== 'object') {
+            throw new Error(`Grouped objects path not found: ${path}`);
+        }
+
+        const groupedObjectsArray = Object.values(groupedObjects).sort(
+            (a, b) => ((a as any)._sequence || 0) - ((b as any)._sequence || 0)
+        );
+        const startSequence =
+            typeof insertSequence !== 'number' || insertSequence <= -1
+                ? groupedObjectsArray.length + 1
+                : Math.min(groupedObjectsArray.length + 1, Math.max(1, insertSequence));
+
+        groupedObjectsArray.forEach((groupedObject) => {
+            if (((groupedObject as any)._sequence || 0) >= startSequence) {
+                (groupedObject as any)._sequence += newObjectsCount;
+            }
+        });
+
+        for (let index = 0; index < newObjectsCount; index++) {
+            const objectUuid = `${insertedVisitedPlaceUuid}${index === 0 ? '' : index + 1}`;
+            groupedObjects[objectUuid] = {
+                _uuid: objectUuid,
+                _sequence: startSequence + index,
+                ...(attributes[index] || {})
+            };
+        }
+    };
+
+    each([
+        [
+            'inserts a visited place in the middle and clears previous and next dependent fields',
+            {
+                insertSequence: 2,
+                expectedValuesByPath: {
+                    'response.household.persons.personId1.journeys.journeyId1.visitedPlaces.homePlace1P1.nextPlaceCategory': null,
+                    'response.household.persons.personId1.journeys.journeyId1.visitedPlaces.workPlace1P1._previousDepartureTime': null,
+                    'response._activeVisitedPlaceId': insertedVisitedPlaceUuid
+                }
+            }
+        ],
+        [
+            'appends a visited place when insertSequence is -1 and clears only the previous nextPlaceCategory',
+            {
+                insertSequence: -1,
+                expectedValuesByPath: {
+                    'response.household.persons.personId1.journeys.journeyId1.visitedPlaces.otherPlace2P1.nextPlaceCategory': null,
+                    'response._activeVisitedPlaceId': insertedVisitedPlaceUuid
+                }
+            }
+        ]
+    ]).test('addVisitedPlace: %s', (_title, testCase) => {
+        const interview = _cloneDeep(interviewAttributesForTestCases);
+        interview.response._activePersonId = 'personId1';
+        interview.response._activeJourneyId = 'journeyId1';
+
+        const person = interview.response.household!.persons!.personId1 as Person;
+        const journey = person.journeys!.journeyId1 as Journey;
+
+        const startUpdateInterview = jest.fn();
+        const startAddGroupedObjects = jest.fn((newObjectsCount, insertSequence, path, attributes, callback) => {
+            const updatedInterview = _cloneDeep(interview);
+            addGroupedObjects(updatedInterview, newObjectsCount, insertSequence, path, attributes);
+            callback(updatedInterview);
+        });
+
+        Helpers.addVisitedPlace({
+            person,
+            journey,
+            insertSequence: testCase.insertSequence,
+            startAddGroupedObjects,
+            startUpdateInterview
+        });
+
+        expect(startAddGroupedObjects).toHaveBeenCalledTimes(1);
+        expect(startAddGroupedObjects).toHaveBeenCalledWith(
+            1,
+            testCase.insertSequence,
+            'household.persons.personId1.journeys.journeyId1.visitedPlaces',
+            [],
+            expect.any(Function)
+        );
+        expect(startUpdateInterview).toHaveBeenCalledTimes(1);
+        expect(startUpdateInterview).toHaveBeenCalledWith({
+            sectionShortname: 'visitedPlaces',
+            valuesByPath: testCase.expectedValuesByPath
+        });
+    });
+
+    test('addVisitedPlace: change active person and journey during group add', () => {
+        const interview = _cloneDeep(interviewAttributesForTestCases);
+        interview.response._activePersonId = 'personId1';
+        interview.response._activeJourneyId = 'journeyId1';
+
+        const person = interview.response.household!.persons!.personId1 as Person;
+        const journey = person.journeys!.journeyId1 as Journey;
+
+        const startUpdateInterview = jest.fn();
+        const startAddGroupedObjects = jest.fn((newObjectsCount, insertSequence, path, attributes, callback) => {
+            const updatedInterview = _cloneDeep(interview);
+            addGroupedObjects(updatedInterview, newObjectsCount, insertSequence, path, attributes);
+            // Change the activer person and journey to simulate user navigation, no further processing should be done
+            updatedInterview.response._activePersonId = 'personId2';
+            updatedInterview.response._activeJourneyId = 'journeyId2';
+            callback(updatedInterview);
+        });
+
+        const insertSequence = 3;
+        Helpers.addVisitedPlace({
+            person,
+            journey,
+            insertSequence: insertSequence,
+            startAddGroupedObjects,
+            startUpdateInterview
+        });
+
+        expect(startAddGroupedObjects).toHaveBeenCalledTimes(1);
+        expect(startAddGroupedObjects).toHaveBeenCalledWith(
+            1,
+            insertSequence,
+            'household.persons.personId1.journeys.journeyId1.visitedPlaces',
+            [],
+            expect.any(Function)
+        );
+        expect(startUpdateInterview).not.toHaveBeenCalled();
+    });
+});
 
 describe('replaceVisitedPlaceShortcuts', () => {
     const shortcutInterview = _cloneDeep(interviewAttributes);

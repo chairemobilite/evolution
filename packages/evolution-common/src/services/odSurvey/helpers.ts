@@ -14,6 +14,7 @@ import {
     Journey,
     Person,
     Segment,
+    StartAddGroupedObjects,
     StartRemoveGroupedObjects,
     StartUpdateInterview,
     Trip,
@@ -997,6 +998,88 @@ export const reconcileVisitedPlaces = ({
         updateValuesByPath['response._activeVisitedPlaceId'] = nextIncompletePlace?._uuid || null;
     }
     return updateValuesByPath;
+};
+
+/**
+ * Add a visited place at the right place in the visited places array.
+ *
+ * // FIXME Copied from od_nationale_quebec's VisitedPlacesSection template.
+ * Consider making it async and returning a promise so the caller can await the
+ * end of the process if needed.  Now, when this function returns, there may
+ * still be a few calls to the server pending before the interview is fully
+ * updated.
+ *
+ * @param {Object} options - The options object.
+ * @param {Person} options.person The person the visited place belongs to
+ * @param {Journey} options.journey The journey the visited place is part of
+ * @param {number} options.insertSequence The sequence at which to insert the visited place
+ * @param {Function} options.startAddGroupedObjects Function to start adding grouped objects
+ * @param {Function} options.startUpdateInterview Function to start updating the
+ * interview
+ * @returns
+ */
+export const addVisitedPlace = ({
+    person,
+    journey,
+    insertSequence,
+    startAddGroupedObjects,
+    startUpdateInterview
+}: {
+    person: Person;
+    journey: Journey;
+    insertSequence: number;
+    startAddGroupedObjects: StartAddGroupedObjects;
+    startUpdateInterview: StartUpdateInterview;
+}) => {
+    const path = `household.persons.${person._uuid}.journeys.${journey._uuid}.visitedPlaces`;
+    startAddGroupedObjects(1, insertSequence, path, [], (updatedInterview) => {
+        const updatedPerson = getPerson({ interview: updatedInterview, personId: person._uuid }) as any;
+        const currentJourney = getActiveJourney({ interview: updatedInterview, person: updatedPerson });
+        if (!updatedPerson || !currentJourney) {
+            return;
+        }
+        const visitedPlaces = getVisitedPlacesArray({ journey: currentJourney });
+        // Get the inserted visited place, if sequence is -1, get the last one
+        const insertedVisitedPlace =
+            insertSequence === -1
+                ? visitedPlaces[visitedPlaces.length - 1]
+                : visitedPlaces.find((visitedPlace) => visitedPlace._sequence === insertSequence);
+        if (!insertedVisitedPlace) {
+            throw new Error('Added visited place not found after adding it');
+        }
+
+        const updateValuesByPath = {};
+
+        // we must change nextPlaceCategory of previous visited place and
+        // set it to null since we don't know yet what type of place user
+        // want to add (home, work, other).
+        const previousVisitedPlace = getPreviousVisitedPlace({
+            journey: currentJourney,
+            visitedPlaceId: insertedVisitedPlace._uuid
+        });
+        if (previousVisitedPlace) {
+            const previousVisitedPlacePath = `household.persons.${person._uuid}.journeys.${currentJourney._uuid}.visitedPlaces.${previousVisitedPlace._uuid}`;
+            updateValuesByPath[`response.${previousVisitedPlacePath}.nextPlaceCategory`] = null;
+            // FIXME original code set the _previousDepartureTime, but in a very
+            // buggy way, ie it was not working at all... Was the intention to
+            // allow to set the departure time of the previous place?
+        }
+
+        // we must change _previousDepartureTime for nextVisitedPlace and set it to null
+        // FIXME Why? Shouldn't the previousDepartureTime of the next place already have been processed by a function and set to `null`? Keeping it for now, but when visited places cleanup has been done, revisit this fixme
+        const nextVisitedPlace = getNextVisitedPlace({
+            journey: currentJourney,
+            visitedPlaceId: insertedVisitedPlace._uuid
+        });
+        if (nextVisitedPlace) {
+            const nextVisitedPlacePath = `household.persons.${person._uuid}.journeys.${currentJourney._uuid}.visitedPlaces.${nextVisitedPlace._uuid}`;
+            updateValuesByPath[`response.${nextVisitedPlacePath}._previousDepartureTime`] = null;
+        }
+
+        // We set the active visited place to the inserted one
+        updateValuesByPath['response._activeVisitedPlaceId'] = insertedVisitedPlace._uuid;
+        startUpdateInterview({ sectionShortname: 'visitedPlaces', valuesByPath: updateValuesByPath });
+    });
 };
 
 /**
