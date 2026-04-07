@@ -21,6 +21,7 @@ import appConfig, { setApplicationConfiguration } from 'chaire-lib-frontend/lib/
 import '../../styles/survey/styles-admin-survey.scss';
 import verifyAuthentication from 'chaire-lib-frontend/lib/services/auth/verifyAuthentication';
 import SegmentsSection from '../../components/survey/sectionTemplates/TripsAndSegmentsSection';
+import VisitedPlacesSection from '../../components/survey/sectionTemplates/VisitedPlacesSection';
 import { UserPermissions } from 'chaire-lib-common/lib/services/user/userType';
 import { Toaster } from 'sonner';
 
@@ -33,7 +34,7 @@ const pages: { path: string; permissions: UserPermissions; title: string }[] = [
 setApplicationConfiguration({
     homePage: '/home',
     pages,
-    templateMapping: { tripsAndSegmentsWithMap: SegmentsSection }
+    templateMapping: { tripsAndSegmentsWithMap: SegmentsSection, visitedPlaces: VisitedPlacesSection }
 });
 
 export default () => {

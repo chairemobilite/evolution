@@ -22,8 +22,12 @@ import appConfig, { setApplicationConfiguration } from 'chaire-lib-frontend/lib/
 import '../../styles/survey/styles-participant-survey.scss';
 import verifyAuthentication from 'chaire-lib-frontend/lib/services/auth/verifyAuthentication';
 import SegmentsSection from '../../components/survey/sectionTemplates/TripsAndSegmentsSection';
+import VisitedPlacesSection from '../../components/survey/sectionTemplates/VisitedPlacesSection';
 
-setApplicationConfiguration({ homePage: '/survey', templateMapping: { tripsAndSegmentsWithMap: SegmentsSection } });
+setApplicationConfiguration({
+    homePage: '/survey',
+    templateMapping: { tripsAndSegmentsWithMap: SegmentsSection, visitedPlaces: VisitedPlacesSection }
+});
 
 type AppSettings = {
     // Additional app context, that can be used as context in basic translations strings
