@@ -32,7 +32,7 @@ export type SectionPreload = (
     }
 ) => void;
 
-export type BuiltinSectionTemplates = 'tripsAndSegmentsWithMap';
+export type BuiltinSectionTemplates = 'tripsAndSegmentsWithMap' | 'visitedPlaces';
 
 /**
  * Configuration for a repeated block of sections
