@@ -79,7 +79,25 @@ The following instructions explain how to prepare and compile the application
 
 ## Verify Excel (generator)
 
-Check a survey workbook with `yarn verifyExcel '/absolute/path/to/file.xlsx'` (run `poetry install` in `packages/evolution-generator` first). Exit code `0` when valid. If invalid, exit code is non-zero and the terminal prints that the check failed, then each validation error message.
+You can run this either via the repo `yarn` command, or directly via Python/Poetry (package).
+
+Exit code `0` when valid. If invalid, exit code is non-zero and the terminal prints that the check failed, then each validation error message.
+
+### Verify Excel with Yarn
+
+From the repo root:
+
+- `cd packages/evolution-generator`
+- `poetry install`
+- Back in the repo root: `yarn verifyExcel '/absolute/path/to/file.xlsx'`
+
+### Verify Excel with Python / Poetry
+
+From the repo root:
+
+- `cd packages/evolution-generator`
+- `poetry install`
+- `poetry run verifyExcel '/absolute/path/to/file.xlsx'`
 
 ## Run the example application
 
@@ -124,9 +142,10 @@ To enable territorial validation, add the `surveyAreaGeojsonPath` property to yo
 ```javascript
 module.exports = {
   // ...
-  surveyAreaGeojsonPath: 'surveyArea.geojson'
+  surveyAreaGeojsonPath: "surveyArea.geojson",
 };
 ```
+
 The path is relative to the survey project directory (projectDirectory param in config file). If this property is missing or the file is not found, territorial validation is skipped.
 
 ### GeoJSON Specifications
@@ -268,4 +287,5 @@ This file can be imported by running the following command: `yarn node packages/
 For a custom import or to support additional fields, the import task of Evolution can be copied and modified.
 
 ## Nomenclature
+
 For naming consistency, see [Nomenclature](docs/nomenclature.md)
