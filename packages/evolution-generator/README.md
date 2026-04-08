@@ -208,24 +208,24 @@ Widgets are the building blocks of your survey. They define the structure and in
 
 ### Widgets Fields
 
-| Field                | Description                                             | Type    |
-| -------------------- | ------------------------------------------------------- | ------- |
-| questionName         | Name of the question                                    | string  |
-| [inputType](#input)  | Type of input for the question                          | string  |
-| active               | Widget activation status                                | boolean |
-| section              | Section to which the question belongs                   | string  |
-| group                | Group to which the question belongs (optional)          | string? |
-| path                 | Path of the response object for the question            | string  |
-| label::fr            | French label for the question                           | string  |
-| label::en            | English label for the question                          | string  |
-| [conditional](#cond) | Conditional logic for displaying the widget (optional)  | string? |
-| [validation](#val)   | Validation logic for the widget (optional)              | string? |
-| [choices](#choices)  | Choices for the InputRadio and InputCheckbox (optional) | string? |
-| [help_popup](#help)  | Help popup name for the question (optional)             | string? |
-| [inputRange](#range) | Input range name for InputRange (optional)              | string? |
-| parameters           | Additional widget parameters (optional)                 | string? |
-| comments             | Additional comments for the question (optional)         | string? |
-| appearance           | Additional widget appearance options (optional)         | string? |
+| Field                        | Description                                             | Type    |
+| ---------------------------- | ------------------------------------------------------- | ------- |
+| questionName                 | Name of the question                                    | string  |
+| [inputType](#input)          | Type of input for the question                          | string  |
+| active                       | Widget activation status                                | boolean |
+| section                      | Section to which the question belongs                   | string  |
+| group                        | Group to which the question belongs (optional)          | string? |
+| path                         | Path of the response object for the question            | string  |
+| label::fr                    | French label for the question                           | string  |
+| label::en                    | English label for the question                          | string  |
+| [conditional](#cond)         | Conditional logic for displaying the widget (optional)  | string? |
+| [validation](#val)           | Validation logic for the widget (optional)              | string? |
+| [choices](#choices)          | Choices for the InputRadio and InputCheckbox (optional) | string? |
+| [help_popup](#help)          | Help popup name for the question (optional)             | string? |
+| [inputRange](#range)         | Input range name for InputRange (optional)              | string? |
+| [parameters](#paramsWidgets) | Additional widget parameters (optional)                 | string? |
+| comments                     | Additional comments for the question (optional)         | string? |
+| appearance                   | Additional widget appearance options (optional)         | string? |
 
 <!-- TODO: Document the join_with option in the appearance column. Example: appearance: join_with=${questionName} -->
 <!-- TODO: Document the parameters column (e.g. min=0 max=6 overMaxAllowed, separated by newline, semicolon, or space, with the possibility to either support a number or a response field) -->
@@ -241,6 +241,8 @@ Widgets are the building blocks of your survey. They define the structure and in
 > <span id="help">**Note:**</span> The `help_popup` field is optional and allows you to specify the name of the help popup for the question. This is useful for providing additional information or context to respondents.
 
 > <span id="range">**Note:**</span> The `inputRange` field is optional and allows you to define the valid range of values for `Range` input.
+
+> <span id="paramsWidgets">**Note:**</span> The `parameters` field is optional but can include a `customLabels` override in the format `customLabels={{someCustomLabels}}`.
 
 ### Widgets Example
 

@@ -36,6 +36,7 @@ class ImportFlags:
     has_helper_import: bool = False
     has_formatter_import: bool = False
     has_custom_formatter_import: bool = False
+    has_custom_labels_import: bool = False
 
     # Flags for specific labels
     has_nickname_label: bool = False
@@ -467,6 +468,11 @@ def generate_import_statements(import_flags: ImportFlags) -> str:
         if import_flags.has_custom_formatter_import
         else ""
     )
+    custom_labels_import = (
+        "import * as customLabels from '../../common/customLabels';\n"
+        if import_flags.has_custom_labels_import
+        else ""
+    )
     return (
         f"import {{ TFunction }} from 'i18next';\n"
         f"{escape_import}"
@@ -487,6 +493,7 @@ def generate_import_statements(import_flags: ImportFlags) -> str:
         f"{custom_help_popup_import}"
         f"{custom_validations_import}"
         f"{custom_formatter_import}"
+        f"{custom_labels_import}"
     )
 
 
@@ -547,13 +554,30 @@ def generate_label(
     """
     Generates the TypeScript label or text property for a widget.
     The property name is controlled by key_name ('label' or 'text').
-    Inspects the labels columns in the row to determine if nickname, count, or gender context is needed.
+    If row parameters contains customLabels={{SomeCustomLabels}}, returns `{key_name}: customLabels.SomeCustomLabels`.
+    Otherwise, inspects the labels columns in the row to determine if nickname, count, or gender context is needed.
     - If no special flags are detected, returns a simple label function.
     - If {{nickname}} is present, adds nickname context.
     - If {{count}} is present, adds countPersons context.
     - If {{gender:...}} is present, adds gender or sexAssignedAtBirth context.
     - If label_one is present, adds countPersons assignment and count: countPersons to the translation context.
     """
+
+    # Check if customLabels are present in the parameters
+    # If so, return the customLabels function
+    parameters = row.get("parameters", "") or ""
+    if "customLabels={{" in parameters:
+        custom_labels_match = re.search(
+            r"customLabels=\{\{([a-zA-Z0-9_$]+)\}\}", parameters
+        )
+        if custom_labels_match:
+            custom_labels_name = custom_labels_match.group(1)
+            return f"{INDENT}{key_name}: customLabels.{custom_labels_name}"
+        # TODO: Move to the widget generator validator when we will have one.
+        print(
+            f"Warning: Invalid customLabels format in parameters for '{section}:{path}'. Expected customLabels={{{{someCustomLabels}}}}."
+        )
+
     # Initialize gender_fields to a default class if none is provided
     gender_fields = gender_fields or GenderFields()
     label_fr = row.get("label::fr", "")  # French label
@@ -1112,6 +1136,11 @@ def get_widgets_file_import_flags(section_rows) -> ImportFlags:
 
     # Check all rows for import flags
     for row in section_rows:
+        parameters = row.get("parameters", "") or ""
+
+        # Check if customLabels are present in the parameters
+        if "customLabels={{" in parameters:
+            import_flags.has_custom_labels_import = True
         if row["choices"]:
             # Check to see if the choices finish with 'CustomChoices'
             if row["choices"].lower().endswith("customchoices"):
