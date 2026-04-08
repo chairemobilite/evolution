@@ -45,6 +45,7 @@ class TestGenerateImportStatements:
             has_helper_import=False,
             has_formatter_import=False,
             has_custom_formatter_import=False,
+            has_custom_labels_import=False,
             has_nickname_label=False,
             has_persons_count_label=False,
             has_gendered_suffix_label=False,
@@ -69,6 +70,7 @@ class TestGenerateImportStatements:
         assert "import * as validations" not in result
         assert "import * as formatters" not in result
         assert "import * as customFormatters" not in result
+        assert "import * as customLabels" not in result
 
         # Should not import odSurveyHelpers, surveyHelper, or genderedSuffixes
         assert "odSurveyHelpers" not in result
@@ -90,6 +92,7 @@ class TestGenerateImportStatements:
             has_helper_import=True,
             has_formatter_import=True,
             has_custom_formatter_import=True,
+            has_custom_labels_import=True,
             has_nickname_label=True,
             has_persons_count_label=True,
             has_gendered_suffix_label=True,
@@ -115,6 +118,7 @@ class TestGenerateImportStatements:
         assert "import * as validations" in result
         assert "import * as formatters" in result
         assert "import * as customFormatters" in result
+        assert "import * as customLabels from '../../common/customLabels';" in result
         assert "import * as odSurveyHelpers" in result
         assert "import * as surveyHelper" in result
         assert (
@@ -193,6 +197,44 @@ class TestGenerateLabel:
         assert "const nickname =" not in result
         assert "const countPersons =" not in result
         assert "const personGender =" not in result
+
+    def test_generate_label_custom_labels_success(self):
+        """Test generate_label returns customLabels reference when customLabels={{...}} is present in parameters"""
+        row = {
+            "label::fr": "Quel est votre nom?",
+            "label::en": "What is your name?",
+            "parameters": "customLabels={{personSchoolTypeCustomLabels}}",
+        }
+        result = generate_label(
+            section="sectionA",
+            path="foo.bar",
+            row=row,
+            gender_fields=self.GENDER_FIELDS,
+        )
+        assert "label: customLabels.personSchoolTypeCustomLabels" in result
+        assert "t('sectionA:foo.bar')" not in result
+
+    def test_generate_label_custom_labels_invalid_format_prints_warning_and_falls_back(
+        self, capsys
+    ):
+        """Test generate_label prints a warning for invalid customLabels format and falls back to normal label generation"""
+        row = {
+            "label::fr": "Quel est votre nom?",
+            "label::en": "What is your name?",
+            "parameters": "customLabels={{bad-name}}",
+        }
+        result = generate_label(
+            section="sectionA",
+            path="foo.bar",
+            row=row,
+            gender_fields=self.GENDER_FIELDS,
+        )
+        captured = capsys.readouterr()
+        assert (
+            "Warning: Invalid customLabels format in parameters for 'sectionA:foo.bar'."
+            in captured.out
+        )
+        assert "label: (t: TFunction) => t('sectionA:foo.bar')" in result
 
     def test_generate_label_with_nickname_label(self):
         """Test generate_label includes nickname context when {{nickname}} is present"""
@@ -1285,3 +1327,18 @@ class TestGetWidgetsFileImportFlags:
         ]
         import_flags = get_widgets_file_import_flags(section_rows)
         assert import_flags.has_gendered_suffix_label is True
+
+    def test_custom_labels_imports(self):
+        """Test that customLabels usage in parameters is correctly detected"""
+        section_rows = [
+            {
+                "inputType": "Radio",
+                "choices": "",
+                "validation": "",
+                "conditional": "",
+                "parameters": "customLabels={{personSchoolTypeCustomLabels}}",
+                "label::en": "Some label",
+            }
+        ]
+        import_flags = get_widgets_file_import_flags(section_rows)
+        assert import_flags.has_custom_labels_import is True
