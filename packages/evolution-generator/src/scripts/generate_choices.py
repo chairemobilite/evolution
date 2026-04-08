@@ -14,7 +14,7 @@ from helpers.generator_helpers import (
     sheet_exists,
     get_headers,
 )
-from scripts.generate_labels import LabelFormatter
+from scripts.labels_generator import LabelFormatter
 
 
 def process_label(text):

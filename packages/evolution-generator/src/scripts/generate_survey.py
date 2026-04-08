@@ -16,7 +16,7 @@ from scripts.generate_widgets_configs import generate_widgets_configs
 from scripts.generate_widgets import generate_widgets
 from scripts.generate_choices import generate_choices
 from scripts.generate_input_range import generate_input_range
-from scripts.generate_labels import generate_labels
+from scripts.labels_generator import LabelsGenerator
 from scripts.generate_UI_tests import generate_UI_tests
 from scripts.generate_questionnaire_list import generate_questionnaire_list
 from scripts.generate_questionnaire_dictionary import generate_questionnaire_dictionary
@@ -140,7 +140,7 @@ def generate_survey(config_path):
         # TODO: We might consider extracting the sheet names from the Excel file or config file instead of hardcoding them.
         # Generate the labels for the specified sheets
         sheet_names = ["Widgets", "Labels"]
-        generate_labels(
+        LabelsGenerator.generate_labels(
             excel_file_path, labels_output_folder_path, labels_sheet_names=sheet_names
         )
 

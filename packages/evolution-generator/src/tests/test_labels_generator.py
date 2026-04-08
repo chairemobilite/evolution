@@ -2,13 +2,7 @@
 # This file is licensed under the MIT License.
 # License text available at https://opensource.org/licenses/MIT
 
-from scripts.generate_labels import (
-    expand_gender,
-    LabelFormatter,
-    get_labels_file_path,
-    add_gender_or_base_translations,
-)
-import importlib
+from scripts.labels_generator import LabelsGenerator, LabelFormatter
 
 
 def test_label_formatter_bold():
@@ -103,7 +97,7 @@ def test_get_labels_file_path_widgets():
     """
     Test get_labels_file_path returns path ending with {section}.yaml.
     """
-    path = get_labels_file_path(
+    path = LabelsGenerator.get_labels_file_path(
         labels_output_folder_path="../../example/demo_generator",
         language="fr",
         section="section1",
@@ -139,7 +133,8 @@ class TestAddGenderOrBaseTranslations:
             calls.append((language, section, path, value, rowNumber, translations))
 
         monkeypatch.setattr(
-            "scripts.generate_labels.add_translation", mock_add_translation
+            "scripts.labels_generator.LabelsGenerator.add_translation",
+            mock_add_translation,
         )
 
         # Setup test data
@@ -157,7 +152,7 @@ class TestAddGenderOrBaseTranslations:
         translations_dict = {"fr": {}, "en": {}}
 
         # Call the function
-        add_gender_or_base_translations(
+        LabelsGenerator.add_gender_or_base_translations(
             language,
             section,
             path,
@@ -209,7 +204,8 @@ class TestAddGenderOrBaseTranslations:
             calls.append((language, section, path, value, rowNumber, translations))
 
         monkeypatch.setattr(
-            "scripts.generate_labels.add_translation", mock_add_translation
+            "scripts.labels_generator.LabelsGenerator.add_translation",
+            mock_add_translation,
         )
 
         # Setup test data
@@ -223,9 +219,7 @@ class TestAddGenderOrBaseTranslations:
         translations_dict = {"fr": {}, "en": {}}
 
         # Call the function
-        from scripts.generate_labels import add_gender_or_base_translations
-
-        add_gender_or_base_translations(
+        LabelsGenerator.add_gender_or_base_translations(
             language,
             section,
             path,
@@ -254,7 +248,8 @@ class TestAddGenderOrBaseTranslations:
             calls.append((language, section, path, value, rowNumber, translations))
 
         monkeypatch.setattr(
-            "scripts.generate_labels.add_translation", mock_add_translation
+            "scripts.labels_generator.LabelsGenerator.add_translation",
+            mock_add_translation,
         )
 
         # Setup test data
@@ -272,9 +267,7 @@ class TestAddGenderOrBaseTranslations:
         translations_dict = {"fr": {}, "en": {}}
 
         # Call the function
-        from scripts.generate_labels import add_gender_or_base_translations
-
-        add_gender_or_base_translations(
+        LabelsGenerator.add_gender_or_base_translations(
             language,
             section,
             path,
@@ -334,7 +327,8 @@ class TestAddGenderOrBaseTranslations:
             calls.append((language, section, path, value, rowNumber, translations))
 
         monkeypatch.setattr(
-            "scripts.generate_labels.add_translation", mock_add_translation
+            "scripts.labels_generator.LabelsGenerator.add_translation",
+            mock_add_translation,
         )
 
         # Setup test data
@@ -352,9 +346,7 @@ class TestAddGenderOrBaseTranslations:
         translations_dict = {"fr": {}, "en": {}}
 
         # Call the function
-        from scripts.generate_labels import add_gender_or_base_translations
-
-        add_gender_or_base_translations(
+        LabelsGenerator.add_gender_or_base_translations(
             language,
             section,
             path,
@@ -390,7 +382,8 @@ class TestAddGenderOrBaseTranslations:
             calls.append((language, section, path, value, rowNumber, translations))
 
         monkeypatch.setattr(
-            "scripts.generate_labels.add_translation", mock_add_translation
+            "scripts.labels_generator.LabelsGenerator.add_translation",
+            mock_add_translation,
         )
 
         # Setup test data
@@ -408,9 +401,7 @@ class TestAddGenderOrBaseTranslations:
         translations_dict = {"fr": {}, "en": {}}
 
         # Call the function
-        from scripts.generate_labels import add_gender_or_base_translations
-
-        add_gender_or_base_translations(
+        LabelsGenerator.add_gender_or_base_translations(
             language,
             section,
             path,
@@ -462,7 +453,8 @@ class TestAddGenderOrBaseTranslations:
             calls.append((language, section, path, value, rowNumber, translations))
 
         monkeypatch.setattr(
-            "scripts.generate_labels.add_translation", mock_add_translation
+            "scripts.labels_generator.LabelsGenerator.add_translation",
+            mock_add_translation,
         )
 
         # Setup test data
@@ -486,9 +478,7 @@ class TestAddGenderOrBaseTranslations:
         }
 
         # Call the function
-        from scripts.generate_labels import add_gender_or_base_translations
-
-        add_gender_or_base_translations(
+        LabelsGenerator.add_gender_or_base_translations(
             language,
             section,
             path,
@@ -548,7 +538,8 @@ class TestAddGenderOrBaseTranslations:
             calls.append((language, section, path, value, rowNumber, translations))
 
         monkeypatch.setattr(
-            "scripts.generate_labels.add_translation", mock_add_translation
+            "scripts.labels_generator.LabelsGenerator.add_translation",
+            mock_add_translation,
         )
 
         # Setup test data
@@ -576,9 +567,7 @@ class TestAddGenderOrBaseTranslations:
         }
 
         # Call the function
-        from scripts.generate_labels import add_gender_or_base_translations
-
-        add_gender_or_base_translations(
+        LabelsGenerator.add_gender_or_base_translations(
             language,
             section,
             path,
@@ -634,7 +623,7 @@ class TestExpandGender:
         Should replace {{gender:t/te}} with 't' for male, custom and other and 'te' for female.
         """
         label = "Étudian{{gender:t/te}}"
-        result = expand_gender(label)
+        result = LabelsGenerator.expand_gender(label)
         assert result["male"] == "Étudiant"
         assert result["female"] == "Étudiante"
         assert result["custom"] == "Étudiant"
@@ -646,7 +635,7 @@ class TestExpandGender:
         Should replace {{gender:e}} with '' for male, custom and other and 'e' for female.
         """
         label = "Ami{{gender:e}}"
-        result = expand_gender(label)
+        result = LabelsGenerator.expand_gender(label)
         assert result["male"] == "Ami"
         assert result["female"] == "Amie"
         assert result["custom"] == "Ami"
@@ -658,7 +647,7 @@ class TestExpandGender:
         Should replace {{gender:eur/rice}} with 'eur' for male, 'rice' for female, and 'eur' for custom and other.
         """
         label = "act{{gender:eur/rice}}"
-        result = expand_gender(label)
+        result = LabelsGenerator.expand_gender(label)
         assert result["male"] == "acteur"
         assert result["female"] == "actrice"
         assert result["custom"] == "acteur"
@@ -670,7 +659,7 @@ class TestExpandGender:
         Should replace {{gender:/e/·e}} with '' for male, 'e' for female, '·e' for other and custom.
         """
         label = "Étudiant{{gender:/e/·e}}"
-        result = expand_gender(label)
+        result = LabelsGenerator.expand_gender(label)
         assert result["male"] == "Étudiant"
         assert result["female"] == "Étudiante"
         assert result["custom"] == "Étudiant·e"
@@ -682,7 +671,7 @@ class TestExpandGender:
         Should replace {{gender:a/b//d}} with 'a' for male, 'b' for female, '' for custom and 'd' for other.
         """
         label = "mot{{gender:a/b//d}}"
-        result = expand_gender(label)
+        result = LabelsGenerator.expand_gender(label)
         assert result["male"] == "mota"
         assert result["female"] == "motb"
         assert result["custom"] == "mot"
@@ -694,7 +683,7 @@ class TestExpandGender:
         Should replace {{gender:il/elle/iel/"il/elle"}} with 'il' for male, 'elle' for female, 'iel' for custom and 'il/elle' for other.
         """
         label = '{{gender:il/elle/iel/"il/elle"}}'
-        result = expand_gender(label)
+        result = LabelsGenerator.expand_gender(label)
         assert result["male"] == "il"
         assert result["female"] == "elle"
         assert result["custom"] == "iel"
@@ -705,7 +694,7 @@ class TestExpandGender:
         Test expand_gender with a label containing four parts (male/female/custom/other), with various quotes in it.
         """
         label = 'Test{{gender:\'single\'//"dou/ble with slash and escaped \\""/quote"in}}end'
-        result = expand_gender(label)
+        result = LabelsGenerator.expand_gender(label)
         assert result["male"] == "Testsingleend"
         assert result["female"] == "Testend"
         assert result["custom"] == 'Testdou/ble with slash and escaped "end'
@@ -717,7 +706,7 @@ class TestExpandGender:
         Only the first four should be used: male, female, custom, other.
         """
         label = "mot{{gender:a/b/c/d/e}}"
-        result = expand_gender(label)
+        result = LabelsGenerator.expand_gender(label)
         assert result["male"] == "mota"
         assert result["female"] == "motb"
         assert result["custom"] == "motc"
@@ -735,7 +724,7 @@ class TestExpandGender:
         Should replace all occurrences accordingly.
         """
         label = "Étudiant{{gender:/e/·e}} ou act{{gender:eur/rice}}"
-        result = expand_gender(label)
+        result = LabelsGenerator.expand_gender(label)
         assert result["male"] == "Étudiant ou acteur"
         assert result["female"] == "Étudiante ou actrice"
         assert result["custom"] == "Étudiant·e ou acteur"
@@ -747,7 +736,7 @@ class TestExpandGender:
         Should return None.
         """
         label = "Bonjour"
-        result = expand_gender(label)
+        result = LabelsGenerator.expand_gender(label)
         assert result is None
 
     def test_expand_gender_with_space_after_gender(self):
@@ -756,7 +745,7 @@ class TestExpandGender:
         Should replace correctly for all forms.
         """
         label = "Étudian{{gender :t/te/t·e}}"
-        result = expand_gender(label)
+        result = LabelsGenerator.expand_gender(label)
         assert result["male"] == "Étudiant"
         assert result["female"] == "Étudiante"
         assert result["other"] == "Étudiant·e"
@@ -769,14 +758,12 @@ def test_merged_section_translations_merges_non_conflicting():
     """
     Test merged_section_translations merges non-conflicting keys.
     """
-    from scripts.generate_labels import merged_section_translations
-
     a = {"home.region": "What is your region?", "home.country": "What is your country?"}
     b = {
         "home.city": "What is your city?",
         "home.zip": "What is your postal code?",
     }
-    result = merged_section_translations(a.copy(), b)
+    result = LabelsGenerator.merged_section_translations(a.copy(), b)
     assert result == {
         "home.region": "What is your region?",
         "home.country": "What is your country?",
@@ -789,14 +776,12 @@ def test_merged_section_translations_warns_on_conflict(capsys):
     """
     Test merged_section_translations prints warning and keeps first value on conflict.
     """
-    from scripts.generate_labels import merged_section_translations
-
     a = {"home.region": "What is your region?", "home.country": "What is your country?"}
     b = {
         "home.region": "Quelle est votre région?",
         "home.city": "Quelle est votre ville?",
     }
-    result = merged_section_translations(a.copy(), b)
+    result = LabelsGenerator.merged_section_translations(a.copy(), b)
     assert result["home.region"] == "What is your region?"  # Should keep original value
     assert result["home.city"] == "Quelle est votre ville?"
     assert result["home.country"] == "What is your country?"
@@ -809,8 +794,6 @@ def test_merged_section_translations_merges_nested_dicts(capsys):
     """
     Test merged_section_translations merges nested dicts and warns on nested conflict.
     """
-    from scripts.generate_labels import merged_section_translations
-
     a = {"home": {"region": "What is your region?", "country": "What is your country?"}}
     b = {
         "home": {
@@ -819,7 +802,7 @@ def test_merged_section_translations_merges_nested_dicts(capsys):
             "zip": "Quel est votre code postal? M5V 2T6",
         }
     }
-    result = merged_section_translations(a.copy(), b)
+    result = LabelsGenerator.merged_section_translations(a.copy(), b)
     assert (
         result["home"]["region"] == "What is your region?"
     )  # Should keep original value
