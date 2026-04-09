@@ -5,7 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import { TFunction } from 'i18next';
+import { type TFunction } from 'i18next';
 import { type I18nData } from 'evolution-common/lib/services/questionnaire/types/Data';
 import * as odSurveyHelpers from 'evolution-common/lib/services/odSurvey/helpers';
 
@@ -13,6 +13,11 @@ import * as odSurveyHelpers from 'evolution-common/lib/services/odSurvey/helpers
 export const personSchoolTypeCustomLabels: I18nData = (t: TFunction, interview, path) => {
     const activePerson = odSurveyHelpers.getPerson({ interview, path });
     const activePersonAge = activePerson?.age;
+
+    // Log a warning if the active person age is invalid.
+    if (activePersonAge === undefined || activePersonAge === null || typeof activePersonAge !== 'number' || !Number.isFinite(activePersonAge)) {
+        console.log('The active person age is invalid, it is undefined, null, not a number, or not finite');
+    }
 
     if (activePersonAge < 5) {
         // For children under 5, we use the young child type.
