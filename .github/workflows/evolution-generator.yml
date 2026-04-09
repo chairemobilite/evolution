@@ -32,7 +32,7 @@ jobs:
     - name: Run Python unit tests
       working-directory: packages/evolution-generator
       run: |
-        poetry run pytest -v --disable-warnings --tb=short
+        yarn test:python
     - name: Generate survey
       run: yarn generateSurvey:generator
     - name: Install
