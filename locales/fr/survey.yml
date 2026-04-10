@@ -168,3 +168,9 @@ geography:
         <strong>Le nom du lieu utilisé pour effectuer la recherche
         {{geocodingTextInput}} n'est pas assez précis.</strong> Ajoutez de
         l'information ou précisez l'emplacement à l'aide de la carte.
+placeWithSequenceGeneric: 'lieu #{{sequence}}'
+atThisPlace: à cet endroit
+atThisPlace_home: au domicile
+atThisPlace_schoolUsual: au lieu d'études/école
+atThisPlace_workUsual: au travail
+atPlace: à {{placeName}}

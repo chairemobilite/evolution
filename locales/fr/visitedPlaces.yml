@@ -113,3 +113,23 @@ personVisitedPlacesTitle_male_one: >-
 personVisitedPlacesTitle_female_one: >-
     Lieux où vous êtes allée le {{journeyDate}}:<br />L'ordre chronologique doit
     être respecté.
+nextPlaceCategory: >-
+    Après avoir été {{atPlace}}, {{nickname}} est…
+nextPlaceCategory_one: >-
+    Après avoir été {{atPlace}}, vous êtes…
+nextPlaceRadioChoices.stayedHomeUntilTheNextDay: Resté(e) au domicile jusqu'au lendemain
+nextPlaceRadioChoices.stayedHomeUntilTheNextDay_male: Resté au domicile jusqu'au lendemain
+nextPlaceRadioChoices.stayedHomeUntilTheNextDay_female: Restée au domicile jusqu'au
+    lendemain
+nextPlaceRadioChoices.stayedThereUntilTheNextDay: Resté(e) à cet endroit jusqu'au
+    lendemain
+nextPlaceRadioChoices.stayedThereUntilTheNextDay_male: Resté à cet endroit jusqu'au
+    lendemain
+nextPlaceRadioChoices.stayedThereUntilTheNextDay_female: Restée à cet endroit jusqu'au
+    lendemain
+nextPlaceRadioChoices.visitedAnotherPlace: Allé(e) ou arrêté(e) à un autre endroit
+nextPlaceRadioChoices.visitedAnotherPlace_male: Allé ou arrêté à un autre endroit
+nextPlaceRadioChoices.visitedAnotherPlace_female: Allée ou arrêtée à un autre endroit
+nextPlaceRadioChoices.wentBackHome: Retourné(e) au domicile directement ({{address}})
+nextPlaceRadioChoices.wentBackHome_male: Retourné au domicile directement ({{address}})
+nextPlaceRadioChoices.wentBackHome_female: Retournée au domicile directement ({{address}})
