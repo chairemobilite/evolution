@@ -171,6 +171,18 @@ type SectionStatus = {
 };
 
 /**
+ * Type that objects with complete address fields in the response can use for
+ * those fields.
+ */
+export type PlaceAddress = {
+    address?: string;
+    city?: string;
+    region?: string;
+    country?: string;
+    postalCode?: string;
+};
+
+/**
  * Type the common response fields for any survey
  *
  * TODO Update to use new types in surveyObjects
@@ -214,9 +226,7 @@ export type InterviewResponse = {
 
     // Actual response
     household?: Household;
-    home?: {
-        region?: string;
-        country?: string;
+    home?: PlaceAddress & {
         geography?: GeoJSON.Feature<GeoJSON.Point, SurveyPointProperties>;
     };
     // TODO Refactor the types to use the new types in surveyObjects

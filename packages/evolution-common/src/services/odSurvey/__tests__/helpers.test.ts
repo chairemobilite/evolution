@@ -809,6 +809,101 @@ describe('getPersonIdentificationString', () => {
     });
 });
 
+describe('getHomeAddressOneLine', () => {
+    each([
+        {
+            title: 'returns one-line address with default options',
+            home: {
+                address: '123 main st',
+                city: 'montreal',
+                region: 'Quebec',
+                country: 'Canada',
+                postalCode: 'h2x 1y4'
+            },
+            options: undefined,
+            expected: '123 main st, Montreal'
+        },
+        {
+            title: 'includes region, country and uppercased postal code',
+            home: {
+                address: '123 main st',
+                city: 'montreal',
+                region: 'Quebec',
+                country: 'Canada',
+                postalCode: 'h2x 1y4'
+            },
+            options: {
+                includeRegion: true,
+                includeCountry: true,
+                includePostalCode: true
+            },
+            expected: '123 main st, Montreal, Quebec, Canada, H2X 1Y4'
+        },
+        {
+            title: 'includes only postal code',
+            home: {
+                address: '123 main st',
+                city: 'montreal',
+                region: 'Quebec',
+                country: 'Canada',
+                postalCode: 'h2x 1y4'
+            },
+            options: {
+                includePostalCode: true
+            },
+            expected: '123 main st, Montreal, H2X 1Y4'
+        },
+        {
+            title: 'escapes HTML and trims fields for all',
+            home: {
+                address: '   123 <strong>main</strong> st    ',
+                city: '   <b>montreal</b>    ',
+                region: '   <span>Quebec</span>   ',
+                country: '  <script injectedScript/>Canada   ',
+                postalCode: '   <strong>h2x 1y4</strong>  '
+            },
+            options: {
+                includeRegion: true,
+                includeCountry: true,
+                includePostalCode: true
+            },
+            expected: '123 &lt;strong&gt;main&lt;/strong&gt; st, &lt;b&gt;montreal&lt;/b&gt;, &lt;span&gt;Quebec&lt;/span&gt;, &lt;script injectedScript/&gt;Canada, &lt;STRONG&gt;H2X 1Y4&lt;/STRONG&gt;'
+        },
+        {
+            title: 'returns empty string when home object is missing',
+            home: undefined,
+            options: undefined,
+            expected: ''
+        },
+        {
+            title: 'returns empty string when required fields are empty',
+            home: { address: '', city: '' },
+            options: undefined,
+            expected: ''
+        },
+        {
+            title: 'returns only the address part when city is missing',
+            home: { address: '123 main st' },
+            options: undefined,
+            expected: '123 main st'
+        },
+        {
+            title: 'returns only the city part when civic number/street is missing',
+            home: { city: 'montreal' },
+            options: undefined,
+            expected: 'Montreal'
+        }
+    ]).test('getHomeAddressOneLine: $title', ({ title, home, options = {}, expected }) => {
+        const interview = _cloneDeep(interviewAttributesWithHh);
+        if (home === undefined) {
+            delete (interview.response as any).home;
+        } else {
+            (interview.response as any).home = home;
+        }
+        expect(Helpers.getHomeAddressOneLine({ interview, ...options})).toEqual(expected);
+    });
+});
+
 each([
     ['Explicit yes, no age needed', { _uuid: 'personId1', _sequence: 1, drivingLicenseOwnership: 'yes' }, 18, true],
     ['Explicit no, adult age', { _uuid: 'personId1', _sequence: 1, age: 35, drivingLicenseOwnership: 'no' }, 18, false],
