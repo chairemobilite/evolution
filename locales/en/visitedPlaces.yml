@@ -111,3 +111,6 @@ nextPlaceRadioChoices.stayedThereUntilTheNextDay: Stayed at this place until the
     day
 nextPlaceRadioChoices.visitedAnotherPlace: Went or stopped elsewhere
 nextPlaceRadioChoices.wentBackHome: Returned home directly ({{address}})
+personVisitedPlacesGroupTitle: Visited places
+VisitedPlaceSequence: 'Location #{{count}}'
+VisitedPlaceSequence_one: Departure place for this day
