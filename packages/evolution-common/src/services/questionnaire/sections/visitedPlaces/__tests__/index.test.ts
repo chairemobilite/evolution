@@ -12,7 +12,9 @@ import { WidgetConfig, VisitedPlacesSectionConfiguration, QuestionWidgetConfig, 
 
 const visitedPlacesSectionConfig: VisitedPlacesSectionConfiguration = {
     type: 'visitedPlaces' as const,
-    enabled: true
+    enabled: true,
+    tripDiaryMinTimeOfDay: 4 * 60 * 60, // 4h in seconds
+    tripDiaryMaxTimeOfDay: 28 * 60 * 60 // 28h in seconds (i.e. 4h the next day)
 };
 
 describe('ActivityWidgetFactory', () => {
@@ -49,7 +51,7 @@ describe('ActivityWidgetFactory', () => {
 
         test('should throw when section is disabled and no activities available', () => {
             const disabledConfig: VisitedPlacesSectionConfiguration = {
-                type: 'visitedPlaces',
+                ...visitedPlacesSectionConfig,
                 enabled: false
             };
             const factory = new ActivityWidgetFactory(disabledConfig, widgetFactoryOptions);
@@ -59,8 +61,7 @@ describe('ActivityWidgetFactory', () => {
 
         test('should respect activities filter in returned configs', () => {
             const filteredConfig: VisitedPlacesSectionConfiguration = {
-                type: 'visitedPlaces',
-                enabled: true,
+                ...visitedPlacesSectionConfig,
                 activitiesIncludeOnly: ['home', 'workUsual', 'shopping']
             };
             const factory = new ActivityWidgetFactory(filteredConfig, widgetFactoryOptions);
@@ -78,8 +79,7 @@ describe('ActivityWidgetFactory', () => {
 
         test('should respect activities exclude in returned configs', () => {
             const excludeConfig: VisitedPlacesSectionConfiguration = {
-                type: 'visitedPlaces',
-                enabled: true,
+                ...visitedPlacesSectionConfig,
                 activityExclude: ['dontKnow', 'preferNotToAnswer']
             };
             const factory = new ActivityWidgetFactory(excludeConfig, widgetFactoryOptions);
@@ -99,13 +99,11 @@ describe('ActivityWidgetFactory', () => {
     describe('multiple instances', () => {
         test('should create independent instances with different configs', () => {
             const config1: VisitedPlacesSectionConfiguration = {
-                type: 'visitedPlaces',
-                enabled: true,
+                ...visitedPlacesSectionConfig,
                 activitiesIncludeOnly: ['home', 'shopping']
             };
             const config2: VisitedPlacesSectionConfiguration = {
-                type: 'visitedPlaces',
-                enabled: true,
+                ...visitedPlacesSectionConfig,
                 activitiesIncludeOnly: ['workUsual', 'schoolUsual']
             };
 

@@ -87,7 +87,9 @@ export const segmentSectionConfig: SegmentSectionConfiguration = {
 // FIXME As sections and their widgets become more builtin, this thould be moved elsewhere. For now, it just needs to be available for both widgets.ts and sections.ts files
 export const visitedPlacesSectionConfig: VisitedPlacesSectionConfiguration = {
     type: 'visitedPlaces' as const,
-    enabled: true
+    enabled: true,
+    tripDiaryMaxTimeOfDay: 28 * 60 * 60, // 28h in seconds (i.e. 4h the next day)
+    tripDiaryMinTimeOfDay: 4 * 60 * 60 // 4h in seconds
 };
 
 // FIXME Move elsewhere. It is not here to be available for widgets.ts, sections.ts and questionnaire.ts files
