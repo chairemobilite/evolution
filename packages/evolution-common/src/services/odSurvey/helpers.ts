@@ -758,10 +758,10 @@ export const getVisitedPlaceName = function ({
             ? getResponse(interview, visitedPlace.shortcut, null)
             : visitedPlace;
     if (actualVisitedPlace && (actualVisitedPlace as VisitedPlace).name) {
-        return (actualVisitedPlace as VisitedPlace).name as string;
+        return _escape((actualVisitedPlace as VisitedPlace).name as string);
     }
 
-    return `${t('survey:placeGeneric')} ${visitedPlace._sequence}`;
+    return t('survey:placeWithSequenceGeneric', { sequence: visitedPlace._sequence });
 };
 
 /**
