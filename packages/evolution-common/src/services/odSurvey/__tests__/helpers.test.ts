@@ -2577,45 +2577,66 @@ describe('getOrigin/getDestination', () => {
 describe('getVisitedPlaceNames', () => {
     const mockedT = jest.fn().mockReturnValue('mocked') as unknown as jest.MockedFunction<TFunction>;
 
+    // Add a name with html tags to one of the places
+    const testInterviewCopy = _cloneDeep(interviewAttributesForTestCases);
+    testInterviewCopy.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.workPlace1P1.name =
+        'mocked <b>place</b>';
+
     each([
-        [
-            'Home place',
-            interviewAttributesForTestCases.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!
+        {
+            title: 'Home place',
+            interview: interviewAttributesForTestCases,
+            visitedPlace: interviewAttributesForTestCases.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!
                 .homePlace1P1,
-            'survey:visitedPlace:activityCategories:home',
-            'mocked'
-        ],
-        [
-            'Place with a name',
-            interviewAttributesForTestCases.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!
+            expectedTVal: 'survey:visitedPlace:activityCategories:home',
+            expected: 'mocked'
+        },
+        {
+            title: 'Place with a name',
+            interview: interviewAttributesForTestCases,
+            visitedPlace: interviewAttributesForTestCases.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!
                 .workPlace1P1,
-            undefined,
-            interviewAttributesForTestCases.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!
+            expectedTVal: undefined,
+            expected: interviewAttributesForTestCases.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!
                 .workPlace1P1.name
-        ],
-        [
-            'Place with a shortcut',
-            interviewAttributesForTestCases.response.household!.persons!.personId2.journeys!.journeyId2.visitedPlaces!
+        },
+        {
+            title: 'Place with a name to escape',
+            interview: testInterviewCopy,
+            visitedPlace: testInterviewCopy.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!
+                .workPlace1P1,
+            expectedTVal: undefined,
+            expected: 'mocked &lt;b&gt;place&lt;/b&gt;'
+        },
+        {
+            title: 'Place with a shortcut',
+            interview: interviewAttributesForTestCases,
+            visitedPlace: interviewAttributesForTestCases.response.household!.persons!.personId2.journeys!.journeyId2.visitedPlaces!
                 .shoppingPlace1P2,
-            undefined,
-            interviewAttributesForTestCases.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!
+            expectedTVal: undefined,
+            expected: interviewAttributesForTestCases.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!
                 .otherPlace2P1.name
-        ],
-        [
-            'Place with neither name or shortcut',
-            interviewAttributesForTestCases.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!
+        },
+        {
+            title: 'Place with neither name or shortcut',
+            interview: interviewAttributesForTestCases,
+            visitedPlace: interviewAttributesForTestCases.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!
                 .otherPlaceP1,
-            'survey:placeGeneric',
-            'mocked 4'
-        ]
-    ]).test('%s', (_title, visitedPlace, mockedTVal, expected) => {
+            expectedTVal: ['survey:placeWithSequenceGeneric', { sequence: 4 }],
+            expected: 'mocked'
+        }
+    ]).test('$title', ({ title, interview, visitedPlace, expectedTVal, expected }) => {
         const name = Helpers.getVisitedPlaceName({
             t: mockedT,
             visitedPlace,
-            interview: interviewAttributesForTestCases
+            interview
         });
-        if (mockedTVal) {
-            expect(mockedT).toHaveBeenCalledWith(mockedTVal);
+        if (expectedTVal) {
+            if (Array.isArray(expectedTVal)) {
+                expect(mockedT).toHaveBeenCalledWith(...expectedTVal);
+            } else {
+                expect(mockedT).toHaveBeenCalledWith(expectedTVal);
+            }
         } else {
             expect(mockedT).not.toHaveBeenCalled();
         }
