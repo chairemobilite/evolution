@@ -54,10 +54,17 @@ export type WidgetFactoryOptions = {
     /**
      * Formats a date string to a display string, in the appropriate format. The
      * frontend will provide this function.
-     * @param date The date string to format
-     * @returns The formatted date string
+     * @param date The date string, formatted YYYY-MM-DD
+     * @param options The options
+     * @param {boolean} [options.withRelative] Whether to add a relative date (eg. yesterday, day before yesterday)
+     * @param {string} [options.locale] The locale to use or undefined to use the default locale
+     * @param {boolean} [options.withDayOfWeek] Whether to add the day of the week
+     * @returns
      */
-    getFormattedDate: (date: string) => string;
+    getFormattedDate: (
+        date: string,
+        options?: { withRelative?: boolean; locale?: string; withDayOfWeek?: boolean }
+    ) => string;
     /**
      * Actions for buttons that may be used in widgets. These often contain
      * frontend code, so they can be mapped to each button action when creating
