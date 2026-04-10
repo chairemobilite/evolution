@@ -133,3 +133,6 @@ nextPlaceRadioChoices.visitedAnotherPlace_female: Allée ou arrêtée à un autr
 nextPlaceRadioChoices.wentBackHome: Retourné(e) au domicile directement ({{address}})
 nextPlaceRadioChoices.wentBackHome_male: Retourné au domicile directement ({{address}})
 nextPlaceRadioChoices.wentBackHome_female: Retournée au domicile directement ({{address}})
+personVisitedPlacesGroupTitle: Lieux visités
+VisitedPlaceSequence: 'Lieu #{{count}}'
+VisitedPlaceSequence_one: Lieu de départ de la journée
