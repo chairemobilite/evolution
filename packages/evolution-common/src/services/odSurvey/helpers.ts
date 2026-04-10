@@ -13,6 +13,7 @@ import {
     Household,
     Journey,
     Person,
+    PlaceAddress,
     Segment,
     StartAddGroupedObjects,
     StartRemoveGroupedObjects,
@@ -304,6 +305,84 @@ export const getPersonIdentificationString = ({ person, t }: { person: Person; t
             age: person.age,
             context: getPersonGenderContext({ person })
         });
+};
+
+/**
+ * Return an html-safe address as a one line string, including all the requested
+ * parts
+ *
+ * @param obj The object from which to extract address parts
+ * @param options Options for which parts of the address to include
+ * @param {boolean} [options.includeRegion=false] Whether to include the region
+ * in the address string
+ * @param {boolean} [options.includeCountry=false] Whether to include the
+ * country in the address string
+ * @param {boolean} [options.includePostalCode=false] Whether to include the
+ * postal code in the address string
+ * @returns The address as a one line string, or an empty string if none of the
+ * requested fields is available
+ */
+const getAddressOneLine = (
+    obj: PlaceAddress,
+    {
+        includeRegion = false,
+        includeCountry = false,
+        includePostalCode = false
+    }: { includeRegion?: boolean; includeCountry?: boolean; includePostalCode?: boolean } = {}
+): string => {
+    if (!obj) {
+        return '';
+    }
+    const addressParts: string[] = [];
+    if (typeof obj.address === 'string' && !_isBlank(obj.address.trim())) {
+        addressParts.push(obj.address.trim());
+    }
+    if (typeof obj.city === 'string' && !_isBlank(obj.city.trim())) {
+        const cityString = obj.city.trim();
+        addressParts.push(cityString[0].toUpperCase() + cityString.substring(1));
+    }
+    if (includeRegion && typeof obj.region === 'string' && !_isBlank(obj.region.trim())) {
+        addressParts.push(obj.region.trim());
+    }
+    if (includeCountry && typeof obj.country === 'string' && !_isBlank(obj.country.trim())) {
+        addressParts.push(obj.country.trim());
+    }
+    if (includePostalCode && typeof obj.postalCode === 'string' && !_isBlank(obj.postalCode.trim())) {
+        addressParts.push(obj.postalCode.trim().toUpperCase());
+    }
+    return _escape(addressParts.join(', '));
+};
+
+/**
+ * Return the home address as a one line html-safe string, including all the
+ * requested parts
+ *
+ * @param options Options for which parts of the address to include
+ * @param {UserInterviewAttributes} options.interview The interview object
+ * @param {boolean} [options.includeRegion=false] Whether to include the region
+ * in the address string
+ * @param {boolean} [options.includeCountry=false] Whether to include the
+ * country in the address string
+ * @param {boolean} [options.includePostalCode=false] Whether to include the
+ * postal code in the address string
+ * @returns The home address as a one line string, or an empty string if the
+ * home address is not available
+ */
+export const getHomeAddressOneLine = ({
+    interview,
+    includeRegion = false,
+    includeCountry = false,
+    includePostalCode = false
+}: {
+    interview: UserInterviewAttributes;
+    includeRegion?: boolean;
+    includeCountry?: boolean;
+    includePostalCode?: boolean;
+}): string => {
+    const homeObj = getResponse(interview, 'home', undefined);
+    return homeObj !== undefined
+        ? getAddressOneLine(homeObj as PlaceAddress, { includeRegion, includeCountry, includePostalCode })
+        : '';
 };
 
 /* Various functions related to a person's occupation */
