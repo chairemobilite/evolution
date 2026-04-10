@@ -157,3 +157,9 @@ geography:
         <strong>The location name used for searching {{geocodingTextInput}} is
         not specific enough.</strong> Please add more information or specify the
         location more precisely using the map.
+placeWithSequenceGeneric: 'place #{{sequence}}'
+atThisPlace: at this place
+atThisPlace_home: home
+atThisPlace_schoolUsual: at school
+atThisPlace_workUsual: at work
+atPlace: at {{placeName}}

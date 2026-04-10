@@ -102,3 +102,12 @@ personVisitedPlacesTitle: >-
 personVisitedPlacesTitle_one: >-
     Places you went on {{journeyDate}}:<br />Chronological order must be respected
     (i.e. sequence matters).
+nextPlaceCategory: >-
+    After being {{atPlace}}, {{nickname}}…
+nextPlaceCategory_one: >-
+    After being {{atPlace}}, you…
+nextPlaceRadioChoices.stayedHomeUntilTheNextDay: Stayed home until the next day
+nextPlaceRadioChoices.stayedThereUntilTheNextDay: Stayed at this place until the next
+    day
+nextPlaceRadioChoices.visitedAnotherPlace: Went or stopped elsewhere
+nextPlaceRadioChoices.wentBackHome: Returned home directly ({{address}})

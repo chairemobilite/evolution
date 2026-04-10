@@ -53,6 +53,8 @@ export const interviewAttributesForTestCases: UserRuntimeInterviewAttributes = {
     ...baseInterviewAttributes,
     response: {
         home: {
+            address: '1234 Main St',
+            city: 'montreal',
             geography: {
                 type: 'Feature',
                 geometry: { type: 'Point', coordinates: homeGeographyCoordinates },
