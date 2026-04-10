@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **CSS refresh in dev mode**: Changes to `.scss` files are automatically picked up by `yarn build:dev` and apply after a page reload (fixes [#1403](https://github.com/chairemobilite/evolution/issues/1403)). Survey projects that want the same: see [#1407](https://github.com/chairemobilite/evolution/pull/1407) for the webpack modifications.
 - Added `maxAccessEgressTravelTimeMinutes` and `walkingSpeedKmPerHour` to accessibility map calculation parameters (#1379)
 - Added utility functions for webpack generation in evolution-frontend: `createParticipantWebpackConfig` and `createAdminWebpackConfig`. The example projects implement this approach. Projects should consider using those for simlicity. (#1405)
+- **Generator custom labels support**: Widget generation can now import and use custom labels, allowing label overrides without a full custom widget. In the `Widgets` Excel sheet, set this in the `parameters` column: `customLabels={{yourCustomLabelsKey}}` (fixes #1035)
 
 ### Changed
 - BREAKING: if using the webpack generation functions and the project has a `locales` folder, make sure an empty module file is present in the folder for build time import. An empty file named `index.js` at the root of the project's `locales` folder is enough. Webpack will replace it with the actual translations in the build. (#1426)
