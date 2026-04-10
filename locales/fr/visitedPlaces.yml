@@ -95,3 +95,21 @@ locationIsNotPreciseError: >-
 ConfirmDeleteVisitedPlace: Confirmez-vous que vous voulez retirer ce lieu?
 dayScheduleFor: Horaire de la journée de <strong>{{nickname}}</strong>
 dayScheduleFor_one: Votre horaire de la journée
+personVisitedPlacesTitle: >-
+    Lieux où {{nickname}} est allé(e) le {{journeyDate}}:<br />L'ordre
+    chronologique doit être respecté.
+personVisitedPlacesTitle_male: >-
+    Lieux où {{nickname}} est allé le {{journeyDate}}:<br />L'ordre chronologique
+    doit être respecté.
+personVisitedPlacesTitle_female: >-
+    Lieux où {{nickname}} est allée le {{journeyDate}}:<br />L'ordre chronologique
+    doit être respecté.
+personVisitedPlacesTitle_one: >-
+    Lieux où vous êtes allé(e) le {{journeyDate}}:<br />L'ordre chronologique doit
+    être respecté.
+personVisitedPlacesTitle_male_one: >-
+    Lieux où vous êtes allé le {{journeyDate}}:<br />L'ordre chronologique doit être
+    respecté.
+personVisitedPlacesTitle_female_one: >-
+    Lieux où vous êtes allée le {{journeyDate}}:<br />L'ordre chronologique doit
+    être respecté.

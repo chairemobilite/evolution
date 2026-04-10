@@ -71,6 +71,7 @@ export const interviewAttributesForTestCases: UserRuntimeInterviewAttributes = {
                         journeyId1: {
                             _uuid: 'journeyId1',
                             _sequence: 1,
+                            startDate: '2026-04-08',
                             visitedPlaces: {
                                 homePlace1P1: {
                                     _uuid: 'homePlace1P1',
