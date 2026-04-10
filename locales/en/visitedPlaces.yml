@@ -96,3 +96,9 @@ locationIsNotPreciseError: >-
 ConfirmDeleteVisitedPlace: Do you confirm that you want to remove this location?
 dayScheduleFor: Day schedule for <strong>{{nickname}}</strong>
 dayScheduleFor_one: Your day schedule
+personVisitedPlacesTitle: >-
+    Places {{nickname}} went on {{journeyDate}}:<br />Chronological order must
+    be respected (i.e. sequence matters).
+personVisitedPlacesTitle_one: >-
+    Places you went on {{journeyDate}}:<br />Chronological order must be respected
+    (i.e. sequence matters).
