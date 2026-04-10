@@ -563,6 +563,26 @@ export type VisitedPlacesSectionConfiguration = {
      * TODO When we support daily or multi-day diaries, this configuration should go only for daily ones. (https://github.com/chairemobilite/evolution/issues/1458)
      */
     tripDiaryMaxTimeOfDay: number;
+    /**
+     * Names of additional widgets to include in the visited places group of the
+     * section besides the default ones (activity, activityCategory, etc). The
+     * widgets need to be defined by these names in the survey's widget
+     * configuration. They will be added after the activity and geography
+     * widgets, before the nextPlaceCategory question. The array can contain the
+     * names of the default widgets to be able to configure the order of the
+     * widgets in the section.  If they are not included here, they will be
+     * added automatically either at the beginning or end of the list, depending
+     * on the widget.
+     *
+     * FIXME Allow to fine-tune the placements of the additional widgets, for
+     * example with a `beforeWidget` or `afterWidget` property in an object
+     * instead of strings, to avoid having to include the default widgets here
+     * just to place the additional widgets in the right order. This will be
+     * especially useful when we will have more default widgets in the section
+     * and more complex configurations of the section with some default widgets
+     * that can be removed and others that cannot, etc.
+     */
+    additionalVisitedPlacesWidgetNames?: string[];
 };
 
 // TODO Add more section configuration types as we support more
