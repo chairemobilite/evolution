@@ -551,6 +551,18 @@ export type VisitedPlacesSectionConfiguration = {
      * `activitiesIncludeOnly` and `activityExclude` can be set, not both.
      */
     activityExclude?: Activity[];
+    /**
+     * The minimum time of day for the trip diary, in seconds since midnight.
+     *
+     * TODO When we support daily or multi-day diaries, this configuration should go only for daily ones. (https://github.com/chairemobilite/evolution/issues/1458)
+     */
+    tripDiaryMinTimeOfDay: number;
+    /**
+     * The maximum time of day for the trip diary, in seconds since midnight.
+     *
+     * TODO When we support daily or multi-day diaries, this configuration should go only for daily ones. (https://github.com/chairemobilite/evolution/issues/1458)
+     */
+    tripDiaryMaxTimeOfDay: number;
 };
 
 // TODO Add more section configuration types as we support more

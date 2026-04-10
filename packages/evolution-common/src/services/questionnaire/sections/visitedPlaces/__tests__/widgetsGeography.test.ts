@@ -18,7 +18,9 @@ import { homeGeographyCoordinates, shoppingPlace1P2Coordinates } from '../../../
 
 const visitedPlacesSectionConfig = {
     type: 'visitedPlaces' as const,
-    enabled: true
+    enabled: true,
+    tripDiaryMinTimeOfDay: 4 * 60 * 60, // 4h in seconds
+    tripDiaryMaxTimeOfDay: 28 * 60 * 60 // 28h in seconds (i.e. 4h the next day)
 };
 
 const setActiveVisitedPlace = (

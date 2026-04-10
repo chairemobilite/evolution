@@ -12,23 +12,29 @@ import { setResponse } from '../../../../../utils/helpers';
 import * as helpers from '../helpers';
 import { VisitedPlacesSectionConfiguration } from '../../../types';
 
+const defaultVisitedPlaceConfig = {
+    type: 'visitedPlaces' as const,
+    enabled: true,
+    tripDiaryMinTimeOfDay: 4 * 60 * 60, // 4h in seconds
+    tripDiaryMaxTimeOfDay: 28 * 60 * 60 // 28h in seconds (i.e. 4h the next day)
+}
+
 describe('Visited places helpers - activity/activityCategory filtering', () => {
     test('getFilteredActivities should return no activities when section is disabled', () => {
-        const visitedPlacesConfig = { type: 'visitedPlaces' as const, enabled: false };
+        const visitedPlacesConfig = { ...defaultVisitedPlaceConfig, enabled: false };
         const filteredActivities = helpers.getFilteredActivities(visitedPlacesConfig);
         expect(filteredActivities).toEqual([]);
     });
 
     test('getFilteredActivities should return all activities when section is enabled without restrictions', () => {
-        const visitedPlacesConfig = { type: 'visitedPlaces' as const, enabled: true };
+        const visitedPlacesConfig = { ...defaultVisitedPlaceConfig };
         const filteredActivities = helpers.getFilteredActivities(visitedPlacesConfig);
         expect(filteredActivities).toEqual(activityValues);
     });
 
     test('getFilteredActivities should filter with activitiesIncludeOnly and keep entered order', () => {
         const visitedPlacesConfig: VisitedPlacesSectionConfiguration = {
-            type: 'visitedPlaces' as const,
-            enabled: true,
+            ...defaultVisitedPlaceConfig,
             activitiesIncludeOnly: ['shopping', 'workUsual', 'dontKnow']
         };
         const filteredActivities = helpers.getFilteredActivities(visitedPlacesConfig);
@@ -38,8 +44,7 @@ describe('Visited places helpers - activity/activityCategory filtering', () => {
 
     test('getFilteredActivities should filter with activityExclude', () => {
         const visitedPlacesConfig: VisitedPlacesSectionConfiguration = {
-            type: 'visitedPlaces' as const,
-            enabled: true,
+            ...defaultVisitedPlaceConfig,
             activityExclude: ['other', 'dontKnow', 'preferNotToAnswer']
         };
         const filteredActivities = helpers.getFilteredActivities(visitedPlacesConfig);
@@ -54,8 +59,7 @@ describe('Visited places helpers - activity/activityCategory filtering', () => {
 
     test('getFilteredActivities should filter with activitiesIncludeOnly and keep entered order and ignore excluded ones', () => {
         const visitedPlacesConfig: VisitedPlacesSectionConfiguration = {
-            type: 'visitedPlaces' as const,
-            enabled: true,
+            ...defaultVisitedPlaceConfig,
             activitiesIncludeOnly: ['shopping', 'workUsual', 'dontKnow'],
             activityExclude: ['dontKnow'] // This should be ignored since dontKnow is in the include list
         };
@@ -71,8 +75,7 @@ describe('Visited places helpers - activity/activityCategory filtering', () => {
 
     test('getFilteredActivities should ignore non-existent activities in activitiesIncludeOnly', () => {
         const visitedPlacesConfig: VisitedPlacesSectionConfiguration = {
-            type: 'visitedPlaces' as const,
-            enabled: true,
+            ...defaultVisitedPlaceConfig,
             activitiesIncludeOnly: ['shopping', 'nonExistentActivity' as any, 'workUsual'] as any
         };
         const filteredActivities = helpers.getFilteredActivities(visitedPlacesConfig);
