@@ -12,12 +12,13 @@ import { interviewAttributesForTestCases, maskFunctions, widgetFactoryOptions } 
 import * as utilHelpers from '../../../../../utils/helpers';
 import * as odHelpers from '../../../../odSurvey/helpers';
 import { SegmentSectionConfiguration, VisitedPlace, WidgetConfig } from '../../../types';
-import { Activity, Mode } from '../../../../odSurvey/types';
+import {  Mode } from '../../../../odSurvey/types';
 import { PersonTripsGroupConfigFactory } from '../groupPersonTrips';
 import { getPersonsTripsTitleWidgetConfig } from '../widgetPersonTripsTitle';
 import { getPersonVisitedPlacesMapConfig } from '../../common/widgetPersonVisitedPlacesMap';
 import { getButtonValidateAndGotoNextSection } from '../../common/buttonValidateAndGotoNextSection';
 import { SwitchPersonWidgetsFactory } from '../../common/widgetsSwitchPerson';
+import { tripDiarySectionVisibleConditional } from '../../tripDiary/tripDiaryHelpers';
 
 jest.mock('uuid', () => ({
     v4: jest.fn().mockReturnValue('newTripId')
@@ -53,7 +54,7 @@ describe('SegmentsSectionFactory#getSectionConfig', () => {
         expect(widgetConfig).toEqual({
             previousSection: 'visitedPlaces',
             nextSection: 'travelBehavior',
-            isSectionVisible: expect.any(Function),
+            isSectionVisible: tripDiarySectionVisibleConditional,
             isSectionCompleted: expect.any(Function),
             onSectionEntry: expect.any(Function),
             template: 'tripsAndSegmentsWithMap',
@@ -169,39 +170,6 @@ describe('sectionConfig functionalities', () => {
             expect(mockedT).toHaveBeenCalledWith(['customSurvey:segments:SegmentsTitle', 'segments:SegmentsTitle']);
         });
 
-    });
-
-    describe('getSegmentsSectionConfig isSectionVisible', () => {
-        const sectionFactory = new SegmentsSectionFactory(segmentSectionConfig, widgetFactoryOptions);
-        const widgetConfig = sectionFactory.getSectionConfig();
-        const iterationContext = ['testPerson1'];
-        
-        beforeEach(() => {
-            jest.clearAllMocks();
-        });
-
-        test('should return false if no iteration context', () => {
-            const result = widgetConfig.isSectionVisible!(interviewWithTestPerson, undefined);
-            
-            expect(result).toBe(false);
-        });
-
-        test('should return false if no active journey', () => {
-            const testInterview = _cloneDeep(interviewWithTestPerson);
-            testInterview.response._activeJourneyId = undefined;
-            
-            const result = widgetConfig.isSectionVisible!(testInterview, iterationContext);
-            
-            expect(result).toBe(false);
-        });
-
-        test('should return true if there is an active journey', () => {
-            const testInterview = _cloneDeep(interviewWithTestPerson);
-            
-            const result = widgetConfig.isSectionVisible!(testInterview, iterationContext);
-            
-            expect(result).toBe(true);
-        });
     });
 
     describe('getSegmentsSectionConfig isSectionCompleted', () => {
