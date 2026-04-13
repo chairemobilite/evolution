@@ -23,6 +23,7 @@ from scripts.generate_widgets import (
 
 # TODO: Test generate_widgets
 # TODO: Test generate_widget_statement
+# TODO: Test generate_built_in_widget when we are ready to support them
 # TODO: Test generate_widget_name
 # TODO: Test generate_widgets_names_statements
 
