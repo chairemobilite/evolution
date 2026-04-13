@@ -115,3 +115,4 @@ nextPlaceRadioChoices.wentBackHome: Returned home directly ({{address}})
 personVisitedPlacesGroupTitle: Visited places
 VisitedPlaceSequence: 'Location #{{count}}'
 VisitedPlaceSequence_one: Departure place for this day
+VisitedPlacesTitle: Visited Places
