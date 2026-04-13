@@ -15,6 +15,7 @@ import { SegmentAttributes } from '../../baseObjects/Segment';
 import { HouseholdAttributes } from '../../baseObjects/Household';
 import { NavigationSection } from './NavigationTypes';
 import type { Activity, ActivityCategory, Mode, ModePre } from '../../odSurvey/types';
+import { YesNoDontKnow } from '../../baseObjects/attributeTypes/GenericAttributes';
 
 export type ParsingFunction<T> = (interview: UserInterviewAttributes, path: string, user?: CliUser) => T;
 
@@ -113,12 +114,24 @@ export type Person = PersonAttributes & {
  * @typedef {Object} Journey
  * @property {number} _sequence The sequence number of the journey.
  * @property {string} [departurePlaceType] The type of the departure place.
- * @property {{ [tripId: string]: Trip }} [trips] The trips associated with this journey.
- * @property {{ [visitedPlaceId: string]: VisitedPlace }} [visitedPlaces] The visited places associated with this journey.
+ * @property {YesNoDontKnow} [personDidTrips] Answer to the question whether the
+ * person did any trips on the journey date. This question is typically asked in
+ * OD surveys, where a data is assigned to a household and members may or may
+ * not have done trips on that day.
+ * @property {YesNoDontKnow} [personDidTripsConfirm] Answer to the question to
+ * confirm if the person did any trips on the journey date. It is typically a
+ * failsafe question when people change their mind about their mobility after
+ * declaring trips. It also applies to the OD survey case.
+ * @property {{ [tripId: string]: Trip }} [trips] The trips associated with this
+ * journey.
+ * @property {{ [visitedPlaceId: string]: VisitedPlace }} [visitedPlaces] The
+ * visited places associated with this journey.
  */
 export type Journey = JourneyAttributes & {
     _sequence: number;
     departurePlaceType?: string;
+    personDidTrips?: YesNoDontKnow;
+    personDidTripsConfirm?: YesNoDontKnow;
     trips?: {
         [tripId: string]: Trip;
     };
