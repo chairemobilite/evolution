@@ -8,12 +8,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased (0.6.0)] - YYYY-MM-DD
 
 ### Added
+
 - **CSS refresh in dev mode**: Changes to `.scss` files are automatically picked up by `yarn build:dev` and apply after a page reload (fixes [#1403](https://github.com/chairemobilite/evolution/issues/1403)). Survey projects that want the same: see [#1407](https://github.com/chairemobilite/evolution/pull/1407) for the webpack modifications.
-- Added `maxAccessEgressTravelTimeMinutes` and `walkingSpeedKmPerHour` to accessibility map calculation parameters (#1379)
-- Added utility functions for webpack generation in evolution-frontend: `createParticipantWebpackConfig` and `createAdminWebpackConfig`. The example projects implement this approach. Projects should consider using those for simlicity. (#1405)
-- **Generator custom labels support**: Widget generation can now import and use custom labels, allowing label overrides without a full custom widget. In the `Widgets` Excel sheet, set this in the `parameters` column: `customLabels={{yourCustomLabelsKey}}` (fixes #1035)
+- Added `maxAccessEgressTravelTimeMinutes` and `walkingSpeedKmPerHour` to accessibility map calculation parameters ([#1379](https://github.com/chairemobilite/evolution/pull/1379))
+- Added utility functions for webpack generation in evolution-frontend: `createParticipantWebpackConfig` and `createAdminWebpackConfig`. The example projects implement this approach. Projects should consider using those for simlicity. ([#1405](https://github.com/chairemobilite/evolution/issues/1405))
+- **Generator custom labels support**: Widget generation can now import and use custom labels, allowing label overrides without a full custom widget. In the `Widgets` Excel sheet, set this in the `parameters` column: `customLabels={{yourCustomLabelsKey}}` (fixes [#1035](https://github.com/chairemobilite/evolution/issues/1035))
+- **Generator built-in widgets**: In the `Widgets` Excel sheet, set `inputType=BuiltIn` and add `builtInFunction={{yourBuiltInFunctionName}}` in the `parameters` column (Part [#902](https://github.com/chairemobilite/evolution/issues/902)).
 
 ### Changed
+
 - BREAKING: if using the webpack generation functions and the project has a `locales` folder, make sure an empty module file is present in the folder for build time import. An empty file named `index.js` at the root of the project's `locales` folder is enough. Webpack will replace it with the actual translations in the build. (#1426)
 - BREAKING: the `addGroupedObjects` function now returns an object of type `{ valuesByPath: Record<string, unknown>, newObjects: QuestionnaireObjectWithUuidAndSequence[] }` instead of only the values by path. Previous code can simply use the response's `valuesByPath` field to have the same data as before.
 
@@ -22,21 +25,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 ### Fixed
+
 - Allow to effectively override locales from Evolution by survey specifics with the same key. Fix is applied automatically on projects calling the `createParticipantWebpackConfig` and `createAdminWebpackConfig` webpack helpers. (#1426)
 
 ### Security
 
 ### Dependency updates
+
 - style-loader: 4.0.0
 - lodash: 4.17.21 => 4.17.23
 - @types/lodash: 4.17.21 => 4.17.23
 - yargs: 17.7.2 => 18.0.0
 - In the root `package.json` add a resolution of `kdbush` to 3.0.0 to avoid compilation errors with some packages depending on a more recent version. This requirement comes from Transition, who does the same (see https://github.com/chairemobilite/transition/issues/921 to track issue to upgrade/remove `kdbush`).
 
-
 ## [Unreleased (0.5.1)] - YYYY-MM-DD
 
 ### Added
+
 - Added `platform`, `os`, `browser` and `language` fields to each record of the exported paradata (#1395)
 
 ### Changed
@@ -51,15 +56,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Dependency updates
 
-
 ## [0.5.0] - 2026-01-30
 
 ### Added
+
 - Initial CHANGELOG.md structure
-- Navigation between section is now handled through a `SectionConfig` type (see #976, _needs documentation_) 
+- Navigation between section is now handled through a `SectionConfig` type (see #976, _needs documentation_)
 - The `startNavigate` redux action was introduced for section changes instead of `startUpdateInterview` with a `response._activeSection` (0541f0663fa9ba521d384359eacc99392c509dee)
 
 ### Changed
+
 - BREAKING: rename `requestResponses` to `requestedFields` in the `downloadCsvFile` function call (f5d33f73b930a4ceb3741bd165a0d0b46680def4)
 - BREAKING: The generator now escapes label with nicknames. Projects using this feature need to make sure to have the `lodash/escape` dependency (fe502f657335aed90c86750f4405a6a1ae13eecd)
 - BREAKING: In generated surveys, the `preload` functions need to be renamed to `customPreload` (b4086b1d0ed07cd020cb6ba20d836ddf74fa5b9b)
@@ -70,6 +76,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Update sass stylesheets (ee6efc8a788bbc3bd00c7377957ff5e818142ff2)
 
 ### Deprecated
+
 - Navigating to another section by calling `startUpdateInterview` with a `response._activeSection` is now deprecated, use the `startNavigate` action instead (0541f0663fa9ba521d384359eacc99392c509dee)
 
 ### Removed
@@ -85,6 +92,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## Guidelines for updating this changelog
 
 ### Types of changes
+
 - **Added** for new features
 - **Changed** for changes in existing functionality
 - **Deprecated** for soon-to-be removed features
@@ -93,17 +101,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Security** for vulnerability fixes
 
 ### Version format
+
 - Use semantic versioning (MAJOR.MINOR.PATCH)
 - MAJOR: incompatible API changes
 - MINOR: backwards-compatible functionality additions
 - PATCH: backwards-compatible bug fixes
 
 ### Best practices
+
 - Keep an "Unreleased" section at the top for upcoming changes
 - Add release date in YYYY-MM-DD format when publishing a version
 - Group changes by type (Added, Changed, etc.)
 - Write from the user's perspective
 - Be concise but descriptive
 - Link to issues/PRs when relevant
-
-

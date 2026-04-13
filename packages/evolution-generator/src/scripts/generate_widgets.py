@@ -27,6 +27,7 @@ class ImportFlags:
     has_conditionals_import: bool = False
     has_input_range_import: bool = False
     has_custom_widgets_import: bool = False
+    has_built_in_widgets_import: bool = False
     has_validations_import: bool = (
         True  # Default to True for validations.requiredValidation
     )
@@ -240,6 +241,11 @@ def generate_widget_statement(row, gender_fields: GenderFields = None) -> Widget
 
     if input_type == "Custom":
         result["statement"] = generate_custom_widget(question_name)
+    elif input_type == "BuiltIn":
+        parameters = row.get("parameters", "") or ""
+        result["statement"] = generate_built_in_widget(
+            question_name=question_name, parameters=parameters
+        )
     elif input_type == "Radio":
         result["statement"] = generate_radio_widget(
             question_name,
@@ -480,6 +486,7 @@ def generate_import_statements(import_flags: ImportFlags) -> str:
         f"import {{ defaultConditional }} from 'evolution-common/lib/services/widgets/conditionals/defaultConditional';\n"
         f"import * as WidgetConfig from 'evolution-common/lib/services/questionnaire/types';\n"
         f"{validations_import}"
+        # TODO: Add built-in widgets import when we are ready to support them
         f"{od_survey_helpers_import}"
         f"{survey_helper_import}"
         f"{choices_import}"
@@ -500,6 +507,35 @@ def generate_import_statements(import_flags: ImportFlags) -> str:
 # Generate Custom widget
 def generate_custom_widget(question_name):
     return f"export const {question_name} = customWidgets.{question_name};"
+
+
+# TODO: Change this when we are ready to support built-in widgets, right now we are just emitting a comment placeholder.
+# Generate built-in widget
+def generate_built_in_widget(question_name: str, parameters: str) -> str:
+    param_dict = parse_parameters(parameters or "")
+    # parse_parameters lowercases keys, so builtInFunction becomes builtinfunction
+    raw_value = param_dict.get("builtinfunction")
+
+    # Extract the built-in function name from the parameters
+    built_in_function_name: str | None = None
+    if raw_value and isinstance(raw_value, str):
+        built_in_function_name = raw_value.strip()
+        if built_in_function_name.startswith("{{") and built_in_function_name.endswith(
+            "}}"
+        ):
+            built_in_function_name = built_in_function_name[2:-2].strip()
+
+    if built_in_function_name:
+        return (
+            f"// Built-in widget placeholder for '{question_name}' (builtInFunction: {built_in_function_name}).\n"
+            f"// export const {question_name} = {built_in_function_name}();"
+        )
+    else:
+        # TODO: Uncomment this when we are ready to support built-in widgets
+        # print(
+        #     f"Warning: BuiltIn widget '{question_name}' not generated yet (missing/invalid parameters: builtInFunction={{...}})."
+        # )
+        return ""
 
 
 # Generate comma and skip line
@@ -1167,6 +1203,8 @@ def get_widgets_file_import_flags(section_rows) -> ImportFlags:
             import_flags.has_input_range_import = True
         if row["inputType"] == "Custom":
             import_flags.has_custom_widgets_import = True
+        if row["inputType"] == "BuiltIn":
+            import_flags.has_built_in_widgets_import = True
         if row.get("help_popup") or row.get("confirm_popup"):
             import_flags.has_help_popup_import = True
 
