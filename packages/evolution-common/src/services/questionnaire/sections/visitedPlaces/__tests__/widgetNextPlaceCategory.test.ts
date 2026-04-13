@@ -7,7 +7,7 @@
 import _cloneDeep from 'lodash/cloneDeep';
 import each from 'jest-each';
 import { InputRadioType, QuestionWidgetConfig, RadioChoiceType } from '../../../../questionnaire/types';
-import { interviewAttributesForTestCases, widgetFactoryOptions } from '../../../../../tests/surveys';
+import { interviewAttributesForTestCases, setActiveSurveyObjects, widgetFactoryOptions } from '../../../../../tests/surveys';
 import { setResponse, translateString } from '../../../../../utils/helpers';
 import * as odHelpers from '../../../../odSurvey/helpers';
 import { getNextPlaceCategoryWidgetConfig } from '../widgetNextPlaceCategory';
@@ -17,17 +17,6 @@ const visitedPlacesSectionConfig = {
     enabled: true,
     tripDiaryMinTimeOfDay: 4 * 60 * 60, // 4 AM in seconds
     tripDiaryMaxTimeOfDay: 28 * 60 * 60 // 4 AM the next day, in seconds
-};
-
-const setActiveVisitedPlace = (
-    interview: typeof interviewAttributesForTestCases,
-    personId: string | undefined,
-    journeyId: string | undefined,
-    visitedPlaceId: string | undefined
-) => {
-    setResponse(interview, '_activePersonId', personId);
-    setResponse(interview, '_activeJourneyId', journeyId);
-    setResponse(interview, '_activeVisitedPlaceId', visitedPlaceId);
 };
 
 describe('getNextPlaceCategoryWidgetConfig', () => {
@@ -73,7 +62,7 @@ describe('NextPlaceCategory choices conditionals', () => {
 
     test('wentBackHome conditional should return false when active place is home', () => {
         const interview = _cloneDeep(interviewAttributesForTestCases);
-        setActiveVisitedPlace(interview, 'personId1', 'journeyId1', 'homePlace1P1');
+        setActiveSurveyObjects(interview, { personId: 'personId1', journeyId: 'journeyId1', visitedPlaceId: 'homePlace1P1' });
 
         const wentBackHomeChoice = choices.find((c) => c.value === 'wentBackHome');
         expect(wentBackHomeChoice).toBeDefined();
@@ -87,7 +76,7 @@ describe('NextPlaceCategory choices conditionals', () => {
 
     test('wentBackHome conditional should return false when active place is workOnTheRoad', () => {
         const interview = _cloneDeep(interviewAttributesForTestCases);
-        setActiveVisitedPlace(interview, 'personId1', 'journeyId1', 'workPlace1P1');
+        setActiveSurveyObjects(interview, { personId: 'personId1', journeyId: 'journeyId1', visitedPlaceId: 'workPlace1P1' });
         const visitedPlace = interview.response.household!.persons!.personId1!.journeys!.journeyId1!
             .visitedPlaces!.workPlace1P1;
         (visitedPlace as any).activity = 'workOnTheRoad';
@@ -104,7 +93,7 @@ describe('NextPlaceCategory choices conditionals', () => {
 
     test('wentBackHome conditional should return true when active place is not home or workOnTheRoad', () => {
         const interview = _cloneDeep(interviewAttributesForTestCases);
-        setActiveVisitedPlace(interview, 'personId1', 'journeyId1', 'workPlace1P1');
+        setActiveSurveyObjects(interview, { personId: 'personId1', journeyId: 'journeyId1', visitedPlaceId: 'workPlace1P1' });
 
         const wentBackHomeChoice = choices.find((c) => c.value === 'wentBackHome');
         expect(wentBackHomeChoice).toBeDefined();
@@ -124,7 +113,7 @@ describe('NextPlaceCategory choices conditionals', () => {
         const stayedChoice = (choices as RadioChoiceType[]).find((c) => c.value === 'stayedThereUntilTheNextDay');
 
         // Test the requested place
-        setActiveVisitedPlace(interview, 'personId1', 'journeyId1', placeUuid);
+        setActiveSurveyObjects(interview, { personId: 'personId1', journeyId: 'journeyId1', visitedPlaceId: placeUuid });
         expect(stayedChoice).toBeDefined();
         expect(
             stayedChoice?.conditional?.(
@@ -146,7 +135,7 @@ describe('NextPlaceCategory choices labels', () => {
 
     beforeEach(() => {
         interview = _cloneDeep(interviewAttributesForTestCases);
-        setActiveVisitedPlace(interview, 'personId1', 'journeyId1', 'workPlace1P1');
+        setActiveSurveyObjects(interview, { personId: 'personId1', journeyId: 'journeyId1', visitedPlaceId: 'workPlace1P1' });
     });
 
     test('wentBackHome label should include home address', () => {
@@ -215,7 +204,7 @@ describe('NextPlaceCategory widget label', () => {
     beforeEach(() => {
         interview = _cloneDeep(interviewAttributesForTestCases);
         jest.clearAllMocks();
-        setActiveVisitedPlace(interview, 'personId1', 'journeyId1', 'workPlace1P1');
+        setActiveSurveyObjects(interview, { personId: 'personId1', journeyId: 'journeyId1', visitedPlaceId: 'workPlace1P1' });
     });
 
     test('should call translation function with correct key and context', () => {
@@ -286,7 +275,7 @@ describe('NextPlaceCategory widget conditional', () => {
     beforeEach(() => {
         interview = _cloneDeep(interviewAttributesForTestCases);
         // By default, set the last place as active
-        setActiveVisitedPlace(interview, 'personId1', 'journeyId1', 'otherPlace2P1');
+        setActiveSurveyObjects(interview, { personId: 'personId1', journeyId: 'journeyId1', visitedPlaceId: 'otherPlace2P1' });
     });
 
     test('should return auto-filled stayedThereUntilTheNextDay when arrival time equals max time of day', () => {
@@ -307,7 +296,7 @@ describe('NextPlaceCategory widget conditional', () => {
         (visitedPlace as any).activityCategory = 'work';
         (visitedPlace as any).onTheRoadArrivalType = 'stayedThereUntilTheNextDay';
 
-        setActiveVisitedPlace(interview, 'personId1', 'journeyId1', 'otherPlace2P1');
+        setActiveSurveyObjects(interview, { personId: 'personId1', journeyId: 'journeyId1', visitedPlaceId: 'otherPlace2P1' });
         expect(
             conditional?.(interview, 'household.persons.personId1.journeys.journeyId1.visitedPlaces.otherPlace2P1.nextPlaceCategory')
         ).toEqual([false, 'stayedThereUntilTheNextDay']);
@@ -324,7 +313,7 @@ describe('NextPlaceCategory widget conditional', () => {
     });
 
     test('should hide widget when active place is not the last', () => {
-        setActiveVisitedPlace(interview, 'personId1', 'journeyId1', 'homePlace1P1');
+        setActiveSurveyObjects(interview, { personId: 'personId1', journeyId: 'journeyId1', visitedPlaceId: 'homePlace1P1' });
         expect(
             conditional?.(interview, 'household.persons.personId1.journeys.journeyId1.visitedPlaces.homePlace1P1.nextPlaceCategory')
         ).toEqual([false, null]);
@@ -351,7 +340,7 @@ describe('NextPlaceCategory widget conditional', () => {
             const visitedPlacesArray = odHelpers.getVisitedPlacesArray({ journey });
             const lastPlace = visitedPlacesArray[visitedPlacesArray.length - 1];
 
-            setActiveVisitedPlace(interview, 'personId1', 'journeyId1', lastPlace._uuid);
+            setActiveSurveyObjects(interview, { personId: 'personId1', journeyId: 'journeyId1', visitedPlaceId: lastPlace._uuid });
             (lastPlace as any).activity = activity;
 
             expect(
