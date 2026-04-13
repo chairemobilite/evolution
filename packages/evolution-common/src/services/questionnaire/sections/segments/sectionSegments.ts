@@ -17,6 +17,7 @@ import { SwitchPersonWidgetsFactory } from '../common/widgetsSwitchPerson';
 import { PersonTripsGroupConfigFactory } from './groupPersonTrips';
 import { getPersonVisitedPlacesMapConfig } from '../common/widgetPersonVisitedPlacesMap';
 import { getButtonValidateAndGotoNextSection } from '../common/buttonValidateAndGotoNextSection';
+import { tripDiarySectionVisibleConditional } from '../tripDiary/tripDiaryHelpers';
 
 export class SegmentsSectionFactory implements SectionConfigFactory {
     private _sectionConfig: SectionConfig | undefined = undefined;
@@ -34,23 +35,7 @@ export class SegmentsSectionFactory implements SectionConfigFactory {
         return {
             previousSection: 'visitedPlaces',
             nextSection: 'travelBehavior',
-            isSectionVisible: (interview, iterationContext) => {
-                const personId = iterationContext ? iterationContext[iterationContext.length - 1] : undefined;
-                const person = personId === undefined ? null : odHelpers.getPerson({ interview, personId });
-                if (person === null) {
-                    // Log error, that is unexpected
-                    console.error(
-                        `segments section.isSectionVisible: No person found for iteration context: ${JSON.stringify(iterationContext)}`
-                    );
-                    return false;
-                }
-                const currentJourney = odHelpers.getActiveJourney({ interview, person });
-                if (currentJourney === null) {
-                    // Do not display if there is no active journey
-                    return false;
-                }
-                return true;
-            },
+            isSectionVisible: tripDiarySectionVisibleConditional,
             isSectionCompleted: (interview, iterationContext) => {
                 const personId = iterationContext ? iterationContext[iterationContext.length - 1] : undefined;
                 const person = personId === undefined ? null : odHelpers.getPerson({ interview, personId });
