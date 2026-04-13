@@ -74,6 +74,7 @@ export const interviewAttributesForTestCases: UserRuntimeInterviewAttributes = {
                             _uuid: 'journeyId1',
                             _sequence: 1,
                             startDate: '2026-04-08',
+                            personDidTrips: 'yes',
                             visitedPlaces: {
                                 homePlace1P1: {
                                     _uuid: 'homePlace1P1',
@@ -175,6 +176,7 @@ export const interviewAttributesForTestCases: UserRuntimeInterviewAttributes = {
                         journeyId2: {
                             _uuid: 'journeyId2',
                             _sequence: 1,
+                            personDidTrips: 'yes',
                             visitedPlaces: {
                                 homePlace1P2: {
                                     _uuid: 'homePlace1P2',
@@ -267,6 +269,7 @@ export const interviewAttributesForTestCases: UserRuntimeInterviewAttributes = {
                         journeyId3: {
                             _uuid: 'journeyId3',
                             _sequence: 1,
+                            personDidTrips: 'yes',
                             visitedPlaces: {
                                 homePlace1P3: {
                                     _uuid: 'homePlace1P3',
