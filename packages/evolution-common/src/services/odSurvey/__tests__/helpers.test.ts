@@ -1403,6 +1403,74 @@ describe('getJourneys', () => {
     });
 });
 
+describe('shouldShowTripsAndPlacesSections', () => {
+    const baseJourney: Journey = {
+        _uuid: 'arbitraryJourney',
+        _sequence: 1
+    }
+    test.each([{
+        title: 'Journey with personDidTrips unanswered undefined',
+        journey: {
+            ...baseJourney,
+        },
+        expected: false
+    }, {
+        title: 'Journey with personDidTrips unanswered empty string',
+        journey: {
+            ...baseJourney,
+            personDidTrips: ''
+        },
+        expected: false
+    }, {
+        title: 'Journey with personDidTrips answered no',
+        journey: {
+            ...baseJourney,
+            personDidTrips: 'no'
+        },
+        expected: false 
+    }, {
+        title: 'Journey with personDidTrips answered yes',
+        journey: {
+            ...baseJourney,
+            personDidTrips: 'yes'
+        },
+        expected: true  
+    }, {
+        title: 'Journey with personDidTrips answered dontKnow',
+        journey: {
+            ...baseJourney,
+            personDidTrips: 'dontKnow'
+        },
+        expected: false 
+    }, {
+        title: 'Journey with personDidTrips answered no, but personDidTripsConfirm answered yes',
+        journey: {
+            ...baseJourney,
+            personDidTrips: 'no',
+            personDidTripsConfirm: 'yes'
+        },
+        expected: true
+    }, {
+        title: 'Journey with personDidTrips answered yes, but personDidTripsConfirm answered no',
+        journey: {
+            ...baseJourney,
+            personDidTrips: 'yes',
+            personDidTripsConfirm: 'no'
+        },
+        expected: true
+    }, {
+        title: 'Journey with personDidTrips and personDidTripsConfirm both no',
+        journey: {
+            ...baseJourney,
+            personDidTrips: 'no',
+            personDidTripsConfirm: 'no'
+        },
+        expected: false
+    }])('$title', ({ journey, expected }) => {
+        expect(Helpers.shouldShowTripsAndPlacesSections({ journey })).toEqual(expected);
+    });
+});
+
 describe('getVisitedPlaces', () => {
     const journey: Journey = {
         _uuid: 'arbitraryJourney',

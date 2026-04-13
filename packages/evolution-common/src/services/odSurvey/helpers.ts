@@ -532,6 +532,24 @@ export const getJourneysArray = function ({ person }: { person: Person }): Journ
     return Object.values(journeys).sort((journeyA, journeyB) => journeyA._sequence - journeyB._sequence);
 };
 
+/**
+ * Determine whether the trips and visited places sections should exist for this
+ * journey, based on the journey's data and prior answers.
+ *
+ * For OD surveys, this is based on the `personDidTrips` question.
+ *
+ * @param {Object} options - The options object.
+ * @param {Journey} options.journey The journey for which to check if visited
+ * places and trips should be shown.
+ * @returns {boolean} `true` if this journey is expected to have trips and
+ * visited places data entered by participants.
+ */
+export const shouldShowTripsAndPlacesSections = ({ journey }: { journey: Journey }): boolean =>
+    // FIXME This implies that the journey has the `personDidTrips` question.
+    // Support surveys with journeys manually created by participant (see issue
+    // #1498)
+    journey.personDidTrips === 'yes' || journey.personDidTripsConfirm === 'yes';
+
 // *** Trip-related functions
 
 /**
