@@ -9,6 +9,7 @@ deleteThisGroupedObject: Delete this location
 cancelEditVisitedPlaces: Cancel
 editVisitedPlace: Edit
 insertVisitedPlace: Insert a location here
+saveAndContinue: Confirm locations and continue
 activities:
     accompanySomeone: Accompany someone
     carElectricChargingStation: Car charging station

@@ -9,6 +9,7 @@ deleteVisitedPlace: Supprimer
 deleteThisGroupedObject: Supprimer ce lieu
 insertVisitedPlace: Insérer un lieu ici
 addVisitedPlace: Ajouter le prochain lieu
+saveAndContinue: Confirmer les lieux et continuer
 activities:
     accompanySomeone: Accompagner quelqu'un
     carElectricChargingStation: Borne de recharge de véhicule électrique
