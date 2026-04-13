@@ -137,3 +137,4 @@ nextPlaceRadioChoices.wentBackHome_female: Retournée au domicile directement ({
 personVisitedPlacesGroupTitle: Lieux visités
 VisitedPlaceSequence: 'Lieu #{{count}}'
 VisitedPlaceSequence_one: Lieu de départ de la journée
+VisitedPlacesTitle: Lieux visités
