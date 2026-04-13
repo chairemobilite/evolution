@@ -8,7 +8,7 @@
 import _cloneDeep from 'lodash/cloneDeep';
 import  i18n from 'i18next';
 import config from '../../../../../config/project.config';
-import { interviewAttributesForTestCases, widgetFactoryOptions } from '../../../../../tests/surveys';
+import { interviewAttributesForTestCases, setActiveSurveyObjects, widgetFactoryOptions } from '../../../../../tests/surveys';
 import { setResponse, translateString } from '../../../../../utils/helpers';
 import { InputMapFindPlaceType, InputStringType, QuestionWidgetConfig } from '../../../types';
 import { loopActivities } from '../../../../odSurvey/types';
@@ -21,17 +21,6 @@ const visitedPlacesSectionConfig = {
     enabled: true,
     tripDiaryMinTimeOfDay: 4 * 60 * 60, // 4h in seconds
     tripDiaryMaxTimeOfDay: 28 * 60 * 60 // 28h in seconds (i.e. 4h the next day)
-};
-
-const setActiveVisitedPlace = (
-    interview: typeof interviewAttributesForTestCases,
-    personId: string | null,
-    journeyId: string | null,
-    visitedPlaceId: string | null
-) => {
-    setResponse(interview, '_activePersonId', personId);
-    setResponse(interview, '_activeJourneyId', journeyId);
-    setResponse(interview, '_activeVisitedPlaceId', visitedPlaceId);
 };
 
 describe('VisitedPlaceGeographyWidgetFactory', () => {
@@ -174,7 +163,7 @@ describe('visitedPlaceName widget', () => {
 
         test('should hide widget and return usual work place name for workUsual activity', () => {
             const interview = _cloneDeep(interviewAttributesForTestCases);
-            setActiveVisitedPlace(interview, 'personId1', 'journeyId1', 'workPlace1P1');
+            setActiveSurveyObjects(interview, { personId: 'personId1', journeyId: 'journeyId1', visitedPlaceId: 'workPlace1P1' });
             // Add the person's usual work place
             (interview.response.household!.persons!.personId1 as any).usualWorkPlace = { name: 'My usual work place' };
 
@@ -188,7 +177,7 @@ describe('visitedPlaceName widget', () => {
 
         test('should hide widget and return usual school place name for schoolUsual activity', () => {
             const interview = _cloneDeep(interviewAttributesForTestCases);
-            setActiveVisitedPlace(interview, 'personId3', 'journeyId3', 'schoolPlace1P3');
+            setActiveSurveyObjects(interview, { personId: 'personId3', journeyId: 'journeyId3', visitedPlaceId: 'schoolPlace1P3' });
             // Set the person's usual school place
             (interview.response.household!.persons!.personId3 as any).usualSchoolPlace = {
                 name: 'My usual school place'
@@ -242,7 +231,7 @@ describe('visitedPlaceName widget', () => {
 
         test('should show widget for workUsual activity, but no usual work place set', () => {
             const interview = _cloneDeep(interviewAttributesForTestCases);
-            setActiveVisitedPlace(interview, 'personId1', 'journeyId1', 'workPlace1P1');
+            setActiveSurveyObjects(interview, { personId: 'personId1', journeyId: 'journeyId1', visitedPlaceId: 'workPlace1P1' });
             // Set the person's usual work place to undefined
             (interview.response.household!.persons!.personId1 as any).usualWorkPlace = undefined;
 
@@ -346,7 +335,7 @@ describe('visitedPlaceGeography widget', () => {
             const interview = _cloneDeep(interviewAttributesForTestCases);
             // Coordinates are those of shoppingPlace1P2
             const expectedCoordinates = shoppingPlace1P2Coordinates;
-            setActiveVisitedPlace(interview, 'personId2', 'journeyId2', 'otherWorkPlace1P2');
+            setActiveSurveyObjects(interview, { personId: 'personId2', journeyId: 'journeyId2', visitedPlaceId: 'otherWorkPlace1P2' });
 
             expect(defaultCenter(interview, 'path')).toEqual({ lat: expectedCoordinates[1], lon: expectedCoordinates[0] });
         });
@@ -357,14 +346,14 @@ describe('visitedPlaceGeography widget', () => {
             delete interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.homePlace1P1;
             // Coordinates are those of home
             const expectedCoordinates = homeGeographyCoordinates;
-            setActiveVisitedPlace(interview, 'personId1', 'journeyId1', 'homePlace1P1');
+            setActiveSurveyObjects(interview, { personId: 'personId1', journeyId: 'journeyId1', visitedPlaceId: 'homePlace1P1' });
 
             expect(defaultCenter(interview, 'path')).toEqual({ lat: expectedCoordinates[1], lon: expectedCoordinates[0] });
         });
 
         test('should fallback to default map center when no home geography is available', () => {
             const interview = _cloneDeep(interviewAttributesForTestCases);
-            setActiveVisitedPlace(interview, 'personId1', 'journeyId1', 'homePlace1P1');
+            setActiveSurveyObjects(interview, { personId: 'personId1', journeyId: 'journeyId1', visitedPlaceId: 'homePlace1P1' });
             // Set place geography to undefined
             setResponse(interview, 'household.persons.personId1.journeys.journeyId1.visitedPlaces.homePlace1P1.geography', undefined);
             setResponse(interview, 'home.geography.geometry.coordinates', undefined);
@@ -511,7 +500,7 @@ describe('visitedPlaceGeography widget', () => {
 
         test('should hide widget and return usual work place geography for workUsual activity', () => {
             const interview = _cloneDeep(interviewAttributesForTestCases);
-            setActiveVisitedPlace(interview, 'personId1', 'journeyId1', 'workPlace1P1');
+            setActiveSurveyObjects(interview, { personId: 'personId1', journeyId: 'journeyId1', visitedPlaceId: 'workPlace1P1' });
             const usualWorkPlaceGeography = {
                 type: 'Feature',
                 geometry: { type: 'Point', coordinates: [-72.9, 46.2] },
@@ -532,7 +521,7 @@ describe('visitedPlaceGeography widget', () => {
 
         test('should hide widget and return usual school place geography for schoolUsual activity', () => {
             const interview = _cloneDeep(interviewAttributesForTestCases);
-            setActiveVisitedPlace(interview, 'personId3', 'journeyId3', 'schoolPlace1P3');
+            setActiveSurveyObjects(interview, { personId: 'personId3', journeyId: 'journeyId3', visitedPlaceId: 'schoolPlace1P3' });
             const usualSchoolPlaceGeography = {
                 type: 'Feature',
                 geometry: { type: 'Point', coordinates: [-71.6, 46.7] },

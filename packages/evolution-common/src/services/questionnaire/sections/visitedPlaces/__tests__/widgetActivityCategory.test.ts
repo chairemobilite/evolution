@@ -7,7 +7,7 @@
 import _cloneDeep from 'lodash/cloneDeep';
 import each from 'jest-each';
 import { InputRadioType, QuestionWidgetConfig, RadioChoiceType } from '../../../../questionnaire/types';
-import { interviewAttributesForTestCases, widgetFactoryOptions } from '../../../../../tests/surveys';
+import { interviewAttributesForTestCases, setActiveSurveyObjects, widgetFactoryOptions } from '../../../../../tests/surveys';
 import { setResponse, translateString } from '../../../../../utils/helpers';
 import * as odHelpers from '../../../../odSurvey/helpers';
 import { getActivityCategoryWidgetConfig } from '../widgetActivityCategory';
@@ -17,17 +17,6 @@ const visitedPlacesSectionConfig = {
 	enabled: true,
     tripDiaryMinTimeOfDay: 4 * 60 * 60, // 4h in seconds
     tripDiaryMaxTimeOfDay: 28 * 60 * 60 // 28h in seconds (i.e. 4h the next day)
-};
-
-const setActiveVisitedPlace = (
-	interview: typeof interviewAttributesForTestCases,
-	personId: string,
-	journeyId: string,
-	visitedPlaceId: string
-) => {
-	setResponse(interview, '_activePersonId', personId);
-	setResponse(interview, '_activeJourneyId', journeyId);
-	setResponse(interview, '_activeVisitedPlaceId', visitedPlaceId);
 };
 
 describe('getActivityCategoryWidgetConfig', () => {
@@ -98,7 +87,7 @@ describe('Activity category choices labels', () => {
 		const mockedT = jest.fn();
 		const schoolChoice = choices.find((c) => c.value === 'school');
 		expect(schoolChoice).toBeDefined();
-		setActiveVisitedPlace(interview, 'personId1', 'journeyId1', 'workPlace1P1');
+		setActiveSurveyObjects(interview, { personId: 'personId1', journeyId: 'journeyId1', visitedPlaceId: 'workPlace1P1' });
 		interview.response.household!.persons!.personId1!.schoolType = schoolType as any;
 		translateString(schoolChoice?.label, { t: mockedT } as any, interview, 'path');
 		expect(mockedT).toHaveBeenCalledWith(expectedLabel);
@@ -132,7 +121,7 @@ describe('Activity category choices conditionals', () => {
 			middlePlace: { _uuid: 'middlePlace', _sequence: 2, activity: 'other', activityCategory: 'leisure' },
 			lastPlace: { _uuid: 'lastPlace', _sequence: 3, activity: 'workUsual', activityCategory: 'work' }
 		};
-		setActiveVisitedPlace(interview, 'personId1', 'journeyId1', 'middlePlace');
+		setActiveSurveyObjects(interview, { personId: 'personId1', journeyId: 'journeyId1', visitedPlaceId: 'middlePlace' });
 		const homeChoice = choices.find((c) => c.value === 'home');
 		expect(homeChoice).toBeDefined();
 		expect(homeChoice?.conditional?.(interview, 'path')).toEqual(true);
@@ -140,7 +129,7 @@ describe('Activity category choices conditionals', () => {
 
 	test('home conditional should return false when previous place activityCategory is home', () => {
 		const interview = _cloneDeep(interviewAttributesForTestCases);
-		setActiveVisitedPlace(interview, 'personId1', 'journeyId1', 'workPlace1P1');
+		setActiveSurveyObjects(interview, { personId: 'personId1', journeyId: 'journeyId1', visitedPlaceId: 'workPlace1P1' });
 		const homeChoice = choices.find((c) => c.value === 'home');
 		expect(homeChoice).toBeDefined();
 		expect(homeChoice?.conditional?.(interview, 'path')).toEqual(false);
@@ -148,7 +137,7 @@ describe('Activity category choices conditionals', () => {
 
     test('home conditional should return false when next place activityCategory is home', () => {
 		const interview = _cloneDeep(interviewAttributesForTestCases);
-		setActiveVisitedPlace(interview, 'personId2', 'journeyId2', 'otherWorkPlace1P2');
+		setActiveSurveyObjects(interview, { personId: 'personId2', journeyId: 'journeyId2', visitedPlaceId: 'otherWorkPlace1P2' });
 		const homeChoice = choices.find((c) => c.value === 'home');
 		expect(homeChoice).toBeDefined();
 		expect(homeChoice?.conditional?.(interview, 'path')).toEqual(false);
@@ -167,7 +156,7 @@ describe('Activity category choices conditionals', () => {
 		if (age === null) {
 			setResponse(interview, '_activePersonId', null);
 		} else {
-			setActiveVisitedPlace(interview, 'personId1', 'journeyId1', 'workPlace1P1');
+			setActiveSurveyObjects(interview, { personId: 'personId1', journeyId: 'journeyId1', visitedPlaceId: 'workPlace1P1' });
 			interview.response.household!.persons!.personId1!.age = age;
 		}
 
@@ -197,7 +186,7 @@ describe('Activity category choices conditionals', () => {
 			if (age === null) {
 				setResponse(interview, '_activePersonId', null);
 			} else {
-				setActiveVisitedPlace(interview, 'personId1', 'journeyId1', 'workPlace1P1');
+				setActiveSurveyObjects(interview, { personId: 'personId1', journeyId: 'journeyId1', visitedPlaceId: 'workPlace1P1' });
 				interview.response.household!.persons!.personId1!.age = age;
 				interview.response.household!.persons!.personId1!.occupation = occupation as any;
 				if (isStudentFromEnrolledValue !== undefined) {
@@ -237,7 +226,7 @@ describe('Activity category choices conditionals', () => {
         if (age === null) {
             setResponse(interview, '_activePersonId', null);
         } else {
-            setActiveVisitedPlace(interview, 'personId1', 'journeyId1', 'workPlace1P1');
+            setActiveSurveyObjects(interview, { personId: 'personId1', journeyId: 'journeyId1', visitedPlaceId: 'workPlace1P1' });
             interview.response.household!.persons!.personId1!.age = age;
             // Set the visitedPlaces if provided, otherwise, use the default ones
             if (visitedPlaces) {
@@ -276,7 +265,7 @@ describe('Activity category widget label', () => {
 	test('should use first location label for first visited place', () => {
 		const interview = _cloneDeep(interviewAttributesForTestCases);
 		const mockedT = jest.fn().mockReturnValue('translatedLabel');
-		setActiveVisitedPlace(interview, 'personId1', 'journeyId1', 'homePlace1P1');
+		setActiveSurveyObjects(interview, { personId: 'personId1', journeyId: 'journeyId1', visitedPlaceId: 'homePlace1P1' });
 		expect(translateString(label, { t: mockedT } as any, interview, 'path')).toEqual('translatedLabel');
 		expect(mockedT).toHaveBeenCalledWith('visitedPlaces:ActivityCategoryFirstLocation');
 	});
@@ -284,7 +273,7 @@ describe('Activity category widget label', () => {
 	test('should use after home label for second place when first place activity is home', () => {
 		const interview = _cloneDeep(interviewAttributesForTestCases);
 		const mockedT = jest.fn().mockReturnValue('translatedLabel');
-		setActiveVisitedPlace(interview, 'personId1', 'journeyId1', 'workPlace1P1');
+		setActiveSurveyObjects(interview, { personId: 'personId1', journeyId: 'journeyId1', visitedPlaceId: 'workPlace1P1' });
 		expect(translateString(label, { t: mockedT } as any, interview, 'path')).toEqual('translatedLabel');
 		expect(mockedT).toHaveBeenCalledWith('visitedPlaces:ActivityCategoryAfterHome');
 	});
@@ -292,7 +281,7 @@ describe('Activity category widget label', () => {
 	test('should use default activity category label for other places', () => {
 		const interview = _cloneDeep(interviewAttributesForTestCases);
 		const mockedT = jest.fn().mockReturnValue('translatedLabel');
-		setActiveVisitedPlace(interview, 'personId1', 'journeyId1', 'homePlace2P1');
+		setActiveSurveyObjects(interview, { personId: 'personId1', journeyId: 'journeyId1', visitedPlaceId: 'homePlace2P1' });
 		expect(translateString(label, { t: mockedT } as any, interview, 'path')).toEqual('translatedLabel');
 		expect(mockedT).toHaveBeenCalledWith('visitedPlaces:ActivityCategory');
 	});
@@ -340,7 +329,7 @@ describe('Activity category widget conditional', () => {
 
 	test('should hide widget and assign home when active visited place is a new home place', () => {
 		const interview = _cloneDeep(interviewAttributesForTestCases);
-		setActiveVisitedPlace(interview, 'personId1', 'journeyId1', 'homePlace2P1');
+		setActiveSurveyObjects(interview, { personId: 'personId1', journeyId: 'journeyId1', visitedPlaceId: 'homePlace2P1' });
 		const activeVisitedPlace = interview.response.household!.persons!.personId1!.journeys!.journeyId1!.visitedPlaces!
 			.homePlace2P1!;
 		(activeVisitedPlace as any)._isNew = true;
@@ -351,7 +340,7 @@ describe('Activity category widget conditional', () => {
 
 	test('should show widget in regular case', () => {
 		const interview = _cloneDeep(interviewAttributesForTestCases);
-		setActiveVisitedPlace(interview, 'personId1', 'journeyId1', 'workPlace1P1');
+		setActiveSurveyObjects(interview, { personId: 'personId1', journeyId: 'journeyId1', visitedPlaceId: 'workPlace1P1' });
 		expect(conditional!(interview, 'path')).toEqual([true]);
 	});
 });

@@ -7,7 +7,7 @@
 
 import { Activity, activityValues } from '../../../../odSurvey/types';
 import _cloneDeep from 'lodash/cloneDeep';
-import { interviewAttributesForTestCases } from '../../../../../tests/surveys';
+import { interviewAttributesForTestCases, setActiveSurveyObjects } from '../../../../../tests/surveys';
 import { setResponse } from '../../../../../utils/helpers';
 import * as helpers from '../helpers';
 import { VisitedPlacesSectionConfiguration } from '../../../types';
@@ -113,16 +113,6 @@ describe('Visited places helpers - activity/activityCategory filtering', () => {
 });
 
 describe('Visited places helpers - validatePreviousNextPlaceIsNotActivities', () => {
-    const setActiveVisitedPlace = (
-        interview: typeof interviewAttributesForTestCases,
-        personId: string,
-        journeyId: string,
-        visitedPlaceId: string
-    ) => {
-        setResponse(interview, '_activePersonId', personId);
-        setResponse(interview, '_activeJourneyId', journeyId);
-        setResponse(interview, '_activeVisitedPlaceId', visitedPlaceId);
-    };
 
     test('should warn and return true when there is no active journey', () => {
         const interview = _cloneDeep(interviewAttributesForTestCases);
@@ -146,7 +136,7 @@ describe('Visited places helpers - validatePreviousNextPlaceIsNotActivities', ()
         [
             'previous place activity is incompatible',
             (interview: typeof interviewAttributesForTestCases) => {
-                setActiveVisitedPlace(interview, 'personId1', 'journeyId1', 'workPlace1P1');
+                setActiveSurveyObjects(interview, { personId: 'personId1', journeyId: 'journeyId1', visitedPlaceId: 'workPlace1P1' });
                 return {
                     visitedPlace:
                         interview.response.household!.persons!.personId1!.journeys!.journeyId1!.visitedPlaces!
@@ -159,7 +149,7 @@ describe('Visited places helpers - validatePreviousNextPlaceIsNotActivities', ()
         [
             'next place activity is incompatible',
             (interview: typeof interviewAttributesForTestCases) => {
-                setActiveVisitedPlace(interview, 'personId2', 'journeyId2', 'otherWorkPlace1P2');
+                setActiveSurveyObjects(interview, { personId: 'personId2', journeyId: 'journeyId2', visitedPlaceId: 'otherWorkPlace1P2' });
                 return {
                     visitedPlace:
                         interview.response.household!.persons!.personId2!.journeys!.journeyId2!.visitedPlaces!
@@ -172,7 +162,7 @@ describe('Visited places helpers - validatePreviousNextPlaceIsNotActivities', ()
         [
             'previous and next activities are not incompatible',
             (interview: typeof interviewAttributesForTestCases) => {
-                setActiveVisitedPlace(interview, 'personId1', 'journeyId1', 'workPlace1P1');
+                setActiveSurveyObjects(interview, { personId: 'personId1', journeyId: 'journeyId1', visitedPlaceId: 'workPlace1P1' });
                 return {
                     visitedPlace:
                         interview.response.household!.persons!.personId1!.journeys!.journeyId1!.visitedPlaces!
@@ -185,7 +175,7 @@ describe('Visited places helpers - validatePreviousNextPlaceIsNotActivities', ()
         [
             'adjacent places have blank activities',
             (interview: typeof interviewAttributesForTestCases) => {
-                setActiveVisitedPlace(interview, 'personId1', 'journeyId1', 'workPlace1P1');
+                setActiveSurveyObjects(interview, { personId: 'personId1', journeyId: 'journeyId1', visitedPlaceId: 'workPlace1P1' });
                 const journey = interview.response.household!.persons!.personId1!.journeys!.journeyId1!;
                 journey.visitedPlaces!.homePlace1P1.activity = undefined;
                 journey.visitedPlaces!.homePlace2P1.activity = undefined;

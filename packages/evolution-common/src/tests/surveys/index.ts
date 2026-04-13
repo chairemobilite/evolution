@@ -6,8 +6,46 @@
  */
 
 import { WidgetFactoryOptions } from '../../services/questionnaire/sections/types';
+import { setResponse } from '../../utils/helpers';
+import { interviewAttributesForTestCases } from './testCasesInterview';
 
 export { interviewAttributesForTestCases } from './testCasesInterview';
+
+/**
+ * Set active survey objects in an interview. This is useful for testing
+ * various cases related to active elements. The active objects can be unset by
+ * passing undefined for the corresponding parameters.
+ *
+ * @param interview The interview object
+ * @param options The object IDs to set as active
+ * @param [options.personId] The ID of the person to set as active
+ * @param [options.journeyId] The ID of the journey to set as active
+ * @param [options.visitedPlaceId] The ID of the visited place to set as active
+ * @param [options.activeTripId] The ID of the active trip to set as active
+ * @param [options.activeSegmentId] The ID of the active segment to set as active
+ */
+export const setActiveSurveyObjects = (
+    interview: typeof interviewAttributesForTestCases,
+    {
+        personId,
+        journeyId,
+        visitedPlaceId,
+        activeTripId,
+        activeSegmentId
+    }: {
+        personId?: string;
+        journeyId?: string;
+        visitedPlaceId?: string;
+        activeTripId?: string;
+        activeSegmentId?: string;
+    }
+) => {
+    setResponse(interview, '_activePersonId', personId);
+    setResponse(interview, '_activeJourneyId', journeyId);
+    setResponse(interview, '_activeVisitedPlaceId', visitedPlaceId);
+    setResponse(interview, '_activeTripId', activeTripId);
+    setResponse(interview, '_activeSegmentId', activeSegmentId);
+};
 
 /**
  * Change all function properties in an object (or array) to

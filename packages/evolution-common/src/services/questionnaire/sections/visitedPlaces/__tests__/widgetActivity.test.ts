@@ -7,7 +7,7 @@
 import _cloneDeep from 'lodash/cloneDeep';
 import each from 'jest-each';
 import { InputRadioType, QuestionWidgetConfig, RadioChoiceType } from '../../../../questionnaire/types';
-import { interviewAttributesForTestCases, widgetFactoryOptions } from '../../../../../tests/surveys';
+import { interviewAttributesForTestCases, setActiveSurveyObjects, widgetFactoryOptions } from '../../../../../tests/surveys';
 import { setResponse, translateString } from '../../../../../utils/helpers';
 import {
     Activity,
@@ -23,17 +23,6 @@ const visitedPlacesSectionConfig = {
     enabled: true,
     tripDiaryMinTimeOfDay: 4 * 60 * 60, // 4h in seconds
     tripDiaryMaxTimeOfDay: 28 * 60 * 60 // 28h in seconds (i.e. 4h the next day)
-};
-
-const setActiveVisitedPlace = (
-    interview: typeof interviewAttributesForTestCases,
-    personId: string | undefined,
-    journeyId: string | undefined,
-    visitedPlaceId: string | undefined
-) => {
-    setResponse(interview, '_activePersonId', personId);
-    setResponse(interview, '_activeJourneyId', journeyId);
-    setResponse(interview, '_activeVisitedPlaceId', visitedPlaceId);
 };
 
 describe('getActivityWidgetConfig', () => {
@@ -148,7 +137,7 @@ describe('Activity per-choice conditionals', () => {
         const workUsualChoice = choices.find((c) => c.value === 'workUsual');
         expect(workUsualChoice).toBeDefined();
 
-        setActiveVisitedPlace(interview, 'personId1', 'journeyId1', 'workPlace1P1');
+        setActiveSurveyObjects(interview, { personId: 'personId1', journeyId: 'journeyId1', visitedPlaceId: 'workPlace1P1' });
         interview.response.household!.persons!.personId1!.occupation = 'fullTimeStudent';
         (interview.response.household!.persons!.personId1! as any).usualWorkPlace = undefined;
 
@@ -160,7 +149,7 @@ describe('Activity per-choice conditionals', () => {
         const workUsualChoice = choices.find((c) => c.value === 'workUsual');
         expect(workUsualChoice).toBeDefined();
 
-        setActiveVisitedPlace(interview, 'personId1', 'journeyId1', 'workPlace1P1');
+        setActiveSurveyObjects(interview, { personId: 'personId1', journeyId: 'journeyId1', visitedPlaceId: 'workPlace1P1' });
         interview.response.household!.persons!.personId1!.occupation = 'fullTimeWorker';
         (interview.response.household!.persons!.personId1! as any).usualWorkPlace = {
             geography: {
@@ -178,7 +167,7 @@ describe('Activity per-choice conditionals', () => {
         const workUsualChoice = choices.find((c) => c.value === 'workUsual');
         expect(workUsualChoice).toBeDefined();
 
-        setActiveVisitedPlace(interview, 'personId1', 'journeyId1', 'workPlace1P1');
+        setActiveSurveyObjects(interview, { personId: 'personId1', journeyId: 'journeyId1', visitedPlaceId: 'workPlace1P1' });
         interview.response.household!.persons!.personId1!.occupation = undefined;
         (interview.response.household!.persons!.personId1! as any).usualWorkPlace = undefined;
 
@@ -188,7 +177,7 @@ describe('Activity per-choice conditionals', () => {
     test('schoolUsual conditional should return false when active person is missing', () => {
         const interview = _cloneDeep(interviewAttributesForTestCases);
         // Set wrong active person to trigger invalid person condition in the conditional function
-        setActiveVisitedPlace(interview, 'personId4', 'journeyId4', 'schoolPlace1P4');
+        setActiveSurveyObjects(interview, { personId: 'personId4', journeyId: 'journeyId4', visitedPlaceId: 'schoolPlace1P4' });
         const schoolUsualChoice = choices.find((c) => c.value === 'schoolUsual');
         expect(schoolUsualChoice).toBeDefined();
 
@@ -200,7 +189,7 @@ describe('Activity per-choice conditionals', () => {
         const schoolUsualChoice = choices.find((c) => c.value === 'schoolUsual');
         expect(schoolUsualChoice).toBeDefined();
 
-        setActiveVisitedPlace(interview, 'personId3', 'journeyId3', 'schoolPlace1P3');
+        setActiveSurveyObjects(interview, { personId: 'personId3', journeyId: 'journeyId3', visitedPlaceId: 'schoolPlace1P3' });
         interview.response.household!.persons!.personId3!.schoolType = 'kindergarten';
 
         expect(schoolUsualChoice?.conditional?.(interview, 'household.persons.personId3.journeys.journeyId3.visitedPlaces.schoolPlace1P3.activity')).toEqual(true);
@@ -211,7 +200,7 @@ describe('Activity per-choice conditionals', () => {
         const schoolUsualChoice = choices.find((c) => c.value === 'schoolUsual');
         expect(schoolUsualChoice).toBeDefined();
 
-        setActiveVisitedPlace(interview, 'personId3', 'journeyId3', 'schoolPlace1P3');
+        setActiveSurveyObjects(interview, { personId: 'personId3', journeyId: 'journeyId3', visitedPlaceId: 'schoolPlace1P3' });
         interview.response.household!.persons!.personId3!.occupation = undefined;
 
         expect(schoolUsualChoice?.conditional?.(interview, 'household.persons.personId3.journeys.journeyId3.visitedPlaces.schoolPlace1P3.activity')).toEqual(true);
@@ -222,7 +211,7 @@ describe('Activity per-choice conditionals', () => {
         const schoolUsualChoice = choices.find((c) => c.value === 'schoolUsual');
         expect(schoolUsualChoice).toBeDefined();
 
-        setActiveVisitedPlace(interview, 'personId3', 'journeyId3', 'schoolPlace1P3');
+        setActiveSurveyObjects(interview, { personId: 'personId3', journeyId: 'journeyId3', visitedPlaceId: 'schoolPlace1P3' });
         interview.response.household!.persons!.personId3!.occupation = 'fullTimeWorker';
         interview.response.household!.persons!.personId3!.age = 30;
         (interview.response.household!.persons!.personId3! as any).usualSchoolPlace = undefined;
@@ -236,7 +225,7 @@ describe('Activity per-choice conditionals', () => {
         expect(choice).toBeDefined();
 
         const hasDrivingLicenseSpy = jest.spyOn(odHelpers, 'hasOrUnknownDrivingLicense').mockReturnValueOnce(true);
-        setActiveVisitedPlace(interview, 'personId2', 'journeyId2', 'otherWorkPlace1P2');
+        setActiveSurveyObjects(interview, { personId: 'personId2', journeyId: 'journeyId2', visitedPlaceId: 'otherWorkPlace1P2' });
 
         expect(choice?.conditional?.(interview, 'household.persons.personId2.journeys.journeyId2.visitedPlaces.otherWorkPlace1P2.activity')).toEqual(true);
         expect(hasDrivingLicenseSpy).toHaveBeenCalledWith({
@@ -264,7 +253,7 @@ describe('Activity per-choice conditionals', () => {
         const membersCountSpy = jest
             .spyOn(odHelpers, 'getCarsharingMembersCount')
             .mockReturnValueOnce(membersCount);
-        setActiveVisitedPlace(interview, 'personId2', 'journeyId2', 'otherWorkPlace1P2');
+        setActiveSurveyObjects(interview, { personId: 'personId2', journeyId: 'journeyId2', visitedPlaceId: 'otherWorkPlace1P2' });
 
         expect(choice?.conditional?.(interview, 'household.persons.personId2.journeys.journeyId2.visitedPlaces.otherWorkPlace1P2.activity')).toEqual(expected);
         expect(membersCountSpy).toHaveBeenCalledWith({ interview });
@@ -361,7 +350,7 @@ describe('Activity next/previous incompatibility validations', () => {
         ]
     ]).test('%s', (_title, visitedPlaces, activity: Activity, expected) => {
         const interview = _cloneDeep(interviewAttributesForTestCases);
-        setActiveVisitedPlace(interview, 'personId1', 'journeyId1', 'currentPlace');
+        setActiveSurveyObjects(interview, { personId: 'personId1', journeyId: 'journeyId1', visitedPlaceId: 'currentPlace' });
         interview.response.household!.persons!.personId1!.journeys!.journeyId1!.visitedPlaces = visitedPlaces as any;
         interview.response.household!.persons!.personId1!.occupation = undefined;
 
