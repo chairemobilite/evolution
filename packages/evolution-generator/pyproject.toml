@@ -34,7 +34,7 @@ verifyExcel = "scripts.generate_survey:verify_excel_cli_main"
 
 [tool.poetry.group.dev.dependencies]
 black = "^26.3.1"
-pytest = "^8.3.5"
+pytest = "^9.0.3"
 
 [build-system]
 requires = ["poetry-core"]
