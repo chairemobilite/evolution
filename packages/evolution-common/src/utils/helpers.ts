@@ -22,6 +22,7 @@ import {
     I18nData,
     InterviewResponse,
     ParsingFunction,
+    QuestionnaireObjectWithUuidAndSequence,
     RadioChoiceType,
     UserInterviewAttributes,
     WidgetConfig
@@ -546,7 +547,10 @@ export const interviewOnOrAfter = (date: string, interview: UserInterviewAttribu
  * @param {Object[]} [attributes=[]] An array of attributes with which to
  * initialize the objects. Each attributes object in the array will be used to
  * initialize the new objects at the same position.
- * @returns {Object} The changed values by path
+ * @returns {Object} A key-value object containing the changed values by path in
+ * `valuesByPath` and the new objects in `newObjects`. The changed values by
+ * path include the updated sequences of the existing objects after the insert
+ * sequence.
  */
 export const addGroupedObjects = (
     interview: UserInterviewAttributes,
@@ -554,10 +558,12 @@ export const addGroupedObjects = (
     insertSequence: number | undefined,
     path: string,
     attributes: { [key: string]: unknown }[] = []
-): { [modifiedValue: string]: unknown } => {
+): { valuesByPath: { [modifiedValue: string]: unknown }; newObjects: QuestionnaireObjectWithUuidAndSequence[] } => {
     const changedValuesByPath = {};
     const groupedObjects = _get(interview.response, path, {});
-    const groupedObjectsArray = sortBy(Object.values(groupedObjects), ['_sequence']) as Uuidable[];
+    const groupedObjectsArray = sortBy(Object.values(groupedObjects), [
+        '_sequence'
+    ]) as QuestionnaireObjectWithUuidAndSequence[];
     // Make sure sequence is within bounds:
     const objStartSequence =
         typeof insertSequence !== 'number' || insertSequence <= -1
@@ -569,18 +575,22 @@ export const addGroupedObjects = (
         const groupedObject = groupedObjectsArray[seq - 1];
         changedValuesByPath[`response.${path}.${groupedObject._uuid}._sequence`] = seq + newObjectsCount;
     }
+    const newObjects: QuestionnaireObjectWithUuidAndSequence[] = [];
+
     for (let i = 0; i < newObjectsCount; i++) {
         const uniqueId = uuidV4();
         const newSequence = objStartSequence + i;
         const newObjectAttributes = attributes[i] ? attributes[i] : {};
-        changedValuesByPath[`response.${path}.${uniqueId}`] = {
+        const newObject = {
             _sequence: newSequence,
             _uuid: uniqueId,
             ...newObjectAttributes
         };
+        changedValuesByPath[`response.${path}.${uniqueId}`] = newObject;
         changedValuesByPath[`validations.${path}.${uniqueId}`] = {};
+        newObjects.push(newObject);
     }
-    return changedValuesByPath;
+    return { valuesByPath: changedValuesByPath, newObjects };
 };
 
 /**

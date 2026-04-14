@@ -71,8 +71,7 @@ export class SegmentsSectionFactory implements SectionConfigFactory {
                 const tripsPath = `household.persons.${person._uuid}.journeys.${currentJourney!._uuid}.trips`;
                 const visitedPlaces = odHelpers.getVisitedPlacesArray({ journey: currentJourney! });
                 const trips = odHelpers.getTripsArray({ journey: currentJourney! });
-                const nextTrip: Trip | null = odHelpers.selectNextIncompleteTrip({ journey: currentJourney! });
-                let firstInvalidTripId: string | null | undefined = nextTrip ? nextTrip._uuid : null;
+                let nextTripToSelect: Trip | null = odHelpers.selectNextIncompleteTrip({ journey: currentJourney! });
                 let foundFirstInvalidTrip = false;
 
                 // Create the missing trips objects and initialize those that may have changed
@@ -97,44 +96,36 @@ export class SegmentsSectionFactory implements SectionConfigFactory {
                             destination._uuid;
                         // also delete existing segments:
                         responseContent[`response.${tripsPath}.${trip._uuid}.segments`] = undefined;
-                        if (firstInvalidTripId === null || !foundFirstInvalidTrip) {
+                        if (nextTripToSelect === null || !foundFirstInvalidTrip) {
                             // If the first invalid trip is not set, set it to this trip
-                            firstInvalidTripId = trip._uuid;
+                            nextTripToSelect = trip;
                             foundFirstInvalidTrip = true;
                         }
-                    } else if (!foundFirstInvalidTrip && trip._uuid === firstInvalidTripId) {
+                    } else if (!foundFirstInvalidTrip && trip._uuid === nextTripToSelect?._uuid) {
                         // If this is the first invalid trip, we found it
                         foundFirstInvalidTrip = true;
                     }
                 }
                 // If the invalid trip was not found, it is not in the trips array anymore, so we set it to null
-                if (!foundFirstInvalidTrip && nextTrip !== null) {
-                    firstInvalidTripId = null;
+                if (!foundFirstInvalidTrip && nextTripToSelect !== null) {
+                    nextTripToSelect = null;
                 }
                 if (newTrips.length > 0) {
                     // Add the new trips all at once, after the existing ones
-                    const addValuesByPath = addGroupedObjects(
+                    const { valuesByPath, newObjects } = addGroupedObjects(
                         interview,
                         newTrips.length,
                         trips.length + 1,
                         tripsPath,
                         newTrips
                     );
-                    // Set the first invalid trip to the first trip in the new sequence
-                    if (firstInvalidTripId === null) {
-                        // Find trip with lowest sequence number
-                        const newTripKey = Object.keys(addValuesByPath)
-                            .filter((key) => key.startsWith(`response.${tripsPath}`))
-                            .sort(
-                                (tripKeyA, tripKeyB) =>
-                                    (addValuesByPath[tripKeyA] as any)._sequence -
-                                    (addValuesByPath[tripKeyB] as any)._sequence
-                            )[0];
-                        // From the newJourneyKey, get the journey UUID as the rest of the string after the last dot
-                        const tripUuid = newTripKey!.split('.').pop();
-                        firstInvalidTripId = tripUuid;
+                    // Set the next trip to the first trip in the new sequence, if not found yet
+                    if (nextTripToSelect === null && newObjects.length > 0) {
+                        // Find trip with lowest sequence number and select it as next one
+                        const firstNewTrip = newObjects.sort((tripA, tripB) => tripA._sequence - tripB._sequence)[0];
+                        nextTripToSelect = firstNewTrip;
                     }
-                    Object.assign(responseContent, addValuesByPath);
+                    Object.assign(responseContent, valuesByPath);
                 }
 
                 // remove superfluous trips, there should be one less than visited places
@@ -158,15 +149,10 @@ export class SegmentsSectionFactory implements SectionConfigFactory {
                     }
                 }
 
-                if (!_isEmpty(responseContent)) {
-                    return {
-                        ...responseContent,
-                        'response._activeTripId': firstInvalidTripId
-                    };
-                } else {
-                    responseContent['response._activeTripId'] = nextTrip !== null ? nextTrip._uuid : null;
-                    return responseContent;
-                }
+                return {
+                    ...responseContent,
+                    'response._activeTripId': nextTripToSelect !== null ? nextTripToSelect._uuid : null
+                };
             },
 
             // Section specific configuration
