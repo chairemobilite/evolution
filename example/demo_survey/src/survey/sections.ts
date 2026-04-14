@@ -134,7 +134,8 @@ const sections: { [sectionName: string]: SectionConfig } = {
             if (householdSizeIsValid && householdSize) {
                 if (countGroupedObjects < householdSize) {
                     // auto create objects according to household size:
-                    return addGroupedObjects(interview, householdSize - countGroupedObjects, -1, 'household.persons');
+                    return addGroupedObjects(interview, householdSize - countGroupedObjects, -1, 'household.persons')
+                        .valuesByPath;
                 } else if (countGroupedObjects > householdSize) {
                     const pathsToDelete = [];
                     // auto remove empty objects according to household size:
@@ -314,18 +315,14 @@ const sections: { [sectionName: string]: SectionConfig } = {
                     }
                 } else {
                     // Make sure to set initialize a journey for this person if it does not exist
-                    const newJourneysValuesByPath = addGroupedObjects(
+                    const { valuesByPath: newJourneysValuesByPath, newObjects } = addGroupedObjects(
                         interview,
                         1,
                         1,
                         `household.persons.${person._uuid}.journeys`,
                         [{ startDate: getResponse(interview, 'tripsDate') }]
                     );
-                    const newJourneyKey = Object.keys(newJourneysValuesByPath).find((key) =>
-                        key.startsWith(`response.household.persons.${person._uuid}.journeys.`)
-                    );
-                    // From the newJourneyKey, get the journey UUID as the rest of the string after the last dot
-                    const journeyUuid = newJourneyKey.split('.').pop();
+                    const journeyUuid = newObjects[0]._uuid;
                     newJourneysValuesByPath['response._activeJourneyId'] = journeyUuid;
                     return newJourneysValuesByPath;
                 }
@@ -392,7 +389,7 @@ const sections: { [sectionName: string]: SectionConfig } = {
 
             if (visitedPlaces.length === 0) {
                 // Add the first visited place
-                const visitedPlacesValuesByPath = addGroupedObjects(
+                const { valuesByPath: visitedPlacesValuesByPath } = addGroupedObjects(
                     interview,
                     1,
                     1,
@@ -420,6 +417,9 @@ const sections: { [sectionName: string]: SectionConfig } = {
         },
         enableConditional: function (interview) {
             const person = odSurveyHelper.getPerson({ interview });
+            if (person === null) {
+                return false;
+            }
             return (
                 helper.householdMembersSectionComplete(interview) &&
                 helper.tripsIntroForPersonComplete(person, interview)

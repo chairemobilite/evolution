@@ -292,7 +292,7 @@ export const startSurveyCorrectedAddGroupedObjects = (
         getState: () => RootState
     ) => {
         const interview = _cloneDeep(getState().survey.interview) as UserRuntimeInterviewAttributes; // needed because we cannot mutate state
-        const changedValuesByPath = surveyHelper.addGroupedObjects(
+        const { valuesByPath } = surveyHelper.addGroupedObjects(
             interview,
             newObjectsCount,
             insertSequence,
@@ -300,9 +300,9 @@ export const startSurveyCorrectedAddGroupedObjects = (
             attributes || []
         );
         if (returnOnly) {
-            return changedValuesByPath;
+            return valuesByPath;
         } else {
-            dispatch(startUpdateSurveyCorrectedInterview({ valuesByPath: changedValuesByPath }, callback));
+            dispatch(startUpdateSurveyCorrectedInterview({ valuesByPath }, callback));
         }
     };
 };

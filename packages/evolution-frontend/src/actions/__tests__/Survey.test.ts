@@ -1299,7 +1299,7 @@ describe('startNavigate', () => {
 });
 
 describe('startAddGroupedObjects', () => {
-    const defaultAddGroupResponse = { 'response.data': { _uuid: 'someuuid' }, 'validations.data': true };
+    const defaultAddGroupResponse = { valuesByPath: { 'response.data': { _uuid: 'someuuid', _sequence: 1 }, 'validations.data': true }, newObjects: [{ _uuid: 'someuuid', _sequence: 1 }] };
     mockedAddGroupedObject.mockReturnValue(defaultAddGroupResponse);
 
     let startUpdateInterviewSpy;
@@ -1327,7 +1327,7 @@ describe('startAddGroupedObjects', () => {
         expect(mockedAddGroupedObject).toHaveBeenCalledTimes(1);
         expect(mockedAddGroupedObject).toHaveBeenCalledWith(interviewAttributes, newObjectCnt, insertSeq, path, []);
         expect(startUpdateInterviewSpy).toHaveBeenCalledTimes(1);
-        expect(startUpdateInterviewSpy).toHaveBeenCalledWith({ valuesByPath: defaultAddGroupResponse }, undefined);
+        expect(startUpdateInterviewSpy).toHaveBeenCalledWith({ valuesByPath: defaultAddGroupResponse.valuesByPath }, undefined);
         expect(mockDispatch).toHaveBeenCalledTimes(1);
         expect(mockDispatch).toHaveBeenCalledWith(startUpdateInterviewMock);
     });
@@ -1348,7 +1348,7 @@ describe('startAddGroupedObjects', () => {
         expect(mockedAddGroupedObject).toHaveBeenCalledTimes(1);
         expect(mockedAddGroupedObject).toHaveBeenCalledWith(interviewAttributes, newObjectCnt, insertSeq, path, attributes);
         expect(startUpdateInterviewSpy).not.toHaveBeenCalled();
-        expect(vals).toEqual(defaultAddGroupResponse);
+        expect(vals).toEqual(defaultAddGroupResponse.valuesByPath);
         expect(mockDispatch).not.toHaveBeenCalled();
     });
 
@@ -1368,7 +1368,7 @@ describe('startAddGroupedObjects', () => {
         expect(mockedAddGroupedObject).toHaveBeenCalledTimes(1);
         expect(mockedAddGroupedObject).toHaveBeenCalledWith(interviewAttributes, newObjectCnt, insertSeq, path, attributes);
         expect(startUpdateInterviewSpy).toHaveBeenCalledTimes(1);
-        expect(startUpdateInterviewSpy).toHaveBeenCalledWith({ valuesByPath: defaultAddGroupResponse }, callback);
+        expect(startUpdateInterviewSpy).toHaveBeenCalledWith({ valuesByPath: defaultAddGroupResponse.valuesByPath }, callback);
         expect(mockDispatch).toHaveBeenCalledTimes(1);
         expect(mockDispatch).toHaveBeenCalledWith(startUpdateInterviewMock);
     });

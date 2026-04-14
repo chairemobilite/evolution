@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - BREAKING: if using the webpack generation functions and the project has a `locales` folder, make sure an empty module file is present in the folder for build time import. An empty file named `index.js` at the root of the project's `locales` folder is enough. Webpack will replace it with the actual translations in the build. (#1426)
+- BREAKING: the `addGroupedObjects` function now returns an object of type `{ valuesByPath: Record<string, unknown>, newObjects: QuestionnaireObjectWithUuidAndSequence[] }` instead of only the values by path. Previous code can simply use the response's `valuesByPath` field to have the same data as before.
 
 ### Deprecated
 
