@@ -96,19 +96,34 @@ type SurveyPointProperties = {
 };
 
 /**
+ * Base type for objects in the response, typically used in groups, like
+ * persons, visited places, etc.
+ */
+export type QuestionnaireObjectWithUuidAndSequence = {
+    /**
+     * A uuid to uniquely identify the object.
+     */
+    _uuid: string;
+    /**
+     * Sequence number for ordering objects. First object has sequence 1.
+     */
+    _sequence: number;
+};
+
+/**
  * @typedef {Object} Person
  * @property {number} _sequence The sequence number of the person.
  * @property {string} whoWillAnswerForThisPerson UUID of the person who responds for this person.
  * @property {{ [journeyId: string]: Journey }} [journeys] The journeys associated with this person.
  */
-export type Person = PersonAttributes & {
-    _sequence: number;
-    /** uuid of the person who responds for this person (for household where more than 1 person have more than the minimum self response age) */
-    whoWillAnswerForThisPerson?: string;
-    journeys?: {
-        [journeyId: string]: Journey;
+export type Person = PersonAttributes &
+    QuestionnaireObjectWithUuidAndSequence & {
+        /** uuid of the person who responds for this person (for household where more than 1 person have more than the minimum self response age) */
+        whoWillAnswerForThisPerson?: string;
+        journeys?: {
+            [journeyId: string]: Journey;
+        };
     };
-};
 
 /**
  * @typedef {Object} Journey
@@ -127,23 +142,21 @@ export type Person = PersonAttributes & {
  * @property {{ [visitedPlaceId: string]: VisitedPlace }} [visitedPlaces] The
  * visited places associated with this journey.
  */
-export type Journey = JourneyAttributes & {
-    _sequence: number;
-    departurePlaceType?: string;
-    personDidTrips?: YesNoDontKnow;
-    personDidTripsConfirm?: YesNoDontKnow;
-    trips?: {
-        [tripId: string]: Trip;
+export type Journey = JourneyAttributes &
+    QuestionnaireObjectWithUuidAndSequence & {
+        departurePlaceType?: string;
+        personDidTrips?: YesNoDontKnow;
+        personDidTripsConfirm?: YesNoDontKnow;
+        trips?: {
+            [tripId: string]: Trip;
+        };
+        visitedPlaces?: {
+            [visitedPlaceId: string]: VisitedPlace;
+        };
     };
-    visitedPlaces?: {
-        [visitedPlaceId: string]: VisitedPlace;
-    };
-};
 
 // FIXME We are not using the VisitedPlaceAttributes type here because during survey, most of the data from that type is rather as a property of the geography feature and not as fields of the object
-export type VisitedPlace = {
-    _sequence: number;
-    _uuid: string;
+export type VisitedPlace = QuestionnaireObjectWithUuidAndSequence & {
     activity?: Optional<Activity>;
     activityCategory?: Optional<ActivityCategory>;
     geography?: GeoJSON.Feature<GeoJSON.Point, SurveyPointProperties>;
@@ -156,27 +169,27 @@ export type VisitedPlace = {
      */
     nextPlaceCategory?: 'wentBackHome' | 'visitedAnotherPlace' | 'stayedThereUntilTheNextDay' | 'wentToUsualWorkPlace';
 } & (
-    | { alreadyVisitedBySelfOrAnotherHouseholdMember?: false; name?: string; shortcut?: never }
-    | { alreadyVisitedBySelfOrAnotherHouseholdMember: true; name?: never; shortcut?: string }
-);
+        | { alreadyVisitedBySelfOrAnotherHouseholdMember?: false; name?: string; shortcut?: never }
+        | { alreadyVisitedBySelfOrAnotherHouseholdMember: true; name?: never; shortcut?: string }
+    );
 
-export type Trip = TripAttributes & {
-    _sequence: number;
-    _originVisitedPlaceUuid?: string;
-    _destinationVisitedPlaceUuid?: string;
-    segments?: {
-        [segmentUuid: string]: Segment;
+export type Trip = TripAttributes &
+    QuestionnaireObjectWithUuidAndSequence & {
+        _originVisitedPlaceUuid?: string;
+        _destinationVisitedPlaceUuid?: string;
+        segments?: {
+            [segmentUuid: string]: Segment;
+        };
     };
-};
 
-export type Segment = Omit<SegmentAttributes, 'mode'> & {
-    _sequence: number;
-    _isNew: boolean;
-    modePre?: ModePre;
-    mode?: Mode;
-    sameModeAsReverseTrip?: boolean;
-    hasNextMode?: boolean;
-};
+export type Segment = Omit<SegmentAttributes, 'mode'> &
+    QuestionnaireObjectWithUuidAndSequence & {
+        _isNew: boolean;
+        modePre?: ModePre;
+        mode?: Mode;
+        sameModeAsReverseTrip?: boolean;
+        hasNextMode?: boolean;
+    };
 
 type SectionStatus = {
     _isCompleted?: boolean;
