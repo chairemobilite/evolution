@@ -62,6 +62,9 @@ def generate_survey(config_path):
             "generate_questionnaire_dictionary", False
         )
 
+    # Find the labels output folder path
+    labels_output_folder_path = os.path.join(survey_folder_path, "locales")
+
     # Call the generate_excel function to generate the Excel file if script enabled
     if enabled_generate_excel:
         generate_excel(
@@ -124,7 +127,11 @@ def generate_survey(config_path):
         choices_output_file_path = os.path.join(
             survey_folder_path, "src", "survey", "common", "choices.tsx"
         )
-        generate_choices(excel_file_path, choices_output_file_path)
+        generate_choices(
+            excel_file_path,
+            choices_output_file_path,
+            labels_output_folder_path=labels_output_folder_path,
+        )
 
     # Call the generate_input_range function to generate labels.tsx if script enabled
     if enabled_generate_input_range:
@@ -135,7 +142,6 @@ def generate_survey(config_path):
 
     # Call the generate_labels function to generate the labels locales folder if script enabled
     if enabled_generate_labels:
-        labels_output_folder_path = os.path.join(survey_folder_path, "locales")
         # TODO: At some point, we should consider only read the Excel sheet one time, to avoid reading it multiple times.
         # TODO: We might consider extracting the sheet names from the Excel file or config file instead of hardcoding them.
         # Generate the labels for the specified sheets
