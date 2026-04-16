@@ -1,18 +1,28 @@
-import { SegmentsSectionFactory } from 'evolution-common/lib/services/questionnaire/sections/segments/sectionSegments';
-import { VisitedPlacesSectionFactory } from 'evolution-common/lib/services/questionnaire/sections/visitedPlaces/sectionVisitedPlaces';
 import * as odSurveyHelper from 'evolution-common/lib/services/odSurvey/helpers';
-import surveySections from './sections';
-import * as widgetsConfig from './widgets';
+import customSurveySections from './sections';
+import * as customWidgetsConfig from './widgets';
 import helper, { segmentSectionConfig, visitedPlacesSectionConfig, widgetFactoryOptions } from './helper';
 import { getAndValidateSurveySections, SectionConfig } from 'evolution-common/lib/services/questionnaire/types';
 import { addGroupedObjects, getResponse } from 'evolution-common/lib/utils/helpers';
+import { QuestionnaireFactory } from 'evolution-common/lib/services/questionnaire';
+
+const questionnaireConfiguration = {
+    tripDiary: {
+        sections: {
+            segments: segmentSectionConfig,
+            visitedPlaces: visitedPlacesSectionConfig
+        }
+    }
+};
+
+const questionnaireFactory = new QuestionnaireFactory(questionnaireConfiguration, widgetFactoryOptions);
+const { surveySections, widgetsConfig } = questionnaireFactory.buildSectionsAndWidgets();
 
 // FIXME For now this file is here and has quite a bit of code. Eventually, the
 // questionnaire generation should be done in Evolution directly when we have
 // more builtin stuff
 
-const segmentSectionConfigFactory = new SegmentsSectionFactory(segmentSectionConfig, widgetFactoryOptions);
-const segmentSectionConfigFromFactory = segmentSectionConfigFactory.getSectionConfig();
+const segmentSectionConfigFromFactory = surveySections['segments'];
 
 // Add the segments section to the exported configuration
 const segmentConfig: SectionConfig = {
@@ -27,11 +37,7 @@ const segmentConfig: SectionConfig = {
     }
 };
 
-const visitedPlacesSectionConfigFactory = new VisitedPlacesSectionFactory(
-    visitedPlacesSectionConfig,
-    widgetFactoryOptions
-);
-const visitedPlacesSectionConfigFromFactory = visitedPlacesSectionConfigFactory.getSectionConfig();
+const visitedPlacesSectionConfigFromFactory = surveySections['visitedPlaces'];
 
 // Add the visited places section to the exported configuration
 const visitedPlacesConfig: SectionConfig = {
@@ -91,7 +97,7 @@ const visitedPlacesConfig: SectionConfig = {
 };
 
 // FIXME Workaround to satisfy the completion percentage calculation that expects sections to be defined in their order of display in the object (see https://github.com/chairemobilite/evolution/issues/1024)
-const { travelBehavior, end, completed, ...earlierSections } = surveySections;
+const { travelBehavior, end, completed, ...earlierSections } = customSurveySections;
 const validatedSections = getAndValidateSurveySections({
     ...earlierSections,
     visitedPlaces: visitedPlacesConfig,
@@ -102,11 +108,6 @@ const validatedSections = getAndValidateSurveySections({
 });
 
 // Widgets defined in the interview will override the ones from the section factory, if any
-const allWidgetConfig = Object.assign(
-    {},
-    segmentSectionConfigFactory.getWidgetConfigs(),
-    visitedPlacesSectionConfigFactory.getWidgetConfigs(),
-    widgetsConfig
-);
+const allWidgetConfig = Object.assign({}, widgetsConfig, customWidgetsConfig);
 
 export { validatedSections as surveySections, allWidgetConfig as widgetsConfig };

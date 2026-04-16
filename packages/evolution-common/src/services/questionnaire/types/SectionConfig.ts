@@ -522,11 +522,6 @@ export type SegmentSectionConfiguration = {
 
 /**
  * Configuration for the visited places section of the questionnaire
- *
- * TODO Consider merging with the SegmentSectionConfiguration in a single
- * `TripDiaryConfiguration` to configure and build the whole trip diary with one
- * call. We can do this once the whole VisitedPlaces section is available in
- * Evolution.
  */
 export type VisitedPlacesSectionConfiguration = {
     type: 'visitedPlaces';
@@ -585,15 +580,36 @@ export type VisitedPlacesSectionConfiguration = {
     additionalVisitedPlacesWidgetNames?: string[];
 };
 
-// TODO Add more section configuration types as we support more
-export type SectionConfigurationType = SegmentSectionConfiguration | VisitedPlacesSectionConfiguration;
-
 /**
  * Configuration for the questionnaire's builtin sections. The keys are the
  * section names and the values are the configuration for that section.
  *
- * TODO When segments and visited places section are merged, this cannot have a
- * section as key anymore, we'll need a complete questionnaire configuration
- * type to replace it.
+ * FIXME Add more configurations as we have more builtin sections and more
+ * complex configurations.
  */
-export type QuestionnaireConfiguration = Record<string, SectionConfigurationType>;
+export type QuestionnaireConfiguration = {
+    /**
+     * Configuration for the trip diary part of the questionnaire. A trip diary
+     * is a many steps section where, for each applicable participant, the
+     * respondent declare when they have been to during a journey and how they
+     * got there.
+     *
+     * FIXME Many configurations are yet to be added: the type of trip diary
+     * (daily or trip-based, household or single-person), the possibility to not
+     * have all sections, or in different order, the additional sections, like
+     * travelBehavior, tripsIntro, which are currently assumed to exist in the
+     * questionnaire and should come before/after the visited places and
+     * segments section respectively, etc.
+     */
+    tripDiary?: {
+        /**
+         * Lists the section the trip diary should contain and their
+         * configuration. The order of the sections in the trip diary is
+         * currently forced.
+         */
+        sections: {
+            visitedPlaces?: VisitedPlacesSectionConfiguration;
+            segments?: SegmentSectionConfiguration;
+        };
+    };
+};
