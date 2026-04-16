@@ -233,12 +233,14 @@ def generate_widget_statement(row, gender_fields: GenderFields = None) -> Widget
     input_range = row["inputRange"]
     help_popup = row["help_popup"]
     choices = row["choices"]
-    confirm_popup = row["confirm_popup"] if "confirm_popup" in row else None
+    confirm_popup = row.get("confirm_popup", None)  # Optional column
+    comments = row.get("comments", None)  # Optional column
     widget_label = generate_label(section, path, row, gender_fields, key_name="label")
 
     # Initialize result with default values
     result: WidgetResult = {"statement": "", "has_helper_import": False}
 
+    # Generate the widgets statement based on the input type
     if input_type == "Custom":
         result["statement"] = generate_custom_widget(question_name)
     elif input_type == "BuiltIn":
@@ -336,6 +338,12 @@ def generate_widget_statement(row, gender_fields: GenderFields = None) -> Widget
         )
     else:
         result["statement"] = f"// {question_name}"
+
+    # Add the comment line to the statement if it is present
+    if comments:
+        # Support multi-line comments by emitting one `// ...` per line.
+        comment_block = "".join([f"// {line}\n" for line in str(comments).splitlines()])
+        result["statement"] = f"{comment_block}{result['statement']}"
 
     return result
 
@@ -746,7 +754,7 @@ def generate_contains_html(containsHtml, shouldAddContainsHtml):
 
 
 def generate_custom_path(row):
-    custom_path = row["customPath"] if "customPath" in row else None
+    custom_path = row.get("customPath", None)
     if custom_path:
         return f"{INDENT}customPath: '{custom_path}',\n"
     else:
@@ -754,7 +762,7 @@ def generate_custom_path(row):
 
 
 def generate_custom_choice(row):
-    custom_choice = row["customChoice"] if "customChoice" in row else None
+    custom_choice = row.get("customChoice", None)
     if custom_choice:
         return f"{INDENT}customChoice: '{custom_choice}',\n"
     else:
@@ -762,7 +770,7 @@ def generate_custom_choice(row):
 
 
 def generate_default_value(row):
-    default_value = row["defaultValue"] if "defaultValue" in row else None
+    default_value = row.get("defaultValue", None)
     if default_value:
         return f"{INDENT}defaultValue: '{default_value}',\n"
     else:
@@ -778,8 +786,8 @@ def generate_common_properties(
     - Prints a warning if join_with is present but not in the expected pattern.
     - If allow_join_with is False, disables joinWith extraction.
     """
-    twoColumns = row["twoColumns"] if "twoColumns" in row else False
-    containsHtml = row["containsHtml"] if "containsHtml" in row else False
+    twoColumns = row.get("twoColumns", False)
+    containsHtml = row.get("containsHtml", False)
 
     join_with = None
     if allow_join_with:
@@ -985,9 +993,7 @@ def generate_range_widget(
     widget_label,
     row,
 ):
-    includeNotApplicable = (
-        row["includeNotApplicable"] if "includeNotApplicable" in row else False
-    )
+    includeNotApplicable = row.get("includeNotApplicable", False)
     notApplicableConfig = (
         "includeNotApplicable: true,\n" if includeNotApplicable else ""
     )
