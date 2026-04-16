@@ -129,6 +129,11 @@ export type Person = PersonAttributes &
  * @typedef {Object} Journey
  * @property {number} _sequence The sequence number of the journey.
  * @property {string} [departurePlaceType] The type of the departure place.
+ * @property {YesNoDontKnow} [departurePlaceIsHome] Answer to the question
+ * whether the departure place is home.
+ * @property {string} [departurePlaceOther] The type of the departure place if
+ * the departure place is not home. Either the `departurePlaceOther` and
+ * `departurePlaceIsHome` fields are set, or the `departurePlaceType`.
  * @property {YesNoDontKnow} [personDidTrips] Answer to the question whether the
  * person did any trips on the journey date. This question is typically asked in
  * OD surveys, where a data is assigned to a household and members may or may
@@ -144,7 +149,12 @@ export type Person = PersonAttributes &
  */
 export type Journey = JourneyAttributes &
     QuestionnaireObjectWithUuidAndSequence & {
+        // FIXME Deprecate? Or make the other 2 fill it
         departurePlaceType?: string;
+        departurePlaceIsHome?: YesNoDontKnow;
+        // FIXME Better type this, as the value is used to map the first place
+        // activity and category
+        departurePlaceOther?: string;
         personDidTrips?: YesNoDontKnow;
         personDidTripsConfirm?: YesNoDontKnow;
         trips?: {
