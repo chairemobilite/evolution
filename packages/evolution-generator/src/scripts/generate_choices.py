@@ -5,29 +5,95 @@
 # Note: This script includes functions that generate the choices.tsx file.
 # These functions are intended to be invoked from the generate_survey.py script.
 from collections import defaultdict
+import os
 from helpers.generator_helpers import (
     INDENT,
     add_generator_comment,
+    add_generator_yaml_header,
     is_excel_file,
     is_ts_file,
     get_workbook,
     sheet_exists,
     get_headers,
 )
-from scripts.labels_generator import LabelFormatter
+from scripts.labels_generator import LabelFormatter, LabelsGenerator
 
 
-def process_label(text):
+def _process_label_yaml(text) -> str | None:
     """
-    Replace single quotes and apply LabelFormatter.replace to the text.
+    Apply the same label formatting rules as labels generation.
     """
     if text is not None:
-        return LabelFormatter.replace(str(text).replace("'", "\\'"))
+        return LabelFormatter.replace(str(text))
     return None
 
 
+def generate_choices_yaml_locales(choices_by_name, labels_output_folder_path: str):
+    """
+    Generate locales choices YAML files containing the labels for each choice.
+
+    Output:
+      <surveyRoot>/locales/en/choices.yaml
+      <surveyRoot>/locales/fr/choices.yaml
+
+    Schema (per language file):
+      <choicesName>:
+        <value>: <label>
+    """
+    header = add_generator_yaml_header()
+
+    yaml_data_by_lang = {"fr": {}, "en": {}}
+
+    # Preserve Excel order: choices_by_name is filled by iterating Excel rows top-down.
+    for choice_name, choices in choices_by_name.items():
+        fr_values = {}
+        en_values = {}
+        for choice in choices:
+            # Skip spread rows: their labels come from the spread source
+            if choice.get("spread_choices_name", None) is not None:
+                continue
+            value = choice.get("value", None)
+            if value is None:
+                continue
+            value_key = str(value)
+            label_fr = choice.get("label_yaml", {}).get("fr")
+            if label_fr not in (None, ""):
+                fr_values[value_key] = LabelsGenerator.string_to_yaml(label_fr)
+            label_en = choice.get("label_yaml", {}).get("en")
+            if label_en not in (None, ""):
+                en_values[value_key] = LabelsGenerator.string_to_yaml(label_en)
+
+        # Do not generate empty groups (typically spread-only choice groups)
+        if fr_values or en_values:
+            if fr_values:
+                yaml_data_by_lang["fr"][choice_name] = fr_values
+            if en_values:
+                yaml_data_by_lang["en"][choice_name] = en_values
+
+    # Delete existing files first to avoid stale keys if some choices are removed
+    LabelsGenerator.delete_all_labels_yaml_files(
+        labels_output_folder_path=labels_output_folder_path,
+        languages=["fr", "en"],
+        sections=["choices"],
+    )
+
+    # Generate choices.yaml files for each language (only if non-empty).
+    for lang in ["fr", "en"]:
+        if not yaml_data_by_lang[lang]:
+            continue
+        lang_dir = os.path.join(labels_output_folder_path, lang)
+        os.makedirs(lang_dir, exist_ok=True)
+        yaml_path = os.path.join(lang_dir, "choices.yaml")
+        with open(yaml_path, mode="w", encoding="utf-8") as yaml_file:
+            yaml_file.write(header)
+            LabelsGenerator.yaml.dump(yaml_data_by_lang[lang], yaml_file)
+        print(f"Generated {yaml_path.replace('\\', '/') } successfully")
+
+
 # Function to generate choices.tsx
-def generate_choices(input_file: str, output_file: str):
+def generate_choices(
+    input_file: str, output_file: str, labels_output_folder_path: str | None = None
+):
     try:
         is_excel_file(input_file)  # Check if the input file is an Excel file
         is_ts_file(output_file)  # Check if the output file is an TypeScript file
@@ -66,8 +132,8 @@ def generate_choices(input_file: str, output_file: str):
             # Get values from the row dictionary
             choice_name = row_dict["choicesName"]
             value = row_dict["value"]
-            label_fr = process_label(row_dict["label::fr"])
-            label_en = process_label(row_dict["label::en"])
+            label_fr_yaml = _process_label_yaml(row_dict["label::fr"])
+            label_en_yaml = _process_label_yaml(row_dict["label::en"])
             spread_choices_name = row_dict["spreadChoicesName"]
             conditional = row_dict["conditional"]
             hidden = row_dict.get("hidden", False)
@@ -79,7 +145,7 @@ def generate_choices(input_file: str, output_file: str):
             # Create choice object with value and language-specific labels
             choice = {
                 "value": value,
-                "label": {"fr": label_fr, "en": label_en},
+                "label_yaml": {"fr": label_fr_yaml, "en": label_en_yaml},
                 "spread_choices_name": spread_choices_name,
                 "hidden": hidden,
             }
@@ -119,14 +185,21 @@ def generate_choices(input_file: str, output_file: str):
                     # Spread choices from another choiceName when spread_choices_name is not None
                     ts_code += f"{INDENT}...{choice['spread_choices_name']}"
                 else:
+                    # Use i18n-generated translations from locales/<lang>/choices.yaml
+                    value_str = str(choice["value"])
+                    value_key = value_str.replace("'", "\\'")
+                    translation_key = f"choices:{choice_name}.{value_key}"
+                    hidden_suffix = (
+                        f",\n{INDENT}{INDENT}hidden: true" if choice["hidden"] else ""
+                    )
+                    conditional_comma = (
+                        "," if choice.get("conditional", None) is not None else ""
+                    )
                     ts_code += (
                         f"{INDENT}{{\n"
-                        f"{INDENT}{INDENT}value: '{choice['value']}',\n"
-                        f"{INDENT}{INDENT}label: {{\n"
-                        f"{INDENT}{INDENT}{INDENT}fr: '{choice['label']['fr']}',\n"
-                        f"{INDENT}{INDENT}{INDENT}en: '{choice['label']['en']}'\n"
-                        f"{INDENT}{INDENT}}}{f",\n{INDENT}{INDENT}hidden: true" if choice["hidden"] else ''}"
-                        f"{INDENT}{INDENT}{',' if choice.get("conditional", None) is not None else ''}\n"
+                        f"{INDENT}{INDENT}value: '{value_key}',\n"
+                        f"{INDENT}{INDENT}label: (t) => t('{translation_key}'){hidden_suffix}"
+                        f"{conditional_comma}\n"
                     )
                     # Add the 'conditional' field only if it exists
                     if choice.get("conditional", None) is not None:
@@ -146,6 +219,13 @@ def generate_choices(input_file: str, output_file: str):
             ts_file.write(ts_code)
 
         print(f"Generated {output_file} successfully")
+
+        # Generate locales/<lang>/choices.yaml files
+        if labels_output_folder_path is not None:
+            generate_choices_yaml_locales(
+                choices_by_name,
+                labels_output_folder_path=labels_output_folder_path,
+            )
 
     except Exception as e:
         # Handle any other exceptions that might occur during script execution
