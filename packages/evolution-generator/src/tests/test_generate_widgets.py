@@ -11,6 +11,7 @@ from scripts.generate_widgets import (
     generate_radio_widget,
     generate_radio_number_widget,
     generate_string_widget,
+    generate_widget_statement,
     generate_label,
     parse_parameters,
     get_radio_number_parameters,
@@ -937,6 +938,76 @@ class TestGenerateStringWidget:
         assert result["has_helper_import"] is False
         assert result["has_formatter_import"] is False
         assert result["has_custom_formatter_import"] is True
+
+
+class TestGenerateWidgetStatementComments:
+    def test_single_line_comment_is_preserved(self):
+        row = {
+            "questionName": "acceptToBeContactedForHelp",
+            "inputType": "Radio",
+            "section": "home",
+            "path": "acceptToBeContactedForHelp",
+            "conditional": "",
+            "validation": "",
+            "inputRange": "",
+            "help_popup": "",
+            "choices": "yesNo",
+            "comments": "This is a single line comment",
+            "label::fr": "Acceptez-vous d'être contacté pour de l'aide?",
+            "label::en": "Do you agree to be contacted for help?",
+        }
+
+        result = generate_widget_statement(row, GenderFields())
+        assert result["statement"].startswith("// This is a single line comment\n")
+        assert (
+            "export const acceptToBeContactedForHelp: WidgetConfig.InputRadioType"
+            in result["statement"]
+        )
+
+    def test_multi_line_comment_is_preserved(self):
+        row = {
+            "questionName": "acceptToBeContactedForHelp",
+            "inputType": "Radio",
+            "section": "home",
+            "path": "acceptToBeContactedForHelp",
+            "conditional": "",
+            "validation": "",
+            "inputRange": "",
+            "help_popup": "",
+            "choices": "yesNo",
+            "comments": "First line\nSecond line",
+            "label::fr": "Acceptez-vous d'être contacté pour de l'aide?",
+            "label::en": "Do you agree to be contacted for help?",
+        }
+
+        result = generate_widget_statement(row, GenderFields())
+        assert result["statement"].startswith("// First line\n// Second line\n")
+        assert (
+            "export const acceptToBeContactedForHelp: WidgetConfig.InputRadioType"
+            in result["statement"]
+        )
+
+    def test_no_comments_column_does_not_add_comment(self):
+        row = {
+            "questionName": "acceptToBeContactedForHelp",
+            "inputType": "Radio",
+            "section": "home",
+            "path": "acceptToBeContactedForHelp",
+            "conditional": "",
+            "validation": "",
+            "inputRange": "",
+            "help_popup": "",
+            "choices": "yesNo",
+            "label::fr": "Acceptez-vous d'être contacté pour de l'aide?",
+            "label::en": "Do you agree to be contacted for help?",
+        }
+
+        result = generate_widget_statement(row, GenderFields())
+        assert not result["statement"].startswith("//")
+        assert (
+            "export const acceptToBeContactedForHelp: WidgetConfig.InputRadioType"
+            in result["statement"]
+        )
 
 
 # TODO: Test generate_select_widget
