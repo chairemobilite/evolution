@@ -336,101 +336,21 @@ const sections: { [sectionName: string]: SectionConfig } = {
                 helper.profileInfoForPersonComplete(person, interview)
             );
         },
-        isSectionCompleted: function (interview) {
-            const person = odSurveyHelper.getPerson({ interview });
-            return (
-                helper.householdMembersSectionComplete(interview) &&
-                helper.tripsIntroForPersonComplete(person, interview)
-            );
-        },
-        isSectionVisible: function (interview) {
-            const person = odSurveyHelper.getPerson({ interview }) as any;
-            return person && person.didTripsOnTripsDate === 'yes';
-        }
-    },
-
-    visitedPlaces: {
-        previousSection: 'tripsIntro',
-        nextSection: 'segments',
-        template: 'visitedPlaces',
-        title: {
-            fr: 'Déplacements',
-            en: 'Trips'
-        },
-        customStyle: {
-            maxWidth: '120rem'
-        },
-        widgets: [
-            'activePersonTitle',
-            'buttonSwitchPerson',
-            'personVisitedPlacesTitle',
-            'personVisitedPlacesMap',
-            'personVisitedPlaces',
-            //'personLastVisitedPlaceNotHome',
-            'buttonVisitedPlacesConfirmNextSection'
-        ],
-        onSectionEntry: function (interview, iterationContext) {
+        isSectionCompleted: function (interview, iterationContext) {
             const person = odSurveyHelper.getPerson({
                 interview,
                 personId: iterationContext[iterationContext.length - 1]
             }) as any;
-
-            const tripsUpdatesValueByPath = {};
-            const showNewPersonPopup = getResponse(interview, '_showNewPersonPopup', false);
-
-            if (showNewPersonPopup !== false) {
-                tripsUpdatesValueByPath['response._showNewPersonPopup'] = false;
-            }
-
-            // Journeys should not be empty
-            const journeys = odSurveyHelper.getJourneysArray({ person });
-            const currentJourney = journeys[0];
-            const visitedPlaces = odSurveyHelper.getVisitedPlacesArray({ journey: currentJourney });
-
-            if (visitedPlaces.length === 0) {
-                // Add the first visited place
-                const { valuesByPath: visitedPlacesValuesByPath } = addGroupedObjects(
-                    interview,
-                    1,
-                    1,
-                    `household.persons.${person._uuid}.journeys.${currentJourney._uuid}.visitedPlaces`,
-                    currentJourney.departurePlaceType === 'home' ? [{ activity: 'home' }] : []
-                );
-                const newVisitedPlaceKey = Object.keys(visitedPlacesValuesByPath).find((key) =>
-                    key.startsWith(`response.household.persons.${person._uuid}.journeys.`)
-                );
-                // From the newVisitedPlaceKey, get the journey UUID as the rest of the string after the last dot
-                const visitedPlaceUuid = newVisitedPlaceKey.split('.').pop();
-                // Select the new place as the active visited place, as well as the journey ID
-                return Object.assign(tripsUpdatesValueByPath, visitedPlacesValuesByPath, {
-                    ['response._activeVisitedPlaceId']: visitedPlaceUuid,
-                    ['response._activeJourneyId']: currentJourney._uuid
-                });
-            } else {
-                // Select the next visited place to edit
-                const selectedVisitedPlaceId = helper.selectNextVisitedPlaceId(visitedPlaces);
-                return {
-                    ['response._activeVisitedPlaceId']: selectedVisitedPlaceId,
-                    ['response._activeJourneyId']: currentJourney._uuid
-                };
-            }
-        },
-        enableConditional: function (interview) {
-            const person = odSurveyHelper.getPerson({ interview });
-            if (person === null) {
-                return false;
-            }
             return (
                 helper.householdMembersSectionComplete(interview) &&
                 helper.tripsIntroForPersonComplete(person, interview)
             );
         },
-        isSectionCompleted: (interview) => {
-            const person = odSurveyHelper.getPerson({ interview });
-            return helper.visitedPlacesForPersonComplete(person, interview);
-        },
-        isSectionVisible: function (interview) {
-            const person = odSurveyHelper.getPerson({ interview }) as any;
+        isSectionVisible: function (interview, iterationContext) {
+            const person = odSurveyHelper.getPerson({
+                interview,
+                personId: iterationContext[iterationContext.length - 1]
+            }) as any;
             return person && person.didTripsOnTripsDate === 'yes';
         }
     },
@@ -464,21 +384,21 @@ const sections: { [sectionName: string]: SectionConfig } = {
             }
             return undefined;
         },
-        enableConditional: function (interview) {
-            const person = odSurveyHelper.getPerson({ interview });
-            return (
-                helper.householdMembersSectionComplete(interview) && helper.tripsForPersonComplete(person, interview)
-            );
-        },
-        isSectionCompleted: function (interview) {
-            const person = odSurveyHelper.getPerson({ interview });
+        isSectionCompleted: function (interview, iterationContext) {
+            const person = odSurveyHelper.getPerson({
+                interview,
+                personId: iterationContext[iterationContext.length - 1]
+            }) as any;
             return (
                 helper.householdMembersSectionComplete(interview) &&
                 helper.travelBehaviorForPersonComplete(person, interview)
             );
         },
-        isSectionVisible: function (interview) {
-            const person = odSurveyHelper.getPerson({ interview }) as any;
+        isSectionVisible: function (interview, iterationContext) {
+            const person = odSurveyHelper.getPerson({
+                interview,
+                personId: iterationContext[iterationContext.length - 1]
+            }) as any;
             // Check the conditional of the personNoWorkTripReason, personNoSchoolTripReason and personWhoAnsweredForThisPerson widgets
             const [personNoWorkTripConditional] = checkConditional(
                 personNoWorkTripReason.conditional as any,

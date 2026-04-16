@@ -89,7 +89,25 @@ export const visitedPlacesSectionConfig: VisitedPlacesSectionConfiguration = {
     type: 'visitedPlaces' as const,
     enabled: true,
     tripDiaryMaxTimeOfDay: 28 * 60 * 60, // 28h in seconds (i.e. 4h the next day)
-    tripDiaryMinTimeOfDay: 4 * 60 * 60 // 4h in seconds
+    tripDiaryMinTimeOfDay: 4 * 60 * 60, // 4h in seconds
+    additionalVisitedPlacesWidgetNames: [
+        // Widgets including the builtin ones
+        'visitedPlaceActivityCategory',
+        'visitedPlaceActivity',
+        'visitedPlaceAlreadyVisited',
+        'visitedPlaceShortcut',
+        'visitedPlaceName',
+        'visitedPlaceGeography',
+        //"visitedPlaceArrivalAndDepartureTime",
+        'visitedPlaceArrivalTime',
+        'visitedPlaceDepartureTime',
+        'visitedPlaceNextPlaceCategory',
+        //"visitedPlaceWentBackHomeDirectlyAfter",
+        //"visitedPlaceIsNotLast",
+        'buttonSaveVisitedPlace',
+        'buttonCancelVisitedPlace',
+        'buttonDeleteVisitedPlace'
+    ]
 };
 
 // FIXME Move elsewhere. It is not here to be available for widgets.ts, sections.ts and questionnaire.ts files
@@ -296,7 +314,6 @@ const selectNextVisitedPlaceId = function (visitedPlaces) {
                     (visitedPlace._sequence === count &&
                         visitedPlace.nextPlaceCategory !== 'stayedThereUntilTheNextDay'))) ||
             (_isBlank(visitedPlace.arrivalTime) && visitedPlace._sequence > 1) ||
-            (_isBlank(visitedPlace.nextPlaceCategory) && visitedPlace._sequence > 1) ||
             (_isBlank(visitedPlace.geography) &&
                 ['home', 'workUsual', 'schoolUsual', 'workOnTheRoadFromHome', 'workOnTheRoadFromUsualWork'].indexOf(
                     visitedPlace.activity
