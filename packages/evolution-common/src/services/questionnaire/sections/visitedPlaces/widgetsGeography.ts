@@ -9,7 +9,7 @@ import _get from 'lodash/get';
 import _cloneDeep from 'lodash/cloneDeep';
 import i18n, { type TFunction } from 'i18next';
 import config from '../../../../config/project.config';
-import type { VisitedPlacesSectionConfiguration, WidgetConfig } from '../../types';
+import type { QuestionWidgetConfig, VisitedPlacesSectionConfiguration } from '../../types';
 import { type LocationWithNameWidgetOptions, LocationWithNameWidgetsFactory } from '../common/widgetsLocation';
 import type { WidgetConfigFactory, WidgetFactoryOptions } from '../types';
 import * as odHelpers from '../../../odSurvey/helpers';
@@ -193,7 +193,7 @@ export class VisitedPlaceGeographyWidgetFactory implements WidgetConfigFactory {
         }
     });
 
-    getWidgetConfigs = (): Record<string, WidgetConfig> => {
+    getWidgetConfigs = (): Record<string, QuestionWidgetConfig> => {
         // Will generate a visitedPlaceName and visitedPlaceGeography widget
         // with the appropriate configuration, where paths are within the
         // visited place group

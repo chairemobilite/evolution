@@ -13,9 +13,9 @@ import type {
     I18nData,
     ParsingFunction,
     ValidationFunction,
-    WidgetConfig,
     WidgetConditional,
-    BaseQuestionType
+    BaseQuestionType,
+    QuestionWidgetConfig
 } from '../../../questionnaire/types';
 import type { WidgetConfigFactory } from '../types';
 
@@ -267,8 +267,8 @@ export class LocationWithNameWidgetsFactory implements WidgetConfigFactory {
         /** Nothing to do */
     }
 
-    getWidgetConfigs = (): Record<string, WidgetConfig> => {
-        const widgetConfigs: Record<string, WidgetConfig> = {
+    getWidgetConfigs = (): Record<string, QuestionWidgetConfig> => {
+        const widgetConfigs: Record<string, QuestionWidgetConfig> = {
             [`${this.options.widgetNamePrefix}Name`]: getLocationNameWidgetConfig({
                 ...this.options.nameWidget,
                 path: this.options.path ? `${this.options.path}.name` : 'name',
