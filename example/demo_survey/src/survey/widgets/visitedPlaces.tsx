@@ -32,12 +32,16 @@ import {
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { GroupConfig } from 'evolution-common/lib/services/questionnaire/types';
 import { getPersonVisitedPlacesMapConfig } from 'evolution-common/lib/services/questionnaire/sections/common/widgetPersonVisitedPlacesMap';
+import { VisitedPlaceGeographyWidgetFactory } from 'evolution-common/lib/services/questionnaire/sections/visitedPlaces/widgetsGeography';
 import { getFormattedDate, validateButtonAction } from 'evolution-frontend/lib/services/display/frontendHelper';
 import { ActivityWidgetFactory } from 'evolution-common/lib/services/questionnaire/sections/visitedPlaces';
 import { activityToDisplayCategory } from 'evolution-common/lib/services/odSurvey/types';
 
 const activityWidgetFactory = new ActivityWidgetFactory(visitedPlacesSectionConfig, widgetFactoryOptions);
 const activityWidgets = activityWidgetFactory.getWidgetConfigs();
+
+const geographyWidgetFactory = new VisitedPlaceGeographyWidgetFactory(visitedPlacesSectionConfig, widgetFactoryOptions);
+const geographyWidgets = geographyWidgetFactory.getWidgetConfigs();
 
 export const visitedPlacesIntro = {
     type: 'text',
@@ -268,26 +272,9 @@ export const personVisitedPlaces: GroupConfig = {
 };
 
 export const visitedPlaceName = {
-    type: 'question',
-    path: 'name',
-    inputType: 'string',
-    datatype: 'string',
-    label: {
-        fr: 'Nom ou description du lieu',
-        en: 'Location name or description'
-    },
-    conditional: function (interview, path) {
-        const visitedPlace: any = surveyHelperNew.getResponse(interview, path, null, '../');
-        const activity = visitedPlace.activity;
-        return [
-            !_isBlank(activity) &&
-                ['home', 'workUsual', 'schoolUsual', 'workOnTheRoadFromHome', 'workOnTheRoadFromUsualWork'].indexOf(
-                    activity
-                ) <= -1,
-            null
-        ];
-    },
+    ...geographyWidgets.visitedPlaceName,
     defaultValue: function (interview, path) {
+        // FIXME This handles shortcut, when shortcut is in Evolution, remove
         const visitedPlace: any = surveyHelperNew.getResponse(interview, path, null, '../');
         if (visitedPlace.shortcut) {
             const shortcut = visitedPlace.shortcut;
@@ -297,24 +284,6 @@ export const visitedPlaceName = {
             }
         }
         return undefined;
-    },
-    validations: function (value, customValue, interview, path, customPath) {
-        return [
-            {
-                validation: _isBlank(value),
-                errorMessage: {
-                    fr: 'La description est requise.',
-                    en: 'Description is required.'
-                }
-            },
-            {
-                validation: !_isBlank(value) && value.length > 50,
-                errorMessage: {
-                    fr: 'Veuillez choisir un nom de moins de 50 caractères',
-                    en: 'Please choose a name of less than 50 characters'
-                }
-            }
-        ];
     }
 };
 
@@ -330,7 +299,6 @@ export const visitedPlaceActivityCategory = {
         return null;
     }
 };
-export const visitedPlaceActivity = activityWidgets.activity;
 
 export const visitedPlaceAlreadyVisited = {
     type: 'question',
@@ -433,105 +401,9 @@ export const visitedPlaceShortcut = {
 };
 
 export const visitedPlaceGeography = {
-    type: 'question',
-    inputType: 'mapFindPlace',
-    path: 'geography',
-    datatype: 'geojson',
-    canBeCollapsed: true,
-    containsHtml: true,
-    refreshGeocodingLabel: {
-        fr: 'Chercher le lieu à partir du nom',
-        en: 'Search location using the place name'
-    },
-    searchPlaceButtonColor: function (interview, path) {
-        const geography: any = surveyHelperNew.getResponse(interview, path, null, '../geography');
-        return _isBlank(geography) ? 'green' : 'grey';
-    },
-    geocodingQueryString: function (interview, path) {
-        return surveyHelperNew.formatGeocodingQueryStringFromMultipleFields([
-            surveyHelperNew.getResponse(interview, path, null, '../name')
-        ]);
-    },
-    invalidGeocodingResultTypes: [
-        'political',
-        'country',
-        'administrative_area_level_1',
-        'administrative_area_level_2',
-        'administrative_area_level_3',
-        'administrative_area_level_4',
-        'administrative_area_level_5',
-        'administrative_area_level_6',
-        'administrative_area_level_7',
-        'colloquial_area',
-        'locality',
-        'sublocality',
-        'sublocality_level_1',
-        'neighborhood',
-        'route'
-    ],
-    maxGeocodingResultsBounds: function (interview, path) {
-        return config.mapMaxGeocodingResultsBounds;
-    },
-    autoCollapseWhenValid: false, // not implemented
-    label: {
-        fr: function (interview, path) {
-            const placeName = surveyHelperNew.getResponse(interview, path, null, '../name');
-            return `${placeName ? `Veuillez positionner le lieu <strong>${placeName}</strong> sur la carte` : 'Veuillez positionner le lieu sur la carte'}<br />
-      <span class="_pale _oblique">
-        Naviguez, zoomez et cliquez sur la carte pour localiser le lieu. Une fois localisé, vous pourrez déplacer le point sur la carte pour davantage de précision.<br />
-        Vous pouvez également chercher le lieu sur la carte en utilisant le nom ou l'adresse (bouton "Chercher le lieu à partir du nom").
-      </span>`;
-        },
-        en: function (interview, path) {
-            const placeName = surveyHelperNew.getResponse(interview, path, null, '../name');
-            return `${placeName ? `Please locate <strong>${placeName}</strong> on the map` : 'Please locate this place on the map'}<br />
-      <span class="_pale _oblique">
-        Navigate, zoom and click on map at the correct location. You will then be able to drag the icon marker
-        to get a more precise location. You can also search the place on map using the name or address (button "Search location using the place name").
-      </span>`;
-        }
-    },
-    icon: {
-        url: (interview, path) =>
-            `/dist/images/activities_icons/${surveyHelperNew.getResponse(interview, path, null, '../activity')}_marker.svg`,
-        size: [80, 80]
-    },
-    placesIcon: {
-        url: (interview, path) => '/dist/images/activities_icons/default_marker.svg',
-        size: [80, 80]
-    },
-    defaultCenter: function (interview, path) {
-        const person = odSurveyHelper.getPerson({ interview }) as any;
-        const journey = odSurveyHelper.getJourneysArray({ person })[0] as any;
-        const activeVisitedPlace = odSurveyHelper.getActiveVisitedPlace({ interview, journey });
-        const previousVisitedPlace = activeVisitedPlace
-            ? odSurveyHelper.getPreviousVisitedPlace({ visitedPlaceId: activeVisitedPlace._uuid, journey })
-            : null;
-        if (previousVisitedPlace) {
-            const geography = odSurveyHelper.getVisitedPlaceGeography({
-                visitedPlace: previousVisitedPlace,
-                person,
-                interview
-            });
-            if (geography) {
-                const coordinates = _get(geography, 'geometry.coordinates', null);
-                if (coordinates) {
-                    return {
-                        lat: coordinates[1],
-                        lon: coordinates[0]
-                    };
-                }
-            }
-        }
-        const homeCoordinates = surveyHelperNew.getResponse(interview, 'home.geography.geometry.coordinates', null);
-        return homeCoordinates
-            ? {
-                lat: homeCoordinates[1],
-                lon: homeCoordinates[0]
-            }
-            : config.mapDefaultCenter;
-    },
+    ...geographyWidgets.visitedPlaceGeography,
     defaultValue: function (interview, path) {
+        // FIXME This handles shortcut, when shortcut is in Evolution, remove
         const visitedPlace: any = surveyHelperNew.getResponse(interview, path, null, '../');
         if (visitedPlace.shortcut) {
             const shortcut = visitedPlace.shortcut;
@@ -552,40 +424,18 @@ export const visitedPlaceGeography = {
     },
     updateDefaultValueWhenResponded: true,
     validations: function (value, customValue, interview, path, customPath) {
-        const activity: any = surveyHelperNew.getResponse(interview, path, null, '../activity');
-        const geography: any = surveyHelperNew.getResponse(interview, path, null, '../geography');
-        const geocodingTextInput = geography?.properties?.geocodingQueryString;
+        // FIXME This has a boundary check, remove when supported directly in Evolution
+        const validationResults = geographyWidgets.visitedPlaceGeography.validations(
+            value,
+            customValue,
+            interview,
+            path,
+            customPath
+        );
+        const geography: any = value;
 
         return [
-            {
-                validation:
-                    ['home', 'workUsual', 'schoolUsual', 'workOnTheRoadFromHome', 'workOnTheRoadFromUsualWork'].indexOf(
-                        activity
-                    ) <= -1 && _isBlank(value),
-                errorMessage: {
-                    fr: 'Le positionnement du lieu est requis.',
-                    en: 'Location is required.'
-                }
-            },
-            {
-                validation:
-                    geography &&
-                    geography.properties?.lastAction &&
-                    (geography.properties.lastAction === 'mapClicked' ||
-                        geography.properties.lastAction === 'markerDragged') &&
-                    geography.properties.zoom < 15,
-                errorMessage: {
-                    fr: 'Le positionnement du lieu n\'est pas assez précis. Utilisez le zoom + pour vous rapprocher davantage, puis précisez la localisation en déplaçant l\'icône.',
-                    en: 'Location is not precise enough. Please use the + zoom and drag the icon marker to confirm the precise location.'
-                }
-            },
-            {
-                validation: geography && geography.properties?.isGeocodingImprecise,
-                errorMessage: {
-                    fr: `Le nom du lieu utilisé pour effectuer la recherche ${!_isBlank(geocodingTextInput) ? `("${geocodingTextInput}")` : ''} n'est pas assez précis. Ajoutez de l'information ou précisez la localisation à l'aide de la carte.`,
-                    en: `The location name used for searching ${!_isBlank(geocodingTextInput) ? `("${geocodingTextInput}")` : ''} is not specific enough. Please add information or specify the location more precisely using the map.`
-                }
-            },
+            ...validationResults,
             {
                 validation: geography && turfBooleanPointInPolygon(geography, (waterBoundaries as any).features[0]),
                 errorMessage: {
@@ -593,16 +443,6 @@ export const visitedPlaceGeography = {
                     en: 'Location is in water or is inaccessible. Please verify.'
                 }
             }
-        ];
-    },
-    conditional: function (interview, path) {
-        const activity: any = surveyHelperNew.getResponse(interview, path, null, '../activity');
-        return [
-            !_isBlank(activity) &&
-                ['home', 'workUsual', 'schoolUsual', 'workOnTheRoadFromHome', 'workOnTheRoadFromUsualWork'].indexOf(
-                    activity
-                ) <= -1,
-            null
         ];
     }
 };
@@ -748,11 +588,20 @@ export const visitedPlaceDepartureTime = {
         ];
     },
     conditional: function (interview, path) {
-        const visitedPlace: any = surveyHelperNew.getResponse(interview, path, null, '../');
+        const journey = odSurveyHelper.getActiveJourney({ interview });
+        const activeVisitedPlace: any = surveyHelperNew.getResponse(interview, path, null, '../');
+        const visitedPlacesArray = odSurveyHelper.getVisitedPlacesArray({ journey });
+        if (
+            _isBlank((activeVisitedPlace as any).nextPlaceCategory) &&
+            visitedPlacesArray.length > 1 &&
+            visitedPlacesArray[visitedPlacesArray.length - 1]._uuid === activeVisitedPlace._uuid
+        ) {
+            return [false, null];
+        }
         return [
-            visitedPlace['_sequence'] === 1 ||
-                (!_isBlank(visitedPlace.nextPlaceCategory) &&
-                    visitedPlace.nextPlaceCategory !== 'stayedThereUntilTheNextDay'),
+            activeVisitedPlace.activityCategory &&
+                (activeVisitedPlace._sequence === 1 ||
+                    (activeVisitedPlace as any).nextPlaceCategory !== 'stayedThereUntilTheNextDay'),
             null
         ];
     },
@@ -850,203 +699,6 @@ export const visitedPlaceDepartureTime = {
             }
             return `${isAlone ? 'You left' : `${nickname} left`} ${placeStr} at:`;
         }
-    }
-};
-
-export const visitedPlaceNextPlaceCategory = {
-    type: 'question',
-    inputType: 'radio',
-    path: 'nextPlaceCategory',
-    datatype: 'string',
-    twoColumns: false,
-    sameLine: false,
-    label: {
-        fr: function (interview, path) {
-            const visitedPlace: any = surveyHelperNew.getResponse(interview, path, null, '../');
-            const visitedPlaceName = visitedPlace ? visitedPlace.name : null;
-            if (visitedPlace.activity === 'home') {
-                return 'Après avoir été au domicile:';
-            } else if (visitedPlace.activity === 'workUsual') {
-                return 'Après avoir été au travail:';
-            } else if (visitedPlace.activity === 'schoolUsual') {
-                return 'Après avoir été au lieu d\'études:';
-            } else if (
-                visitedPlace.activity === 'workOnTheRoad' ||
-                visitedPlace.activity === 'workOnTheRoadFromHome' ||
-                visitedPlace.activity === 'workOnTheRoadFromUsualWork'
-            ) {
-                return 'Après avoir complété la tournée de déplacements sur la route:';
-            }
-            return `Après avoir visité ce lieu${visitedPlaceName ? ` (${visitedPlaceName})` : ''}:`;
-        },
-        en: function (interview, path) {
-            const visitedPlace: any = surveyHelperNew.getResponse(interview, path, null, '../');
-            const visitedPlaceName = visitedPlace ? visitedPlace.name : null;
-            if (visitedPlace.activity === 'home') {
-                return 'After being home:';
-            } else if (visitedPlace.activity === 'workUsual') {
-                return 'After being at work:';
-            } else if (visitedPlace.activity === 'schoolUsual') {
-                return 'After being at school:';
-            } else if (
-                visitedPlace.activity === 'workOnTheRoad' ||
-                visitedPlace.activity === 'workOnTheRoadFromHome' ||
-                visitedPlace.activity === 'workOnTheRoadFromUsualWork'
-            ) {
-                return 'After completing the on the road trips:';
-            }
-            return `After visiting this location${visitedPlaceName ? ` (${visitedPlaceName})` : ''}:`;
-        }
-    },
-    choices: [
-        {
-            value: 'wentBackHome',
-            label: {
-                fr: function (interview) {
-                    const person = odSurveyHelper.getPerson({ interview }) as any;
-                    const householdSize = surveyHelperNew.getResponse(interview, 'household.size', null);
-                    const genderString2 = helper.getGenderString(person, 'e', '', '(e)', '(e)');
-                    if (householdSize === 1) {
-                        return `Je suis retourné${genderString2} au domicile directement`;
-                    } else {
-                        return `${person.nickname} est retourné${genderString2} au domicile directement`;
-                    }
-                },
-                en: function (interview) {
-                    const person = odSurveyHelper.getPerson({ interview }) as any;
-                    const householdSize = surveyHelperNew.getResponse(interview, 'household.size', null);
-                    if (householdSize === 1) {
-                        return 'I went back home directly';
-                    } else {
-                        return `${person.nickname} went back home directly`;
-                    }
-                }
-            },
-            conditional: function (interview) {
-                const person = odSurveyHelper.getPerson({ interview }) as any;
-                const journeys = odSurveyHelper.getJourneysArray({ person });
-                const currentJourney = journeys[0];
-                const visitedPlaceId = odSurveyHelper.getActiveVisitedPlace({
-                    interview,
-                    journey: currentJourney
-                })._uuid;
-                const visitedPlace: any = surveyHelperNew.getResponse(
-                    interview,
-                    `household.persons.${person._uuid}.journeys.${currentJourney._uuid}.visitedPlaces.${visitedPlaceId}`,
-                    null
-                );
-                return visitedPlace.activity !== 'home';
-            }
-        },
-        {
-            value: 'visitedAnotherPlace',
-            label: {
-                fr: function (interview) {
-                    const person = odSurveyHelper.getPerson({ interview }) as any;
-                    const journeys = odSurveyHelper.getJourneysArray({ person });
-                    const currentJourney = journeys[0];
-                    const visitedPlace = odSurveyHelper.getActiveVisitedPlace({ interview, journey: currentJourney });
-                    const householdSize = surveyHelperNew.getResponse(interview, 'household.size', null);
-                    const genderString2 = helper.getGenderString(person, 'e', '', '(e)', '(e)');
-                    if (householdSize === 1) {
-                        if (visitedPlace.activity === 'home') {
-                            return `Je suis allé${genderString2} à un autre endroit`;
-                        }
-                        return `Je suis allé${genderString2} ou je me suis arrêté${genderString2} à un autre endroit`;
-                    } else {
-                        if (visitedPlace.activity === 'home') {
-                            return `${person.nickname} est allé${genderString2} à un autre endroit`;
-                        }
-                        return `${person.nickname} est allé${genderString2} ou s'est arrêté${genderString2} à un autre endroit`;
-                    }
-                },
-                en: function (interview) {
-                    const person = odSurveyHelper.getPerson({ interview }) as any;
-                    const journeys = odSurveyHelper.getJourneysArray({ person });
-                    const currentJourney = journeys[0];
-                    const visitedPlace = odSurveyHelper.getActiveVisitedPlace({ interview, journey: currentJourney });
-                    const householdSize = surveyHelperNew.getResponse(interview, 'household.size', null);
-                    if (householdSize === 1) {
-                        if (visitedPlace.activity === 'home') {
-                            return 'I went to another location';
-                        }
-                        return 'I went to or stopped at another location';
-                    } else {
-                        if (visitedPlace.activity === 'home') {
-                            return `${person.nickname} went to another location`;
-                        }
-                        return `${person.nickname} went to or stopped at another location`;
-                    }
-                }
-            }
-        },
-        {
-            value: 'stayedThereUntilTheNextDay',
-            label: {
-                fr: function (interview) {
-                    const person = odSurveyHelper.getPerson({ interview }) as any;
-                    const journey = odSurveyHelper.getJourneysArray({ person })[0] as any;
-                    const visitedPlace = odSurveyHelper.getActiveVisitedPlace({ interview, journey });
-                    const householdSize = surveyHelperNew.getResponse(interview, 'household.size', null);
-                    const genderString2 = helper.getGenderString(person, 'e', '', '(e)', '(e)');
-                    if (householdSize === 1) {
-                        if (visitedPlace.activity === 'home') {
-                            return `Je suis resté${genderString2} au domicile jusqu'au lendemain`;
-                        }
-                        return `Je suis resté${genderString2} à cet endroit jusqu'au lendemain`;
-                    } else {
-                        if (visitedPlace.activity === 'home') {
-                            return `${person.nickname} est resté${genderString2} au domicile jusqu'au lendemain`;
-                        }
-                        return `${person.nickname} est resté${genderString2} à cet endroit jusqu'au lendemain`;
-                    }
-                },
-                en: function (interview) {
-                    const person = odSurveyHelper.getPerson({ interview }) as any;
-                    const journey = odSurveyHelper.getJourneysArray({ person })[0] as any;
-                    const visitedPlace = odSurveyHelper.getActiveVisitedPlace({ interview, journey });
-                    const householdSize = surveyHelperNew.getResponse(interview, 'household.size', null);
-                    if (householdSize === 1) {
-                        if (visitedPlace.activity === 'home') {
-                            return 'I stayed home until the next day';
-                        }
-                        return 'I stayed at this location until the next day';
-                    } else {
-                        if (visitedPlace.activity === 'home') {
-                            return `${person.nickname} stayed home until the next day`;
-                        }
-                        return `${person.nickname} stayed at this location until the next day`;
-                    }
-                }
-            },
-            conditional: function (interview) {
-                const person = odSurveyHelper.getPerson({ interview }) as any;
-                const journey = odSurveyHelper.getJourneysArray({ person })[0] as any;
-                const visitedPlace = odSurveyHelper.getActiveVisitedPlace({ interview, journey });
-                const visitedPlaces = odSurveyHelper.getVisitedPlacesArray({ journey });
-                return visitedPlaces.length > 1 && visitedPlaces[visitedPlaces.length - 1]._uuid === visitedPlace._uuid;
-            }
-        }
-    ],
-    validations: function (value, customValue, interview, path, customPath) {
-        return [
-            {
-                validation: _isBlank(value),
-                errorMessage: {
-                    fr: 'Cette réponse est requise.',
-                    en: 'This field is required.'
-                }
-            }
-        ];
-    },
-    conditional: function (interview, path) {
-        const person = odSurveyHelper.getPerson({ interview }) as any;
-        const journey = odSurveyHelper.getJourneysArray({ person })[0] as any;
-        const visitedPlaces = odSurveyHelper.getVisitedPlacesArray({ journey });
-        if (visitedPlaces.length === 1 && visitedPlaces[0].activity === 'home') {
-            return [false, 'visitedAnotherPlace'];
-        }
-        return [true, null];
     }
 };
 
