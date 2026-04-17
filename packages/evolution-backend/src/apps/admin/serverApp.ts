@@ -64,11 +64,8 @@ export const setupServerApp = (app: Express, serverSetupFct?: (app: Express) => 
 
     const passport = configurePassport(userAuthModel) as PassportStatic;
 
-    app.use(
-        morgan('combined', {
-            skip: (req: Request, _res: Response) => req.url.indexOf('nolog=true') !== -1
-        })
-    );
+    // Standard Apache combined log output
+    app.use(morgan('combined'));
     app.use(express.json({ limit: '500mb' }));
     app.use(express.urlencoded({ limit: '500mb', extended: true }));
     app.use(session);
@@ -113,12 +110,6 @@ export const setupServerApp = (app: Express, serverSetupFct?: (app: Express) => 
 
     app.get('/incompatible', (req: Request, res: Response) => {
         res.sendFile(path.join(publicDirectory, 'incompatible.html'));
-    });
-
-    app.get('/ping', (req: Request, res: Response) => {
-        return res.status(200).json({
-            status: 'online'
-        });
     });
 
     // Catch-all route: serves the frontend SPA for all unmatched routes (client-side routing)
