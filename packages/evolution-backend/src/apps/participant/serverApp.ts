@@ -70,15 +70,8 @@ export const setupServerApp = (app: Express, serverSetupFct: (() => void) | unde
     });
     const passport = configurePassport(participantAuthModel);
 
-    app.use(
-        morgan('combined', {
-            // do not log if nolog=true is part of the url params:
-            // FIXME Why would we want to skip logging?
-            skip: function (req, _res) {
-                return req.url.indexOf('nolog=true') !== -1;
-            }
-        })
-    );
+    // Standard Apache combined log output
+    app.use(morgan('combined'));
     app.use(express.json({ limit: '500mb' }));
     app.use(express.urlencoded({ limit: '500mb', extended: true }));
     app.use(session);
@@ -125,12 +118,6 @@ export const setupServerApp = (app: Express, serverSetupFct: (() => void) | unde
 
     app.get('/incompatible', (req, res) => {
         res.sendFile(path.join(publicDirectory, 'incompatible.html'));
-    });
-
-    app.get('/ping', (req, res) => {
-        return res.status(200).json({
-            status: 'online'
-        });
     });
 
     // Catch-all route: serves the frontend SPA for all unmatched routes (client-side routing)

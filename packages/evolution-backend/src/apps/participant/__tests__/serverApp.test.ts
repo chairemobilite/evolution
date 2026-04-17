@@ -272,16 +272,6 @@ describe('serverApp index path routing', () => {
     });
 
     describe('special routes', () => {
-        beforeEach(() => {
-            jest.spyOn(surveyStatus, 'isSurveyEnded').mockReturnValue(false);
-        });
-
-        test('should return status for /ping endpoint', async () => {
-            const response = await request(app).get('/ping');
-
-            expect(response.status).toBe(200);
-            expect(response.body).toEqual({ status: 'online' });
-        });
 
         test('should return incompatible page for /incompatible endpoint', async () => {
             const response = await request(app).get('/incompatible');
