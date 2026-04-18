@@ -2,6 +2,10 @@
 
 This directory hosts documentation and references files related to the development of the evolution platform
 
+## Code style
+
+Prettier + ESLint (extends [`gts`](https://github.com/google/gts)). Base configs live in `configs/`. Run `yarn lint` and `yarn format` before committing — the CI `check-format` job fails on drift. Do not reformat code you didn't otherwise touch.
+
 ## Content
 
 - widgetsSchema.json: this is the schema of the most used widgets in all surveys that used the evolution platform prior to May 2024. This will serve in the devlopement of generic widgets and generic sections that could be moved out of specific surveys and be used as templates instead. Future possible usages and attributes could also be added here for later use/analysis.
