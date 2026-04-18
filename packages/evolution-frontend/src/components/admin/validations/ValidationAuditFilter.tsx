@@ -8,7 +8,6 @@ import React, { JSX } from 'react';
 import { WithTranslation, withTranslation } from 'react-i18next';
 import { FilterProps } from 'react-table';
 import _cloneDeep from 'lodash/cloneDeep';
-//import _truncate from 'lodash/truncate';
 import Select from 'react-select';
 
 import { AuditStatsByLevelAndObjectType } from 'evolution-common/lib/services/audits/types';
