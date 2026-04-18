@@ -156,6 +156,18 @@ The path is relative to the survey project directory (projectDirectory param in 
 - **Multiple distinct areas**: If your survey territory consists of multiple disconnected areas, use a `MultiPolygon` geometry within a single feature.
 - An example file with the Quebec province area is available at `example/demo_survey/surveyArea.geojson.example`.
 
+## Running tests
+
+| Command                     | Scope                                                          |
+| --------------------------- | -------------------------------------------------------------- |
+| `yarn test`                 | Unit tests, all `evolution-*` packages                         |
+| `yarn test:sequential`      | DB integration tests (requires `setup-test` + `migrate-test`)  |
+| `yarn test:ui`              | Playwright UI tests — see section below                        |
+| `yarn test:python`          | `pytest` in `evolution-generator`                              |
+| `yarn lint` / `yarn format` | ESLint / Prettier across all packages                          |
+
+To target a single package instead of the whole repo, use `yarn workspace <name> <script>` — e.g. `yarn workspace evolution-common test` or `yarn workspace evolution-backend test -- --testPathPattern=auditChecks`. `<name>` is the `name` field of that package's `package.json`.
+
 ## Run UI tests for the application
 
 Evolution supports running UI tests with playwright. Surveys need to implement their own tests, but `evolution-frontend` provider a library in the `tests/ui-testing` folder.
@@ -289,3 +301,8 @@ For a custom import or to support additional fields, the import task of Evolutio
 ## Nomenclature
 
 For naming consistency, see [Nomenclature](docs/nomenclature.md)
+
+## Development documentation
+
+- General guidelines for contributions: [docs/development/README.md](docs/development/README.md).
+- Audits (post-submission validations): [packages/evolution-backend/src/services/audits/README.md](packages/evolution-backend/src/services/audits/README.md), with the practical guide for adding a new check at [packages/evolution-backend/src/services/audits/auditChecks/README.md](packages/evolution-backend/src/services/audits/auditChecks/README.md).
