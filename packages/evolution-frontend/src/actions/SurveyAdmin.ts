@@ -156,7 +156,6 @@ const updateSurveyCorrectedInterview = async (
             return null;
         }
 
-        //const differences = surveyHelper.differences(interview.response, oldInterview.response);
         const response = await fetch(`/api/survey/updateCorrectedInterview/${interview.uuid}`, {
             headers: {
                 Accept: 'application/json',
@@ -175,13 +174,10 @@ const updateSurveyCorrectedInterview = async (
         if (response.status === 200) {
             const body = await response.json();
             if (body.status === 'success' && body.interviewId === updatedInterview.uuid) {
-                //surveyHelper.devLog('Interview saved to db');
-                //setTimeout(function() {
                 dispatch(updateInterviewState(_cloneDeep(updatedInterview), {}, updatedValuesByPath['_all'] === true));
                 if (typeof callback === 'function') {
                     callback(updatedInterview);
                 }
-                //}, 500, 'That was really slow!');
             } else {
                 // TODO we need to do something if no interview is returned (error)
             }
