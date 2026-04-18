@@ -29,7 +29,7 @@ export type BaseAddressAttributes = {
     internalId?: string;
 };
 
-export type ExtendendAddressAttributes = BaseAddressAttributes & { [key: string]: any };
+export type ExtendedAddressAttributes = BaseAddressAttributes & { [key: string]: any };
 
 export class BaseAddress extends Uuidable implements IValidatable {
     _isValid: Optional<boolean>;
@@ -61,7 +61,7 @@ export class BaseAddress extends Uuidable implements IValidatable {
     addressId?: string; // official address id
     internalId?: string; // internal id used as the primary key for addresses by the survey administrator
 
-    constructor(params: BaseAddressAttributes | ExtendendAddressAttributes) {
+    constructor(params: BaseAddressAttributes | ExtendedAddressAttributes) {
         super(params._uuid);
 
         this.civicNumber = params.civicNumber;

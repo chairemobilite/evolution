@@ -56,10 +56,8 @@ const InterviewStats = (props: InterviewStatsProps) => {
 
     // Use unserialized objects - show error if not available
     const surveyObjects = props.surveyObjectsAndAudits;
-    //const surveyContext = React.useContext(SurveyContext);
 
     // Debug logging
-
     if (!surveyObjects) {
         console.error('❌ InterviewStats - No survey objects available');
         return (
