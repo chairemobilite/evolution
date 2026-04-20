@@ -42,12 +42,14 @@ def generate_choices_yaml_locales(choices_by_name, labels_output_folder_path: st
     """
     header = add_generator_yaml_header()
 
-    yaml_data_by_lang = {"fr": {}, "en": {}}
+    # Reuse the exact same translation-key generation behavior as labels generation.
+    # We build a flat translations dict first (like LabelsGenerator does), then convert to
+    # the nested choices.yaml schema expected by the frontend.
+    translations_dict = {"fr": {}, "en": {}}
 
     # Preserve Excel order: choices_by_name is filled by iterating Excel rows top-down.
+    rowNumber = 2
     for choice_name, choices in choices_by_name.items():
-        fr_values = {}
-        en_values = {}
         for choice in choices:
             # Skip spread rows: their labels come from the spread source
             if choice.get("spread_choices_name", None) is not None:
@@ -56,19 +58,48 @@ def generate_choices_yaml_locales(choices_by_name, labels_output_folder_path: st
             if value is None:
                 continue
             value_key = str(value)
-            label_fr = choice.get("label_yaml", {}).get("fr")
-            if label_fr not in (None, ""):
-                fr_values[value_key] = LabelsGenerator.string_to_yaml(label_fr)
-            label_en = choice.get("label_yaml", {}).get("en")
-            if label_en not in (None, ""):
-                en_values[value_key] = LabelsGenerator.string_to_yaml(label_en)
+            path = f"{choice_name}.{value_key}"
 
-        # Do not generate empty groups (typically spread-only choice groups)
-        if fr_values or en_values:
-            if fr_values:
-                yaml_data_by_lang["fr"][choice_name] = fr_values
-            if en_values:
-                yaml_data_by_lang["en"][choice_name] = en_values
+            # Add translations for the choice
+            label_fr = choice.get("label_yaml", {}).get("fr")
+            LabelsGenerator.add_gender_or_base_translations(
+                language="fr",
+                section="choices",
+                path=path,
+                gender_dict=LabelsGenerator.expand_gender(label_fr),
+                label=label_fr,
+                extraSuffix="",
+                rowNumber=rowNumber,
+                translations_dict=translations_dict,
+            )
+            label_en = choice.get("label_yaml", {}).get("en")
+            LabelsGenerator.add_gender_or_base_translations(
+                language="en",
+                section="choices",
+                path=path,
+                gender_dict=LabelsGenerator.expand_gender(label_en),
+                label=label_en,
+                extraSuffix="",
+                rowNumber=rowNumber,
+                translations_dict=translations_dict,
+            )
+
+            rowNumber += 1 # Increment row number
+
+    # Convert translations to nested YAML data
+    # Convert flat "choices" translations (choiceName.value[_gender]) to nested YAML data.
+    yaml_data_by_lang = {"fr": {}, "en": {}}
+    for lang in ["fr", "en"]:
+        flat = translations_dict.get(lang, {}).get("choices", {})
+        for flat_key, yaml_value in flat.items():
+            if "." not in flat_key:
+                # Unexpected, but keep it at root to avoid losing data
+                yaml_data_by_lang[lang][flat_key] = yaml_value
+                continue
+            group, value = flat_key.split(".", 1)
+            if group not in yaml_data_by_lang[lang]:
+                yaml_data_by_lang[lang][group] = {}
+            yaml_data_by_lang[lang][group][value] = yaml_value
 
     # Delete existing files first to avoid stale keys if some choices are removed
     LabelsGenerator.delete_all_labels_yaml_files(

@@ -421,6 +421,58 @@ class TestGenerateChoicesYamlLocales:
         assert "hello: <strong>Hello</strong> {{nickname}}" in fr_yaml
 
 
+    def test_choices_yaml_supports_gendered_labels(self, generated_files):
+        """
+        If a choice label contains {{gender:...}}, locales/*/choices.yaml should include:
+        - the base key using the "other" form
+        - gender-specific keys only when they differ from "other"
+        """
+        choices_by_name = {
+            "studentChoices": [
+                {
+                    "value": "student",
+                    # male: Étudiant, female: Étudiante, custom/other: Étudiant·e
+                    "label_yaml": {
+                        "fr": "Étudian{{gender:t/te/t·e}}",
+                        "en": "Student{{gender:/ess/}}", # I know it's not grammatically correct, but it's just a test
+                    },
+                    "spread_choices_name": None,
+                    "hidden": False,
+                }
+            ]
+        }
+
+        generate_choices_yaml_locales(
+            choices_by_name,
+            labels_output_folder_path=generated_files["locales_dir_path"],
+        )
+
+        with open(
+            generated_files["fr_choices_yaml_path"], mode="r", encoding="utf-8"
+        ) as f:
+            fr_yaml = f.read()
+
+        assert "\nstudentChoices:\n" in fr_yaml
+        # base key is the "other" form
+        assert "\n    student: Étudiant·e\n" in fr_yaml
+        # gender-specific keys only when they differ from "other"
+        assert "\n    student_male: Étudiant\n" in fr_yaml
+        assert "\n    student_female: Étudiante\n" in fr_yaml
+        assert "\n    student_custom:" not in fr_yaml
+
+        with open(
+            generated_files["en_choices_yaml_path"], mode="r", encoding="utf-8"
+        ) as f:
+            en_yaml = f.read()
+
+        assert "\nstudentChoices:\n" in en_yaml
+        # male/custom/other are "" for a 1-part gender expression, female is "ess"
+        assert "\n    student: Student\n" in en_yaml
+        assert "\n    student_female: Studentess\n" in en_yaml
+        assert "\n    student_male:" not in en_yaml
+        assert "\n    student_custom:" not in en_yaml
+
+
 class TestGenerateImportStatements:
     """Tests for generate_import_statements(has_conditionals_import, has_custom_conditionals_import)."""
 
