@@ -4,9 +4,10 @@
 
 # Note: This script includes functions that help generate and test Generator scripts.
 import os  # File system operations
+import re  # Regular expression module for pattern matching
 import openpyxl  # Read data from Excel
 from openpyxl import Workbook  # Read data from Excel, File system operations
-from typing import List, Union  # Types for Python
+from typing import List, Optional, Tuple, Union  # Types for Python
 
 # Define constants
 MOCKER_EXCEL_FILE = "src/tests/references/test.xlsx"
@@ -245,3 +246,39 @@ def clean_text(text) -> str:
         .replace("__red", "")
         .replace("__", "")
     )
+
+
+def get_label_context_flags(
+    *,
+    label_fr: Optional[str] = None,
+    label_en: Optional[str] = None,
+    label_one_fr: Optional[str] = None,
+    label_one_en: Optional[str] = None,
+) -> Tuple[bool, bool, bool, bool]:
+    """
+    Detect whether label strings require dynamic i18n context.
+
+    Returns:
+        (has_nickname, has_count, has_gender_context, has_label_one)
+
+    Notes:
+        - We treat `{{nickname}}` and `{{count}}` as interpolation tokens.
+        - Gender context detection accepts spaces around the colon (LibreOffice can
+          insert them), matching `{{gender:...}}`, `{{gender :...}}`,
+          `{{gender: ...}}`, and `{{gender : ...}}`.
+        - `has_label_one` is true if any of the *_one labels are non-empty.
+    """
+
+    texts = [
+        label_fr or "",
+        label_en or "",
+        label_one_fr or "",
+        label_one_en or "",
+    ]
+    label_text = "".join(texts)
+
+    has_nickname = re.search(r"\{\{\s*nickname\s*\}\}", label_text) is not None
+    has_count = re.search(r"\{\{\s*count\s*\}\}", label_text) is not None
+    has_gender_context = re.search(r"\{\{\s*gender\s*:\s*", label_text) is not None
+    has_label_one = bool((label_one_fr or "").strip() or (label_one_en or "").strip())
+    return has_nickname, has_count, has_gender_context, has_label_one

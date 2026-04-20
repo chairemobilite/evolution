@@ -10,6 +10,7 @@ from helpers.generator_helpers import (
     INDENT,
     add_generator_comment,
     add_generator_yaml_header,
+    get_label_context_flags,
     is_excel_file,
     is_ts_file,
     get_workbook,
@@ -28,24 +29,6 @@ def _process_label(text) -> str | None:
     return None
 
 
-def _choice_needs_context(choice: dict) -> tuple[bool, bool, bool, bool]:
-    """
-    Returns flags (has_nickname, has_count, has_gender_context, has_label_one)
-    by inspecting the raw label strings for interpolation tokens.
-    """
-    label_fr = (choice.get("label_yaml", {}) or {}).get("fr") or ""
-    label_en = (choice.get("label_yaml", {}) or {}).get("en") or ""
-    label_one_fr = (choice.get("label_one_yaml", {}) or {}).get("fr") or ""
-    label_one_en = (choice.get("label_one_yaml", {}) or {}).get("en") or ""
-    label_text = f"{label_fr}{label_en}{label_one_fr}{label_one_en}"
-
-    has_nickname = "{{nickname}}" in label_text
-    has_count = "{{count}}" in label_text
-    has_gender_context = "{{gender:" in label_text
-    has_label_one = bool(label_one_fr or label_one_en)
-    return has_nickname, has_count, has_gender_context, has_label_one
-
-
 def _generate_choice_label_typescript(
     choice_name: str, value_key: str, choice: dict
 ) -> str:
@@ -59,8 +42,13 @@ def _generate_choice_label_typescript(
     compatible with evolution-common's I18nData type.
     """
     translation_key = f"choices:{choice_name}.{value_key}"
-    has_nickname, has_count, has_gender_context, has_label_one = _choice_needs_context(
-        choice
+    has_nickname, has_count, has_gender_context, has_label_one = (
+        get_label_context_flags(
+            label_fr=(choice.get("label_yaml", {}) or {}).get("fr"),
+            label_en=(choice.get("label_yaml", {}) or {}).get("en"),
+            label_one_fr=(choice.get("label_one_yaml", {}) or {}).get("fr"),
+            label_one_en=(choice.get("label_one_yaml", {}) or {}).get("en"),
+        )
     )
 
     if not (has_nickname or has_count or has_gender_context or has_label_one):
@@ -112,7 +100,12 @@ def _generate_typescript_code(
             if choice.get("spread_choices_name", None) is not None:
                 continue
             has_nickname, has_count, has_gender_context, has_label_one = (
-                _choice_needs_context(choice)
+                get_label_context_flags(
+                    label_fr=(choice.get("label_yaml", {}) or {}).get("fr"),
+                    label_en=(choice.get("label_yaml", {}) or {}).get("en"),
+                    label_one_fr=(choice.get("label_one_yaml", {}) or {}).get("fr"),
+                    label_one_en=(choice.get("label_one_yaml", {}) or {}).get("en"),
+                )
             )
             if has_nickname:
                 needs_escape_import = True

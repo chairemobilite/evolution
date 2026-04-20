@@ -8,6 +8,7 @@ from helpers.generator_helpers import (
     INDENT,
     get_data_from_excel,
     add_generator_comment,
+    get_label_context_flags,
 )
 import re  # Regular expression module for pattern matching
 from typing import TypedDict
@@ -628,12 +629,17 @@ def generate_label(
     label_en = row.get("label::en", "")  # English label
     label_one_fr = row.get("label_one::fr", "")  # French label for one person
     label_one_en = row.get("label_one::en", "")  # English label for one person
-    label_text = label_fr + label_en + label_one_fr + label_one_en  # Combine all labels
-
-    has_nickname_label = "{{nickname}}" in label_text
-    has_persons_count_label = "{{count}}" in label_text
-    has_gender_context_label = "{{gender:" in label_text
-    has_label_one = bool(label_one_fr or label_one_en)
+    (
+        has_nickname_label,
+        has_persons_count_label,
+        has_gender_context_label,
+        has_label_one,
+    ) = get_label_context_flags(
+        label_fr=label_fr,
+        label_en=label_en,
+        label_one_fr=label_one_fr,
+        label_one_en=label_one_en,
+    )
 
     if not (
         has_persons_count_label
@@ -1219,15 +1225,18 @@ def get_widgets_file_import_flags(section_rows) -> ImportFlags:
         label_en = row.get("label::en", "")
         label_one_en = row.get("label_one::en", "")
         label_one_fr = row.get("label_one::fr", "")
-        # Check for {{nickname}}, {{count}}, and {{genderedSuffix:...}} in labels
-        if "{{nickname}}" in label_fr or "{{nickname}}" in label_en:
+        # Check for {{nickname}}, {{count}}, and label_one in labels
+        has_nickname, has_count, _has_gender_context, has_label_one = (
+            get_label_context_flags(
+                label_fr=label_fr,
+                label_en=label_en,
+                label_one_fr=label_one_fr,
+                label_one_en=label_one_en,
+            )
+        )
+        if has_nickname:
             import_flags.has_nickname_label = True
-        if (
-            (label_one_en.strip())
-            or (label_one_fr.strip())
-            or "{{count}}" in label_fr
-            or "{{count}}" in label_en
-        ):
+        if has_count or has_label_one:
             import_flags.has_persons_count_label = True
         if "{{genderedSuffix" in label_fr or "{{genderedSuffix" in label_en:
             import_flags.has_gendered_suffix_label = True
