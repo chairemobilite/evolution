@@ -28,7 +28,144 @@ def _process_label(text) -> str | None:
     return None
 
 
-def generate_choices_yaml_locales(choices_by_name, labels_output_folder_path: str):
+def _choice_needs_context(choice: dict) -> tuple[bool, bool, bool, bool]:
+    """
+    Returns flags (has_nickname, has_count, has_gender_context, has_label_one)
+    by inspecting the raw label strings for interpolation tokens.
+    """
+    label_fr = (choice.get("label_yaml", {}) or {}).get("fr") or ""
+    label_en = (choice.get("label_yaml", {}) or {}).get("en") or ""
+    label_one_fr = (choice.get("label_one_yaml", {}) or {}).get("fr") or ""
+    label_one_en = (choice.get("label_one_yaml", {}) or {}).get("en") or ""
+    label_text = f"{label_fr}{label_en}{label_one_fr}{label_one_en}"
+
+    has_nickname = "{{nickname}}" in label_text
+    has_count = "{{count}}" in label_text
+    has_gender_context = "{{gender:" in label_text
+    has_label_one = bool(label_one_fr or label_one_en)
+    return has_nickname, has_count, has_gender_context, has_label_one
+
+
+def _generate_choice_label_typescript(
+    choice_name: str, value_key: str, choice: dict
+) -> str:
+    """
+    Generate the `label` field for a ChoiceType element.
+
+    If the choice translations don't require any dynamic context, this returns a
+    simple `(t) => t('choices:...')`.
+
+    Otherwise, it returns a full TranslatableStringFunction `(t, interview, path) => {...}`
+    compatible with evolution-common's I18nData type.
+    """
+    translation_key = f"choices:{choice_name}.{value_key}"
+    has_nickname, has_count, has_gender_context, has_label_one = _choice_needs_context(
+        choice
+    )
+
+    if not (has_nickname or has_count or has_gender_context or has_label_one):
+        return f"{INDENT}{INDENT}label: (t) => t('{translation_key}')"
+
+    initial_assignations = ""
+    additional_t_context = ""
+
+    if has_nickname or has_gender_context:
+        initial_assignations += f"{INDENT}{INDENT}{INDENT}const activePerson = odSurveyHelpers.getPerson({{ interview, path }});\n"
+
+    if has_nickname:
+        initial_assignations += f"{INDENT}{INDENT}{INDENT}const nickname = _escape(activePerson?.nickname || t('survey:noNickname'));\n"
+        additional_t_context += f"{INDENT}{INDENT}{INDENT}{INDENT}nickname,\n"
+
+    if has_label_one or has_count:
+        initial_assignations += f"{INDENT}{INDENT}{INDENT}const countPersons = odSurveyHelpers.countPersons({{ interview }});\n"
+        additional_t_context += (
+            f"{INDENT}{INDENT}{INDENT}{INDENT}count: countPersons,\n"
+        )
+
+    if has_gender_context:
+        additional_t_context += f"{INDENT}{INDENT}{INDENT}{INDENT}context: activePerson?.gender || activePerson?.sexAssignedAtBirth,\n"
+
+    return (
+        f"{INDENT}{INDENT}label: (t, interview, path) => {{\n"
+        f"{initial_assignations}"
+        f"{INDENT}{INDENT}{INDENT}return t('{translation_key}', {{\n"
+        f"{additional_t_context}"
+        f"{INDENT}{INDENT}{INDENT}}});\n"
+        f"{INDENT}{INDENT}}}"
+    )
+
+
+def _generate_typescript_code(
+    choices_by_name,
+    has_conditionals_import: bool,
+    has_custom_conditionals_import: bool,
+) -> str:
+    """
+    Generate the full TypeScript source for the `choices.tsx` output file.
+    """
+    # Determine whether we need extra imports for dynamic label contexts.
+    needs_escape_import = False
+    needs_od_survey_helpers_import = False
+    for _choice_name, choices in choices_by_name.items():
+        for choice in choices:
+            # Skip spread rows: they don't add translations
+            if choice.get("spread_choices_name", None) is not None:
+                continue
+            has_nickname, has_count, has_gender_context, has_label_one = (
+                _choice_needs_context(choice)
+            )
+            if has_nickname:
+                needs_escape_import = True
+            if has_nickname or has_count or has_gender_context or has_label_one:
+                needs_od_survey_helpers_import = True
+
+    ts_code: str = ""
+    ts_code += add_generator_comment()
+    ts_code += _generate_import_statements(
+        has_conditionals_import=has_conditionals_import,
+        has_custom_conditionals_import=has_custom_conditionals_import,
+        needs_escape_import=needs_escape_import,
+        needs_od_survey_helpers_import=needs_od_survey_helpers_import,
+    )
+
+    for choice_name, choices in choices_by_name.items():
+        ts_code += f"export const {choice_name}: ChoiceType[] = [\n"
+        for index, choice in enumerate(choices):
+            if choice.get("spread_choices_name", None) is not None:
+                ts_code += f"{INDENT}...{choice['spread_choices_name']}"
+            else:
+                value_str = str(choice["value"])
+                value_key = value_str.replace("'", "\\'")
+                hidden_suffix = (
+                    f",\n{INDENT}{INDENT}hidden: true" if choice["hidden"] else ""
+                )
+                conditional_comma = (
+                    "," if choice.get("conditional", None) is not None else ""
+                )
+                label_ts = _generate_choice_label_typescript(
+                    choice_name=choice_name, value_key=value_key, choice=choice
+                )
+                ts_code += (
+                    f"{INDENT}{{\n"
+                    f"{INDENT}{INDENT}value: '{value_key}',\n"
+                    f"{label_ts}{hidden_suffix}"
+                    f"{conditional_comma}\n"
+                )
+                if choice.get("conditional", None) is not None:
+                    ts_code += (
+                        f"{INDENT}{INDENT}conditional: {choice['conditional']},\n"
+                    )
+
+                ts_code += f"{INDENT}}}"
+            if index < len(choices) - 1:
+                ts_code += ","
+            ts_code += "\n"
+        ts_code += "];\n\n"
+
+    return ts_code
+
+
+def _generate_choices_yaml_locales(choices_by_name, labels_output_folder_path: str):
     """
     Generate locales choices YAML files containing the labels for each choice.
 
@@ -106,7 +243,7 @@ def generate_choices_yaml_locales(choices_by_name, labels_output_folder_path: st
                 translations_dict=translations_dict,
             )
 
-            rowNumber += 1 # Increment row number
+            rowNumber += 1  # Increment row number
 
     # Convert translations to nested YAML data
     # Convert flat "choices" translations (choiceName.value[_gender]) to nested YAML data.
@@ -223,54 +360,12 @@ def generate_choices(
             # Group choices by choiceName using defaultdict
             choices_by_name[choice_name].append(choice)
 
-        # TODO: Separate the following code into a separate function
         # Generate TypeScript code
-        ts_code: str = ""  # TypeScript code to be written to file
-
-        # Add Generator comment at the start of the file
-        ts_code += add_generator_comment()
-
-        # Add imports
-        ts_code += generate_import_statements(
-            has_conditionals_import, has_custom_conditionals_import
+        ts_code = _generate_typescript_code(
+            choices_by_name=choices_by_name,
+            has_conditionals_import=has_conditionals_import,
+            has_custom_conditionals_import=has_custom_conditionals_import,
         )
-
-        for choice_name, choices in choices_by_name.items():
-            # Create a TypeScript const statement for each choiceName
-            ts_code += f"export const {choice_name}: ChoiceType[] = [\n"
-            for index, choice in enumerate(choices):
-                if choice.get("spread_choices_name", None) is not None:
-                    # Spread choices from another choiceName when spread_choices_name is not None
-                    ts_code += f"{INDENT}...{choice['spread_choices_name']}"
-                else:
-                    # Use i18n-generated translations from locales/<lang>/choices.yaml
-                    value_str = str(choice["value"])
-                    value_key = value_str.replace("'", "\\'")
-                    translation_key = f"choices:{choice_name}.{value_key}"
-                    hidden_suffix = (
-                        f",\n{INDENT}{INDENT}hidden: true" if choice["hidden"] else ""
-                    )
-                    conditional_comma = (
-                        "," if choice.get("conditional", None) is not None else ""
-                    )
-                    ts_code += (
-                        f"{INDENT}{{\n"
-                        f"{INDENT}{INDENT}value: '{value_key}',\n"
-                        f"{INDENT}{INDENT}label: (t) => t('{translation_key}'){hidden_suffix}"
-                        f"{conditional_comma}\n"
-                    )
-                    # Add the 'conditional' field only if it exists
-                    if choice.get("conditional", None) is not None:
-                        ts_code += (
-                            f"{INDENT}{INDENT}conditional: {choice['conditional']},\n"
-                        )
-
-                    ts_code += f"{INDENT}}}"
-                if index < len(choices) - 1:
-                    # Add a comma for each choice except the last one
-                    ts_code += ","
-                ts_code += "\n"
-            ts_code += "];\n\n"
 
         # Write TypeScript code to a file
         with open(output_file, mode="w", encoding="utf-8", newline="\n") as ts_file:
@@ -280,7 +375,7 @@ def generate_choices(
 
         # Generate locales/<lang>/choices.yaml files
         if labels_output_folder_path is not None:
-            generate_choices_yaml_locales(
+            _generate_choices_yaml_locales(
                 choices_by_name,
                 labels_output_folder_path=labels_output_folder_path,
             )
@@ -292,10 +387,20 @@ def generate_choices(
 
 
 # Generate import statement if needed
-def generate_import_statements(
+def _generate_import_statements(
     has_conditionals_import,
     has_custom_conditionals_import,
+    needs_escape_import: bool = False,
+    needs_od_survey_helpers_import: bool = False,
 ):
+    escape_import = (
+        "import _escape from 'lodash/escape';\n" if needs_escape_import else ""
+    )
+    od_survey_helpers_import = (
+        "import * as odSurveyHelpers from 'evolution-common/lib/services/odSurvey/helpers';\n"
+        if needs_od_survey_helpers_import
+        else ""
+    )
     conditionals_import = (
         "// " if not has_conditionals_import else ""
     ) + "import * as conditionals from './conditionals';\n"
@@ -304,6 +409,8 @@ def generate_import_statements(
     ) + "import * as customConditionals from './customConditionals';\n"
     return (
         f"import {{ type ChoiceType }} from 'evolution-common/lib/services/questionnaire/types';\n"
+        f"{escape_import}"
+        f"{od_survey_helpers_import}"
         f"{conditionals_import}"
         f"{custom_conditionals_import}\n"
     )

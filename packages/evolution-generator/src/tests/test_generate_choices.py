@@ -10,8 +10,8 @@ import pytest
 from helpers.generator_helpers import create_mocked_excel_data, delete_file_if_exists
 from scripts.generate_choices import (
     generate_choices,
-    generate_choices_yaml_locales,
-    generate_import_statements,
+    _generate_choices_yaml_locales,
+    _generate_import_statements,
 )
 
 # Path where create_mocked_excel_data writes the workbook; we delete it after each test.
@@ -92,8 +92,26 @@ class TestGenerateChoices:
             ["busCarTransport", "bus", "Autobus", "Bus", None, None, None, None],
             ["busCarTransport", "car", "Voiture", "Car", None, None, None, None],
             # spread row (no values/labels)
-            ["transportModesChoices", None, None, None, None, None, "busCarTransport", None],
-            ["transportModesChoices", "metro", "Métro", "Metro", None, None, None, None],
+            [
+                "transportModesChoices",
+                None,
+                None,
+                None,
+                None,
+                None,
+                "busCarTransport",
+                None,
+            ],
+            [
+                "transportModesChoices",
+                "metro",
+                "Métro",
+                "Metro",
+                None,
+                None,
+                None,
+                None,
+            ],
         ]
         create_mocked_excel_data(self.SHEET_NAME, self.EXPECTED_HEADERS, rows)
 
@@ -145,7 +163,17 @@ class TestGenerateChoices:
         headers = [*self.EXPECTED_HEADERS, "hidden"]
         rows = [
             ["aChoices", "a", "A fr", "A en", None, None, None, "isAdult", True],
-            ["aChoices", "b", "B fr", "B en", None, None, None, "fooCustomConditional", False],
+            [
+                "aChoices",
+                "b",
+                "B fr",
+                "B en",
+                None,
+                None,
+                None,
+                "fooCustomConditional",
+                False,
+            ],
         ]
         create_mocked_excel_data(self.SHEET_NAME, headers, rows)
 
@@ -159,6 +187,58 @@ class TestGenerateChoices:
         assert "hidden: true" in ts_code
         assert "conditional: conditionals.isAdult" in ts_code
         assert "conditional: customConditionals.fooCustomConditional" in ts_code
+
+    def test_typescript_label_supports_nickname_count_and_gender_context(
+        self, generated_files
+    ):
+        """
+        If the choice labels contain {{nickname}}, {{count}} or {{gender:...}},
+        the generated TS should:
+        - import odSurveyHelpers (and lodash/escape for nickname)
+        - generate a TranslatableStringFunction label (t, interview, path) => ...
+        - pass nickname / count / context to t(...)
+        """
+        rows = [
+            [
+                "greetingChoices",
+                "hello",
+                "Bonjour **{{nickname}}** ({{count}}) Étudian{{gender:t/te/t·e}}",
+                "Hello **{{nickname}}** ({{count}}) Student{{gender:/ess/}}",
+                "Salut **{{nickname}}**",
+                "Hi **{{nickname}}**",
+                None,
+                None,
+            ]
+        ]
+        create_mocked_excel_data(self.SHEET_NAME, self.EXPECTED_HEADERS, rows)
+
+        generate_choices(MOCKED_EXCEL_FILE, generated_files["choices_tsx_path"])
+
+        with open(
+            generated_files["choices_tsx_path"], mode="r", encoding="utf-8"
+        ) as ts_file:
+            ts_code = ts_file.read()
+
+        assert (
+            "import * as odSurveyHelpers from 'evolution-common/lib/services/odSurvey/helpers';"
+            in ts_code
+        )
+        assert "import _escape from 'lodash/escape';" in ts_code
+        assert "label: (t, interview, path) => {" in ts_code
+        assert (
+            "const activePerson = odSurveyHelpers.getPerson({ interview, path });"
+            in ts_code
+        )
+        assert (
+            "const countPersons = odSurveyHelpers.countPersons({ interview });"
+            in ts_code
+        )
+        assert (
+            "context: activePerson?.gender || activePerson?.sexAssignedAtBirth"
+            in ts_code
+        )
+        assert "count: countPersons" in ts_code
+        assert "nickname," in ts_code
 
     def test_invalid_row_with_missing_choices_name_raises(self, generated_files):
         rows = [
@@ -208,7 +288,9 @@ class TestGenerateChoices:
     def test_imports_are_uncommented_when_any_choice_has_custom_conditional(
         self, generated_files
     ):
-        rows = [["aChoices", "a", "A fr", "A en", None, None, None, "fooCustomConditional"]]
+        rows = [
+            ["aChoices", "a", "A fr", "A en", None, None, None, "fooCustomConditional"]
+        ]
         create_mocked_excel_data(self.SHEET_NAME, self.EXPECTED_HEADERS, rows)
 
         generate_choices(MOCKED_EXCEL_FILE, generated_files["choices_tsx_path"])
@@ -260,7 +342,7 @@ class TestGenerateChoices:
 
     def test_missing_expected_header_raises(self, generated_files):
         bad_headers = [
-            "choicesNameBad", # Bad header name, it should be choicesName
+            "choicesNameBad",  # Bad header name, it should be choicesName
             "value",
             "label::fr",
             "label::en",
@@ -287,7 +369,7 @@ class TestGenerateChoices:
 
 
 class TestGenerateChoicesYamlLocales:
-    """Tests for generate_choices_yaml_locales(choices_by_name, labels_output_folder_path)."""
+    """Tests for _generate_choices_yaml_locales(choices_by_name, labels_output_folder_path)."""
 
     def test_skips_spread_only_groups(self, generated_files):
         """
@@ -314,7 +396,7 @@ class TestGenerateChoicesYamlLocales:
             ],
         }
 
-        generate_choices_yaml_locales(
+        _generate_choices_yaml_locales(
             choices_by_name,
             labels_output_folder_path=generated_files["locales_dir_path"],
         )
@@ -339,7 +421,7 @@ class TestGenerateChoicesYamlLocales:
             ]
         }
 
-        generate_choices_yaml_locales(
+        _generate_choices_yaml_locales(
             choices_by_name,
             labels_output_folder_path=generated_files["locales_dir_path"],
         )
@@ -375,7 +457,7 @@ class TestGenerateChoicesYamlLocales:
             ]
         }
 
-        generate_choices_yaml_locales(
+        _generate_choices_yaml_locales(
             choices_by_name,
             labels_output_folder_path=generated_files["locales_dir_path"],
         )
@@ -445,7 +527,7 @@ class TestGenerateChoicesYamlLocales:
             ]
         }
 
-        generate_choices_yaml_locales(
+        _generate_choices_yaml_locales(
             choices_by_name,
             labels_output_folder_path=generated_files["locales_dir_path"],
         )
@@ -488,7 +570,7 @@ class TestGenerateChoicesYamlLocales:
             ]
         }
 
-        generate_choices_yaml_locales(
+        _generate_choices_yaml_locales(
             choices_by_name,
             labels_output_folder_path=generated_files["locales_dir_path"],
         )
@@ -545,7 +627,7 @@ class TestGenerateImportStatements:
         ],
     )
     def test_import_lines_match_flags(self, case):
-        code = generate_import_statements(
+        code = _generate_import_statements(
             case["has_conditionals_import"], case["has_custom_import"]
         )
         assert (
