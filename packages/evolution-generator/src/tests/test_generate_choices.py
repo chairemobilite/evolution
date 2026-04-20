@@ -51,6 +51,8 @@ class TestGenerateChoices:
         "value",
         "label::fr",
         "label::en",
+        "label_one::fr",
+        "label_one::en",
         "spreadChoicesName",
         "conditional",
     ]
@@ -85,13 +87,13 @@ class TestGenerateChoices:
         self, generated_files
     ):
         rows = [
-            ["yesNoChoices", "yes", "Oui", "Yes", None, None],
-            ["yesNoChoices", "no", "Non", "No", None, None],
-            ["busCarTransport", "bus", "Autobus", "Bus", None, None],
-            ["busCarTransport", "car", "Voiture", "Car", None, None],
+            ["yesNoChoices", "yes", "Oui", "Yes", None, None, None, None],
+            ["yesNoChoices", "no", "Non", "No", None, None, None, None],
+            ["busCarTransport", "bus", "Autobus", "Bus", None, None, None, None],
+            ["busCarTransport", "car", "Voiture", "Car", None, None, None, None],
             # spread row (no values/labels)
-            ["transportModesChoices", None, None, None, "busCarTransport", None],
-            ["transportModesChoices", "metro", "Métro", "Metro", None, None],
+            ["transportModesChoices", None, None, None, None, None, "busCarTransport", None],
+            ["transportModesChoices", "metro", "Métro", "Metro", None, None, None, None],
         ]
         create_mocked_excel_data(self.SHEET_NAME, self.EXPECTED_HEADERS, rows)
 
@@ -142,8 +144,8 @@ class TestGenerateChoices:
         """
         headers = [*self.EXPECTED_HEADERS, "hidden"]
         rows = [
-            ["aChoices", "a", "A fr", "A en", None, "isAdult", True],
-            ["aChoices", "b", "B fr", "B en", None, "fooCustomConditional", False],
+            ["aChoices", "a", "A fr", "A en", None, None, None, "isAdult", True],
+            ["aChoices", "b", "B fr", "B en", None, None, None, "fooCustomConditional", False],
         ]
         create_mocked_excel_data(self.SHEET_NAME, headers, rows)
 
@@ -160,8 +162,8 @@ class TestGenerateChoices:
 
     def test_invalid_row_with_missing_choices_name_raises(self, generated_files):
         rows = [
-            ["", "yes", "Oui", "Yes", None, None],
-            [None, "no", "Non", "No", None, None],
+            ["", "yes", "Oui", "Yes", None, None, None, None],
+            [None, "no", "Non", "No", None, None, None, None],
         ]
         create_mocked_excel_data(self.SHEET_NAME, self.EXPECTED_HEADERS, rows)
 
@@ -171,9 +173,9 @@ class TestGenerateChoices:
 
     def test_generates_spread_rows_into_typescript_array(self, generated_files):
         rows = [
-            ["baseChoices", "a", "A fr", "A en", None, None],
-            ["combinedChoices", None, None, None, "baseChoices", None],
-            ["combinedChoices", "b", "B fr", "B en", None, None],
+            ["baseChoices", "a", "A fr", "A en", None, None, None, None],
+            ["combinedChoices", None, None, None, None, None, "baseChoices", None],
+            ["combinedChoices", "b", "B fr", "B en", None, None, None, None],
         ]
         create_mocked_excel_data(self.SHEET_NAME, self.EXPECTED_HEADERS, rows)
 
@@ -190,7 +192,7 @@ class TestGenerateChoices:
     def test_imports_are_uncommented_when_any_choice_has_conditional(
         self, generated_files
     ):
-        rows = [["aChoices", "a", "A fr", "A en", None, "isAdult"]]
+        rows = [["aChoices", "a", "A fr", "A en", None, None, None, "isAdult"]]
         create_mocked_excel_data(self.SHEET_NAME, self.EXPECTED_HEADERS, rows)
 
         generate_choices(MOCKED_EXCEL_FILE, generated_files["choices_tsx_path"])
@@ -206,7 +208,7 @@ class TestGenerateChoices:
     def test_imports_are_uncommented_when_any_choice_has_custom_conditional(
         self, generated_files
     ):
-        rows = [["aChoices", "a", "A fr", "A en", None, "fooCustomConditional"]]
+        rows = [["aChoices", "a", "A fr", "A en", None, None, None, "fooCustomConditional"]]
         create_mocked_excel_data(self.SHEET_NAME, self.EXPECTED_HEADERS, rows)
 
         generate_choices(MOCKED_EXCEL_FILE, generated_files["choices_tsx_path"])
@@ -258,14 +260,16 @@ class TestGenerateChoices:
 
     def test_missing_expected_header_raises(self, generated_files):
         bad_headers = [
-            "choicesNameBad",
+            "choicesNameBad", # Bad header name, it should be choicesName
             "value",
             "label::fr",
             "label::en",
+            "label_one::fr",
+            "label_one::en",
             "spreadChoicesName",
             "conditional",
         ]
-        rows = [["yesNoChoices", "yes", "Oui", "Yes", None, None]]
+        rows = [["yesNoChoices", "yes", "Oui", "Yes", None, None, None, None]]
         create_mocked_excel_data(self.SHEET_NAME, bad_headers, rows)
         with pytest.raises(Exception) as e_info:
             generate_choices(MOCKED_EXCEL_FILE, generated_files["choices_tsx_path"])
@@ -275,7 +279,7 @@ class TestGenerateChoices:
 
     def test_invalid_row_data_raises(self, generated_files):
         # Invalid: missing both value and spreadChoicesName
-        rows = [["yesNoChoices", None, "Oui", "Yes", None, None]]
+        rows = [["yesNoChoices", None, "Oui", "Yes", None, None, None, None]]
         create_mocked_excel_data(self.SHEET_NAME, self.EXPECTED_HEADERS, rows)
         with pytest.raises(Exception) as e_info:
             generate_choices(MOCKED_EXCEL_FILE, generated_files["choices_tsx_path"])
@@ -420,7 +424,6 @@ class TestGenerateChoicesYamlLocales:
         assert "\ngreetingChoices:\n" in fr_yaml
         assert "hello: <strong>Hello</strong> {{nickname}}" in fr_yaml
 
-
     def test_choices_yaml_supports_gendered_labels(self, generated_files):
         """
         If a choice label contains {{gender:...}}, locales/*/choices.yaml should include:
@@ -434,7 +437,7 @@ class TestGenerateChoicesYamlLocales:
                     # male: Étudiant, female: Étudiante, custom/other: Étudiant·e
                     "label_yaml": {
                         "fr": "Étudian{{gender:t/te/t·e}}",
-                        "en": "Student{{gender:/ess/}}", # I know it's not grammatically correct, but it's just a test
+                        "en": "Student{{gender:/ess/}}",  # I know it's not grammatically correct, but it's just a test
                     },
                     "spread_choices_name": None,
                     "hidden": False,
@@ -471,6 +474,33 @@ class TestGenerateChoicesYamlLocales:
         assert "\n    student_female: Studentess\n" in en_yaml
         assert "\n    student_male:" not in en_yaml
         assert "\n    student_custom:" not in en_yaml
+
+    def test_choices_yaml_supports_label_one(self, generated_files):
+        choices_by_name = {
+            "greetingChoices": [
+                {
+                    "value": "hello",
+                    "label_yaml": {"fr": "Bonjour", "en": "Hello"},
+                    "label_one_yaml": {"fr": "Salut", "en": "Hi"},
+                    "spread_choices_name": None,
+                    "hidden": False,
+                }
+            ]
+        }
+
+        generate_choices_yaml_locales(
+            choices_by_name,
+            labels_output_folder_path=generated_files["locales_dir_path"],
+        )
+
+        with open(
+            generated_files["en_choices_yaml_path"], mode="r", encoding="utf-8"
+        ) as f:
+            en_yaml = f.read()
+
+        assert "\ngreetingChoices:\n" in en_yaml
+        assert "\n    hello: Hello\n" in en_yaml
+        assert "\n    hello_one: Hi\n" in en_yaml
 
 
 class TestGenerateImportStatements:

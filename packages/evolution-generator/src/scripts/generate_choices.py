@@ -19,7 +19,7 @@ from helpers.generator_helpers import (
 from scripts.labels_generator import LabelFormatter, LabelsGenerator
 
 
-def _process_label_yaml(text) -> str | None:
+def _process_label(text) -> str | None:
     """
     Apply the same label formatting rules as labels generation.
     """
@@ -60,7 +60,7 @@ def generate_choices_yaml_locales(choices_by_name, labels_output_folder_path: st
             value_key = str(value)
             path = f"{choice_name}.{value_key}"
 
-            # Add translations for the choice
+            # Add translations for the choice with gender and count suffixes
             label_fr = choice.get("label_yaml", {}).get("fr")
             LabelsGenerator.add_gender_or_base_translations(
                 language="fr",
@@ -72,6 +72,17 @@ def generate_choices_yaml_locales(choices_by_name, labels_output_folder_path: st
                 rowNumber=rowNumber,
                 translations_dict=translations_dict,
             )
+            label_fr_one = choice.get("label_one_yaml", {}).get("fr")
+            LabelsGenerator.add_gender_or_base_translations(
+                language="fr",
+                section="choices",
+                path=path,
+                gender_dict=LabelsGenerator.expand_gender(label_fr_one),
+                label=label_fr_one,
+                extraSuffix="_one",
+                rowNumber=rowNumber,
+                translations_dict=translations_dict,
+            )
             label_en = choice.get("label_yaml", {}).get("en")
             LabelsGenerator.add_gender_or_base_translations(
                 language="en",
@@ -80,6 +91,17 @@ def generate_choices_yaml_locales(choices_by_name, labels_output_folder_path: st
                 gender_dict=LabelsGenerator.expand_gender(label_en),
                 label=label_en,
                 extraSuffix="",
+                rowNumber=rowNumber,
+                translations_dict=translations_dict,
+            )
+            label_en_one = choice.get("label_one_yaml", {}).get("en")
+            LabelsGenerator.add_gender_or_base_translations(
+                language="en",
+                section="choices",
+                path=path,
+                gender_dict=LabelsGenerator.expand_gender(label_en_one),
+                label=label_en_one,
+                extraSuffix="_one",
                 rowNumber=rowNumber,
                 translations_dict=translations_dict,
             )
@@ -145,6 +167,8 @@ def generate_choices(
                 "value",
                 "label::fr",
                 "label::en",
+                "label_one::fr",
+                "label_one::en",
                 "spreadChoicesName",
                 "conditional",
             ],
@@ -163,8 +187,10 @@ def generate_choices(
             # Get values from the row dictionary
             choice_name = row_dict["choicesName"]
             value = row_dict["value"]
-            label_fr_yaml = _process_label_yaml(row_dict["label::fr"])
-            label_en_yaml = _process_label_yaml(row_dict["label::en"])
+            label_fr_yaml = _process_label(row_dict["label::fr"])
+            label_en_yaml = _process_label(row_dict["label::en"])
+            label_fr_one_yaml = _process_label(row_dict.get("label_one::fr"))
+            label_en_one_yaml = _process_label(row_dict.get("label_one::en"))
             spread_choices_name = row_dict["spreadChoicesName"]
             conditional = row_dict["conditional"]
             hidden = row_dict.get("hidden", False)
@@ -177,6 +203,7 @@ def generate_choices(
             choice = {
                 "value": value,
                 "label_yaml": {"fr": label_fr_yaml, "en": label_en_yaml},
+                "label_one_yaml": {"fr": label_fr_one_yaml, "en": label_en_one_yaml},
                 "spread_choices_name": spread_choices_name,
                 "hidden": hidden,
             }
