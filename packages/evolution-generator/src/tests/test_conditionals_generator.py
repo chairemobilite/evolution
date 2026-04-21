@@ -305,6 +305,54 @@ class TestCheckConditionalsSheet:
         )
 
 
+class TestExtractConditionalsFromData:
+    """
+    Regression test: extract_conditionals_from_data must not depend on column order.
+    """
+
+    def test_extract_conditionals_works_with_reordered_headers(self):
+        """
+        When the Conditionals sheet columns are reordered, extraction still picks values by header name.
+        """
+        # Reorder columns compared to the default spec order.
+        headers = [
+            "path",
+            "conditional_name",
+            "value",
+            "comparison_operator",
+            "parentheses",
+            "logical_operator",
+        ]
+        rows = [
+            ["some.path", "cond1", "42", "===", "", ""],
+            ["some.path", "cond1", "40", "!==", "(", "&&"],
+        ]
+        try:
+            workbook = create_mocked_excel_data("Conditionals", headers, rows)
+            sheet = workbook["Conditionals"]
+            extracted = ConditionalsGenerator.extract_conditionals_from_data(
+                list(sheet.rows), headers
+            )
+            assert extracted["cond1"] == [
+                {
+                    "logical_operator": "",
+                    "path": "some.path",
+                    "comparison_operator": "===",
+                    "value": "42",
+                    "parentheses": "",
+                },
+                {
+                    "logical_operator": "&&",
+                    "path": "some.path",
+                    "comparison_operator": "!==",
+                    "value": "40",
+                    "parentheses": "(",
+                },
+            ]
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+
 class TestValidateConditionalsRow:
     """
     Unit tests for _validate_conditionals_row.
