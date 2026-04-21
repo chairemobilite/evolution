@@ -10,6 +10,7 @@ from helpers.generator_helpers import (
     INDENT,
     add_generator_comment,
     add_generator_yaml_header,
+    generate_label_typescript_with_context,
     get_label_context_flags,
     is_excel_file,
     is_ts_file,
@@ -51,35 +52,16 @@ def _generate_choice_label_typescript(
         )
     )
 
-    if not (has_nickname or has_count or has_gender_context or has_label_one):
-        return f"{INDENT}{INDENT}label: (t) => t('{translation_key}')"
-
-    initial_assignations = ""
-    additional_t_context = ""
-
-    if has_nickname or has_gender_context:
-        initial_assignations += f"{INDENT}{INDENT}{INDENT}const activePerson = odSurveyHelpers.getPerson({{ interview, path }});\n"
-
-    if has_nickname:
-        initial_assignations += f"{INDENT}{INDENT}{INDENT}const nickname = _escape(activePerson?.nickname || t('survey:noNickname'));\n"
-        additional_t_context += f"{INDENT}{INDENT}{INDENT}{INDENT}nickname,\n"
-
-    if has_label_one or has_count:
-        initial_assignations += f"{INDENT}{INDENT}{INDENT}const countPersons = odSurveyHelpers.countPersons({{ interview }});\n"
-        additional_t_context += (
-            f"{INDENT}{INDENT}{INDENT}{INDENT}count: countPersons,\n"
-        )
-
-    if has_gender_context:
-        additional_t_context += f"{INDENT}{INDENT}{INDENT}{INDENT}context: activePerson?.gender || activePerson?.sexAssignedAtBirth,\n"
-
-    return (
-        f"{INDENT}{INDENT}label: (t, interview, path) => {{\n"
-        f"{initial_assignations}"
-        f"{INDENT}{INDENT}{INDENT}return t('{translation_key}', {{\n"
-        f"{additional_t_context}"
-        f"{INDENT}{INDENT}{INDENT}}});\n"
-        f"{INDENT}{INDENT}}}"
+    # Generate the TypeScript code for the label property with optional runtime context.
+    return generate_label_typescript_with_context(
+        property_name="label",
+        translation_key=translation_key,
+        base_indent=f"{INDENT}{INDENT}",
+        has_nickname=has_nickname,
+        has_count=has_count,
+        has_gender_context=has_gender_context,
+        has_label_one=has_label_one,
+        gender_context_expression="activePerson?.gender || activePerson?.sexAssignedAtBirth",
     )
 
 
@@ -401,6 +383,7 @@ def _generate_import_statements(
         "// " if not has_custom_conditionals_import else ""
     ) + "import * as customConditionals from './customConditionals';\n"
     return (
+        f"import {{ TFunction }} from 'i18next';\n"
         f"import {{ type ChoiceType }} from 'evolution-common/lib/services/questionnaire/types';\n"
         f"{escape_import}"
         f"{od_survey_helpers_import}"

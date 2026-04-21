@@ -282,3 +282,60 @@ def get_label_context_flags(
     has_gender_context = re.search(r"\{\{\s*gender\s*:\s*", label_text) is not None
     has_label_one = bool((label_one_fr or "").strip() or (label_one_en or "").strip())
     return has_nickname, has_count, has_gender_context, has_label_one
+
+
+def generate_label_typescript_with_context(
+    *,
+    property_name: str,
+    translation_key: str,
+    base_indent: str,
+    has_nickname: bool,
+    has_count: bool,
+    has_gender_context: bool,
+    has_label_one: bool,
+    gender_context_expression: str | None = None,
+) -> str:
+    """
+    Generate a TypeScript i18n property (`label` / `text`) with optional runtime context.
+
+    If no runtime context is needed, this returns a simple `(t) => t('...')` snippet.
+    Otherwise, it returns a full function `(t, interview, path) => { ... }` that
+    computes the required context and passes it to `t('...', { ... })`.
+    """
+
+    needs_runtime_context = (
+        has_nickname or has_count or has_gender_context or has_label_one
+    )
+    if not needs_runtime_context:
+        return f"{base_indent}{property_name}: (t: TFunction) => t('{translation_key}')"
+
+    initial_assignations = ""
+    additional_t_context = ""
+
+    const_indent = f"{base_indent}{INDENT}"
+    return_indent = f"{base_indent}{INDENT}"
+    context_indent = f"{base_indent}{INDENT}{INDENT}"
+
+    if has_nickname or has_gender_context:
+        initial_assignations += f"{const_indent}const activePerson = odSurveyHelpers.getPerson({{ interview, path }});\n"
+
+    if has_nickname:
+        initial_assignations += f"{const_indent}const nickname = _escape(activePerson?.nickname || t('survey:noNickname'));\n"
+        additional_t_context += f"{context_indent}nickname,\n"
+
+    if has_label_one or has_count:
+        initial_assignations += f"{const_indent}const countPersons = odSurveyHelpers.countPersons({{ interview }});\n"
+        additional_t_context += f"{context_indent}count: countPersons,\n"
+
+    if has_gender_context:
+        context_expr = gender_context_expression or "undefined"
+        additional_t_context += f"{context_indent}context: {context_expr},\n"
+
+    return (
+        f"{base_indent}{property_name}: (t: TFunction, interview, path) => {{\n"
+        f"{initial_assignations}"
+        f"{return_indent}return t('{translation_key}', {{\n"
+        f"{additional_t_context}"
+        f"{return_indent}}});\n"
+        f"{base_indent}}}"
+    )

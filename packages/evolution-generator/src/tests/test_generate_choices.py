@@ -18,6 +18,40 @@ from scripts.generate_choices import (
 MOCKED_EXCEL_FILE = "src/tests/references/test.xlsx"
 
 
+def choices_row(
+    *,
+    choicesName,
+    value=None,
+    label_fr=None,
+    label_en=None,
+    label_one_fr=None,
+    label_one_en=None,
+    spreadChoicesName=None,
+    conditional=None,
+):
+    """
+    Build a mocked Excel row for the `Choices` sheet using named parameters so
+    the test data is easy to review.
+    """
+    return [
+        choicesName,
+        value,
+        label_fr,
+        label_en,
+        label_one_fr,
+        label_one_en,
+        spreadChoicesName,
+        conditional,
+    ]
+
+
+def choices_row_with_hidden(*, hidden, **kwargs):
+    """
+    Same as `choices_row`, but appends the `hidden` column (when tests include it).
+    """
+    return [*choices_row(**kwargs), hidden]
+
+
 @pytest.fixture()
 def output_paths(tmp_path):
     """
@@ -97,31 +131,35 @@ class TestGenerateChoices:
         self, output_paths
     ):
         rows = [
-            ["yesNoChoices", "yes", "Oui", "Yes", None, None, None, None],
-            ["yesNoChoices", "no", "Non", "No", None, None, None, None],
-            ["busCarTransport", "bus", "Autobus", "Bus", None, None, None, None],
-            ["busCarTransport", "car", "Voiture", "Car", None, None, None, None],
+            choices_row(
+                choicesName="yesNoChoices", value="yes", label_fr="Oui", label_en="Yes"
+            ),
+            choices_row(
+                choicesName="yesNoChoices", value="no", label_fr="Non", label_en="No"
+            ),
+            choices_row(
+                choicesName="busCarTransport",
+                value="bus",
+                label_fr="Autobus",
+                label_en="Bus",
+            ),
+            choices_row(
+                choicesName="busCarTransport",
+                value="car",
+                label_fr="Voiture",
+                label_en="Car",
+            ),
             # spread row (no values/labels)
-            [
-                "transportModesChoices",
-                None,
-                None,
-                None,
-                None,
-                None,
-                "busCarTransport",
-                None,
-            ],
-            [
-                "transportModesChoices",
-                "metro",
-                "Métro",
-                "Metro",
-                None,
-                None,
-                None,
-                None,
-            ],
+            choices_row(
+                choicesName="transportModesChoices",
+                spreadChoicesName="busCarTransport",
+            ),
+            choices_row(
+                choicesName="transportModesChoices",
+                value="metro",
+                label_fr="Métro",
+                label_en="Metro",
+            ),
         ]
         create_mocked_excel_data(self.SHEET_NAME, self.EXPECTED_HEADERS, rows)
 
@@ -143,9 +181,10 @@ class TestGenerateChoices:
             "import { type ChoiceType } from 'evolution-common/lib/services/questionnaire/types';"
             in ts_code
         )
+        assert "import { TFunction } from 'i18next';" in ts_code
         # Labels should use i18n translations (choices namespace)
-        assert "label: (t) => t('choices:yesNoChoices.yes')" in ts_code
-        assert "label: (t) => t('choices:yesNoChoices.no')" in ts_code
+        assert "label: (t: TFunction) => t('choices:yesNoChoices.yes')" in ts_code
+        assert "label: (t: TFunction) => t('choices:yesNoChoices.no')" in ts_code
 
         with open(
             output_paths["en_choices_yaml_path"], mode="r", encoding="utf-8"
@@ -172,18 +211,22 @@ class TestGenerateChoices:
         """
         headers = [*self.EXPECTED_HEADERS, "hidden"]
         rows = [
-            ["aChoices", "a", "A fr", "A en", None, None, None, "isAdult", True],
-            [
-                "aChoices",
-                "b",
-                "B fr",
-                "B en",
-                None,
-                None,
-                None,
-                "fooCustomConditional",
-                False,
-            ],
+            choices_row_with_hidden(
+                choicesName="aChoices",
+                value="a",
+                label_fr="A fr",
+                label_en="A en",
+                conditional="isAdult",
+                hidden=True,
+            ),
+            choices_row_with_hidden(
+                choicesName="aChoices",
+                value="b",
+                label_fr="B fr",
+                label_en="B en",
+                conditional="fooCustomConditional",
+                hidden=False,
+            ),
         ]
         create_mocked_excel_data(self.SHEET_NAME, headers, rows)
 
@@ -209,16 +252,14 @@ class TestGenerateChoices:
         - pass nickname / count / context to t(...)
         """
         rows = [
-            [
-                "greetingChoices",
-                "hello",
-                "Bonjour **{{nickname}}** ({{count}}) Étudian{{gender:t/te/t·e}}",
-                "Hello **{{nickname}}** ({{count}}) Student{{gender:/ess/}}",
-                "Salut **{{nickname}}**",
-                "Hi **{{nickname}}**",
-                None,
-                None,
-            ]
+            choices_row(
+                choicesName="greetingChoices",
+                value="hello",
+                label_fr="Bonjour **{{nickname}}** ({{count}}) Étudian{{gender:t/te/t·e}}",
+                label_en="Hello **{{nickname}}** ({{count}}) Student{{gender:/ess/}}",
+                label_one_fr="Salut **{{nickname}}**",
+                label_one_en="Hi **{{nickname}}**",
+            )
         ]
         create_mocked_excel_data(self.SHEET_NAME, self.EXPECTED_HEADERS, rows)
 
@@ -234,7 +275,7 @@ class TestGenerateChoices:
             in ts_code
         )
         assert "import _escape from 'lodash/escape';" in ts_code
-        assert "label: (t, interview, path) => {" in ts_code
+        assert "label: (t: TFunction, interview, path) => {" in ts_code
         assert (
             "const activePerson = odSurveyHelpers.getPerson({ interview, path });"
             in ts_code
@@ -252,8 +293,8 @@ class TestGenerateChoices:
 
     def test_invalid_row_with_missing_choices_name_raises(self, output_paths):
         rows = [
-            ["", "yes", "Oui", "Yes", None, None, None, None],
-            [None, "no", "Non", "No", None, None, None, None],
+            choices_row(choicesName="", value="yes", label_fr="Oui", label_en="Yes"),
+            choices_row(choicesName=None, value="no", label_fr="Non", label_en="No"),
         ]
         create_mocked_excel_data(self.SHEET_NAME, self.EXPECTED_HEADERS, rows)
 
@@ -263,9 +304,16 @@ class TestGenerateChoices:
 
     def test_generates_spread_rows_into_typescript_array(self, output_paths):
         rows = [
-            ["baseChoices", "a", "A fr", "A en", None, None, None, None],
-            ["combinedChoices", None, None, None, None, None, "baseChoices", None],
-            ["combinedChoices", "b", "B fr", "B en", None, None, None, None],
+            choices_row(
+                choicesName="baseChoices", value="a", label_fr="A fr", label_en="A en"
+            ),
+            choices_row(choicesName="combinedChoices", spreadChoicesName="baseChoices"),
+            choices_row(
+                choicesName="combinedChoices",
+                value="b",
+                label_fr="B fr",
+                label_en="B en",
+            ),
         ]
         create_mocked_excel_data(self.SHEET_NAME, self.EXPECTED_HEADERS, rows)
 
@@ -282,7 +330,15 @@ class TestGenerateChoices:
     def test_imports_are_uncommented_when_any_choice_has_conditional(
         self, output_paths
     ):
-        rows = [["aChoices", "a", "A fr", "A en", None, None, None, "isAdult"]]
+        rows = [
+            choices_row(
+                choicesName="aChoices",
+                value="a",
+                label_fr="A fr",
+                label_en="A en",
+                conditional="isAdult",
+            )
+        ]
         create_mocked_excel_data(self.SHEET_NAME, self.EXPECTED_HEADERS, rows)
 
         generate_choices(MOCKED_EXCEL_FILE, output_paths["choices_tsx_path"])
@@ -299,7 +355,13 @@ class TestGenerateChoices:
         self, output_paths
     ):
         rows = [
-            ["aChoices", "a", "A fr", "A en", None, None, None, "fooCustomConditional"]
+            choices_row(
+                choicesName="aChoices",
+                value="a",
+                label_fr="A fr",
+                label_en="A en",
+                conditional="fooCustomConditional",
+            )
         ]
         create_mocked_excel_data(self.SHEET_NAME, self.EXPECTED_HEADERS, rows)
 
@@ -361,7 +423,11 @@ class TestGenerateChoices:
             "spreadChoicesName",
             "conditional",
         ]
-        rows = [["yesNoChoices", "yes", "Oui", "Yes", None, None, None, None]]
+        rows = [
+            choices_row(
+                choicesName="yesNoChoices", value="yes", label_fr="Oui", label_en="Yes"
+            )
+        ]
         create_mocked_excel_data(self.SHEET_NAME, bad_headers, rows)
         with pytest.raises(Exception) as e_info:
             generate_choices(MOCKED_EXCEL_FILE, output_paths["choices_tsx_path"])
@@ -371,7 +437,7 @@ class TestGenerateChoices:
 
     def test_invalid_row_data_raises(self, output_paths):
         # Invalid: missing both value and spreadChoicesName
-        rows = [["yesNoChoices", None, "Oui", "Yes", None, None, None, None]]
+        rows = [choices_row(choicesName="yesNoChoices", label_fr="Oui", label_en="Yes")]
         create_mocked_excel_data(self.SHEET_NAME, self.EXPECTED_HEADERS, rows)
         with pytest.raises(Exception) as e_info:
             generate_choices(MOCKED_EXCEL_FILE, output_paths["choices_tsx_path"])
@@ -491,14 +557,12 @@ class TestGenerateChoicesYamlLocales:
         """
         headers = TestGenerateChoices.EXPECTED_HEADERS
         rows = [
-            [
-                "greetingChoices",
-                "hello",
-                "**Hello** {{nickname}}",
-                "**Hello** {{nickname}}",
-                None,
-                None,
-            ]
+            choices_row(
+                choicesName="greetingChoices",
+                value="hello",
+                label_fr="**Hello** {{nickname}}",
+                label_en="**Hello** {{nickname}}",
+            )
         ]
         create_mocked_excel_data(TestGenerateChoices.SHEET_NAME, headers, rows)
 
