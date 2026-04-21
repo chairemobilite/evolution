@@ -8,6 +8,8 @@ from helpers.generator_helpers import (
     INDENT,
     get_data_from_excel,
     add_generator_comment,
+    generate_label_typescript_with_context,
+    get_label_context_flags,
 )
 import re  # Regular expression module for pattern matching
 from typing import TypedDict
@@ -628,63 +630,42 @@ def generate_label(
     label_en = row.get("label::en", "")  # English label
     label_one_fr = row.get("label_one::fr", "")  # French label for one person
     label_one_en = row.get("label_one::en", "")  # English label for one person
-    label_text = label_fr + label_en + label_one_fr + label_one_en  # Combine all labels
+    has_nickname, has_count, has_gender_context, has_label_one = (
+        get_label_context_flags(
+            label_fr=label_fr,
+            label_en=label_en,
+            label_one_fr=label_one_fr,
+            label_one_en=label_one_en,
+        )
+    )
 
-    has_nickname_label = "{{nickname}}" in label_text
-    has_persons_count_label = "{{count}}" in label_text
-    has_gender_context_label = "{{gender:" in label_text
-    has_label_one = bool(label_one_fr or label_one_en)
-
-    if not (
-        has_persons_count_label
-        or has_gender_context_label
-        or has_nickname_label
-        or has_label_one
-    ):
-        return f"{INDENT}{key_name}: (t: TFunction) => t('{section}:{path}')"
-
-    additional_t_context = ""
-    initial_assignations = ""
-
-    if has_nickname_label or has_gender_context_label:
-        initial_assignations += f"{INDENT}{INDENT}const activePerson = odSurveyHelpers.getPerson({{ interview, path }});\n"
-
-    if has_nickname_label:
-        initial_assignations += f"{INDENT}{INDENT}const nickname = _escape(activePerson?.nickname || t('survey:noNickname'));\n"
-        additional_t_context += f"{INDENT}{INDENT}{INDENT}nickname,\n"
-
-    if has_label_one or has_persons_count_label:
-        initial_assignations += f"{INDENT}{INDENT}const countPersons = odSurveyHelpers.countPersons({{ interview }});\n"
-
-    if has_gender_context_label:
+    gender_context_expression: str | None = None
+    if has_gender_context:
         if gender_fields.has_gender and gender_fields.has_sex_assigned_at_birth:
-            additional_t_context += f"{INDENT}{INDENT}{INDENT}context: activePerson?.gender || activePerson?.sexAssignedAtBirth,\n"
+            gender_context_expression = (
+                "activePerson?.gender || activePerson?.sexAssignedAtBirth"
+            )
         elif gender_fields.has_gender:
-            additional_t_context += (
-                f"{INDENT}{INDENT}{INDENT}context: activePerson?.gender,\n"
-            )
+            gender_context_expression = "activePerson?.gender"
         elif gender_fields.has_sex_assigned_at_birth:
-            additional_t_context += (
-                f"{INDENT}{INDENT}{INDENT}context: activePerson?.sexAssignedAtBirth,\n"
-            )
+            gender_context_expression = "activePerson?.sexAssignedAtBirth"
         else:
             print(
                 f"Warning: Gender context used in label for '{section}:{path}' but neither 'gender' nor 'sexAssignedAtBirth' fields are available in this section."
             )
-            additional_t_context += f"{INDENT}{INDENT}{INDENT}context: undefined, // Warning: No gender field available\n"
+            gender_context_expression = "undefined"
 
-    if has_persons_count_label or has_label_one:
-        additional_t_context += f"{INDENT}{INDENT}{INDENT}count: countPersons,\n"
-
-    widget_label = (
-        f"{INDENT}{key_name}: (t: TFunction, interview, path) => {{\n"
-        f"{initial_assignations}"
-        f"{INDENT}{INDENT}return t('{section}:{path}', {{\n"
-        f"{additional_t_context}"
-        f"{INDENT}{INDENT}}});\n"
-        f"{INDENT}}}"
+    # Generate the TypeScript code for the label property with optional runtime context.
+    return generate_label_typescript_with_context(
+        property_name=key_name,
+        translation_key=f"{section}:{path}",
+        base_indent=INDENT,
+        has_nickname=has_nickname,
+        has_count=has_count,
+        has_gender_context=has_gender_context,
+        has_label_one=has_label_one,
+        gender_context_expression=gender_context_expression,
     )
-    return widget_label
 
 
 def generate_help_popup(help_popup, comma=True, skip_line=True):
@@ -1219,15 +1200,18 @@ def get_widgets_file_import_flags(section_rows) -> ImportFlags:
         label_en = row.get("label::en", "")
         label_one_en = row.get("label_one::en", "")
         label_one_fr = row.get("label_one::fr", "")
-        # Check for {{nickname}}, {{count}}, and {{genderedSuffix:...}} in labels
-        if "{{nickname}}" in label_fr or "{{nickname}}" in label_en:
+        # Check for {{nickname}}, {{count}}, and label_one in labels
+        has_nickname, has_count, _has_gender_context, has_label_one = (
+            get_label_context_flags(
+                label_fr=label_fr,
+                label_en=label_en,
+                label_one_fr=label_one_fr,
+                label_one_en=label_one_en,
+            )
+        )
+        if has_nickname:
             import_flags.has_nickname_label = True
-        if (
-            (label_one_en.strip())
-            or (label_one_fr.strip())
-            or "{{count}}" in label_fr
-            or "{{count}}" in label_en
-        ):
+        if has_count or has_label_one:
             import_flags.has_persons_count_label = True
         if "{{genderedSuffix" in label_fr or "{{genderedSuffix" in label_en:
             import_flags.has_gendered_suffix_label = True
