@@ -326,14 +326,16 @@ class ConditionalsGenerator:
 
         try:
             for row_number, row in enumerate(rows[1:], start=2):
-                (
-                    conditional_name,
-                    logical_operator,
-                    path,
-                    comparison_operator,
-                    value,
-                    parentheses,
-                ) = get_values_from_row(row, headers)
+                values = get_values_from_row(row, headers)
+                row_dict = dict(zip(headers, values, strict=True))
+
+                # Get values from the row dictionary
+                conditional_name = row_dict.get("conditional_name")
+                logical_operator = row_dict.get("logical_operator")
+                path = row_dict.get("path")
+                comparison_operator = row_dict.get("comparison_operator")
+                value = row_dict.get("value")
+                parentheses = row_dict.get("parentheses")
 
                 conditional = {
                     "logical_operator": logical_operator,
