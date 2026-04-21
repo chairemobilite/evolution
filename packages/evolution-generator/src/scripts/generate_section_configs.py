@@ -45,6 +45,9 @@ def generate_section_configs(excel_file_path: str, section_config_output_folder:
             sheet_name="Sections",
         )
 
+        # Find the index of 'section' in headers
+        section_index = headers.index("section")
+
         # Generate TypeScript code
         ts_code: str = ""  # TypeScript code to be written to file
 
@@ -135,7 +138,7 @@ def generate_section_configs(excel_file_path: str, section_config_output_folder:
                 if row_number <= len(rows) - 1:
                     next_row = rows[row_number]  # Get the next row
                     # Get the next section from the next row
-                    nextSection = get_values_from_row(next_row, headers)[0]
+                    nextSection = get_values_from_row(next_row, headers)[section_index]
                     ts_section_code += f"const nextSectionName: SectionConfig['nextSection'] = '{nextSection}';\n"
                 else:
                     ts_section_code += (
