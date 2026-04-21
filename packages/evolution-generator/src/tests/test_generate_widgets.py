@@ -10,6 +10,7 @@ from scripts.generate_widgets import (
     generate_info_text_widget,
     generate_radio_widget,
     generate_radio_number_widget,
+    generate_next_button_widget,
     generate_string_widget,
     generate_widget_statement,
     generate_label,
@@ -580,6 +581,91 @@ def test_generate_radio_widget_complex():
     assert code.strip().endswith("};")
 
 
+def test_generate_next_button_widget_default_conditional():
+    """Test generate_next_button_widget includes default conditional when missing"""
+    row = {
+        "questionName": "home_save",
+        "inputType": "NextButton",
+        "section": "home",
+        "path": "home.save",
+        "conditional": "",
+        "confirm_popup": "",
+        "label::fr": "Continuer",
+        "label::en": "Continue",
+    }
+    widget_label = generate_label(section=row["section"], path=row["path"], row=row)
+    code = generate_next_button_widget(
+        row["questionName"],
+        row["path"],
+        row["confirm_popup"],
+        row["conditional"],
+        widget_label,
+        row,
+    )
+
+    assert "export const home_save: WidgetConfig.ButtonWidgetConfig = {" in code
+    assert "...defaultInputBase.buttonNextBase," in code
+    assert "path: 'home.save'," in code
+    assert "label: (t: TFunction) => t('home:home.save')," in code
+    assert "conditional: defaultConditional" in code
+    assert code.strip().endswith("};")
+
+
+def test_generate_next_button_widget_custom_conditional():
+    """Test generate_next_button_widget includes customConditionals when suffix matches"""
+    row = {
+        "questionName": "home_save",
+        "inputType": "NextButton",
+        "section": "home",
+        "path": "home.save",
+        "conditional": "hiddenWithCanadaAsDefaultValueCustomConditional",
+        "confirm_popup": "",
+        "label::fr": "Continuer",
+        "label::en": "Continue",
+    }
+    widget_label = generate_label(section=row["section"], path=row["path"], row=row)
+    code = generate_next_button_widget(
+        row["questionName"],
+        row["path"],
+        row["confirm_popup"],
+        row["conditional"],
+        widget_label,
+        row,
+    )
+
+    assert (
+        "conditional: customConditionals.hiddenWithCanadaAsDefaultValueCustomConditional"
+        in code
+    )
+    assert code.strip().endswith("};")
+
+
+def test_generate_next_button_widget_normal_conditional():
+    """Test generate_next_button_widget includes conditionals for non-custom conditional"""
+    row = {
+        "questionName": "home_save",
+        "inputType": "NextButton",
+        "section": "home",
+        "path": "home.save",
+        "conditional": "someConditional",
+        "confirm_popup": "",
+        "label::fr": "Continuer",
+        "label::en": "Continue",
+    }
+    widget_label = generate_label(section=row["section"], path=row["path"], row=row)
+    code = generate_next_button_widget(
+        row["questionName"],
+        row["path"],
+        row["confirm_popup"],
+        row["conditional"],
+        widget_label,
+        row,
+    )
+
+    assert "conditional: conditionals.someConditional" in code
+    assert code.strip().endswith("};")
+
+
 def test_generate_radio_number_widget_basic():
     """Test generate_radio_number_widget with minimal required fields"""
     row = {
@@ -1013,12 +1099,8 @@ class TestGenerateWidgetStatementComments:
 
 # TODO: Test generate_select_widget
 # TODO: Test generate_number_widget
-# TODO: Test generate_info_text_widget
 # TODO: Test generate_range_widget
-# TODO: Test generate_checkbox_widget
-# TODO: Test generate_next_button_widget
 # TODO: Test generate_text_widget
-# TODO: Test get_widgets_file_import_flags
 
 
 class TestRadioNumberParameters:

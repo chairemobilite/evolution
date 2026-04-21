@@ -332,7 +332,7 @@ def generate_widget_statement(row, gender_fields: GenderFields = None) -> Widget
         )
     elif input_type == "NextButton":
         result["statement"] = generate_next_button_widget(
-            question_name, path, confirm_popup, widget_label, row
+            question_name, path, confirm_popup, conditional, widget_label, row
         )
     elif input_type == "Text":
         result["statement"] = generate_text_widget(
@@ -1018,13 +1018,16 @@ def generate_checkbox_widget(
 
 
 # Generate NextButton widget
-def generate_next_button_widget(question_name, path, confirm_popup, widget_label, row):
+def generate_next_button_widget(
+    question_name, path, confirm_popup, conditional, widget_label, row
+):
     return (
         f"{generate_constExport(question_name, 'ButtonWidgetConfig')}\n"
         f"{generate_defaultInputBase('buttonNextBase')},\n"
         f"{generate_path(path)},\n"
         f"{generate_confirm_popup(confirm_popup)}"
-        f"{widget_label}\n"
+        f"{widget_label},\n"
+        f"{generate_conditional(conditional)}\n"
         f"}};"
     )
 
