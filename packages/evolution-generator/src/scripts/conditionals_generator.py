@@ -71,6 +71,11 @@ class ConditionalsGenerator:
             required=False,
             allowed_values=frozenset({"(", ")", None}),
         ),
+        _ColumnSpec(
+            name="default_value",
+            required=False,
+            allowed_types=(int, float, str),
+        ),
     )
 
     # Column names that get_headers requires in row 1 (required=True only; optional columns may still be present as extra headers).
@@ -250,6 +255,27 @@ class ConditionalsGenerator:
         """
         self._validate_conditionals_parentheses_balance(row_data)
         self._validate_conditionals_first_row_no_logical_operator(row_data)
+        self._validate_conditionals_default_value_logic(row_data)
+
+    def _validate_conditionals_default_value_logic(
+        self, row_data: list[tuple[int, dict]]
+    ) -> None:
+        """
+        Validate that for each conditional_name group, the optional default_value is either absent
+        or identical across all rows of that conditional_name.
+        """
+        prefix = self._sheet_error_prefix("Conditionals")
+        groups = self._group_row_data_by_conditional_name(row_data)
+        for name, group_rows in groups.items():
+            default_values = {
+                self._empty_to_none(row_dict.get("default_value"))
+                for _row_number, row_dict in group_rows
+                if self._empty_to_none(row_dict.get("default_value")) is not None
+            }
+            if len(default_values) > 1:
+                self._validation_errors.append(
+                    f"{prefix}Multiple default_value for conditional_name '{name}': {sorted(default_values)}"
+                )
 
     def _validate_conditionals_parentheses_balance(
         self, row_data: list[tuple[int, dict]]
@@ -336,6 +362,7 @@ class ConditionalsGenerator:
                 comparison_operator = row_dict.get("comparison_operator")
                 value = row_dict.get("value")
                 parentheses = row_dict.get("parentheses")
+                default_value = row_dict.get("default_value")
 
                 conditional = {
                     "logical_operator": logical_operator,
@@ -344,6 +371,9 @@ class ConditionalsGenerator:
                     "value": value,
                     "parentheses": parentheses,
                 }
+                default_value = ConditionalsGenerator._empty_to_none(default_value)
+                if default_value is not None:
+                    conditional["default_value"] = default_value
 
                 conditional_by_name[conditional_name].append(conditional)
 
@@ -382,6 +412,15 @@ class ConditionalsGenerator:
 
             # Emit one exported WidgetConditional (const) per conditional_name
             for conditional_name, conditionals in conditional_by_name.items():
+                default_value = next(
+                    (
+                        conditional.get("default_value")
+                        for conditional in conditionals
+                        if conditional.get("default_value") is not None
+                    ),
+                    None,
+                )
+
                 # Check if any conditional has a path that contains "${relativePath}"
                 conditionals_has_relative_path = any(
                     "${relativePath}" in conditional["path"]
@@ -416,6 +455,12 @@ class ConditionalsGenerator:
                 )
                 ts_code += INDENT + "return checkConditionals({" + NEWLINE
                 ts_code += INDENT + INDENT + "interview," + NEWLINE
+
+                # Add default value if it exists
+                if default_value is not None:
+                    ts_code += (
+                        INDENT + INDENT + f"defaultValue: '{default_value}',{NEWLINE}"
+                    )
                 ts_code += INDENT + INDENT + "conditionals: [" + NEWLINE
 
                 # Add conditionals
