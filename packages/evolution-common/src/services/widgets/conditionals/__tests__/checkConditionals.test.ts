@@ -31,6 +31,10 @@ const testCases: Array<{
     conditionals: unknown;
     expected: unknown;
     defaultValue?: unknown;
+    expectedConsoleError?: {
+        message: string;
+        data: Record<string, unknown>;
+    };
 }> = [
     {
         testTitle: '­wrongPath === \'null\', should return true.',
@@ -447,28 +451,59 @@ const testCases: Array<{
         ],
         defaultValue: false,
         expected: [true, false]
+    },
+    {
+        testTitle:
+            '_isNumber1 === 1 && (_isNumber1 === 0 || _isNumber1 === 1, should return false because of missing closing parenthesis.',
+        conditionals: [
+            {
+                path: '_isNumber1',
+                comparisonOperator: '===',
+                value: 1
+            },
+            { path: '_isNumber1', comparisonOperator: '===', value: 0, logicalOperator: '&&', parentheses: '(' },
+            { path: '_isNumber1', comparisonOperator: '===', value: 1, logicalOperator: '||' }
+        ],
+        expectedConsoleError: {
+            message: 'checkConditionals: Unbalanced parentheses (missing closing parenthesis) in conditionals',
+            data: { parenthesesBalance: 1 }
+        },
+        expected: [false, null]
+    },
+    {
+        testTitle:
+            '_isNumber1 === 1) with a closing parenthesis first, should return false because of closing parenthesis without opening.',
+        conditionals: [
+            {
+                path: '_isNumber1',
+                comparisonOperator: '===',
+                value: 1,
+                parentheses: ')'
+            }
+        ],
+        expectedConsoleError: {
+            message: 'checkConditionals: Unbalanced parentheses (closing without opening) in conditionals',
+            data: { index: 0, parenthesesBalance: -1 }
+        },
+        expected: [false, null]
     }
-    // TODO: Uncomment the following test when the checkConditionals function is fixed for this case
-    // [
-    //     '_isNumber1 === 1 && (_isNumber1 === 0 || _isNumber1 === 1, should return an error because of missing parentheses.',
-    //     [
-    //         {
-    //             path: '_isNumber1',
-    //             comparisonOperator: '===',
-    //             value: 1
-    //         },
-    //         { path: '_isNumber1', comparisonOperator: '===', value: 0, logicalOperator: '&&', parentheses: '(' },
-    //         { path: '_isNumber1', comparisonOperator: '===', value: 1, logicalOperator: '||' }
-    //     ],
-    //     [false, null] // Should return an error
-    // ]
 ];
 
-test.each(testCases)('$testTitle', ({ conditionals, expected, defaultValue }) => {
+test.each(testCases)('$testTitle', ({ conditionals, expected, defaultValue, expectedConsoleError }) => {
+    const consoleErrorSpy = expectedConsoleError
+        ? jest.spyOn(console, 'error').mockImplementation(() => undefined)
+        : null;
     const returnValues = checkConditionals({
         interview,
         conditionals: conditionals as Parameters<typeof checkConditionals>[0]['conditionals'],
         defaultValue
     });
     expect(returnValues).toEqual(expected);
+    if (expectedConsoleError) {
+        expect(consoleErrorSpy).toHaveBeenCalledWith(
+            expectedConsoleError.message,
+            expect.objectContaining(expectedConsoleError.data)
+        );
+        consoleErrorSpy?.mockRestore();
+    }
 });

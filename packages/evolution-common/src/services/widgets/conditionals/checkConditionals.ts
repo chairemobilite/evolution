@@ -43,11 +43,29 @@ export const checkConditionals = ({
     defaultValue?: unknown; // Note: When 'defaultValue' is not provided, it defaults to null.
 }): [boolean, unknown | null] => {
     let mathExpression = ''; // Construct the math expression to be evaluated
+    let parenthesesBalance = 0; // Running balance: '(' +1, ')' -1. Must never go negative and must end at 0.
+    let parenthesesInvalid = false; // If true, parentheses are unbalanced.
 
     // Iterate through the provided conditionals
-    conditionals.forEach((conditional, index) => {
+    for (let index = 0; index < conditionals.length; index++) {
+        const conditional = conditionals[index];
         // Extract components of the conditional
         const { logicalOperator, path, comparisonOperator, value, parentheses } = conditional;
+
+        // Parentheses must be well-formed: you can't close before opening, and all opened '(' must be closed.
+        if (parentheses === '(') {
+            parenthesesBalance += 1;
+        } else if (parentheses === ')') {
+            parenthesesBalance -= 1;
+            if (parenthesesBalance < 0) {
+                parenthesesInvalid = true;
+                console.error(
+                    'checkConditionals: Unbalanced parentheses (closing without opening) in conditionals',
+                    { index, parenthesesBalance, conditional }
+                );
+                return [false, defaultValue ?? null];
+            }
+        }
 
         // Replace response placeholders specified between brackets in a path by the corresponding value in the interview response.
         const interpolatedPath = interpolatePath(interview, path);
@@ -152,7 +170,18 @@ export const checkConditionals = ({
         } else if (logicalOperator === '&&') {
             mathExpression += ' && ' + parenthesesStart + conditionMet + parenthesesEnd; // Add the result to the final result
         }
-    });
+    }
+
+    // If parentheses are unbalanced, consider the conditionals invalid
+    if (parenthesesInvalid) {
+        return [false, defaultValue ?? null];
+    }
+    if (parenthesesBalance !== 0) {
+        console.error('checkConditionals: Unbalanced parentheses (missing closing parenthesis) in conditionals', {
+            parenthesesBalance
+        });
+        return [false, defaultValue ?? null];
+    }
 
     // FIXME: This eval() is a security risk, and should be replaced with a safer alternative
     // Evaluate the final result using eval() to handle logical operators
