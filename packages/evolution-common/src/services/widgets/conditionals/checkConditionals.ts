@@ -21,15 +21,29 @@ type SingleConditionalsType = {
 };
 type ConditionalsType = SingleConditionalsType[];
 
-// Check interview response with conditions, returning the result and null.
+/**
+ * Evaluates a list of conditionals against an interview response.
+ *
+ * Each conditional compares the value at `path` (resolved from `interview.response`, with path placeholders like
+ * `{someField}` interpolated from the interview response) to the provided `value`, then combines the boolean results
+ * using `logicalOperator` and optional `parentheses`.
+ *
+ * @param params.interview Interview object containing `response`
+ * @param params.conditionals List of conditionals to evaluate (combined left-to-right)
+ * @param params.defaultValue Optional value returned as the 2nd tuple element; defaults to `null` when omitted
+ * @returns A tuple `[result, defaultValueOrNull]`
+ */
 export const checkConditionals = ({
     interview,
-    conditionals
+    conditionals,
+    defaultValue
 }: {
     interview;
     conditionals: ConditionalsType;
-}): boolean | [boolean] | [boolean, unknown] => {
+    defaultValue?: unknown; // Note: When 'defaultValue' is not provided, it defaults to null.
+}): [boolean, unknown | null] => {
     let mathExpression = ''; // Construct the math expression to be evaluated
+
     // Iterate through the provided conditionals
     conditionals.forEach((conditional, index) => {
         // Extract components of the conditional
@@ -144,6 +158,6 @@ export const checkConditionals = ({
     // Evaluate the final result using eval() to handle logical operators
     const finalResult: boolean = eval(mathExpression);
 
-    // Return the final result along with null (as per the function signature)
-    return [finalResult, null];
+    // Return the final result with the defaultValue if provided, otherwise return null
+    return [finalResult, defaultValue ?? null];
 };
