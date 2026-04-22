@@ -358,27 +358,30 @@ In your survey logic, conditionals play a key role in determining if the widget 
 
 ### Conditionals Fields
 
-| Field                       | Description                                | Type                    |
-| --------------------------- | ------------------------------------------ | ----------------------- |
-| conditionalName             | Name of the conditional                    | string                  |
-| logicalOperator             | Logical operator (optional)                | && or \|\|              |
-| path                        | Path to the response object for comparison | string                  |
-| [comparisonOperator](#comp) | Operator for comparison                    | ===, ==, >, <, >= or <= |
-| value                       | Value for the comparison                   | number or string        |
-| [parentheses](#par)         | Parentheses (optional)                     | ( or )                  |
+| Field                                        | Description                                          | Type                        |
+| -------------------------------------------- | ---------------------------------------------------- | --------------------------- |
+| conditionalName                              | Name of the conditional                              | string                      |
+| logicalOperator                              | Logical operator (optional)                          | && or \|\|                  |
+| path                                         | Path to the response object for comparison           | string                      |
+| [comparisonOperator](#comp)                  | Operator for comparison                              | ===, ==, >, <, >= or <=     |
+| value                                        | Value for the comparison                             | number or string            |
+| [parentheses](#par)                          | Parentheses (optional)                               | ( or )                      |
+| [default_value](#conditionals_default_value) | Default value returned by the conditional (optional) | number or string or boolean |
 
 > <span id="comp">**Note:**</span> The `comparisonOperator` field helps compare respondent response with the specified value. It determines how the respondent's answer should be evaluated in the conditional logic. For example, `>=` signifies that the condition is true when path response is greater than or equal to the value.
 
 > <span id="par">**Note:**</span> The `parentheses` field is optional and allows you to add priority to the conditional logic by using opening and closing parentheses. This is useful for specifying the order in which conditions should be evaluated. For example, you can use parentheses to create complex conditions like `conditional1 || (conditional2 && conditional3)`, where `conditional2 && conditional3` is evaluated first due to the parentheses.
 
+> <span id="conditionals_default_value">**Note:**</span> The `default_value` field is optional. When a conditional is false (so the question is not shown), this value can be used as the default value for that question.
+
 ### Conditionals Example
 
 In this example, we are creating a conditional named `hasDrivingLicenseConditional`. This conditional checks if the age of the person is 16 or older and if the person has a driving license. The table below shows the fields and their corresponding values for this conditional.
 
-| conditionalName              | logicalOperator | path                                   | comparisonOperator | value | parentheses |
-| ---------------------------- | --------------- | -------------------------------------- | ------------------ | ----- | ----------- |
-| hasDrivingLicenseConditional |                 | [${relativePath}](#rel).age            | >=                 | 16    |             |
-| hasDrivingLicenseConditional | &&              | [${relativePath}](#rel).drivingLicense | ===                | yes   |             |
+| conditionalName              | logicalOperator | path                                   | comparisonOperator | value | parentheses | default_value |
+| ---------------------------- | --------------- | -------------------------------------- | ------------------ | ----- | ----------- | ------------- |
+| hasDrivingLicenseConditional |                 | [${relativePath}](#rel).age            | >=                 | 16    |             | no            |
+| hasDrivingLicenseConditional | &&              | [${relativePath}](#rel).drivingLicense | ===                | yes   |             |               |
 
 > <span id="rel">**Note:**</span> `${relativePath}` in `path` is used to obtain the relative path within the same group, facilitating the reference to response object that share a common parent or group with the current widget.
 
@@ -390,6 +393,7 @@ export const hasDrivingLicenseConditional: Conditional = (interview, path) => {
     const relativePath = path.substring(0, path.lastIndexOf('.')); // Remove the last key from the path
     return checkConditionals({
         interview,
+        defaultValue: 'no',
         conditionals: [
             {
                 path: `${relativePath}.age`,

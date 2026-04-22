@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added utility functions for webpack generation in evolution-frontend: `createParticipantWebpackConfig` and `createAdminWebpackConfig`. The example projects implement this approach. Projects should consider using those for simlicity. ([#1405](https://github.com/chairemobilite/evolution/issues/1405))
 - **Generator custom labels support**: Widget generation can now import and use custom labels, allowing label overrides without a full custom widget. In the `Widgets` Excel sheet, set this in the `parameters` column: `customLabels={{yourCustomLabelsKey}}` (fixes [#1035](https://github.com/chairemobilite/evolution/issues/1035))
 - **Generator built-in widgets**: In the `Widgets` Excel sheet, set `inputType=BuiltIn` and add `builtInFunction={{yourBuiltInFunctionName}}` in the `parameters` column (Part [#902](https://github.com/chairemobilite/evolution/issues/902)).
+- **Generator conditional default values**: In the `Conditionals` Excel sheet, you can now set an optional `default_value` so a default value is applied when the conditional hides the question (fixes [#979](https://github.com/chairemobilite/evolution/issues/979)).
 
 ### Changed
 
