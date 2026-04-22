@@ -7,6 +7,7 @@
 
 from collections import defaultdict
 from dataclasses import dataclass
+import json
 from openpyxl import Workbook
 
 from helpers.generator_helpers import (
@@ -64,12 +65,17 @@ class ConditionalsGenerator:
         _ColumnSpec(
             name="value",
             required=True,
-            allowed_types=(int, float, str),
+            allowed_types=(bool, int, float, str),
         ),
         _ColumnSpec(
             name="parentheses",
             required=False,
             allowed_values=frozenset({"(", ")", None}),
+        ),
+        _ColumnSpec(
+            name="value_when_hidden",
+            required=False,
+            allowed_types=(bool, int, float, str),
         ),
     )
 
@@ -250,6 +256,33 @@ class ConditionalsGenerator:
         """
         self._validate_conditionals_parentheses_balance(row_data)
         self._validate_conditionals_first_row_no_logical_operator(row_data)
+        self._validate_conditionals_logical_operator_on_non_first_rows(row_data)
+        self._validate_conditionals_value_when_hidden_logic(row_data)
+
+    def _validate_conditionals_value_when_hidden_logic(
+        self, row_data: list[tuple[int, dict]]
+    ) -> None:
+        """
+        Validate that for each conditional_name group, the optional value_when_hidden is either absent
+        or unique across all rows of that conditional_name.
+        """
+        prefix = self._sheet_error_prefix("Conditionals")
+        groups = self._group_row_data_by_conditional_name(row_data)
+        for name, group_rows in groups.items():
+
+            # Get all values_when_hidden for the conditional_name
+            # Treat empty string as None for optional Excel cells (e.g. value_when_hidden).
+            values_when_hidden = {
+                self._empty_to_none(row_dict.get("value_when_hidden"))
+                for _row_number, row_dict in group_rows
+                if self._empty_to_none(row_dict.get("value_when_hidden")) is not None
+            }
+
+            # Check if there are multiple values_when_hidden for the same conditional_name
+            if len(values_when_hidden) > 1:
+                self._validation_errors.append(
+                    f"{prefix}Multiple value_when_hidden for conditional_name '{name}': {sorted(values_when_hidden)}"
+                )
 
     def _validate_conditionals_parentheses_balance(
         self, row_data: list[tuple[int, dict]]
@@ -314,10 +347,68 @@ class ConditionalsGenerator:
                     f"first row of a conditional must have empty logical_operator, got {repr(logical_operator)}"
                 )
 
+    def _validate_conditionals_logical_operator_on_non_first_rows(
+        self, row_data: list[tuple[int, dict]]
+    ) -> None:
+        """
+        For each distinct conditional_name, require a non-empty logical_operator on every row after the first.
+
+        This complements `_validate_conditionals_first_row_no_logical_operator`:
+        - First row must have empty logical_operator
+        - All subsequent rows must have a logical_operator (typically "||" or "&&")
+        """
+        prefix = self._sheet_error_prefix("Conditionals")
+        groups = self._group_row_data_by_conditional_name(row_data)
+        for name, group_rows in groups.items():
+            if len(group_rows) <= 1:
+                continue
+            for row_number, row_dict in group_rows[1:]:
+                logical_operator = self._empty_to_none(row_dict.get("logical_operator"))
+                if logical_operator is None:
+                    self._validation_errors.append(
+                        f"{prefix}Missing logical_operator in row {row_number}: "
+                        f"non-first row of a conditional must have a logical_operator for conditional_name '{name}'"
+                    )
+
     @staticmethod
     def _empty_to_none(value) -> str | None:
         """Treat empty string as None for optional Excel cells (e.g. logical_operator, parentheses)."""
         return None if value == "" else value
+
+    @staticmethod
+    def _conditional_cell_to_primitive(
+        value: object,
+    ) -> bool | int | float | str | None:
+        """Excel cell → Python value for generated TS."""
+
+        # return None for null values
+        if value is None or value == "null":
+            return None
+
+        # return boolean values as is
+        if isinstance(value, bool):
+            return value
+
+        # return numbers as is
+        if isinstance(value, (int, float)):
+            return value
+
+        # return strings as is if they are not convertible to a number or boolean
+        if isinstance(value, str):
+            if value == "":
+                return ""
+            c = value.casefold()  # convert to lowercase for case-insensitive comparison
+            if c == "true":
+                return True
+            if c == "false":
+                return False
+            try:
+                x = float(value)
+            except ValueError:
+                # return the string as is if it is not convertible to a number
+                return value
+            return int(x) if x.is_integer() else x
+        return str(value)
 
     @staticmethod
     def extract_conditionals_from_data(rows, headers) -> defaultdict:
@@ -336,6 +427,7 @@ class ConditionalsGenerator:
                 comparison_operator = row_dict.get("comparison_operator")
                 value = row_dict.get("value")
                 parentheses = row_dict.get("parentheses")
+                value_when_hidden = row_dict.get("value_when_hidden")
 
                 conditional = {
                     "logical_operator": logical_operator,
@@ -344,6 +436,11 @@ class ConditionalsGenerator:
                     "value": value,
                     "parentheses": parentheses,
                 }
+                value_when_hidden = ConditionalsGenerator._empty_to_none(
+                    value_when_hidden
+                )
+                if value_when_hidden is not None:
+                    conditional["value_when_hidden"] = value_when_hidden
 
                 conditional_by_name[conditional_name].append(conditional)
 
@@ -382,6 +479,17 @@ class ConditionalsGenerator:
 
             # Emit one exported WidgetConditional (const) per conditional_name
             for conditional_name, conditionals in conditional_by_name.items():
+
+                # Get the first non-None 'value_when_hidden' from the conditionals, or None if none is found.
+                value_when_hidden = next(
+                    (
+                        c.get("value_when_hidden")
+                        for c in conditionals
+                        if c.get("value_when_hidden") is not None
+                    ),
+                    None,
+                )
+
                 # Check if any conditional has a path that contains "${relativePath}"
                 conditionals_has_relative_path = any(
                     "${relativePath}" in conditional["path"]
@@ -416,23 +524,28 @@ class ConditionalsGenerator:
                 )
                 ts_code += INDENT + "return checkConditionals({" + NEWLINE
                 ts_code += INDENT + INDENT + "interview," + NEWLINE
+
+                # Add valueWhenHidden if it exists
+                if value_when_hidden is not None:
+                    ts_code += (
+                        INDENT
+                        + INDENT
+                        + "valueWhenHidden: "
+                        + json.dumps(
+                            ConditionalsGenerator._conditional_cell_to_primitive(
+                                value_when_hidden
+                            )
+                        )
+                        + f",{NEWLINE}"
+                    )
                 ts_code += INDENT + INDENT + "conditionals: [" + NEWLINE
 
                 # Add conditionals
                 for index, conditional in enumerate(conditionals):
-                    new_value = (
-                        "true"
-                        if conditional["value"] is True
-                        else (
-                            "false"
-                            if conditional["value"] is False
-                            else (
-                                int(conditional["value"])
-                                if str(conditional["value"]).isdigit()
-                                else f"'{conditional['value']}'"
-                            )
-                        )
+                    prim = ConditionalsGenerator._conditional_cell_to_primitive(
+                        conditional["value"]
                     )
+                    new_value = json.dumps(prim)
                     conditional_has_path = (
                         "${relativePath}" in conditional["path"]
                         or "${currentPerson}" in conditional["path"]

@@ -9,7 +9,7 @@ import { getResponse, interpolatePath } from '../../../utils/helpers';
 // Type definitions for conditionals, logical operators and comparison operators
 type PathType = string;
 type ComparisonOperatorsType = '===' | '!==' | '>' | '<' | '>=' | '<=';
-type ValueType = string | number | boolean;
+type ValueType = string | number | boolean | null;
 type logicalOperatorsType = '&&' | '||';
 type ParenthesesType = '(' | ')';
 type SingleConditionalsType = {
@@ -21,19 +21,51 @@ type SingleConditionalsType = {
 };
 type ConditionalsType = SingleConditionalsType[];
 
-// Check interview response with conditions, returning the result and null.
+/**
+ * Evaluates a list of conditionals against an interview response.
+ *
+ * Each conditional compares the value at `path` (resolved from `interview.response`, with path placeholders like
+ * `{someField}` interpolated from the interview response) to the provided `value`, then combines the boolean results
+ * using `logicalOperator` and optional `parentheses`.
+ * Use `value: null` to test for missing/null responses (and empty arrays for `===` / `!==`). The legacy string
+ * sentinel `value: 'null'` is still accepted for older generated code.
+ *
+ * @param params.interview Interview object containing `response`
+ * @param {ConditionalsType} params.conditionals List of conditionals to evaluate (combined left-to-right)
+ * @param {ValueType} [params.valueWhenHidden] Optional value returned as the 2nd tuple element; defaults to `null` when omitted
+ * @returns A tuple `[result, ValueType]`
+ */
 export const checkConditionals = ({
     interview,
-    conditionals
+    conditionals,
+    valueWhenHidden
 }: {
     interview;
     conditionals: ConditionalsType;
-}): boolean | [boolean] | [boolean, unknown] => {
+    valueWhenHidden?: ValueType; // Note: When 'valueWhenHidden' is not provided, it defaults to null.
+}): [boolean, ValueType] => {
     let mathExpression = ''; // Construct the math expression to be evaluated
+    let parenthesesBalance = 0; // Running balance: '(' +1, ')' -1. Must never go negative and must end at 0.
+    let parenthesesInvalid = false; // If true, parentheses are unbalanced.
+
     // Iterate through the provided conditionals
-    conditionals.forEach((conditional, index) => {
+    for (let index = 0; index < conditionals.length; index++) {
+        const conditional = conditionals[index];
         // Extract components of the conditional
         const { logicalOperator, path, comparisonOperator, value, parentheses } = conditional;
+
+        // Parentheses must be well-formed: you can't close before opening, and all opened '(' must be closed.
+        if (parentheses === '(') {
+            parenthesesBalance += 1;
+        } else if (parentheses === ')') {
+            parenthesesBalance -= 1;
+            if (parenthesesBalance < 0) {
+                parenthesesInvalid = true;
+                throw new Error(
+                    `checkConditionals: Unbalanced parentheses (closing without opening) in conditionals (index=${index})`
+                );
+            }
+        }
 
         // Replace response placeholders specified between brackets in a path by the corresponding value in the interview response.
         const interpolatedPath = interpolatePath(interview, path);
@@ -43,8 +75,8 @@ export const checkConditionals = ({
         let conditionMet: boolean;
 
         // Evaluate if the condition is met
-        if (value === 'null') {
-            // For value 'null', check if the response is null
+        if (value === null || value === 'null') {
+            // For null value, check if the response is null / empty array
             switch (comparisonOperator) {
             case '===':
                 if (Array.isArray(response)) {
@@ -137,13 +169,25 @@ export const checkConditionals = ({
             mathExpression += ' || ' + parenthesesStart + conditionMet + parenthesesEnd; // Add the result to the final result
         } else if (logicalOperator === '&&') {
             mathExpression += ' && ' + parenthesesStart + conditionMet + parenthesesEnd; // Add the result to the final result
+        } else {
+            throw new Error(`checkConditionals: Missing logicalOperator for non-first conditional (index=${index})`);
         }
-    });
+    }
+
+    // If parentheses are unbalanced, consider the conditionals invalid
+    if (parenthesesInvalid) {
+        throw new Error('checkConditionals: Unbalanced parentheses in conditionals');
+    }
+    if (parenthesesBalance !== 0) {
+        throw new Error(
+            `checkConditionals: Unbalanced parentheses (missing closing parenthesis) in conditionals (balance=${parenthesesBalance})`
+        );
+    }
 
     // FIXME: This eval() is a security risk, and should be replaced with a safer alternative
     // Evaluate the final result using eval() to handle logical operators
     const finalResult: boolean = eval(mathExpression);
 
-    // Return the final result along with null (as per the function signature)
-    return [finalResult, null];
+    // Return the final result with the valueWhenHidden if provided, otherwise return null
+    return [finalResult, valueWhenHidden ?? null];
 };
