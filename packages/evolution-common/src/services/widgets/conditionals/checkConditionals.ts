@@ -59,10 +59,11 @@ export const checkConditionals = ({
             parenthesesBalance -= 1;
             if (parenthesesBalance < 0) {
                 parenthesesInvalid = true;
-                console.error(
-                    'checkConditionals: Unbalanced parentheses (closing without opening) in conditionals',
-                    { index, parenthesesBalance, conditional }
-                );
+                console.error('checkConditionals: Unbalanced parentheses (closing without opening) in conditionals', {
+                    index,
+                    parenthesesBalance,
+                    conditional
+                });
                 return [false, defaultValue ?? null];
             }
         }
