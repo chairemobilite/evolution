@@ -37,7 +37,7 @@ To run this script, follow these steps:
 
 1. Install Poetry.
 
-    For windows users (with Powershell):
+    For Windows users (with PowerShell):
 
     ```bash
     <!-- Install Poetry -->
@@ -67,7 +67,7 @@ To run this script, follow these steps:
     poetry install
     ```
 
-3. Navigate to the root folder of your project and run the following command.:
+3. Navigate to the root folder of your project and run the following command:
 
     ```bash
     yarn generateSurvey
@@ -108,6 +108,7 @@ locales/
 ```
 
 > **Note:** For sections that utilize template, `template.tsx` should be implemented as a React component.
+> **Note:** For sections that use a template, `template.tsx` should be implemented as a React component.
 
 ## Start your own survey
 
@@ -145,7 +146,7 @@ If you want to start your own survey, you can use the following steps:
     cp ./evolution/packages/evolution-generator/src/examples/generatorConfig.yaml ./survey/src/survey/config/generatorConfig.yaml
     ```
 
-3.  Create a script command in your `package.json`.
+3.  Create a script entry in your `package.json`.
 
     ```json
     "scripts": {
@@ -155,23 +156,23 @@ If you want to start your own survey, you can use the following steps:
 
 4.  Customize the `generatorConfig.yaml` file to match your project's requirements.
 
-        ```yaml
-        survey_folder_path: ../../../survey
-        excel_file_path: ../../../survey/references/<Name_Excel_File>.xlsx
+    ```YAML
+    survey_folder_path: ../../../survey
+    excel_file_path: ../../../survey/references/<Name_Excel_File>.xlsx
 
-        enabled_scripts:
-            generate_excel: true
-            generate_section_configs: true
-            generate_sections: true
-            generate_widgets_configs: true
-            generate_widgets: true
-            generate_conditionals: true
-            generate_choices: true
-            generate_input_range: true
-            generate_labels: true
-        ```
+    enabled_scripts:
+        generate_excel: true
+        generate_section_configs: true
+        generate_sections: true
+        generate_widgets_configs: true
+        generate_widgets: true
+        generate_conditionals: true
+        generate_choices: true
+        generate_input_range: true
+        generate_labels: true
+    ```
 
-5.  Navigate to the root folder of your project and run the following command.:
+5.  Navigate to the root folder of your project and run the following command:
 
     ```bash
     yarn generateSurvey
@@ -179,7 +180,7 @@ If you want to start your own survey, you can use the following steps:
 
 ## Generate Excel
 
-This step is optional but can greatly improve your workflow if you're frequently updating your project's Excel document. By using Microsoft 365 Cloud, you can avoid the need to manually upload your document every time you make a change. Here's how you can set it up:
+This step is optional but can greatly improve your workflow if you're frequently updating your project's Excel document. By using Microsoft 365 cloud storage, you can avoid manually uploading your document every time you make a change. Here's how you can set it up:
 
 1.  Make sure the `generatorConfig.yaml` has the correct settings.
 
@@ -195,7 +196,7 @@ This step is optional but can greatly improve your workflow if you're frequently
 3.  Update the `.env` file with the correct environment variables. You can ask the project manager for the correct values or follow the instructions below to get them.
 
     ```properties
-    # Download Excel file with Office365 and Sharepoint
+    # Download Excel file with Office 365 and SharePoint
     SHAREPOINT_URL = "https://polymtlca0-my.sharepoint.com/personal/<your_email_polymtl_ca>/"
     EXCEL_FILE_PATH = "/personal/<your_email_polymtl_ca>/Documents/<folderName>/<yourExcelName>.xlsx"
     OFFICE365_USERNAME_EMAIL = "<yourOffice365UsernameEmail>"
@@ -208,31 +209,39 @@ Widgets are the building blocks of your survey. They define the structure and in
 
 ### Widgets Fields
 
-| Field                        | Description                                             | Type    |
-| ---------------------------- | ------------------------------------------------------- | ------- |
-| questionName                 | Name of the question                                    | string  |
-| [inputType](#input)          | Type of input for the question                          | string  |
-| active                       | Widget activation status                                | boolean |
-| section                      | Section to which the question belongs                   | string  |
-| group                        | Group to which the question belongs (optional)          | string? |
-| path                         | Path of the response object for the question            | string  |
-| label::fr                    | French label for the question                           | string  |
-| label::en                    | English label for the question                          | string  |
-| [conditional](#cond)         | Conditional logic for displaying the widget (optional)  | string? |
-| [validation](#val)           | Validation logic for the widget (optional)              | string? |
-| [choices](#choices)          | Choices for the InputRadio and InputCheckbox (optional) | string? |
-| [help_popup](#help)          | Help popup name for the question (optional)             | string? |
-| [inputRange](#range)         | Input range name for InputRange (optional)              | string? |
-| [parameters](#paramsWidgets) | Additional widget parameters (optional)                 | string? |
-| comments                     | Additional comments for the question (optional)         | string? |
-| appearance                   | Additional widget appearance options (optional)         | string? |
+| Field                        | Description                                                                           | Type              |
+| ---------------------------- | ------------------------------------------------------------------------------------- | ----------------- |
+| questionName                 | Name of the question                                                                  | string            |
+| [inputType](#input)          | Type of input for the question                                                        | string            |
+| active                       | Widget activation status                                                              | boolean           |
+| section                      | Section to which the question belongs                                                 | string            |
+| group                        | Group to which the question belongs (optional)                                        | string?           |
+| path                         | Path of the response object for the question                                          | string            |
+| label::fr                    | French label for the question                                                         | string            |
+| label::en                    | English label for the question                                                        | string            |
+| label_one::fr                | French label for one-person interviews (optional)                                     | string?           |
+| label_one::en                | English label for one-person interviews (optional)                                    | string?           |
+| [parameters](#paramsWidgets) | Additional widget parameters (optional)                                               | string?           |
+| appearance                   | Additional widget appearance options (optional)                                       | string?           |
+| [conditional](#cond)         | Conditional logic for displaying the widget (optional)                                | string?           |
+| [validation](#val)           | Validation logic for the widget (optional)                                            | string?           |
+| [choices](#choices)          | Choices for the InputRadio and InputCheckbox (optional)                               | string?           |
+| [help_popup](#help)          | Help popup name for the question (optional)                                           | string?           |
+| [inputRange](#range)         | Input range name for InputRange (optional)                                            | string?           |
+| comments                     | Additional comments for the question (optional)                                       | string?           |
+| confirm_popup                | Confirmation popup name for the question (optional)                                   | string?           |
+| containsHtml                 | Whether the label contains HTML markup (optional)                                     | boolean?          |
+| customPath                   | Override the generated response path (optional)                                       | string?           |
+| customChoice                 | Override the choice key to use for a widget that relies on a `choicesName` (optional) | string?           |
+| defaultValue                 | Default value when the widget is first shown (optional)                               | string or number? |
+| includeNotApplicable         | Whether to include a “not applicable” option (optional)                               | boolean?          |
 
 <!-- TODO: Document the join_with option in the appearance column. Example: appearance: join_with=${questionName} -->
 <!-- TODO: Document the parameters column (e.g. min=0 max=6 overMaxAllowed, separated by newline, semicolon, or space, with the possibility to either support a number or a response field) -->
 
 > <span id="input">**Note:**</span> The `inputType` field specifies the type of input for the question and can be one of the following: Custom, BuiltIn, Radio, RadioNumber, Select, String, Number, InfoText, Range, Checkbox, NextButton, or Text
 
-> <span id="cond">**Note:**</span> The `conditional` field allows you to define conditional logic for displaying the widget based on other response. For example, you can specify a condition like `nbPersonsSevenOrMoreConditional` to show the widget only if the number of people is 7 or more.
+> <span id="cond">**Note:**</span> The `conditional` field allows you to define conditional logic for displaying the widget based on other responses. For example, you can specify a condition like `nbPersonsSevenOrMoreConditional` to show the widget only if the number of people is 7 or more.
 
 > <span id="val">**Note:**</span> The `validation` field is optional and allows you to define validation logic for the widget. For example, `moreOrEqualTo7Validation` signifies that the widget will be considered valid if the entered value is equal to or greater than 7.
 
@@ -256,8 +265,8 @@ In this example, we define a widget for the question `end_email`. This widget is
 | section      | end                             |
 | group        |                                 |
 | path         | end.email                       |
-| fr           | \*\*Courriel\*\*                |
-| en           | \*\*E-mail\*\*                  |
+| label::fr    | \*\*Courriel\*\*                |
+| label::en    | \*\*E-mail\*\*                  |
 | conditional  | hasAcceptGivingEmailConditional |
 | validation   | emailValidation                 |
 
@@ -280,22 +289,20 @@ Sections in your survey help organize questions into logical groups, making it e
 
 ### Sections Fields
 
-| Field             | Description                                      | Type      |
-| ----------------- | ------------------------------------------------ | --------- |
-| section           | Name of the section                              | string    |
-| title_fr          | French label for the section (optional)          | string    |
-| title_en          | English label for the section (optional)         | string    |
-| in_nav            | Section visibility in the navigation             | boolean   |
-| parent_section    | Parent section of the current section (optional) | string?   |
-| [groups](#groups) | Groups in the section (optional)                 | string[]? |
-
-> <span id="groups">**Note:**</span> The `groups` field is optional and allows you to specify the groups within the section. This is useful for organizing questions into subgroups within a section. For example, `personTrips,segments` signifies that the section contains two groups: `personTrips` and `segments`.
+| Field          | Description                                                   | Type     |
+| -------------- | ------------------------------------------------------------- | -------- |
+| section        | Name of the section                                           | string   |
+| abbreviation   | Short abbreviation for the section data dictionary (optional) | string?  |
+| title_fr       | French label for the section (optional)                       | string?  |
+| title_en       | English label for the section (optional)                      | string?  |
+| in_nav         | Section visibility in the navigation                          | boolean  |
+| template       | Template name for the section (optional)                      | string?  |
+| has_preload    | Whether this section has a preload file (optional)            | boolean? |
+| parent_section | Parent section of the current section (optional)              | string?  |
 
 ### Sections Example
 
-In this example, we define a section named `household`. This section is visible in the navigation and contains the group `householdMembers`. The French and English labels for the section are also provided. The corresponding TypeScript code of this section are shown below:
-
-<!-- section	title_fr	title_en	in_nav	parent_section	groups -->
+In this example, we define a section named `household`. This section is visible in the navigation and contains the group `householdMembers`. The French and English labels for the section are also provided. The corresponding TypeScript code for this section is shown below:
 
 | section   | title_fr               | title_en         | in_nav | parent_section | groups           |
 | --------- | ---------------------- | ---------------- | ------ | -------------- | ---------------- |
@@ -354,33 +361,36 @@ export default sectionsConfigs;
 
 ## Generate Conditionals
 
-In your survey logic, conditionals play a key role in determining if the widget will appear or not. The table below outlines the fields used to define conditionals in Conditionals tab, along with an example and the corresponding TypeScript code.
+In your survey logic, conditionals play a key role in determining whether a widget will appear. The table below outlines the fields used to define conditionals in the `Conditionals` tab, along with an example and the corresponding TypeScript code.
 
 ### Conditionals Fields
 
-| Field                       | Description                                | Type                    |
-| --------------------------- | ------------------------------------------ | ----------------------- |
-| conditionalName             | Name of the conditional                    | string                  |
-| logicalOperator             | Logical operator (optional)                | && or \|\|              |
-| path                        | Path to the response object for comparison | string                  |
-| [comparisonOperator](#comp) | Operator for comparison                    | ===, ==, >, <, >= or <= |
-| value                       | Value for the comparison                   | number or string        |
-| [parentheses](#par)         | Parentheses (optional)                     | ( or )                  |
+| Field                                   | Description                                                              | Type                      |
+| --------------------------------------- | ------------------------------------------------------------------------ | ------------------------- |
+| conditional_name                        | Name of the conditional                                                  | string                    |
+| logical_operator                        | Logical operator (optional)                                              | && or \|\|                |
+| path                                    | Path to the response object for comparison                               | string                    |
+| [comparison_operator](#comp)            | Operator for comparison                                                  | ===, ==, >, <, >= or <=   |
+| value                                   | Value for the comparison                                                 | number or string          |
+| [parentheses](#par)                     | Parentheses (optional)                                                   | ( or )                    |
+| [value_when_hidden](#value_when_hidden) | Value to use when the widget is hidden (conditional is false) (optional) | boolean, number or string |
 
-> <span id="comp">**Note:**</span> The `comparisonOperator` field helps compare respondent response with the specified value. It determines how the respondent's answer should be evaluated in the conditional logic. For example, `>=` signifies that the condition is true when path response is greater than or equal to the value.
+> <span id="comp">**Note:**</span> The `comparison_operator` field helps compare the respondent’s response with the specified value. It determines how the respondent's answer should be evaluated in the conditional logic. For example, `>=` signifies that the condition is true when the response at `path` is greater than or equal to the value.
 
 > <span id="par">**Note:**</span> The `parentheses` field is optional and allows you to add priority to the conditional logic by using opening and closing parentheses. This is useful for specifying the order in which conditions should be evaluated. For example, you can use parentheses to create complex conditions like `conditional1 || (conditional2 && conditional3)`, where `conditional2 && conditional3` is evaluated first due to the parentheses.
+
+> <span id="value_when_hidden">**Note:**</span> The `value_when_hidden` field is optional. When the conditional is **false** (so the widget is hidden), this value is used as the widget’s effective value (instead of leaving it empty/undefined).
 
 ### Conditionals Example
 
 In this example, we are creating a conditional named `hasDrivingLicenseConditional`. This conditional checks if the age of the person is 16 or older and if the person has a driving license. The table below shows the fields and their corresponding values for this conditional.
 
-| conditionalName              | logicalOperator | path                                   | comparisonOperator | value | parentheses |
-| ---------------------------- | --------------- | -------------------------------------- | ------------------ | ----- | ----------- |
-| hasDrivingLicenseConditional |                 | [${relativePath}](#rel).age            | >=                 | 16    |             |
-| hasDrivingLicenseConditional | &&              | [${relativePath}](#rel).drivingLicense | ===                | yes   |             |
+| conditional_name             | logical_operator | path                                   | comparison_operator | value | parentheses | value_when_hidden |
+| ---------------------------- | ---------------- | -------------------------------------- | ------------------- | ----- | ----------- | ----------------- |
+| hasDrivingLicenseConditional |                  | [${relativePath}](#rel).age            | >=                  | 16    |             | no                |
+| hasDrivingLicenseConditional | &&               | [${relativePath}](#rel).drivingLicense | ===                 | yes   |             |                   |
 
-> <span id="rel">**Note:**</span> `${relativePath}` in `path` is used to obtain the relative path within the same group, facilitating the reference to response object that share a common parent or group with the current widget.
+> <span id="rel">**Note:**</span> `${relativePath}` in `path` is used to obtain the relative path within the same group, making it easier to reference response objects that share a common parent (or group) with the current widget.
 
 The corresponding TypeScript code for this conditional is shown below:
 
@@ -390,6 +400,7 @@ export const hasDrivingLicenseConditional: Conditional = (interview, path) => {
     const relativePath = path.substring(0, path.lastIndexOf('.')); // Remove the last key from the path
     return checkConditionals({
         interview,
+        valueWhenHidden: 'no',
         conditionals: [
             {
                 path: `${relativePath}.age`,
@@ -409,7 +420,7 @@ export const hasDrivingLicenseConditional: Conditional = (interview, path) => {
 
 ## Generate Choices
 
-Choices in your survey define the available options in ­­`InputRadio` or `InputCheckbox` for respondents. The table below outlines the fields in Choices tab used to define choices, along with an example and the expected output in a ­`choices.tsx­` file.
+Choices in your survey define the available options for `InputRadio` or `InputCheckbox` widgets. The table below outlines the fields in the `Choices` tab used to define choices, along with an example and the expected output in a `choices.tsx` file.
 
 ### Choices Fields
 
@@ -419,6 +430,8 @@ Choices in your survey define the available options in ­­`InputRadio` or `Inpu
 | value                        | Unique value for the choice                           | string or number |
 | label::fr                    | French label for the choice                           | string or number |
 | label::en                    | English label for the choice                          | string or number |
+| label_one::fr                | French label for one-person interviews (optional)     | string or number |
+| label_one::en                | English label for one-person interviews (optional)    | string or number |
 | [spreadChoicesName](#spread) | Spreading another choicesName (optional)              | string?          |
 | conditional                  | Conditional name for displaying the choice (optional) | string?          |
 
@@ -477,17 +490,20 @@ The `InputRange` tab in Excel is used to generate slider components in the `inpu
 
 <!-- TODO: Change the label from labelFrMin to label_min_fr and labelEnMin to label_min_en, etc. -->
 
-| Field          | Description                                 | Type   |
-| -------------- | ------------------------------------------- | ------ |
-| inputRangeName | Name of the input range                     | string |
-| labelFrMin     | French label for the minimum value          | string |
-| labelFrMax     | French label for the maximum value          | string |
-| labelEnMin     | English label for the minimum value         | string |
-| labelEnMax     | English label for the maximum value         | string |
-| minValue       | Minimum numerical value for the input range | number |
-| maxValue       | Maximum numerical value for the input range | number |
-| unitFr         | Unit in French                              | string |
-| unitEn         | Unit in English                             | string |
+| Field          | Description                                                 | Type    |
+| -------------- | ----------------------------------------------------------- | ------- |
+| inputRangeName | Name of the input range                                     | string  |
+| labelFrMin     | French label for the minimum value                          | string  |
+| labelFrMiddle  | French label for the middle value (optional)                | string? |
+| labelFrMax     | French label for the maximum value                          | string  |
+| labelEnMin     | English label for the minimum value                         | string  |
+| labelEnMiddle  | English label for the middle value (optional)               | string? |
+| labelEnMax     | English label for the maximum value                         | string  |
+| minValue       | Minimum numerical value for the input range                 | number  |
+| maxValue       | Maximum numerical value for the input range                 | number  |
+| unitFr         | Unit in French                                              | string  |
+| unitEn         | Unit in English                                             | string  |
+| input_color    | Optional color/style hint for the input range UI (optional) | string? |
 
 ### InputRange Example
 
@@ -524,14 +540,14 @@ export const confidentInputRange: InputRangeConfig = {
 
 <!-- TODO: Modify the generate_labels.py and documentation to support en_cati, fr_cati, etc. -->
 
-In the context of your survey logic, labels play a crucial role in presenting questions to respondents in different languages. This Excel table below outlines the fields in `Widgets` tab used to define labels, along with an example and the expected output in a `introduction.yml` file.
+In the context of your survey logic, labels play a crucial role in presenting questions to respondents in different languages. This Excel table below outlines the fields in the `Labels` tab used to define labels, along with an example and the expected output in an `introduction.yml` file.
 
 ### Labels Fields
 
 | Field         | Description                           | Type   |
 | ------------- | ------------------------------------- | ------ |
-| path          | Path of the response                  | string |
 | section       | Section to which the question belongs | string |
+| path          | Path of the response                  | string |
 | label::fr     | French label                          | string |
 | label::en     | English label                         | string |
 | label_one::fr | French label for one person           | string |
@@ -548,19 +564,19 @@ In this example, we define a label for the question `introduction.whichOrganizat
 
 > <span id="asterisks">**Note:**</span> You can use `{{nickname}}` in your labels to dynamically insert the person's nickname or a default value if not set.
 
-> <span id="asterisks">**Note:**</span> You can use `{{count}}` in your labels to dynamically insert the number of persons in the household.
+> <span id="asterisks">**Note:**</span> You can use `{{count}}` in your labels to dynamically insert the number of people in the household.
 
 > <span id="asterisks">**Note:**</span> You can use `{{gender:man/woman}}` or `{{gender:woman}}` in your labels to automatically insert the appropriate gendered ending or word, depending on the respondent's gender. For example, `Conduc{{gender:teur/trice}}` will render as "Conducteur" or "Conductrice", and `Ami{{gender:e}}` will render as "Ami" or "Amie".
 
 > <span id="asterisks">**Note:**</span> You can use `label_one::fr` and `label_one::en` to provide a special label for one-person interviews (when `count` is 1).
 
-> <span id="asterisks">**Note:**</span> Label between double asterisks `**` will be displayed in bold font.
+> <span id="asterisks">**Note:**</span> Labels between double asterisks `**` will be displayed in bold font.
 
-> <span id="asterisks">**Note:**</span> Label between double underscores `__` will be displayed in blue italic font.
+> <span id="asterisks">**Note:**</span> Labels between double underscores `__` will be displayed in blue italic font.
 
-> <span id="asterisks">**Note:**</span> Label between double `_green_` will be displayed in green font.
+> <span id="asterisks">**Note:**</span> Labels between double `_green_` will be displayed in green font.
 
-> <span id="asterisks">**Note:**</span> Label between double `_red_` will be displayed in red font.
+> <span id="asterisks">**Note:**</span> Labels between double `_red_` will be displayed in red font.
 
 ```yaml
 # en/introduction.yml
@@ -574,4 +590,4 @@ household.transitFares_one: Do you have a transit fare?
 
 | Last Updated | Author                    |
 | ------------ | ------------------------- |
-| 2024-04-04   | Samuel Duhaime-Morissette |
+| 2026-05-05   | Samuel Duhaime-Morissette |

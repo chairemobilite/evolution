@@ -9,12 +9,51 @@ import pytest  # pyright: ignore[reportMissingImports]
 
 from scripts.conditionals_generator import ConditionalsGenerator
 from scripts.generate_survey import check_excel_integrity
-from helpers.generator_helpers import create_mocked_excel_data, delete_file_if_exists
+from helpers.generator_helpers import (
+    create_mocked_excel_data,
+    delete_file_if_exists,
+    get_workbook,
+)
 
 # TODO: Add tests for the remaining ConditionalsGenerator class methods:
 # - ConditionalsGenerator.extract_conditionals_from_data (grouping logic for raw rows/headers).
 # - ConditionalsGenerator.generate_typescript_code (shape and content of generated TS code).
 # - ConditionalsGenerator.generate_conditionals (end-to-end generation from Excel to file).
+
+
+class TestConditionalCellToPrimitive:
+    """Excel Conditionals cell values must become JSON-safe primitives for generated TS (see generate_typescript_code)."""
+
+    @pytest.mark.parametrize(
+        "case",
+        [
+            {"value": True, "expected": True},
+            {"value": "true", "expected": True},
+            {"value": "TRUE", "expected": True},
+            {"value": False, "expected": False},
+            {"value": "false", "expected": False},
+            {"value": "FALSE", "expected": False},
+            {"value": 0, "expected": 0},
+            {"value": "0", "expected": 0},
+            {"value": 42, "expected": 42},
+            {"value": -3, "expected": -3},
+            {"value": 3.14, "expected": 3.14},
+            {"value": "42", "expected": 42},
+            {"value": "0", "expected": 0},
+            {"value": "null", "expected": None},
+            {"value": "value", "expected": "value"},
+            {"value": "", "expected": ""},
+            {"value": "-5", "expected": -5},
+            {"value": "-5.5", "expected": -5.5},
+            {"value": -5, "expected": -5},
+            {"value": None, "expected": None},
+        ],
+    )
+    def test_conditional_cell_to_primitive(self, case):
+        assert (
+            ConditionalsGenerator._conditional_cell_to_primitive(case["value"])
+            == case["expected"]
+        )
 
 
 # Path where create_mocked_excel_data writes the workbook; we delete it after each test.
@@ -33,7 +72,7 @@ class TestCheckExcelIntegrity:
         create_mocked_excel_data(
             "Conditionals",
             list(ConditionalsGenerator.CONDITIONALS_ALL_HEADERS),
-            [["cond1", "", "some.path", "===", "42", ""]],
+            [["cond1", "", "some.path", "===", "42", "", ""]],
         )
         try:
             assert check_excel_integrity(MOCKED_EXCEL_FILE) is True
@@ -45,7 +84,7 @@ class TestCheckExcelIntegrity:
         create_mocked_excel_data(
             "OtherSheet",
             list(ConditionalsGenerator.CONDITIONALS_ALL_HEADERS),
-            [["cond1", "", "some.path", "===", "42", ""]],
+            [["cond1", "", "some.path", "===", "42", "", ""]],
         )
         try:
             assert check_excel_integrity(MOCKED_EXCEL_FILE) is False
@@ -66,7 +105,7 @@ class TestCheckExcelIntegrity:
         create_mocked_excel_data(
             "Conditionals",
             list(ConditionalsGenerator.CONDITIONALS_ALL_HEADERS),
-            [["cond1", "", "some.path", "===", "42", ""]],
+            [["cond1", "", "some.path", "===", "42", "", ""]],
         )
         try:
             result = check_excel_integrity(MOCKED_EXCEL_FILE)
@@ -90,8 +129,8 @@ class TestCheckExcelIntegrity:
         each produce a distinct message (no early exit after the first).
         """
         rows = [
-            [None, "", "some.path", "===", "42", ""],
-            ["cond2", "", "some.path", "==", "42", ""],
+            [None, "", "some.path", "===", "42", "", ""],
+            ["cond2", "", "some.path", "==", "42", "", ""],
         ]
         create_mocked_excel_data(
             "Conditionals",
@@ -106,6 +145,124 @@ class TestCheckExcelIntegrity:
             assert "comparison_operator" in msgs[1] and "=='" in msgs[1]
         finally:
             delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+
+class TestGenerateTypescriptCode:
+    def test_emits_valueWhenHidden_when_any_row_has_value_when_hidden(self):
+        conditional_by_name = {
+            "condWithDefault": [
+                {
+                    "logical_operator": "",
+                    "path": "household.size",
+                    "comparison_operator": "===",
+                    "value": "1",
+                    "parentheses": "",
+                    "value_when_hidden": "myDefault",
+                },
+                {
+                    "logical_operator": "&&",
+                    "path": "household.size",
+                    "comparison_operator": "===",
+                    "value": "2",
+                    "parentheses": "",
+                },
+            ]
+        }
+
+        ts_code = ConditionalsGenerator.generate_typescript_code(conditional_by_name)
+
+        assert "return checkConditionals({" in ts_code
+        assert 'valueWhenHidden: "myDefault",' in ts_code
+
+    def test_emits_numeric_valueWhenHidden_without_string_quotes(self):
+        """Numeric value_when_hidden must emit as TS number literal, not a quoted string."""
+        conditional_by_name = {
+            "condNumericHidden": [
+                {
+                    "logical_operator": "",
+                    "path": "household.size",
+                    "comparison_operator": "===",
+                    "value": "1",
+                    "parentheses": "",
+                    "value_when_hidden": 123,
+                },
+            ]
+        }
+
+        ts_code = ConditionalsGenerator.generate_typescript_code(conditional_by_name)
+
+        assert "return checkConditionals({" in ts_code
+        assert "valueWhenHidden: 123," in ts_code
+        assert "'123'" not in ts_code
+
+    def test_emits_valueWhenHidden_once_when_multiple_rows_have_same_value_when_hidden(
+        self,
+    ):
+        conditional_by_name = {
+            "condWithRepeatedDefault": [
+                {
+                    "logical_operator": "",
+                    "path": "household.size",
+                    "comparison_operator": "===",
+                    "value": "1",
+                    "parentheses": "",
+                    "value_when_hidden": "myDefault",
+                },
+                {
+                    "logical_operator": "&&",
+                    "path": "household.size",
+                    "comparison_operator": "===",
+                    "value": "2",
+                    "parentheses": "",
+                    "value_when_hidden": "myDefault",
+                },
+            ]
+        }
+
+        ts_code = ConditionalsGenerator.generate_typescript_code(conditional_by_name)
+
+        assert "return checkConditionals({" in ts_code
+        assert ts_code.count('valueWhenHidden: "myDefault",') == 1
+
+    def test_does_not_emit_valueWhenHidden_when_no_row_has_value_when_hidden(
+        self,
+    ):
+        conditional_by_name = {
+            "condNoDefault": [
+                {
+                    "logical_operator": "",
+                    "path": "household.size",
+                    "comparison_operator": "===",
+                    "value": "1",
+                    "parentheses": "",
+                }
+            ]
+        }
+
+        ts_code = ConditionalsGenerator.generate_typescript_code(conditional_by_name)
+
+        assert "return checkConditionals({" in ts_code
+        assert "valueWhenHidden:" not in ts_code
+
+    @pytest.mark.parametrize("raw_value", [None, "null"])
+    def test_emits_conditional_value_as_ts_null_not_string(self, raw_value):
+        """Null comparison value must emit as TS null, not a quoted \"null\" string."""
+        conditional_by_name = {
+            "condNullCompare": [
+                {
+                    "logical_operator": "",
+                    "path": "household.size",
+                    "comparison_operator": "===",
+                    "value": raw_value,
+                    "parentheses": "",
+                },
+            ]
+        }
+
+        ts_code = ConditionalsGenerator.generate_typescript_code(conditional_by_name)
+
+        assert "value: null," in ts_code
+        assert 'value: "null"' not in ts_code
 
 
 class TestCheckConditionalsSheet:
@@ -132,31 +289,43 @@ class TestCheckConditionalsSheet:
     ]
 
     # Valid single row (all fields valid, optional cells empty).
-    CORRECT_ROW = ["cond1", "", "some.path", "===", "42", ""]
+    CORRECT_ROW = ["cond1", "", "some.path", "===", "42", "", ""]
 
     # Multiple rows with same conditional_name: parentheses must balance within the block.
     # Invalid: one ')' with no preceding '('.
     ROWS_UNBALANCED_PARENTHESES = [
-        ["cond1", "", "some.path", "===", "42", ")"],
-        ["cond1", "&&", "some.path", "===", "40", ""],
+        ["cond1", "", "some.path", "===", "42", ")", ""],
+        ["cond1", "&&", "some.path", "===", "40", "", ""],
     ]
     # Valid: open then close, balance ends at 0.
     ROWS_BALANCED_PARENTHESES = [
-        ["cond2", "", "some.path", "===", "42", ""],
-        ["cond2", "||", "some.path", "===", "40", "("],
-        ["cond2", "", "some.path", "===", "40", ")"],
+        ["cond2", "", "some.path", "===", "42", "", ""],
+        ["cond2", "||", "some.path", "===", "40", "(", ""],
+        ["cond2", "||", "some.path", "===", "41", ")", ""],
     ]
 
     # First row of a conditional must have empty logical_operator; subsequent rows may have "||" or "&&".
     # Valid: first row "", second row "||".
     ROWS_FIRST_ROW_EMPTY_LOGICAL_OPERATOR = [
-        ["cond1", "", "some.path", "===", "42", ""],
-        ["cond1", "||", "some.path", "===", "35", ""],
+        ["cond1", "", "some.path", "===", "42", "", ""],
+        ["cond1", "||", "some.path", "===", "35", "", ""],
     ]
     # Invalid: first row has "&&".
     ROWS_FIRST_ROW_HAS_LOGICAL_OPERATOR = [
-        ["cond1", "&&", "some.path", "===", "42", ""],
-        ["cond1", "&&", "some.path", "===", "42", ""],
+        ["cond1", "&&", "some.path", "===", "42", "", ""],
+        ["cond1", "&&", "some.path", "===", "42", "", ""],
+    ]
+
+    # Invalid: same conditional_name has different value_when_hidden values.
+    ROWS_MULTIPLE_VALUES_WHEN_HIDDEN = [
+        ["condWithTwoHidden", "", "household.size", "===", "1", "", "defaultA"],
+        ["condWithTwoHidden", "&&", "household.size", "===", "2", "", "defaultB"],
+    ]
+
+    # Valid: same conditional_name can repeat value_when_hidden as long as it's the same value.
+    ROWS_MULTIPLE_VALUES_WHEN_HIDDEN_SAME = [
+        ["condWithSameHidden", "", "household.size", "===", "1", "", "defaultA"],
+        ["condWithSameHidden", "&&", "household.size", "===", "2", "", "defaultA"],
     ]
 
     # Sheet-level and full-flow cases only; row-level validation is in TestValidateConditionalsRow.
@@ -243,6 +412,26 @@ class TestCheckConditionalsSheet:
                 },
                 id="First row has logical_operator (invalid)",
             ),
+            pytest.param(
+                {
+                    "sheet_name": CORRECT_SHEET_NAME,
+                    "headers": CORRECT_HEADERS,
+                    "rows": ROWS_MULTIPLE_VALUES_WHEN_HIDDEN,
+                    "expected_result": False,
+                    "expected_message": "Error in Conditionals sheet - Multiple value_when_hidden for conditional_name 'condWithTwoHidden': ['defaultA', 'defaultB']",
+                },
+                id="Multiple value_when_hidden (same conditional_name)",
+            ),
+            pytest.param(
+                {
+                    "sheet_name": CORRECT_SHEET_NAME,
+                    "headers": CORRECT_HEADERS,
+                    "rows": ROWS_MULTIPLE_VALUES_WHEN_HIDDEN_SAME,
+                    "expected_result": True,
+                    "expected_message": None,
+                },
+                id="Multiple value_when_hidden but same value (valid)",
+            ),
         ],
     )
     def test_check_conditionals_sheet_cases(self, case, capsys):
@@ -280,9 +469,9 @@ class TestCheckConditionalsSheet:
         # Two rows with different invalid issues to ensure we see two distinct messages.
         rows = [
             # Invalid: conditional_name is None (required)
-            [None, "", "some.path", "===", "42", ""],
+            [None, "", "some.path", "===", "42", "", ""],
             # Invalid: comparison_operator is invalid
-            ["cond2", "", "some.path", "==", "42", ""],
+            ["cond2", "", "some.path", "==", "42", "", ""],
         ]
         workbook = create_mocked_excel_data(
             self.CORRECT_SHEET_NAME,
@@ -453,12 +642,12 @@ class TestValidateConditionalsRow:
         ]
 
     def test_invalid_value_type_raises(self):
-        """value must be int, float, str (e.g. not date)."""
+        """value must be bool, int, float, str (e.g. not date)."""
         assert self.checker._validate_conditionals_row(
             self._row(value=datetime.date(2024, 1, 1)), self.ROW_NUMBER
         ) == [
             "Error in Conditionals sheet - Invalid value in row 2: "
-            "must be one of types (int, float, str), got date with value datetime.date(2024, 1, 1)"
+            "must be one of types (bool, int, float, str), got date with value datetime.date(2024, 1, 1)"
         ]
 
     def test_same_row_can_report_two_validation_issues(self):
