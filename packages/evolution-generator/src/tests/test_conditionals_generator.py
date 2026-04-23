@@ -9,7 +9,11 @@ import pytest  # pyright: ignore[reportMissingImports]
 
 from scripts.conditionals_generator import ConditionalsGenerator
 from scripts.generate_survey import check_excel_integrity
-from helpers.generator_helpers import create_mocked_excel_data, delete_file_if_exists
+from helpers.generator_helpers import (
+    create_mocked_excel_data,
+    delete_file_if_exists,
+    get_workbook,
+)
 
 # TODO: Add tests for the remaining ConditionalsGenerator class methods:
 # - ConditionalsGenerator.extract_conditionals_from_data (grouping logic for raw rows/headers).
@@ -108,6 +112,79 @@ class TestCheckExcelIntegrity:
             delete_file_if_exists(MOCKED_EXCEL_FILE)
 
 
+class TestGenerateTypescriptCode:
+    def test_emits_hiddenValue_when_any_row_has_hidden_value(self):
+        conditional_by_name = {
+            "condWithDefault": [
+                {
+                    "logical_operator": "",
+                    "path": "household.size",
+                    "comparison_operator": "===",
+                    "value": "1",
+                    "parentheses": "",
+                    "hidden_value": "myDefault",
+                },
+                {
+                    "logical_operator": "&&",
+                    "path": "household.size",
+                    "comparison_operator": "===",
+                    "value": "2",
+                    "parentheses": "",
+                },
+            ]
+        }
+
+        ts_code = ConditionalsGenerator.generate_typescript_code(conditional_by_name)
+
+        assert "return checkConditionals({" in ts_code
+        assert "hiddenValue: 'myDefault'," in ts_code
+
+    def test_emits_hiddenValue_once_when_multiple_rows_have_same_hidden_value(self):
+        conditional_by_name = {
+            "condWithRepeatedDefault": [
+                {
+                    "logical_operator": "",
+                    "path": "household.size",
+                    "comparison_operator": "===",
+                    "value": "1",
+                    "parentheses": "",
+                    "hidden_value": "myDefault",
+                },
+                {
+                    "logical_operator": "&&",
+                    "path": "household.size",
+                    "comparison_operator": "===",
+                    "value": "2",
+                    "parentheses": "",
+                    "hidden_value": "myDefault",
+                },
+            ]
+        }
+
+        ts_code = ConditionalsGenerator.generate_typescript_code(conditional_by_name)
+
+        assert "return checkConditionals({" in ts_code
+        assert ts_code.count("hiddenValue: 'myDefault',") == 1
+
+    def test_does_not_emit_hiddenValue_when_no_row_has_hidden_value(self):
+        conditional_by_name = {
+            "condNoDefault": [
+                {
+                    "logical_operator": "",
+                    "path": "household.size",
+                    "comparison_operator": "===",
+                    "value": "1",
+                    "parentheses": "",
+                }
+            ]
+        }
+
+        ts_code = ConditionalsGenerator.generate_typescript_code(conditional_by_name)
+
+        assert "return checkConditionals({" in ts_code
+        assert "hiddenValue:" not in ts_code
+
+
 class TestCheckConditionalsSheet:
     """
     Tests for the _check_conditionals_sheet method.
@@ -157,6 +234,18 @@ class TestCheckConditionalsSheet:
     ROWS_FIRST_ROW_HAS_LOGICAL_OPERATOR = [
         ["cond1", "&&", "some.path", "===", "42", ""],
         ["cond1", "&&", "some.path", "===", "42", ""],
+    ]
+
+    # Invalid: same conditional_name has different hidden_value values.
+    ROWS_MULTIPLE_HIDDEN_VALUES = [
+        ["condWithTwoHidden", "", "household.size", "===", "1", "", "defaultA"],
+        ["condWithTwoHidden", "&&", "household.size", "===", "2", "", "defaultB"],
+    ]
+
+    # Valid: same conditional_name can repeat hidden_value as long as it's the same value.
+    ROWS_MULTIPLE_HIDDEN_VALUES_SAME = [
+        ["condWithSameHidden", "", "household.size", "===", "1", "", "defaultA"],
+        ["condWithSameHidden", "&&", "household.size", "===", "2", "", "defaultA"],
     ]
 
     # Sheet-level and full-flow cases only; row-level validation is in TestValidateConditionalsRow.
@@ -242,6 +331,26 @@ class TestCheckConditionalsSheet:
                     "expected_message": "Error in Conditionals sheet - Invalid logical_operator in row 2: first row of a conditional must have empty logical_operator, got '&&'",
                 },
                 id="First row has logical_operator (invalid)",
+            ),
+            pytest.param(
+                {
+                    "sheet_name": CORRECT_SHEET_NAME,
+                    "headers": CORRECT_HEADERS,
+                    "rows": ROWS_MULTIPLE_HIDDEN_VALUES,
+                    "expected_result": False,
+                    "expected_message": "Error in Conditionals sheet - Multiple hidden_value for conditional_name 'condWithTwoHidden': ['defaultA', 'defaultB']",
+                },
+                id="Multiple hidden_value (same conditional_name)",
+            ),
+            pytest.param(
+                {
+                    "sheet_name": CORRECT_SHEET_NAME,
+                    "headers": CORRECT_HEADERS,
+                    "rows": ROWS_MULTIPLE_HIDDEN_VALUES_SAME,
+                    "expected_result": True,
+                    "expected_message": None,
+                },
+                id="Multiple hidden_value but same value (valid)",
             ),
         ],
     )
