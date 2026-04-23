@@ -19,7 +19,7 @@
     "lint": "eslint .",
     "format": "prettier-eslint \"./src/**/*.{ts,tsx}\" --write",
     "format:all": "yarn format",
-    "jsdoc": "jsdoc -c jsdoc.json"
+    "docs:api": "typedoc --options typedoc.json"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^7.1.0",
@@ -41,6 +41,7 @@
     "eslint-plugin-n": "^15.7.0",
     "jest-each": "^30.2.0",
     "prettier-eslint-cli": "^8.0.1",
+    "typedoc": "^0.28.19",
     "typescript": "^5.9.3"
   }
 }

@@ -230,26 +230,18 @@ surveyTestHelpers.logout({ context });
 
 ```
 
-## Generate and View API Documentation with JSDoc
+## Generate and View API Documentation with Typedoc
 
-**Note:** Currently, the JSDoc documentation only covers the `Evolution-Common` package. Some functions are still missing JSDoc comments, so the documentation may not be complete.
+**Note:** Currently, the documentation only covers the `Evolution-Common` package. Some functions are still missing JSDoc comments, so the documentation may not be complete.
 
-For more details about JSDoc, visit the [official documentation](https://jsdoc.app/).
-
-### Installing JSDoc
-
-To install JSDoc globally, run the following command:
-
-```bash
-npm i -g jsdoc
-```
+For more details about Typedoc, visit the [official documentation](https://typedoc.org/).
 
 ### Generating internal API Documentation
 
 To generate the internal API documentation, use the following command:
 
 ```bash
-yarn jsdoc
+yarn docs:api
 ```
 
 This will create the documentation in the `docs/internalApi` folder.

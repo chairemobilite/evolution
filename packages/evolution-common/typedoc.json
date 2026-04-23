@@ -1,0 +1,20 @@
+{
+    "entryPoints": ["src"],
+    "entryPointStrategy": "expand",
+    "out": "../../docs/internalApi",
+    "tsconfig": "tsconfig.json",
+    "exclude": [
+        "**/*.test.ts",
+        "**/*.spec.ts",
+        "**/tests/**",
+        "**/__tests__/**"
+    ],
+    "readme": "../../README.md",
+    "excludePrivate": true,
+    "excludeProtected": false,
+    "excludeInternal": true,
+    "excludeExternals": true,
+    "categorizeByGroup": true,
+    "sort": ["alphabetical"],
+    "includeVersion": true
+}
