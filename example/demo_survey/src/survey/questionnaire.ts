@@ -27,12 +27,18 @@ const segmentSectionConfigFromFactory = surveySections['segments'];
 // Add the segments section to the exported configuration
 const segmentConfig: SectionConfig = {
     ...segmentSectionConfigFromFactory,
-    isSectionVisible: function (interview) {
-        const person = odSurveyHelper.getPerson({ interview }) as any;
+    isSectionVisible: function (interview, iterationContext) {
+        const person = odSurveyHelper.getPerson({
+            interview,
+            personId: iterationContext[iterationContext.length - 1]
+        }) as any;
         return person && person.didTripsOnTripsDate === 'yes';
     },
-    isSectionCompleted: (interview) => {
-        const person = odSurveyHelper.getPerson({ interview });
+    isSectionCompleted: (interview, iterationContext) => {
+        const person = odSurveyHelper.getPerson({
+            interview,
+            personId: iterationContext[iterationContext.length - 1]
+        }) as any;
         return helper.tripsForPersonComplete(person, interview);
     }
 };
