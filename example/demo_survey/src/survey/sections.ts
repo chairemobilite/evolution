@@ -329,13 +329,6 @@ const sections: { [sectionName: string]: SectionConfig } = {
             }
             return undefined;
         },
-        enableConditional: function (interview) {
-            const person = odSurveyHelper.getPerson({ interview });
-            return (
-                helper.householdMembersSectionComplete(interview) &&
-                helper.profileInfoForPersonComplete(person, interview)
-            );
-        },
         isSectionCompleted: function (interview, iterationContext) {
             const person = odSurveyHelper.getPerson({
                 interview,
