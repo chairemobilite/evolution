@@ -30,17 +30,17 @@ type ConditionalsType = SingleConditionalsType[];
  *
  * @param params.interview Interview object containing `response`
  * @param params.conditionals List of conditionals to evaluate (combined left-to-right)
- * @param params.defaultValue Optional value returned as the 2nd tuple element; defaults to `null` when omitted
- * @returns A tuple `[result, defaultValueOrNull]`
+ * @param params.hiddenValue Optional value returned as the 2nd tuple element; defaults to `null` when omitted
+ * @returns A tuple `[result, hiddenValueOrNull]`
  */
 export const checkConditionals = ({
     interview,
     conditionals,
-    defaultValue
+    hiddenValue
 }: {
     interview;
     conditionals: ConditionalsType;
-    defaultValue?: unknown; // Note: When 'defaultValue' is not provided, it defaults to null.
+    hiddenValue?: unknown; // Note: When 'hiddenValue' is not provided, it defaults to null.
 }): [boolean, unknown | null] => {
     let mathExpression = ''; // Construct the math expression to be evaluated
     let parenthesesBalance = 0; // Running balance: '(' +1, ')' -1. Must never go negative and must end at 0.
@@ -64,7 +64,7 @@ export const checkConditionals = ({
                     parenthesesBalance,
                     conditional
                 });
-                return [false, defaultValue ?? null];
+                return [false, hiddenValue ?? null];
             }
         }
 
@@ -175,19 +175,19 @@ export const checkConditionals = ({
 
     // If parentheses are unbalanced, consider the conditionals invalid
     if (parenthesesInvalid) {
-        return [false, defaultValue ?? null];
+        return [false, hiddenValue ?? null];
     }
     if (parenthesesBalance !== 0) {
         console.error('checkConditionals: Unbalanced parentheses (missing closing parenthesis) in conditionals', {
             parenthesesBalance
         });
-        return [false, defaultValue ?? null];
+        return [false, hiddenValue ?? null];
     }
 
     // FIXME: This eval() is a security risk, and should be replaced with a safer alternative
     // Evaluate the final result using eval() to handle logical operators
     const finalResult: boolean = eval(mathExpression);
 
-    // Return the final result with the defaultValue if provided, otherwise return null
-    return [finalResult, defaultValue ?? null];
+    // Return the final result with the hiddenValue if provided, otherwise return null
+    return [finalResult, hiddenValue ?? null];
 };

@@ -72,7 +72,7 @@ class ConditionalsGenerator:
             allowed_values=frozenset({"(", ")", None}),
         ),
         _ColumnSpec(
-            name="default_value",
+            name="hidden_value",
             required=False,
             allowed_types=(int, float, str),
         ),
@@ -255,32 +255,32 @@ class ConditionalsGenerator:
         """
         self._validate_conditionals_parentheses_balance(row_data)
         self._validate_conditionals_first_row_no_logical_operator(row_data)
-        self._validate_conditionals_default_value_logic(row_data)
+        self._validate_conditionals_hidden_value_logic(row_data)
 
-    def _validate_conditionals_default_value_logic(
+    def _validate_conditionals_hidden_value_logic(
         self, row_data: list[tuple[int, dict]]
     ) -> None:
         """
-        Validate that for each conditional_name group, the optional default_value is either absent
+        Validate that for each conditional_name group, the optional hidden_value is either absent
         or unique across all rows of that conditional_name.
         """
         prefix = self._sheet_error_prefix("Conditionals")
         groups = self._group_row_data_by_conditional_name(row_data)
         for name, group_rows in groups.items():
 
-            # Get all default values for the conditional_name
-            # Treat empty string as None for optional Excel cells (e.g. default_value).
-            default_values = {
-                self._empty_to_none(row_dict.get("default_value"))
+            # Get all hidden values for the conditional_name
+            # Treat empty string as None for optional Excel cells (e.g. hidden_value).
+            hidden_values = {
+                self._empty_to_none(row_dict.get("hidden_value"))
                 for _row_number, row_dict in group_rows
-                if self._empty_to_none(row_dict.get("default_value")) is not None
+                if self._empty_to_none(row_dict.get("hidden_value")) is not None
             }
 
-            # Check if there are multiple default values for the same conditional_name
+            # Check if there are multiple hidden values for the same conditional_name
             # If there are, return an error
-            if len(default_values) > 1:
+            if len(hidden_values) > 1:
                 self._validation_errors.append(
-                    f"{prefix}Multiple default_value for conditional_name '{name}': {sorted(default_values)}"
+                    f"{prefix}Multiple hidden_value for conditional_name '{name}': {sorted(hidden_values)}"
                 )
 
     def _validate_conditionals_parentheses_balance(
@@ -368,7 +368,7 @@ class ConditionalsGenerator:
                 comparison_operator = row_dict.get("comparison_operator")
                 value = row_dict.get("value")
                 parentheses = row_dict.get("parentheses")
-                default_value = row_dict.get("default_value")
+                hidden_value = row_dict.get("hidden_value")
 
                 conditional = {
                     "logical_operator": logical_operator,
@@ -377,9 +377,9 @@ class ConditionalsGenerator:
                     "value": value,
                     "parentheses": parentheses,
                 }
-                default_value = ConditionalsGenerator._empty_to_none(default_value)
-                if default_value is not None:
-                    conditional["default_value"] = default_value
+                hidden_value = ConditionalsGenerator._empty_to_none(hidden_value)
+                if hidden_value is not None:
+                    conditional["hidden_value"] = hidden_value
 
                 conditional_by_name[conditional_name].append(conditional)
 
@@ -419,12 +419,12 @@ class ConditionalsGenerator:
             # Emit one exported WidgetConditional (const) per conditional_name
             for conditional_name, conditionals in conditional_by_name.items():
 
-                # Get the first non-None 'default_value' from the conditionals, or None if none is found.
-                default_value = next(
+                # Get the first non-None 'hidden_value' from the conditionals, or None if none is found.
+                hidden_value = next(
                     (
-                        c.get("default_value")
+                        c.get("hidden_value")
                         for c in conditionals
-                        if c.get("default_value") is not None
+                        if c.get("hidden_value") is not None
                     ),
                     None,
                 )
@@ -464,10 +464,10 @@ class ConditionalsGenerator:
                 ts_code += INDENT + "return checkConditionals({" + NEWLINE
                 ts_code += INDENT + INDENT + "interview," + NEWLINE
 
-                # Add default value if it exists
-                if default_value is not None:
+                # Add hidden value if it exists
+                if hidden_value is not None:
                     ts_code += (
-                        INDENT + INDENT + f"defaultValue: '{default_value}',{NEWLINE}"
+                        INDENT + INDENT + f"hiddenValue: '{hidden_value}',{NEWLINE}"
                     )
                 ts_code += INDENT + INDENT + "conditionals: [" + NEWLINE
 

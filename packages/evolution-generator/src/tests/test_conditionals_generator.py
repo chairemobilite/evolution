@@ -113,7 +113,7 @@ class TestCheckExcelIntegrity:
 
 
 class TestGenerateTypescriptCode:
-    def test_emits_defaultValue_when_any_row_has_default_value(self):
+    def test_emits_hiddenValue_when_any_row_has_hidden_value(self):
         conditional_by_name = {
             "condWithDefault": [
                 {
@@ -122,7 +122,7 @@ class TestGenerateTypescriptCode:
                     "comparison_operator": "===",
                     "value": "1",
                     "parentheses": "",
-                    "default_value": "myDefault",
+                    "hidden_value": "myDefault",
                 },
                 {
                     "logical_operator": "&&",
@@ -137,9 +137,9 @@ class TestGenerateTypescriptCode:
         ts_code = ConditionalsGenerator.generate_typescript_code(conditional_by_name)
 
         assert "return checkConditionals({" in ts_code
-        assert "defaultValue: 'myDefault'," in ts_code
+        assert "hiddenValue: 'myDefault'," in ts_code
 
-    def test_emits_defaultValue_once_when_multiple_rows_have_same_default_value(self):
+    def test_emits_hiddenValue_once_when_multiple_rows_have_same_hidden_value(self):
         conditional_by_name = {
             "condWithRepeatedDefault": [
                 {
@@ -148,7 +148,7 @@ class TestGenerateTypescriptCode:
                     "comparison_operator": "===",
                     "value": "1",
                     "parentheses": "",
-                    "default_value": "myDefault",
+                    "hidden_value": "myDefault",
                 },
                 {
                     "logical_operator": "&&",
@@ -156,7 +156,7 @@ class TestGenerateTypescriptCode:
                     "comparison_operator": "===",
                     "value": "2",
                     "parentheses": "",
-                    "default_value": "myDefault",
+                    "hidden_value": "myDefault",
                 },
             ]
         }
@@ -164,9 +164,9 @@ class TestGenerateTypescriptCode:
         ts_code = ConditionalsGenerator.generate_typescript_code(conditional_by_name)
 
         assert "return checkConditionals({" in ts_code
-        assert ts_code.count("defaultValue: 'myDefault',") == 1
+        assert ts_code.count("hiddenValue: 'myDefault',") == 1
 
-    def test_does_not_emit_defaultValue_when_no_row_has_default_value(self):
+    def test_does_not_emit_hiddenValue_when_no_row_has_hidden_value(self):
         conditional_by_name = {
             "condNoDefault": [
                 {
@@ -182,7 +182,7 @@ class TestGenerateTypescriptCode:
         ts_code = ConditionalsGenerator.generate_typescript_code(conditional_by_name)
 
         assert "return checkConditionals({" in ts_code
-        assert "defaultValue:" not in ts_code
+        assert "hiddenValue:" not in ts_code
 
 
 class TestCheckConditionalsSheet:
@@ -236,16 +236,16 @@ class TestCheckConditionalsSheet:
         ["cond1", "&&", "some.path", "===", "42", ""],
     ]
 
-    # Invalid: same conditional_name has different default_value values.
-    ROWS_MULTIPLE_DEFAULT_VALUES = [
-        ["condWithTwoDefaults", "", "household.size", "===", "1", "", "defaultA"],
-        ["condWithTwoDefaults", "&&", "household.size", "===", "2", "", "defaultB"],
+    # Invalid: same conditional_name has different hidden_value values.
+    ROWS_MULTIPLE_HIDDEN_VALUES = [
+        ["condWithTwoHidden", "", "household.size", "===", "1", "", "defaultA"],
+        ["condWithTwoHidden", "&&", "household.size", "===", "2", "", "defaultB"],
     ]
 
-    # Valid: same conditional_name can repeat default_value as long as it's the same value.
-    ROWS_MULTIPLE_DEFAULT_VALUES_SAME = [
-        ["condWithSameDefault", "", "household.size", "===", "1", "", "defaultA"],
-        ["condWithSameDefault", "&&", "household.size", "===", "2", "", "defaultA"],
+    # Valid: same conditional_name can repeat hidden_value as long as it's the same value.
+    ROWS_MULTIPLE_HIDDEN_VALUES_SAME = [
+        ["condWithSameHidden", "", "household.size", "===", "1", "", "defaultA"],
+        ["condWithSameHidden", "&&", "household.size", "===", "2", "", "defaultA"],
     ]
 
     # Sheet-level and full-flow cases only; row-level validation is in TestValidateConditionalsRow.
@@ -336,21 +336,21 @@ class TestCheckConditionalsSheet:
                 {
                     "sheet_name": CORRECT_SHEET_NAME,
                     "headers": CORRECT_HEADERS,
-                    "rows": ROWS_MULTIPLE_DEFAULT_VALUES,
+                    "rows": ROWS_MULTIPLE_HIDDEN_VALUES,
                     "expected_result": False,
-                    "expected_message": "Error in Conditionals sheet - Multiple default_value for conditional_name 'condWithTwoDefaults': ['defaultA', 'defaultB']",
+                    "expected_message": "Error in Conditionals sheet - Multiple hidden_value for conditional_name 'condWithTwoHidden': ['defaultA', 'defaultB']",
                 },
-                id="Multiple default_value (same conditional_name)",
+                id="Multiple hidden_value (same conditional_name)",
             ),
             pytest.param(
                 {
                     "sheet_name": CORRECT_SHEET_NAME,
                     "headers": CORRECT_HEADERS,
-                    "rows": ROWS_MULTIPLE_DEFAULT_VALUES_SAME,
+                    "rows": ROWS_MULTIPLE_HIDDEN_VALUES_SAME,
                     "expected_result": True,
                     "expected_message": None,
                 },
-                id="Multiple default_value but same value (valid)",
+                id="Multiple hidden_value but same value (valid)",
             ),
         ],
     )

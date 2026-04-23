@@ -30,7 +30,7 @@ const testCases: Array<{
     testTitle: string;
     conditionals: unknown;
     expected: unknown;
-    defaultValue?: unknown;
+    hiddenValue?: unknown;
     expectedConsoleError?: {
         message: string;
         data: Record<string, unknown>;
@@ -428,7 +428,7 @@ const testCases: Array<{
         expected: [false, null]
     },
     {
-        testTitle: '_isString === interview.response._isString with defaultValue, should return [true, defaultValue].',
+        testTitle: '_isString === interview.response._isString with hiddenValue, should return [true, hiddenValue].',
         conditionals: [
             {
                 path: '_isString',
@@ -436,12 +436,12 @@ const testCases: Array<{
                 value: interview.response._isString
             }
         ],
-        defaultValue: 'defaultValue',
-        expected: [true, 'defaultValue']
+        hiddenValue: 'hiddenValue',
+        expected: [true, 'hiddenValue']
     },
     {
         testTitle:
-            '_isTrueBoolean === interview.response._isTrueBoolean with false for defaultValue, should return [true, defaultValue].',
+            '_isTrueBoolean === interview.response._isTrueBoolean with false for hiddenValue, should return [true, hiddenValue].',
         conditionals: [
             {
                 path: '_isTrueBoolean',
@@ -449,7 +449,7 @@ const testCases: Array<{
                 value: interview.response._isTrueBoolean
             }
         ],
-        defaultValue: false,
+        hiddenValue: false,
         expected: [true, false]
     },
     {
@@ -489,14 +489,14 @@ const testCases: Array<{
     }
 ];
 
-test.each(testCases)('$testTitle', ({ conditionals, expected, defaultValue, expectedConsoleError }) => {
+test.each(testCases)('$testTitle', ({ conditionals, expected, hiddenValue, expectedConsoleError }) => {
     const consoleErrorSpy = expectedConsoleError
         ? jest.spyOn(console, 'error').mockImplementation(() => undefined)
         : null;
     const returnValues = checkConditionals({
         interview,
         conditionals: conditionals as Parameters<typeof checkConditionals>[0]['conditionals'],
-        defaultValue
+        hiddenValue
     });
     expect(returnValues).toEqual(expected);
     if (expectedConsoleError) {
