@@ -31,10 +31,7 @@ const testCases: Array<{
     conditionals: unknown;
     expected: unknown;
     hiddenValue?: unknown;
-    expectedConsoleError?: {
-        message: string;
-        data: Record<string, unknown>;
-    };
+    expectedErrorMessage?: string;
 }> = [
     {
         testTitle: '­wrongPath === \'null\', should return true.',
@@ -464,11 +461,9 @@ const testCases: Array<{
             { path: '_isNumber1', comparisonOperator: '===', value: 0, logicalOperator: '&&', parentheses: '(' },
             { path: '_isNumber1', comparisonOperator: '===', value: 1, logicalOperator: '||' }
         ],
-        expectedConsoleError: {
-            message: 'checkConditionals: Unbalanced parentheses (missing closing parenthesis) in conditionals',
-            data: { parenthesesBalance: 1 }
-        },
-        expected: [false, null]
+        expectedErrorMessage:
+            'checkConditionals: Unbalanced parentheses (missing closing parenthesis) in conditionals',
+        expected: null
     },
     {
         testTitle:
@@ -481,29 +476,24 @@ const testCases: Array<{
                 parentheses: ')'
             }
         ],
-        expectedConsoleError: {
-            message: 'checkConditionals: Unbalanced parentheses (closing without opening) in conditionals',
-            data: { index: 0, parenthesesBalance: -1 }
-        },
-        expected: [false, null]
+        expectedErrorMessage:
+            'checkConditionals: Unbalanced parentheses (closing without opening) in conditionals',
+        expected: null
     }
 ];
 
-test.each(testCases)('$testTitle', ({ conditionals, expected, hiddenValue, expectedConsoleError }) => {
-    const consoleErrorSpy = expectedConsoleError
-        ? jest.spyOn(console, 'error').mockImplementation(() => undefined)
-        : null;
-    const returnValues = checkConditionals({
-        interview,
-        conditionals: conditionals as Parameters<typeof checkConditionals>[0]['conditionals'],
-        hiddenValue
-    });
-    expect(returnValues).toEqual(expected);
-    if (expectedConsoleError) {
-        expect(consoleErrorSpy).toHaveBeenCalledWith(
-            expectedConsoleError.message,
-            expect.objectContaining(expectedConsoleError.data)
-        );
-        consoleErrorSpy?.mockRestore();
+test.each(testCases)('$testTitle', ({ conditionals, expected, hiddenValue, expectedErrorMessage }) => {
+    const call = () =>
+        checkConditionals({
+            interview,
+            conditionals: conditionals as Parameters<typeof checkConditionals>[0]['conditionals'],
+            hiddenValue
+        });
+
+    if (expectedErrorMessage) {
+        expect(call).toThrow(expectedErrorMessage);
+        return;
     }
+
+    expect(call()).toEqual(expected);
 });

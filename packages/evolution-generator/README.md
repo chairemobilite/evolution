@@ -393,7 +393,7 @@ export const hasDrivingLicenseConditional: Conditional = (interview, path) => {
     const relativePath = path.substring(0, path.lastIndexOf('.')); // Remove the last key from the path
     return checkConditionals({
         interview,
-        defaultValue: 'no',
+        hiddenValue: 'no',
         conditionals: [
             {
                 path: `${relativePath}.age`,

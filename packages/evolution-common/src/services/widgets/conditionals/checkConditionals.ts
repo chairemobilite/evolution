@@ -59,12 +59,9 @@ export const checkConditionals = ({
             parenthesesBalance -= 1;
             if (parenthesesBalance < 0) {
                 parenthesesInvalid = true;
-                console.error('checkConditionals: Unbalanced parentheses (closing without opening) in conditionals', {
-                    index,
-                    parenthesesBalance,
-                    conditional
-                });
-                return [false, hiddenValue ?? null];
+                throw new Error(
+                    `checkConditionals: Unbalanced parentheses (closing without opening) in conditionals (index=${index})`
+                );
             }
         }
 
@@ -175,13 +172,12 @@ export const checkConditionals = ({
 
     // If parentheses are unbalanced, consider the conditionals invalid
     if (parenthesesInvalid) {
-        return [false, hiddenValue ?? null];
+        throw new Error('checkConditionals: Unbalanced parentheses in conditionals');
     }
     if (parenthesesBalance !== 0) {
-        console.error('checkConditionals: Unbalanced parentheses (missing closing parenthesis) in conditionals', {
-            parenthesesBalance
-        });
-        return [false, hiddenValue ?? null];
+        throw new Error(
+            `checkConditionals: Unbalanced parentheses (missing closing parenthesis) in conditionals (balance=${parenthesesBalance})`
+        );
     }
 
     // FIXME: This eval() is a security risk, and should be replaced with a safer alternative
