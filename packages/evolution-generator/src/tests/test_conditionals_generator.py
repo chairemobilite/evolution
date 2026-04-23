@@ -139,6 +139,33 @@ class TestGenerateTypescriptCode:
         assert "return checkConditionals({" in ts_code
         assert "defaultValue: 'myDefault'," in ts_code
 
+    def test_emits_defaultValue_once_when_multiple_rows_have_same_default_value(self):
+        conditional_by_name = {
+            "condWithRepeatedDefault": [
+                {
+                    "logical_operator": "",
+                    "path": "household.size",
+                    "comparison_operator": "===",
+                    "value": "1",
+                    "parentheses": "",
+                    "default_value": "myDefault",
+                },
+                {
+                    "logical_operator": "&&",
+                    "path": "household.size",
+                    "comparison_operator": "===",
+                    "value": "2",
+                    "parentheses": "",
+                    "default_value": "myDefault",
+                },
+            ]
+        }
+
+        ts_code = ConditionalsGenerator.generate_typescript_code(conditional_by_name)
+
+        assert "return checkConditionals({" in ts_code
+        assert ts_code.count("defaultValue: 'myDefault',") == 1
+
     def test_does_not_emit_defaultValue_when_no_row_has_default_value(self):
         conditional_by_name = {
             "condNoDefault": [
@@ -213,6 +240,12 @@ class TestCheckConditionalsSheet:
     ROWS_MULTIPLE_DEFAULT_VALUES = [
         ["condWithTwoDefaults", "", "household.size", "===", "1", "", "defaultA"],
         ["condWithTwoDefaults", "&&", "household.size", "===", "2", "", "defaultB"],
+    ]
+
+    # Valid: same conditional_name can repeat default_value as long as it's the same value.
+    ROWS_MULTIPLE_DEFAULT_VALUES_SAME = [
+        ["condWithSameDefault", "", "household.size", "===", "1", "", "defaultA"],
+        ["condWithSameDefault", "&&", "household.size", "===", "2", "", "defaultA"],
     ]
 
     # Sheet-level and full-flow cases only; row-level validation is in TestValidateConditionalsRow.
@@ -308,6 +341,16 @@ class TestCheckConditionalsSheet:
                     "expected_message": "Error in Conditionals sheet - Multiple default_value for conditional_name 'condWithTwoDefaults': ['defaultA', 'defaultB']",
                 },
                 id="Multiple default_value (same conditional_name)",
+            ),
+            pytest.param(
+                {
+                    "sheet_name": CORRECT_SHEET_NAME,
+                    "headers": CORRECT_HEADERS,
+                    "rows": ROWS_MULTIPLE_DEFAULT_VALUES_SAME,
+                    "expected_result": True,
+                    "expected_message": None,
+                },
+                id="Multiple default_value but same value (valid)",
             ),
         ],
     )

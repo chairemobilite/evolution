@@ -262,16 +262,22 @@ class ConditionalsGenerator:
     ) -> None:
         """
         Validate that for each conditional_name group, the optional default_value is either absent
-        or identical across all rows of that conditional_name.
+        or unique across all rows of that conditional_name.
         """
         prefix = self._sheet_error_prefix("Conditionals")
         groups = self._group_row_data_by_conditional_name(row_data)
         for name, group_rows in groups.items():
+
+            # Get all default values for the conditional_name
+            # Treat empty string as None for optional Excel cells (e.g. default_value).
             default_values = {
                 self._empty_to_none(row_dict.get("default_value"))
                 for _row_number, row_dict in group_rows
                 if self._empty_to_none(row_dict.get("default_value")) is not None
             }
+
+            # Check if there are multiple default values for the same conditional_name
+            # If there are, return an error
             if len(default_values) > 1:
                 self._validation_errors.append(
                     f"{prefix}Multiple default_value for conditional_name '{name}': {sorted(default_values)}"
@@ -412,11 +418,13 @@ class ConditionalsGenerator:
 
             # Emit one exported WidgetConditional (const) per conditional_name
             for conditional_name, conditionals in conditional_by_name.items():
+
+                # Get the first non-None 'default_value' from the conditionals, or None if none is found.
                 default_value = next(
                     (
-                        conditional.get("default_value")
-                        for conditional in conditionals
-                        if conditional.get("default_value") is not None
+                        c.get("default_value")
+                        for c in conditionals
+                        if c.get("default_value") is not None
                     ),
                     None,
                 )

@@ -358,15 +358,15 @@ In your survey logic, conditionals play a key role in determining if the widget 
 
 ### Conditionals Fields
 
-| Field                                        | Description                                          | Type                        |
-| -------------------------------------------- | ---------------------------------------------------- | --------------------------- |
-| conditionalName                              | Name of the conditional                              | string                      |
-| logicalOperator                              | Logical operator (optional)                          | && or \|\|                  |
-| path                                         | Path to the response object for comparison           | string                      |
-| [comparisonOperator](#comp)                  | Operator for comparison                              | ===, ==, >, <, >= or <=     |
-| value                                        | Value for the comparison                             | number or string            |
-| [parentheses](#par)                          | Parentheses (optional)                               | ( or )                      |
-| [default_value](#conditionals_default_value) | Default value returned by the conditional (optional) | number or string or boolean |
+| Field                                        | Description                                                              | Type                        |
+| -------------------------------------------- | ------------------------------------------------------------------------ | --------------------------- |
+| conditionalName                              | Name of the conditional                                                  | string                      |
+| logicalOperator                              | Logical operator (optional)                                              | && or \|\|                  |
+| path                                         | Path to the response object for comparison                               | string                      |
+| [comparisonOperator](#comp)                  | Operator for comparison                                                  | ===, ==, >, <, >= or <=     |
+| value                                        | Value for the comparison                                                 | number or string            |
+| [parentheses](#par)                          | Parentheses (optional)                                                   | ( or )                      |
+| [default_value](#conditionals_default_value) | Value to use when the widget is hidden (conditional is false) (optional) | number or string or boolean |
 
 > <span id="comp">**Note:**</span> The `comparisonOperator` field helps compare respondent response with the specified value. It determines how the respondent's answer should be evaluated in the conditional logic. For example, `>=` signifies that the condition is true when path response is greater than or equal to the value.
 
