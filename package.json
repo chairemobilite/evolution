@@ -53,7 +53,7 @@
         "reset-submodules": "rimraf transition/ && git submodule init && git submodule update",
         "generateSurvey:generator": "yarn workspace evolution-generator run generateSurvey --config_path ../../example/demo_generator/references/generatorConfigs.yaml",
         "verifyExcel": "yarn workspace evolution-generator run verifyExcel",
-        "jsdoc": "yarn workspace evolution-common run jsdoc"
+        "docs:api": "yarn workspace evolution-common run docs:api"
     },
     "resolutions": {
         "kdbush": "^3.0.0"
