@@ -320,6 +320,38 @@ class ConditionalsGenerator:
         return None if value == "" else value
 
     @staticmethod
+    def _expand_tokenized_path(
+        original_path: str, *, current_context_specs: tuple[dict, ...]
+    ) -> str | None:
+        """
+        Expand any supported token into a TS template-string path.
+
+        - For `${relativePath}`: keep the path as-is but wrap in backticks so interpolation works.
+        - For `${current...}`: expand to the canonical interview path prefix.
+        """
+        if "${relativePath}" in original_path:
+            return f"`{original_path}`"
+        for spec in current_context_specs:
+            token = spec["token"]
+            if token in original_path:
+                suffix = original_path.replace(f"{token}.", "")
+                return f"`{spec['prefix']}{suffix}`"
+        return None
+
+    @staticmethod
+    def _current_context_vars_needed(
+        conditionals: list[dict], *, current_context_specs: tuple[dict, ...]
+    ) -> set[str]:
+        needed: set[str] = set()
+        for conditional in conditionals:
+            conditional_path = conditional.get("path") or ""
+            for spec in current_context_specs:
+                if spec["token"] in conditional_path:
+                    needed.add(spec["id_var"])
+                    needed.update(spec["deps"])
+        return needed
+
+    @staticmethod
     def extract_conditionals_from_data(rows, headers) -> defaultdict:
         """Extract conditionals from rows and group them by conditional_name."""
         conditional_by_name = defaultdict(list)
@@ -360,6 +392,42 @@ class ConditionalsGenerator:
             NEWLINE = "\n"
             ts_code = ""
 
+            # Current context specs for the current person, journey, trip, and visited place
+            current_context_specs = (
+                {
+                    "token": "${currentPerson}",
+                    "id_var": "currentPersonId",
+                    "helper": "getCurrentPersonId",
+                    "prefix": "household.persons.${currentPersonId}.",
+                    "deps": (),
+                    "comment": "Get the current person id",
+                },
+                {
+                    "token": "${currentJourney}",
+                    "id_var": "currentJourneyId",
+                    "helper": "getCurrentJourneyId",
+                    "prefix": "household.persons.${currentPersonId}.journeys.${currentJourneyId}.",
+                    "deps": ("currentPersonId",),
+                    "comment": "Get the current journey id",
+                },
+                {
+                    "token": "${currentTrip}",
+                    "id_var": "currentTripId",
+                    "helper": "getCurrentTripId",
+                    "prefix": "household.persons.${currentPersonId}.journeys.${currentJourneyId}.trips.${currentTripId}.",
+                    "deps": ("currentPersonId", "currentJourneyId"),
+                    "comment": "Get the current trip id",
+                },
+                {
+                    "token": "${currentVisitedPlace}",
+                    "id_var": "currentVisitedPlaceId",
+                    "helper": "getCurrentVisitedPlaceId",
+                    "prefix": "household.persons.${currentPersonId}.visitedPlaces.${currentVisitedPlaceId}.",
+                    "deps": ("currentPersonId",),
+                    "comment": "Get the current visited place id",
+                },
+            )
+
             # Add Generator comment at the start of the file
             ts_code += add_generator_comment()
 
@@ -392,28 +460,33 @@ class ConditionalsGenerator:
                     f"// Remove the last key from the path{NEWLINE}"
                 )
 
-                # Check if any conditional has a path that contains "${currentPerson}"
-                conditionals_has_current_person = any(
-                    "${currentPerson}" in conditional["path"]
-                    for conditional in conditionals
+                # Check if any conditional has a path that contains "${currentPerson}", "${currentJourney}", "${currentTrip}", or "${currentVisitedPlace}"
+                current_context_vars_needed = (
+                    ConditionalsGenerator._current_context_vars_needed(
+                        conditionals, current_context_specs=current_context_specs
+                    )
                 )
-                declare_current_person_id = (
-                    f"{INDENT}const currentPersonId = odSurveyHelpers.getCurrentPersonId({{ interview, path }}); "
-                    f"// Get the current person id{NEWLINE}"
-                )
+                conditionals_has_current_context = len(current_context_vars_needed) > 0
 
                 ts_code += (
                     f"\nexport const {conditional_name}: WidgetConditional = (interview"
                 )
-                if conditionals_has_relative_path or conditionals_has_current_person:
+                # Check if any conditional has a path that contains "${relativePath}" or "${currentPerson}", "${currentJourney}", "${currentTrip}", or "${currentVisitedPlace}"
+                if conditionals_has_relative_path or conditionals_has_current_context:
                     ts_code += ", path"
                 ts_code += f") => {{{NEWLINE}"
                 ts_code += (
                     declare_relative_path if conditionals_has_relative_path else ""
                 )
-                ts_code += (
-                    declare_current_person_id if conditionals_has_current_person else ""
-                )
+                # Check if any conditional has a path that contains "${currentPerson}", "${currentJourney}", "${currentTrip}", or "${currentVisitedPlace}"
+                # If so, declare the current context variables
+                if conditionals_has_current_context:
+                    for spec in current_context_specs:
+                        if spec["id_var"] in current_context_vars_needed:
+                            ts_code += (
+                                f"{INDENT}const {spec['id_var']} = odSurveyHelpers.{spec['helper']}({{ interview, path }}); "
+                                f"// {spec['comment']}{NEWLINE}"
+                            )
                 ts_code += INDENT + "return checkConditionals({" + NEWLINE
                 ts_code += INDENT + INDENT + "interview," + NEWLINE
                 ts_code += INDENT + INDENT + "conditionals: [" + NEWLINE
@@ -435,16 +508,24 @@ class ConditionalsGenerator:
                     )
                     conditional_has_path = (
                         "${relativePath}" in conditional["path"]
-                        or "${currentPerson}" in conditional["path"]
+                        # Check if any conditional has a path that contains "${currentPerson}", "${currentJourney}", "${currentTrip}", or "${currentVisitedPlace}"
+                        or any(
+                            spec["token"] in conditional["path"]
+                            for spec in current_context_specs
+                        )
                     )
                     quote = "`" if conditional_has_path else "'"
-                    if "${currentPerson}" in conditional["path"]:
-                        path = (
-                            f"`household.persons.${{currentPersonId}}."
-                            f"{conditional['path'].replace('${currentPerson}.', '')}`"
-                        )
-                    else:
-                        path = f"{quote}{conditional['path']}{quote}"
+
+                    # Check if any conditional has a path that contains "${currentPerson}", "${currentJourney}", "${currentTrip}", or "${currentVisitedPlace}"
+                    # If so, expand the path
+                    expanded_path = ConditionalsGenerator._expand_tokenized_path(
+                        conditional["path"], current_context_specs=current_context_specs
+                    )
+                    path = (
+                        expanded_path
+                        if expanded_path is not None
+                        else f"{quote}{conditional['path']}{quote}"
+                    )
 
                     ts_code += f"{INDENT}{INDENT}{INDENT}{{{NEWLINE}"
                     if conditional["logical_operator"]:
