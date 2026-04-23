@@ -14,34 +14,34 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added utility functions for webpack generation in evolution-frontend: `createParticipantWebpackConfig` and `createAdminWebpackConfig`. The example projects implement this approach. Projects should consider using those for simlicity. ([#1405](https://github.com/chairemobilite/evolution/issues/1405))
 - **Generator custom labels support**: Widget generation can now import and use custom labels, allowing label overrides without a full custom widget. In the `Widgets` Excel sheet, set this in the `parameters` column: `customLabels={{yourCustomLabelsKey}}` (fixes [#1035](https://github.com/chairemobilite/evolution/issues/1035))
 - **Generator built-in widgets**: In the `Widgets` Excel sheet, set `inputType=BuiltIn` and add `builtInFunction={{yourBuiltInFunctionName}}` in the `parameters` column (Part [#902](https://github.com/chairemobilite/evolution/issues/902)).
-- Added the `WidgetConfigFactory` and `SectionConfigFactory` interfaces that can be implemented to provide builtin widgets and features. These interfaces are expected to return the complete section and widget configurations necessary for the builtin feature. (commit f2ade4d1e3e69b13e30e851d034b751e1955efc9)
-- Segment section configuration accepts additional widget names as an array of strings in the `additionalSegmentWidgetNames` property. The widgets need to be defined in the survey and will be added after the mode questions (#1345). It also includes the option to ask who was driving a vehicle, with the `askSegmentDriver` boolean option (#1434).
+- Added the `WidgetConfigFactory` and `SectionConfigFactory` interfaces that can be implemented to provide builtin widgets and features. These interfaces are expected to return the complete section and widget configurations necessary for the builtin feature. (commit [f2ade4d](https://github.com/chairemobilite/evolution/commit/f2ade4d1e3e69b13e30e851d034b751e1955efc9))
+- Segment section configuration accepts additional widget names as an array of strings in the `additionalSegmentWidgetNames` property. The widgets need to be defined in the survey and will be added after the mode questions (#1345). It also includes the option to ask who was driving a vehicle, with the `askSegmentDriver` boolean option (fixes [#1434](https://github.com/chairemobilite/evolution/issues/1434)).
 - Added various builtin audit checks: home in survey area, survey contactEmail and helpContactEmail validation, missing home, mismatched household members and declared count, missing or invalid vehicle count
-- Added `platform`, `os`, `browser` and `language` fields to each record of the exported paradata (#1395)
-- Config: Added the `workingAge` (default to 15) and `schoolMandatoryAge` (default to 15) configuration options, used to show various questions about work or school in the household sections (commit 0014238cf7a111fccac067b7fe50ba50291b2ce7).
+- Added `platform`, `os`, `browser` and `language` fields to each record of the exported paradata (fixes [#1395](https://github.com/chairemobilite/evolution/issues/1395))
+- Config: Added the `workingAge` (default to 15) and `schoolMandatoryAge` (default to 15) configuration options, used to show various questions about work or school in the household sections (commit [0014238](https://github.com/chairemobilite/evolution/commit/0014238cf7a111fccac067b7fe50ba50291b2ce7)).
 - OD survey helpers: new helper functions available directly in survey: 
-  - `isStudentFromSchoolType` (commit e742efa94b3e42f4a1a28471ed671f9ee567654a)
-  - `hasOrUnknownDrivingLicense` (commit b5e81716ab620876a7fbd5661c23d786fbfcc699)
-  - `getCarsharingMembersCount` (commit 33353d901fd0d71ba370d93a3de520f80e22f9a5)
-  - `getPotentialDrivers`  (commit 95e198db3854771ad1b09886e72a0392dbb2a604)
-  - `isLoopActivity` (commit 26cdb7e92e8fa539d57c9d00439aacdbd97512bc)
-  - `getFirstIncompleteVisitedPlace` (commit 600bb6ea2f019dc07400440f84c380d1f4cc1dce)
-  - `reconcileVisitedPlaces` (commit cb1e699ba27534c8056597045012e5e7af2157e9)
-  - `deleteVisitedPlace` (commit fd6e33bfa36c16b741469b30dd5ca90ef1948083)
-  - `addVisitedPlace` (commit 3b3be2d7d0d79e5f5b4928f6784e892d67562687)
-  - `getHomeAddressOneLine` (commit 3b28f454515445b4b438bfcb6cf00e1a8fffcde9)
-  - `shouldShowTripsAndPlacesSections` (commit 852a240a98d3c3a92197fe9684102df1326545f4)
-- Added a `visitedPlaces` section configuration, which includes activity, location and next place category questions, with the  `VisitedPlacesSectionFactory` class (#1437)
-- Provide a `VisitedPlacesSection` template to be used in the UI to display visited places. The template can be used by the `visitedPlaces` name in the `template` property of a section's configuration (#1446).
-- The `getFormattedDate` widget factory option now takes an optional options parameter to fine-tune the desired format of the date (commit 8dbd4938c1dd4f5466a8c19b3b90f934e63b953f)
-- Add a `QuestionnaireConfiguration` type, that allows to configure an optional trip diary (which can include a visited places and segments sections). The `QuestionnaireFactory` class receives the configuration and returns the builtin widgets and sections from config. (commit be226aab8ad8f84b027a380dd90af70e2989e62d).
+  - `isStudentFromSchoolType` (commit [e742efa](https://github.com/chairemobilite/evolution/commit/55d89bbaa7d11eb533cd38c639bdde742efa94b3e42f4a1a28471ed671f9ee567654aa9a90c59e52))
+  - `hasOrUnknownDrivingLicense` (commit [b5e8171](https://github.com/chairemobilite/evolution/commit/b5e81716ab620876a7fbd5661c23d786fbfcc699))
+  - `getCarsharingMembersCount` (commit [33353d9](https://github.com/chairemobilite/evolution/commit/33353d901fd0d71ba370d93a3de520f80e22f9a5))
+  - `getPotentialDrivers`  (commit [95e198d](https://github.com/chairemobilite/evolution/commit/95e198db3854771ad1b09886e72a0392dbb2a604))
+  - `isLoopActivity` (commit [26cdb7e](https://github.com/chairemobilite/evolution/commit/26cdb7e92e8fa539d57c9d00439aacdbd97512bc))
+  - `getFirstIncompleteVisitedPlace` (commit [600bb6e](https://github.com/chairemobilite/evolution/commit/600bb6ea2f019dc07400440f84c380d1f4cc1dce))
+  - `reconcileVisitedPlaces` (commit [cb1e699](https://github.com/chairemobilite/evolution/commit/cb1e699ba27534c8056597045012e5e7af2157e9))
+  - `deleteVisitedPlace` (commit [fd6e33b](https://github.com/chairemobilite/evolution/commit/fd6e33bfa36c16b741469b30dd5ca90ef1948083))
+  - `addVisitedPlace` (commit [3b3be2d](https://github.com/chairemobilite/evolution/commit/3b3be2d7d0d79e5f5b4928f6784e892d67562687))
+  - `getHomeAddressOneLine` (commit [3b28f45](https://github.com/chairemobilite/evolution/commit/3b28f454515445b4b438bfcb6cf00e1a8fffcde9))
+  - `shouldShowTripsAndPlacesSections` (commit [852a240](https://github.com/chairemobilite/evolution/commit/852a240a98d3c3a92197fe9684102df1326545f4))
+- Added a `visitedPlaces` section configuration, which includes activity, location and next place category questions, with the  `VisitedPlacesSectionFactory` class (fixes [#1437](https://github.com/chairemobilite/evolution/issues/1437))
+- Provide a `VisitedPlacesSection` template to be used in the UI to display visited places. The template can be used by the `visitedPlaces` name in the `template` property of a section's configuration (fixes [#1446](https://github.com/chairemobilite/evolution/issues/1446)).
+- The `getFormattedDate` widget factory option now takes an optional options parameter to fine-tune the desired format of the date (commit [8dbd493](https://github.com/chairemobilite/evolution/commit/8dbd4938c1dd4f5466a8c19b3b90f934e63b953f))
+- Add a `QuestionnaireConfiguration` type, that allows to configure an optional trip diary (which can include a visited places and segments sections). The `QuestionnaireFactory` class receives the configuration and returns the builtin widgets and sections from config. (commit [be226aa](https://github.com/chairemobilite/evolution/commit/be226aab8ad8f84b027a380dd90af70e2989e62d)).
 
 ### Changed
 
-- **BREAKING**: if using the webpack generation functions and the project has a `locales` folder, make sure an empty module file is present in the folder for build time import. An empty file named `index.js` at the root of the project's `locales` folder is enough. Webpack will replace it with the actual translations in the build. (#1426)
-- **BREAKING**: the `addGroupedObjects` function now returns an object of type `{ valuesByPath: Record<string, unknown>, newObjects: QuestionnaireObjectWithUuidAndSequence[] }` instead of only the values by path. Previous code can simply use the response's `valuesByPath` field to have the same data as before.
-- **BREAKING**: Add a second field for the `buttonActions` of the `WidgetFactoryOptions`: the previous `validateButtonAction` is now expected to simply validate without checking the section completion (to be used for grouped object for example), while the `validateButtonActionWithCompleteSection` will handle section completion as well and should be used at the end of sections (commit 52660e16d4ff1faa217ea5b0648028c59bd8795d)
-- **BREAKING**: Many builtin widgets now implement the `WidgetConfigFactory` and `SectionConfigFactory` instead of simple function calls (commit f2ade4d1e3e69b13e30e851d034b751e1955efc9).
+- **BREAKING**: if using the webpack generation functions and the project has a `locales` folder, make sure an empty module file is present in the folder for build time import. An empty file named `index.js` at the root of the project's `locales` folder is enough. Webpack will replace it with the actual translations in the build. (fixes [#1426](https://github.com/chairemobilite/evolution/issues/1426))
+- **BREAKING**: the `addGroupedObjects` function now returns an object of type `{ valuesByPath: Record<string, unknown>, newObjects: QuestionnaireObjectWithUuidAndSequence[] }` instead of only the values by path. Previous code can simply use the response's `valuesByPath` field to have the same data as before (commit [8f0efbf](https://github.com/chairemobilite/evolution/commit/8f0efbf03e736b050d873b4c676c38053749f489)).
+- **BREAKING**: Add a second field for the `buttonActions` of the `WidgetFactoryOptions`: the previous `validateButtonAction` is now expected to simply validate without checking the section completion (to be used for grouped object for example), while the `validateButtonActionWithCompleteSection` will handle section completion as well and should be used at the end of sections (commit [52660e1](https://github.com/chairemobilite/evolution/commit/52660e16d4ff1faa217ea5b0648028c59bd8795d))
+- **BREAKING**: Many builtin widgets now implement the `WidgetConfigFactory` and `SectionConfigFactory` instead of simple function calls (commit [f2ade4d](https://github.com/chairemobilite/evolution/commit/f2ade4d1e3e69b13e30e851d034b751e1955efc9)).
   - `getSwitchPersonWidgets` => `SwitchPersonWidgetsFactory`
   - `getPersonsTripsGroupConfig` => `PersonTripsGroupConfigFactory`
   - `getSegmentsGroupConfig` => `SegmentsGroupConfigFactory`
@@ -54,7 +54,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- Allow to effectively override locales from Evolution by survey specifics with the same key. Fix is applied automatically on projects calling the `createParticipantWebpackConfig` and `createAdminWebpackConfig` webpack helpers. (#1426)
+- Allow to effectively override locales from Evolution by survey specifics with the same key. Fix is applied automatically on projects calling the `createParticipantWebpackConfig` and `createAdminWebpackConfig` webpack helpers. (fixes [#1426](https://github.com/chairemobilite/evolution/issues/1426))
 
 ### Security
 
