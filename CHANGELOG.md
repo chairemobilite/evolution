@@ -33,9 +33,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Dependency updates
 
 - style-loader: 4.0.0
-- lodash: 4.17.21 => 4.17.23
+- lodash: 4.17.21 => 4.18.1
 - @types/lodash: 4.17.21 => 4.17.23
 - yargs: 17.7.2 => 18.0.0
+- i18next: 25.7.4 => 26.0.6
+- i18next-browser-languagedetector: 8.2.0 => 8.2.1
+- i18next-fs-backend: 2.6.1 => 2.6.4
+- @turf/turf: 7.3.1 => 7.3.5
+- @casl/ability: 6.7.3 => 6.8.1
 - In the root `package.json` add a resolution of `kdbush` to 3.0.0 to avoid compilation errors with some packages depending on a more recent version. This requirement comes from Transition, who does the same (see https://github.com/chairemobilite/transition/issues/921 to track issue to upgrade/remove `kdbush`).
 
 ## [Unreleased (0.5.1)] - YYYY-MM-DD
