@@ -68,7 +68,7 @@ export const addTranslationNamespace = (ns: string) => {
 let initialized = false;
 const initializeI18n = (languages: string[]) => {
     i18next.use(Backend).init({
-        initImmediate: false,
+        initAsync: false,
         load: 'languageOnly', // no region-specific,
         supportedLngs: languages,
         preload: languages,
