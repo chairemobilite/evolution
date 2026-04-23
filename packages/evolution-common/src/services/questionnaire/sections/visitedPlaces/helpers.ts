@@ -23,7 +23,8 @@ import * as odSurveyHelpers from '../../../odSurvey/helpers';
  * places from
  * @param arg.incompatibleActivities The list of incompatible activities for the
  * current activity choice
- * @returns
+ * @returns True if the previous and next visited places have an activity that
+ * is not in the list of incompatible activities
  */
 export const validatePreviousNextPlaceIsCompatibleActivities = ({
     interview,

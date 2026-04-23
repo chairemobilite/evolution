@@ -59,7 +59,7 @@ export type WidgetFactoryOptions = {
      * @param {boolean} [options.withRelative] Whether to add a relative date (eg. yesterday, day before yesterday)
      * @param {string} [options.locale] The locale to use or undefined to use the default locale
      * @param {boolean} [options.withDayOfWeek] Whether to add the day of the week
-     * @returns
+     * @returns The formatted date string
      */
     getFormattedDate: (
         date: string,

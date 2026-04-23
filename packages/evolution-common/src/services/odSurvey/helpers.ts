@@ -1113,7 +1113,6 @@ export const reconcileVisitedPlaces = ({
  * @param {Function} options.startAddGroupedObjects Function to start adding grouped objects
  * @param {Function} options.startUpdateInterview Function to start updating the
  * interview
- * @returns
  */
 export const addVisitedPlace = ({
     person,
@@ -1200,7 +1199,6 @@ export const addVisitedPlace = ({
  * removing grouped objects
  * @param {Function} options.startUpdateInterview Function to start updating the
  * interview
- * @returns
  */
 export const deleteVisitedPlace = ({
     interview,
