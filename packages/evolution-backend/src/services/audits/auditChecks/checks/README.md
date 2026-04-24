@@ -2,6 +2,8 @@
 
 This directory contains the actual audit check functions organized by survey object type.
 
+> **Looking for the full end-to-end guide?** Start at the [practical guide one level up](../README.md): pipeline, decisions to make before coding, worked example, and pitfalls. This file is the tactical reference (naming convention, minimal skeleton, file layout).
+
 ## Naming Convention
 
 All audit check functions follow the pattern: `[OBJECTPREFIX]_[AUDITCHECKTYPE]_[Description]`

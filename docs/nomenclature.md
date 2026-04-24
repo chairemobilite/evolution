@@ -37,7 +37,7 @@
 
 1. **Audit** (automated) Backend process analyzing Responses (both respondent and assisted)
 
-    * **AuditCheck** A single validation/check. Example: check if household size is consistent with the number of Person objects in the Response. Each AuditCheck has a type: error (which should be reviewed and eventually corrected or rejected), warning (which may be corrected but could be ignored, or could even result in a rejection in some cases), or note (just a message to classify the interview like "has at least one transit trip", "is a single person interview")
+    * **AuditCheck** A single validation/check. Example: check if household size is consistent with the number of Person objects in the Response. Each AuditCheck has a level: error (which should be reviewed and eventually corrected or rejected), warning (which may be corrected but could be ignored, or could even result in a rejection in some cases), or info (just a message to classify the interview like "has at least one transit trip", "is a single person interview"). When omitted, level defaults to error.
 
     * **AuditCheckResult** The result of an audit check on a specific Response or on a SurveyObject in a Response. Example: If the household size does not equal the number of Person objects in the Response, the AuditCheckResult will be false
 
