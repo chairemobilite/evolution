@@ -213,9 +213,29 @@ class LabelsGenerator:
 
             # Only save translations for the current section
             section_translations = translations.get(section, {})
+            if not section_translations:
+                return (
+                    None  # No translations to save for this section, skip file writing
+                )
 
             # Prepare the header for the YAML file
             header = add_generator_yaml_header()
+
+            # Expand dot-separated translation paths (for example home.region.city)
+            # into nested objects recursively.
+            yaml_data = {}
+            for flat_key, yaml_value in section_translations.items():
+                cls.__add_nested_translation(
+                    target=yaml_data,
+                    flat_key=flat_key,
+                    yaml_value=yaml_value,
+                    section=section,
+                    language=language,
+                )
+
+            # Make sure the locales directory exists
+            lang_dir = os.path.join(labels_output_folder_path, language)
+            os.makedirs(lang_dir, exist_ok=True)
 
             # Merge with existing file if present
             if os.path.exists(file_path):
@@ -226,7 +246,7 @@ class LabelsGenerator:
                         existing = cls.yaml.load(content) or {}
                     except Exception:
                         existing = {}
-                merged = cls.merged_section_translations(existing, section_translations)
+                merged = cls.merged_section_translations(existing, yaml_data)
                 # Check if header already exists
                 if content.startswith(header):
                     header_to_write = ""
@@ -237,7 +257,7 @@ class LabelsGenerator:
                         f"Generated {file_path.replace('\\', '/') } successfully"
                     )
             else:
-                merged = section_translations
+                merged = yaml_data
                 header_to_write = header
                 print_msg = f"Generated {file_path.replace('\\', '/') } successfully"
 
@@ -251,6 +271,53 @@ class LabelsGenerator:
         except Exception as e:
             print(f"An error occurred while saving translations to {file_path}: {e}")
             raise e
+
+    @classmethod
+    def __add_nested_translation(
+        cls,
+        target,
+        flat_key,
+        yaml_value,
+        section,
+        language,
+    ):
+        """
+        Add a dot-separated key into a nested dictionary recursively.
+
+        Example:
+            flat_key = "home.region.city"
+            -> {"home": {"region": {"city": yaml_value}}}
+        """
+        if "." not in flat_key:
+            existing_value = target.get(flat_key)
+            # Avoid conflict if the same key is already used as a dictionary (group). Add a warning and skip the conflicting entry in this case.
+            if isinstance(existing_value, dict):
+                print(
+                    f"WARNING: Conflict detected for key '{flat_key}' in section '{section}' for language '{language}'. The key is used both as a group and a value. Keeping the existing group and skipping the conflicting value entry."
+                )
+                return
+            target[flat_key] = yaml_value
+            return
+
+        head, tail = flat_key.split(".", 1)
+
+        if head not in target:
+            target[head] = {}
+
+        # Avoid conflict if the same key is already used as a value. Add a warning and skip the conflicting entry in this case.
+        if isinstance(target[head], str):
+            print(
+                f"WARNING: Conflict detected for key '{head}' in section '{section}' for language '{language}'. The key is used both as a group and a value. Keeping the existing value and skipping the conflicting entry with path '{flat_key}'."
+            )
+            return
+
+        cls.__add_nested_translation(
+            target=target[head],
+            flat_key=tail,
+            yaml_value=yaml_value,
+            section=section,
+            language=language,
+        )
 
     @classmethod
     def add_gender_or_base_translations(

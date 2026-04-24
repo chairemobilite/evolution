@@ -2,6 +2,7 @@
 # This file is licensed under the MIT License.
 # License text available at https://opensource.org/licenses/MIT
 
+from helpers.generator_helpers import add_generator_yaml_header
 from scripts.labels_generator import LabelsGenerator, LabelFormatter
 
 
@@ -103,17 +104,6 @@ def test_get_labels_file_path_widgets():
         section="section1",
     )
     assert path == "../../example/demo_generator/fr/section1.yaml"
-
-
-# TODO: test delete_all_labels_yaml_files (check that generate_labels() call this function only once)
-# TODO: test add_translation
-# TODO: test merged_section_translations
-# TODO: test save_translations
-# TODO: test_deleteYamlFile
-# TODO: test_addTranslation
-# TODO: test_saveTranslations
-# TODO: test_addTranslationsFromExcel
-# TODO: test add_translations_from_excel
 
 
 class TestAddGenderOrBaseTranslations:
@@ -814,4 +804,251 @@ def test_merged_section_translations_merges_nested_dicts(capsys):
     assert "key='region'" in captured.out
 
 
+class TestSaveTranslations:
+    """Tests for save_translations function"""
+
+    def test_creates_yaml_with_header_and_nested_paths(self, tmp_path):
+        labels_output_folder_path = str(tmp_path / "locales")
+        language = "fr"
+        section = "home"
+        translations = {
+            "home": {
+                "home.region": "Quelle est votre région?",
+                "home.country": "Quel est votre pays?",
+                "home.some.nested.path": "Quel est votre chemin imbriqué?",
+            }
+        }
+
+        LabelsGenerator.save_translations(
+            language,
+            section,
+            labels_output_folder_path,
+            translations,
+        )
+
+        file_path = LabelsGenerator.get_labels_file_path(
+            labels_output_folder_path=labels_output_folder_path,
+            language=language,
+            section=section,
+        )
+        with open(file_path, "r", encoding="utf-8") as f:
+            content = f.read()
+
+        assert content.startswith(add_generator_yaml_header())
+        assert "\nhome:\n" in content
+        assert "\n    region: Quelle est votre région?\n" in content
+        assert "\n    country: Quel est votre pays?\n" in content
+        assert "\n    some:\n" in content
+        assert "\n        nested:\n" in content
+        assert "\n            path: Quel est votre chemin imbriqué?\n" in content
+
+        # Keep the insertion order from the source dictionary.
+        idx_region = content.find("\n    region: Quelle est votre région?\n")
+        idx_country = content.find("\n    country: Quel est votre pays?\n")
+        idx_nested_path = content.find(
+            "\n            path: Quel est votre chemin imbriqué?\n"
+        )
+        assert idx_region != -1 and idx_country != -1 and idx_region < idx_country
+        assert idx_nested_path != -1 and idx_country < idx_nested_path
+
+    def test_creates_yaml_with_conflicting_nested_paths(self, tmp_path, capsys):
+        labels_output_folder_path = str(tmp_path / "locales")
+        language = "en"
+        section = "home"
+        translations = {
+            "home": {
+                "home.region": "Group label first",
+                "home.region.sub": "This is a nested label that conflicts with the previous one, should be absent",
+                "home.country.sub": "Sub-label first",
+                "home.country": "Conflicting group label, should be absent",
+            }
+        }
+
+        LabelsGenerator.save_translations(
+            language,
+            section,
+            labels_output_folder_path,
+            translations,
+        )
+
+        file_path = LabelsGenerator.get_labels_file_path(
+            labels_output_folder_path=labels_output_folder_path,
+            language=language,
+            section=section,
+        )
+        with open(file_path, "r", encoding="utf-8") as f:
+            content = f.read()
+
+        # Validate content of the file, the first instance of the label should be there
+        assert content.startswith(add_generator_yaml_header())
+        assert "\nhome:\n" in content
+        assert "\n    region: Group label first\n" in content
+        assert "\n    country:\n" in content
+        assert "\n        sub: Sub-label first\n" in content
+
+        # Validate the conflicting warnings
+        captured = capsys.readouterr()
+        assert (
+            f"WARNING: Conflict detected for key 'region' in section '{section}' for language"
+            in captured.out
+        )
+        assert (
+            f"WARNING: Conflict detected for key 'country' in section '{section}' for language"
+            in captured.out
+        )
+
+    def test_merges_existing_file_and_keeps_header_single(self, tmp_path, capsys):
+        labels_output_folder_path = str(tmp_path / "locales")
+        language = "en"
+        section = "home"
+
+        # Save the labels a first time, one gives a translation to a group, the other to a sub-label
+        LabelsGenerator.save_translations(
+            language,
+            section,
+            labels_output_folder_path,
+            {
+                "home": {
+                    "home.region": "Group label first",
+                    "home.country.sub": "Sub-label first",
+                    "home.some.other.nested.path": "Some other nested path",
+                }
+            },
+        )
+
+        # Save a second time, with conflicting labels that should not be present
+        LabelsGenerator.save_translations(
+            language,
+            section,
+            labels_output_folder_path,
+            {
+                "home": {
+                    # This key should not overwrite the previous one
+                    "home.region.sub": "This is a nested label that conflicts with the previous one, should be absent",
+                    "home.country": "Conflicting group label, should be absent",
+                    "home.some.other.nested2.path": "Some other nested path 2",
+                }
+            },
+        )
+
+        file_path = LabelsGenerator.get_labels_file_path(
+            labels_output_folder_path=labels_output_folder_path,
+            language=language,
+            section=section,
+        )
+        with open(file_path, "r", encoding="utf-8") as f:
+            content = f.read()
+
+        # Header should not be duplicated after an update.
+        assert (
+            content.count(
+                "This file was automatically generated by the Evolution Generator."
+            )
+            == 1
+        )
+
+        # Make sure nested values are correctly merged in
+        assert "\n    region: Group label first\n" in content
+        assert "\n    country:\n" in content
+        assert "\n        sub: Sub-label first\n" in content
+        assert "\n    some:\n" in content
+        assert "\n        other:\n" in content
+        assert "\n            nested:\n" in content
+        assert "\n                path: Some other nested path\n" in content
+        assert "\n            nested2:\n" in content
+        assert "\n                path: Some other nested path 2\n" in content
+
+        # Validate the conflicting warnings
+        captured = capsys.readouterr()
+        assert (
+            f"WARNING: Duplicate key during merge of generate labels: key='region'"
+            in captured.out
+        )
+        assert (
+            f"WARNING: Duplicate key during merge of generate labels: key='country'"
+            in captured.out
+        )
+
+    def test_merges_existing_file_with_nesting_conflicts(self, tmp_path):
+        labels_output_folder_path = str(tmp_path / "locales")
+        language = "en"
+        section = "home"
+
+        # Save the labels a first time, the file should be created with these translations
+        LabelsGenerator.save_translations(
+            language,
+            section,
+            labels_output_folder_path,
+            {
+                "home": {
+                    "home.region": "What is your region?",
+                    "home.country": "What is your country?",
+                }
+            },
+        )
+
+        # Save a second time, but overrident and new translations, the file should be updated with the new translations, but the header should not be duplicated and the original translations should be kept in case of conflict
+        LabelsGenerator.save_translations(
+            language,
+            section,
+            labels_output_folder_path,
+            {
+                "home": {
+                    # This key should not overwrite the previous one
+                    "home.region": "Quelle est votre region?",
+                    "home.city": "What is your city?",
+                }
+            },
+        )
+
+        file_path = LabelsGenerator.get_labels_file_path(
+            labels_output_folder_path=labels_output_folder_path,
+            language=language,
+            section=section,
+        )
+        with open(file_path, "r", encoding="utf-8") as f:
+            content = f.read()
+
+        # Header should not be duplicated after an update.
+        assert (
+            content.count(
+                "This file was automatically generated by the Evolution Generator."
+            )
+            == 1
+        )
+
+        # Existing values are preserved on conflict; new keys are merged in.
+        assert "\n    region: What is your region?\n" in content
+        assert "\n    country: What is your country?\n" in content
+        assert "\n    city: What is your city?\n" in content
+
+    def test_skips_file_when_section_has_no_translations(self, tmp_path):
+        labels_output_folder_path = str(tmp_path / "locales")
+        language = "fr"
+        section = "home"
+
+        result = LabelsGenerator.save_translations(
+            language,
+            section,
+            labels_output_folder_path,
+            {"otherSection": {"x.y": "value"}},
+        )
+
+        assert result is None
+        file_path = LabelsGenerator.get_labels_file_path(
+            labels_output_folder_path=labels_output_folder_path,
+            language=language,
+            section=section,
+        )
+        assert not (tmp_path / "locales" / "fr" / "home.yaml").exists()
+
+
 # TODO: test generate_labels
+# TODO: test delete_all_labels_yaml_files (check that generate_labels() call this function only once)
+# TODO: test add_translation
+# TODO: test merged_section_translations
+# TODO: test save_translations
+# TODO: test_deleteYamlFile
+# TODO: test_addTranslation
+# TODO: test_addTranslationsFromExcel
+# TODO: test add_translations_from_excel
