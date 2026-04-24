@@ -220,21 +220,6 @@ def _generate_choices_yaml_locales(choices_by_name, labels_output_folder_path: s
 
             rowNumber += 1  # Increment row number
 
-    # Convert translations to nested YAML data
-    # Convert flat "choices" translations (choiceName.value[_gender]) to nested YAML data.
-    yaml_data_by_lang = {"fr": {}, "en": {}}
-    for lang in ["fr", "en"]:
-        flat = translations_dict.get(lang, {}).get("choices", {})
-        for flat_key, yaml_value in flat.items():
-            if "." not in flat_key:
-                # Unexpected, but keep it at root to avoid losing data
-                yaml_data_by_lang[lang][flat_key] = yaml_value
-                continue
-            group, value = flat_key.split(".", 1)
-            if group not in yaml_data_by_lang[lang]:
-                yaml_data_by_lang[lang][group] = {}
-            yaml_data_by_lang[lang][group][value] = yaml_value
-
     # Delete existing files first to avoid stale keys if some choices are removed
     LabelsGenerator.delete_all_labels_yaml_files(
         labels_output_folder_path=labels_output_folder_path,
@@ -242,17 +227,14 @@ def _generate_choices_yaml_locales(choices_by_name, labels_output_folder_path: s
         sections=["choices"],
     )
 
-    # Generate choices.yaml files for each language (only if non-empty).
-    for lang in ["fr", "en"]:
-        if not yaml_data_by_lang[lang]:
-            continue
-        lang_dir = os.path.join(labels_output_folder_path, lang)
-        os.makedirs(lang_dir, exist_ok=True)
-        yaml_path = os.path.join(lang_dir, "choices.yaml")
-        with open(yaml_path, mode="w", encoding="utf-8") as yaml_file:
-            yaml_file.write(header)
-            LabelsGenerator.yaml.dump(yaml_data_by_lang[lang], yaml_file)
-        print(f"Generated {yaml_path.replace('\\', '/') } successfully")
+    # Save translations
+    for language, translations in translations_dict.items():
+        LabelsGenerator.save_translations(
+            language,
+            "choices",
+            labels_output_folder_path,
+            translations,
+        )
 
 
 # Function to generate choices.tsx
