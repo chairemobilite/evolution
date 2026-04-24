@@ -1,0 +1,152 @@
+# Reusable workflow to backport PRs to a specific target branch (e.g. maintenance branch).
+name: Backport To Specific Target Branch
+
+on:
+  workflow_call:
+    inputs:
+      target_branch:
+        required: true
+        type: string
+
+jobs:
+  backport:
+    # Run only when the PR was merged in main and labeled for backporting.
+    # Accepted labels: backport-<TARGET_BRANCH> or backport-all.
+    if: |
+      github.event.pull_request.merged == true &&
+      github.event.pull_request.base.ref == 'main' &&
+      (
+        contains(github.event.pull_request.labels.*.name, format('backport-{0}', inputs.target_branch)) ||
+        contains(github.event.pull_request.labels.*.name, 'backport-all')
+      )
+    runs-on: ubuntu-latest
+    permissions:
+      # Needed to push the backport branch.
+      contents: write
+      # Needed to open the backport PR.
+      pull-requests: write
+    env:
+      TARGET_BRANCH: ${{ inputs.target_branch }}
+    steps:
+    - name: Checkout target branch
+      uses: actions/checkout@v4
+      with:
+        # Start from the maintenance branch we backport to.
+        ref: ${{ env.TARGET_BRANCH }}
+        # Full history is safer for cherry-pick operations.
+        fetch-depth: 0
+
+    - name: Cherry-pick PR commits to a backport branch
+      id: backport
+      env:
+        PR_NUMBER: ${{ github.event.pull_request.number }}
+        TARGET_BRANCH: ${{ env.TARGET_BRANCH }}
+        # This workflow assumes "Rebase and merge": merge_commit_sha is then the last rebased
+        # commit on the base branch, and the N previous commits (N = pull_request.commits) are
+        # exactly the PR's commits. We use MERGE_SHA~N..MERGE_SHA to cherry-pick them.
+        # NOTE: Does not work for squash merges (merge_commit_sha would be a single squashed
+        # commit, so MERGE_SHA~N..MERGE_SHA would reach into unrelated base-branch history).
+        MERGE_SHA: ${{ github.event.pull_request.merge_commit_sha }}
+        PR_COMMITS: ${{ github.event.pull_request.commits }}
+      run: |
+        set -euo pipefail
+
+        BRANCH="backport/pr-${PR_NUMBER}-to-${TARGET_BRANCH}"
+        echo "branch=${BRANCH}" >> "$GITHUB_OUTPUT"
+
+        # Standard bot identity recommended by GitHub Actions docs. 41898282 is the github-actions[bot] user id. (see https://github.com/actions/checkout#push-a-commit-to-a-pr-using-the-built-in-token)
+        git config user.name "github-actions[bot]"
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+        # Fetch the base branch (main) so MERGE_SHA is available locally.
+        git fetch origin main
+
+        git checkout -b "$BRANCH"
+
+        if ! git cherry-pick -x "${MERGE_SHA}~${PR_COMMITS}..${MERGE_SHA}"; then
+          # Keep workflow green and handle conflicts in a follow-up notification step.
+          # Record which commit in the range caused the conflict.
+          CONFLICT_SHA=$(git log --format='%H' -1 CHERRY_PICK_HEAD 2>/dev/null || echo "$MERGE_SHA")
+          git cherry-pick --abort || true
+          echo "status=conflict" >> "$GITHUB_OUTPUT"
+          echo "conflict_sha=${CONFLICT_SHA}" >> "$GITHUB_OUTPUT"
+          exit 0
+        fi
+
+        echo "status=ok" >> "$GITHUB_OUTPUT"
+        git push --set-upstream origin "$BRANCH"
+
+    - name: Notify conflict on source PR
+      if: steps.backport.outputs.status == 'conflict'
+      uses: actions/github-script@v7
+      env:
+        CONFLICT_SHA: ${{ steps.backport.outputs.conflict_sha }}
+        TARGET_BRANCH: ${{ env.TARGET_BRANCH }}
+      with:
+        script: |
+          const number = context.payload.pull_request.number;
+          const conflictSha = process.env.CONFLICT_SHA;
+          const targetBranch = process.env.TARGET_BRANCH;
+          await github.rest.issues.createComment({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: number,
+            body: [
+              `Backport to ${targetBranch} failed due to cherry-pick conflicts.`,
+              `Conflict occurred at commit: ${conflictSha}`,
+              '',
+              'Please backport this PR manually:',
+              `- \`git checkout ${targetBranch}\``,
+              `- \`git checkout -b backport/pr-${number}-to-${targetBranch}\``,
+              `- cherry-pick each commit of this PR in order`,
+              '- resolve conflicts',
+              `- open a PR to ${targetBranch}`
+            ].join('\n')
+          });
+
+    - name: Open backport PR to target branch
+      if: steps.backport.outputs.status == 'ok'
+      uses: actions/github-script@v7
+      env:
+        BACKPORT_BRANCH: ${{ steps.backport.outputs.branch }}
+        TARGET_BRANCH: ${{ env.TARGET_BRANCH }}
+      with:
+        # This is javascript code running in the action, not a shell script, so we can use the GitHub API client directly without worrying about escaping or formatting.
+        script: |
+          const owner = context.repo.owner;
+          const repo = context.repo.repo;
+          const base = process.env.TARGET_BRANCH;
+          // List query expects head as owner:branch format
+          const headForList = `${owner}:${process.env.BACKPORT_BRANCH}`;
+
+          const existing = await github.rest.pulls.list({
+            owner,
+            repo,
+            state: 'open',
+            base,
+            head: headForList
+          });
+
+          if (existing.data.length > 0) {
+            // Avoid duplicate backport PRs if a rerun happens.
+            core.info(`Backport PR already exists: #${existing.data[0].number}`);
+            return;
+          }
+
+          const sourcePr = context.payload.pull_request;
+          const title = `[Backport ${base}] ${sourcePr.title}`;
+          const body = [
+            `Backport of #${sourcePr.number} to ${base}.`,
+            '',
+            'This PR was created automatically by the backport workflow.'
+          ].join('\n');
+
+          // head is the branch in the current repo, where it has been created, so no need to include the owner
+          await github.rest.pulls.create({
+            owner,
+            repo,
+            base,
+            head: process.env.BACKPORT_BRANCH,
+            title,
+            body
+          });
