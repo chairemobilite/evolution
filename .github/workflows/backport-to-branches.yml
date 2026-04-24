@@ -1,0 +1,18 @@
+name: Backport To Maintenance Branches
+
+on:
+  pull_request_target:
+    # Workflow will filter on merged branches only, we do not know at this point if the PR was merged or not, closed is the only option we have
+    types: [closed]
+
+jobs:
+  backport:
+    strategy:
+      matrix:
+        target_branch:
+          - v0.5.0
+    # Reusing the generic backport workflow for v0.5.0 branch. See https://docs.github.com/en/actions/how-tos/reuse-automations/reuse-workflows
+    uses: ./.github/workflows/backport-generic.yml
+    with:
+      target_branch: ${{ matrix.target_branch }}
+    secrets: inherit
