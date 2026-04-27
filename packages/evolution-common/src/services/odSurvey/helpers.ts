@@ -533,6 +533,46 @@ export const getJourneysArray = function ({ person }: { person: Person }): Journ
 };
 
 /**
+ * Get the person and journey from a path string if it matches the pattern
+ * `household.persons.{personId}.journeys.{journeyId}.`, otherwise return null.
+ * The person and journey IDs are extracted from the path and the corresponding
+ * person and journey objects are returned if they exist in the interview
+ * response.
+ *
+ * @param {Object} options - The options object.
+ * @param {UserInterviewAttributes} options.interview - The interview object.
+ * @param {string} [options.path] - Path string to extract the person and
+ * journey IDs from.
+ * @returns {{ person: Person, journey: Journey } | null} The current person and
+ * journey, or null if not found.
+ */
+export const getJourneyContextFromPath = ({
+    interview,
+    path
+}: {
+    interview: UserInterviewAttributes;
+    path: string;
+}): { person: Person; journey: Journey } | null => {
+    // Try to extract personId and journeyId from path if it matches
+    // household.persons.{personId}.journeys.{journeyId}. The path may either
+    // end at the journeyId or has a suffix after (non-capturing)
+    const match = path.match(/household\.persons\.([^.]+)\.journeys\.([^.]+)(?:\.|$)/);
+    if (match) {
+        const personId = match[1];
+        const journeyId = match[2];
+        const person = getPerson({ interview, personId });
+        if (person) {
+            const personJourneys = getJourneys({ person });
+            const journey = personJourneys[journeyId];
+            if (journey) {
+                return { person, journey };
+            }
+        }
+    }
+    return null;
+};
+
+/**
  * Determine whether the trips and visited places sections should exist for this
  * journey, based on the journey's data and prior answers.
  *
@@ -581,6 +621,51 @@ export const getActiveTrip = ({
     const trips = getTrips({ journey: activeJourney });
     const activeTripId = getResponse(interview, '_activeTripId', null) as string | null;
     return activeTripId ? trips[activeTripId] || null : null;
+};
+
+/**
+ * Get the person, journey and trip from a path string if it matches the pattern
+ * `household.persons.{personId}.journeys.{journeyId}.trips.{tripId}`, otherwise
+ * return null.  The person, journey and trip IDs are extracted from the path and the
+ * corresponding person, journey and trip objects are returned if they exist in the
+ * interview response.
+ *
+ * @param {Object} options - The options object.
+ * @param {UserInterviewAttributes} options.interview - The interview object.
+ * @param {string} [options.path] - Path string to extract the person, journey and
+ * trip IDs from.
+ * @returns {{ person: Person, journey: Journey, trip: Trip } | null} The current person, journey and
+ * trip, or null if not found.
+ */
+export const getTripContextFromPath = ({
+    interview,
+    path
+}: {
+    interview: UserInterviewAttributes;
+    path: string;
+}): { person: Person; journey: Journey; trip: Trip } | null => {
+    // Try to extract personId, journeyId and tripId from path if it matches
+    // household.persons.{personId}.journeys.{journeyId}.trips.{tripId}. The path may either
+    // end at the tripId or has a suffix after (non-capturing)
+    const match = path.match(/household\.persons\.([^.]+)\.journeys\.([^.]+)\.trips\.([^.]+)(?:\.|$)/);
+    if (match) {
+        const personId = match[1];
+        const journeyId = match[2];
+        const tripId = match[3];
+        const person = getPerson({ interview, personId });
+        if (person) {
+            const personJourneys = getJourneys({ person });
+            const journey = personJourneys[journeyId];
+            if (journey) {
+                const trips = getTrips({ journey });
+                const trip = trips[tripId];
+                if (trip) {
+                    return { person, journey, trip };
+                }
+            }
+        }
+    }
+    return null;
 };
 
 /**
@@ -761,6 +846,51 @@ export const getActiveVisitedPlace = ({
     const visitedPlaces = getVisitedPlaces({ journey: activeJourney });
     const activeTripId = getResponse(interview, '_activeVisitedPlaceId', null) as string | null;
     return activeTripId ? visitedPlaces[activeTripId] || null : null;
+};
+
+/**
+ * Get the person, journey and visited place from a path string if it matches the pattern
+ * `household.persons.{personId}.journeys.{journeyId}.visitedPlaces.{visitedPlaceId}`, otherwise
+ * return null.  The person, journey and visited place IDs are extracted from the path and the
+ * corresponding person, journey and visited place objects are returned if they exist in the
+ * interview response.
+ *
+ * @param {Object} options - The options object.
+ * @param {UserInterviewAttributes} options.interview - The interview object.
+ * @param {string} [options.path] - Path string to extract the person, journey and
+ * visited place IDs from.
+ * @returns {{ person: Person, journey: Journey, visitedPlace: VisitedPlace } | null} The current person, journey and
+ * visited place, or null if not found.
+ */
+export const getVisitedPlaceContextFromPath = ({
+    interview,
+    path
+}: {
+    interview: UserInterviewAttributes;
+    path: string;
+}): { person: Person; journey: Journey; visitedPlace: VisitedPlace } | null => {
+    // Try to extract personId, journeyId and visitedPlaceId from path if it matches
+    // household.persons.{personId}.journeys.{journeyId}.visitedPlaces.{visitedPlaceId}. The path may either
+    // end at the visitedPlaceId or has a suffix after (non-capturing)
+    const match = path.match(/household\.persons\.([^.]+)\.journeys\.([^.]+)\.visitedPlaces\.([^.]+)(?:\.|$)/);
+    if (match) {
+        const personId = match[1];
+        const journeyId = match[2];
+        const visitedPlaceId = match[3];
+        const person = getPerson({ interview, personId });
+        if (person) {
+            const personJourneys = getJourneys({ person });
+            const journey = personJourneys[journeyId];
+            if (journey) {
+                const visitedPlaces = getVisitedPlaces({ journey });
+                const visitedPlace = visitedPlaces[visitedPlaceId];
+                if (visitedPlace) {
+                    return { person, journey, visitedPlace };
+                }
+            }
+        }
+    }
+    return null;
 };
 
 /**
@@ -1304,4 +1434,57 @@ export const getSegments = ({ trip }: { trip: Trip }): { [segmentId: string]: Se
 export const getSegmentsArray = ({ trip }: { trip: Trip }): Segment[] => {
     const segments = getSegments({ trip });
     return Object.values(segments).sort((segmentA, segmentB) => segmentA._sequence - segmentB._sequence);
+};
+
+/**
+ * Get the person, journey, trip and segment from a path string if it matches
+ * the pattern
+ * `household.persons.{personId}.journeys.{journeyId}.trips.{tripId}.segments.{segmentId}`,
+ * otherwise return null.  The person, journey, trip and segment IDs are
+ * extracted from the path and the corresponding person, journey, trip and
+ * segment objects are returned if they exist in the interview response.
+ *
+ * @param {Object} options - The options object.
+ * @param {UserInterviewAttributes} options.interview - The interview object.
+ * @param {string} [options.path] - Path string to extract the person, journey,
+ * trip and segment IDs from.
+ * @returns {{ person: Person, journey: Journey, trip: Trip, segment: Segment }
+ * | null} The current person, journey, trip and segment, or null if not found.
+ */
+export const getSegmentContextFromPath = ({
+    interview,
+    path
+}: {
+    interview: UserInterviewAttributes;
+    path: string;
+}): { person: Person; journey: Journey; trip: Trip; segment: Segment } | null => {
+    // Try to extract personId, journeyId and tripId from path if it matches
+    // household.persons.{personId}.journeys.{journeyId}.trips.{tripId}.segments.{segmentId}. The path may either
+    // end at the segmentId or has a suffix after (non-capturing)
+    const match = path.match(
+        /household\.persons\.([^.]+)\.journeys\.([^.]+)\.trips\.([^.]+)\.segments\.([^.]+)(?:\.|$)/
+    );
+    if (match) {
+        const personId = match[1];
+        const journeyId = match[2];
+        const tripId = match[3];
+        const segmentId = match[4];
+        const person = getPerson({ interview, personId });
+        if (person) {
+            const personJourneys = getJourneys({ person });
+            const journey = personJourneys[journeyId];
+            if (journey) {
+                const trips = getTrips({ journey });
+                const trip = trips[tripId];
+                if (trip) {
+                    const segments = getSegments({ trip });
+                    const segment = segments[segmentId];
+                    if (segment) {
+                        return { person, journey, trip, segment };
+                    }
+                }
+            }
+        }
+    }
+    return null;
 };
