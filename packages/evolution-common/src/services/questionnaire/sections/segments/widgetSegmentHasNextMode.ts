@@ -11,6 +11,7 @@ import { TFunction } from 'i18next';
 import * as odHelpers from '../../../odSurvey/helpers';
 import { getPreviousTripSingleSegment, shouldShowSameAsReverseTripQuestion } from './helpers';
 import { Journey, Person } from '../../types';
+import { yesNoChoices } from '../common/choices';
 
 export const getSegmentHasNextModeWidgetConfig = (
     // FIXME: Type this when there is a few more widgets implemented
@@ -55,16 +56,7 @@ export const getSegmentHasNextModeWidgetConfig = (
                 count: odHelpers.getCountOrSelfDeclared({ interview, person })
             });
         },
-        choices: [
-            {
-                value: true,
-                label: (t: TFunction) => t('survey:Yes')
-            },
-            {
-                value: false,
-                label: (t: TFunction) => t('survey:No')
-            }
-        ],
+        choices: yesNoChoices,
         validations: function (value) {
             return [
                 {
