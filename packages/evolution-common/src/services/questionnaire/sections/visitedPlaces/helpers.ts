@@ -12,7 +12,7 @@ import {
     activityValues,
     activityToDisplayCategory
 } from '../../../odSurvey/types';
-import type { UserInterviewAttributes, VisitedPlace, VisitedPlacesSectionConfiguration } from '../../types';
+import type { UserInterviewAttributes, VisitedPlacesSectionConfiguration } from '../../types';
 import * as odSurveyHelpers from '../../../odSurvey/helpers';
 
 /**
@@ -21,6 +21,8 @@ import * as odSurveyHelpers from '../../../odSurvey/helpers';
  * @param arg
  * @param arg.interview The interview to get the previous and next visited
  * places from
+ * @param arg.path The path of the current visited place widget, used to get the
+ * visited place context and the previous and next visited places
  * @param arg.incompatibleActivities The list of incompatible activities for the
  * current activity choice
  * @returns True if the previous and next visited places have an activity that
@@ -28,21 +30,22 @@ import * as odSurveyHelpers from '../../../odSurvey/helpers';
  */
 export const validatePreviousNextPlaceIsCompatibleActivities = ({
     interview,
-    visitedPlace,
+    path,
     incompatibleConsecutiveActivities
 }: {
     interview: UserInterviewAttributes;
-    visitedPlace: VisitedPlace;
+    path: string;
     incompatibleConsecutiveActivities: Activity[];
 }) => {
-    const journey = odSurveyHelpers.getActiveJourney({ interview });
-    if (!journey) {
+    const visitedPlaceContext = odSurveyHelpers.getVisitedPlaceContextFromPath({ interview, path });
+    console.log('Visited place context for path', path, ':', visitedPlaceContext);
+    if (!visitedPlaceContext) {
         console.warn(
             'Warning: validatePreviousNextPlaceIsCompatibleActivities called but no active journey found in the interview. This conditional will return true, but this may indicate a problem with the interview data or the order of conditionals.'
         );
         return true;
     }
-
+    const { journey, visitedPlace } = visitedPlaceContext;
     const previousVisitedPlace = odSurveyHelpers.getPreviousVisitedPlace({
         journey,
         visitedPlaceId: visitedPlace._uuid
@@ -51,6 +54,13 @@ export const validatePreviousNextPlaceIsCompatibleActivities = ({
         journey,
         visitedPlaceId: visitedPlace._uuid
     });
+    console.log(
+        'previous/next visited places for visited place with id',
+        visitedPlace._uuid,
+        ':',
+        previousVisitedPlace,
+        nextVisitedPlace
+    );
     return (
         (!previousVisitedPlace ||
             !previousVisitedPlace.activity ||

@@ -28,17 +28,13 @@ const isInActivityCategoryConditional = (visitedPlace: VisitedPlace, activity: A
     return activityToDisplayCategory[activity].includes(visitedPlace.activityCategory as ActivityCategory);
 };
 
-const validateActivityOfNextPrevious = (
-    visitedPlace: VisitedPlace,
-    interview: UserInterviewAttributes,
-    activity: Activity
-) => {
+const validateActivityOfNextPrevious = (path: string, interview: UserInterviewAttributes, activity: Activity) => {
     if (!incompatibleConsecutiveActivities[activity]) {
         return true;
     }
     return visitedPlacesHelpers.validatePreviousNextPlaceIsCompatibleActivities({
         interview,
-        visitedPlace,
+        path,
         incompatibleConsecutiveActivities: incompatibleConsecutiveActivities[activity]
     });
 };
@@ -102,7 +98,7 @@ const getActivityChoices = (filteredActivities: Activity[]): RadioChoiceType[] =
             if (!isInActivityCategoryConditional(visitedPlace, activity)) {
                 return false;
             }
-            if (!validateActivityOfNextPrevious(visitedPlace, interview, activity)) {
+            if (!validateActivityOfNextPrevious(path, interview, activity)) {
                 return false;
             }
             // Run the perActivity conditional if it exists

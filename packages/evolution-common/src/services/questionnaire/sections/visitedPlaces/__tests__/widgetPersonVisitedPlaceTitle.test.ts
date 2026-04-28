@@ -66,7 +66,7 @@ describe('personsTripsTitleWidgetConfig text', () => {
         // Delete other persons
         delete testInterview.response.household!.persons!.personId2;
         delete testInterview.response.household!.persons!.personId3;
-        expect(widgetText(mockedT, testInterview, 'path')).toEqual('visitedPlaces:personVisitedPlacesTitle');
+        expect(widgetText(mockedT, testInterview, 'household.persons.personId1.journeys.journeyId1.visitedPlaces')).toEqual('visitedPlaces:personVisitedPlacesTitle');
         expect(mockedT).toHaveBeenCalledWith('visitedPlaces:personVisitedPlacesTitle', {
             context: undefined,
             count: 1,
@@ -85,7 +85,7 @@ describe('personsTripsTitleWidgetConfig text', () => {
         // Set a nickname for the person
         testInterview.response.household!.persons!.personId1.nickname = 'Jane';
 
-        expect(widgetText(mockedT, testInterview, 'path')).toEqual('visitedPlaces:personVisitedPlacesTitle');
+        expect(widgetText(mockedT, testInterview, 'household.persons.personId1.journeys.journeyId1.visitedPlaces')).toEqual('visitedPlaces:personVisitedPlacesTitle');
         expect(mockedT).toHaveBeenCalledWith('visitedPlaces:personVisitedPlacesTitle', {
             context: undefined,
             count: 3,

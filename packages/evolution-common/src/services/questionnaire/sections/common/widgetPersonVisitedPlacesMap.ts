@@ -24,33 +24,37 @@ export const getPersonVisitedPlacesMapConfig = (
         type: 'infoMap',
         path: 'household.persons.{_activePersonId}.journeys.{_activeJourneyId}.visitedPlacesMap',
         defaultCenter: projectConfig.mapDefaultCenter,
-        title: (t: TFunction, interview: UserInterviewAttributes) => {
+        title: (t: TFunction, interview: UserInterviewAttributes, path: string) => {
             // FIXME This differs from the widgetPersonTripsTitle text only in
             // the translated string array. We could add a helper to get a
             // dated/nicknamed string of the current journey
-            const person = odHelpers.getActivePerson({ interview });
-            const journey = odHelpers.getActiveJourney({ interview });
+            const journeyContext = odHelpers.getJourneyContextFromPath({ interview, path });
+            if (!journeyContext) {
+                console.error('Journey context not found for path', path);
+                return '';
+            }
             // FIXME Write a function somewhere to get the journey's or dateToString function, once we move to objects
             // FIXME2 Plan for a translation string that has a period (undated, dated, period)
-            const journeyDates = journey && journey.startDate ? options.getFormattedDate(journey.startDate) : null;
+            const journeyDates = journeyContext.journey.startDate
+                ? options.getFormattedDate(journeyContext.journey.startDate)
+                : null;
             return t(['customSurvey:survey:TripsMap', 'survey:TripsMap'], {
                 context: getContext(journeyDates === null ? 'undated' : undefined),
-                nickname: person !== null && person.nickname ? person.nickname : '',
+                nickname: odHelpers.getPersonIdentificationString({ person: journeyContext.person, t }),
                 journeyDates,
-                count: person === null ? 1 : odHelpers.getCountOrSelfDeclared({ interview, person })
+                count: odHelpers.getCountOrSelfDeclared({ interview, person: journeyContext.person })
             });
         },
         linestringColor: '#0000ff',
-        geojsons: (interview) => {
+        geojsons: (interview, path) => {
             // FIXME This has a lot in common with
             // `generateMapFeatureFromInterview` from the odSurveyAdminHelper.ts
             // file, which displays the visited places and trips for all persons
             // in the household. Probably parts of these function can be
             // extracted and re-used here, once there is more stability and we
             // know exactly what to display
-            const person = odHelpers.getActivePerson({ interview });
-            const journey = odHelpers.getActiveJourney({ interview });
-            if (journey === null || person === null) {
+            const journeyContext = odHelpers.getJourneyContextFromPath({ interview, path });
+            if (journeyContext === null) {
                 return {
                     points: {
                         type: 'FeatureCollection',
@@ -62,6 +66,7 @@ export const getPersonVisitedPlacesMapConfig = (
                     }
                 };
             }
+            const { journey, person } = journeyContext;
             const visitedPlaces = odHelpers.getVisitedPlacesArray({ journey });
 
             const tripsGeojsonFeatures: GeoJSON.Feature<GeoJSON.LineString, SurveyMapObjectProperty>[] = [];

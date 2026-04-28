@@ -7,7 +7,6 @@
 import _escape from 'lodash/escape';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import type {
-    Journey,
     RadioChoiceType,
     VisitedPlace,
     VisitedPlacesSectionConfiguration,
@@ -62,11 +61,11 @@ const nextPlaceCategoryChoices: RadioChoiceType[] = [
             }
         },
         conditional: function (interview, path) {
-            const journey = odHelpers.getActiveJourney({ interview });
-            if (!journey) {
+            const visitedPlaceContext = odHelpers.getVisitedPlaceContextFromPath({ interview, path });
+            if (!visitedPlaceContext) {
                 throw new Error('Active journey not found in interview response');
             }
-            const activeVisitedPlace = getResponse(interview, path, undefined, '../') as VisitedPlace;
+            const { journey, visitedPlace: activeVisitedPlace } = visitedPlaceContext;
             const visitedPlacesArray = odHelpers.getVisitedPlacesArray({ journey });
             // Display only if the current visited place is the last one in the
             // list and there is more than one visited place (otherwise, the
@@ -127,8 +126,12 @@ export const getNextPlaceCategoryWidgetConfig = (
     choices: nextPlaceCategoryChoices,
     validations: requiredValidation,
     conditional: function (interview, path) {
-        const journey = odHelpers.getActiveJourney({ interview }) as Journey;
-        const activeVisitedPlace = getResponse(interview, path, undefined, '../') as VisitedPlace;
+        const visitedPlaceContext = odHelpers.getVisitedPlaceContextFromPath({ interview, path });
+        if (!visitedPlaceContext) {
+            console.warn('widgetNextPlaceCategory: Visited place context not found for path ' + path);
+            return false;
+        }
+        const { journey, visitedPlace: activeVisitedPlace } = visitedPlaceContext;
         const visitedPlacesArray = odHelpers.getVisitedPlacesArray({ journey });
         // If the arrival time of the visited place is exactly at the max time
         // of day for the trip diary, we can assume that the person stayed there

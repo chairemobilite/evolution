@@ -12,15 +12,19 @@ import projectConfig from '../../../../../config/project.config';
 import { pointsToBezierCurve } from '../../../../geodata/SurveyGeographyUtils';
 import { VisitedPlace } from '../../../types';
 
-jest.mock('../../../../odSurvey/helpers', () => ({
-    getActivePerson: jest.fn().mockReturnValue({}),
-    getActiveJourney: jest.fn().mockReturnValue({}),
-    getCountOrSelfDeclared: jest.fn().mockReturnValue(1),
-    getVisitedPlacesArray: jest.fn().mockReturnValue([]),
-    getVisitedPlaceGeography: jest.fn().mockReturnValue(null)
-}));
-const mockedGetActivePerson = odHelpers.getActivePerson as jest.MockedFunction<typeof odHelpers.getActivePerson>;
-const mockedGetActiveJourney = odHelpers.getActiveJourney as jest.MockedFunction<typeof odHelpers.getActiveJourney>;
+jest.mock('../../../../odSurvey/helpers', () => {
+    // Require the original module to not be mocked...
+    // FIXME Refactor to use the actual functions instead of mocking them
+    const originalModule = jest.requireActual('../../../../odSurvey/helpers');
+    return {
+        ...originalModule,
+        getJourneyContextFromPath: jest.fn().mockReturnValue(null),
+        getCountOrSelfDeclared: jest.fn().mockReturnValue(1),
+        getVisitedPlacesArray: jest.fn().mockReturnValue([]),
+        getVisitedPlaceGeography: jest.fn().mockReturnValue(null)
+    };
+});
+const mockedGetJourneyContextFromPath = odHelpers.getJourneyContextFromPath as jest.MockedFunction<typeof odHelpers.getJourneyContextFromPath>;
 const mockedGetCountOrSelfDeclared = odHelpers.getCountOrSelfDeclared as jest.MockedFunction<typeof odHelpers.getCountOrSelfDeclared>;
 const mockedGetVisitedPlacesArray = odHelpers.getVisitedPlacesArray as jest.MockedFunction<typeof odHelpers.getVisitedPlacesArray>;
 const mockedGetVisitedPlaceGeography = odHelpers.getVisitedPlaceGeography as jest.MockedFunction<typeof odHelpers.getVisitedPlaceGeography>;
@@ -69,41 +73,19 @@ describe('personVisitedPlacesMapConfig title', () => {
     const widgetTitle = getPersonVisitedPlacesMapConfig(options).title as any;
     const mockedT = jest.fn().mockReturnValue('translatedString');
    
-    test('should call translation with correct parameters if no active person', () => {
-        mockedGetActivePerson.mockReturnValueOnce(null);
-        mockedGetActiveJourney.mockReturnValueOnce(null);
-        expect(widgetTitle(mockedT, interviewAttributesForTestCases, 'path')).toEqual('translatedString');
-        expect(mockedT).toHaveBeenCalledWith(['customSurvey:survey:TripsMap', 'survey:TripsMap'], {
-            context: 'undated',
-            count: 1,
-            nickname: '',
-            journeyDates: null
-        });
-        expect(options.context).toHaveBeenCalledWith('undated');
-    });
-
-    test('should call translation with correct parameters if no active journey', () => {
-        const nickname = 'Jane'
-        mockedGetActivePerson.mockReturnValueOnce({ _uuid: 'person1', _sequence: 1, nickname });
-        mockedGetActiveJourney.mockReturnValueOnce(null);
-        expect(widgetTitle(mockedT, interviewAttributesForTestCases, 'path')).toEqual('translatedString');
-        expect(mockedT).toHaveBeenCalledWith(['customSurvey:survey:TripsMap', 'survey:TripsMap'], {
-            context: 'undated',
-            count: 1,
-            nickname,
-            journeyDates: null
-        });
-        expect(options.context).toHaveBeenCalledWith('undated');
+    test('should call translation with correct parameters if no active person or journey', () => {
+        mockedGetJourneyContextFromPath.mockReturnValueOnce(null);
+        expect(widgetTitle(mockedT, interviewAttributesForTestCases, 'path')).toEqual('');
+        expect(mockedT).not.toHaveBeenCalled();
     });
 
     test('should call translation with correct parameters if one person household and no journey dates', () => {
-        mockedGetActivePerson.mockReturnValueOnce({ _uuid: 'person1', _sequence: 1 });
-        mockedGetActiveJourney.mockReturnValueOnce({ _uuid: 'journey1', _sequence: 1 });
+        mockedGetJourneyContextFromPath.mockReturnValueOnce({ person: { _uuid: 'person1', _sequence: 1 }, journey: { _uuid: 'journey1', _sequence: 1 } });
         expect(widgetTitle(mockedT, interviewAttributesForTestCases, 'path')).toEqual('translatedString');
         expect(mockedT).toHaveBeenCalledWith(['customSurvey:survey:TripsMap', 'survey:TripsMap'], {
             context: 'undated',
             count: 1,
-            nickname: '',
+            nickname: 'translatedString', // Should have called the getPersonIdentificationString function and translated the name
             journeyDates: null
         });
         expect(options.context).toHaveBeenCalledWith('undated');
@@ -111,8 +93,7 @@ describe('personVisitedPlacesMapConfig title', () => {
 
     test('should call translation with correct parameters if multiple person household and journey with start date', () => {
         const nickname = 'Jane'
-        mockedGetActivePerson.mockReturnValueOnce({ _uuid: 'person1', _sequence: 1, nickname });
-        mockedGetActiveJourney.mockReturnValueOnce({ _uuid: 'journey1', _sequence: 1, startDate: '2024-11-18' });
+        mockedGetJourneyContextFromPath.mockReturnValueOnce({ person: { _uuid: 'person1', _sequence: 1, nickname }, journey: { _uuid: 'journey1', _sequence: 1, startDate: '2024-11-18' } });
         mockedGetCountOrSelfDeclared.mockReturnValueOnce(2);
         expect(widgetTitle(mockedT, interviewAttributesForTestCases, 'path')).toEqual('translatedString');
         expect(mockedT).toHaveBeenCalledWith(['customSurvey:survey:TripsMap', 'survey:TripsMap'], {
@@ -138,26 +119,8 @@ describe('personVisitedPlacesMapConfig geojsons', () => {
     const person = { _uuid: 'person1', _sequence: 1 };
     const journey = { _uuid: 'journeyId1', _sequence: 1 };
    
-    test('should return empty features collections when no person', () => {
-        mockedGetActivePerson.mockReturnValueOnce(null);
-        mockedGetActiveJourney.mockReturnValueOnce(journey);
-        expect(widgetGeojsons(interviewAttributesForTestCases)).toEqual({
-            points: {
-                type: 'FeatureCollection',
-                features: []
-            },
-            linestrings: {
-                type: 'FeatureCollection',
-                features: []
-            }
-        });
-        expect(mockedGetVisitedPlacesArray).not.toHaveBeenCalled();
-        expect(mockedGetVisitedPlaceGeography).not.toHaveBeenCalled();
-    });
-
-    test('should return empty features collections if no active journey', () => {
-        mockedGetActivePerson.mockReturnValueOnce(person);
-        mockedGetActiveJourney.mockReturnValueOnce(null);
+    test('should return empty features collections when no person/journey context', () => {
+        mockedGetJourneyContextFromPath.mockReturnValueOnce(null);
         expect(widgetGeojsons(interviewAttributesForTestCases)).toEqual({
             points: {
                 type: 'FeatureCollection',
@@ -173,8 +136,7 @@ describe('personVisitedPlacesMapConfig geojsons', () => {
     });
 
     test('should return empty features collections if no active visitedPlaces', () => {
-        mockedGetActivePerson.mockReturnValueOnce(person);
-        mockedGetActiveJourney.mockReturnValueOnce(journey);
+        mockedGetJourneyContextFromPath.mockReturnValueOnce({ person, journey });
         mockedGetVisitedPlacesArray.mockReturnValueOnce([]);
         expect(widgetGeojsons(interviewAttributesForTestCases)).toEqual({
             points: {
@@ -216,8 +178,7 @@ describe('personVisitedPlacesMapConfig geojsons', () => {
             activity: 'home',
             geography: { type: 'Feature', properties: { lastAction: 'mapClicked' }, geometry: { type: 'Point', coordinates: [0, 0] } }
         }]
-        mockedGetActivePerson.mockReturnValueOnce(person);
-        mockedGetActiveJourney.mockReturnValueOnce(journey);
+        mockedGetJourneyContextFromPath.mockReturnValueOnce({ person, journey });
         mockedGetVisitedPlacesArray.mockReturnValueOnce(visitedPlaces);
         // Mock geographies for each visited place
         mockedGetVisitedPlaceGeography.mockReturnValueOnce(visitedPlaces[0].geography!);
@@ -290,8 +251,7 @@ describe('personVisitedPlacesMapConfig geojsons', () => {
             activity: 'workUsual',
             geography: { type: 'Feature', geometry: { type: 'Point', coordinates: [0.5, 0.2] } } as any
         }]
-        mockedGetActivePerson.mockReturnValueOnce(person);
-        mockedGetActiveJourney.mockReturnValueOnce(journey);
+        mockedGetJourneyContextFromPath.mockReturnValueOnce({ person, journey });
         mockedGetVisitedPlacesArray.mockReturnValueOnce(visitedPlaces);
         // Mock geographies for each visited place
         mockedGetVisitedPlaceGeography.mockReturnValueOnce(null);

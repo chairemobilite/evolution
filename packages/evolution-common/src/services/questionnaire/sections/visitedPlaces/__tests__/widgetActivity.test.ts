@@ -17,6 +17,7 @@ import {
 } from '../../../../odSurvey/types';
 import * as odHelpers from '../../../../odSurvey/helpers';
 import { getActivityWidgetConfig } from '../widgetActivity';
+import * as visitedPlacesHelpers from '../helpers';
 
 const visitedPlacesSectionConfig = {
     type: 'visitedPlaces' as const,
@@ -75,26 +76,34 @@ describe('Activity choices conditionals', () => {
         'household.persons.personId1.journeys.journeyId1.visitedPlaces.workPlace1P1.activity';
     const activityCategoryPath =
         'household.persons.personId1.journeys.journeyId1.visitedPlaces.workPlace1P1.activityCategory';
+    // Make sure we have carsharing members for the carsharingStation conditional
+    interview.response.household!.persons!.personId1!.carsharingMember = 'yes';
 
     beforeEach(() => {
         jest.clearAllMocks();
     });
 
+    afterEach(() => {
+        jest.restoreAllMocks();
+    });
+
     each(
         activityValues.flatMap((activity) =>
-            activityCategoryValues.map((activityCategory) => [
+            activityCategoryValues.map((activityCategory) => ({
                 activity,
                 activityCategory,
-                activityToDisplayCategory[activity].includes(activityCategory)
-            ])
+                expected: activityToDisplayCategory[activity].includes(activityCategory)
+            }))
         )
     ).test(
-        'activity %s should be shown for activityCategory %s: %s',
-        (activityValue, activityCategoryValue, expected) => {
-            const activityChoice = choices.find((choice) => choice.value === activityValue);
+        'activity $activity should be shown for activityCategory $activityCategory: $expected',
+        ({ activity, activityCategory, expected }) => {
+            // Make sure this function returns true as we do not setup the whole interview for this test, we just want to test the presence of the category.
+            jest.spyOn(visitedPlacesHelpers, 'validatePreviousNextPlaceIsCompatibleActivities').mockReturnValue(true);
+            const activityChoice = choices.find((choice) => choice.value === activity);
             expect(activityChoice).toBeDefined();
 
-            setResponse(interview, activityCategoryPath, activityCategoryValue);
+            setResponse(interview, activityCategoryPath, activityCategory);
             const result = activityChoice?.conditional?.(interview, activityPath);
             expect(result).toEqual(expected);
         }
