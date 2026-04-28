@@ -337,7 +337,7 @@ describe('visitedPlaceGeography widget', () => {
             const expectedCoordinates = shoppingPlace1P2Coordinates;
             setActiveSurveyObjects(interview, { personId: 'personId2', journeyId: 'journeyId2', visitedPlaceId: 'otherWorkPlace1P2' });
 
-            expect(defaultCenter(interview, 'path')).toEqual({ lat: expectedCoordinates[1], lon: expectedCoordinates[0] });
+            expect(defaultCenter(interview, 'household.persons.personId2.journeys.journeyId2.visitedPlaces.otherWorkPlace1P2.geography')).toEqual({ lat: expectedCoordinates[1], lon: expectedCoordinates[0] });
         });
 
         test('should use home geography when active place has no previous visited place', () => {
@@ -348,7 +348,7 @@ describe('visitedPlaceGeography widget', () => {
             const expectedCoordinates = homeGeographyCoordinates;
             setActiveSurveyObjects(interview, { personId: 'personId1', journeyId: 'journeyId1', visitedPlaceId: 'homePlace1P1' });
 
-            expect(defaultCenter(interview, 'path')).toEqual({ lat: expectedCoordinates[1], lon: expectedCoordinates[0] });
+            expect(defaultCenter(interview, 'household.persons.personId1.journeys.journeyId1.visitedPlaces.homePlace1P1.geography')).toEqual({ lat: expectedCoordinates[1], lon: expectedCoordinates[0] });
         });
 
         test('should fallback to default map center when no home geography is available', () => {
@@ -358,7 +358,7 @@ describe('visitedPlaceGeography widget', () => {
             setResponse(interview, 'household.persons.personId1.journeys.journeyId1.visitedPlaces.homePlace1P1.geography', undefined);
             setResponse(interview, 'home.geography.geometry.coordinates', undefined);
 
-            expect(defaultCenter(interview, 'path')).toEqual(config.mapDefaultCenter);
+            expect(defaultCenter(interview, 'household.persons.personId1.journeys.journeyId1.visitedPlaces.homePlace1P1.geography')).toEqual(config.mapDefaultCenter);
         });
     });
 

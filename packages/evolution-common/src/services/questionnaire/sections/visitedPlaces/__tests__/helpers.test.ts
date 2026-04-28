@@ -117,13 +117,13 @@ describe('Visited places helpers - validatePreviousNextPlaceIsNotActivities', ()
     test('should warn and return true when there is no active journey', () => {
         const interview = _cloneDeep(interviewAttributesForTestCases);
         const consoleWarnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
-        const visitedPlace = interview.response.household!.persons!.personId1!.journeys!.journeyId1!.visitedPlaces!
-            .workPlace1P1;
+        // use a path that won't resolve to existing context
+        const path = 'household.persons.personId1.journeys.journeyId2.visitedPlaces.workPlace1P1';
 
         expect(
             helpers.validatePreviousNextPlaceIsCompatibleActivities({
                 interview,
-                visitedPlace,
+                path,
                 incompatibleConsecutiveActivities: ['home']
             })
         ).toEqual(true);
@@ -133,67 +133,61 @@ describe('Visited places helpers - validatePreviousNextPlaceIsNotActivities', ()
     });
 
     test.each([
-        [
-            'previous place activity is incompatible',
-            (interview: typeof interviewAttributesForTestCases) => {
+        {
+            title: 'previous place activity is incompatible',
+            setupTest: (interview: typeof interviewAttributesForTestCases) => {
                 setActiveSurveyObjects(interview, { personId: 'personId1', journeyId: 'journeyId1', visitedPlaceId: 'workPlace1P1' });
                 return {
-                    visitedPlace:
-                        interview.response.household!.persons!.personId1!.journeys!.journeyId1!.visitedPlaces!
-                            .workPlace1P1,
+                    path: 'household.persons.personId1.journeys.journeyId1.visitedPlaces.workPlace1P1.someField',
                     incompatibleConsecutiveActivities: ['home'] as Activity[]
                 };
             },
-            false
-        ],
-        [
-            'next place activity is incompatible',
-            (interview: typeof interviewAttributesForTestCases) => {
+            expected: false
+        },
+        {
+            title: 'next place activity is incompatible',
+            setupTest: (interview: typeof interviewAttributesForTestCases) => {
                 setActiveSurveyObjects(interview, { personId: 'personId2', journeyId: 'journeyId2', visitedPlaceId: 'otherWorkPlace1P2' });
                 return {
-                    visitedPlace:
-                        interview.response.household!.persons!.personId2!.journeys!.journeyId2!.visitedPlaces!
-                            .otherWorkPlace1P2,
+                    path: 'household.persons.personId2.journeys.journeyId2.visitedPlaces.otherWorkPlace1P2.someField',
                     incompatibleConsecutiveActivities: ['home'] as Activity[]
                 };
             },
-            false
-        ],
-        [
-            'previous and next activities are not incompatible',
-            (interview: typeof interviewAttributesForTestCases) => {
+            expected: false
+        },
+        {
+            title: 'previous and next activities are not incompatible',
+            setupTest: (interview: typeof interviewAttributesForTestCases) => {
                 setActiveSurveyObjects(interview, { personId: 'personId1', journeyId: 'journeyId1', visitedPlaceId: 'workPlace1P1' });
                 return {
-                    visitedPlace:
-                        interview.response.household!.persons!.personId1!.journeys!.journeyId1!.visitedPlaces!
-                            .workPlace1P1,
+                    path: 'household.persons.personId1.journeys.journeyId1.visitedPlaces.workPlace1P1.someField',
                     incompatibleConsecutiveActivities: ['shopping'] as Activity[]
                 };
             },
-            true
-        ],
-        [
-            'adjacent places have blank activities',
-            (interview: typeof interviewAttributesForTestCases) => {
+            expected: true
+        },
+        {
+            title: 'adjacent places have blank activities',
+            setupTest: (interview: typeof interviewAttributesForTestCases) => {
                 setActiveSurveyObjects(interview, { personId: 'personId1', journeyId: 'journeyId1', visitedPlaceId: 'workPlace1P1' });
                 const journey = interview.response.household!.persons!.personId1!.journeys!.journeyId1!;
                 journey.visitedPlaces!.homePlace1P1.activity = undefined;
                 journey.visitedPlaces!.homePlace2P1.activity = undefined;
                 return {
-                    visitedPlace: journey.visitedPlaces!.workPlace1P1,
+                    path: 'household.persons.personId1.journeys.journeyId1.visitedPlaces.workPlace1P1.someField',
                     incompatibleConsecutiveActivities: ['home'] as Activity[]
                 };
             },
-            true
-        ]
-    ])('should return %s: %s', (_title, setupTest, expected) => {
+            expected: true
+        }
+    ])('should return $title: $expected', ({ setupTest, expected}) => {
         const interview = _cloneDeep(interviewAttributesForTestCases);
-        const { visitedPlace, incompatibleConsecutiveActivities } = setupTest(interview);
+        const { path, incompatibleConsecutiveActivities } = setupTest(interview);
 
         expect(
             helpers.validatePreviousNextPlaceIsCompatibleActivities({
                 interview,
-                visitedPlace,
+                path,
                 incompatibleConsecutiveActivities
             })
         ).toEqual(expected);

@@ -41,14 +41,13 @@ const perActivityCategoryLabels: Partial<{ [category in ActivityCategory]: I18nD
 };
 
 const perActivityCategoryConditionals: Partial<{ [category in ActivityCategory]: WidgetConditional }> = {
-    home: function (interview) {
+    home: function (interview, path) {
         // Only show the home activity category if the previous and next visited places are not home
-        const person = odHelpers.getPerson({ interview });
-        const journey = odHelpers.getActiveJourney({ interview, person });
-        const activeVisitedPlace = odHelpers.getActiveVisitedPlace({ interview, journey });
-        if (!person || !journey || !activeVisitedPlace) {
+        const visitedPlaceContext = odHelpers.getVisitedPlaceContextFromPath({ interview, path });
+        if (!visitedPlaceContext) {
             return false;
         }
+        const { journey, visitedPlace: activeVisitedPlace } = visitedPlaceContext;
         const nextVisitedPlace = odHelpers.getNextVisitedPlace({
             journey,
             visitedPlaceId: activeVisitedPlace._uuid
@@ -96,13 +95,12 @@ const perActivityCategoryConditionals: Partial<{ [category in ActivityCategory]:
             odHelpers.isStudentFromSchoolType({ person })
         );
     },
-    otherParentHome: function (interview) {
-        const person = odHelpers.getPerson({ interview });
-        const journey = odHelpers.getActiveJourney({ interview, person });
-        const activeVisitedPlace = odHelpers.getActiveVisitedPlace({ interview, journey });
-        if (!person || !journey || !activeVisitedPlace) {
+    otherParentHome: function (interview, path) {
+        const visitedPlaceContext = odHelpers.getVisitedPlaceContextFromPath({ interview, path });
+        if (!visitedPlaceContext) {
             return false;
         }
+        const { person, journey, visitedPlace: activeVisitedPlace } = visitedPlaceContext;
         const nextVisitedPlace = odHelpers.getNextVisitedPlace({
             journey,
             visitedPlaceId: activeVisitedPlace._uuid
@@ -163,16 +161,12 @@ export const getActivityCategoryWidgetConfig = (
         containsHtml: true,
         useAssignedValueOnHide: true,
         choices,
-        label: (t: TFunction, interview) => {
-            const person = odHelpers.getPerson({ interview });
-            const journey = odHelpers.getActiveJourney({ interview, person });
-            const activeVisitedPlace = odHelpers.getActiveVisitedPlace({ interview, journey });
-            if (!person || !journey || !activeVisitedPlace) {
-                console.error(
-                    'Error: activeVisitedPlace, journey or person is null in getActivityCategoryWidgetConfig, they should all be defined'
-                );
-                return '';
+        label: (t: TFunction, interview, path) => {
+            const visitedPlaceContext = odHelpers.getVisitedPlaceContextFromPath({ interview, path });
+            if (!visitedPlaceContext) {
+                throw new Error('Visited place context not found for path ' + path);
             }
+            const { journey, visitedPlace: activeVisitedPlace } = visitedPlaceContext;
             const visitedPlacesArray = odHelpers.getVisitedPlacesArray({ journey });
             const firstVisitedPlace = visitedPlacesArray[0];
             const secondVisitedPlace = visitedPlacesArray[1];
@@ -197,14 +191,15 @@ export const getActivityCategoryWidgetConfig = (
                 }
             ];
         },
-        conditional: function (interview) {
-            const journey = odHelpers.getActiveJourney({ interview });
-            const activeVisitedPlace = odHelpers.getActiveVisitedPlace({ interview, journey });
+        conditional: function (interview, path) {
+            const visitedPlaceContext = odHelpers.getVisitedPlaceContextFromPath({ interview, path });
+            if (!visitedPlaceContext) {
+                return [true];
+            }
+            const { visitedPlace: activeVisitedPlace } = visitedPlaceContext;
             // Do not show for the a new place that is home
             // FIXME This is copy pasted from od_nationale_quebec. Is this right? Do we want to hide the activity category question for a new visited place that is home? What if the user wants to change the activity category of a new visited place that is home?
-            return activeVisitedPlace !== null &&
-                (activeVisitedPlace as any)._isNew === true &&
-                activeVisitedPlace.activityCategory === 'home'
+            return (activeVisitedPlace as any)._isNew === true && activeVisitedPlace.activityCategory === 'home'
                 ? [false, activeVisitedPlace.activityCategory]
                 : [true];
         }

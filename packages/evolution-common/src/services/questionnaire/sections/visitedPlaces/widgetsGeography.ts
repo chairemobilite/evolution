@@ -105,14 +105,15 @@ export class VisitedPlaceGeographyWidgetFactory implements WidgetConfigFactory {
             },
             size: [70, 70]
         },
-        defaultCenter: function (interview) {
+        defaultCenter: function (interview, path) {
             // Center on the previous visited place geography if it exists, otherwise center on home geography, otherwise use the default center
-            const journey = odHelpers.getActiveJourney({ interview });
-            const visitedPlace = odHelpers.getActiveVisitedPlace({ interview, journey });
-            const previousVisitedPlace =
-                visitedPlace && journey
-                    ? odHelpers.getPreviousVisitedPlace({ journey, visitedPlaceId: visitedPlace._uuid })
-                    : undefined;
+            const visitedPlaceContext = odHelpers.getVisitedPlaceContextFromPath({ interview, path });
+            const previousVisitedPlace = visitedPlaceContext
+                ? odHelpers.getPreviousVisitedPlace({
+                    journey: visitedPlaceContext.journey,
+                    visitedPlaceId: visitedPlaceContext.visitedPlace._uuid
+                })
+                : undefined;
             if (previousVisitedPlace) {
                 const person = odHelpers.getActivePerson({ interview });
                 const geography = person
