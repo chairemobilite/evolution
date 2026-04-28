@@ -151,7 +151,7 @@ describe('sameAsReverseTripWidget label', () => {
         const context = 'currentContext';
         mockedGetContext.mockReturnValueOnce(context);
 
-        translateString(label, { t: mockedT } as any, baseTestInterview, 'path');
+        translateString(label, { t: mockedT } as any, baseTestInterview, 'household.persons.personId1.journeys.journeyId1.trips.tripId2P1.segments.segmentId1P1T1.sameModeAsReverseTrip');
         expect(mockedT).toHaveBeenCalledTimes(2);
         expect(mockedT).toHaveBeenCalledWith(['customSurvey:segments:SegmentSameModeReturnHome', 'segments:SegmentSameModeReturnHome'], {
             context,
@@ -171,7 +171,7 @@ describe('sameAsReverseTripWidget label', () => {
         // No previous segment
         mockedGetPreviousTripSingleSegment.mockReturnValueOnce(undefined);
 
-        translateString(label, { t: mockedT } as any, baseTestInterview, 'path');
+        translateString(label, { t: mockedT } as any, baseTestInterview, 'household.persons.personId1.journeys.journeyId1.trips.tripId3P1.segments.segmentId1P1T1.sameModeAsReverseTrip');
         expect(mockedT).toHaveBeenCalledTimes(1);
         expect(mockedT).toHaveBeenCalledWith(['customSurvey:segments:SegmentSameModeReturn', 'segments:SegmentSameModeReturn'], {
             context: undefined,

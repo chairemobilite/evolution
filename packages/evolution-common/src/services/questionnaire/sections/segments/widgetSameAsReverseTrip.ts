@@ -6,11 +6,9 @@
  */
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { WidgetConfig } from '../../../questionnaire/types';
-import { getResponse } from '../../../../utils/helpers';
 import { TFunction } from 'i18next';
 import * as odHelpers from '../../../odSurvey/helpers';
 import { getPreviousTripSingleSegment, shouldShowSameAsReverseTripQuestion } from './helpers';
-import { Journey, Person } from '../../types';
 import { yesNoChoices } from '../common/choices';
 
 export const getSameAsReverseTripWidgetConfig = (
@@ -23,11 +21,13 @@ export const getSameAsReverseTripWidgetConfig = (
         inputType: 'radio',
         twoColumns: false,
         datatype: 'boolean',
-        label: (t: TFunction, interview, _path) => {
-            const person = odHelpers.getPerson({ interview }) as Person;
-            const previousSegment = getPreviousTripSingleSegment({ interview, person });
-            const journey = odHelpers.getActiveJourney({ interview, person }) as Journey;
-            const trip = odHelpers.getActiveTrip({ interview, journey });
+        label: (t: TFunction, interview, path) => {
+            const tripContext = odHelpers.getTripContextFromPath({ interview, path });
+            if (!tripContext) {
+                throw new Error('Trip context not found for path ' + path);
+            }
+            const { person, journey, trip } = tripContext;
+            const previousSegment = getPreviousTripSingleSegment({ journey, trip });
             const visitedPlaces = odHelpers.getVisitedPlaces({ journey });
             const destination = trip ? odHelpers.getDestination({ trip, visitedPlaces }) : undefined;
             const labelWithDestination = `segments:SegmentSameModeReturn${destination && destination.activity === 'home' ? 'Home' : ''}`;
@@ -52,9 +52,6 @@ export const getSameAsReverseTripWidgetConfig = (
                 }
             ];
         },
-        conditional: (interview, path) => {
-            const segment: any = getResponse(interview, path, null, '../');
-            return [shouldShowSameAsReverseTripQuestion({ interview, segment }), null];
-        }
+        conditional: (interview, path) => [shouldShowSameAsReverseTripQuestion({ interview, path }), null]
     };
 };

@@ -13,7 +13,7 @@ import * as odHelpers from '../../../odSurvey/helpers';
 import config from '../../../../config/project.config';
 import * as segmentHelpers from './helpers';
 import type { ModePre } from '../../../odSurvey/types';
-import type { Person, Segment } from '../../types';
+import type { Person } from '../../types';
 import { getModePreIcon } from './modeIconMapping';
 import { WidgetFactoryOptions } from '../types';
 
@@ -84,18 +84,17 @@ export const getModePreWidgetConfig = (
         columns: 2,
         choices,
         label: (t: TFunction, interview, path) => {
-            const person = odHelpers.getPerson({ interview });
-            const journey = odHelpers.getActiveJourney({ interview, person });
-            const sequence = getResponse(interview, path, null, '../_sequence');
-            const trip = odHelpers.getActiveTrip({ interview, journey });
-            const visitedPlaces = journey ? odHelpers.getVisitedPlaces({ journey }) : {};
-            // This should never happen, but just in case
-            if (!trip || !journey || !person) {
-                console.log(
+            const tripContext = odHelpers.getTripContextFromPath({ interview, path });
+            if (!tripContext) {
+                // This should not happen
+                throw new Error(
                     'Error: trip, journey or person is null in getModePreWidgetConfig, they should all be defined'
                 );
-                return '';
             }
+            const { person, journey, trip } = tripContext;
+
+            const sequence = getResponse(interview, path, null, '../_sequence');
+            const visitedPlaces = journey ? odHelpers.getVisitedPlaces({ journey }) : {};
             const origin = odHelpers.getOrigin({ trip: trip!, visitedPlaces });
             const originName = origin
                 ? odHelpers.getVisitedPlaceName({ t, visitedPlace: origin, interview })
@@ -127,18 +126,22 @@ export const getModePreWidgetConfig = (
             ];
         },
         conditional: function (interview, path) {
-            const segment = getResponse(interview, path, null, '../') as Segment;
+            const segmentContext = odHelpers.getSegmentContextFromPath({ interview, path });
+            if (!segmentContext) {
+                throw new Error('Segment context not found for path ' + path);
+            }
+            const { journey, trip, segment } = segmentContext;
             const shouldShowSameAsReverseTrip = segmentHelpers.shouldShowSameAsReverseTripQuestion({
                 interview,
-                segment
+                path
             });
             // Do not show if the question of the same mode as previous trip is shown and the answer is not 'no'
             if (shouldShowSameAsReverseTrip && segment.sameModeAsReverseTrip !== false) {
                 if (segment.sameModeAsReverseTrip === true) {
                     // If the question of the same mode as previous trip is shown and the answer is yes, the mode is the same as the previous trip
                     const previousTripSegment = segmentHelpers.getPreviousTripSingleSegment({
-                        interview,
-                        person: odHelpers.getActivePerson({ interview }) as Person
+                        journey,
+                        trip
                     });
                     if (previousTripSegment && previousTripSegment.modePre !== undefined) {
                         return [false, previousTripSegment.modePre];

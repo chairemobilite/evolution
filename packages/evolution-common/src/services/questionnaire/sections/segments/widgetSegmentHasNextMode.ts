@@ -6,11 +6,9 @@
  */
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { WidgetConfig } from '../../../questionnaire/types';
-import { getResponse } from '../../../../utils/helpers';
 import { TFunction } from 'i18next';
 import * as odHelpers from '../../../odSurvey/helpers';
 import { getPreviousTripSingleSegment, shouldShowSameAsReverseTripQuestion } from './helpers';
-import { Journey, Person } from '../../types';
 import { yesNoChoices } from '../common/choices';
 
 export const getSegmentHasNextModeWidgetConfig = (
@@ -23,10 +21,12 @@ export const getSegmentHasNextModeWidgetConfig = (
         inputType: 'radio',
         twoColumns: false,
         datatype: 'boolean',
-        label: (t: TFunction, interview) => {
-            const person = odHelpers.getPerson({ interview }) as Person;
-            const journey = odHelpers.getActiveJourney({ interview, person }) as Journey;
-            const trip = odHelpers.getActiveTrip({ interview, journey });
+        label: (t: TFunction, interview, path) => {
+            const tripContext = odHelpers.getTripContextFromPath({ interview, path });
+            if (!tripContext) {
+                throw new Error('Trip context not found for path ' + path);
+            }
+            const { person, journey, trip } = tripContext;
             const visitedPlaces = odHelpers.getVisitedPlaces({ journey });
             const origin = trip ? odHelpers.getOrigin({ trip, visitedPlaces }) : undefined;
             const destination = trip ? odHelpers.getDestination({ trip, visitedPlaces }) : undefined;
@@ -66,15 +66,19 @@ export const getSegmentHasNextModeWidgetConfig = (
             ];
         },
         conditional: (interview, path) => {
-            const segment: any = getResponse(interview, path, null, '../');
-            const shouldShowSameAsReverseTrip = shouldShowSameAsReverseTripQuestion({ interview, segment });
+            const segmentContext = odHelpers.getSegmentContextFromPath({ interview, path });
+            if (!segmentContext) {
+                throw new Error('Segment context not found for path ' + path);
+            }
+            const { journey, trip, segment } = segmentContext;
+            const shouldShowSameAsReverseTrip = shouldShowSameAsReverseTripQuestion({ interview, path });
             // Do not show if the question of the same mode as previous trip is shown and the answer is not 'no'
             if (shouldShowSameAsReverseTrip && segment.sameModeAsReverseTrip !== false) {
                 if (segment.sameModeAsReverseTrip === true) {
                     // If the question of the same mode as previous trip is shown and the answer is yes, then there is no next mode
                     const previousTripSegment = getPreviousTripSingleSegment({
-                        interview,
-                        person: odHelpers.getActivePerson({ interview }) as Person
+                        journey,
+                        trip
                     });
                     if (previousTripSegment && previousTripSegment.modePre !== undefined) {
                         return [false, false];
@@ -84,11 +88,7 @@ export const getSegmentHasNextModeWidgetConfig = (
                 return [false, null];
             }
             // Otherwise, get the segments of the current trip and show only for the last segment
-            const trip = odHelpers.getActiveTrip({ interview });
-            const segments = trip?.segments ? trip.segments : {};
-            const segmentsArray = Object.values(segments).sort((segmentA, segmentB) => {
-                return segmentA['_sequence'] - segmentB['_sequence'];
-            });
+            const segmentsArray = odHelpers.getSegmentsArray({ trip });
             const lastSegment: any = segmentsArray[segmentsArray.length - 1];
             if (!lastSegment || segmentsArray.length === 1 || segment._sequence === lastSegment._sequence) {
                 return [true, null];

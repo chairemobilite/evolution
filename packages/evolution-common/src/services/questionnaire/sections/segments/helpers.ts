@@ -20,24 +20,22 @@ import type {
 } from '../../types';
 
 /**
- * Get the mode used in the single segment of the previous trip of the active
+ * Get the mode used in the single segment of the previous trip of the current
  * one
  *
  * @param {Object} options - The options object.
- * @param {Object} options.interview The interview object
- * @param {Object} options.person The person these trips belong to
+ * @param {Object} options.journey The journey object that these trips are part of
+ * @param {Object} options.trip The current trip object
  * @returns If there is a single mode in the previous trip, return it, otherwise
  * undefined
  */
 export const getPreviousTripSingleSegment = ({
-    interview,
-    person
+    journey,
+    trip
 }: {
-    interview: UserInterviewAttributes;
-    person: Person;
+    journey: Journey;
+    trip: Trip;
 }): Optional<Segment> => {
-    const journey = odHelpers.getActiveJourney({ interview, person });
-    const trip = odHelpers.getActiveTrip({ interview, journey });
     if (!journey || !trip) {
         return undefined;
     }
@@ -135,25 +133,25 @@ export const isSimpleChainSingleModeReturnTrip = ({
 
 export const shouldShowSameAsReverseTripQuestion = ({
     interview,
-    segment
+    path
 }: {
     interview: UserInterviewAttributes;
-    segment: Segment;
+    path: string;
 }): boolean => {
+    const segmentContext = odHelpers.getSegmentContextFromPath({ interview, path });
+    if (!segmentContext) {
+        throw new Error('shouldShowSameAsReverseTripQuestion: segment context not found for path ' + path);
+    }
+    const { person, journey, trip, segment } = segmentContext;
     // Do not display if segment is not new
     if (segment._isNew === false) {
         return false;
     }
     // Display this question if the segment is new and the previous and current
     // trips form a simple chain with a single mode
-    const person = odHelpers.getPerson({ interview }) as Person;
-    const journey = odHelpers.getActiveJourney({ interview, person }) as Journey;
-    const trip = odHelpers.getActiveTrip({ interview, journey });
-    const previousTrip = trip !== null ? odHelpers.getPreviousTrip({ currentTrip: trip, journey }) : null;
+    const previousTrip = odHelpers.getPreviousTrip({ currentTrip: trip, journey });
     return (
-        trip !== null &&
-        previousTrip !== null &&
-        isSimpleChainSingleModeReturnTrip({ interview, journey, person, trip, previousTrip })
+        previousTrip !== null && isSimpleChainSingleModeReturnTrip({ interview, journey, person, trip, previousTrip })
     );
 };
 
