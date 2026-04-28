@@ -116,8 +116,8 @@ export const getSegmentDriverWidgetConfig = (
         inputType: 'select',
         datatype: 'string',
         twoColumns: false,
-        label: (t: TFunction, interview) => {
-            const person = odHelpers.getActivePerson({ interview });
+        label: (t: TFunction, interview, path) => {
+            const person = odHelpers.getPerson({ interview, path });
             return t('segments:Driver', {
                 context: person?.gender || person?.sexAssignedAtBirth,
                 count: person ? odHelpers.getCountOrSelfDeclared({ interview, person }) : 1
@@ -129,14 +129,14 @@ export const getSegmentDriverWidgetConfig = (
             if (mode !== 'carPassenger') {
                 return [false, null];
             }
-            const trip = odHelpers.getActiveTrip({ interview });
-            const journey = odHelpers.getActiveJourney({ interview });
-            if (!trip || !journey) {
+            const tripContext = odHelpers.getTripContextFromPath({ interview, path });
+            if (!tripContext) {
                 console.error(
                     'Error: trip or journey is null in getSegmentHasNextModeWidgetConfig, they should both be defined'
                 );
                 return [false, null];
             }
+            const { journey, trip } = tripContext;
             const visitedPlaces = odHelpers.getVisitedPlaces({ journey });
             const destination = odHelpers.getDestination({ visitedPlaces, trip });
             const activity = destination ? destination.activity : null;

@@ -14,13 +14,13 @@ export const getTripSegmentsIntro = (
     options: { context?: (additionalContext?: string) => string } = {}
 ): TextWidgetConfig => ({
     type: 'text',
-    text: (t: TFunction, interview, _path) => {
+    text: (t: TFunction, interview) => {
         const person = odHelpers.getPerson({ interview });
         const journey = odHelpers.getActiveJourney({ interview, person });
         const trip = odHelpers.getActiveTrip({ interview, journey });
         if (!trip || !journey || !person) {
-            console.error('trip segments intro: trip, journey or person not found');
-            return '';
+            // This should not happen
+            throw new Error('trip segments intro: trip, journey or person not found');
         }
         const visitedPlaces = odHelpers.getVisitedPlaces({ journey });
         const origin = odHelpers.getOrigin({ trip, visitedPlaces });
@@ -29,10 +29,8 @@ export const getTripSegmentsIntro = (
             console.error('trip segments intro: origin or destination not found, trip is invalid');
             return '';
         }
-        const originName = origin ? odHelpers.getVisitedPlaceName({ visitedPlace: origin, t, interview }) : '';
-        const destinationName = destination
-            ? odHelpers.getVisitedPlaceName({ visitedPlace: destination, t, interview })
-            : '';
+        const originName = odHelpers.getVisitedPlaceName({ visitedPlace: origin, t, interview });
+        const destinationName = odHelpers.getVisitedPlaceName({ visitedPlace: destination, t, interview });
         // If origin or destination is a loopActivity, use this activity as context, otherwise, it's the destination
         const activityContext = odHelpers.isLoopActivity({ visitedPlace: origin })
             ? origin.activity

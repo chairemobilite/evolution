@@ -303,7 +303,7 @@ describe('ModePre conditional', () => {
         // Test conditional
         const result = conditional!(testInterview, `${segmentPath}.modePre`);
         expect(result).toEqual([true, null]);
-        expect(mockedShouldShowSameAsReverseTripQuestion).toHaveBeenCalledWith({ interview: testInterview, segment: currentSegment });
+        expect(mockedShouldShowSameAsReverseTripQuestion).toHaveBeenCalledWith({ interview: testInterview, path: `${segmentPath}.modePre` });
         expect(mockedGetPreviousTripSingleSegment).not.toHaveBeenCalled();
     });
 
@@ -317,7 +317,7 @@ describe('ModePre conditional', () => {
         // Test conditional
         const result = conditional!(interview, `${segmentPath}.modePre`);
         expect(result).toEqual([true, null]);
-        expect(mockedShouldShowSameAsReverseTripQuestion).toHaveBeenCalledWith({ interview, segment: getResponse(interview, segmentPath) });
+        expect(mockedShouldShowSameAsReverseTripQuestion).toHaveBeenCalledWith({ interview, path: `${segmentPath}.modePre` });
         expect(mockedGetPreviousTripSingleSegment).not.toHaveBeenCalled();
     });
 
@@ -333,8 +333,11 @@ describe('ModePre conditional', () => {
         // Test conditional
         const result = conditional!(interview, `${segmentPath}.modePre`);
         expect(result).toEqual([false, previousModePre]);
-        expect(mockedShouldShowSameAsReverseTripQuestion).toHaveBeenCalledWith({ interview, segment: getResponse(interview, segmentPath) });
-        expect(mockedGetPreviousTripSingleSegment).toHaveBeenCalledWith({ interview, person: getResponse(interview, 'household.persons.personId2') });
+        expect(mockedShouldShowSameAsReverseTripQuestion).toHaveBeenCalledWith({ interview, path: `${segmentPath}.modePre` });
+        expect(mockedGetPreviousTripSingleSegment).toHaveBeenCalledWith({
+            journey: interview.response.household!.persons!.personId2!.journeys!.journeyId2,
+            trip: interview.response.household!.persons!.personId2!.journeys!.journeyId2!.trips!.tripId1P2,
+        });
     });
 
     test('should not be displayed, but un-initialized, if the same mode as reverse trip question is presented and unanswered', () => {
@@ -347,7 +350,7 @@ describe('ModePre conditional', () => {
         // Test conditional
         const result = conditional!(interview, `${segmentPath}.modePre`);
         expect(result).toEqual([false, null]);
-        expect(mockedShouldShowSameAsReverseTripQuestion).toHaveBeenCalledWith({ interview, segment: getResponse(interview, segmentPath) });
+        expect(mockedShouldShowSameAsReverseTripQuestion).toHaveBeenCalledWith({ interview, path: `${segmentPath}.modePre` });
         expect(mockedGetPreviousTripSingleSegment).not.toHaveBeenCalled();
     });
 });
@@ -443,10 +446,12 @@ describe('ModePre label', () => {
         // Prepare interview
         const interview = _cloneDeep(interviewAttributesForTestCases);
 
+        // Use a path that won't resolve current context
+        const invalidPath = 'invalid.path';
+
         // Test label function
-        const modeLabel = translateString(label, { t: mockedT } as any, interview, `${p2t2segmentsPath}.segmentId1P2T2.modePre`);
+        expect(() => translateString(label, { t: mockedT } as any, interview, invalidPath)).toThrow('Error: trip, journey or person is null in getModePreWidgetConfig, they should all be defined');
         expect(mockedT).not.toHaveBeenCalled();
-        expect(modeLabel).toEqual('');
     });
 
     test('should return another label if segment is not the first', () => {

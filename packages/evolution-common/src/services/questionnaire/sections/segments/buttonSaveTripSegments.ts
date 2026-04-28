@@ -34,8 +34,15 @@ export const getButtonSaveTripSegmentsConfig = (options: WidgetFactoryOptions): 
                 const segmentPath = `${segmentsPath}.${segmentUuid}`;
                 updateValuesbyPath[`response.${segmentPath}._isNew`] = false;
             }
-            const journey = odHelpers.getActiveJourney({ interview });
-            const nextTrip = journey !== null ? odHelpers.selectNextIncompleteTrip({ journey }) : null;
+            const journeyContext = odHelpers.getJourneyContextFromPath({ interview, path });
+            const activeJourney = odHelpers.getActiveJourney({ interview });
+            // Select next active trip if journey is the active one
+            const nextTrip =
+                journeyContext !== null &&
+                activeJourney !== null &&
+                journeyContext.journey._uuid === activeJourney?._uuid
+                    ? odHelpers.selectNextIncompleteTrip({ journey: journeyContext.journey })
+                    : null;
             updateValuesbyPath['response._activeTripId'] = nextTrip ? nextTrip._uuid : null;
             callbacks.startUpdateInterview({ sectionShortname: 'segments', valuesByPath: updateValuesbyPath });
         },

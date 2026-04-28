@@ -6,34 +6,7 @@
  */
 import _cloneDeep from 'lodash/cloneDeep';
 import { getTripSegmentsIntro } from '../widgetTripSegmentsIntro';
-import { interviewAttributesForTestCases } from '../../../../../tests/surveys';
-import * as odHelpers from '../../../../odSurvey/helpers';
-
-jest.mock('../../../../odSurvey/helpers', () => {
-    // Do not mock what does not need to be mocked, to avoid mocking everything.
-    const originalModule = jest.requireActual('../../../../odSurvey/helpers');
-
-    // FIXME Initially, we mocked everything that was called, it may not be necessary to mock them all
-    return {
-        ...originalModule,
-        getPerson: jest.fn().mockReturnValue({}),
-        getActiveJourney: jest.fn().mockReturnValue({}),
-        getActiveTrip: jest.fn().mockReturnValue({}),
-        getVisitedPlaces: jest.fn().mockReturnValue({}),
-        getOrigin: jest.fn().mockReturnValue({ activity: 'home', _uuid: 'originuuid', _sequence: 1 }),
-        getDestination: jest.fn().mockReturnValue({ activity: 'work', _uuid: 'originuuid', _sequence: 2 }),
-        getVisitedPlaceName: jest.fn().mockReturnValue('visitedPlaceName'),
-        getCountOrSelfDeclared: jest.fn().mockReturnValue(1),
-    };
-});
-const mockedGetPerson = odHelpers.getPerson as jest.MockedFunction<typeof odHelpers.getPerson>;
-const mockedGetActiveJourney = odHelpers.getActiveJourney as jest.MockedFunction<typeof odHelpers.getActiveJourney>;
-const mockedGetActiveTrip = odHelpers.getActiveTrip as jest.MockedFunction<typeof odHelpers.getActiveTrip>;
-const mockedGetVisitedPlaces = odHelpers.getVisitedPlaces as jest.MockedFunction<typeof odHelpers.getVisitedPlaces>;
-const mockedGetOrigin = odHelpers.getOrigin as jest.MockedFunction<typeof odHelpers.getOrigin>;
-const mockedGetDestination = odHelpers.getDestination as jest.MockedFunction<typeof odHelpers.getDestination>;
-const mockedGetVisitedPlaceName = odHelpers.getVisitedPlaceName as jest.MockedFunction<typeof odHelpers.getVisitedPlaceName>;
-const mockedGetCountOrSelfDeclared = odHelpers.getCountOrSelfDeclared as jest.MockedFunction<typeof odHelpers.getCountOrSelfDeclared>;
+import { interviewAttributesForTestCases, setActiveSurveyObjects } from '../../../../../tests/surveys';
 
 beforeEach(() => {
     jest.clearAllMocks();
@@ -63,108 +36,81 @@ describe('tripSegmentsIntro text', () => {
 
     const widgetText = getTripSegmentsIntro(options).text as any;
     const mockedT = jest.fn().mockReturnValue('translatedString');
+    const p2t2segmentsPath = 'household.persons.personId2.journeys.journeyId2.trips.tripId2P2.segments';
    
-    test('should return empty if no person', () => {
-        mockedGetPerson.mockReturnValueOnce(null);
-        expect(widgetText(mockedT, interviewAttributesForTestCases, 'path')).toEqual('');
-        expect(mockedGetVisitedPlaceName).not.toHaveBeenCalled();
-        expect(mockedGetVisitedPlaces).not.toHaveBeenCalled();
-        expect(mockedT).not.toHaveBeenCalled();
-    });
-
-    test('should return empty if no active journey', () => {
-        mockedGetActiveJourney.mockReturnValueOnce(null);
-        expect(widgetText(mockedT, interviewAttributesForTestCases, 'path')).toEqual('');
-        expect(mockedGetVisitedPlaceName).not.toHaveBeenCalled();
-        expect(mockedGetVisitedPlaces).not.toHaveBeenCalled();
-        expect(mockedT).not.toHaveBeenCalled();
-    });
-
-    test('should return empty if no active trip', () => {
-        mockedGetActiveTrip.mockReturnValueOnce(null);
-        expect(widgetText(mockedT, interviewAttributesForTestCases, 'path')).toEqual('');
-        expect(mockedGetVisitedPlaceName).not.toHaveBeenCalled();
-        expect(mockedGetVisitedPlaces).not.toHaveBeenCalled();
+    test('should throw an error if no person/journey/trip context', () => {
+        // Use a path that does not resolve to anything
+        const invalidPath = 'invalid.path';
+        expect(() => widgetText(mockedT, interviewAttributesForTestCases, invalidPath)).toThrow('trip segments intro: trip, journey or person not found');
         expect(mockedT).not.toHaveBeenCalled();
     });
 
     test('should return empty if no origin', () => {
-        mockedGetOrigin.mockReturnValueOnce(null);
-        expect(widgetText(mockedT, interviewAttributesForTestCases, 'path')).toEqual('');
-        expect(mockedGetVisitedPlaceName).not.toHaveBeenCalled();
-        expect(mockedGetVisitedPlaces).toHaveBeenCalled();
+        // Set the origin to an unexisting place
+        const testInterview = _cloneDeep(interviewAttributesForTestCases);
+        setActiveSurveyObjects(testInterview, { personId: 'personId2', journeyId: 'journeyId2', activeTripId: 'tripId2P2' });
+        testInterview.response.household!.persons!.personId2.journeys!.journeyId2.trips!.tripId2P2._originVisitedPlaceUuid = 'unexisting';
+
+        expect(widgetText(mockedT, testInterview, p2t2segmentsPath)).toEqual('');
         expect(mockedT).not.toHaveBeenCalled();
     });
 
     test('should return empty if no destination', () => {
-        mockedGetDestination.mockReturnValueOnce(null);
-        expect(widgetText(mockedT, interviewAttributesForTestCases, 'path')).toEqual('');
-        expect(mockedGetVisitedPlaceName).not.toHaveBeenCalled();
-        expect(mockedGetVisitedPlaces).toHaveBeenCalled();
+        const testInterview = _cloneDeep(interviewAttributesForTestCases);
+        setActiveSurveyObjects(testInterview, { personId: 'personId2', journeyId: 'journeyId2', activeTripId: 'tripId2P2' });
+        testInterview.response.household!.persons!.personId2.journeys!.journeyId2.trips!.tripId2P2._destinationVisitedPlaceUuid = 'unexisting';
+
+        expect(widgetText(mockedT, testInterview, p2t2segmentsPath)).toEqual('');
         expect(mockedT).not.toHaveBeenCalled();
     });
 
     test('should return correct string with normal activities', () => {
-        mockedGetVisitedPlaceName.mockReturnValueOnce('originName').mockReturnValueOnce('destinationName');
-        expect(widgetText(mockedT, interviewAttributesForTestCases, 'path')).toEqual('translatedString');
-        expect(mockedGetVisitedPlaceName).toHaveBeenCalledTimes(2);
-        expect(mockedGetVisitedPlaces).toHaveBeenCalled();
+        // Set the origin to an unexisting place
+        const testInterview = _cloneDeep(interviewAttributesForTestCases);
+        setActiveSurveyObjects(testInterview, { personId: 'personId2', journeyId: 'journeyId2', activeTripId: 'tripId2P2' });
+        
+        expect(widgetText(mockedT, testInterview)).toEqual('translatedString');
         expect(mockedT).toHaveBeenCalledWith(['customSurvey:segments:CurrentTripSegmentsIntro', 'segments:CurrentTripSegmentsIntro'], {
-            context: 'work',
-            count: 1,
-            originName: 'originName',
-            destinationName: 'destinationName'
+            context: 'other',
+            count: 3,
+            destinationName: testInterview.response.household!.persons!.personId2.journeys!.journeyId2.visitedPlaces!.otherWorkPlace1P2.name,
+            // leads to shortcut
+            originName: testInterview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.otherPlace2P1.name
         });
-        expect(options.context).toHaveBeenCalledWith('work');
+        expect(options.context).toHaveBeenCalledWith('other');
     });
 
     test('should return correct string with loop activity at origin', () => {
-        mockedGetOrigin.mockReturnValueOnce({ activity: 'leisureStroll', _uuid: 'originuuid', _sequence: 1 });
-        mockedGetVisitedPlaceName.mockReturnValueOnce('originName').mockReturnValueOnce('destinationName');
-        expect(widgetText(mockedT, interviewAttributesForTestCases, 'path')).toEqual('translatedString');
-        expect(mockedGetVisitedPlaceName).toHaveBeenCalledTimes(2);
-        expect(mockedGetVisitedPlaces).toHaveBeenCalled();
+        // Set the origin place's activity to a loop activity, taking the first trip instead of second, as it is not a shortcut
+        const testInterview = _cloneDeep(interviewAttributesForTestCases);
+        setActiveSurveyObjects(testInterview, { personId: 'personId2', journeyId: 'journeyId2', activeTripId: 'tripId1P2' });
+        testInterview.response.household!.persons!.personId2.journeys!.journeyId2.visitedPlaces!.homePlace1P2.activity = 'leisureStroll';
+        expect(widgetText(mockedT, testInterview)).toEqual('translatedString');
         expect(mockedT).toHaveBeenCalledWith(['customSurvey:segments:CurrentTripSegmentsIntro', 'segments:CurrentTripSegmentsIntro'], {
             context: 'leisureStroll',
-            count: 1,
-            originName: 'originName',
-            destinationName: 'destinationName'
+            count: 3,
+            originName: 'translatedString', // origin has no name
+            // leads to shortcut
+            destinationName: testInterview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.otherPlace2P1.name
         });
+        expect(mockedT).toHaveBeenCalledWith('survey:placeWithSequenceGeneric', { sequence: 1 });
         expect(options.context).toHaveBeenCalledWith('leisureStroll');
     });
 
     test('should return correct string with normal activities and no context function', () => {
+        // No context sent as options
         const widgetText = getTripSegmentsIntro().text as any;
-        mockedGetOrigin.mockReturnValueOnce({ activity: 'leisureStroll', _uuid: 'originuuid', _sequence: 1 });
-        mockedGetVisitedPlaceName.mockReturnValueOnce('originName').mockReturnValueOnce('destinationName');
-        expect(widgetText(mockedT, interviewAttributesForTestCases, 'path')).toEqual('translatedString');
-        expect(mockedGetVisitedPlaceName).toHaveBeenCalledTimes(2);
-        expect(mockedGetVisitedPlaces).toHaveBeenCalled();
+        const testInterview = _cloneDeep(interviewAttributesForTestCases);
+        setActiveSurveyObjects(testInterview, { personId: 'personId2', journeyId: 'journeyId2', activeTripId: 'tripId2P2' });
+        
+        expect(widgetText(mockedT, testInterview)).toEqual('translatedString');
         expect(mockedT).toHaveBeenCalledWith(['customSurvey:segments:CurrentTripSegmentsIntro', 'segments:CurrentTripSegmentsIntro'], {
-            context: 'leisureStroll',
-            count: 1,
-            originName: 'originName',
-            destinationName: 'destinationName'
+            context: 'other',
+            count: 3,
+            destinationName: testInterview.response.household!.persons!.personId2.journeys!.journeyId2.visitedPlaces!.otherWorkPlace1P2.name,
+            // leads to shortcut
+            originName: testInterview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.otherPlace2P1.name
         });
-    });
-
-    test('should return correct string with normal activities, context and person count', () => {
-        const context = 'context';
-        const count = 3;
-        options.context.mockReturnValueOnce('context');
-        mockedGetCountOrSelfDeclared.mockReturnValueOnce(count);
-
-        mockedGetVisitedPlaceName.mockReturnValueOnce('originName').mockReturnValueOnce('destinationName');
-        expect(widgetText(mockedT, interviewAttributesForTestCases, 'path')).toEqual('translatedString');
-        expect(mockedGetVisitedPlaceName).toHaveBeenCalledTimes(2);
-        expect(mockedGetVisitedPlaces).toHaveBeenCalled();
-        expect(mockedT).toHaveBeenCalledWith(['customSurvey:segments:CurrentTripSegmentsIntro', 'segments:CurrentTripSegmentsIntro'], {
-            context,
-            count,
-            originName: 'originName',
-            destinationName: 'destinationName'
-        });
-        expect(options.context).toHaveBeenCalledWith('work');
     });
 
 });

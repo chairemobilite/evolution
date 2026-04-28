@@ -104,7 +104,7 @@ describe('segmentHasNextMode conditional', () => {
         // Test conditional
         const result = conditional!(interview, `${segmentPath}.hasNextMode`);
         expect(result).toEqual([true, null]);
-        expect(mockedShouldShowSameAsReverseTripQuestion).toHaveBeenCalledWith({ interview, segment: getResponse(interview, segmentPath) });
+        expect(mockedShouldShowSameAsReverseTripQuestion).toHaveBeenCalledWith({ interview, path: `${segmentPath}.hasNextMode` });
         expect(mockedGetPreviousTripSingleSegment).not.toHaveBeenCalled();
     });
 
@@ -119,8 +119,11 @@ describe('segmentHasNextMode conditional', () => {
         // Test conditional
         const result = conditional!(interview, `${segmentPath}.hasNextMode`);
         expect(result).toEqual([false, false]);
-        expect(mockedShouldShowSameAsReverseTripQuestion).toHaveBeenCalledWith({ interview, segment: getResponse(interview, segmentPath) });
-        expect(mockedGetPreviousTripSingleSegment).toHaveBeenCalledWith({ interview, person: getResponse(interview, 'household.persons.personId2') });
+        expect(mockedShouldShowSameAsReverseTripQuestion).toHaveBeenCalledWith({ interview, path: `${segmentPath}.hasNextMode` });
+        expect(mockedGetPreviousTripSingleSegment).toHaveBeenCalledWith({ 
+            journey: interview.response.household!.persons!.personId2.journeys!.journeyId2, 
+            trip: interview.response.household!.persons!.personId2.journeys!.journeyId2.trips!.tripId1P2, 
+        });
     });
 
     test('should not be displayed, but un-initialized, if the same mode as reverse trip question is presented and unanswered', () => {
@@ -133,7 +136,7 @@ describe('segmentHasNextMode conditional', () => {
         // Test conditional
         const result = conditional!(interview, `${segmentPath}.hasNextMode`);
         expect(result).toEqual([false, null]);
-        expect(mockedShouldShowSameAsReverseTripQuestion).toHaveBeenCalledWith({ interview, segment: getResponse(interview, segmentPath) });
+        expect(mockedShouldShowSameAsReverseTripQuestion).toHaveBeenCalledWith({ interview, path: `${segmentPath}.hasNextMode` });
         expect(mockedGetPreviousTripSingleSegment).not.toHaveBeenCalled();
     });
 

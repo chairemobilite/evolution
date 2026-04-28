@@ -7,19 +7,23 @@
 import _cloneDeep from 'lodash/cloneDeep';
 
 import { getButtonSaveTripSegmentsConfig } from '../buttonSaveTripSegments';
-import { interviewAttributesForTestCases, widgetFactoryOptions } from '../../../../../tests/surveys';
+import { interviewAttributesForTestCases, setActiveSurveyObjects, widgetFactoryOptions } from '../../../../../tests/surveys';
 import * as utilHelpers from '../../../../../utils/helpers';
 import * as odHelpers from '../../../../odSurvey/helpers';
 
-jest.mock('../../../../odSurvey/helpers', () => ({
-    getPerson: jest.fn().mockReturnValue({}),
-    getActiveJourney: jest.fn().mockReturnValue({}),
-    selectNextIncompleteTrip: jest.fn().mockReturnValue(null)
-}));
-const mockedGetPerson = odHelpers.getPerson as jest.MockedFunction<typeof odHelpers.getPerson>;
-const mockedGetActiveJourney = odHelpers.getActiveJourney as jest.MockedFunction<typeof odHelpers.getActiveJourney>;
+jest.mock('../../../../odSurvey/helpers', () => {
+    // Require the original module to not be mocked...
+    // FIXME Refactor to use the actual functions instead of mocking them
+    const originalModule = jest.requireActual('../../../../odSurvey/helpers');
+    return {
+        ...originalModule,
+        getCountOrSelfDeclared: jest.fn().mockReturnValue(1),
+        getVisitedPlacesArray: jest.fn().mockReturnValue([]),
+        getVisitedPlaceGeography: jest.fn().mockReturnValue(null),
+        selectNextIncompleteTrip: jest.fn()
+    };
+});
 const mockedSelectNextIncompleteTrip = odHelpers.selectNextIncompleteTrip as jest.MockedFunction<typeof odHelpers.selectNextIncompleteTrip>;
-
 
 beforeEach(() => {
     jest.clearAllMocks();
@@ -61,8 +65,12 @@ describe('getButtonSaveTripSegmentsConfig labels', () => {
 describe('getButtonSaveTripSegmentsConfig conditional', () => {
     const widgetConfig = getButtonSaveTripSegmentsConfig(widgetFactoryOptions);
 
-    jest.spyOn(utilHelpers, 'getResponse').mockReturnValue({});
+    const getResponseSpy = jest.spyOn(utilHelpers, 'getResponse').mockReturnValue({});
     const mockedGetResponse = utilHelpers.getResponse as jest.MockedFunction<typeof utilHelpers.getResponse>;
+
+    afterAll(() => {
+        getResponseSpy.mockRestore();
+    });
 
     beforeEach(() => {
         jest.clearAllMocks();
@@ -116,10 +124,9 @@ describe('getButtonSaveTripSegmentsConfig button action', () => {
 describe('getButtonSaveTripSegmentsConfig save callback', () => {
     const widgetConfig = getButtonSaveTripSegmentsConfig(widgetFactoryOptions);
 
-    jest.spyOn(utilHelpers, 'getResponse').mockReturnValue({});
-    const mockedGetResponse = utilHelpers.getResponse as jest.MockedFunction<typeof utilHelpers.getResponse>;
-
-    const buttonPath = 'path.to.trip.buttonAction';
+    // Person2 trip2 has 2 segments
+    const buttonPathPrefix = 'household.persons.personId2.journeys.journeyId2.trips.tripId2P2';
+    const buttonPath = `${buttonPathPrefix}.buttonSaveTrip`;
     const saveCallback = widgetConfig.saveCallback;
     const updateCallbacks =
         { startUpdateInterview: jest.fn(), startAddGroupedObjects: jest.fn(), startRemoveGroupedObjects: jest.fn(), startNavigate: jest.fn() };
@@ -129,91 +136,102 @@ describe('getButtonSaveTripSegmentsConfig save callback', () => {
     });
 
     test('should set all _isNew to `false` and select next incomplete trip', () => {
-        // Mock function response: 2 segments, active journey and incomplete trip
-        const journey = { _uuid: 'journey', _sequence: 1 };
+        // Set active trip ID for next incomplete trip selection
+        const testInterview = _cloneDeep(interviewAttributesForTestCases);
+        setActiveSurveyObjects(testInterview, {
+            personId: 'personId2',
+            journeyId: 'journeyId2',
+            activeTripId: 'tripId2P2'
+        });
+        // Mock function response for incomplete trip
         const incompleteTrip = { _uuid: 'trip1', _sequence: 1 };
-        mockedGetResponse.mockReturnValueOnce({ segment1: { _uuid: 'segment1', _sequence: 1 }, segment2: { _uuid: 'segment2', _sequence: 2 } });
-        mockedGetActiveJourney.mockReturnValueOnce(journey);
         mockedSelectNextIncompleteTrip.mockReturnValueOnce(incompleteTrip);
 
         // Call the save callback
-        saveCallback!(updateCallbacks, interviewAttributesForTestCases, buttonPath);
+        saveCallback!(updateCallbacks, testInterview, buttonPath);
 
         // Test function calls
-        expect(mockedGetResponse).toHaveBeenCalledWith(interviewAttributesForTestCases, 'path.to.trip.segments', {});
-        expect(mockedGetActiveJourney).toHaveBeenCalledWith({ interview: interviewAttributesForTestCases });
-        expect(mockedSelectNextIncompleteTrip).toHaveBeenCalledWith({ journey });
+        expect(mockedSelectNextIncompleteTrip).toHaveBeenCalledWith({ journey: testInterview.response.household!.persons!.personId2!.journeys!.journeyId2 });
         expect(updateCallbacks.startUpdateInterview).toHaveBeenCalledWith({
             sectionShortname: 'segments',
             valuesByPath: {
-                'response.path.to.trip.segments.segment1._isNew': false,
-                'response.path.to.trip.segments.segment2._isNew': false,
+                'response.household.persons.personId2.journeys.journeyId2.trips.tripId2P2.segments.segmentId1P2T2._isNew': false,
+                'response.household.persons.personId2.journeys.journeyId2.trips.tripId2P2.segments.segmentId2P2T2._isNew': false,
                 'response._activeTripId': 'trip1'
             }
         });
     });
 
     test('should set all _isNew to `false` and select no trip if no active journey', () => {
-        // Mock function response: 2 segments no active journey
-        mockedGetResponse.mockReturnValueOnce({ segment1: { _uuid: 'segment1', _sequence: 1 }, segment2: { _uuid: 'segment2', _sequence: 2 } });
-        mockedGetActiveJourney.mockReturnValueOnce(null);
-
+        // Set active trip ID for next incomplete trip selection
+        const testInterview = _cloneDeep(interviewAttributesForTestCases);
+        setActiveSurveyObjects(testInterview, {
+            personId: undefined,
+            journeyId: undefined,
+            activeTripId: undefined
+        });
+        
         // Call the save callback
-        saveCallback!(updateCallbacks, interviewAttributesForTestCases, buttonPath);
+        saveCallback!(updateCallbacks, testInterview, buttonPath);
 
         // Test function calls
-        expect(mockedGetResponse).toHaveBeenCalledWith(interviewAttributesForTestCases, 'path.to.trip.segments', {});
-        expect(mockedGetActiveJourney).toHaveBeenCalledWith({ interview: interviewAttributesForTestCases });
         expect(mockedSelectNextIncompleteTrip).not.toHaveBeenCalled();
         expect(updateCallbacks.startUpdateInterview).toHaveBeenCalledWith({
             sectionShortname: 'segments',
             valuesByPath: {
-                'response.path.to.trip.segments.segment1._isNew': false,
-                'response.path.to.trip.segments.segment2._isNew': false,
+                'response.household.persons.personId2.journeys.journeyId2.trips.tripId2P2.segments.segmentId1P2T2._isNew': false,
+                'response.household.persons.personId2.journeys.journeyId2.trips.tripId2P2.segments.segmentId2P2T2._isNew': false,
                 'response._activeTripId': null
             }
         });
     });
 
     test('should set all _isNew to `false` and select no trip if no incomplete trip', () => {
-        // Mock function response: 2 segments, active journey and incomplete trip
-        const journey = { _uuid: 'journey', _sequence: 1 };
-        mockedGetResponse.mockReturnValueOnce({ segment1: { _uuid: 'segment1', _sequence: 1 }, segment2: { _uuid: 'segment2', _sequence: 2 } });
-        mockedGetActiveJourney.mockReturnValueOnce(journey);
+        // Set active trip ID for next incomplete trip selection
+        const testInterview = _cloneDeep(interviewAttributesForTestCases);
+        setActiveSurveyObjects(testInterview, {
+            personId: 'personId2',
+            journeyId: 'journeyId2',
+            activeTripId: 'tripId2P2'
+        });
+        // Mock function response for incomplete trip
         mockedSelectNextIncompleteTrip.mockReturnValueOnce(null);
 
         // Call the save callback
-        saveCallback!(updateCallbacks, interviewAttributesForTestCases, buttonPath);
+        saveCallback!(updateCallbacks, testInterview, buttonPath);
 
         // Test function calls
-        expect(mockedGetResponse).toHaveBeenCalledWith(interviewAttributesForTestCases, 'path.to.trip.segments', {});
-        expect(mockedGetActiveJourney).toHaveBeenCalledWith({ interview: interviewAttributesForTestCases });
-        expect(mockedSelectNextIncompleteTrip).toHaveBeenCalledWith({ journey });
+        expect(mockedSelectNextIncompleteTrip).toHaveBeenCalledWith({ journey: testInterview.response.household!.persons!.personId2!.journeys!.journeyId2 });
         expect(updateCallbacks.startUpdateInterview).toHaveBeenCalledWith({
             sectionShortname: 'segments',
             valuesByPath: {
-                'response.path.to.trip.segments.segment1._isNew': false,
-                'response.path.to.trip.segments.segment2._isNew': false,
+                'response.household.persons.personId2.journeys.journeyId2.trips.tripId2P2.segments.segmentId1P2T2._isNew': false,
+                'response.household.persons.personId2.journeys.journeyId2.trips.tripId2P2.segments.segmentId2P2T2._isNew': false,
                 'response._activeTripId': null
             }
         });
     });
 
-    test('should just set next incomplete trip is no segments', () => {
+    test('should just set next incomplete trip if no segments', () => {
+        // Use a path to a trip with no segments
+        const testButtonPathPrefix = 'household.persons.personId1.journeys.journeyId1.trips.tripId1P1';
+        const testButtonPath = `${testButtonPathPrefix}.buttonSaveTrip`;
+        // Set active trip ID for next incomplete trip selection
+        const testInterview = _cloneDeep(interviewAttributesForTestCases);
+        setActiveSurveyObjects(testInterview, {
+            personId: 'personId1',
+            journeyId: 'journeyId1',
+            activeTripId: 'tripId1P1'
+        });
         // Mock function response: 2 segments, active journey and incomplete trip
-        const journey = { _uuid: 'journey', _sequence: 1 };
         const incompleteTrip = { _uuid: 'trip1', _sequence: 1 };
-        mockedGetResponse.mockReturnValueOnce({ });
-        mockedGetActiveJourney.mockReturnValueOnce(journey);
         mockedSelectNextIncompleteTrip.mockReturnValueOnce(incompleteTrip);
 
         // Call the save callback
-        saveCallback!(updateCallbacks, interviewAttributesForTestCases, buttonPath);
+        saveCallback!(updateCallbacks, testInterview, testButtonPath);
 
         // Test function calls
-        expect(mockedGetResponse).toHaveBeenCalledWith(interviewAttributesForTestCases, 'path.to.trip.segments', {});
-        expect(mockedGetActiveJourney).toHaveBeenCalledWith({ interview: interviewAttributesForTestCases });
-        expect(mockedSelectNextIncompleteTrip).toHaveBeenCalledWith({ journey });
+        expect(mockedSelectNextIncompleteTrip).toHaveBeenCalledWith({ journey: testInterview.response.household!.persons!.personId1!.journeys!.journeyId1 });
         expect(updateCallbacks.startUpdateInterview).toHaveBeenCalledWith({
             sectionShortname: 'segments',
             valuesByPath: { 'response._activeTripId': 'trip1' }

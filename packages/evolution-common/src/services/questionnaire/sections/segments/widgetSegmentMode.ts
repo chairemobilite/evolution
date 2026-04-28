@@ -12,7 +12,7 @@ import { TFunction } from 'i18next';
 import * as odHelpers from '../../../odSurvey/helpers';
 import * as segmentHelpers from './helpers';
 import { Mode, modePreToModeMap } from '../../../odSurvey/types';
-import type { Person, Segment } from '../../types';
+import type { Segment } from '../../types';
 import { getModeIcon } from './modeIconMapping';
 import { WidgetFactoryOptions } from '../types';
 
@@ -76,18 +76,22 @@ export const getModeWidgetConfig = (
             ];
         },
         conditional: function (interview, path) {
-            const segment = getResponse(interview, path, null, '../') as Segment;
+            const segmentContext = odHelpers.getSegmentContextFromPath({ interview, path });
+            if (!segmentContext) {
+                throw new Error('Segment context not found for path ' + path);
+            }
+            const { journey, trip, segment } = segmentContext;
             const shouldShowSameAsReverseTrip = segmentHelpers.shouldShowSameAsReverseTripQuestion({
                 interview,
-                segment
+                path
             });
             // Do not show if the question of the same mode as previous trip is shown and the answer is not 'no'
             if (shouldShowSameAsReverseTrip && segment.sameModeAsReverseTrip !== false) {
                 if (segment.sameModeAsReverseTrip === true) {
                     // If the question of the same mode as previous trip is shown and the answer is yes, the mode is the same as the previous trip
                     const previousTripSegment = segmentHelpers.getPreviousTripSingleSegment({
-                        interview,
-                        person: odHelpers.getActivePerson({ interview }) as Person
+                        journey,
+                        trip
                     });
                     if (previousTripSegment && previousTripSegment.mode !== undefined) {
                         return [false, previousTripSegment.mode];
