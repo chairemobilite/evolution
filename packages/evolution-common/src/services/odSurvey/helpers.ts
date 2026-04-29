@@ -976,7 +976,7 @@ export const getVisitedPlaceName = function ({
     interview: UserInterviewAttributes;
 }): string {
     if (visitedPlace && visitedPlace.activity === 'home') {
-        return t(`survey:visitedPlace:activityCategories:${visitedPlace.activity}`);
+        return t('visitedPlaces:activities:home');
     }
 
     // Resolve any shortcut, then return the name if available
