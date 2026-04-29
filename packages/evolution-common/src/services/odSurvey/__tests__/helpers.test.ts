@@ -2880,7 +2880,7 @@ describe('getVisitedPlaceNames', () => {
             interview: interviewAttributesForTestCases,
             visitedPlace: interviewAttributesForTestCases.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!
                 .homePlace1P1,
-            expectedTVal: 'survey:visitedPlace:activityCategories:home',
+            expectedTVal: 'visitedPlaces:activities:home',
             expected: 'mocked'
         },
         {
