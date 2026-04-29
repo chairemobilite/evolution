@@ -33,6 +33,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `shouldShowTripsAndPlacesSections` (commit [852a240](https://github.com/chairemobilite/evolution/commit/852a240a98d3c3a92197fe9684102df1326545f4))
   - `getJourneyContextFromPath`, `getTripContextFromPath`, `getVisitedPlaceContextFromPath`, `getSegmentContextFromPath` to get all objects in the interview from the path (fixes [#1538](https://github.com/chairemobilite/evolution/issues/1538))
   - `getVisitedPlaceDescription`
+  - `isUsualActivity`
 - Added a `visitedPlaces` section configuration, which includes activity, location and next place category questions, with the  `VisitedPlacesSectionFactory` class (fixes [#1437](https://github.com/chairemobilite/evolution/issues/1437))
 - Provide a `VisitedPlacesSection` template to be used in the UI to display visited places. The template can be used by the `visitedPlaces` name in the `template` property of a section's configuration (fixes [#1446](https://github.com/chairemobilite/evolution/issues/1446)).
 - The `getFormattedDate` widget factory option now takes an optional options parameter to fine-tune the desired format of the date (commit [8dbd493](https://github.com/chairemobilite/evolution/commit/8dbd4938c1dd4f5466a8c19b3b90f934e63b953f))
