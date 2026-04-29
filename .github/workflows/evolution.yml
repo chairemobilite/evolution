@@ -18,13 +18,13 @@ jobs:
     env:
       PROJECT_CONFIG: ${{ github.workspace }}/example/demo_survey/config.js
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
       with:
         submodules: true
     - name: copy env file
       run: cp .env.example .env
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v6
       with:
         node-version: ${{ matrix.node-version }}
     - name: Install
@@ -41,11 +41,11 @@ jobs:
   code-lint:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
       with:
         submodules: true
     - name: Use latest Node.js
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v6
       with:
         node-version: latest
     - name: Install
@@ -58,11 +58,11 @@ jobs:
   check-format:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
       with:
         submodules: true
     - name: Use latest Node.js
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v6
       with:
         node-version: 24.x
     - name: Install
@@ -101,13 +101,13 @@ jobs:
       PG_CONNECTION_STRING_PREFIX: postgres://testuser:testpassword@localhost:5432/
       PG_DATABASE_TEST: testdb
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
       with:
         submodules: true
     - name: copy env file
       run: cp .env.example .env
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v4
+      uses: actions/setup-node@v6
       with:
         node-version: ${{ matrix.node-version }}
     - name: Install
