@@ -110,6 +110,11 @@ export type QuestionnaireObjectWithUuidAndSequence = {
     _sequence: number;
 };
 
+type NamedPlace = {
+    name?: string;
+    geography?: GeoJSON.Feature<GeoJSON.Point, SurveyPointProperties>;
+};
+
 /**
  * @typedef {Object} Person
  * @property {number} _sequence The sequence number of the person.
@@ -120,6 +125,8 @@ export type Person = PersonAttributes &
     QuestionnaireObjectWithUuidAndSequence & {
         /** uuid of the person who responds for this person (for household where more than 1 person have more than the minimum self response age) */
         whoWillAnswerForThisPerson?: string;
+        usualSchoolPlace?: NamedPlace;
+        usualWorkPlace?: NamedPlace;
         journeys?: {
             [journeyId: string]: Journey;
         };
@@ -166,19 +173,23 @@ export type Journey = JourneyAttributes &
     };
 
 // FIXME We are not using the VisitedPlaceAttributes type here because during survey, most of the data from that type is rather as a property of the geography feature and not as fields of the object
-export type VisitedPlace = QuestionnaireObjectWithUuidAndSequence & {
-    activity?: Optional<Activity>;
-    activityCategory?: Optional<ActivityCategory>;
-    geography?: GeoJSON.Feature<GeoJSON.Point, SurveyPointProperties>;
-    departureTime?: number;
-    arrivalTime?: number;
-    /**
-     * The category of the next place. The 'wentToUsualWorkPlace' category is
-     * used for workOnTheRoad trips. It is imputed by values entered by
-     * participant
-     */
-    nextPlaceCategory?: 'wentBackHome' | 'visitedAnotherPlace' | 'stayedThereUntilTheNextDay' | 'wentToUsualWorkPlace';
-} & (
+export type VisitedPlace = QuestionnaireObjectWithUuidAndSequence &
+    NamedPlace & {
+        activity?: Optional<Activity>;
+        activityCategory?: Optional<ActivityCategory>;
+        departureTime?: number;
+        arrivalTime?: number;
+        /**
+         * The category of the next place. The 'wentToUsualWorkPlace' category is
+         * used for workOnTheRoad trips. It is imputed by values entered by
+         * participant
+         */
+        nextPlaceCategory?:
+            | 'wentBackHome'
+            | 'visitedAnotherPlace'
+            | 'stayedThereUntilTheNextDay'
+            | 'wentToUsualWorkPlace';
+    } & (
         | { alreadyVisitedBySelfOrAnotherHouseholdMember?: false; name?: string; shortcut?: never }
         | { alreadyVisitedBySelfOrAnotherHouseholdMember: true; name?: never; shortcut?: string }
     );
