@@ -7,7 +7,7 @@
 import each from 'jest-each';
 import _cloneDeep from 'lodash/cloneDeep';
 import { TFunction } from 'i18next';
-import { interviewAttributesForTestCases } from '../../../tests/surveys';
+import { interviewAttributesForTestCases, setActiveSurveyObjects } from '../../../tests/surveys';
 import * as Helpers from '../helpers';
 import projectConfig from '../../../config/project.config';
 import { Journey, Person, Trip, UserInterviewAttributes, VisitedPlace } from '../../questionnaire/types';
@@ -3026,6 +3026,170 @@ describe('getVisitedPlaceGeography', () => {
         } else {
             expect(geography).toBeNull();
         }
+    });
+});
+
+describe('getVisitedPlaceDescription', () => {
+    const interview = _cloneDeep(interviewAttributesForTestCases);
+    const visitedPlacesP1 = interview.response.household!.persons!.personId1!.journeys!.journeyId1!.visitedPlaces!;
+    const visitedPlacesP2 = interview.response.household!.persons!.personId2!.journeys!.journeyId2!.visitedPlaces!;
+    const person1 = interview.response.household!.persons!.personId1! as Person;
+    const person2 = interview.response.household!.persons!.personId2! as Person;
+    const mockedT = jest.fn().mockImplementation((key: string) => key);
+
+    beforeEach(() => {
+        jest.clearAllMocks();
+        mockedT.mockImplementation((key: string) => key);
+    });
+
+    // Content parts: name • nickname • activity, varying options
+    each([
+        {
+            title: 'home place, no nickname, defaults (html)',
+            visitedPlace: visitedPlacesP1.homePlace1P1,
+            person: person1,
+            options: {},
+            expected: '<em>visitedPlaces:activities:home</em>'
+        },
+        {
+            title: 'named place, no nickname, defaults (html)',
+            visitedPlace: visitedPlacesP1.workPlace1P1,
+            person: person1,
+            options: {},
+            expected: '<em>This is my work</em> • visitedPlaces:activities:workUsual'
+        },
+        {
+            title: 'named place, no nickname, allowHtml=false',
+            visitedPlace: visitedPlacesP1.workPlace1P1,
+            person: person1,
+            options: { allowHtml: false },
+            expected: 'This is my work • visitedPlaces:activities:workUsual'
+        },
+        {
+            title: 'named place, person with nickname, withNickname=true (default)',
+            visitedPlace: visitedPlacesP1.workPlace1P1,
+            person: person2,
+            options: {},
+            expected: '<em>This is my work</em> • p2 • visitedPlaces:activities:workUsual'
+        },
+        {
+            title: 'home place, person with nickname, withPersonIdentification=true (default)',
+            visitedPlace: visitedPlacesP1.homePlace1P1,
+            person: person2,
+            options: {},
+            expected: '<em>visitedPlaces:activities:home</em> • p2'
+        },
+        {
+            title: 'named place, person with nickname, withPersonIdentification=false',
+            visitedPlace: visitedPlacesP1.workPlace1P1,
+            person: person2,
+            options: { withPersonIdentification: false },
+            expected: '<em>This is my work</em> • visitedPlaces:activities:workUsual'
+        },
+        {
+            title: 'named place, withActivity=false',
+            visitedPlace: visitedPlacesP1.workPlace1P1,
+            person: person1,
+            options: { withActivity: false },
+            expected: '<em>This is my work</em>'
+        },
+        {
+            title: 'home place, withActivity=false, only home name shown',
+            visitedPlace: visitedPlacesP1.homePlace1P1,
+            person: person1,
+            options: { withActivity: false },
+            expected: '<em>visitedPlaces:activities:home</em>'
+        },
+        {
+            title: 'shortcut place resolves to original place name',
+            visitedPlace: visitedPlacesP2.shoppingPlace1P2,
+            person: person2,
+            options: {},
+            expected: '<em>This is a shopping place</em> • p2 • visitedPlaces:activities:shopping'
+        }
+    ]).test('content: $title', ({ visitedPlace, person, options, expected }) => {
+        expect(
+            Helpers.getVisitedPlaceDescription({ visitedPlace, interview, person, t: mockedT as any, options })
+        ).toEqual(expected);
+    });
+
+    // Content parts: name • nickname • activity, varying options
+    test('no nickname with 1-person household: $title', () => {
+        const interviewCopy = _cloneDeep(interview);
+        // Keep only personId1 in the household to simulate a 1-person household
+        interviewCopy.response.household!.persons = { personId1: interviewCopy.response.household!.persons!.personId1 };
+        expect(
+            Helpers.getVisitedPlaceDescription({ 
+                visitedPlace: visitedPlacesP1.workPlace1P1,
+                interview: interviewCopy,
+                person: person1,
+                t: mockedT as any,
+                options: { withPersonIdentification: true, withActivity: true } 
+            })
+        ).toEqual('<em>This is my work</em> • visitedPlaces:activities:workUsual');
+    });
+
+    // Content parts: name • nickname • activity, varying options
+    test('no nickname for the active person', () => {
+        const interviewCopy = _cloneDeep(interview);
+        setActiveSurveyObjects(interviewCopy, { personId: 'personId1' });
+        // No nickname for person 1, because it's the active one
+        expect(
+            Helpers.getVisitedPlaceDescription({ 
+                visitedPlace: visitedPlacesP1.workPlace1P1,
+                interview: interviewCopy,
+                person: person1,
+                t: mockedT as any,
+                options: { withPersonIdentification: true, withActivity: true } 
+            })
+        ).toEqual('<em>This is my work</em> • visitedPlaces:activities:workUsual');
+
+        // nickname for person 2
+        expect(
+            Helpers.getVisitedPlaceDescription({ 
+                visitedPlace: visitedPlacesP1.workPlace1P1,
+                interview: interviewCopy,
+                person: person2,
+                t: mockedT as any,
+                options: { withPersonIdentification: true, withActivity: true } 
+            })
+        ).toEqual('<em>This is my work</em> • p2 • visitedPlaces:activities:workUsual');
+    });
+
+    // Times formatting: suffix format is ` (arrival -> departure)`
+    each([
+        {
+            title: 'both arrival and departure',
+            visitedPlace: visitedPlacesP1.workPlace1P1, // arrivalTime=8:10, departureTime=9:00
+            expected: '<em>This is my work</em> • visitedPlaces:activities:workUsual (8:10 -> 9:00)'
+        },
+        {
+            title: 'only departure time',
+            visitedPlace: visitedPlacesP1.homePlace1P1, // no arrival, departureTime=8:00
+            expected: '<em>visitedPlaces:activities:home</em> (-> 8:00)'
+        },
+        {
+            title: 'only arrival time',
+            visitedPlace: visitedPlacesP1.otherPlace2P1, // arrivalTime=15:15, no departure
+            expected: '<em>This is a shopping place</em> • visitedPlaces:activities:shopping (15:15 ->)'
+        },
+        {
+            title: 'no times defined, no times suffix',
+            visitedPlace: visitedPlacesP2.homePlace1P2, // no times at all
+            expected: '<em>visitedPlaces:activities:home</em>'
+        }
+    ]).test('times: $title', ({ visitedPlace, expected }) => {
+        expect(
+            Helpers.getVisitedPlaceDescription({ visitedPlace, interview, person: person1, t: mockedT as any, options: { withTimes: true } })
+        ).toEqual(expected);
+    });
+
+    test('arrivalTime=0 (midnight) should be included in times, not treated as absent', () => {
+        const visitedPlace = _cloneDeep(visitedPlacesP1.homePlace1P1);
+        visitedPlace.arrivalTime = 0;
+        expect(
+            Helpers.getVisitedPlaceDescription({ visitedPlace, interview, person: person1, t: mockedT as any, options: { withTimes: true } })
+        ).toEqual('<em>visitedPlaces:activities:home</em> (0:00 -> 8:00)');
     });
 });
 

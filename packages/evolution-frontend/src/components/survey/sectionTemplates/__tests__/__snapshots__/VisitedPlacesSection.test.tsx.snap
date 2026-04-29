@@ -43,7 +43,7 @@ exports[`VisitedPlacesSection UI display should render the default visited place
             <div
               class="survey-visited-places-schedule-visited-place hand-cursor-on-hover"
               style="left: 0%; width: 28.5714%;"
-              title="visitedPlaceDescription"
+              title="visitedPlaces:activities:home (-> 8:00)"
             >
               <div
                 class="survey-visited-places-schedule-visited-place-icon"
@@ -89,7 +89,7 @@ exports[`VisitedPlacesSection UI display should render the default visited place
             <div
               class="survey-visited-places-schedule-visited-place hand-cursor-on-hover"
               style="left: 29.1667%; width: 2.9762%;"
-              title="visitedPlaceDescription"
+              title="This is my work • visitedPlaces:activities:workUsual (8:10 -> 9:00)"
             >
               <div
                 class="survey-visited-places-schedule-visited-place-icon"
@@ -136,7 +136,7 @@ exports[`VisitedPlacesSection UI display should render the default visited place
             <div
               class="survey-visited-places-schedule-visited-place hand-cursor-on-hover"
               style="left: 32.7381%; width: 17.2619%;"
-              title="visitedPlaceDescription"
+              title="visitedPlaces:activities:home (9:10 -> 14:00)"
             >
               <div
                 class="survey-visited-places-schedule-visited-place-icon"
@@ -183,7 +183,7 @@ exports[`VisitedPlacesSection UI display should render the default visited place
             <div
               class="survey-visited-places-schedule-visited-place hand-cursor-on-hover"
               style="left: 50.8929%; width: 2.6785%;"
-              title="visitedPlaceDescription"
+              title="survey:placeWithSequenceGeneric • visitedPlaces:activities:shopping (14:15 -> 15:00)"
             >
               <div
                 class="survey-visited-places-schedule-visited-place-icon"
@@ -230,7 +230,7 @@ exports[`VisitedPlacesSection UI display should render the default visited place
             <div
               class="survey-visited-places-schedule-visited-place hand-cursor-on-hover"
               style="left: 54.4643%; width: 45.5357%;"
-              title="visitedPlaceDescription"
+              title="This is a shopping place • visitedPlaces:activities:shopping (15:15 ->)"
             >
               <div
                 class="survey-visited-places-schedule-visited-place-icon"
@@ -957,7 +957,7 @@ exports[`VisitedPlacesSection UI display should render the selected visited plac
             <div
               class="survey-visited-places-schedule-visited-place"
               style="left: 0%; width: 28.5714%;"
-              title="visitedPlaceDescription"
+              title="visitedPlaces:activities:home (-> 8:00)"
             >
               <div
                 class="survey-visited-places-schedule-visited-place-icon"
@@ -1003,7 +1003,7 @@ exports[`VisitedPlacesSection UI display should render the selected visited plac
             <div
               class="survey-visited-places-schedule-visited-place"
               style="left: 29.1667%; width: 2.9762%;"
-              title="visitedPlaceDescription"
+              title="This is my work • visitedPlaces:activities:workUsual (8:10 -> 9:00)"
             >
               <div
                 class="survey-visited-places-schedule-visited-place-icon"
@@ -1050,7 +1050,7 @@ exports[`VisitedPlacesSection UI display should render the selected visited plac
             <div
               class="survey-visited-places-schedule-visited-place"
               style="left: 32.7381%; width: 17.2619%;"
-              title="visitedPlaceDescription"
+              title="visitedPlaces:activities:home (9:10 -> 14:00)"
             >
               <div
                 class="survey-visited-places-schedule-visited-place-icon"
@@ -1097,7 +1097,7 @@ exports[`VisitedPlacesSection UI display should render the selected visited plac
             <div
               class="survey-visited-places-schedule-visited-place"
               style="left: 50.8929%; width: 2.6785%;"
-              title="visitedPlaceDescription"
+              title="survey:placeWithSequenceGeneric • visitedPlaces:activities:shopping (14:15 -> 15:00)"
             >
               <div
                 class="survey-visited-places-schedule-visited-place-icon"
@@ -1144,7 +1144,7 @@ exports[`VisitedPlacesSection UI display should render the selected visited plac
             <div
               class="survey-visited-places-schedule-visited-place"
               style="left: 54.4643%; width: 45.5357%;"
-              title="visitedPlaceDescription"
+              title="This is a shopping place • visitedPlaces:activities:shopping (15:15 ->)"
             >
               <div
                 class="survey-visited-places-schedule-visited-place-icon"

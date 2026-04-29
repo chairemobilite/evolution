@@ -51,7 +51,6 @@ jest.mock('react-i18next', () => ({
     })
 }));
 jest.mock('../../../../services/display/frontendHelper', () => ({
-    getVisitedPlaceDescription: jest.fn().mockReturnValue('visitedPlaceDescription'),
     secondsSinceMidnightToTimeStrWithSuffix: jest.fn((seconds: number) => `time-${seconds}`)
 }));
 

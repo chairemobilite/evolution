@@ -26,6 +26,7 @@ import { TFunction } from 'i18next';
 import config from '../../config/project.config';
 import { loopActivities } from './types';
 import { SchoolType } from '../baseObjects/attributeTypes/PersonAttributes';
+import { secondsSinceMidnightToTimeStr } from 'chaire-lib-common/lib/utils/DateTimeUtils';
 
 // This file contains helper function that retrieves various data from the
 // response field of the interview
@@ -1029,6 +1030,103 @@ export const getVisitedPlaceGeography = function ({
         }
     }
     return geojson;
+};
+
+/**
+ * Get the visited place one-line description, including the place name (if
+ * available), the activity name (if requested and available), the person's
+ * nickname (if requested and available) and the arrival and departure times (if
+ * requested and available).
+ *
+ * @param args The arguments object
+ * @param args.visitedPlace The visited place for which to get the description
+ * @param args.interview The interview object
+ * @param args.person The person who went to this visited place
+ * @param args.t The translation function
+ * @param args.options Configuration options for the description
+ * @param args.options.withTimes Whether to add the times to the description
+ * (default: false)
+ * @param args.options.withActivity Whether to add the activity name to the
+ * description (default: true) If place name is empty, it will show activity
+ * name, even if this flag is false.  If place name is not empty, it will only
+ * be shown if this flag is true.
+ * @param args.options.withPersonIdentification Whether to include the person's
+ * identification string. It won't be shown for the active person or if there is
+ * only one person in the household (default: true)
+ * @param args.options.allowHtml Whether the description can contain HTML
+ * characters (default: true)
+ * @returns The formatted description string
+ */
+export const getVisitedPlaceDescription = ({
+    visitedPlace,
+    interview,
+    person,
+    t,
+    options
+}: {
+    interview: UserInterviewAttributes;
+    visitedPlace: VisitedPlace;
+    person: Person;
+    t: TFunction;
+    options: {
+        withTimes?: boolean;
+        withActivity?: boolean;
+        withPersonIdentification?: boolean;
+        allowHtml?: boolean;
+    };
+}): string => {
+    const { withTimes = false, withActivity = true, withPersonIdentification = true, allowHtml = true } = options;
+    const contentParts: string[] = [];
+
+    // Add place name (if available).
+    const visitedPlaceName = getVisitedPlaceName({ visitedPlace, interview, t });
+    if (visitedPlaceName) {
+        contentParts.push(allowHtml ? `<em>${visitedPlaceName}</em>` : visitedPlaceName);
+    }
+
+    // Add the person's identification string if withPersonIdentification is true requested and the person is not the active or only person
+    if (withPersonIdentification) {
+        const activePerson = getActivePerson({ interview });
+        if (activePerson === null || activePerson._uuid !== person._uuid) {
+            contentParts.push(getPersonIdentificationString({ person, t }));
+        }
+    }
+
+    // Add activity (always last before times)
+    // Show activity only if withActivity is true and it is different from the place name (which may be the activity in some cases, like 'home')
+    if (withActivity) {
+        const activityText = t(`visitedPlaces:activities:${visitedPlace.activity}`);
+        if (activityText && activityText !== visitedPlaceName) {
+            contentParts.push(activityText);
+        }
+    }
+
+    // Add times if requested and available
+    let timesPart = '';
+    if (withTimes) {
+        const arrivalTime =
+            visitedPlace.arrivalTime !== undefined && visitedPlace.arrivalTime !== null
+                ? secondsSinceMidnightToTimeStr(visitedPlace.arrivalTime)
+                : undefined;
+        const departureTime =
+            visitedPlace.departureTime !== undefined && visitedPlace.departureTime !== null
+                ? secondsSinceMidnightToTimeStr(visitedPlace.departureTime)
+                : undefined;
+
+        if (arrivalTime || departureTime) {
+            let timeString = '';
+            if (arrivalTime && departureTime) {
+                timeString = `${arrivalTime} -> ${departureTime}`;
+            } else if (arrivalTime) {
+                timeString = `${arrivalTime} ->`;
+            } else if (departureTime) {
+                timeString = `-> ${departureTime}`;
+            }
+            timesPart = ` (${timeString})`;
+        }
+    }
+
+    return contentParts.join(' • ') + timesPart;
 };
 
 /**
