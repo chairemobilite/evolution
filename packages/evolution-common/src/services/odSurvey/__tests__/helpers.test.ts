@@ -12,7 +12,7 @@ import * as Helpers from '../helpers';
 import projectConfig from '../../../config/project.config';
 import { Journey, Person, Trip, UserInterviewAttributes, VisitedPlace } from '../../questionnaire/types';
 import { setProjectConfiguration } from 'chaire-lib-common/lib/config/shared/project.config';
-import { loopActivities } from '../types';
+import { loopActivities, usualActivities } from '../types';
 import { otherPlace2P1Coordinates } from '../../../tests/surveys/testCasesInterview';
 
 const baseInterviewAttributes: Pick<
@@ -1788,6 +1788,22 @@ describe('isLoopActivity', () => {
             activity: activity
         };
         expect(Helpers.isLoopActivity({ visitedPlace })).toEqual(expected);
+    });
+});
+
+describe('isUsualActivity', () => {
+    test.each([
+        ...usualActivities.map((activity) => [`Usual activity ${activity}`, activity, true] as any),
+        ['Non-usual activity', 'workNotUsual', false],
+        ['Undefined activity', undefined, false],
+        ['Null activity', null as any, false]
+    ])('isUsualActivity: %s', (_title, activity, expected) => {
+        const visitedPlace = {
+            _uuid: 'visitedPlace1',
+            _sequence: 1,
+            activity: activity
+        };
+        expect(Helpers.isUsualActivity({ visitedPlace })).toEqual(expected);
     });
 });
 

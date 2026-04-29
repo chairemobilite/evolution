@@ -13,6 +13,12 @@
 export const loopActivities: Activity[] = ['workOnTheRoad', 'leisureStroll'];
 
 /**
+ * Activities that are considered to be done at a single explicit location, and
+ * that are often repeated at the same location.
+ */
+export const usualActivities: Activity[] = ['workUsual', 'schoolUsual'];
+
+/**
  * Simple modes, ie individual modes that involve no or private vehicles and are
  * often used multiple times in a journey
  */

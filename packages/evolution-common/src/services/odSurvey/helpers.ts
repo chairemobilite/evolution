@@ -24,7 +24,7 @@ import {
 } from '../questionnaire/types';
 import { TFunction } from 'i18next';
 import config from '../../config/project.config';
-import { loopActivities } from './types';
+import { loopActivities, usualActivities } from './types';
 import { SchoolType } from '../baseObjects/attributeTypes/PersonAttributes';
 import { secondsSinceMidnightToTimeStr } from 'chaire-lib-common/lib/utils/DateTimeUtils';
 
@@ -1188,6 +1188,16 @@ export const getPreviousVisitedPlace = function ({
  */
 export const isLoopActivity = ({ visitedPlace }: { visitedPlace: VisitedPlace }): boolean =>
     visitedPlace.activity !== undefined && loopActivities.includes(visitedPlace.activity);
+
+/**
+ * Determine whether the visited place has a usual activity.
+ *
+ * @param {Object} options - The options object.
+ * @param {VisitedPlace} options.visitedPlace The visited place to check
+ * @returns {boolean} `true` if the visited place has a usual activity, `false` otherwise
+ */
+export const isUsualActivity = ({ visitedPlace }: { visitedPlace: VisitedPlace }): boolean =>
+    visitedPlace.activity !== undefined && usualActivities.includes(visitedPlace.activity);
 
 /**
  * Get the next incomplete visited place, or return `null` if all visited places
