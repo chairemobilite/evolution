@@ -25,10 +25,7 @@ import ConfirmModal from 'chaire-lib-frontend/lib/components/modal/ConfirmModal'
 import LoadingPage from 'chaire-lib-frontend/lib/components/pages/LoadingPage';
 import { type SectionProps, useSectionTemplate } from '../../hooks/useSectionTemplate';
 import { SurveyContext } from '../../../contexts/SurveyContext';
-import {
-    getVisitedPlaceDescription,
-    secondsSinceMidnightToTimeStrWithSuffix
-} from '../../../services/display/frontendHelper';
+import { secondsSinceMidnightToTimeStrWithSuffix } from '../../../services/display/frontendHelper';
 import type { GroupConfig, VisitedPlace } from 'evolution-common/lib/services/questionnaire/types';
 import { getResponse } from 'evolution-common/lib/utils/helpers';
 import { getActivityIcon } from 'evolution-common/lib/services/questionnaire/sections/visitedPlaces/activityIconMapping';
@@ -133,7 +130,13 @@ export const VisitedPlacesSection: React.FC<SectionProps> = (props: SectionProps
         const personVisitedPlacesSchedules: ReactNode[] = [];
         for (let i = 0, count = visitedPlacesForSchedule.length; i < count; i++) {
             const visitedPlace = visitedPlacesForSchedule[i];
-            const visitedPlaceDescription = getVisitedPlaceDescription(visitedPlace, true, false);
+            const visitedPlaceDescription = odHelpers.getVisitedPlaceDescription({
+                visitedPlace,
+                person: personForSchedule,
+                interview: props.interview,
+                t,
+                options: { withTimes: true, allowHtml: false, withPersonIdentification: false }
+            });
             let departureTime = i === count - 1 ? 28 * 3600 : null;
             let arrivalTime = i === 0 ? 0 : null;
             if (visitedPlace.departureTime) {

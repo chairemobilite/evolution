@@ -179,6 +179,8 @@ export const validateButtonActionWithCompleteSection: ButtonAction = (
  * @param withTimes Whether to add the times to the description
  * @param allowHtml Whether the description can contain HTML characters
  * @returns
+ * @deprecated This function has been moved and more options have been added in
+ * evolution-common/lib/services/odSurvey/helpers.
  */
 export const getVisitedPlaceDescription = function (
     visitedPlace: VisitedPlace,
