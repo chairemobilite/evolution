@@ -5,6 +5,7 @@
 # Note: Tests for scripts/conditionals_generator.py (ConditionalsGenerator).
 
 import datetime
+from collections import defaultdict
 import pytest  # pyright: ignore[reportMissingImports]
 
 from scripts.conditionals_generator import ConditionalsGenerator
@@ -682,3 +683,158 @@ class TestEmptyToNone:
         """
         assert ConditionalsGenerator._empty_to_none("foo") == "foo"
         assert ConditionalsGenerator._empty_to_none(" ") == " "
+
+
+class TestGenerateTypescriptCode:
+    @pytest.mark.parametrize(
+        "case",
+        [
+            pytest.param(
+                {
+                    "token_key": "currentPerson",
+                    "conditional_path": "${currentPerson}.age",
+                    "expected_helper_line": "const currentPersonId = odSurveyHelpers.getCurrentPersonId({ interview, path });",
+                    "expected_path_snippet": "`household.persons.${currentPersonId}.age`",
+                },
+            ),
+            pytest.param(
+                {
+                    "token_key": "currentJourney",
+                    "conditional_path": "${currentJourney}.personDidTrips",
+                    "expected_helper_line": "const currentJourneyId = odSurveyHelpers.getCurrentJourneyId({ interview, path });",
+                    "expected_path_snippet": ".journeys.${currentJourneyId}.",
+                },
+            ),
+            pytest.param(
+                {
+                    "token_key": "currentTrip",
+                    "conditional_path": "${currentTrip}.segments.0.mode",
+                    "expected_helper_line": "const currentTripId = odSurveyHelpers.getCurrentTripId({ interview, path });",
+                    "expected_path_snippet": ".trips.${currentTripId}.",
+                },
+            ),
+            pytest.param(
+                {
+                    "token_key": "currentVisitedPlace",
+                    "conditional_path": "${currentVisitedPlace}.activity",
+                    "expected_helper_line": "const currentVisitedPlaceId = odSurveyHelpers.getCurrentVisitedPlaceId({ interview, path });",
+                    "expected_path_snippet": ".visitedPlaces.${currentVisitedPlaceId}.",
+                },
+            ),
+        ],
+    )
+    def test_expands_current_context_tokens_in_paths(self, case):
+        """
+        When a conditional path contains a `${current...}` token, the generator should:
+        - emit the corresponding `odSurveyHelpers.getCurrent*Id({ interview, path })` helper call
+        - expand the conditional path to include the computed id in a template string
+        """
+
+        conditional_by_name = defaultdict(list)
+        conditional_by_name[f"cond_{case['token_key']}"].append(
+            {
+                "logical_operator": "",
+                "path": case["conditional_path"],
+                "comparison_operator": "===",
+                "value": "test",
+                "parentheses": "",
+            }
+        )
+
+        ts_code = ConditionalsGenerator.generate_typescript_code(conditional_by_name)
+        assert case["expected_helper_line"] in ts_code
+        assert case["expected_path_snippet"] in ts_code
+
+
+class TestExpandTokenizedPath:
+    def test_expands_relative_path_and_current_person(self):
+        specs = (
+            {
+                "token": "${currentPerson}",
+                "prefix": "household.persons.${currentPersonId}.",
+            },
+        )
+
+        assert (
+            ConditionalsGenerator._expand_tokenized_path(
+                "${relativePath}.age", current_context_specs=specs
+            )
+            == "`${relativePath}.age`"
+        )
+        assert (
+            ConditionalsGenerator._expand_tokenized_path(
+                "${currentPerson}.age", current_context_specs=specs
+            )
+            == "`household.persons.${currentPersonId}.age`"
+        )
+
+
+class TestCurrentContextVarsNeeded:
+    @pytest.mark.parametrize(
+        "case",
+        [
+            pytest.param(
+                {
+                    "name": "currentPerson",
+                    "path": "${currentPerson}.age",
+                    "expected_needed": {"currentPersonId"},
+                }
+            ),
+            pytest.param(
+                {
+                    "name": "currentJourney",
+                    "path": "${currentJourney}.personDidTrips",
+                    "expected_needed": {"currentJourneyId", "currentPersonId"},
+                }
+            ),
+            pytest.param(
+                {
+                    "name": "currentTrip",
+                    "path": "${currentTrip}.segments.0.mode",
+                    "expected_needed": {
+                        "currentTripId",
+                        "currentJourneyId",
+                        "currentPersonId",
+                    },
+                }
+            ),
+            pytest.param(
+                {
+                    "name": "currentVisitedPlace",
+                    "path": "${currentVisitedPlace}.activity",
+                    "expected_needed": {"currentVisitedPlaceId", "currentPersonId"},
+                }
+            ),
+        ],
+    )
+    def test_returns_deps_for_each_token(self, case):
+        specs = (
+            {
+                "token": "${currentPerson}",
+                "id_var": "currentPersonId",
+                "deps": (),
+            },
+            {
+                "token": "${currentJourney}",
+                "id_var": "currentJourneyId",
+                "deps": ("currentPersonId",),
+            },
+            {
+                "token": "${currentTrip}",
+                "id_var": "currentTripId",
+                "deps": ("currentPersonId", "currentJourneyId"),
+            },
+            {
+                "token": "${currentVisitedPlace}",
+                "id_var": "currentVisitedPlaceId",
+                "deps": ("currentPersonId",),
+            },
+        )
+
+        conditionals = [{"path": case["path"]}]
+        needed = ConditionalsGenerator._current_context_vars_needed(
+            conditionals, current_context_specs=specs
+        )
+
+        # Check if the needed variables are the ones that are needed for the conditional path
+        assert needed == case["expected_needed"], case["name"]
