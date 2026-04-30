@@ -138,3 +138,10 @@ personVisitedPlacesGroupTitle: Lieux visités
 VisitedPlaceSequence: 'Lieu #{{count}}'
 VisitedPlaceSequence_one: Lieu de départ de la journée
 VisitedPlacesTitle: Lieux visités
+alreadyVisitedBySelfOrAnotherHouseholdMember: >-
+    Avez-vous déjà localisé ce lieu?<br /><span class="_pale _oblique">Dans l'entrevue
+    de {{nickname}} ou dans celles des autres membres du ménage.</span>
+alreadyVisitedBySelfOrAnotherHouseholdMember_one: >-
+    Avez-vous déjà localisé ce lieu?<br /><span class="_pale _oblique">Dans votre 
+    entrevue ou dans celles des autres membres du ménage.</span>
+shortcut: 'Veuillez choisir le lieu dans la liste des lieux déjà localisés:'
