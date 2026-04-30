@@ -191,7 +191,8 @@ describe('LocationWithNameWidgetsFactory - locationGeography widget', () => {
                 geocodingQueryStringData: {
                     type: 'function',
                     geocodingStringFunction
-                }
+                },
+                resetToDefaultUnlessUserInteracted: true
             }
         };
 
@@ -214,6 +215,7 @@ describe('LocationWithNameWidgetsFactory - locationGeography widget', () => {
         expect(widgetConfig.validations).toBe(geographyValidations);
         expect(widgetConfig.conditional).toBe(geographyConditional);
         expect(widgetConfig.geocodingQueryString).toBe(geocodingStringFunction);
+        expect(widgetConfig.resetToDefaultUnlessUserInteracted).toBe(true);
     });
 
     describe('geocodingQueryString (type: fields)', () => {
