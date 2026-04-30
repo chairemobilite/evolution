@@ -14,6 +14,7 @@ import { getActivityCategoryWidgetConfig } from '../widgetActivityCategory';
 import { getActivityWidgetConfig } from '../widgetActivity';
 import { getNextPlaceCategoryWidgetConfig } from '../widgetNextPlaceCategory';
 import { VisitedPlaceGeographyWidgetFactory } from '../widgetsGeography';
+import { VisitedPlaceShortcutWidgetFactory } from '../widgetsVisitedPlaceShortcut';
 
 const visitedPlacesSectionConfig: VisitedPlacesSectionConfiguration = {
     type: 'visitedPlaces',
@@ -27,6 +28,8 @@ describe('PersonVisitedPlacesGroupConfigFactory widgets', () => {
         'personVisitedPlaces',
         'visitedPlaceActivityCategory',
         'visitedPlaceActivity',
+        'visitedPlaceAlreadyVisited',
+        'visitedPlaceShortcut',
         'visitedPlaceName',
         'visitedPlaceGeography',
         'visitedPlaceNextPlaceCategory'
@@ -44,7 +47,7 @@ describe('PersonVisitedPlacesGroupConfigFactory widgets', () => {
             visitedPlacesSectionConfig,
             widgetFactoryOptions
         ).getWidgetConfigs();
-        expect(Object.keys(widgetConfigs)).toHaveLength(6);
+        expect(Object.keys(widgetConfigs)).toHaveLength(8);
     });
 
     test.each([
@@ -61,6 +64,16 @@ describe('PersonVisitedPlacesGroupConfigFactory widgets', () => {
             widgetName: 'visitedPlaceNextPlaceCategory',
             expected: (config: VisitedPlacesSectionConfiguration) =>
                 getNextPlaceCategoryWidgetConfig(config, widgetFactoryOptions)
+        },
+        {
+            widgetName: 'visitedPlaceAlreadyVisited',
+            expected: (config: VisitedPlacesSectionConfiguration) =>
+                new VisitedPlaceShortcutWidgetFactory(config, widgetFactoryOptions).getWidgetConfigs().visitedPlaceAlreadyVisited
+        },
+        {
+            widgetName: 'visitedPlaceShortcut',
+            expected: (config: VisitedPlacesSectionConfiguration) =>
+                new VisitedPlaceShortcutWidgetFactory(config, widgetFactoryOptions).getWidgetConfigs().visitedPlaceShortcut
         },
         {
             widgetName: 'visitedPlaceName',
@@ -115,6 +128,8 @@ describe('PersonVisitedPlacesGroupConfigFactory personVisitedPlaces GroupConfig 
             widgets: [
                 'visitedPlaceActivityCategory',
                 'visitedPlaceActivity',
+                'visitedPlaceAlreadyVisited',
+                'visitedPlaceShortcut',
                 'visitedPlaceName',
                 'visitedPlaceGeography',
                 'visitedPlaceNextPlaceCategory'
@@ -231,6 +246,8 @@ describe('PersonVisitedPlacesGroupConfigFactory personVisitedPlaces GroupConfig 
             widgets: [
                 'visitedPlaceActivityCategory',
                 'visitedPlaceActivity',
+                'visitedPlaceAlreadyVisited',
+                'visitedPlaceShortcut',
                 'visitedPlaceName',
                 'visitedPlaceGeography',
                 'customWidget1',
@@ -271,6 +288,8 @@ describe('PersonVisitedPlacesGroupConfigFactory personVisitedPlaces GroupConfig 
             addButtonLocation: 'both',
             widgets: [
                 'visitedPlaceActivityCategory',
+                'visitedPlaceAlreadyVisited',
+                'visitedPlaceShortcut',
                 'visitedPlaceName',
                 'customWidget1',
                 'visitedPlaceActivity',

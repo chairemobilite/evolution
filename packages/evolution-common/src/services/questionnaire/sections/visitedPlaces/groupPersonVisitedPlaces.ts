@@ -14,6 +14,7 @@ import { getActivityWidgetConfig } from './widgetActivity';
 import { VisitedPlaceGeographyWidgetFactory } from './widgetsGeography';
 import { getNextPlaceCategoryWidgetConfig } from './widgetNextPlaceCategory';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
+import { VisitedPlaceShortcutWidgetFactory } from './widgetsVisitedPlaceShortcut';
 
 /**
  * Widget config factory for the person visited places group. It represents the
@@ -35,11 +36,13 @@ export class PersonVisitedPlacesGroupConfigFactory implements WidgetConfigFactor
         // could be listed in the additional widgets to control their order, but
         // if not there, we should add them at the right place.
         const allWidgetNames = [...additionalWidgetNames];
-        // Add the geography and activity widgets at the beginning of the groups, listed in reverse order of appearance to unshift them in the right order
-        // FIXME Allow to fine-tune where to put the additional widgets, for example, shortcuts, that are not yet builtin should got between the categories and geography
+        // Add the geography, shortcuts and activity widgets at the beginning of the groups, listed in reverse order of appearance to unshift them in the right order
+        // FIXME Allow to fine-tune where to put the additional widgets if a survey needs a question to be asked between the builtin ones
         const widgetsAtTheBeginning = [
             'visitedPlaceGeography',
             'visitedPlaceName',
+            'visitedPlaceShortcut',
+            'visitedPlaceAlreadyVisited',
             'visitedPlaceActivity',
             'visitedPlaceActivityCategory'
         ];
@@ -105,10 +108,15 @@ export class PersonVisitedPlacesGroupConfigFactory implements WidgetConfigFactor
 
     getWidgetConfigs = (): Record<string, WidgetConfig> => {
         const geographyWidgetFactory = new VisitedPlaceGeographyWidgetFactory(this.sectionConfig, this.options);
+        const visitedPlaceShortcutWidgetFactory = new VisitedPlaceShortcutWidgetFactory(
+            this.sectionConfig,
+            this.options
+        );
         return {
             personVisitedPlaces: this.getVisitedPlacesGroupConfig(),
             visitedPlaceActivityCategory: getActivityCategoryWidgetConfig(this.sectionConfig, this.options),
             visitedPlaceActivity: getActivityWidgetConfig(this.sectionConfig, this.options),
+            ...visitedPlaceShortcutWidgetFactory.getWidgetConfigs(),
             ...geographyWidgetFactory.getWidgetConfigs(),
             visitedPlaceNextPlaceCategory: getNextPlaceCategoryWidgetConfig(this.sectionConfig, this.options)
         };

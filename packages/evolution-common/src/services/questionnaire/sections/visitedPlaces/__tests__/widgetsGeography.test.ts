@@ -10,7 +10,7 @@ import  i18n from 'i18next';
 import config from '../../../../../config/project.config';
 import { interviewAttributesForTestCases, setActiveSurveyObjects, widgetFactoryOptions } from '../../../../../tests/surveys';
 import { setResponse, translateString } from '../../../../../utils/helpers';
-import { InputMapFindPlaceType, InputStringType, QuestionWidgetConfig } from '../../../types';
+import { InputMapFindPlaceType, InputStringType, ParsingFunction, QuestionWidgetConfig } from '../../../types';
 import { loopActivities } from '../../../../odSurvey/types';
 import { VisitedPlaceGeographyWidgetFactory } from '../widgetsGeography';
 import { getActivityMarkerIcon } from '../activityIconMapping';
@@ -73,12 +73,12 @@ describe('VisitedPlaceGeographyWidgetFactory', () => {
                 },
                 geocodingQueryString: expect.any(Function),
                 maxGeocodingResultsBounds: undefined,
-                showSearchPlaceButton: undefined,
+                showSearchPlaceButton: expect.any(Function),
                 searchPlaceButtonColor: undefined,
                 invalidGeocodingResultTypes: expect.any(Array),
                 refreshGeocodingLabel: expect.any(Function),
-                defaultValue: undefined,
-                resetToDefaultUnlessUserInteracted: undefined,
+                defaultValue: expect.any(Function),
+                resetToDefaultUnlessUserInteracted: true,
                 validations: expect.any(Function),
                 conditional: expect.any(Function)
             }
@@ -241,6 +241,19 @@ describe('visitedPlaceName widget', () => {
                     'household.persons.personId1.journeys.journeyId1.visitedPlaces.workPlace1P1.name'
                 )
             ).toEqual([true, null]);
+        });
+
+        test('should hide widget when shortcut and set the value to shortcut\'s name', () => {
+            const interview = _cloneDeep(interviewAttributesForTestCases);
+            setActiveSurveyObjects(interview, { personId: 'personId2', journeyId: 'journeyId2', visitedPlaceId: 'shoppingPlace1P2' });
+            
+            // The return value equals to the shortcut name that links to personId1's otherPlace2P1
+            expect(
+                conditional!(
+                    interview,
+                    'household.persons.personId2.journeys.journeyId2.visitedPlaces.shoppingPlace1P2.name'
+                )
+            ).toEqual([false, interview.response.household!.persons!.personId1!.journeys!.journeyId1!.visitedPlaces!.otherPlace2P1.name]);
         });
     });
 
@@ -600,6 +613,78 @@ describe('visitedPlaceGeography widget', () => {
                 geocodingQueryString!(
                     interview,
                     'household.persons.personId1.journeys.journeyId1.visitedPlaces.otherPlaceP1.geography'
+                )
+            ).toBeUndefined();
+        });
+    });
+
+    describe('showSearchPlaceButton', () => {
+        const showSearchPlaceButton = widgetConfig.showSearchPlaceButton as ParsingFunction<boolean>;
+
+        test('should show search place button when place not a shortcut', () => {
+            const interview = _cloneDeep(interviewAttributesForTestCases);
+
+            // Use a place that is not a shortcut
+            expect(
+                showSearchPlaceButton!(
+                    interview,
+                    'household.persons.personId1.journeys.journeyId1.visitedPlaces.otherPlace2P1.geography'
+                )
+            ).toEqual(true);
+        });
+
+        test('should hide the search place button when place is a shortcut', () => {
+            const interview = _cloneDeep(interviewAttributesForTestCases);
+
+            // Use the path of a place that is a shortcut
+            expect(
+                showSearchPlaceButton!(
+                    interview,
+                    'household.persons.personId2.journeys.journeyId2.visitedPlaces.shoppingPlace1P2.geography'
+                )
+            ).toEqual(false);
+        });
+    });
+
+    describe('defaultValue', () => {
+        const defaultValue = widgetConfig.defaultValue as ParsingFunction<GeoJSON.Feature<GeoJSON.Point>>;
+
+        test('should return undefined if place not a shortcut', () => {
+            const interview = _cloneDeep(interviewAttributesForTestCases);
+
+            // Use a place that is not a shortcut
+            expect(
+                defaultValue!(
+                    interview,
+                    'household.persons.personId1.journeys.journeyId1.visitedPlaces.otherPlace2P1.geography'
+                )
+            ).toBeUndefined();
+        });
+
+        test('should return the shortcut place geography if place is a shortcut, cloned', () => {
+            const interview = _cloneDeep(interviewAttributesForTestCases);
+
+            // Use the path of a place that is a shortcut
+            const defaultValueResult = defaultValue!(
+                interview,
+                'household.persons.personId2.journeys.journeyId2.visitedPlaces.shoppingPlace1P2.geography'
+            )! as GeoJSON.Feature<GeoJSON.Point>;
+            expect(defaultValueResult.geometry).toEqual(interview.response.household!.persons!.personId1!.journeys!.journeyId1!.visitedPlaces!.otherPlace2P1.geography!.geometry);               
+            // Make sure the returned geography is a clone, not the same object
+            expect(defaultValueResult).not.toBe(interview.response.household!.persons!.personId1!.journeys!.journeyId1!.visitedPlaces!.otherPlace2P1.geography);
+            expect(defaultValueResult.properties!.lastAction).toEqual('shortcut');
+        });
+
+        test('should return undefined if shortcut does not point to a valid geography', () => {
+            const interview = _cloneDeep(interviewAttributesForTestCases);
+            // Change the shortcut location to something that does not exist
+            interview.response.household!.persons!.personId2!.journeys!.journeyId2!.visitedPlaces!.shoppingPlace1P2.shortcut = 'household.persons.personIdX.journeys.journeyIdX.visitedPlaces.placeXPX';
+
+            // Use the path of a place that is a shortcut
+            expect(
+                defaultValue!(
+                    interview,
+                    'household.persons.personId2.journeys.journeyId2.visitedPlaces.shoppingPlace1P2.geography'
                 )
             ).toBeUndefined();
         });
