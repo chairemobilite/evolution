@@ -116,3 +116,10 @@ personVisitedPlacesGroupTitle: Visited places
 VisitedPlaceSequence: 'Location #{{count}}'
 VisitedPlaceSequence_one: Departure place for this day
 VisitedPlacesTitle: Visited Places
+alreadyVisitedBySelfOrAnotherHouseholdMember: >-
+    Did you previously locate this place on the map?<br /><span class="_pale _oblique">In
+    {{nickname}}'s travel diary or that of another household member.</span>
+alreadyVisitedBySelfOrAnotherHouseholdMember_one: >-
+    Did you previously locate this place on the map?<br /><span class="_pale _oblique">In
+    your travel diary or that of another household member.</span>
+shortcut: 'Please select this place from the list of previously located places:'

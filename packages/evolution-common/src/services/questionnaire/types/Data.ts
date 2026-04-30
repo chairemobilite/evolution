@@ -177,6 +177,8 @@ export type VisitedPlace = QuestionnaireObjectWithUuidAndSequence &
     NamedPlace & {
         activity?: Optional<Activity>;
         activityCategory?: Optional<ActivityCategory>;
+        alreadyVisitedBySelfOrAnotherHouseholdMember?: Optional<boolean>;
+        shortcut?: Optional<string>;
         departureTime?: number;
         arrivalTime?: number;
         /**
