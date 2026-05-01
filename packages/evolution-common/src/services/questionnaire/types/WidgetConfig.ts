@@ -447,6 +447,19 @@ export type SurveyMapObjectProperty = {
     birdDistance?: number;
     active?: boolean;
     bearing?: number;
+    /**
+     * The last action executed on the map object. 'findPlace' is when the map
+     * object comes from a geocoding search result, 'preGeocoded' is when the
+     * object comes from a pre-geocoded value, like pre-filled data from an
+     * access code, 'shortcut' is when the object comes from a visited place
+     * shortcut, 'markerDragged' is when the marker of the object is dragged to
+     * a new position on the map, 'mapClicked' is when the object comes from
+     * clicking on the map, and 'geocoding' is when the object is currently in a
+     * geocoding operation. This can be used to adapt the behavior of the widget
+     * based on how the object was created or modified, or for validation
+     * purposes.
+     */
+    lastAction?: 'findPlace' | 'preGeocoded' | 'shortcut' | 'markerDragged' | 'mapClicked' | 'geocoding';
 };
 
 type SurveyMapObjectPolygonProperty = SurveyMapObjectProperty & {
