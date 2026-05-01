@@ -18,6 +18,7 @@ import { checkValidations } from './Validation';
 import {
     isInputTypeWithArrayValue,
     UserRuntimeInterviewAttributes,
+    WidgetConfig,
     WidgetStatus
 } from 'evolution-common/lib/services/questionnaire/types';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
@@ -87,6 +88,23 @@ const getPreviousWidgetStatus = (
             : undefined
         : interview.previousWidgets?.[widgetShortname];
     return previousStatusForWidget && previousStatusForWidget.path === path ? previousStatusForWidget : undefined;
+};
+
+const isMapAndShouldResetToDefault = (widgetConfig: WidgetConfig, value: unknown) => {
+    const isMapWidget =
+        widgetConfig.type === 'question' &&
+        (widgetConfig.inputType === 'mapPoint' || widgetConfig.inputType === 'mapFindPlace');
+    // Return false if it is not a map widget, or if the `resetToDefaultUnlessUserInteracted` is not set to true
+    if (!isMapWidget || widgetConfig.resetToDefaultUnlessUserInteracted !== true) {
+        return false;
+    }
+    // If map widget, check the last action to determine if the user interacted with it
+    const pointLastAction =
+        isMapWidget && !_isBlank(value) ? (value as GeoJSON.Feature<GeoJSON.Point>).properties?.lastAction : undefined;
+    const userInteractedWithMapWidget =
+        typeof pointLastAction === 'string' &&
+        ['markerDragged', 'mapClicked', 'geocoding', 'findPlace'].includes(pointLastAction);
+    return userInteractedWithMapWidget !== true;
 };
 
 const prepareSimpleWidget = (
@@ -169,16 +187,6 @@ const prepareSimpleWidget = (
     // FIXME Why do we set to true if _all is affected, even if there is no custom value?
     let isCustomResponded = customValue !== undefined || data.affectedPaths['_all'] === true;
 
-    const isMapPoint =
-        widgetConfig.inputType === 'mapPoint' ||
-        widgetConfig.inputType === 'mapFindPlace' ||
-        widgetConfig.inputType === 'mapFindPlacePhotonOsm';
-    const pointLastAction = isMapPoint && !_isBlank(value) ? (value as any).properties?.lastAction : undefined;
-    const pointHasMoved =
-        pointLastAction === 'markerDragged' ||
-        pointLastAction === 'mapClicked' ||
-        pointLastAction === 'geocoding' ||
-        pointLastAction === 'findPlace';
     // set to undefined if it was invisible before, and becomes visible
     //
     // FIXME This `if` includes a lot more cases than the line above explains.
@@ -194,7 +202,7 @@ const prepareSimpleWidget = (
         isVisible &&
         ((previousStatus && previousStatus.isVisible === false) ||
             value === undefined ||
-            (widgetConfig.updateDefaultValueWhenResponded === true && !pointHasMoved))
+            isMapAndShouldResetToDefault(widgetConfig, value))
     ) {
         const defaultValue =
             widgetConfig.useAssignedValueOnHide && !_isBlank(assignedValue)

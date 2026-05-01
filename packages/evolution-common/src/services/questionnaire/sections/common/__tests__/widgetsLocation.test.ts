@@ -72,7 +72,7 @@ describe('LocationWithNameWidgetsFactory', () => {
                 invalidGeocodingResultTypes: defaultLocationInvalidGeocodingResultTypes,
                 refreshGeocodingLabel: undefined,
                 defaultValue: undefined,
-                updateDefaultValueWhenResponded: undefined,
+                resetToDefaultUnlessUserInteracted: undefined,
                 validations: undefined,
                 conditional: undefined
             }

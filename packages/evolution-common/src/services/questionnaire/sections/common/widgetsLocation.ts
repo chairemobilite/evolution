@@ -98,7 +98,7 @@ type LocationGeographyWidgetOptions = Pick<
         | 'icon'
         | 'placesIcon'
         | 'selectedIcon'
-        | 'updateDefaultValueWhenResponded'
+        | 'resetToDefaultUnlessUserInteracted'
         | 'maxGeocodingResultsBounds'
         | 'showSearchPlaceButton'
         | 'searchPlaceButtonColor'
@@ -176,7 +176,7 @@ const getLocationGeographyWidgetConfig = (options: LocationGeographyWidgetOption
     invalidGeocodingResultTypes: options.invalidGeocodingResultTypes ?? defaultLocationInvalidGeocodingResultTypes,
     refreshGeocodingLabel: options.refreshGeocodingLabel,
     defaultValue: options.defaultValue,
-    updateDefaultValueWhenResponded: options.updateDefaultValueWhenResponded,
+    resetToDefaultUnlessUserInteracted: options.resetToDefaultUnlessUserInteracted,
     validations: options.validations,
     conditional: options.conditional
 });

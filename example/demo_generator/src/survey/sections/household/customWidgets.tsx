@@ -98,10 +98,6 @@ export const personUsualWorkPlaceGeography: InputMapFindPlaceType = {
               }
             : config.mapDefaultCenter;
     },
-    defaultValue: function (interview, path) {
-        return undefined;
-    },
-    updateDefaultValueWhenResponded: true,
     validations: function (value, _customValue, interview, path, _customPath) {
         const geography: any = surveyHelperNew.getResponse(interview, path, null, '../geography');
         return [
@@ -178,10 +174,6 @@ export const personUsualSchoolPlaceGeography: InputMapFindPlaceType = {
               }
             : config.mapDefaultCenter;
     },
-    defaultValue: function (interview, path) {
-        return undefined;
-    },
-    updateDefaultValueWhenResponded: true,
     validations: function (value, _customValue, interview, path, _customPath) {
         const geography: any = surveyHelperNew.getResponse(interview, path, null, '../geography');
         return [

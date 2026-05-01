@@ -97,7 +97,7 @@ describe('Render InputMapPoint with various parameters', () => {
                 'political',
                 'country',
             ],
-            updateDefaultValueWhenResponded: true
+            resetToDefaultUnlessUserInteracted: true
         }, baseWidgetConfig);
         const { container } = render(
             <InputMapFindPlace
@@ -136,7 +136,7 @@ describe('Test geocoding requests', () => {
             url: 'path/to/icon',
         },
         size: 'medium',
-        updateDefaultValueWhenResponded: true
+        resetToDefaultUnlessUserInteracted: true
     }, baseWidgetConfig);
 
     const placeFeature1 = {

@@ -6,23 +6,13 @@
  */
 
 import _cloneDeep from 'lodash/cloneDeep';
+import _isEqual from 'lodash/isEqual';
 import { prepareSectionWidgets } from '../WidgetOperation';
 import { setApplicationConfiguration } from 'chaire-lib-frontend/lib/config/application.config';
 import { UserRuntimeInterviewAttributes, WidgetStatus } from 'evolution-common/lib/services/questionnaire/types';
 import { UserInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { checkConditional, checkChoicesConditional } from '../Conditional';
 import { checkValidations } from '../Validation';
-
-const testUser = {
-    id: 1,
-    username: 'test',
-    preferences: { },
-    serializedPermissions: [],
-    isAuthorized: jest.fn(),
-    is_admin: false,
-    pages: [],
-    showUserInfo: true
-};
 
 jest.mock('../Conditional', () => ({
     checkConditional: jest.fn().mockReturnValue([true, undefined, undefined]),
@@ -420,6 +410,174 @@ describe('Test with previous status', () => {
     });
 
 });
+
+describe('Test geography widgets: ', () => {
+    const sections = {
+        [mainSection]: {
+            widgets: ['geoWidget']
+        }
+    };
+
+    const defaultValueToSet = { type: 'Feature' as const, properties: {}, geometry: { type: 'Point' as const, coordinates: [-73.1, 45.02]}};
+    const defaultValueFct = jest.fn().mockReturnValue(defaultValueToSet);
+
+    const widgets = {
+        geoWidget: {
+            type: 'question',
+            inputType: 'mapFindPlace',
+            label: { en: 'geo label' },
+            path: 'testSection.geo',
+            defaultValue: defaultValueFct
+        },
+    };
+
+    beforeEach(() => {
+        setApplicationConfiguration({ sections, widgets });
+    });
+
+    // Create a geojson feature with a specific action in properties
+    const setValueWithAction = (action: string) => ({
+        type: 'Feature' as const,
+        properties: { lastAction: action },
+        geometry: { type: 'Point' as const, coordinates: [-73.1234, 45.4321]}
+    });
+    test.each([{
+        title: 'undefined current value, should set default',
+        currentValue: undefined,
+        resetToDefaultUnlessUserInteracted: true,
+        expected: defaultValueToSet
+    }, {
+        title: 'value with findPlace action, should keep value',
+        currentValue: setValueWithAction('findPlace'),
+        resetToDefaultUnlessUserInteracted: true,
+        expected: setValueWithAction('findPlace'),
+    }, {
+        title: 'value with markerDragged action, should keep value',
+        currentValue: setValueWithAction('markerDragged'),
+        resetToDefaultUnlessUserInteracted: true,
+        expected: setValueWithAction('markerDragged'),
+    }, {
+        title: 'value with mapClicked action, should keep value',
+        currentValue: setValueWithAction('mapClicked'),
+        resetToDefaultUnlessUserInteracted: true,
+        expected: setValueWithAction('mapClicked'),
+    }, {
+        title: 'value with geocoding action, should keep value',
+        currentValue: setValueWithAction('geocoding'),
+        resetToDefaultUnlessUserInteracted: true,
+        expected: setValueWithAction('geocoding'),
+    }, {
+        title: 'value with shortcut action, should set default',
+        currentValue: setValueWithAction('shortcut'),
+        resetToDefaultUnlessUserInteracted: true,
+        expected: defaultValueToSet,
+    }, {
+        title: 'value with preGeocoded action, should set default',
+        currentValue: setValueWithAction('preGeocoded'),
+        resetToDefaultUnlessUserInteracted: true,
+        expected: defaultValueToSet,
+    }, {
+        title: 'undefined current value, should set default',
+        currentValue: undefined,
+        resetToDefaultUnlessUserInteracted: false,
+        expected: defaultValueToSet
+    }, {
+        title: 'value with findPlace action, should keep value',
+        currentValue: setValueWithAction('findPlace'),
+        resetToDefaultUnlessUserInteracted: false,
+        expected: setValueWithAction('findPlace'),
+    }, {
+        title: 'value with shortcut action, should keep value',
+        currentValue: setValueWithAction('shortcut'),
+        resetToDefaultUnlessUserInteracted: false,
+        expected: setValueWithAction('shortcut'),
+    }, {
+        title: 'value with preGeocoded action, should keep value',
+        currentValue: setValueWithAction('preGeocoded'),
+        resetToDefaultUnlessUserInteracted: false,
+        expected: setValueWithAction('preGeocoded'),
+    }])('with resetToDefaultUnlessUserInteracted `$resetToDefaultUnlessUserInteracted` and $title', ({ currentValue, resetToDefaultUnlessUserInteracted, expected }) => {
+        const widgetConfig = _cloneDeep(widgets);
+        (widgetConfig.geoWidget as any).resetToDefaultUnlessUserInteracted = resetToDefaultUnlessUserInteracted;
+        setApplicationConfiguration({ sections, widgets: widgetConfig });
+
+        // Prepare test data, setting the current value of the geography widget
+        const testInterviewAttributes = _cloneDeep(runtimeInterviewAttributes);
+        testInterviewAttributes.response.testSection = { geo: currentValue };
+
+        // Prepare expected interview, with the expected value for the geography widget
+        const expectedInterview = _cloneDeep(interviewAttributes) as any;
+        // Delete validations, that's not what we're testing
+        delete expectedInterview.validations;
+        expectedInterview.response.testSection = { geo: expected };
+
+        // Test, geography widget should have default value set
+        const { updatedInterview, updatedValuesByPath, needUpdate } = prepareSectionWidgets(mainSection, testInterviewAttributes, {  }, { });
+
+        // Interview data should correspond to expected, validations are set in all cases, value only if changed
+        const updateExpected = !_isEqual(currentValue, expected);
+        const expectedValuesByPath: any = updateExpected ? { 'response.testSection.geo': expected, 'validations.testSection.geo': true } : { 'validations.testSection.geo': true };
+        expect(updatedInterview).toEqual(expect.objectContaining(expectedInterview));
+        
+        expect(updatedValuesByPath).toEqual(expectedValuesByPath);
+        expect(needUpdate).toEqual(updateExpected);
+
+        // Check widget status for the geography widget
+        expect(updatedInterview.widgets.geoWidget).toEqual({
+            ...commonDefaultWidgetStatus,
+            currentUpdateKey: updateExpected ? 1 : 0, // Update key should have incremented if value changed
+            path: 'testSection.geo',
+            value: expected
+        });
+
+        // Validate that the default value function was called only when the value is expected to be updated with the default value
+        if (updateExpected) {
+            expect(defaultValueFct).toHaveBeenCalledTimes(1);
+        } else {
+            expect(defaultValueFct).not.toHaveBeenCalled();
+        }
+    });
+
+    test('with resetToDefaultUnlessUserInteracted `true` but widget invisible', () => {
+        mockedCheckConditional.mockReturnValueOnce([false, undefined, undefined]);
+        const widgetConfig = _cloneDeep(widgets);
+        (widgetConfig.geoWidget as any).resetToDefaultUnlessUserInteracted = true;
+        setApplicationConfiguration({ sections, widgets: widgetConfig });
+
+        // Prepare test data, setting the current value to something that should trigger the reset
+        const currentValue = setValueWithAction('shortcut');
+        const testInterviewAttributes = _cloneDeep(runtimeInterviewAttributes);
+        testInterviewAttributes.response.testSection = { geo: currentValue };
+
+        // Prepare expected interview, with the same value for the geography widget
+        const expectedInterview = _cloneDeep(interviewAttributes) as any;
+        // Delete validations, that's not what we're testing
+        delete expectedInterview.validations;
+        expectedInterview.response.testSection = { geo: undefined };
+
+        // Test, geography widget, the widget will be invisible
+        const { updatedInterview, updatedValuesByPath, needUpdate } = prepareSectionWidgets(mainSection, testInterviewAttributes, {  }, { });
+
+        // Interview data should correspond to expected
+        const expectedValuesByPath: any = { 'response.testSection.geo': undefined, 'validations.testSection.geo': true };
+        expect(updatedInterview).toEqual(expect.objectContaining(expectedInterview));
+        
+        expect(updatedValuesByPath).toEqual(expectedValuesByPath);
+        expect(needUpdate).toEqual(true);
+
+        // Check widget status for the geography widget
+        expect(updatedInterview.widgets.geoWidget).toEqual({
+            ...commonDefaultWidgetStatus,
+            path: 'testSection.geo',
+            value: undefined,
+            isVisible: false,
+            isEmpty: true
+        });
+
+        // Validate that the default value function was not called
+        expect(defaultValueFct).not.toHaveBeenCalled();
+    });
+})
 
 describe('Test with conditional', () => {
     test('Change in widget1, make widget2 invisible and empty', () => {
