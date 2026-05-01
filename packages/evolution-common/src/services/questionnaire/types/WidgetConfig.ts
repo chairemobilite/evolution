@@ -75,6 +75,12 @@ export type ValidationFunction = (
 
 export type InputStringType = BaseQuestionType & {
     inputType: 'string';
+    /**
+     * Used to set an initial value when the widget becomes visible for the
+     * first time, and to reset to this value when the widget is hidden and
+     * becomes visible again, if the `useAssignedValueOnHide` option is
+     * disabled. It can be a string or a function that returns a string.
+     */
     defaultValue?: string | ParsingFunction<string>;
     maxLength?: number;
     datatype?: 'string' | 'integer' | 'float';
@@ -88,6 +94,12 @@ export type InputStringType = BaseQuestionType & {
 
 export type InputTextType = BaseQuestionType & {
     inputType: 'text';
+    /**
+     * Used to set an initial value when the widget becomes visible for the
+     * first time, and to reset to this value when the widget is hidden and
+     * becomes visible again, if the `useAssignedValueOnHide` option is
+     * disabled. It can be a string or a function that returns a string.
+     */
     defaultValue?: string | ParsingFunction<string>;
     maxLength?: number;
     shortname?: string;
@@ -249,7 +261,14 @@ type InputMapType = {
     defaultZoom?: number;
     canBeCollapsed?: boolean;
     shortname?: string;
-    defaultValue?: GeoJSON.Point | ParsingFunction<GeoJSON.Point | undefined>;
+    /**
+     * Default value for the map widget, which can be used to set an initial
+     * point on the map when it is first rendered. It also resets to this point
+     * when the widget is hidden and comes back, if the `useAssignedValueOnHide`
+     * option is disabled. It can be a GeoJSON Point feature or a function that
+     * returns a GeoJSON Point feature or undefined.
+     */
+    defaultValue?: GeoJSON.Feature<GeoJSON.Point> | ParsingFunction<GeoJSON.Feature<GeoJSON.Point> | undefined>;
 };
 
 export type InputMapPointType = InputMapType &
@@ -325,6 +344,16 @@ export type BaseQuestionType = {
 
     helpPopup?: HelpPopup;
     validations?: ValidationFunction;
+    /**
+     * A function that determines if a widget should be visible or not. See
+     * {@link WidgetConditional} for more details. This property is also used to
+     * specify a value to assign to the corresponding response field when the
+     * widget is hidden.
+     *
+     * To assign an initial value when a widget is first shown, use the
+     * `defaultValue` property of the widget configuration, for widgets that
+     * support it.
+     */
     conditional?: WidgetConditional;
 };
 

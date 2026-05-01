@@ -181,8 +181,9 @@ describe('LocationWithNameWidgetsFactory - locationGeography widget', () => {
                 icon: { url: '/custom-icon.svg', size: [16, 24] },
                 defaultCenter: { lat: 43.7, lon: -79.4 },
                 defaultValue: {
-                    type: 'Point',
-                    coordinates: [-79.4, 43.7]
+                    type: 'Feature',
+                    geometry: { type: 'Point', coordinates: [-79.4, 43.7] },
+                    properties: {}
                 },
                 validations: geographyValidations,
                 conditional: geographyConditional,
@@ -205,8 +206,9 @@ describe('LocationWithNameWidgetsFactory - locationGeography widget', () => {
         expect(widgetConfig.containsHtml).toBe(true);
         expect(widgetConfig.defaultCenter).toEqual({ lat: 43.7, lon: -79.4 });
         expect(widgetConfig.defaultValue).toEqual({
-            type: 'Point',
-            coordinates: [-79.4, 43.7]
+            type: 'Feature',
+            geometry: { type: 'Point', coordinates: [-79.4, 43.7] },
+            properties: {}
         });
         expect(widgetConfig.refreshGeocodingLabel).toEqual('customSurvey:RefreshMapGeocoding');
         expect(widgetConfig.validations).toBe(geographyValidations);
