@@ -490,66 +490,6 @@ const getTripTransferCategory = (trip: any): any => {
     return null;
 };
 
-const getHouseholdVisitedPlacesArrayAndByPersonId = function (interview) {
-    const persons = odSurveyHelper.getPersons({ interview });
-    let visitedPlaces = [];
-    const visitedPlacesByPersonId = {};
-    for (const personId in persons) {
-        const person = persons[personId];
-        const journey = odSurveyHelper.getJourneysArray({ person })[0];
-        const personVisitedPlaces = odSurveyHelper.getVisitedPlaces({ journey });
-        const personVisitedPlacesSorted = Object.values(personVisitedPlaces).sort((visitedPlaceA, visitedPlaceB) => {
-            return visitedPlaceA['_sequence'] - visitedPlaceB['_sequence'];
-        });
-        visitedPlaces = visitedPlaces.concat(personVisitedPlacesSorted);
-        visitedPlacesByPersonId[personId] = personVisitedPlacesSorted;
-    }
-    return { visitedPlaces, visitedPlacesByPersonId };
-};
-
-const getShortcutVisitedPlaces = (interview: any): any => {
-    const actualPerson = odSurveyHelper.getPerson({ interview });
-    const journey = odSurveyHelper.getJourneysArray({ person: actualPerson })[0];
-    const actualVisitedPlace = odSurveyHelper.getActiveVisitedPlace({ interview, journey });
-    const previousVisitedPlace = odSurveyHelper.getPreviousVisitedPlace({
-        visitedPlaceId: actualVisitedPlace._uuid,
-        journey
-    });
-    const previousVisitedPlaceGeography = odSurveyHelper.getVisitedPlaceGeography({
-        visitedPlace: previousVisitedPlace,
-        person: actualPerson,
-        interview
-    });
-    const previousVisitedPlaceCoordinates = _get(previousVisitedPlaceGeography, 'geometry.coordinates', null);
-    const visitedPlacesArrayAndByPersonId = getHouseholdVisitedPlacesArrayAndByPersonId(interview);
-    const shortcutsOrderedByPerson = [];
-    for (const personId in visitedPlacesArrayAndByPersonId.visitedPlacesByPersonId) {
-        const person = odSurveyHelper.getPerson({ interview, personId });
-        const personVisitedPlaces = visitedPlacesArrayAndByPersonId.visitedPlacesByPersonId[personId];
-        for (let i = 0, count = personVisitedPlaces.length; i < count; i++) {
-            const visitedPlace = personVisitedPlaces[i];
-            const visitedPlaceGeography = odSurveyHelper.getVisitedPlaceGeography({ visitedPlace, person, interview });
-            const visitedPlaceCoordinates = _get(visitedPlaceGeography, 'geometry.coordinates', null);
-            const visitedPlaceDescription = getVisitedPlaceDescription(visitedPlace, true, false);
-            if (
-                visitedPlace.activity !== 'home' &&
-                visitedPlace.activity !== 'workOnTheRoadFromHome' &&
-                visitedPlace._uuid !== actualVisitedPlace._uuid &&
-                !_isBlank(visitedPlaceCoordinates) &&
-                !_isBlank(previousVisitedPlaceCoordinates) &&
-                !isEqual(visitedPlaceCoordinates, previousVisitedPlaceCoordinates)
-            ) {
-                shortcutsOrderedByPerson.push({
-                    personNickname: person.nickname,
-                    visitedPlaceId: `household.persons.${personId}.visitedPlaces.${visitedPlace._uuid}`,
-                    description: visitedPlaceDescription
-                });
-            }
-        }
-    }
-    return shortcutsOrderedByPerson;
-};
-
 export default {
     homeSectionComplete,
     householdMembersSectionComplete,
@@ -565,6 +505,5 @@ export default {
     deleteVisitedPlace,
     getGenderString,
     getDrivers,
-    getTripTransferCategory,
-    getShortcutVisitedPlaces
+    getTripTransferCategory
 };

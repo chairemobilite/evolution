@@ -76,10 +76,17 @@ export class VisitedPlaceGeographyWidgetFactory implements WidgetConfigFactory {
                 return [false, (person as any).usualSchoolPlace.name];
             }
 
-            // TODO Add the already selected place logic here (https://github.com/chairemobilite/evolution/issues/1455). For now, we ignore
-
-            // Do not display for loop activity if activity is not set, if it is home or loop activity and it is not an already visited place
-            const shouldDisplay = !_isBlank(activity) && ![...loopActivities, 'home'].includes(activity);
+            // Do not display for loop activity if activity is not set, if it is
+            // home or loop activity and it is not an already visited place
+            const shouldDisplay =
+                !_isBlank(activity) &&
+                ![...loopActivities, 'home'].includes(activity) &&
+                visitedPlace.alreadyVisitedBySelfOrAnotherHouseholdMember !== true;
+            if (!shouldDisplay && visitedPlace.shortcut) {
+                // Get the name from the shortcut if any.
+                const visitedPlaceName = odHelpers.getVisitedPlaceName({ visitedPlace, interview, t: i18n.t });
+                return [false, visitedPlaceName];
+            }
             return [shouldDisplay, null];
         },
         validations: (value) => {
@@ -90,7 +97,6 @@ export class VisitedPlaceGeographyWidgetFactory implements WidgetConfigFactory {
                 }
             ];
         }
-        // TODO Add the default value as the shorcut name
     });
 
     private getGeographyWidgetConfiguration = (): LocationWithNameWidgetOptions['geographyWidget'] => ({
@@ -168,29 +174,64 @@ export class VisitedPlaceGeographyWidgetFactory implements WidgetConfigFactory {
             ];
             return validations;
         },
-        // TODO The original od_natioanle did not show the geocoding button when the place was a shortcut. We should decide if that is the right behavior and if so, bring back that behavior, when we support already located place
-        conditional: (interview, path) => {
-            const visitedPlace: any = getResponse(interview, path, null, '../');
-            const activity = visitedPlace.activity;
-            const person = odHelpers.getActivePerson({ interview });
-            // Do not diplay if the activity is a usual place and that place is set with a geography
-            if (
-                activity === 'workUsual' &&
-                (person as any).usualWorkPlace &&
-                (person as any).usualWorkPlace.geography
-            ) {
-                return [false, _cloneDeep((person as any).usualWorkPlace.geography)];
+        defaultValue: function (interview, path) {
+            const visitedPlaceContext = odHelpers.getVisitedPlaceContextFromPath({ interview, path });
+            if (visitedPlaceContext === null) {
+                throw new Error(
+                    'widgetVisitedPlaceShortcut: defaultValue function: visited place context not found for path' + path
+                );
             }
-            if (
-                activity === 'schoolUsual' &&
-                (person as any).usualSchoolPlace &&
-                (person as any).usualSchoolPlace.geography
-            ) {
-                return [false, _cloneDeep((person as any).usualSchoolPlace.geography)];
+            const { person, visitedPlace } = visitedPlaceContext || {};
+
+            // If the place is a shortcut, we want to default to the geography of the shortcut place
+            if (visitedPlace.shortcut) {
+                const shortcut = visitedPlace.shortcut;
+                const shortcutVisitedPlace: any = getResponse(interview, shortcut, null);
+                const geography = shortcutVisitedPlace
+                    ? odHelpers.getVisitedPlaceGeography({ visitedPlace: shortcutVisitedPlace, interview, person })
+                    : null;
+                if (shortcutVisitedPlace && geography !== null) {
+                    // clone the original shortcuted geography, otherwise it
+                    // will change the lastAction of the previous geography,
+                    // which is not correct.
+                    const clonedGeography = _cloneDeep(geography);
+                    if (clonedGeography.properties === undefined) {
+                        clonedGeography.properties = {};
+                    }
+                    clonedGeography.properties!.lastAction = 'shortcut';
+                    return clonedGeography;
+                }
+            }
+            return undefined;
+        },
+        resetToDefaultUnlessUserInteracted: true,
+        showSearchPlaceButton: (interview, path) => {
+            // Do not show the search button if the place is a shortcut, as the name field is not apparent
+            const visitedPlace: any = getResponse(interview, path, null, '../');
+            return _isBlank(visitedPlace.shortcut);
+        },
+        conditional: (interview, path) => {
+            const visitedPlaceContext = odHelpers.getVisitedPlaceContextFromPath({ interview, path });
+            if (visitedPlaceContext === null) {
+                throw new Error(
+                    'widgetVisitedPlaceShortcut: defaultValue function: visited place context not found for path' + path
+                );
+            }
+            const { person, visitedPlace } = visitedPlaceContext || {};
+
+            const activity = visitedPlace.activity;
+            // Do not diplay if the activity is a usual place and that place is set with a geography
+            if (activity === 'workUsual' && person.usualWorkPlace && person.usualWorkPlace.geography) {
+                return [false, _cloneDeep(person.usualWorkPlace.geography)];
+            }
+            if (activity === 'schoolUsual' && person.usualSchoolPlace && person.usualSchoolPlace.geography) {
+                return [false, _cloneDeep(person.usualSchoolPlace.geography)];
             }
 
-            // TODO Add the already selected place logic here (https://github.com/chairemobilite/evolution/issues/1455).
-            return [!_isBlank(activity) && ![...loopActivities, 'home'].includes(activity), null];
+            // Show if the activity is not home or a loop activity. If it is a
+            // shortcut, show the geography for information, but the default
+            // value will take care of setting it.
+            return [!_isBlank(activity) && ![...loopActivities, 'home'].includes(activity!), null];
         }
     });
 

@@ -256,6 +256,19 @@ export type LocationWithNameWidgetOptions = {
          */
         geocodingQueryStringData?: GeocodingQueryData;
         containsHtml?: boolean;
+        /**
+         * Whether to reset the value to the default value when the widget is
+         * recalculated, if the geography widget value itself was not modified.
+         * This can be useful if the default value is used to set the geography
+         * based on some other field values, like a shortcut, to update when
+         * those other values change.
+         */
+        resetToDefaultUnlessUserInteracted?: InputMapFindPlaceType['resetToDefaultUnlessUserInteracted'];
+        /**
+         * Function to determine whether to show the "search place" button in
+         * the map widget. By default, the button is always shown.
+         */
+        showSearchPlaceButton?: InputMapFindPlaceType['showSearchPlaceButton'];
     };
 };
 
