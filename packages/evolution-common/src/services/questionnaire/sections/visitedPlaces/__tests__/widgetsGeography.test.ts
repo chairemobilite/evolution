@@ -78,7 +78,7 @@ describe('VisitedPlaceGeographyWidgetFactory', () => {
                 invalidGeocodingResultTypes: expect.any(Array),
                 refreshGeocodingLabel: expect.any(Function),
                 defaultValue: undefined,
-                updateDefaultValueWhenResponded: undefined,
+                resetToDefaultUnlessUserInteracted: undefined,
                 validations: expect.any(Function),
                 conditional: expect.any(Function)
             }

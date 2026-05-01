@@ -47,6 +47,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `getPersonsTripsGroupConfig` => `PersonTripsGroupConfigFactory`
   - `getSegmentsGroupConfig` => `SegmentsGroupConfigFactory`
   - `getSegmentsSectionConfig` => `SegmentsSectionFactory`
+- **BREAKING**: Rename the map widget's `updateDefaultValueWhenResponded` to `resetToDefaultUnlessUserInteracted` for clarity. The property applies to all map types, not just 'findPlace'.
 
 
 ### Deprecated

@@ -115,7 +115,7 @@ describe('Test geocoding requests', () => {
             url: 'path/to/icon',
             size: [60, 60] as [number, number]
         },
-        updateDefaultValueWhenResponded: true
+        resetToDefaultUnlessUserInteracted: true
     }, baseWidgetConfig);
 
     const geocodedFeature = { 

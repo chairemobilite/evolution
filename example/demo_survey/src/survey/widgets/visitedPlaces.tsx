@@ -422,7 +422,7 @@ export const visitedPlaceGeography = {
         }
         return undefined;
     },
-    updateDefaultValueWhenResponded: true,
+    resetToDefaultUnlessUserInteracted: true,
     validations: function (value, customValue, interview, path, customPath) {
         // FIXME This has a boundary check, remove when supported directly in Evolution
         const validationResults = geographyWidgets.visitedPlaceGeography.validations(

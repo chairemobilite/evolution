@@ -269,6 +269,17 @@ type InputMapType = {
      * returns a GeoJSON Point feature or undefined.
      */
     defaultValue?: GeoJSON.Feature<GeoJSON.Point> | ParsingFunction<GeoJSON.Feature<GeoJSON.Point> | undefined>;
+    /**
+     * Whether to reset the value to the default value when the widget is
+     * re-rendered, if the geography widget value was not previously
+     * modified by a participant (or interviewer), ie when the last action
+     * on the widget is not a user interaction like 'mapClicked',
+     * 'markerDragged', 'findPlace' or 'geocoding'.  This can be useful if
+     * the default value is used to set the geography based on some other
+     * field values, like a shortcut, to update when those other values
+     * change. Defaults to `false`.
+     */
+    resetToDefaultUnlessUserInteracted?: boolean;
 };
 
 export type InputMapPointType = InputMapType &
@@ -289,7 +300,6 @@ export type InputMapPointType = InputMapType &
  * @param invalidGeocodingResultTypes: Types of geocoding results from google to set as invalid (like 'city' or 'country', which are not precise enough for the address)
  * @param showPhoto: Whether to show a photo of the selected place, when available.
  * @param autoConfirmIfSingleResult: Whether to automatically confirm the selected place if there is only one result
- * @param updateDefaultValueWhenResponded: Whether to update the default value when the user responds
  */
 export type InputMapFindPlaceType = InputMapType &
     BaseQuestionType & {
@@ -306,7 +316,6 @@ export type InputMapFindPlaceType = InputMapType &
         invalidGeocodingResultTypes?: string[];
         showPhoto?: boolean;
         autoConfirmIfSingleResult?: boolean;
-        updateDefaultValueWhenResponded?: boolean;
     };
 
 export type BaseQuestionType = {
