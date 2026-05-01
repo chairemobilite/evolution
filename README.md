@@ -156,79 +156,23 @@ The path is relative to the survey project directory (projectDirectory param in 
 - **Multiple distinct areas**: If your survey territory consists of multiple disconnected areas, use a `MultiPolygon` geometry within a single feature.
 - An example file with the Quebec province area is available at `example/demo_survey/surveyArea.geojson.example`.
 
-## Run UI tests for the application
+## Running tests
 
-Evolution supports running UI tests with playwright. Surveys need to implement their own tests, but `evolution-frontend` provider a library in the `tests/ui-testing` folder.
+| Command                | Scope                                                                                   |
+| ---------------------- | --------------------------------------------------------------------------------------- |
+| `yarn test`            | Unit tests, all `evolution-*` packages                                                  |
+| `yarn test:sequential` | DB integration tests (requires `setup-test` + `migrate-test`)                           |
+| `yarn test:ui`         | Playwright UI tests — see [CONTRIBUTING.md](CONTRIBUTING.md#ui-testing-with-playwright) |
+| `yarn test:python`     | Tests for Python code (currently `evolution-generator`)                                 |
 
-See the `examples/demo_survey/tests` folder for examples UI testing
+To target a single package instead of the whole repo, use `yarn workspace <name> <script>` — e.g. `yarn workspace evolution-common test` or `yarn workspace evolution-backend test -- --testPathPattern=auditChecks`. `<name>` is the `name` field of that package's `package.json`.
 
-To run the tests for the demo_survey application, follow the following steps:
+## Linting and formatting
 
-Copy the configuration file in the repository to test and change the build to your needs
-
-```
-cp packages/evolution-frontend/playwright-example.config.ts survey/playwright.config.ts
-```
-
-Install the dependencies and browsers to use for playwright by running `yarn test:ui:install-dependencies`. This will install all playwright browsers and dependencies. It is possible to fine-tune the browsers to install. See the playwright documentation for more information (https://playwright.dev/docs/browsers).
-
-For example, to run the tests on firefox, use
-
-```
-npx playwright install --with-deps firefox
-```
-
-You need to start the application as you would to run it:
-
-```
-yarn build:dev or yarn build:prod
-yarn start
-```
-
-Run the UI tests
-
-```
-yarn test:ui
-```
-
-_Notes:_ In the `test:ui` script to define in the project, add the `LOCALE_DIR` environment variable, to register the translations for the current project. For example, in the `demo_survey` project, the script is defined as follows:
-
-```
-"test:ui": "LOCALE_DIR=$(pwd)/locales npx playwright test"
-```
-
-Each test defined needs to get its own context for the test execution. The following gives and example of how to start a UI test for an application:
-
-```js
-import { test } from '@playwright/test';
-import * as testHelpers from 'evolution-frontend/tests/ui-testing/testHelpers';
-import * as surveyTestHelpers from 'evolution-frontend/tests/ui-testing/surveyTestHelpers';
-import { SurveyObjectDetector } from 'evolution-frontend/tests/ui-testing/SurveyObjectDetectors';
-
-const context = {
-    page: null as any,
-    objectDetector: new SurveyObjectDetector(),
-    title: '',
-    widgetTestCounters: {}
-}
-
-// Configure the tests to run in serial mode (one after the other)
-test.describe.configure({ mode: 'serial' });
-
-// Initialize the test page and add it to the context
-test.beforeAll(async ({ browser }) => {
-    context.page = await testHelpers.initializeTestPage(browser, context.objectDetector);
-});
-
-// Open the page and login
-surveyTestHelpers.startAndLoginAnonymously({ context, title: 'Déplacements de longue distance au Québec', hasUser: false });
-
-// TODO Add tests here
-
-// Logout from the survey at the end
-surveyTestHelpers.logout({ context });
-
-```
+| Command       | Scope                                   |
+| ------------- | --------------------------------------- |
+| `yarn lint`   | ESLint across all packages              |
+| `yarn format` | Prettier across all packages            |
 
 ## Generate and View API Documentation with Typedoc
 
@@ -281,3 +225,9 @@ For a custom import or to support additional fields, the import task of Evolutio
 ## Nomenclature
 
 For naming consistency, see [Nomenclature](docs/nomenclature.md)
+
+## Development/Contributing documentation
+
+- General guidelines for contributions: [CONTRIBUTING.md](CONTRIBUTING.md).
+- Generate a survey with Generator: [Generator documentation](packages/evolution-generator/README.md).
+- Audits (post-submission validations): [packages/evolution-backend/src/services/audits/README.md](packages/evolution-backend/src/services/audits/README.md), with the practical guide for adding a new check at [packages/evolution-backend/src/services/audits/auditChecks/README.md](packages/evolution-backend/src/services/audits/auditChecks/README.md).
