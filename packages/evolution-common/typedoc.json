@@ -9,7 +9,10 @@
         "**/tests/**",
         "**/__tests__/**"
     ],
-    "readme": "../../README.md",
+    "readme": "../../docs/surveyAdminDoc.md",
+    "projectDocuments": [
+        "../../docs/generator.md"
+    ],
     "excludePrivate": true,
     "excludeProtected": false,
     "excludeInternal": true,
