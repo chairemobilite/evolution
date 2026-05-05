@@ -15,6 +15,7 @@ import { VisitedPlaceGeographyWidgetFactory } from './widgetsGeography';
 import { getNextPlaceCategoryWidgetConfig } from './widgetNextPlaceCategory';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { VisitedPlaceShortcutWidgetFactory } from './widgetsVisitedPlaceShortcut';
+import { ButtonsVisitedPlaceConfigFactory } from './buttonsVisitedPlace';
 
 /**
  * Widget config factory for the person visited places group. It represents the
@@ -51,7 +52,12 @@ export class PersonVisitedPlacesGroupConfigFactory implements WidgetConfigFactor
                 allWidgetNames.unshift(widgetName);
             }
         }
-        const widgetsAtTheEnd = ['visitedPlaceNextPlaceCategory'];
+        const widgetsAtTheEnd = [
+            'visitedPlaceNextPlaceCategory',
+            'buttonSaveVisitedPlace',
+            'buttonCancelVisitedPlace',
+            'buttonDeleteVisitedPlace'
+        ];
         for (const widgetName of widgetsAtTheEnd) {
             if (!allWidgetNames.includes(widgetName)) {
                 allWidgetNames.push(widgetName);
@@ -112,13 +118,15 @@ export class PersonVisitedPlacesGroupConfigFactory implements WidgetConfigFactor
             this.sectionConfig,
             this.options
         );
+        const buttonsWidgetFactory = new ButtonsVisitedPlaceConfigFactory(this.sectionConfig, this.options);
         return {
             personVisitedPlaces: this.getVisitedPlacesGroupConfig(),
             visitedPlaceActivityCategory: getActivityCategoryWidgetConfig(this.sectionConfig, this.options),
             visitedPlaceActivity: getActivityWidgetConfig(this.sectionConfig, this.options),
             ...visitedPlaceShortcutWidgetFactory.getWidgetConfigs(),
             ...geographyWidgetFactory.getWidgetConfigs(),
-            visitedPlaceNextPlaceCategory: getNextPlaceCategoryWidgetConfig(this.sectionConfig, this.options)
+            visitedPlaceNextPlaceCategory: getNextPlaceCategoryWidgetConfig(this.sectionConfig, this.options),
+            ...buttonsWidgetFactory.getWidgetConfigs()
         };
     };
 }
