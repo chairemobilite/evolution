@@ -48,6 +48,9 @@ describe('QuestionnaireFactory', () => {
             'visitedPlaceNextPlaceCategory',
             'visitedPlaceName',
             'visitedPlaceGeography',
+            'buttonSaveVisitedPlace',
+            'buttonCancelVisitedPlace',
+            'buttonDeleteVisitedPlace',
             'personVisitedPlacesMap',
             'buttonVisitedPlacesConfirmNextSection'
         ];

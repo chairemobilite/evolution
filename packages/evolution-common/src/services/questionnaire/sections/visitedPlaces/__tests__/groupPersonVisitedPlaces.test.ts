@@ -15,6 +15,7 @@ import { getActivityWidgetConfig } from '../widgetActivity';
 import { getNextPlaceCategoryWidgetConfig } from '../widgetNextPlaceCategory';
 import { VisitedPlaceGeographyWidgetFactory } from '../widgetsGeography';
 import { VisitedPlaceShortcutWidgetFactory } from '../widgetsVisitedPlaceShortcut';
+import { ButtonsVisitedPlaceConfigFactory } from '../buttonsVisitedPlace';
 
 const visitedPlacesSectionConfig: VisitedPlacesSectionConfiguration = {
     type: 'visitedPlaces',
@@ -32,7 +33,10 @@ describe('PersonVisitedPlacesGroupConfigFactory widgets', () => {
         'visitedPlaceShortcut',
         'visitedPlaceName',
         'visitedPlaceGeography',
-        'visitedPlaceNextPlaceCategory'
+        'visitedPlaceNextPlaceCategory',
+        'buttonSaveVisitedPlace',
+        'buttonCancelVisitedPlace',
+        'buttonDeleteVisitedPlace'
     ])('should have a widget named %s', (widgetName) => {
         const widgetConfigs = new PersonVisitedPlacesGroupConfigFactory(
             visitedPlacesSectionConfig,
@@ -47,7 +51,7 @@ describe('PersonVisitedPlacesGroupConfigFactory widgets', () => {
             visitedPlacesSectionConfig,
             widgetFactoryOptions
         ).getWidgetConfigs();
-        expect(Object.keys(widgetConfigs)).toHaveLength(8);
+        expect(Object.keys(widgetConfigs)).toHaveLength(11);
     });
 
     test.each([
@@ -85,6 +89,21 @@ describe('PersonVisitedPlacesGroupConfigFactory widgets', () => {
             expected: (config: VisitedPlacesSectionConfiguration) =>
                 new VisitedPlaceGeographyWidgetFactory(config, widgetFactoryOptions).getWidgetConfigs()
                     .visitedPlaceGeography
+        },
+        {
+            widgetName: 'buttonSaveVisitedPlace',
+            expected: (config: VisitedPlacesSectionConfiguration) =>
+                new ButtonsVisitedPlaceConfigFactory(config, widgetFactoryOptions).getWidgetConfigs().buttonSaveVisitedPlace
+        },
+        {
+            widgetName: 'buttonCancelVisitedPlace',
+            expected: (config: VisitedPlacesSectionConfiguration) =>
+                new ButtonsVisitedPlaceConfigFactory(config, widgetFactoryOptions).getWidgetConfigs().buttonCancelVisitedPlace
+        },
+        {
+            widgetName: 'buttonDeleteVisitedPlace',
+            expected: (config: VisitedPlacesSectionConfiguration) =>
+                new ButtonsVisitedPlaceConfigFactory(config, widgetFactoryOptions).getWidgetConfigs().buttonDeleteVisitedPlace
         }
     ])(
         'should return the correct widget config for $widgetName',
@@ -132,7 +151,10 @@ describe('PersonVisitedPlacesGroupConfigFactory personVisitedPlaces GroupConfig 
                 'visitedPlaceShortcut',
                 'visitedPlaceName',
                 'visitedPlaceGeography',
-                'visitedPlaceNextPlaceCategory'
+                'visitedPlaceNextPlaceCategory',
+                'buttonSaveVisitedPlace',
+                'buttonCancelVisitedPlace',
+                'buttonDeleteVisitedPlace'
             ]
         });
     });
@@ -252,7 +274,10 @@ describe('PersonVisitedPlacesGroupConfigFactory personVisitedPlaces GroupConfig 
                 'visitedPlaceGeography',
                 'customWidget1',
                 'customWidget2',
-                'visitedPlaceNextPlaceCategory'
+                'visitedPlaceNextPlaceCategory',
+                'buttonSaveVisitedPlace',
+                'buttonCancelVisitedPlace',
+                'buttonDeleteVisitedPlace'
             ]
         });
     });
@@ -295,7 +320,10 @@ describe('PersonVisitedPlacesGroupConfigFactory personVisitedPlaces GroupConfig 
                 'visitedPlaceActivity',
                 'customWidget2',
                 'visitedPlaceGeography',
-                'visitedPlaceNextPlaceCategory'
+                'visitedPlaceNextPlaceCategory',
+                'buttonSaveVisitedPlace',
+                'buttonCancelVisitedPlace',
+                'buttonDeleteVisitedPlace'
             ]
         });
     });
