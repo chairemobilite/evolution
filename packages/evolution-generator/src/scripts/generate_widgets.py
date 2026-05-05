@@ -227,6 +227,7 @@ def generate_widget_statement(row, gender_fields: GenderFields = None) -> Widget
     # Initialize gender_fields to a default class if none is provided
     gender_fields = gender_fields or GenderFields()
     question_name = row["questionName"]
+    active = row.get("active", True)  # Default to True if not present
     input_type = row["inputType"]
     section = row["section"]
     path = row["path"]
@@ -241,6 +242,13 @@ def generate_widget_statement(row, gender_fields: GenderFields = None) -> Widget
 
     # Initialize result with default values
     result: WidgetResult = {"statement": "", "has_helper_import": False}
+
+    # If the widget is not active, generate a comment and return
+    if active is False:
+        result["statement"] = (
+            f"// Note: {question_name} widget is not active. This widget will not be displayed in the survey."
+        )
+        return result
 
     # Generate the widgets statement based on the input type
     if input_type == "Custom":
@@ -353,7 +361,7 @@ def generate_widget_statement(row, gender_fields: GenderFields = None) -> Widget
 # Define a function to generate the widget name for a given row and group
 def generate_widget_name(row, group, is_last):
     question_name = row["questionName"]
-    active = row["active"]
+    active = row.get("active", True)  # Default to True if not present
     rowGroup = row.get("group") if row.get("group") else ""
 
     # Return the question_name commented if not active

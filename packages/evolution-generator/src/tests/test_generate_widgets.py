@@ -1097,6 +1097,31 @@ class TestGenerateWidgetStatementComments:
         )
 
 
+class TestGenerateWidgetStatementActiveFlag:
+    def test_inactive_widget_generates_not_active_comment_only(self):
+        row = {
+            "questionName": "acceptToBeContactedForHelp",
+            "active": False,
+            "inputType": "Radio",
+            "section": "home",
+            "path": "acceptToBeContactedForHelp",
+            "conditional": "",
+            "validation": "",
+            "inputRange": "",
+            "help_popup": "",
+            "choices": "yesNo",
+            "label::fr": "Acceptez-vous d'être contacté pour de l'aide?",
+            "label::en": "Do you agree to be contacted for help?",
+        }
+
+        result = generate_widget_statement(row, GenderFields())
+        assert (
+            result["statement"]
+            == "// Note: acceptToBeContactedForHelp widget is not active. This widget will not be displayed in the survey."
+        )
+        assert "export const acceptToBeContactedForHelp" not in result["statement"]
+
+
 # TODO: Test generate_select_widget
 # TODO: Test generate_number_widget
 # TODO: Test generate_range_widget
