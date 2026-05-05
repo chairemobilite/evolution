@@ -59,7 +59,7 @@ jest.mock('evolution-common/lib/services/odSurvey/helpers', () => {
 
     return {
         ...originalModule,
-        addVisitedPlace: jest.fn(),
+        insertEmptyVisitedPlace: jest.fn(),
         deleteVisitedPlace: jest.fn()
     };
 });
@@ -68,7 +68,7 @@ jest.mock('../../../hooks/useSectionTemplate', () => ({
 }));
 
 const mockedUseSectionTemplate = useSectionTemplate as jest.MockedFunction<typeof useSectionTemplate>;
-const mockedAddVisitedPlace = odSurveyHelper.addVisitedPlace as jest.MockedFunction<typeof odSurveyHelper.addVisitedPlace>;
+const mockedInsertEmptyVisitedPlace = odSurveyHelper.insertEmptyVisitedPlace as jest.MockedFunction<typeof odSurveyHelper.insertEmptyVisitedPlace>;
 const mockedDeleteVisitedPlace = odSurveyHelper.deleteVisitedPlace as jest.MockedFunction<typeof odSurveyHelper.deleteVisitedPlace>;
 
 const surveyContext = {
@@ -250,7 +250,7 @@ describe('VisitedPlacesSection behavior', () => {
             const buttons = getAllByTitle(buttonTitle);
             fireEvent.click(buttons[buttonIndex]);
 
-            expect(mockedAddVisitedPlace).toHaveBeenCalledWith(
+            expect(mockedInsertEmptyVisitedPlace).toHaveBeenCalledWith(
                 expect.objectContaining({
                     insertSequence: expectedSequence,
                     person: expect.objectContaining({ _uuid: 'personId1' }),

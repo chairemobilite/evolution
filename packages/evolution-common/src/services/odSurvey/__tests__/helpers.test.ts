@@ -2214,7 +2214,7 @@ describe('deleteVisitedPlace', () => {
     });
 });
 
-describe('addVisitedPlace', () => {
+describe('insertEmptyVisitedPlace', () => {
     const insertedVisitedPlaceUuid = 'insertedVisitedPlace';
 
     const getPathObject = (obj: Record<string, any>, dottedPath: string) => {
@@ -2284,7 +2284,7 @@ describe('addVisitedPlace', () => {
                 }
             }
         ]
-    ]).test('addVisitedPlace: %s', (_title, testCase) => {
+    ]).test('insertEmptyVisitedPlace: %s', (_title, testCase) => {
         const interview = _cloneDeep(interviewAttributesForTestCases);
         interview.response._activePersonId = 'personId1';
         interview.response._activeJourneyId = 'journeyId1';
@@ -2299,7 +2299,7 @@ describe('addVisitedPlace', () => {
             callback(updatedInterview);
         });
 
-        Helpers.addVisitedPlace({
+        Helpers.insertEmptyVisitedPlace({
             person,
             journey,
             insertSequence: testCase.insertSequence,
@@ -2341,7 +2341,7 @@ describe('addVisitedPlace', () => {
         });
 
         const insertSequence = 3;
-        Helpers.addVisitedPlace({
+        Helpers.insertEmptyVisitedPlace({
             person,
             journey,
             insertSequence: insertSequence,
