@@ -38,7 +38,7 @@ export const VisitedPlacesSection: React.FC<SectionProps> = (props: SectionProps
     const surveyContext = React.useContext(SurveyContext);
     const { t, i18n } = useTranslation(['main', 'visitedPlaces']);
 
-    const addVisitedPlace = (sequence: number, path: string, e?: React.MouseEvent<HTMLButtonElement>) => {
+    const insertVisitedPlace = (sequence: number, path: string, e?: React.MouseEvent<HTMLButtonElement>) => {
         if (e) {
             e.preventDefault();
         }
@@ -48,7 +48,7 @@ export const VisitedPlacesSection: React.FC<SectionProps> = (props: SectionProps
             return;
         }
         // Add a new place at sequence
-        odHelpers.addVisitedPlace({
+        odHelpers.insertEmptyVisitedPlace({
             person,
             journey: currentJourney,
             insertSequence: sequence,
@@ -422,7 +422,7 @@ export const VisitedPlacesSection: React.FC<SectionProps> = (props: SectionProps
                         type="button"
                         className="button blue center small"
                         onClick={(e) =>
-                            addVisitedPlace(
+                            insertVisitedPlace(
                                 visitedPlace['_sequence'] + 1,
                                 `household.persons.${person._uuid}.journeys.${currentJourney._uuid}.visitedPlaces`,
                                 e
@@ -459,7 +459,7 @@ export const VisitedPlacesSection: React.FC<SectionProps> = (props: SectionProps
                                     type="button"
                                     className="button blue center large"
                                     onClick={(e) =>
-                                        addVisitedPlace(
+                                        insertVisitedPlace(
                                             -1,
                                             `household.persons.${person._uuid}.journeys.${currentJourney._uuid}.visitedPlaces`,
                                             e

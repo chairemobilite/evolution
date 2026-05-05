@@ -1336,7 +1336,10 @@ export const reconcileVisitedPlaces = ({
 };
 
 /**
- * Add a visited place at the right place in the visited places array.
+ * Insert an empty visited place at the right place in the visited places array.
+ * It adds the new place and updates the previous and next visited places data
+ * (next categories and some timings if necessary). After this function is
+ * complete, the new visited place is the active one.
  *
  * // FIXME Copied from od_nationale_quebec's VisitedPlacesSection template.
  * Consider making it async and returning a promise so the caller can await the
@@ -1347,12 +1350,14 @@ export const reconcileVisitedPlaces = ({
  * @param {Object} options - The options object.
  * @param {Person} options.person The person the visited place belongs to
  * @param {Journey} options.journey The journey the visited place is part of
- * @param {number} options.insertSequence The sequence at which to insert the visited place
- * @param {Function} options.startAddGroupedObjects Function to start adding grouped objects
+ * @param {number} options.insertSequence The sequence at which to insert the
+ * visited place
+ * @param {Function} options.startAddGroupedObjects Function to start adding
+ * grouped objects
  * @param {Function} options.startUpdateInterview Function to start updating the
  * interview
  */
-export const addVisitedPlace = ({
+export const insertEmptyVisitedPlace = ({
     person,
     journey,
     insertSequence,
