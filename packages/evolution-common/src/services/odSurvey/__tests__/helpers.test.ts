@@ -2214,7 +2214,7 @@ describe('deleteVisitedPlace', () => {
     });
 });
 
-describe('insertEmptyVisitedPlace', () => {
+describe('insertVisitedPlace functions', () => {
     const insertedVisitedPlaceUuid = 'insertedVisitedPlace';
 
     const getPathObject = (obj: Record<string, any>, dottedPath: string) => {
@@ -2263,6 +2263,59 @@ describe('insertEmptyVisitedPlace', () => {
     };
 
     each([
+        {
+            title: 'inserts an empty visited place and return the updated interview',
+            insertSequence: 2,
+            newVisitedPlace: undefined
+        },
+        {
+            title: 'insert a visited place with data and return the updated interview',
+            insertSequence: -1,
+            newVisitedPlace: {
+                activity: 'restaurant',
+                arrivalTime: 19 * 60 * 60,
+            }
+        }
+    ]).test('insertVisitedPlace: %s', async ({ insertSequence, newVisitedPlace }) => {
+        const interview = _cloneDeep(interviewAttributesForTestCases);
+        interview.response._activePersonId = 'personId1';
+        interview.response._activeJourneyId = 'journeyId1';
+
+        const person = interview.response.household!.persons!.personId1 as Person;
+        const journey = person.journeys!.journeyId1 as Journey;
+
+        const startUpdateInterview = jest.fn().mockImplementation((_data, callback?) => {
+            if (callback) {
+                const interviewCopy = _cloneDeep(interview);
+                // just call the callback with the interview, we don't test this function, we just need the behavior
+                callback(interviewCopy);
+            }
+        });
+        const startAddGroupedObjects = jest.fn((newObjectsCount, insertSequence, path, attributes, callback) => {
+            const updatedInterview = _cloneDeep(interview);
+            addGroupedObjects(updatedInterview, newObjectsCount, insertSequence, path, attributes);
+            callback(updatedInterview);
+        });
+
+        await Helpers.insertVisitedPlace({
+            person,
+            journey,
+            insertSequence,
+            newVisitedPlace,
+            startAddGroupedObjects,
+        });
+
+        expect(startAddGroupedObjects).toHaveBeenCalledTimes(1);
+        expect(startAddGroupedObjects).toHaveBeenCalledWith(
+            1,
+            insertSequence,
+            'household.persons.personId1.journeys.journeyId1.visitedPlaces',
+            newVisitedPlace === undefined ? [] : [newVisitedPlace],
+            expect.any(Function)
+        );
+    });
+
+    each([
         [
             'inserts a visited place in the middle and clears previous and next dependent fields',
             {
@@ -2284,7 +2337,7 @@ describe('insertEmptyVisitedPlace', () => {
                 }
             }
         ]
-    ]).test('insertEmptyVisitedPlace: %s', (_title, testCase) => {
+    ]).test('insertEmptyVisitedPlace: %s', async (_title, testCase) => {
         const interview = _cloneDeep(interviewAttributesForTestCases);
         interview.response._activePersonId = 'personId1';
         interview.response._activeJourneyId = 'journeyId1';
@@ -2292,14 +2345,20 @@ describe('insertEmptyVisitedPlace', () => {
         const person = interview.response.household!.persons!.personId1 as Person;
         const journey = person.journeys!.journeyId1 as Journey;
 
-        const startUpdateInterview = jest.fn();
+        const startUpdateInterview = jest.fn().mockImplementation((_data, callback?) => {
+            if (callback) {
+                const interviewCopy = _cloneDeep(interview);
+                // just call the callback with the interview, we don't test this function, we just need the behavior
+                callback(interviewCopy);
+            }
+        });
         const startAddGroupedObjects = jest.fn((newObjectsCount, insertSequence, path, attributes, callback) => {
             const updatedInterview = _cloneDeep(interview);
             addGroupedObjects(updatedInterview, newObjectsCount, insertSequence, path, attributes);
             callback(updatedInterview);
         });
 
-        Helpers.insertEmptyVisitedPlace({
+        await Helpers.insertEmptyVisitedPlace({
             person,
             journey,
             insertSequence: testCase.insertSequence,
@@ -2319,10 +2378,10 @@ describe('insertEmptyVisitedPlace', () => {
         expect(startUpdateInterview).toHaveBeenCalledWith({
             sectionShortname: 'visitedPlaces',
             valuesByPath: testCase.expectedValuesByPath
-        });
+        }, expect.any(Function));
     });
 
-    test('addVisitedPlace: change active person and journey during group add', () => {
+    test('addVisitedPlace: change active person and journey during group add', async () => {
         const interview = _cloneDeep(interviewAttributesForTestCases);
         interview.response._activePersonId = 'personId1';
         interview.response._activeJourneyId = 'journeyId1';
@@ -2330,18 +2389,27 @@ describe('insertEmptyVisitedPlace', () => {
         const person = interview.response.household!.persons!.personId1 as Person;
         const journey = person.journeys!.journeyId1 as Journey;
 
-        const startUpdateInterview = jest.fn();
+        const startUpdateInterview = jest.fn().mockImplementation((_data, callback?) => {
+            if (callback) {
+                const interviewCopy = _cloneDeep(interview);
+                // just call the callback with the interview, we don't test this function, we just need the behavior
+                callback(interviewCopy);
+            }
+        });
         const startAddGroupedObjects = jest.fn((newObjectsCount, insertSequence, path, attributes, callback) => {
             const updatedInterview = _cloneDeep(interview);
             addGroupedObjects(updatedInterview, newObjectsCount, insertSequence, path, attributes);
-            // Change the activer person and journey to simulate user navigation, no further processing should be done
+            // Change the activer person and journey to simulate user
+            // navigation, the place should still be udpated, but the active
+            // visited place won't be set
             updatedInterview.response._activePersonId = 'personId2';
             updatedInterview.response._activeJourneyId = 'journeyId2';
             callback(updatedInterview);
         });
 
+        // Insert a place at sequence 3 (after workPlace1P1)
         const insertSequence = 3;
-        Helpers.insertEmptyVisitedPlace({
+        await Helpers.insertEmptyVisitedPlace({
             person,
             journey,
             insertSequence: insertSequence,
@@ -2357,7 +2425,14 @@ describe('insertEmptyVisitedPlace', () => {
             [],
             expect.any(Function)
         );
-        expect(startUpdateInterview).not.toHaveBeenCalled();
+        expect(startUpdateInterview).toHaveBeenCalledTimes(1);
+        expect(startUpdateInterview).toHaveBeenCalledWith({
+            sectionShortname: 'visitedPlaces',
+            valuesByPath: {
+                'response.household.persons.personId1.journeys.journeyId1.visitedPlaces.workPlace1P1.nextPlaceCategory': null,
+                'response.household.persons.personId1.journeys.journeyId1.visitedPlaces.homePlace2P1._previousDepartureTime': null
+            }
+        }, expect.any(Function));
     });
 });
 
