@@ -5,10 +5,11 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { InputStringType } from 'evolution-common/lib/services/questionnaire/types';
-import { parseString } from 'evolution-common/lib/utils/helpers';
+import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import { CommonInputProps } from './CommonInputProps';
 import FormattedInput from './FormattedInput';
 
@@ -21,12 +22,13 @@ export type InputStringProps = CommonInputProps & {
 
 const getStateValue = (props: InputStringProps) => {
     const value = _isBlank(props.value)
-        ? parseString(props.widgetConfig.defaultValue, props.interview, props.path, props.user)
+        ? surveyHelper.parseString(props.widgetConfig.defaultValue, props.interview, props.path, props.user)
         : props.value;
     return _isBlank(value) ? '' : value;
 };
 
 export const InputString = (props: InputStringProps) => {
+    const { i18n } = useTranslation();
     const [value, setValue] = React.useState(getStateValue(props));
     const inputRef = React.useRef<HTMLInputElement>(props.inputRef || (null as any));
 
@@ -56,8 +58,17 @@ export const InputString = (props: InputStringProps) => {
         autoComplete: 'none'
     };
 
-    // Use formatted input only if the inputFilter is defined
-    return _isBlank(props.widgetConfig.inputFilter) ? (
+    // Translate the suffix label
+    const suffixLabel = surveyHelper.translateString(
+        props.widgetConfig.suffixLabel,
+        i18n,
+        props.interview,
+        props.path,
+        props.user
+    );
+
+    // If the inputFilter is defined, use the formatted input, otherwise use the regular input
+    const inputEl = _isBlank(props.widgetConfig.inputFilter) ? (
         <input {...inputProps} onChange={(e) => handleChange(e.target.value)} ref={inputRef} />
     ) : (
         <FormattedInput
@@ -66,6 +77,16 @@ export const InputString = (props: InputStringProps) => {
             formatValue={props.widgetConfig.inputFilter}
             inputRef={inputRef}
         />
+    );
+
+    // If the suffixLabel is defined, add it to the input element otherwise return the input element
+    return _isBlank(suffixLabel) ? (
+        inputEl
+    ) : (
+        <div className="apptr__input-with-suffix">
+            {inputEl}
+            <span className="apptr__input-suffix">{suffixLabel}</span>
+        </div>
     );
 };
 

@@ -90,6 +90,10 @@ export type InputStringType = BaseQuestionType & {
     inputFilter?: (input: string) => string;
     // See https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/inputmode for the effect of the different options.
     keyboardInputMode?: 'none' | 'text' | 'numeric' | 'decimal' | 'tel' | 'search' | 'email' | 'url';
+    /**
+     * Optional label rendered to the right of the input (ex: %, days, hours).
+     */
+    suffixLabel?: I18nData;
 };
 
 export type InputTextType = BaseQuestionType & {

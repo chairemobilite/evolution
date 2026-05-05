@@ -39,6 +39,23 @@ label strong,
         width: 100%;
     }
 
+    // If the input has a suffix label, add it to the input element
+    .apptr__input-with-suffix {
+        display: flex;
+        align-items: center;
+        gap: 0.7rem;
+    }
+
+    // Suffix label for the input (e.g. %, days, hours).
+    .apptr__input-suffix {
+        white-space: nowrap;
+        font-size: settings.$font-size-medium-large;
+        font-weight: 700;
+        color: black;
+        opacity: 0.9;
+        padding-right: 0.2rem;
+    }
+
     textarea,
     .input-text {
         width: 100%;
