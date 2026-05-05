@@ -1336,28 +1336,71 @@ export const reconcileVisitedPlaces = ({
 };
 
 /**
+ * Add a visited place at the right sequence in the visited places array. It
+ * adds the new place by calling the startAddGroupedObjects callback function
+ * and returns the updated interview, with the new place in the array. It does
+ * not modify any other property of the place or the interview.
+ *
+ * @param {Object} options - The options object.
+ * @param {Person} options.person The person the visited place belongs to
+ * @param {Journey} options.journey The journey the visited place is part of
+ * @param {Partial<VisitedPlace>} [options.newVisitedPlace] The new visited
+ * place to add. It should not contain the _uuid and _sequence properties, as
+ * they will be generated automatically. Leave blank if the place should be
+ * empty
+ * @param {number} options.insertSequence The sequence at which to insert the
+ * visited place. Any negative value will add at the end of the array. The
+ * first object is at sequence 1.
+ * @param {Function} options.startAddGroupedObjects Function to start adding
+ * grouped objects
+ * @returns {Promise<UserInterviewAttributes>} A promise that resolves to the
+ * updated interview
+ */
+export const insertVisitedPlace = async ({
+    person,
+    journey,
+    newVisitedPlace,
+    insertSequence,
+    startAddGroupedObjects
+}: {
+    person: Person;
+    journey: Journey;
+    newVisitedPlace?: Partial<VisitedPlace>;
+    insertSequence: number;
+    startAddGroupedObjects: StartAddGroupedObjects;
+}): Promise<UserInterviewAttributes> => {
+    return new Promise((resolve) => {
+        const path = `household.persons.${person._uuid}.journeys.${journey._uuid}.visitedPlaces`;
+        startAddGroupedObjects(
+            1,
+            insertSequence,
+            path,
+            newVisitedPlace ? [newVisitedPlace] : [],
+            (updatedInterview) => {
+                resolve(updatedInterview);
+            }
+        );
+    });
+};
+
+/**
  * Insert an empty visited place at the right place in the visited places array.
  * It adds the new place and updates the previous and next visited places data
  * (next categories and some timings if necessary). After this function is
  * complete, the new visited place is the active one.
  *
- * // FIXME Copied from od_nationale_quebec's VisitedPlacesSection template.
- * Consider making it async and returning a promise so the caller can await the
- * end of the process if needed.  Now, when this function returns, there may
- * still be a few calls to the server pending before the interview is fully
- * updated.
- *
  * @param {Object} options - The options object.
  * @param {Person} options.person The person the visited place belongs to
  * @param {Journey} options.journey The journey the visited place is part of
  * @param {number} options.insertSequence The sequence at which to insert the
- * visited place
+ * visited place. Any negative value will add at the end of the array. The
+ * first object is at sequence 1.
  * @param {Function} options.startAddGroupedObjects Function to start adding
  * grouped objects
  * @param {Function} options.startUpdateInterview Function to start updating the
  * interview
  */
-export const insertEmptyVisitedPlace = ({
+export const insertEmptyVisitedPlace = async ({
     person,
     journey,
     insertSequence,
@@ -1369,55 +1412,73 @@ export const insertEmptyVisitedPlace = ({
     insertSequence: number;
     startAddGroupedObjects: StartAddGroupedObjects;
     startUpdateInterview: StartUpdateInterview;
-}) => {
-    const path = `household.persons.${person._uuid}.journeys.${journey._uuid}.visitedPlaces`;
-    startAddGroupedObjects(1, insertSequence, path, [], (updatedInterview) => {
-        const updatedPerson = getPerson({ interview: updatedInterview, personId: person._uuid }) as any;
-        const currentJourney = getActiveJourney({ interview: updatedInterview, person: updatedPerson });
-        if (!updatedPerson || !currentJourney) {
-            return;
-        }
-        const visitedPlaces = getVisitedPlacesArray({ journey: currentJourney });
-        // Get the inserted visited place, if sequence is -1, get the last one
-        const insertedVisitedPlace =
-            insertSequence === -1
-                ? visitedPlaces[visitedPlaces.length - 1]
-                : visitedPlaces.find((visitedPlace) => visitedPlace._sequence === insertSequence);
-        if (!insertedVisitedPlace) {
-            throw new Error('Added visited place not found after adding it');
-        }
+}): Promise<UserInterviewAttributes> => {
+    const updatedInterview = await insertVisitedPlace({
+        person,
+        journey,
+        insertSequence,
+        startAddGroupedObjects
+    });
+    const updatedPerson = getPerson({ interview: updatedInterview, personId: person._uuid }) as any;
+    const currentJourney = getJourneys({ person: updatedPerson })[journey._uuid];
+    if (!updatedPerson || !currentJourney) {
+        return updatedInterview;
+    }
+    const visitedPlaces = getVisitedPlacesArray({ journey: currentJourney });
+    // Get the inserted visited place, if sequence is negative, get the last one
+    const insertedVisitedPlace =
+        insertSequence < 0
+            ? visitedPlaces[visitedPlaces.length - 1]
+            : visitedPlaces.find((visitedPlace) => visitedPlace._sequence === insertSequence);
+    if (!insertedVisitedPlace) {
+        throw new Error('Added visited place not found after adding it');
+    }
 
-        const updateValuesByPath = {};
+    const updateValuesByPath = {};
 
-        // we must change nextPlaceCategory of previous visited place and
-        // set it to null since we don't know yet what type of place user
-        // want to add (home, work, other).
-        const previousVisitedPlace = getPreviousVisitedPlace({
-            journey: currentJourney,
-            visitedPlaceId: insertedVisitedPlace._uuid
-        });
-        if (previousVisitedPlace) {
-            const previousVisitedPlacePath = `household.persons.${person._uuid}.journeys.${currentJourney._uuid}.visitedPlaces.${previousVisitedPlace._uuid}`;
-            updateValuesByPath[`response.${previousVisitedPlacePath}.nextPlaceCategory`] = null;
-            // FIXME original code set the _previousDepartureTime, but in a very
-            // buggy way, ie it was not working at all... Was the intention to
-            // allow to set the departure time of the previous place?
-        }
+    // we must change nextPlaceCategory of previous visited place and
+    // set it to null since we don't know yet what type of place user
+    // want to add (home, work, other).
+    const previousVisitedPlace = getPreviousVisitedPlace({
+        journey: currentJourney,
+        visitedPlaceId: insertedVisitedPlace._uuid
+    });
+    if (previousVisitedPlace) {
+        const previousVisitedPlacePath = `household.persons.${person._uuid}.journeys.${currentJourney._uuid}.visitedPlaces.${previousVisitedPlace._uuid}`;
+        updateValuesByPath[`response.${previousVisitedPlacePath}.nextPlaceCategory`] = null;
+        // FIXME original code set the _previousDepartureTime, but in a very
+        // buggy way, ie it was not working at all... Was the intention to
+        // allow to set the departure time of the previous place?
+    }
 
-        // we must change _previousDepartureTime for nextVisitedPlace and set it to null
-        // FIXME Why? Shouldn't the previousDepartureTime of the next place already have been processed by a function and set to `null`? Keeping it for now, but when visited places cleanup has been done, revisit this fixme
-        const nextVisitedPlace = getNextVisitedPlace({
-            journey: currentJourney,
-            visitedPlaceId: insertedVisitedPlace._uuid
-        });
-        if (nextVisitedPlace) {
-            const nextVisitedPlacePath = `household.persons.${person._uuid}.journeys.${currentJourney._uuid}.visitedPlaces.${nextVisitedPlace._uuid}`;
-            updateValuesByPath[`response.${nextVisitedPlacePath}._previousDepartureTime`] = null;
-        }
+    // we must change _previousDepartureTime for nextVisitedPlace and set it to null
+    // FIXME Why? Shouldn't the previousDepartureTime of the next place already have been processed by a function and set to `null`? Keeping it for now, but when visited places cleanup has been done, revisit this fixme
+    const nextVisitedPlace = getNextVisitedPlace({
+        journey: currentJourney,
+        visitedPlaceId: insertedVisitedPlace._uuid
+    });
+    if (nextVisitedPlace) {
+        const nextVisitedPlacePath = `household.persons.${person._uuid}.journeys.${currentJourney._uuid}.visitedPlaces.${nextVisitedPlace._uuid}`;
+        updateValuesByPath[`response.${nextVisitedPlacePath}._previousDepartureTime`] = null;
+    }
 
-        // We set the active visited place to the inserted one
+    // We set the active visited place to the inserted one, if the currently
+    // active person and journey are the same
+    if (
+        getResponse(updatedInterview, '_activePersonId', null) === person._uuid &&
+        getResponse(updatedInterview, '_activeJourneyId', null) === journey._uuid
+    ) {
         updateValuesByPath['response._activeVisitedPlaceId'] = insertedVisitedPlace._uuid;
-        startUpdateInterview({ sectionShortname: 'visitedPlaces', valuesByPath: updateValuesByPath });
+    }
+    // Update the interview with all the changes if there are any, otherwise,
+    // return the interview as is
+    if (Object.keys(updateValuesByPath).length === 0) {
+        return updatedInterview;
+    }
+    return new Promise((resolve) => {
+        startUpdateInterview({ sectionShortname: 'visitedPlaces', valuesByPath: updateValuesByPath }, (interview) => {
+            resolve(interview);
+        });
     });
 };
 

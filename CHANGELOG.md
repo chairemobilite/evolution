@@ -29,7 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `getFirstIncompleteVisitedPlace` (commit [600bb6e](https://github.com/chairemobilite/evolution/commit/600bb6ea2f019dc07400440f84c380d1f4cc1dce))
   - `reconcileVisitedPlaces` (commit [cb1e699](https://github.com/chairemobilite/evolution/commit/cb1e699ba27534c8056597045012e5e7af2157e9))
   - `deleteVisitedPlace` (commit [fd6e33b](https://github.com/chairemobilite/evolution/commit/fd6e33bfa36c16b741469b30dd5ca90ef1948083))
-  - `insertEmptyVisitedPlace`
+  - `insertEmptyVisitedPlace`/`insertVisitedPlace`
   - `getHomeAddressOneLine` (commit [3b28f45](https://github.com/chairemobilite/evolution/commit/3b28f454515445b4b438bfcb6cf00e1a8fffcde9))
   - `shouldShowTripsAndPlacesSections` (commit [852a240](https://github.com/chairemobilite/evolution/commit/852a240a98d3c3a92197fe9684102df1326545f4))
   - `getJourneyContextFromPath`, `getTripContextFromPath`, `getVisitedPlaceContextFromPath`, `getSegmentContextFromPath` to get all objects in the interview from the path (fixes [#1538](https://github.com/chairemobilite/evolution/issues/1538))
