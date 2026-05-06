@@ -251,7 +251,7 @@ Widgets are the building blocks of your survey. They define the structure and in
 
 > <span id="range">**Note:**</span> The `inputRange` field is optional and allows you to define the valid range of values for `Range` input.
 
-> <span id="paramsWidgets">**Note:**</span> The `parameters` field is optional but can include a `customLabels` override in the format `customLabels={{someCustomLabels}}`. For `inputType=BuiltIn`, set `builtInFunction={{yourBuiltInFunctionName}}`.
+> <span id="paramsWidgets">**Note:**</span> The `parameters` field is optional but can include a `customLabels` override in the format `customLabels={{someCustomLabels}}`. For `inputType=BuiltIn`, set `builtInFunction={{yourBuiltInFunctionName}}`. For `inputType=String` and `inputType=Number`, you can set `suffixLabel=sectionName:valueSuffix` to display a translatable suffix label on the right side of the input (example: `suffixLabel=home:home.size.valueSuffix`).
 
 ### Widgets Example
 
@@ -306,7 +306,7 @@ In this example, we define a section named `household`. This section is visible 
 
 | section   | title_fr               | title_en         | in_nav | parent_section | groups           |
 | --------- | ---------------------- | ---------------- | ------ | -------------- | ---------------- |
-| home      | Ménage                 | Household        | TRUE   |                |                  |
+| home      | Domicile               | Home             | TRUE   |                |                  |
 | household | Ménage                 | Household        | TRUE   |                | householdMembers |
 | end       | Fin                    | End              | TRUE   |                |                  |
 | completed | Questionnaire complété | Survey completed | FALSE  |                |                  |

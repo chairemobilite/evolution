@@ -77,9 +77,21 @@ class StringParametersResult(TypedDict):
     TypedDict to hold the result of parsing parameters for a string widget from the Widgets sheet.
     It contains:
     - formatter: str | None, the name of the formatter to use. It can end with `customFormatter` to use a custom formatter.
+    - suffix_label: str | None, label rendered to the right of the input (ex: %, days, hours).
     """
 
     formatter: str | None
+    suffix_label: str | None
+
+
+class NumberParametersResult(TypedDict):
+    """
+    TypedDict to hold the result of parsing parameters for a number widget from the Widgets sheet.
+    It contains:
+    - suffix_label: str | None, label rendered to the right of the input (ex: %, days, hours).
+    """
+
+    suffix_label: str | None
 
 
 class WidgetResult(TypedDict):
@@ -565,6 +577,31 @@ def generate_skip_line(skip_line):
     return f"{'\n' if skip_line else ''}"
 
 
+def generate_suffix_label_code(
+    suffix_label: str | None, widget_type_for_error_message: str
+) -> str:
+    """
+    Generates the TypeScript 'suffixLabel' property code if valid.
+
+    Expected parameters format:
+        suffixLabel=sectionName:valueSuffix
+    """
+    if not isinstance(suffix_label, str) or suffix_label.strip() == "":
+        return ""
+
+    raw = suffix_label.strip()  # Remove leading and trailing spaces
+    # Validate `sectionName:valueSuffix` format:
+    # - exactly one ':' separator
+    # - non-empty left and right
+    # - no whitespace
+    if not re.match(r"^[^:\s]+:[^:\s]+$", raw):
+        print(
+            f"Warning: Invalid suffixLabel format for {widget_type_for_error_message} in Widgets sheet. Expected suffixLabel=sectionName:valueSuffix, got '{raw}'."
+        )
+        return ""
+    return f"{INDENT}suffixLabel: (t: TFunction) => t('{raw}'),\n"
+
+
 # Generate all the widget parts
 def generate_constExport(question_name, input_type):
     return f"export const {question_name}: WidgetConfig.{input_type} = {{"
@@ -904,10 +941,12 @@ def generate_string_widget(
 ):
     """
     - Parses formatter from the 'parameters' column (format: formatter=somethingCustomFormatter).
+    - Parses suffixLabel from the 'parameters' column (format: suffixLabel=sectionName:valueSuffix).
     - Generates the TypeScript widget code for InputStringType.
     """
     parameters: StringParametersResult = get_string_parameters(row)
     formatter = parameters["formatter"]
+    suffix_label = parameters["suffix_label"]
 
     result: WidgetResult = {
         "statement": "",
@@ -934,6 +973,7 @@ def generate_string_widget(
         f"{generate_default_value(row)}"
         f"{formatter_code}"
         f"{widget_label},\n"
+        f"{generate_suffix_label_code(suffix_label, 'String')}"
         f"{generate_help_popup(help_popup)}"
         f"{generate_conditional(conditional)},\n"
         f"{generate_validation(validation)}\n"
@@ -946,12 +986,16 @@ def generate_string_widget(
 def generate_number_widget(
     question_name, path, help_popup, conditional, validation, widget_label, row
 ):
+    parameters: NumberParametersResult = get_number_parameters(row)
+    suffix_label = parameters["suffix_label"]
+
     return (
         f"{generate_constExport(question_name, 'InputStringType')}\n"
         f"{generate_defaultInputBase('inputNumberBase')},\n"
         f"{generate_path(path)},\n"
         f"{generate_common_properties(row)}"
         f"{widget_label},\n"
+        f"{generate_suffix_label_code(suffix_label, 'Number')}"
         f"{generate_help_popup(help_popup)}"
         f"{generate_conditional(conditional)},\n"
         f"{generate_validation(validation)}\n"
@@ -1136,25 +1180,54 @@ def get_radio_number_parameters(row) -> RadioNumberParametersResult:
 def get_string_parameters(row) -> StringParametersResult:
     """
     Parses the parameters string for formatter from the row.
-    Returns a dict with keys: formatter.
+    Returns a dict with keys: formatter, suffix_label.
     Prints warnings for invalid or unrecognized parameters.
     Example valid formats:
         - "formatter=eightDigitsAccessCodeFormatter"
         - "formatter=someFieldCustomFormatter"
+        - "suffixLabel=sectionName:valueSuffix"
     """
     parameters = row.get("parameters", "")
 
     # Initialize the result with default values
-    result: StringParametersResult = {"formatter": None}
+    result: StringParametersResult = {"formatter": None, "suffix_label": None}
 
     param_dict = parse_parameters(parameters)
 
     for key, value in param_dict.items():
         if key == "formatter":
             result["formatter"] = value
+        elif key == "suffixlabel":
+            result["suffix_label"] = value
         elif key != "":
             print(
-                f"Warning: Unrecognized parameter '{key}' for string in Widgets sheet. Expected 'formatter'."
+                f"Warning: Unrecognized parameter '{key}' for string in Widgets sheet. Expected 'formatter' or 'suffixLabel'."
+            )
+
+    return result
+
+
+def get_number_parameters(row) -> NumberParametersResult:
+    """
+    Parses the parameters string for suffixLabel from the row.
+    Returns a dict with keys: suffix_label.
+    Prints warnings for invalid or unrecognized parameters.
+    Example valid formats:
+        - "suffixLabel=sectionName:valueSuffix"
+    """
+    parameters = row.get("parameters", "")
+
+    # Initialize the result with default values
+    result: NumberParametersResult = {"suffix_label": None}
+
+    param_dict = parse_parameters(parameters)
+
+    for key, value in param_dict.items():
+        if key == "suffixlabel":
+            result["suffix_label"] = value
+        elif key != "":
+            print(
+                f"Warning: Unrecognized parameter '{key}' for number in Widgets sheet. Expected 'suffixLabel'."
             )
 
     return result

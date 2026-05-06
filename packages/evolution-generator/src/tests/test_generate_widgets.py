@@ -13,10 +13,12 @@ from scripts.generate_widgets import (
     generate_next_button_widget,
     generate_string_widget,
     generate_widget_statement,
+    generate_suffix_label_code,
     generate_label,
     parse_parameters,
     get_radio_number_parameters,
     get_string_parameters,
+    get_number_parameters,
     generate_path,
     generate_import_statements,
     get_widgets_file_import_flags,
@@ -1194,13 +1196,22 @@ class TestGetStringParameters:
         """Test get_string_parameters returns defaults when parameters is empty"""
         row = {}
         params = get_string_parameters(row)
-        assert params["formatter"] == None
+        assert params["formatter"] is None
+        assert params["suffix_label"] is None
 
     def test_get_string_parameters_valid_parameters(self):
         """Test get_string_parameters parses valid min and max"""
         row = {"parameters": "formatter=somethingCustomFormatter"}
         params = get_string_parameters(row)
         assert params["formatter"] == "somethingCustomFormatter"
+        assert params["suffix_label"] is None
+
+    def test_get_string_parameters_suffix_label(self):
+        """Test get_string_parameters parses suffixLabel"""
+        row = {"parameters": "suffixLabel=home:valueSuffix"}
+        params = get_string_parameters(row)
+        assert params["formatter"] is None
+        assert params["suffix_label"] == "home:valueSuffix"
 
     def test_get_string_parameters_unrecognized_parameter(self, capsys):
         """Test get_string_parameters prints warning for unrecognized parameter"""
@@ -1208,10 +1219,69 @@ class TestGetStringParameters:
         params = get_string_parameters(row)
         captured = capsys.readouterr()
         assert (
-            "Warning: Unrecognized parameter 'foo' for string in Widgets sheet. Expected 'formatter'."
+            "Warning: Unrecognized parameter 'foo' for string in Widgets sheet. Expected 'formatter' or 'suffixLabel'."
             in captured.out
         )
         assert params["formatter"] == "somethingCustomFormatter"
+
+
+class TestGetNumberParameters:
+    """Tests for get_number_parameters function"""
+
+    def test_get_number_parameters_defaults(self):
+        """Test get_number_parameters returns defaults when parameters is empty"""
+        row = {}
+        params = get_number_parameters(row)
+        assert params["suffix_label"] is None
+
+    def test_get_number_parameters_suffix_label(self):
+        """Test get_number_parameters parses suffixLabel"""
+        row = {"parameters": "suffixLabel=home:valueSuffix"}
+        params = get_number_parameters(row)
+        assert params["suffix_label"] == "home:valueSuffix"
+
+    def test_get_number_parameters_unrecognized_parameter(self, capsys):
+        """Test get_number_parameters prints warning for unrecognized parameter"""
+        row = {"parameters": "suffixLabel=home:valueSuffix\nfoo=bar"}
+        params = get_number_parameters(row)
+        captured = capsys.readouterr()
+        assert (
+            "Warning: Unrecognized parameter 'foo' for number in Widgets sheet. Expected 'suffixLabel'."
+            in captured.out
+        )
+        assert params["suffix_label"] == "home:valueSuffix"
+
+
+class TestGenerateSuffixLabelCode:
+    """Tests for generate_suffix_label_code helper"""
+
+    def test_generate_suffix_label_code_empty(self):
+        assert generate_suffix_label_code(None, "String") == ""
+        assert generate_suffix_label_code("", "String") == ""
+        assert generate_suffix_label_code("   ", "String") == ""
+
+    def test_generate_suffix_label_code_valid(self):
+        result = generate_suffix_label_code("home:valueSuffix", "String")
+        assert "suffixLabel: (t: TFunction) => t('home:valueSuffix')" in result
+
+    def test_generate_suffix_label_code_valid_with_dots(self):
+        result = generate_suffix_label_code("home:home.size.valueSuffix", "String")
+        assert (
+            "suffixLabel: (t: TFunction) => t('home:home.size.valueSuffix')" in result
+        )
+
+    def test_generate_suffix_label_code_trims(self):
+        result = generate_suffix_label_code("  home:valueSuffix \n", "String")
+        assert "t('home:valueSuffix')" in result
+
+    def test_generate_suffix_label_code_invalid_format_warns(self, capsys):
+        result = generate_suffix_label_code("home:", "String")
+        captured = capsys.readouterr()
+        assert (
+            "Warning: Invalid suffixLabel format for String in Widgets sheet. Expected suffixLabel=sectionName:valueSuffix, got 'home:'."
+            in captured.out
+        )
+        assert result == ""
 
 
 class TestParseParameters:
