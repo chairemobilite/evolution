@@ -44,7 +44,6 @@ export const validatePreviousNextPlaceIsCompatibleActivities = ({
     incompatibleConsecutiveActivities: Activity[];
 }) => {
     const visitedPlaceContext = odSurveyHelpers.getVisitedPlaceContextFromPath({ interview, path });
-    console.log('Visited place context for path', path, ':', visitedPlaceContext);
     if (!visitedPlaceContext) {
         console.warn(
             'Warning: validatePreviousNextPlaceIsCompatibleActivities called but no active journey found in the interview. This conditional will return true, but this may indicate a problem with the interview data or the order of conditionals.'
@@ -60,13 +59,6 @@ export const validatePreviousNextPlaceIsCompatibleActivities = ({
         journey,
         visitedPlaceId: visitedPlace._uuid
     });
-    console.log(
-        'previous/next visited places for visited place with id',
-        visitedPlace._uuid,
-        ':',
-        previousVisitedPlace,
-        nextVisitedPlace
-    );
     return (
         (!previousVisitedPlace ||
             !previousVisitedPlace.activity ||
