@@ -123,3 +123,83 @@ alreadyVisitedBySelfOrAnotherHouseholdMember_one: >-
     Did you previously locate this place on the map?<br /><span class="_pale _oblique">In
     your travel diary or that of another household member.</span>
 shortcut: 'Please select this place from the list of previously located places:'
+visitedPlacePreviousPreviousDepartureTime_usualWorkPlace: >-
+    At what time did {{nickname}} leave the previous location ({{previousPlaceDescription}})
+    before going to the usual work place?
+visitedPlacePreviousPreviousDepartureTime_usualWorkPlace_one: >-
+    At what time did you leave the previous location ({{previousPlaceDescription}})
+    before going to your usual work place?
+visitedPlacePreviousPreviousDepartureTime_home_usualWorkPlace: 'At what time did {{nickname}} leave home to go
+    to the usual work place?'
+visitedPlacePreviousPreviousDepartureTime_home_usualWorkPlace_one: 'At what time did you leave home to go to your
+    usual work place?'
+visitedPlacePreviousPreviousDepartureTime: >-
+    At what time did {{nickname}} leave the previous location ({{previousPlaceDescription}})
+    before going to {{departureTypeActivity}}?
+visitedPlacePreviousPreviousDepartureTime_one: >-
+    At what time did you leave the previous location ({{previousPlaceDescription}})
+    before going to {{departureTypeActivity}}?
+visitedPlacePreviousArrivalTime_home: >-
+    At what time did {{nickname}} arrive home before starting work on the road trips?
+visitedPlacePreviousArrivalTime_home_one: At what time did you arrive home before
+    starting your work on the road trips?
+visitedPlacePreviousArrivalTime_usualWorkPlace: >-
+    At what time did {{nickname}} arrive at their usual work place before starting
+    work on the road trips?
+visitedPlacePreviousArrivalTime_usualWorkPlace_one: >-
+    At what time did you arrive at your usual work place before starting your work on the
+    road trips?
+visitedPlacePreviousArrivalTime: >-
+    At what time did {{nickname}} arrive at the previous location before starting work on the road trips?
+visitedPlacePreviousArrivalTime_one: >-
+    At what time did you arrive at the previous location before starting your work on the road trips?
+visitedPlacePreviousDepartureTime: >-
+    At what time did {{nickname}} leave the previous location ({{previousPlaceDescription}})?
+visitedPlacePreviousDepartureTime_one: >-
+    At what time did you leave the previous location ({{previousPlaceDescription}})?
+visitedPlacePreviousDepartureTime_home_workUsual: >-
+    At what time did {{nickname}} leave home to go to work?
+visitedPlacePreviousDepartureTime_home_workUsual_one: At what time did you leave home to go to work?
+visitedPlacePreviousDepartureTime_home_schoolUsual: >-
+    At what time did {{nickname}} leave home to go to school?
+visitedPlacePreviousDepartureTime_home_schoolUsual_one: >-
+    At what time did you leave home to go to school?
+visitedPlacePreviousDepartureTime_home_other: >-
+    At what time did {{nickname}} leave home to go to this place ({{visitedPlaceDescription}})?
+visitedPlacePreviousDepartureTime_home_other_one: >-
+    At what time did you leave home to go to this place ({{visitedPlaceDescription}})?
+
+tripDurationText: <br /><span class=\"_pale _oblique\">({{durationText}} trip)</span>
+tripDuration:
+    lessThan5Minutes: less than 5 minutes
+    hour_one: 'hour'
+    hour_other: 'hours'
+    minute_one: 'minute'
+    minute_other: 'minutes'
+
+
+# strings related to time widgets
+orPlus: or +
+visitedPlaceArrivalTime: '{{nickname}} arrived {{atPlace}} at:'
+visitedPlaceArrivalTime_one: 'You arrived {{atPlace}} at:'
+visitedPlaceArrivalTime_workOnTheRoad: '{{nickname}} started their work trip on the road at:'
+visitedPlaceArrivalTime_workOnTheRoad_one: 'You started your work trip on the road at:'
+visitedPlaceArrivalTime_leisureStroll: '{{nickname}} started their stroll at:'
+visitedPlaceArrivalTime_leisureStroll_one: 'You started your stroll at:'
+visitedPlaceDepartureTime: '{{nickname}} left {{place}} at:'
+visitedPlaceDepartureTime_one: 'You left {{place}} at:'
+visitedPlaceDepartureTime_leisureStroll: '{{nickname}} finished their stroll at:'
+visitedPlaceDepartureTime_leisureStroll_one: 'You finished your stroll at:'
+visitedPlaceDepartureTime_workOnTheRoad: '{{nickname}} finished their work on the road at:'
+visitedPlaceDepartureTime_workOnTheRoad_one: 'You finished your work on the road at:'
+atThisPlace: at this place
+atThisPlace_home: home
+atThisPlace_schoolUsual: at school
+atThisPlace_workUsual: at work
+atPlace: at {{placeName}}
+place: '{{placeName}}'
+thisPlace: this place
+thisPlace_home: home
+thisPlace_schoolUsual: school
+thisPlace_workUsual: work
+theHome: home

@@ -145,3 +145,80 @@ alreadyVisitedBySelfOrAnotherHouseholdMember_one: >-
     Avez-vous déjà localisé ce lieu?<br /><span class="_pale _oblique">Dans votre 
     entrevue ou dans celles des autres membres du ménage.</span>
 shortcut: 'Veuillez choisir le lieu dans la liste des lieux déjà localisés:'
+visitedPlacePreviousPreviousDepartureTime_usualWorkPlace: >-
+    À quelle heure {{nickname}} a-t-il(-elle) quitté le lieu précédent ({{previousPlaceDescription}})
+    avant de se rendre à son lieu habituel de travail?
+visitedPlacePreviousPreviousDepartureTime_usualWorkPlace_one: >-
+    À quelle heure avez-vous quitté le lieu précédent ({{previousPlaceDescription}})
+    avant de vous rendre à votre lieu habituel de travail?
+visitedPlacePreviousPreviousDepartureTime_home_usualWorkPlace: >-
+    À quelle heure {{nickname}} a-t-il(-elle) quitté le domicile pour aller à son lieu habituel de travail?
+visitedPlacePreviousPreviousDepartureTime_home_usualWorkPlace_one: >-
+    À quelle heure avez-vous quitté le domicile pour aller à votre lieu habituel de travail?
+visitedPlacePreviousPreviousDepartureTime: >-
+    À quelle heure {{nickname}} a-t-il(-elle) quitté le lieu précédent ({{previousPlaceDescription}})
+    avant de se rendre à {{departureTypeActivity}}?
+visitedPlacePreviousPreviousDepartureTime_one: >-
+    À quelle heure avez-vous quitté le lieu précédent ({{previousPlaceDescription}})
+    avant de vous rendre à {{departureTypeActivity}}?
+visitedPlacePreviousArrivalTime_home: >-
+    À quelle heure {{nickname}} est-il(-elle) arrivé(e) au domicile avant de débuter ses déplacements sur la route?
+visitedPlacePreviousArrivalTime_home_one: >-
+    À quelle heure êtes-vous arrivé(e) au domicile avant de débuter vos déplacements sur la route?
+visitedPlacePreviousArrivalTime_usualWorkPlace: >-
+    À quelle heure {{nickname}} est-il(-elle) arrivé(e) à son lieu habituel de travail avant de débuter ses déplacements sur la route?
+visitedPlacePreviousArrivalTime_usualWorkPlace_one: >-
+    À quelle heure êtes-vous arrivé(e) à votre lieu habituel de travail avant de débuter vos déplacements sur la route?
+visitedPlacePreviousArrivalTime: >-
+    À quelle heure {{nickname}} est-il(-elle) arrivé(e) au lieu précédent avant de débuter ses déplacements sur la route?
+visitedPlacePreviousArrivalTime_one: >-
+    À quelle heure êtes-vous arrivé(e) au lieu précédent avant de débuter vos déplacements sur la route?
+visitedPlacePreviousDepartureTime: >-
+    À quelle heure {{nickname}} a-t-il(-elle) quitté le lieu précédent ({{previousPlaceDescription}})?
+visitedPlacePreviousDepartureTime_one: >-
+    À quelle heure avez-vous quitté le lieu précédent ({{previousPlaceDescription}})?
+visitedPlacePreviousDepartureTime_home_workUsual: >-
+    À quelle heure {{nickname}} a-t-il(-elle) quitté le domicile pour aller au travail?
+visitedPlacePreviousDepartureTime_home_workUsual_one: À quelle heure avez-vous quitté le domicile
+    pour aller au travail?
+visitedPlacePreviousDepartureTime_home_schoolUsual: >-
+    À quelle heure {{nickname}} a-t-il(-elle) quitté le domicile pour aller au lieu
+    d'études/école?
+visitedPlacePreviousDepartureTime_home_schoolUsual_one: >-
+    À quelle heure avez-vous quitté le domicile pour aller au lieu d'études/école?
+visitedPlacePreviousDepartureTime_home_other: >-
+    À quelle heure {{nickname}} a-t-il(-elle) quitté le domicile pour aller à cet
+    endroit ({{visitedPlaceDescription}})?
+visitedPlacePreviousDepartureTime_home_other_one: >-
+    À quelle heure avez-vous quitté le domicile pour aller à cet endroit ({{visitedPlaceDescription}})?
+tripDurationText: <br /><span class=\"_pale _oblique\">(déplacement de {{durationText}})</span>
+tripDuration:
+    lessThan5Minutes: moins de 5 minutes
+    hour_one: 'heure'
+    hour_other: 'heures'
+    minute_one: 'minute'
+    minute_other: 'minutes'
+orPlus: ou +
+visitedPlaceArrivalTime: '{{nickname}} est arrivé(e) {{atPlace}} à:'
+visitedPlaceArrivalTime_one: 'Vous êtes arrivé(e) {{atPlace}} à:'
+visitedPlaceArrivalTime_workOnTheRoad: '{{nickname}} a débuté ses déplacements sur la route à:'
+visitedPlaceArrivalTime_workOnTheRoad_one: 'Vous avez débuté vos déplacements sur la route à:'
+visitedPlaceArrivalTime_leisureStroll: '{{nickname}} a débuté sa promenade à:'
+visitedPlaceArrivalTime_leisureStroll_one: 'Vous avez débuté votre promenade à:'
+visitedPlaceDepartureTime: '{{nickname}} a quitté {{place}} à:'
+visitedPlaceDepartureTime_one: 'Vous avez quitté {{place}} à:'
+visitedPlaceDepartureTime_leisureStroll: '{{nickname}} a terminé sa promenade à:'
+visitedPlaceDepartureTime_leisureStroll_one: 'Vous avez terminé votre promenade à:'
+visitedPlaceDepartureTime_workOnTheRoad: '{{nickname}} a terminé ses déplacements sur la route à:'
+visitedPlaceDepartureTime_workOnTheRoad_one: 'Vous avez terminé vos déplacements sur la route à:'
+atThisPlace: à cet endroit
+atThisPlace_home: au domicile
+atThisPlace_schoolUsual: au lieu d'études/école
+atThisPlace_workUsual: au travail
+atPlace: à {{placeName}}
+place: '{{placeName}}'
+thisPlace: cet endroit
+thisPlace_home: le domicile
+thisPlace_schoolUsual: le lieu d'études/école
+thisPlace_workUsual: le travail
+theHome: le domicile
