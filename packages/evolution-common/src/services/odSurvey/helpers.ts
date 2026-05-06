@@ -957,15 +957,16 @@ export const replaceVisitedPlaceShortcuts = ({
 };
 
 /**
- * Returns visited place name string. If no name will return generic name
- * followed by sequence
+ * Returns the html-safe visited place name string. If no name will return
+ * generic name followed by sequence
  *
  * @param {Object} options - The options object.
  * @param {TFunction} options.t The translation function
  * @param {VisitedPlace} options.visitedPlace The visited place for which to get
  * the name
  * @param {UserInterviewAttributes} options.interview The interview object
- * @returns {string} The visited place name or a generic name followed by its sequence.
+ * @returns {string} The visited place name, html-safe, or a generic name
+ * followed by its sequence.
  */
 export const getVisitedPlaceName = function ({
     t,
@@ -1033,10 +1034,10 @@ export const getVisitedPlaceGeography = function ({
 };
 
 /**
- * Get the visited place one-line description, including the place name (if
- * available), the activity name (if requested and available), the person's
- * nickname (if requested and available) and the arrival and departure times (if
- * requested and available).
+ * Get the visited place one-line, html-safe, description, including the place
+ * name (if available), the activity name (if requested and available), the
+ * person's nickname (if requested and available) and the arrival and departure
+ * times (if requested and available).
  *
  * @param args The arguments object
  * @param args.visitedPlace The visited place for which to get the description
@@ -1055,7 +1056,7 @@ export const getVisitedPlaceGeography = function ({
  * only one person in the household (default: true)
  * @param args.options.allowHtml Whether the description can contain HTML
  * characters (default: true)
- * @returns The formatted description string
+ * @returns The formatted description string, html-safe
  */
 export const getVisitedPlaceDescription = ({
     visitedPlace,
