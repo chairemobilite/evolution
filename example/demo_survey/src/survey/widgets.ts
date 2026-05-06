@@ -88,9 +88,6 @@ export const visitedPlaceArrivalTime: any = visitedPlacesWidgets.visitedPlaceArr
 //export const visitedPlaceIsNotLast                 = visitedPlacesWidgets.visitedPlaceIsNotLast;
 export const visitedPlaceDepartureTime: any = visitedPlacesWidgets.visitedPlaceDepartureTime;
 //export const visitedPlaceWentBackHomeDirectlyAfter = visitedPlacesWidgets.visitedPlaceWentBackHomeDirectlyAfter;
-export const buttonCancelVisitedPlace: any = visitedPlacesWidgets.buttonCancelVisitedPlace;
-export const buttonDeleteVisitedPlace: any = visitedPlacesWidgets.buttonDeleteVisitedPlace;
-export const buttonSaveVisitedPlace: any = visitedPlacesWidgets.buttonSaveVisitedPlace;
 export const buttonVisitedPlacesConfirmNextSection: any = visitedPlacesWidgets.buttonVisitedPlacesConfirmNextSection;
 
 import * as segmentsWidgets from './widgets/segments';
