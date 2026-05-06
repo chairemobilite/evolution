@@ -175,12 +175,41 @@ export type Journey = JourneyAttributes &
 // FIXME We are not using the VisitedPlaceAttributes type here because during survey, most of the data from that type is rather as a property of the geography feature and not as fields of the object
 export type VisitedPlace = QuestionnaireObjectWithUuidAndSequence &
     NamedPlace & {
+        /**
+         * Set to `true` when the place is first created, and `false` after
+         * saving the place. This is used to determine if the place is new and
+         * has not been saved yet, which is useful when inserting places in the
+         * middle of the list and may impact the visibility of some questions.
+         */
+        _isNew?: boolean;
         activity?: Optional<Activity>;
         activityCategory?: Optional<ActivityCategory>;
         alreadyVisitedBySelfOrAnotherHouseholdMember?: Optional<boolean>;
         shortcut?: Optional<string>;
         departureTime?: number;
         arrivalTime?: number;
+        /**
+         * Temporary field to store the departure time of the previous previous
+         * visited place. This value should be set to the actual previous
+         * previous place when the places are reconciled at save time. It is
+         * usually present for the workOnTheRoad activity, when the previous
+         * place is not the departure place and its departure type was not set
+         * (typically at the beginning of the trip diary, after starting at
+         * home)
+         */
+        _previousPreviousDepartureTime?: number;
+        /**
+         * Temporary field to store the arrival time of the previous visited
+         * place. This value should be set to the actual previous place when the
+         * places are reconciled at save time.
+         */
+        _previousArrivalTime?: number;
+        /**
+         * Temporary field to store the departure time of the previous visited
+         * place. This value should be set to the actual previous place when the
+         * places are reconciled at save time.
+         */
+        _previousDepartureTime?: number;
         /**
          * The category of the next place. The 'wentToUsualWorkPlace' category is
          * used for workOnTheRoad trips. It is imputed by values entered by

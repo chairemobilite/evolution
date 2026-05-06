@@ -344,7 +344,7 @@ describe('Activity category widget conditional', () => {
         setActiveSurveyObjects(interview, { personId: 'personId1', journeyId: 'journeyId1', visitedPlaceId: 'homePlace2P1' });
         const activeVisitedPlace = interview.response.household!.persons!.personId1!.journeys!.journeyId1!.visitedPlaces!
             .homePlace2P1!;
-        (activeVisitedPlace as any)._isNew = true;
+        activeVisitedPlace._isNew = true;
         activeVisitedPlace.activityCategory = 'home' as any;
 
         expect(conditional!(interview, 'household.persons.personId1.journeys.journeyId1.visitedPlaces.homePlace2P1.activityCategory')).toEqual([false, 'home']);
