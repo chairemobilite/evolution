@@ -11,7 +11,7 @@ import { interviewAttributesForTestCases, setActiveSurveyObjects } from '../../.
 import { homeGeographyCoordinates, workPlace1P1Coordinates } from '../../../../../tests/surveys/testCasesInterview';
 import * as helpers from '../helpers';
 import * as odSurveyHelpers from '../../../../odSurvey/helpers';
-import { UserRuntimeInterviewAttributes, VisitedPlacesSectionConfiguration } from '../../../types';
+import { UserRuntimeInterviewAttributes, VisitedPlace, VisitedPlacesSectionConfiguration } from '../../../types';
 
 const defaultVisitedPlaceConfig = {
     type: 'visitedPlaces' as const,
@@ -725,3 +725,14 @@ describe('Visited places helpers - validatePreviousNextPlaceIsNotActivities', ()
         ).toEqual(expected);
     });
 });
+
+describe('isWorkOnTheRoad', () => {
+    test.each([
+        { visitedPlace: { activity: 'workOnTheRoad' } as VisitedPlace, expected: true },
+        { visitedPlace: { activity: 'workUsual' } as VisitedPlace, expected: false },
+        { visitedPlace: { activity: undefined } as VisitedPlace, expected: false },
+        { visitedPlace: {} as VisitedPlace, expected: false }
+    ])('should return $expected for activity $visitedPlace.activity', ({ visitedPlace, expected }) => {
+        expect(helpers.isWorkOnTheRoad(visitedPlace)).toBe(expected);
+    });
+})

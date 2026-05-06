@@ -347,3 +347,11 @@ export const getShortcutVisitedPlaces = ({
     }
     return shortcutPlaces;
 };
+
+/**
+ * Determine if a visited place is a work on the road, based on its activity.
+ *
+ * @param visitedPlace The visited place
+ * @returns `true` if the visited place is a work on the road, `false` otherwise
+ */
+export const isWorkOnTheRoad = (visitedPlace: VisitedPlace): boolean => visitedPlace.activity === 'workOnTheRoad';
