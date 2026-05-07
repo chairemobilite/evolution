@@ -283,6 +283,97 @@ describe('getCurrentPersonId', () => {
     });
 });
 
+describe('getCurrentJourneyId', () => {
+    test('returns journeyId from path if present', () => {
+        const interview = _cloneDeep(interviewAttributesWithHh) as any;
+        interview.response._activeJourneyId = 'journeyId2';
+        const path = 'household.persons.personId1.journeys.journeyId1.something';
+        expect(Helpers.getCurrentJourneyId({ interview, path })).toBe('journeyId1');
+    });
+
+    test('returns _activeJourneyId if path does not match', () => {
+        const interview = _cloneDeep(interviewAttributesWithHh) as any;
+        interview.response._activeJourneyId = 'journeyId2';
+        const path = 'household.persons.personId1.somethingElse';
+        expect(Helpers.getCurrentJourneyId({ interview, path })).toBe('journeyId2');
+    });
+
+    test('returns _activeJourneyId if path is not provided', () => {
+        const interview = _cloneDeep(interviewAttributesWithHh) as any;
+        interview.response._activeJourneyId = 'journeyId2';
+        expect(Helpers.getCurrentJourneyId({ interview })).toBe('journeyId2');
+    });
+
+    test('returns null if neither path nor _activeJourneyId is present', () => {
+        const interview = _cloneDeep(interviewAttributesWithHh) as any;
+        delete interview.response._activeJourneyId;
+        expect(Helpers.getCurrentJourneyId({ interview })).toBeNull();
+    });
+});
+
+describe('getCurrentTripId', () => {
+    test('returns tripId from path if present', () => {
+        const interview = _cloneDeep(interviewAttributesWithHh) as any;
+        interview.response._activeTripId = 'tripId2';
+        const path = 'household.persons.personId1.journeys.journeyId1.trips.tripId1.something';
+        expect(Helpers.getCurrentTripId({ interview, path })).toBe('tripId1');
+    });
+
+    test('returns _activeTripId if path does not match', () => {
+        const interview = _cloneDeep(interviewAttributesWithHh) as any;
+        interview.response._activeTripId = 'tripId2';
+        const path = 'household.persons.personId1.journeys.journeyId1.somethingElse';
+        expect(Helpers.getCurrentTripId({ interview, path })).toBe('tripId2');
+    });
+
+    test('returns _activeTripId if path is not provided', () => {
+        const interview = _cloneDeep(interviewAttributesWithHh) as any;
+        interview.response._activeTripId = 'tripId2';
+        expect(Helpers.getCurrentTripId({ interview })).toBe('tripId2');
+    });
+
+    test('returns null if neither path nor _activeTripId is present', () => {
+        const interview = _cloneDeep(interviewAttributesWithHh) as any;
+        delete interview.response._activeTripId;
+        expect(Helpers.getCurrentTripId({ interview })).toBeNull();
+    });
+});
+
+describe('getCurrentVisitedPlaceId', () => {
+    test('returns visitedPlaceId from journey visitedPlaces path if present', () => {
+        const interview = _cloneDeep(interviewAttributesWithHh) as any;
+        interview.response._activeVisitedPlaceId = 'visitedPlaceId2';
+        const path = 'household.persons.personId1.journeys.journeyId1.visitedPlaces.visitedPlaceId1.something';
+        expect(Helpers.getCurrentVisitedPlaceId({ interview, path })).toBe('visitedPlaceId1');
+    });
+
+    test('returns visitedPlaceId from person visitedPlaces path if present (legacy pattern)', () => {
+        const interview = _cloneDeep(interviewAttributesWithHh) as any;
+        interview.response._activeVisitedPlaceId = 'visitedPlaceId2';
+        const path = 'household.persons.personId1.visitedPlaces.visitedPlaceId1.something';
+        expect(Helpers.getCurrentVisitedPlaceId({ interview, path })).toBe('visitedPlaceId1');
+    });
+
+    test('returns _activeVisitedPlaceId if path does not match', () => {
+        const interview = _cloneDeep(interviewAttributesWithHh) as any;
+        interview.response._activeVisitedPlaceId = 'visitedPlaceId2';
+        const path = 'household.persons.personId1.somethingElse';
+        expect(Helpers.getCurrentVisitedPlaceId({ interview, path })).toBe('visitedPlaceId2');
+    });
+
+    test('returns _activeVisitedPlaceId if path is not provided', () => {
+        const interview = _cloneDeep(interviewAttributesWithHh) as any;
+        interview.response._activeVisitedPlaceId = 'visitedPlaceId2';
+        expect(Helpers.getCurrentVisitedPlaceId({ interview })).toBe('visitedPlaceId2');
+    });
+
+    test('returns null if neither path nor _activeVisitedPlaceId is present', () => {
+        const interview = _cloneDeep(interviewAttributesWithHh) as any;
+        delete interview.response._activeVisitedPlaceId;
+        expect(Helpers.getCurrentVisitedPlaceId({ interview })).toBeNull();
+    });
+});
+
 each([
     [
         'One person',

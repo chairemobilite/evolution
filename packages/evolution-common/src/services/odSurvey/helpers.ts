@@ -99,6 +99,108 @@ export const getCurrentPersonId = ({
 };
 
 /**
+ * Get the current journey ID from the interview response.
+ * If a path is provided and matches the pattern
+ * `household.persons.{personId}.journeys.{journeyId}.`, extracts the journeyId
+ * from the path. Otherwise, returns the currently active journey ID from the
+ * interview response.
+ *
+ * @param {Object} options - The options object.
+ * @param {UserInterviewAttributes} options.interview - The interview object.
+ * @param {string} [options.path] - Optional path string to extract the journey ID from.
+ * @returns {string | null} The current journey ID, or null if not found.
+ */
+export const getCurrentJourneyId = ({
+    interview,
+    path
+}: {
+    interview: UserInterviewAttributes;
+    path?: string;
+}): string | null => {
+    // 1. Try to extract journeyId from path if it matches household.persons.{personId}.journeys.{journeyId}.
+    if (path) {
+        const match = path.match(/household\.persons\.([^.]+)\.journeys\.([^.]+)(?:\.|$)/);
+        if (match) {
+            return match[2];
+        }
+    }
+
+    // 2. Otherwise, use the active journey id from the interview response
+    return getResponse(interview, '_activeJourneyId', null) as string | null;
+};
+
+/**
+ * Get the current trip ID from the interview response.
+ * If a path is provided and matches the pattern
+ * `household.persons.{personId}.journeys.{journeyId}.trips.{tripId}.`, extracts
+ * the tripId from the path. Otherwise, returns the currently active trip ID
+ * from the interview response.
+ *
+ * @param {Object} options - The options object.
+ * @param {UserInterviewAttributes} options.interview - The interview object.
+ * @param {string} [options.path] - Optional path string to extract the trip ID from.
+ * @returns {string | null} The current trip ID, or null if not found.
+ */
+export const getCurrentTripId = ({
+    interview,
+    path
+}: {
+    interview: UserInterviewAttributes;
+    path?: string;
+}): string | null => {
+    // 1. Try to extract tripId from path if it matches household.persons.{personId}.journeys.{journeyId}.trips.{tripId}.
+    if (path) {
+        const match = path.match(/household\.persons\.([^.]+)\.journeys\.([^.]+)\.trips\.([^.]+)(?:\.|$)/);
+        if (match) {
+            return match[3];
+        }
+    }
+
+    // 2. Otherwise, use the active trip id from the interview response
+    return getResponse(interview, '_activeTripId', null) as string | null;
+};
+
+/**
+ * Get the current visited place ID from the interview response.
+ * If a path is provided and matches a visited places pattern, extracts the
+ * visitedPlaceId from the path. Otherwise, returns the currently active visited
+ * place ID from the interview response.
+ *
+ * Supported patterns:
+ * - `household.persons.{personId}.journeys.{journeyId}.visitedPlaces.{visitedPlaceId}.`
+ * - `household.persons.{personId}.visitedPlaces.{visitedPlaceId}.` (legacy / generator shortcut)
+ *
+ * @param {Object} options - The options object.
+ * @param {UserInterviewAttributes} options.interview - The interview object.
+ * @param {string} [options.path] - Optional path string to extract the visited place ID from.
+ * @returns {string | null} The current visited place ID, or null if not found.
+ */
+export const getCurrentVisitedPlaceId = ({
+    interview,
+    path
+}: {
+    interview: UserInterviewAttributes;
+    path?: string;
+}): string | null => {
+    // 1. Try to extract visited place id from path if it matches household.persons.{personId}.journeys.{journeyId}.visitedPlaces.{visitedPlaceId}. or household.persons.{personId}.visitedPlaces.{visitedPlaceId}.
+    if (path) {
+        const matchInJourney = path.match(
+            /household\.persons\.([^.]+)\.journeys\.([^.]+)\.visitedPlaces\.([^.]+)(?:\.|$)/
+        );
+        if (matchInJourney) {
+            return matchInJourney[3];
+        }
+        const matchAtPerson = path.match(/household\.persons\.([^.]+)\.visitedPlaces\.([^.]+)(?:\.|$)/);
+        if (matchAtPerson) {
+            return matchAtPerson[2];
+        }
+    }
+
+    // 2. Otherwise, use the active visited place id from the interview response
+    return getResponse(interview, '_activeVisitedPlaceId', null) as string | null;
+};
+
+/**
  * Get the household object in the interview response, or an empty object if
  * the household has not been initialized
  *
