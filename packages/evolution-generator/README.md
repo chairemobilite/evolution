@@ -390,7 +390,14 @@ In this example, we are creating a conditional named `hasDrivingLicenseCondition
 | hasDrivingLicenseConditional |                  | [${relativePath}](#rel).age            | >=                  | 16    |             | no                |
 | hasDrivingLicenseConditional | &&               | [${relativePath}](#rel).drivingLicense | ===                 | yes   |             |                   |
 
-> <span id="rel">**Note:**</span> `${relativePath}` in `path` is used to obtain the relative path within the same group, making it easier to reference response objects that share a common parent (or group) with the current widget.
+> <span id="rel">**Note:**</span> `${relativePath}` in `path` is used to obtain the relative path within the same group, making it easier to reference response objects that share a common parent (or group) with the current widget. Example: `${relativePath}.age`
+
+> **Note:** In the `Conditionals` sheet (Excel), in the `path` column, you can use these “current” keywords to avoid writing ids by hand:
+> - `${currentPerson}`
+> - `${currentJourney}`
+> - `${currentTrip}`
+> - `${currentVisitedPlace}`
+> - Example: `${currentTrip}.mode`
 
 The corresponding TypeScript code for this conditional is shown below:
 
