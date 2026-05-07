@@ -519,8 +519,8 @@ class ConditionalsGenerator:
                     "token": "${currentVisitedPlace}",
                     "id_var": "currentVisitedPlaceId",
                     "helper": "getCurrentVisitedPlaceId",
-                    "prefix": "household.persons.${currentPersonId}.visitedPlaces.${currentVisitedPlaceId}.",
-                    "deps": ("currentPersonId",),
+                    "prefix": "household.persons.${currentPersonId}.journeys.${currentJourneyId}.visitedPlaces.${currentVisitedPlaceId}.",
+                    "deps": ("currentPersonId", "currentJourneyId"),
                     "comment": "Get the current visited place id",
                 },
             )

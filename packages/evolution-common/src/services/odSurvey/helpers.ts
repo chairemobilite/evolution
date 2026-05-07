@@ -117,11 +117,11 @@ export const getCurrentJourneyId = ({
     interview: UserInterviewAttributes;
     path?: string;
 }): string | null => {
-    // 1. Try to extract journeyId from path if it matches household.persons.{personId}.journeys.{journeyId}.
+    // 1. Try to extract journeyId from path
     if (path) {
-        const match = path.match(/household\.persons\.([^.]+)\.journeys\.([^.]+)(?:\.|$)/);
-        if (match) {
-            return match[2];
+        const journeyContext = getJourneyContextFromPath({ interview, path });
+        if (journeyContext) {
+            return journeyContext.journey._uuid;
         }
     }
 
@@ -148,11 +148,11 @@ export const getCurrentTripId = ({
     interview: UserInterviewAttributes;
     path?: string;
 }): string | null => {
-    // 1. Try to extract tripId from path if it matches household.persons.{personId}.journeys.{journeyId}.trips.{tripId}.
+    // 1. Try to extract tripId from path
     if (path) {
-        const match = path.match(/household\.persons\.([^.]+)\.journeys\.([^.]+)\.trips\.([^.]+)(?:\.|$)/);
-        if (match) {
-            return match[3];
+        const context = getTripContextFromPath({ interview, path });
+        if (context) {
+            return context.trip._uuid;
         }
     }
 
@@ -182,17 +182,11 @@ export const getCurrentVisitedPlaceId = ({
     interview: UserInterviewAttributes;
     path?: string;
 }): string | null => {
-    // 1. Try to extract visited place id from path if it matches household.persons.{personId}.journeys.{journeyId}.visitedPlaces.{visitedPlaceId}. or household.persons.{personId}.visitedPlaces.{visitedPlaceId}.
+    // 1. Try to extract visited place id from path
     if (path) {
-        const matchInJourney = path.match(
-            /household\.persons\.([^.]+)\.journeys\.([^.]+)\.visitedPlaces\.([^.]+)(?:\.|$)/
-        );
-        if (matchInJourney) {
-            return matchInJourney[3];
-        }
-        const matchAtPerson = path.match(/household\.persons\.([^.]+)\.visitedPlaces\.([^.]+)(?:\.|$)/);
-        if (matchAtPerson) {
-            return matchAtPerson[2];
+        const context = getVisitedPlaceContextFromPath({ interview, path });
+        if (context) {
+            return context.visitedPlace._uuid;
         }
     }
 
