@@ -209,13 +209,28 @@ test('Test update value through props', () => {
     expect(screen.getByRole('textbox')).toHaveValue(updateByServerVal);
 });
 
-test('Should correctly render InputString with suffixLabel', () => {
+test.each([
+    {
+        key: 'suffixLabel: string',
+        suffixLabel: 'email(s)',
+        value: '123',
+        expectedSuffixText: 'email(s)',
+        shouldSnapshot: true
+    },
+    {
+        key: 'suffixLabel: i18n object',
+        suffixLabel: { en: '%', fr: '%' },
+        value: '50',
+        expectedSuffixText: '%',
+        shouldSnapshot: true
+    }
+])('Should correctly render InputString with $key', ({ suffixLabel, value, expectedSuffixText, shouldSnapshot }) => {
     const widgetConfig = {
         type: 'question' as const,
         path: 'test.foo',
         inputType: 'string' as const,
         size: 'small' as const,
-        suffixLabel: 'email(s)',
+        suffixLabel,
         label: {
             fr: 'Texte en français',
             en: 'English text'
@@ -226,7 +241,7 @@ test('Should correctly render InputString with suffixLabel', () => {
         <InputString
             id={'test'}
             widgetConfig={widgetConfig}
-            value={'123'}
+            value={value}
             updateKey={0}
             interview={interviewAttributes}
             path={'path'}
@@ -236,35 +251,8 @@ test('Should correctly render InputString with suffixLabel', () => {
     );
 
     expect(screen.getByRole('textbox')).toHaveClass('input-small');
-    expect(screen.getByText('email(s)')).toHaveClass('apptr__input-suffix');
-    expect(container).toMatchSnapshot();
-});
-
-test('Should correctly render InputString with suffixLabel i18n object', () => {
-    const widgetConfig = {
-        type: 'question' as const,
-        path: 'test.foo',
-        inputType: 'string' as const,
-        size: 'small' as const,
-        suffixLabel: { en: '%', fr: '%' },
-        label: {
-            fr: 'Texte en français',
-            en: 'English text'
-        }
-    };
-
-    render(
-        <InputString
-            id={'test'}
-            widgetConfig={widgetConfig}
-            value={'50'}
-            updateKey={0}
-            interview={interviewAttributes}
-            path={'path'}
-            user={userAttributes}
-            onValueChange={jest.fn()}
-        />
-    );
-
-    expect(screen.getByText('%')).toHaveClass('apptr__input-suffix');
+    expect(screen.getByText(expectedSuffixText)).toHaveClass('apptr__input-suffix');
+    if (shouldSnapshot) {
+        expect(container).toMatchSnapshot();
+    }
 });
