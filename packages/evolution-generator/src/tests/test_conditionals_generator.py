@@ -265,6 +265,65 @@ class TestGenerateTypescriptCode:
         assert "value: null," in ts_code
         assert 'value: "null"' not in ts_code
 
+    @pytest.mark.parametrize(
+        "case",
+        [
+            pytest.param(
+                {
+                    "token_key": "currentPerson",
+                    "conditional_path": "${currentPerson}.age",
+                    "expected_helper_line": "const currentPersonId = odSurveyHelpers.getCurrentPersonId({ interview, path });",
+                    "expected_path_snippet": "`household.persons.${currentPersonId}.age`",
+                },
+            ),
+            pytest.param(
+                {
+                    "token_key": "currentJourney",
+                    "conditional_path": "${currentJourney}.personDidTrips",
+                    "expected_helper_line": "const currentJourneyId = odSurveyHelpers.getCurrentJourneyId({ interview, path });",
+                    "expected_path_snippet": ".journeys.${currentJourneyId}.",
+                },
+            ),
+            pytest.param(
+                {
+                    "token_key": "currentTrip",
+                    "conditional_path": "${currentTrip}.segments.0.mode",
+                    "expected_helper_line": "const currentTripId = odSurveyHelpers.getCurrentTripId({ interview, path });",
+                    "expected_path_snippet": ".trips.${currentTripId}.",
+                },
+            ),
+            pytest.param(
+                {
+                    "token_key": "currentVisitedPlace",
+                    "conditional_path": "${currentVisitedPlace}.activity",
+                    "expected_helper_line": "const currentVisitedPlaceId = odSurveyHelpers.getCurrentVisitedPlaceId({ interview, path });",
+                    "expected_path_snippet": ".visitedPlaces.${currentVisitedPlaceId}.",
+                },
+            ),
+        ],
+    )
+    def test_expands_current_context_tokens_in_paths(self, case):
+        """
+        When a conditional path contains a `${current...}` token, the generator should:
+        - emit the corresponding `odSurveyHelpers.getCurrent*Id({ interview, path })` helper call
+        - expand the conditional path to include the computed id in a template string
+        """
+
+        conditional_by_name = defaultdict(list)
+        conditional_by_name[f"cond_{case['token_key']}"].append(
+            {
+                "logical_operator": "",
+                "path": case["conditional_path"],
+                "comparison_operator": "===",
+                "value": "test",
+                "parentheses": "",
+            }
+        )
+
+        ts_code = ConditionalsGenerator.generate_typescript_code(conditional_by_name)
+        assert case["expected_helper_line"] in ts_code
+        assert case["expected_path_snippet"] in ts_code
+
 
 class TestCheckConditionalsSheet:
     """
@@ -872,67 +931,6 @@ class TestEmptyToNone:
         """
         assert ConditionalsGenerator._empty_to_none("foo") == "foo"
         assert ConditionalsGenerator._empty_to_none(" ") == " "
-
-
-class TestGenerateTypescriptCode:
-    @pytest.mark.parametrize(
-        "case",
-        [
-            pytest.param(
-                {
-                    "token_key": "currentPerson",
-                    "conditional_path": "${currentPerson}.age",
-                    "expected_helper_line": "const currentPersonId = odSurveyHelpers.getCurrentPersonId({ interview, path });",
-                    "expected_path_snippet": "`household.persons.${currentPersonId}.age`",
-                },
-            ),
-            pytest.param(
-                {
-                    "token_key": "currentJourney",
-                    "conditional_path": "${currentJourney}.personDidTrips",
-                    "expected_helper_line": "const currentJourneyId = odSurveyHelpers.getCurrentJourneyId({ interview, path });",
-                    "expected_path_snippet": ".journeys.${currentJourneyId}.",
-                },
-            ),
-            pytest.param(
-                {
-                    "token_key": "currentTrip",
-                    "conditional_path": "${currentTrip}.segments.0.mode",
-                    "expected_helper_line": "const currentTripId = odSurveyHelpers.getCurrentTripId({ interview, path });",
-                    "expected_path_snippet": ".trips.${currentTripId}.",
-                },
-            ),
-            pytest.param(
-                {
-                    "token_key": "currentVisitedPlace",
-                    "conditional_path": "${currentVisitedPlace}.activity",
-                    "expected_helper_line": "const currentVisitedPlaceId = odSurveyHelpers.getCurrentVisitedPlaceId({ interview, path });",
-                    "expected_path_snippet": ".visitedPlaces.${currentVisitedPlaceId}.",
-                },
-            ),
-        ],
-    )
-    def test_expands_current_context_tokens_in_paths(self, case):
-        """
-        When a conditional path contains a `${current...}` token, the generator should:
-        - emit the corresponding `odSurveyHelpers.getCurrent*Id({ interview, path })` helper call
-        - expand the conditional path to include the computed id in a template string
-        """
-
-        conditional_by_name = defaultdict(list)
-        conditional_by_name[f"cond_{case['token_key']}"].append(
-            {
-                "logical_operator": "",
-                "path": case["conditional_path"],
-                "comparison_operator": "===",
-                "value": "test",
-                "parentheses": "",
-            }
-        )
-
-        ts_code = ConditionalsGenerator.generate_typescript_code(conditional_by_name)
-        assert case["expected_helper_line"] in ts_code
-        assert case["expected_path_snippet"] in ts_code
 
 
 class TestExpandTokenizedPath:
