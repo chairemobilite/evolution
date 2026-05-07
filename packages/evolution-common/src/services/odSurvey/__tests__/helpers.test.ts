@@ -93,7 +93,7 @@ beforeEach(() => {
 afterEach(() => {
     // Reset projectConfig to original after each test
     setProjectConfiguration(_cloneDeep(originalConfig));
-})
+});
 
 each([
     ['Has Household', interviewAttributesWithHh.response, interviewAttributesWithHh.response.household],
@@ -286,9 +286,19 @@ describe('getCurrentPersonId', () => {
 describe('getCurrentJourneyId', () => {
     test('returns journeyId from path if present', () => {
         const interview = _cloneDeep(interviewAttributesWithHh) as any;
+        interview.response.household.persons.personId1.journeys = {
+            journeyId1: { _uuid: 'journeyId1', _sequence: 1 }
+        };
         interview.response._activeJourneyId = 'journeyId2';
         const path = 'household.persons.personId1.journeys.journeyId1.something';
         expect(Helpers.getCurrentJourneyId({ interview, path })).toBe('journeyId1');
+    });
+
+    test('returns _activeJourneyId if path matches but journey does not exist in interview', () => {
+        const interview = _cloneDeep(interviewAttributesWithHh) as any;
+        interview.response._activeJourneyId = 'journeyId2';
+        const path = 'household.persons.personId1.journeys.journeyId1.something';
+        expect(Helpers.getCurrentJourneyId({ interview, path })).toBe('journeyId2');
     });
 
     test('returns _activeJourneyId if path does not match', () => {
@@ -314,9 +324,25 @@ describe('getCurrentJourneyId', () => {
 describe('getCurrentTripId', () => {
     test('returns tripId from path if present', () => {
         const interview = _cloneDeep(interviewAttributesWithHh) as any;
+        interview.response.household.persons.personId1.journeys = {
+            journeyId1: {
+                _uuid: 'journeyId1',
+                _sequence: 1,
+                trips: {
+                    tripId1: { _uuid: 'tripId1', _sequence: 1 }
+                }
+            }
+        };
         interview.response._activeTripId = 'tripId2';
         const path = 'household.persons.personId1.journeys.journeyId1.trips.tripId1.something';
         expect(Helpers.getCurrentTripId({ interview, path })).toBe('tripId1');
+    });
+
+    test('returns _activeTripId if path matches but trip does not exist in interview', () => {
+        const interview = _cloneDeep(interviewAttributesWithHh) as any;
+        interview.response._activeTripId = 'tripId2';
+        const path = 'household.persons.personId1.journeys.journeyId1.trips.tripId1.something';
+        expect(Helpers.getCurrentTripId({ interview, path })).toBe('tripId2');
     });
 
     test('returns _activeTripId if path does not match', () => {
@@ -342,16 +368,25 @@ describe('getCurrentTripId', () => {
 describe('getCurrentVisitedPlaceId', () => {
     test('returns visitedPlaceId from journey visitedPlaces path if present', () => {
         const interview = _cloneDeep(interviewAttributesWithHh) as any;
+        interview.response.household.persons.personId1.journeys = {
+            journeyId1: {
+                _uuid: 'journeyId1',
+                _sequence: 1,
+                visitedPlaces: {
+                    visitedPlaceId1: { _uuid: 'visitedPlaceId1', _sequence: 1 }
+                }
+            }
+        };
         interview.response._activeVisitedPlaceId = 'visitedPlaceId2';
         const path = 'household.persons.personId1.journeys.journeyId1.visitedPlaces.visitedPlaceId1.something';
         expect(Helpers.getCurrentVisitedPlaceId({ interview, path })).toBe('visitedPlaceId1');
     });
 
-    test('returns visitedPlaceId from person visitedPlaces path if present (legacy pattern)', () => {
+    test('returns _activeVisitedPlaceId if path matches but visited place does not exist in interview', () => {
         const interview = _cloneDeep(interviewAttributesWithHh) as any;
         interview.response._activeVisitedPlaceId = 'visitedPlaceId2';
-        const path = 'household.persons.personId1.visitedPlaces.visitedPlaceId1.something';
-        expect(Helpers.getCurrentVisitedPlaceId({ interview, path })).toBe('visitedPlaceId1');
+        const path = 'household.persons.personId1.journeys.journeyId1.visitedPlaces.visitedPlaceId1.something';
+        expect(Helpers.getCurrentVisitedPlaceId({ interview, path })).toBe('visitedPlaceId2');
     });
 
     test('returns _activeVisitedPlaceId if path does not match', () => {
@@ -866,12 +901,10 @@ describe('getPersonGenderContext', () => {
         [{ gender: 'non-binary', sexAssignedAtBirth: undefined }, 'non-binary'],
         [{ gender: undefined, sexAssignedAtBirth: undefined }, undefined],
         [{}, undefined]
-    ])
-    ('returns %s for person %o', (person: any, expected) => {
+    ])('returns %s for person %o', (person: any, expected) => {
         expect(Helpers.getPersonGenderContext({ person })).toBe(expected);
     });
 });
-
 
 describe('getPersonIdentificationString', () => {
     const mockT = jest.fn() as unknown as jest.MockedFunction<TFunction>;
@@ -893,9 +926,8 @@ describe('getPersonIdentificationString', () => {
         [{ _sequence: 3, age: undefined }, 'Person 3, Gender undefined'],
         [{ _sequence: 3, age: null }, 'Person 3, Gender undefined'],
         [{ _sequence: 3, gender: 'male' }, 'Person 3, Gender male'],
-        [{ _sequence: 3 }, 'Person 3, Gender undefined'],
-    ])
-    ('returns correct identification for person %o', (person: any, expected) => {
+        [{ _sequence: 3 }, 'Person 3, Gender undefined']
+    ])('returns correct identification for person %o', (person: any, expected) => {
         expect(Helpers.getPersonIdentificationString({ person, t: mockT })).toEqual(expected);
     });
 });
@@ -958,7 +990,8 @@ describe('getHomeAddressOneLine', () => {
                 includeCountry: true,
                 includePostalCode: true
             },
-            expected: '123 &lt;strong&gt;main&lt;/strong&gt; st, &lt;b&gt;montreal&lt;/b&gt;, &lt;span&gt;Quebec&lt;/span&gt;, &lt;script injectedScript/&gt;Canada, &lt;STRONG&gt;H2X 1Y4&lt;/STRONG&gt;'
+            expected:
+                '123 &lt;strong&gt;main&lt;/strong&gt; st, &lt;b&gt;montreal&lt;/b&gt;, &lt;span&gt;Quebec&lt;/span&gt;, &lt;script injectedScript/&gt;Canada, &lt;STRONG&gt;H2X 1Y4&lt;/STRONG&gt;'
         },
         {
             title: 'returns empty string when home object is missing',
@@ -991,7 +1024,7 @@ describe('getHomeAddressOneLine', () => {
         } else {
             (interview.response as any).home = home;
         }
-        expect(Helpers.getHomeAddressOneLine({ interview, ...options})).toEqual(expected);
+        expect(Helpers.getHomeAddressOneLine({ interview, ...options })).toEqual(expected);
     });
 });
 
@@ -1010,18 +1043,8 @@ each([
         18,
         true
     ],
-    [
-        'Undefined ownership, above driving age',
-        { _uuid: 'personId1', _sequence: 1, age: 20 },
-        18,
-        true
-    ],
-    [
-        'Undefined ownership, below driving age',
-        { _uuid: 'personId1', _sequence: 1, age: 10 },
-        18,
-        false
-    ],
+    ['Undefined ownership, above driving age', { _uuid: 'personId1', _sequence: 1, age: 20 }, 18, true],
+    ['Undefined ownership, below driving age', { _uuid: 'personId1', _sequence: 1, age: 10 }, 18, false],
     ['Undefined ownership and age', { _uuid: 'personId1', _sequence: 1 }, 18, false],
     [
         'Custom threshold is respected',
@@ -1493,110 +1516,120 @@ describe('getJourneys', () => {
         expect(Helpers.getActiveJourney({ interview, person })).toEqual(expected);
     });
 
-    each([{
-        title: 'Path with existing person and journey',
-        path: 'household.persons.personId1.journeys.journeyId1',
-        expected: { 
-            person: interviewAttributesForTestCases.response!.household!.persons!.personId1,
-            journey: interviewAttributesForTestCases.response!.household!.persons!.personId1.journeys!.journeyId1
+    each([
+        {
+            title: 'Path with existing person and journey',
+            path: 'household.persons.personId1.journeys.journeyId1',
+            expected: {
+                person: interviewAttributesForTestCases.response!.household!.persons!.personId1,
+                journey: interviewAttributesForTestCases.response!.household!.persons!.personId1.journeys!.journeyId1
+            }
+        },
+        {
+            title: 'Path with existing person and journey and trailing data',
+            path: 'household.persons.personId1.journeys.journeyId1.visitedPlaces.visitedPlaceId1',
+            expected: {
+                person: interviewAttributesForTestCases.response!.household!.persons!.personId1,
+                journey: interviewAttributesForTestCases.response!.household!.persons!.personId1.journeys!.journeyId1
+            }
+        },
+        {
+            title: 'Path with non-existing journey',
+            path: 'household.persons.personId1.journeys.nonExistingJourney',
+            expected: null
+        },
+        {
+            title: 'Path with non-existing person',
+            path: 'household.persons.nonExistingPerson.journeys.journeyId1',
+            expected: null
+        },
+        {
+            title: 'Path not matching expected format',
+            path: 'household.persons.personId1.otherData',
+            expected: null
         }
-    },
-    {
-        title: 'Path with existing person and journey and trailing data',
-        path: 'household.persons.personId1.journeys.journeyId1.visitedPlaces.visitedPlaceId1',
-        expected: { 
-            person: interviewAttributesForTestCases.response!.household!.persons!.personId1,
-            journey: interviewAttributesForTestCases.response!.household!.persons!.personId1.journeys!.journeyId1
-        }
-    },
-    {
-        title: 'Path with non-existing journey',
-        path: 'household.persons.personId1.journeys.nonExistingJourney',
-        expected: null
-    },
-    {
-        title: 'Path with non-existing person',
-        path: 'household.persons.nonExistingPerson.journeys.journeyId1',
-        expected: null
-    },
-    {
-        title: 'Path not matching expected format',
-        path: 'household.persons.personId1.otherData',
-        expected: null
-    }]).test('getJourneyContextFromPath: $title', ({ setup, path, expected }) => {
+    ]).test('getJourneyContextFromPath: $title', ({ setup, path, expected }) => {
         const interview = _cloneDeep(interviewAttributesForTestCases);
         if (setup) {
             setup(interview);
         }
         expect(Helpers.getJourneyContextFromPath({ interview, path })).toEqual(expected);
     });
-
 });
 
 describe('shouldShowTripsAndPlacesSections', () => {
     const baseJourney: Journey = {
         _uuid: 'arbitraryJourney',
         _sequence: 1
-    }
-    test.each([{
-        title: 'Journey with personDidTrips unanswered undefined',
-        journey: {
-            ...baseJourney,
+    };
+    test.each([
+        {
+            title: 'Journey with personDidTrips unanswered undefined',
+            journey: {
+                ...baseJourney
+            },
+            expected: false
         },
-        expected: false
-    }, {
-        title: 'Journey with personDidTrips unanswered empty string',
-        journey: {
-            ...baseJourney,
-            personDidTrips: ''
+        {
+            title: 'Journey with personDidTrips unanswered empty string',
+            journey: {
+                ...baseJourney,
+                personDidTrips: ''
+            },
+            expected: false
         },
-        expected: false
-    }, {
-        title: 'Journey with personDidTrips answered no',
-        journey: {
-            ...baseJourney,
-            personDidTrips: 'no'
+        {
+            title: 'Journey with personDidTrips answered no',
+            journey: {
+                ...baseJourney,
+                personDidTrips: 'no'
+            },
+            expected: false
         },
-        expected: false 
-    }, {
-        title: 'Journey with personDidTrips answered yes',
-        journey: {
-            ...baseJourney,
-            personDidTrips: 'yes'
+        {
+            title: 'Journey with personDidTrips answered yes',
+            journey: {
+                ...baseJourney,
+                personDidTrips: 'yes'
+            },
+            expected: true
         },
-        expected: true  
-    }, {
-        title: 'Journey with personDidTrips answered dontKnow',
-        journey: {
-            ...baseJourney,
-            personDidTrips: 'dontKnow'
+        {
+            title: 'Journey with personDidTrips answered dontKnow',
+            journey: {
+                ...baseJourney,
+                personDidTrips: 'dontKnow'
+            },
+            expected: false
         },
-        expected: false 
-    }, {
-        title: 'Journey with personDidTrips answered no, but personDidTripsConfirm answered yes',
-        journey: {
-            ...baseJourney,
-            personDidTrips: 'no',
-            personDidTripsConfirm: 'yes'
+        {
+            title: 'Journey with personDidTrips answered no, but personDidTripsConfirm answered yes',
+            journey: {
+                ...baseJourney,
+                personDidTrips: 'no',
+                personDidTripsConfirm: 'yes'
+            },
+            expected: true
         },
-        expected: true
-    }, {
-        title: 'Journey with personDidTrips answered yes, but personDidTripsConfirm answered no',
-        journey: {
-            ...baseJourney,
-            personDidTrips: 'yes',
-            personDidTripsConfirm: 'no'
+        {
+            title: 'Journey with personDidTrips answered yes, but personDidTripsConfirm answered no',
+            journey: {
+                ...baseJourney,
+                personDidTrips: 'yes',
+                personDidTripsConfirm: 'no'
+            },
+            expected: true
         },
-        expected: true
-    }, {
-        title: 'Journey with personDidTrips and personDidTripsConfirm both no',
-        journey: {
-            ...baseJourney,
-            personDidTrips: 'no',
-            personDidTripsConfirm: 'no'
-        },
-        expected: false
-    }])('$title', ({ journey, expected }) => {
+        {
+            title: 'Journey with personDidTrips and personDidTripsConfirm both no',
+            journey: {
+                ...baseJourney,
+                personDidTrips: 'no',
+                personDidTripsConfirm: 'no'
+            },
+            expected: false
+        }
+    ])('$title', ({ journey, expected }) => {
         expect(Helpers.shouldShowTripsAndPlacesSections({ journey })).toEqual(expected);
     });
 });
@@ -1772,44 +1805,50 @@ describe('getVisitedPlaces', () => {
         }
     );
 
-    each([{
-        title: 'Path with existing person, journey and visited place',
-        path: 'household.persons.personId1.journeys.journeyId1.visitedPlaces.homePlace2P1',
-        expected: { 
-            person: interviewAttributesForTestCases.response!.household!.persons!.personId1,
-            journey: interviewAttributesForTestCases.response!.household!.persons!.personId1.journeys!.journeyId1,
-            visitedPlace: interviewAttributesForTestCases.response!.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.homePlace2P1
+    each([
+        {
+            title: 'Path with existing person, journey and visited place',
+            path: 'household.persons.personId1.journeys.journeyId1.visitedPlaces.homePlace2P1',
+            expected: {
+                person: interviewAttributesForTestCases.response!.household!.persons!.personId1,
+                journey: interviewAttributesForTestCases.response!.household!.persons!.personId1.journeys!.journeyId1,
+                visitedPlace:
+                    interviewAttributesForTestCases.response!.household!.persons!.personId1.journeys!.journeyId1
+                        .visitedPlaces!.homePlace2P1
+            }
+        },
+        {
+            title: 'Path with existing person and journey and trailing data',
+            path: 'household.persons.personId1.journeys.journeyId1.visitedPlaces.homePlace2P1.something',
+            expected: {
+                person: interviewAttributesForTestCases.response!.household!.persons!.personId1,
+                journey: interviewAttributesForTestCases.response!.household!.persons!.personId1.journeys!.journeyId1,
+                visitedPlace:
+                    interviewAttributesForTestCases.response!.household!.persons!.personId1.journeys!.journeyId1
+                        .visitedPlaces!.homePlace2P1
+            }
+        },
+        {
+            title: 'Path with non-existing visited place',
+            path: 'household.persons.personId1.journeys.journeyId1.visitedPlaces.nonExistingVisitedPlace',
+            expected: null
+        },
+        {
+            title: 'Path with non-existing journey',
+            path: 'household.persons.personId1.journeys.nonExistingJourney',
+            expected: null
+        },
+        {
+            title: 'Path with non-existing person',
+            path: 'household.persons.nonExistingPerson.journeys.journeyId1',
+            expected: null
+        },
+        {
+            title: 'Path not matching expected format',
+            path: 'household.persons.personId1.otherData',
+            expected: null
         }
-    },
-    {
-        title: 'Path with existing person and journey and trailing data',
-        path: 'household.persons.personId1.journeys.journeyId1.visitedPlaces.homePlace2P1.something',
-        expected: { 
-            person: interviewAttributesForTestCases.response!.household!.persons!.personId1,
-            journey: interviewAttributesForTestCases.response!.household!.persons!.personId1.journeys!.journeyId1,
-            visitedPlace: interviewAttributesForTestCases.response!.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.homePlace2P1
-        }
-    },
-    {
-        title: 'Path with non-existing visited place',
-        path: 'household.persons.personId1.journeys.journeyId1.visitedPlaces.nonExistingVisitedPlace',
-        expected: null
-    },
-    {
-        title: 'Path with non-existing journey',
-        path: 'household.persons.personId1.journeys.nonExistingJourney',
-        expected: null
-    },
-    {
-        title: 'Path with non-existing person',
-        path: 'household.persons.nonExistingPerson.journeys.journeyId1',
-        expected: null
-    },
-    {
-        title: 'Path not matching expected format',
-        path: 'household.persons.personId1.otherData',
-        expected: null
-    }]).test('getVisitedPlaceContextFromPath: $title', ({ setup, path, expected }) => {
+    ]).test('getVisitedPlaceContextFromPath: $title', ({ setup, path, expected }) => {
         const interview = _cloneDeep(interviewAttributesForTestCases);
         if (setup) {
             setup(interview);
@@ -1905,7 +1944,7 @@ describe('getFirstIncompleteVisitedPlace', () => {
     const visitedPlacesArray = Helpers.getVisitedPlacesArray({
         journey: baseTestInterviewAttributes.response.household!.persons!.personId1.journeys!.journeyId1
     });
-    
+
     each([
         [
             'All visited places complete - returns null',
@@ -1982,7 +2021,7 @@ describe('getFirstIncompleteVisitedPlace', () => {
                     const journey = interview.response.household!.persons!.personId1.journeys!.journeyId1;
                     const visitedPlaces = Object.values(journey.visitedPlaces!);
                     // Not stayed until next day
-                    visitedPlaces[visitedPlaces.length - 1].nextPlaceCategory = 'visitedAnotherPlace'; 
+                    visitedPlaces[visitedPlaces.length - 1].nextPlaceCategory = 'visitedAnotherPlace';
                 },
                 expectedUuid: visitedPlacesArray[visitedPlacesArray.length - 1]._uuid
             }
@@ -2051,7 +2090,8 @@ describe('reconcileVisitedPlaces', () => {
                 expectedValuesByPath: (interview: UserInterviewAttributes) => {
                     const { person, journey, visitedPlaces } = getPersonAndJourney(interview);
                     return {
-                        [`response.household.persons.${person._uuid}.journeys.${journey._uuid}.visitedPlaces.${visitedPlaces[1]._uuid}.nextPlaceCategory`]: 'wentBackHome',
+                        [`response.household.persons.${person._uuid}.journeys.${journey._uuid}.visitedPlaces.${visitedPlaces[1]._uuid}.nextPlaceCategory`]:
+                            'wentBackHome',
                         'response._activeVisitedPlaceId': null
                     };
                 }
@@ -2068,7 +2108,8 @@ describe('reconcileVisitedPlaces', () => {
                 expectedValuesByPath: (interview: UserInterviewAttributes) => {
                     const { person, journey, visitedPlaces } = getPersonAndJourney(interview);
                     return {
-                        [`response.household.persons.${person._uuid}.journeys.${journey._uuid}.visitedPlaces.${visitedPlaces[0]._uuid}.nextPlaceCategory`]: 'visitedAnotherPlace',
+                        [`response.household.persons.${person._uuid}.journeys.${journey._uuid}.visitedPlaces.${visitedPlaces[0]._uuid}.nextPlaceCategory`]:
+                            'visitedAnotherPlace',
                         'response._activeVisitedPlaceId': null
                     };
                 }
@@ -2085,7 +2126,8 @@ describe('reconcileVisitedPlaces', () => {
                     const { person, journey, visitedPlaces } = getPersonAndJourney(interview);
                     const lastVisitedPlace = visitedPlaces[visitedPlaces.length - 1];
                     return {
-                        [`response.household.persons.${person._uuid}.journeys.${journey._uuid}.visitedPlaces.${lastVisitedPlace._uuid}.nextPlaceCategory`]: null,
+                        [`response.household.persons.${person._uuid}.journeys.${journey._uuid}.visitedPlaces.${lastVisitedPlace._uuid}.nextPlaceCategory`]:
+                            null,
                         'response._activeVisitedPlaceId': lastVisitedPlace._uuid
                     };
                 }
@@ -2101,7 +2143,8 @@ describe('reconcileVisitedPlaces', () => {
                 expectedValuesByPath: (interview: UserInterviewAttributes) => {
                     const { person, journey, visitedPlaces } = getPersonAndJourney(interview);
                     return {
-                        [`response.household.persons.${person._uuid}.journeys.${journey._uuid}.visitedPlaces.${visitedPlaces[0]._uuid}.arrivalTime`]: null,
+                        [`response.household.persons.${person._uuid}.journeys.${journey._uuid}.visitedPlaces.${visitedPlaces[0]._uuid}.arrivalTime`]:
+                            null,
                         'response._activeVisitedPlaceId': null
                     };
                 }
@@ -2120,7 +2163,8 @@ describe('reconcileVisitedPlaces', () => {
                     const { person, journey, visitedPlaces } = getPersonAndJourney(interview);
                     const lastVisitedPlace = visitedPlaces[visitedPlaces.length - 1];
                     return {
-                        [`response.household.persons.${person._uuid}.journeys.${journey._uuid}.visitedPlaces.${lastVisitedPlace._uuid}.departureTime`]: null,
+                        [`response.household.persons.${person._uuid}.journeys.${journey._uuid}.visitedPlaces.${lastVisitedPlace._uuid}.departureTime`]:
+                            null,
                         'response._activeVisitedPlaceId': null
                     };
                 }
@@ -2254,11 +2298,12 @@ describe('deleteVisitedPlace', () => {
                     valuesByPath: {
                         'response.household.persons.personId2.journeys.journeyId2.visitedPlaces.shoppingPlace1P2.name':
                             'This is a shopping place',
-                        'response.household.persons.personId2.journeys.journeyId2.visitedPlaces.shoppingPlace1P2.geography': {
-                            type: 'Feature',
-                            geometry: { type: 'Point', coordinates: otherPlace2P1Coordinates },
-                            properties: { lastAction: 'mapClicked' }
-                        },
+                        'response.household.persons.personId2.journeys.journeyId2.visitedPlaces.shoppingPlace1P2.geography':
+                            {
+                                type: 'Feature',
+                                geometry: { type: 'Point', coordinates: otherPlace2P1Coordinates },
+                                properties: { lastAction: 'mapClicked' }
+                            },
                         'response.household.persons.personId1.journeys.journeyId1.visitedPlaces.otherPlaceP1.nextPlaceCategory':
                             null,
                         'response._activeVisitedPlaceId': 'otherPlaceP1'
@@ -2296,10 +2341,7 @@ describe('deleteVisitedPlace', () => {
         });
 
         expect(startRemoveGroupedObjects).toHaveBeenCalledTimes(1);
-        expect(startRemoveGroupedObjects).toHaveBeenCalledWith(
-            testCase.expectedDeletedPaths,
-            expect.any(Function)
-        );
+        expect(startRemoveGroupedObjects).toHaveBeenCalledWith(testCase.expectedDeletedPaths, expect.any(Function));
         expect(startUpdateInterview).toHaveBeenCalledTimes(1);
         expect(startUpdateInterview).toHaveBeenCalledWith(testCase.expectedUpdateInterviewArgs);
     });
@@ -2412,8 +2454,10 @@ describe('insertVisitedPlace functions', () => {
             {
                 insertSequence: 2,
                 expectedValuesByPath: {
-                    'response.household.persons.personId1.journeys.journeyId1.visitedPlaces.homePlace1P1.nextPlaceCategory': null,
-                    'response.household.persons.personId1.journeys.journeyId1.visitedPlaces.workPlace1P1._previousDepartureTime': null,
+                    'response.household.persons.personId1.journeys.journeyId1.visitedPlaces.homePlace1P1.nextPlaceCategory':
+                        null,
+                    'response.household.persons.personId1.journeys.journeyId1.visitedPlaces.workPlace1P1._previousDepartureTime':
+                        null,
                     'response._activeVisitedPlaceId': insertedVisitedPlaceUuid
                 }
             }
@@ -2423,7 +2467,8 @@ describe('insertVisitedPlace functions', () => {
             {
                 insertSequence: -1,
                 expectedValuesByPath: {
-                    'response.household.persons.personId1.journeys.journeyId1.visitedPlaces.otherPlace2P1.nextPlaceCategory': null,
+                    'response.household.persons.personId1.journeys.journeyId1.visitedPlaces.otherPlace2P1.nextPlaceCategory':
+                        null,
                     'response._activeVisitedPlaceId': insertedVisitedPlaceUuid
                 }
             }
@@ -2912,44 +2957,48 @@ describe('getTrips', () => {
         expect(Helpers.getPreviousTrip({ currentTrip, journey: attributes })).toEqual(previousTrip);
     });
 
-    each([{
-        title: 'Path with existing person, journey and trip',
-        path: 'household.persons.personId1.journeys.journeyId1.trips.tripId1P1',
-        expected: { 
-            person: interviewAttributesForTestCases.response!.household!.persons!.personId1,
-            journey: interviewAttributesForTestCases.response!.household!.persons!.personId1.journeys!.journeyId1,
-            trip: interviewAttributesForTestCases.response!.household!.persons!.personId1.journeys!.journeyId1.trips!.tripId1P1
+    each([
+        {
+            title: 'Path with existing person, journey and trip',
+            path: 'household.persons.personId1.journeys.journeyId1.trips.tripId1P1',
+            expected: {
+                person: interviewAttributesForTestCases.response!.household!.persons!.personId1,
+                journey: interviewAttributesForTestCases.response!.household!.persons!.personId1.journeys!.journeyId1,
+                trip: interviewAttributesForTestCases.response!.household!.persons!.personId1.journeys!.journeyId1
+                    .trips!.tripId1P1
+            }
+        },
+        {
+            title: 'Path with existing person, journey and trip with trailing data',
+            path: 'household.persons.personId1.journeys.journeyId1.trips.tripId1P1.segments.segmentId1',
+            expected: {
+                person: interviewAttributesForTestCases.response!.household!.persons!.personId1,
+                journey: interviewAttributesForTestCases.response!.household!.persons!.personId1.journeys!.journeyId1,
+                trip: interviewAttributesForTestCases.response!.household!.persons!.personId1.journeys!.journeyId1
+                    .trips!.tripId1P1
+            }
+        },
+        {
+            title: 'Path with non-existing trip',
+            path: 'household.persons.personId1.journeys.journeyId1.trips.nonExistingTrip',
+            expected: null
+        },
+        {
+            title: 'Path with non-existing journey',
+            path: 'household.persons.personId1.journeys.nonExistingJourney',
+            expected: null
+        },
+        {
+            title: 'Path with non-existing person',
+            path: 'household.persons.nonExistingPerson.journeys.journeyId1',
+            expected: null
+        },
+        {
+            title: 'Path not matching expected format',
+            path: 'household.persons.personId1.otherData',
+            expected: null
         }
-    },
-    {
-        title: 'Path with existing person, journey and trip with trailing data',
-        path: 'household.persons.personId1.journeys.journeyId1.trips.tripId1P1.segments.segmentId1',
-        expected: { 
-            person: interviewAttributesForTestCases.response!.household!.persons!.personId1,
-            journey: interviewAttributesForTestCases.response!.household!.persons!.personId1.journeys!.journeyId1,
-            trip: interviewAttributesForTestCases.response!.household!.persons!.personId1.journeys!.journeyId1.trips!.tripId1P1
-        }
-    },
-    {
-        title: 'Path with non-existing trip',
-        path: 'household.persons.personId1.journeys.journeyId1.trips.nonExistingTrip',
-        expected: null
-    },
-    {
-        title: 'Path with non-existing journey',
-        path: 'household.persons.personId1.journeys.nonExistingJourney',
-        expected: null
-    },
-    {
-        title: 'Path with non-existing person',
-        path: 'household.persons.nonExistingPerson.journeys.journeyId1',
-        expected: null
-    },
-    {
-        title: 'Path not matching expected format',
-        path: 'household.persons.personId1.otherData',
-        expected: null
-    }]).test('getTripContextFromPath: $title', ({ setup, path, expected }) => {
+    ]).test('getTripContextFromPath: $title', ({ setup, path, expected }) => {
         const interview = _cloneDeep(interviewAttributesForTestCases);
         if (setup) {
             setup(interview);
@@ -3060,42 +3109,49 @@ describe('getVisitedPlaceNames', () => {
         {
             title: 'Home place',
             interview: interviewAttributesForTestCases,
-            visitedPlace: interviewAttributesForTestCases.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!
-                .homePlace1P1,
+            visitedPlace:
+                interviewAttributesForTestCases.response.household!.persons!.personId1.journeys!.journeyId1
+                    .visitedPlaces!.homePlace1P1,
             expectedTVal: 'visitedPlaces:activities:home',
             expected: 'mocked'
         },
         {
             title: 'Place with a name',
             interview: interviewAttributesForTestCases,
-            visitedPlace: interviewAttributesForTestCases.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!
-                .workPlace1P1,
+            visitedPlace:
+                interviewAttributesForTestCases.response.household!.persons!.personId1.journeys!.journeyId1
+                    .visitedPlaces!.workPlace1P1,
             expectedTVal: undefined,
-            expected: interviewAttributesForTestCases.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!
-                .workPlace1P1.name
+            expected:
+                interviewAttributesForTestCases.response.household!.persons!.personId1.journeys!.journeyId1
+                    .visitedPlaces!.workPlace1P1.name
         },
         {
             title: 'Place with a name to escape',
             interview: testInterviewCopy,
-            visitedPlace: testInterviewCopy.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!
-                .workPlace1P1,
+            visitedPlace:
+                testInterviewCopy.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!
+                    .workPlace1P1,
             expectedTVal: undefined,
             expected: 'mocked &lt;b&gt;place&lt;/b&gt;'
         },
         {
             title: 'Place with a shortcut',
             interview: interviewAttributesForTestCases,
-            visitedPlace: interviewAttributesForTestCases.response.household!.persons!.personId2.journeys!.journeyId2.visitedPlaces!
-                .shoppingPlace1P2,
+            visitedPlace:
+                interviewAttributesForTestCases.response.household!.persons!.personId2.journeys!.journeyId2
+                    .visitedPlaces!.shoppingPlace1P2,
             expectedTVal: undefined,
-            expected: interviewAttributesForTestCases.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!
-                .otherPlace2P1.name
+            expected:
+                interviewAttributesForTestCases.response.household!.persons!.personId1.journeys!.journeyId1
+                    .visitedPlaces!.otherPlace2P1.name
         },
         {
             title: 'Place with neither name or shortcut',
             interview: interviewAttributesForTestCases,
-            visitedPlace: interviewAttributesForTestCases.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!
-                .otherPlaceP1,
+            visitedPlace:
+                interviewAttributesForTestCases.response.household!.persons!.personId1.journeys!.journeyId1
+                    .visitedPlaces!.otherPlaceP1,
             expectedTVal: ['survey:placeWithSequenceGeneric', { sequence: 4 }],
             expected: 'mocked'
         }
@@ -3139,18 +3195,21 @@ describe('getVisitedPlaceGeography', () => {
     const testInterviewAttributes = _cloneDeep(interviewAttributesForTestCases);
     (testInterviewAttributes.response.household!.persons!.personId1 as any).usualWorkPlace = usualWorkPlace;
     (testInterviewAttributes.response.household!.persons!.personId1 as any).usualSchoolPlace = usualSchoolPlace;
-    testInterviewAttributes.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.usualWorkPlace1P1 = {
-        _uuid: 'usualWorkPlace1P1',
-        _sequence: 6,
-        activity: 'workUsual'
-    };
-    testInterviewAttributes.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.usualSchoolPlace1P1 = {
-        _uuid: 'usualSchoolPlace1P1',
-        _sequence: 7,
-        activity: 'schoolUsual'
-    };
+    testInterviewAttributes.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.usualWorkPlace1P1 =
+        {
+            _uuid: 'usualWorkPlace1P1',
+            _sequence: 6,
+            activity: 'workUsual'
+        };
+    testInterviewAttributes.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.usualSchoolPlace1P1 =
+        {
+            _uuid: 'usualSchoolPlace1P1',
+            _sequence: 7,
+            activity: 'schoolUsual'
+        };
     // Remove geography otherPlaceP1 of person 1
-    testInterviewAttributes.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.otherPlaceP1.geography = undefined
+    testInterviewAttributes.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.otherPlaceP1.geography =
+        undefined;
 
     each([
         [
@@ -3301,12 +3360,12 @@ describe('getVisitedPlaceDescription', () => {
         // Keep only personId1 in the household to simulate a 1-person household
         interviewCopy.response.household!.persons = { personId1: interviewCopy.response.household!.persons!.personId1 };
         expect(
-            Helpers.getVisitedPlaceDescription({ 
+            Helpers.getVisitedPlaceDescription({
                 visitedPlace: visitedPlacesP1.workPlace1P1,
                 interview: interviewCopy,
                 person: person1,
                 t: mockedT as any,
-                options: { withPersonIdentification: true, withActivity: true } 
+                options: { withPersonIdentification: true, withActivity: true }
             })
         ).toEqual('<em>This is my work</em> • visitedPlaces:activities:workUsual');
     });
@@ -3317,23 +3376,23 @@ describe('getVisitedPlaceDescription', () => {
         setActiveSurveyObjects(interviewCopy, { personId: 'personId1' });
         // No nickname for person 1, because it's the active one
         expect(
-            Helpers.getVisitedPlaceDescription({ 
+            Helpers.getVisitedPlaceDescription({
                 visitedPlace: visitedPlacesP1.workPlace1P1,
                 interview: interviewCopy,
                 person: person1,
                 t: mockedT as any,
-                options: { withPersonIdentification: true, withActivity: true } 
+                options: { withPersonIdentification: true, withActivity: true }
             })
         ).toEqual('<em>This is my work</em> • visitedPlaces:activities:workUsual');
 
         // nickname for person 2
         expect(
-            Helpers.getVisitedPlaceDescription({ 
+            Helpers.getVisitedPlaceDescription({
                 visitedPlace: visitedPlacesP1.workPlace1P1,
                 interview: interviewCopy,
                 person: person2,
                 t: mockedT as any,
-                options: { withPersonIdentification: true, withActivity: true } 
+                options: { withPersonIdentification: true, withActivity: true }
             })
         ).toEqual('<em>This is my work</em> • p2 • visitedPlaces:activities:workUsual');
     });
@@ -3362,7 +3421,13 @@ describe('getVisitedPlaceDescription', () => {
         }
     ]).test('times: $title', ({ visitedPlace, expected }) => {
         expect(
-            Helpers.getVisitedPlaceDescription({ visitedPlace, interview, person: person1, t: mockedT as any, options: { withTimes: true } })
+            Helpers.getVisitedPlaceDescription({
+                visitedPlace,
+                interview,
+                person: person1,
+                t: mockedT as any,
+                options: { withTimes: true }
+            })
         ).toEqual(expected);
     });
 
@@ -3370,7 +3435,13 @@ describe('getVisitedPlaceDescription', () => {
         const visitedPlace = _cloneDeep(visitedPlacesP1.homePlace1P1);
         visitedPlace.arrivalTime = 0;
         expect(
-            Helpers.getVisitedPlaceDescription({ visitedPlace, interview, person: person1, t: mockedT as any, options: { withTimes: true } })
+            Helpers.getVisitedPlaceDescription({
+                visitedPlace,
+                interview,
+                person: person1,
+                t: mockedT as any,
+                options: { withTimes: true }
+            })
         ).toEqual('<em>visitedPlaces:activities:home</em> (0:00 -> 8:00)');
     });
 });
@@ -3426,51 +3497,59 @@ describe('getSegments', () => {
         expect(Helpers.getSegmentsArray({ trip: attributes })).toEqual([segments.segment2, segments.segment1]);
     });
 
-    each([{
-        title: 'Path with existing person, journey and trip',
-        path: 'household.persons.personId2.journeys.journeyId2.trips.tripId1P2.segments.segmentId1P2T1',
-        expected: { 
-            person: interviewAttributesForTestCases.response!.household!.persons!.personId2,
-            journey: interviewAttributesForTestCases.response!.household!.persons!.personId2.journeys!.journeyId2,
-            trip: interviewAttributesForTestCases.response!.household!.persons!.personId2.journeys!.journeyId2.trips!.tripId1P2,
-            segment: interviewAttributesForTestCases.response!.household!.persons!.personId2.journeys!.journeyId2.trips!.tripId1P2.segments!.segmentId1P2T1
+    each([
+        {
+            title: 'Path with existing person, journey and trip',
+            path: 'household.persons.personId2.journeys.journeyId2.trips.tripId1P2.segments.segmentId1P2T1',
+            expected: {
+                person: interviewAttributesForTestCases.response!.household!.persons!.personId2,
+                journey: interviewAttributesForTestCases.response!.household!.persons!.personId2.journeys!.journeyId2,
+                trip: interviewAttributesForTestCases.response!.household!.persons!.personId2.journeys!.journeyId2
+                    .trips!.tripId1P2,
+                segment:
+                    interviewAttributesForTestCases.response!.household!.persons!.personId2.journeys!.journeyId2.trips!
+                        .tripId1P2.segments!.segmentId1P2T1
+            }
+        },
+        {
+            title: 'Path with existing person, journey and trip with trailing data',
+            path: 'household.persons.personId2.journeys.journeyId2.trips.tripId1P2.segments.segmentId1P2T1.someTrailingData',
+            expected: {
+                person: interviewAttributesForTestCases.response!.household!.persons!.personId2,
+                journey: interviewAttributesForTestCases.response!.household!.persons!.personId2.journeys!.journeyId2,
+                trip: interviewAttributesForTestCases.response!.household!.persons!.personId2.journeys!.journeyId2
+                    .trips!.tripId1P2,
+                segment:
+                    interviewAttributesForTestCases.response!.household!.persons!.personId2.journeys!.journeyId2.trips!
+                        .tripId1P2.segments!.segmentId1P2T1
+            }
+        },
+        {
+            title: 'Path with non-existing segment',
+            path: 'household.persons.personId2.journeys.journeyId2.trips.tripId1P2.segments.nonExistingSegment',
+            expected: null
+        },
+        {
+            title: 'Path with non-existing trip',
+            path: 'household.persons.personId2.journeys.journeyId2.trips.nonExistingTrip',
+            expected: null
+        },
+        {
+            title: 'Path with non-existing journey',
+            path: 'household.persons.personId2.journeys.nonExistingJourney',
+            expected: null
+        },
+        {
+            title: 'Path with non-existing person',
+            path: 'household.persons.nonExistingPerson.journeys.journeyId2',
+            expected: null
+        },
+        {
+            title: 'Path not matching expected format',
+            path: 'household.persons.personId2.otherData',
+            expected: null
         }
-    },
-    {
-        title: 'Path with existing person, journey and trip with trailing data',
-        path: 'household.persons.personId2.journeys.journeyId2.trips.tripId1P2.segments.segmentId1P2T1.someTrailingData',
-        expected: { 
-            person: interviewAttributesForTestCases.response!.household!.persons!.personId2,
-            journey: interviewAttributesForTestCases.response!.household!.persons!.personId2.journeys!.journeyId2,
-            trip: interviewAttributesForTestCases.response!.household!.persons!.personId2.journeys!.journeyId2.trips!.tripId1P2,
-            segment: interviewAttributesForTestCases.response!.household!.persons!.personId2.journeys!.journeyId2.trips!.tripId1P2.segments!.segmentId1P2T1
-        }
-    },
-    {
-        title: 'Path with non-existing segment',
-        path: 'household.persons.personId2.journeys.journeyId2.trips.tripId1P2.segments.nonExistingSegment',
-        expected: null
-    },
-    {
-        title: 'Path with non-existing trip',
-        path: 'household.persons.personId2.journeys.journeyId2.trips.nonExistingTrip',
-        expected: null
-    },
-    {
-        title: 'Path with non-existing journey',
-        path: 'household.persons.personId2.journeys.nonExistingJourney',
-        expected: null
-    },
-    {
-        title: 'Path with non-existing person',
-        path: 'household.persons.nonExistingPerson.journeys.journeyId2',
-        expected: null
-    },
-    {
-        title: 'Path not matching expected format',
-        path: 'household.persons.personId2.otherData',
-        expected: null
-    }]).test('getSegmentContextFromPath: $title', ({ setup, path, expected }) => {
+    ]).test('getSegmentContextFromPath: $title', ({ setup, path, expected }) => {
         const interview = _cloneDeep(interviewAttributesForTestCases);
         if (setup) {
             setup(interview);
