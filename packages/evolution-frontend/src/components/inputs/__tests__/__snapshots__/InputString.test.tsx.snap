@@ -62,7 +62,31 @@ exports[`Should correctly render InputString with default value as function 1`] 
 </div>
 `;
 
-exports[`Should correctly render InputString with suffixLabel 1`] = `
+exports[`Should correctly render InputString with suffixLabel: i18n object 1`] = `
+<div>
+  <div
+    class="apptr__input-with-suffix"
+  >
+    <input
+      autocomplete="none"
+      class="apptr__form-input apptr__input-string input-small"
+      id="test"
+      maxlength="255"
+      name="test"
+      style="text-transform: none;"
+      type="text"
+      value="50"
+    />
+    <span
+      class="apptr__input-suffix"
+    >
+      %
+    </span>
+  </div>
+</div>
+`;
+
+exports[`Should correctly render InputString with suffixLabel: string 1`] = `
 <div>
   <div
     class="apptr__input-with-suffix"

@@ -586,10 +586,12 @@ def generate_suffix_label_code(
     Expected parameters format:
         suffixLabel=sectionName:valueSuffix
     """
-    if not isinstance(suffix_label, str) or suffix_label.strip() == "":
+    if not isinstance(suffix_label, str):
         return ""
 
     raw = suffix_label.strip()  # Remove leading and trailing spaces
+    if raw == "":
+        return ""
     # Validate `sectionName:valueSuffix` format:
     # - exactly one ':' separator
     # - non-empty left and right
