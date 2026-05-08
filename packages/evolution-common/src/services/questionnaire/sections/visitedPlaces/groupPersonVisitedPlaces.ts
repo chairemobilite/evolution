@@ -16,6 +16,7 @@ import { getNextPlaceCategoryWidgetConfig } from './widgetNextPlaceCategory';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { VisitedPlaceShortcutWidgetFactory } from './widgetsVisitedPlaceShortcut';
 import { ButtonsVisitedPlaceConfigFactory } from './buttonsVisitedPlace';
+import { VisitedPlaceTimeWidgetFactory } from './widgetsTime';
 
 /**
  * Widget config factory for the person visited places group. It represents the
@@ -40,6 +41,10 @@ export class PersonVisitedPlacesGroupConfigFactory implements WidgetConfigFactor
         // Add the geography, shortcuts and activity widgets at the beginning of the groups, listed in reverse order of appearance to unshift them in the right order
         // FIXME Allow to fine-tune where to put the additional widgets if a survey needs a question to be asked between the builtin ones
         const widgetsAtTheBeginning = [
+            'visitedPlaceArrivalTime',
+            'visitedPlacePreviousDepartureTime',
+            'visitedPlacePreviousArrivalTime',
+            'visitedPlacePreviousPreviousDepartureTime',
             'visitedPlaceGeography',
             'visitedPlaceName',
             'visitedPlaceShortcut',
@@ -54,6 +59,7 @@ export class PersonVisitedPlacesGroupConfigFactory implements WidgetConfigFactor
         }
         const widgetsAtTheEnd = [
             'visitedPlaceNextPlaceCategory',
+            'visitedPlaceDepartureTime',
             'buttonSaveVisitedPlace',
             'buttonCancelVisitedPlace',
             'buttonDeleteVisitedPlace'
@@ -119,6 +125,7 @@ export class PersonVisitedPlacesGroupConfigFactory implements WidgetConfigFactor
             this.options
         );
         const buttonsWidgetFactory = new ButtonsVisitedPlaceConfigFactory(this.sectionConfig, this.options);
+        const visitedPlaceTimeWidgetFactory = new VisitedPlaceTimeWidgetFactory(this.sectionConfig, this.options);
         return {
             personVisitedPlaces: this.getVisitedPlacesGroupConfig(),
             visitedPlaceActivityCategory: getActivityCategoryWidgetConfig(this.sectionConfig, this.options),
@@ -126,6 +133,7 @@ export class PersonVisitedPlacesGroupConfigFactory implements WidgetConfigFactor
             ...visitedPlaceShortcutWidgetFactory.getWidgetConfigs(),
             ...geographyWidgetFactory.getWidgetConfigs(),
             visitedPlaceNextPlaceCategory: getNextPlaceCategoryWidgetConfig(this.sectionConfig, this.options),
+            ...visitedPlaceTimeWidgetFactory.getWidgetConfigs(),
             ...buttonsWidgetFactory.getWidgetConfigs()
         };
     };
