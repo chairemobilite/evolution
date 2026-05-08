@@ -20,6 +20,9 @@ import type {
     VisitedPlacesSectionConfiguration
 } from '../../types';
 import * as odSurveyHelpers from '../../../odSurvey/helpers';
+import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
+import { toXXhrYYminZZsec } from 'chaire-lib-common/lib/utils/DateTimeUtils';
+import { TFunction } from 'i18next';
 
 /**
  * Validate that the activity of the previous and next places are not in the
@@ -346,6 +349,49 @@ export const getShortcutVisitedPlaces = ({
         }
     }
     return shortcutPlaces;
+};
+
+/**
+ * Formats a trip duration as a presentable and localized string for participant
+ * display during survey. It expects start and end times as number of seconds
+ * since midnight, and a translation function. It returns a properly formatted
+ * string that can be inserted in labels. Returns a different string if the trip
+ * is shorter than 5 minutes.
+ *
+ * FIXME It is in the visited places helper for now, because it is where it is
+ * currently used, and it's specific for user display. But see if it can be
+ * re-used in other places. If so, move to other helper files.
+ *
+ * @param {number} tripStart trip start time: number of seconds since midnight
+ * @param {number} tripEnd trip end time: number of seconds since midnight
+ * @param {TFunction} t translation function.
+ *
+ * @return {string} the formatted trip duration.
+ */
+export const formatTripDuration = (tripStart: number, tripEnd: number, t: TFunction): string => {
+    if (
+        _isBlank(tripStart) ||
+        _isBlank(tripEnd) ||
+        isNaN(tripStart) ||
+        isNaN(tripEnd) ||
+        tripStart < 0 ||
+        tripEnd < 0
+    ) {
+        return '';
+    }
+
+    const travelTimeSeconds = Math.abs(tripEnd - tripStart);
+    const durationText =
+        travelTimeSeconds < 5 * 60
+            ? t('visitedPlaces:tripDuration.lessThan5Minutes')
+            : toXXhrYYminZZsec(travelTimeSeconds, t, {
+                hourUnit: 'visitedPlaces:tripDuration.hour',
+                minuteUnit: 'visitedPlaces:tripDuration.minute',
+                secondsUnit: '',
+                withSeconds: false
+            });
+
+    return durationText;
 };
 
 /**
