@@ -736,3 +736,44 @@ describe('isWorkOnTheRoad', () => {
         expect(helpers.isWorkOnTheRoad(visitedPlace)).toBe(expected);
     });
 })
+
+describe('formatTripDuration', () => {
+    test.each([
+        { tripEnd: undefined as unknown as number, tripStart: 8 * 60 * 60 },
+        { tripEnd: 8 * 60 * 60, tripStart: undefined as unknown as number },
+        { tripEnd: Number.NaN, tripStart: 8 * 60 * 60 },
+        { tripEnd: 8 * 60 * 60, tripStart: Number.NaN },
+        { tripEnd: -1, tripStart: 8 * 60 * 60 },
+        { tripEnd: 8 * 60 * 60, tripStart: -1 }
+    ])('should return an empty string for invalid inputs (tripStart: $tripStart, tripEnd: $tripEnd)', ({ tripEnd, tripStart }) => {
+        const t = jest.fn().mockImplementation((key) => key);
+
+        expect(helpers.formatTripDuration(tripStart, tripEnd, t as any)).toBe('');
+    });
+
+    test('should return the less-than-5-minutes translation for short trips', () => {
+        const t = jest.fn().mockImplementation((key) => key);
+
+        const result = helpers.formatTripDuration(8 * 60 * 60, 8 * 60 * 60 + 4 * 60, t as any);
+
+        expect(result).toEqual('visitedPlaces:tripDuration.lessThan5Minutes');
+        expect(t).toHaveBeenCalledWith('visitedPlaces:tripDuration.lessThan5Minutes');
+    });
+
+    test('should return a formatted duration string for trips of 5 minutes or more', () => {
+        const t = jest.fn().mockImplementation((key) => key);
+
+        const result = helpers.formatTripDuration(8 * 60 * 60, 8 * 60 * 60 + 10 * 60, t as any);
+
+        expect(result).toBeTruthy();
+        expect(result).toEqual('10 visitedPlaces:tripDuration.minute');
+    });
+
+    test('should return a formatted duration string when trip end is before trip start', () => {
+        const t = jest.fn().mockImplementation((key) => key);
+
+        const result = helpers.formatTripDuration(9 * 60 * 60, 8 * 60 * 60, t as any);
+
+        expect(result).toEqual('1 visitedPlaces:tripDuration.hour');
+    });
+});
