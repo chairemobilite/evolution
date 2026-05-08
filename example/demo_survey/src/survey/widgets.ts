@@ -84,9 +84,6 @@ export const personLastVisitedPlaceNotHome: any = visitedPlacesWidgets.personLas
 export const visitedPlaceName: any = visitedPlacesWidgets.visitedPlaceName;
 export const visitedPlaceActivityCategory: WidgetConfig = visitedPlacesWidgets.visitedPlaceActivityCategory;
 export const visitedPlaceGeography: any = visitedPlacesWidgets.visitedPlaceGeography;
-export const visitedPlaceArrivalTime: any = visitedPlacesWidgets.visitedPlaceArrivalTime;
-//export const visitedPlaceIsNotLast                 = visitedPlacesWidgets.visitedPlaceIsNotLast;
-export const visitedPlaceDepartureTime: any = visitedPlacesWidgets.visitedPlaceDepartureTime;
 //export const visitedPlaceWentBackHomeDirectlyAfter = visitedPlacesWidgets.visitedPlaceWentBackHomeDirectlyAfter;
 export const buttonVisitedPlacesConfirmNextSection: any = visitedPlacesWidgets.buttonVisitedPlacesConfirmNextSection;
 
