@@ -8,8 +8,6 @@ import _cloneDeep from 'lodash/cloneDeep';
 import { getPersonVisitedPlacesTitleWidgetConfig } from '../widgetPersonVisitedPlacesTitle';
 import { interviewAttributesForTestCases, widgetFactoryOptions } from '../../../../../tests/surveys';
 
-const mockGetFormattedDate = widgetFactoryOptions.getFormattedDate as jest.MockedFunction<typeof widgetFactoryOptions.getFormattedDate>;
-
 const visitedPlacesSectionConfig = {
     type: 'visitedPlaces' as const,
     enabled: true,
@@ -52,10 +50,18 @@ describe('personsTripsTitleWidgetConfig text', () => {
     // Extract the journey date for use in expected parameters in tests
     const journeyDate = interviewAttributesForTestCases.response.household!.persons!.personId1.journeys!.journeyId1.startDate;
    
-    test('should call translation with correct parameters if no active journey', () => {
+    test('should throw an error if no active person', () => {
+        const testInterview = _cloneDeep(interviewAttributesForTestCases);
+        setActiveJourney(testInterview, undefined, undefined);
+        expect(() => widgetText(mockedT, testInterview, 'path')).toThrow('Active person not found in interview response');
+        expect(mockedT).not.toHaveBeenCalled();
+        expect(widgetFactoryOptions.getFormattedDate).not.toHaveBeenCalled();
+    });
+
+    test('should throw an error if no active journey', () => {
         const testInterview = _cloneDeep(interviewAttributesForTestCases);
         setActiveJourney(testInterview, 'personId1', undefined);
-        expect(() => widgetText(mockedT, testInterview, 'path')).toThrow('Active person or journey not found in interview response');
+        expect(() => widgetText(mockedT, testInterview, 'path')).toThrow('Active journey for person not found in interview response');
         expect(mockedT).not.toHaveBeenCalled();
         expect(widgetFactoryOptions.getFormattedDate).not.toHaveBeenCalled();
     });
@@ -66,7 +72,7 @@ describe('personsTripsTitleWidgetConfig text', () => {
         // Delete other persons
         delete testInterview.response.household!.persons!.personId2;
         delete testInterview.response.household!.persons!.personId3;
-        expect(widgetText(mockedT, testInterview, 'household.persons.personId1.journeys.journeyId1.visitedPlaces')).toEqual('visitedPlaces:personVisitedPlacesTitle');
+        expect(widgetText(mockedT, testInterview, 'path')).toEqual('visitedPlaces:personVisitedPlacesTitle');
         expect(mockedT).toHaveBeenCalledWith('visitedPlaces:personVisitedPlacesTitle', {
             context: undefined,
             count: 1,
@@ -85,7 +91,7 @@ describe('personsTripsTitleWidgetConfig text', () => {
         // Set a nickname for the person
         testInterview.response.household!.persons!.personId1.nickname = 'Jane';
 
-        expect(widgetText(mockedT, testInterview, 'household.persons.personId1.journeys.journeyId1.visitedPlaces')).toEqual('visitedPlaces:personVisitedPlacesTitle');
+        expect(widgetText(mockedT, testInterview, 'path')).toEqual('visitedPlaces:personVisitedPlacesTitle');
         expect(mockedT).toHaveBeenCalledWith('visitedPlaces:personVisitedPlacesTitle', {
             context: undefined,
             count: 3,
