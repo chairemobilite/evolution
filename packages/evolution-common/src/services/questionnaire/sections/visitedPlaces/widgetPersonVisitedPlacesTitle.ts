@@ -20,12 +20,16 @@ export const getPersonVisitedPlacesTitleWidgetConfig = (
         type: 'text',
         align: 'left',
         containsHtml: true,
-        text: (t: TFunction, interview: UserInterviewAttributes, path: string) => {
-            const journeyContext = odHelpers.getJourneyContextFromPath({ interview, path });
-            if (!journeyContext) {
-                throw new Error('Active person or journey not found in interview response');
+        text: (t: TFunction, interview: UserInterviewAttributes) => {
+            // Get the active person and journey from interview data, there is no path necessary for text widgets
+            const person = odHelpers.getPerson({ interview }) as any;
+            if (!person) {
+                throw new Error('Active person not found in interview response');
             }
-            const { person, journey } = journeyContext;
+            const journey = odHelpers.getActiveJourney({ interview, person });
+            if (!journey) {
+                throw new Error('Active journey for person not found in interview response');
+            }
 
             // Format the journey start date for context in the title
             // FIXME Update to support multiple days journeys when we support them in builtin questionnaire
