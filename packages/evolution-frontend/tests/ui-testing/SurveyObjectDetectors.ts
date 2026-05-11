@@ -37,6 +37,7 @@ export class SurveyObjectDetector {
     private activeJourneyId: string | undefined = undefined;
     private activeVisitedPlaceId: string | undefined = undefined;
     private activeTripId: string | undefined = undefined;
+    private tripDiaries: { personId: string; journeyId: string }[] = [];
 
     // Replace ${personId[n]} with the actual personId
     private replaceWithPersonId(str: string): string {
@@ -83,6 +84,46 @@ export class SurveyObjectDetector {
         return newString;
     }
 
+    // Replace ${tripDiary[n]} with the actual trip diary ID, or optional fields like ${tripDiary[n].personId}, ${tripDiary[n].journeyId}, ${tripDiary[n].visitedPlace[index]}
+    private replaceWithTripDiaryData(str: string): string {
+        let newString = str;
+        // Match patterns like: ${tripDiary[0]}, ${tripDiary[0].personId}, ${tripDiary[0].journeyId}, ${tripDiary[0].visitedPlaces[0]}
+        const tripDiaryRegex = /\$\{tripDiary\[(\d+)\](?:\.(\w+)(?:\[(\d+)\])?)?\}/g;
+
+        newString = str.replace(tripDiaryRegex, (match, diaryIndexStr, fieldName, arrayIndexStr) => {
+            const diaryIndex = Number(diaryIndexStr);
+
+            // Check if the diary index is valid
+            if (diaryIndex >= this.tripDiaries.length) {
+                return match; // Return original if index out of bounds
+            }
+
+            const tripDiary = this.tripDiaries[diaryIndex];
+
+            // If no field specified, the complete path of the trip diary
+            if (!fieldName) {
+                return `household.persons.${tripDiary.personId}.journeys.${tripDiary.journeyId}`;
+            }
+
+            // Handle specific field accesses
+            if (fieldName === 'personId') {
+                return tripDiary.personId;
+            } else if (fieldName === 'journeyId') {
+                return tripDiary.journeyId;
+            } else if (fieldName === 'visitedPlaces' && arrayIndexStr !== undefined) {
+                const arrayIndex = Number(arrayIndexStr);
+                const visitedPlacesForJourney = this.visitedPlaces[tripDiary.journeyId];
+                if (visitedPlacesForJourney && arrayIndex < visitedPlacesForJourney.length) {
+                    return visitedPlacesForJourney[arrayIndex];
+                }
+            }
+
+            return match; // Return original if field not found
+        });
+
+        return newString;
+    }
+
     private activeVehicleStr = '${activeVehicleId}';
     private activePersonStr = '${activePersonId}';
     private activeJourneyStr = '${activeJourneyId}';
@@ -105,6 +146,7 @@ export class SurveyObjectDetector {
         newString = this.replaceWithActiveObjectId(newString, this.activeVisitedPlaceStr, this.activeVisitedPlaceId);
         newString = this.replaceWithActiveObjectId(newString, this.activeTripStr, this.activeTripId);
         newString = this.replaceWithSegmentId(newString);
+        newString = this.replaceWithTripDiaryData(newString);
         return newString;
     }
 
@@ -234,6 +276,28 @@ export class SurveyObjectDetector {
         }
     }
 
+    private detectTripDiary(data: any) {
+        // Order of trip diaries may not be the same as the order of the persons and journeys, so we need to detect the start of a trip diary and save the order
+        let activePersonId: string | undefined = undefined;
+        let activeJourneyId: string | undefined = undefined;
+        // Get the active person, journey and visited place ids, we are in a trip diary if the first 2 are defined
+        this.detectActiveObject(data, activePersonKeyRegex, (activeId) => (activePersonId = activeId));
+        this.detectActiveObject(data, activeJourneyKeyRegex, (activeId) => (activeJourneyId = activeId));
+
+        if (activeJourneyId && activePersonId) {
+            // We are in a trip diary, we can save the order of the visited places for this journey
+            const tripDiary = this.tripDiaries.find(
+                (diary) => diary.personId === activePersonId && diary.journeyId === activeJourneyId
+            );
+            if (!tripDiary) {
+                this.tripDiaries.push({
+                    personId: activePersonId,
+                    journeyId: activeJourneyId
+                });
+            }
+        }
+    }
+
     /**
      * Detect survey objects and active objects from the survey update data
      *
@@ -251,5 +315,6 @@ export class SurveyObjectDetector {
         this.detectActiveObject(data, activeVisitedPlaceKeyRegex, (activeId) => (this.activeVisitedPlaceId = activeId));
         this.detectActiveObject(data, activeTripKeyRegex, (activeId) => (this.activeTripId = activeId));
         this.detectActiveObject(data, activeVehicleKeyRegex, (activeId) => (this.activeVehicleId = activeId));
+        this.detectTripDiary(data);
     }
 }

@@ -448,10 +448,11 @@ export const expectInputRadioOptionsTest = ({
 export const inputSelectTest: InputSelectTest = ({ context, path, value }) => {
     test(`Select ${value} for ${path} - ${getTestCounter(context, `${path} - ${value}`)}`, async () => {
         const newPath = context.objectDetector.replaceWithIds(path);
-        const option = context.page.locator(`id=survey-question__${newPath}`);
-        await option.scrollIntoViewIfNeeded();
-        await option.selectOption(value);
-        await expect(option).toHaveValue(value);
+        const resolvedOption = typeof value === 'string' ? context.objectDetector.replaceWithIds(value) : value;
+        const selectWidget = context.page.locator(`id=survey-question__${newPath}`);
+        await selectWidget.scrollIntoViewIfNeeded();
+        await selectWidget.selectOption(resolvedOption);
+        await expect(selectWidget).toHaveValue(resolvedOption);
         await focusOut(context.page);
     });
 };
