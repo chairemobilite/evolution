@@ -31,14 +31,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `getFirstIncompleteVisitedPlace` (commit [600bb6e](https://github.com/chairemobilite/evolution/commit/600bb6ea2f019dc07400440f84c380d1f4cc1dce))
   - `reconcileVisitedPlaces` (commit [cb1e699](https://github.com/chairemobilite/evolution/commit/cb1e699ba27534c8056597045012e5e7af2157e9))
   - `deleteVisitedPlace` (commit [fd6e33b](https://github.com/chairemobilite/evolution/commit/fd6e33bfa36c16b741469b30dd5ca90ef1948083))
-  - `insertEmptyVisitedPlace`/`insertVisitedPlace`
+  - `insertEmptyVisitedPlace`/`insertVisitedPlace` (commits [481c0ba](https://github.com/chairemobilite/evolution/commit/481c0ba5ff600baddd1aed9269cc03f4d85507ae) and [1bb4428](https://github.com/chairemobilite/evolution/commit/1bb4428e5782301d902c6de8825ee459b62182e3))
   - `getHomeAddressOneLine` (commit [3b28f45](https://github.com/chairemobilite/evolution/commit/3b28f454515445b4b438bfcb6cf00e1a8fffcde9))
   - `shouldShowTripsAndPlacesSections` (commit [852a240](https://github.com/chairemobilite/evolution/commit/852a240a98d3c3a92197fe9684102df1326545f4))
   - `getJourneyContextFromPath`, `getTripContextFromPath`, `getVisitedPlaceContextFromPath`, `getSegmentContextFromPath` to get all objects in the interview from the path (fixes [#1538](https://github.com/chairemobilite/evolution/issues/1538))
-  - `getCurrentJourneyId`, `getCurrentTripId`, `getCurrentSegmentId`, `getCurrentVisitedPlaceId` to extract current context ids from a widget path or from the interview’s active ids
-  - `getVisitedPlaceDescription`
-  - `isUsualActivity`
-- Added a `visitedPlaces` section configuration, which includes activity, location, shortcuts, on the road, next place category questions, as well as save/cancel/delete buttons with the  `VisitedPlacesSectionFactory` class (fixes [#1437](https://github.com/chairemobilite/evolution/issues/1437))
+  - `getCurrentJourneyId`, `getCurrentTripId`, `getCurrentSegmentId`, `getCurrentVisitedPlaceId` to extract current context ids from a widget path or from the interview’s active ids (commits [92f001e](https://github.com/chairemobilite/evolution/commit/92f001ef347195dce28a806280dfbfe508ca698d) and [492ce647](https://github.com/chairemobilite/evolution/commit/492ce6478bb82610523428136dbc231e79fbec1f))
+  - `getVisitedPlaceDescription` (commit [d203578](https://github.com/chairemobilite/evolution/commit/d20357804046c1691278b97a5fd9caa74a2d587a))
+  - `isUsualActivity` (commit [83e0bf4](https://github.com/chairemobilite/evolution/commit/83e0bf49d6b1d6f59c41a703dcc746195393527d))
+- Added a `visitedPlaces` section configuration, which includes activity, location, shortcuts, on the road, next place category questions, as well as save/cancel/delete buttons with the  `VisitedPlacesSectionFactory` class (fixes [#1437](https://github.com/chairemobilite/evolution/issues/1437), [#1069](https://github.com/chairemobilite/evolution/issues/1069), [#1435](https://github.com/chairemobilite/evolution/issues/1435), [#1436](https://github.com/chairemobilite/evolution/issues/1436), [#1455](https://github.com/chairemobilite/evolution/issues/1455), [#1484](https://github.com/chairemobilite/evolution/issues/1484), [#1485](https://github.com/chairemobilite/evolution/issues/1485))
 - Provide a `VisitedPlacesSection` template to be used in the UI to display visited places. The template can be used by the `visitedPlaces` name in the `template` property of a section's configuration (fixes [#1446](https://github.com/chairemobilite/evolution/issues/1446)).
 - The `getFormattedDate` widget factory option now takes an optional options parameter to fine-tune the desired format of the date (commit [8dbd493](https://github.com/chairemobilite/evolution/commit/8dbd4938c1dd4f5466a8c19b3b90f934e63b953f))
 - Add a `QuestionnaireConfiguration` type, that allows to configure an optional trip diary (which can include a visited places and segments sections). The `QuestionnaireFactory` class receives the configuration and returns the builtin widgets and sections from config. (commit [be226aa](https://github.com/chairemobilite/evolution/commit/be226aab8ad8f84b027a380dd90af70e2989e62d)).
@@ -56,7 +56,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `getPersonsTripsGroupConfig` => `PersonTripsGroupConfigFactory`
   - `getSegmentsGroupConfig` => `SegmentsGroupConfigFactory`
   - `getSegmentsSectionConfig` => `SegmentsSectionFactory`
-- **BREAKING**: Rename the map widget's `updateDefaultValueWhenResponded` to `resetToDefaultUnlessUserInteracted` for clarity. The property applies to all map types, not just 'findPlace'.
+- **BREAKING**: Rename the map widget's `updateDefaultValueWhenResponded` to `resetToDefaultUnlessUserInteracted` for clarity. The property applies to all map types, not just 'findPlace'. (commit [325d6ca](https://github.com/chairemobilite/evolution/commit/325d6cafe6b31e2964f95bed00999add0f1ddbae))
 - **BREAKING**: The generator's `Labels` sheet in the Excel file should rename the "section" and "path" columns to "namespace" and "key", which better represents where we want the key to be (fixes [#1530](https://github.com/chairemobilite/evolution/issues/1530)).
 - **BREAKING**: The generator now use the question name as translation label key instead of the path. Surveys using the generator will automatically update all label fields, but if additional label with context had been added in the "Labels" sheet to match the question's original label, these might need to be updated (fixes [#1530](https://github.com/chairemobilite/evolution/issues/1530)).
 - **BREAKING**: Generator inactive widgets: `active` now behaves like a real boolean (Excel `0`/`1` included), defaults to inactive when omitted, and inactive rows stay commented-out in generated widget files instead of emitting broken code (fixes [#1597](https://github.com/chairemobilite/evolution/issues/1597)).
@@ -64,8 +64,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
-- The evolution-frontend's `frontendHelper#getVisitedPlaceDescription` has been deprecated. Use the `getVisitedPlaceDescription` OD survey helper function from `evolution-common/lib/services/odSurvey/helpers`
-- The `InputMapPoint` widget (and the underlying `geocodeSinglePoint` helper) is deprecated in favor of `InputMapFindPlace`. `InputMapPoint` silently auto-selects the first geocoding result, which can mask wrong matches; `InputMapFindPlace` surfaces all candidates to the participant and auto-selects only when there is a single result. New surveys should use `InputMapFindPlace` for all map point inputs.
+- The evolution-frontend's `frontendHelper#getVisitedPlaceDescription` has been deprecated. Use the `getVisitedPlaceDescription` OD survey helper function from `evolution-common/lib/services/odSurvey/helpers` (commit [d203578](https://github.com/chairemobilite/evolution/commit/d20357804046c1691278b97a5fd9caa74a2d587a))
+- The `InputMapPoint` widget (and the underlying `geocodeSinglePoint` helper) is deprecated in favor of `InputMapFindPlace`. `InputMapPoint` silently auto-selects the first geocoding result, which can mask wrong matches; `InputMapFindPlace` surfaces all candidates to the participant and auto-selects only when there is a single result. New surveys should use `InputMapFindPlace` for all map point inputs. (commit [59d66d7](https://github.com/chairemobilite/evolution/commit/59d66d7341c00541528e9b453d869f1c85809454))
 
 ### Removed
 
@@ -73,7 +73,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Allow to effectively override locales from Evolution by survey specifics with the same key. Fix is applied automatically on projects calling the `createParticipantWebpackConfig` and `createAdminWebpackConfig` webpack helpers. (fixes [#1426](https://github.com/chairemobilite/evolution/issues/1426))
 - Yaml translation files generated by the generator now produce nested keys instead of '.' separated, to match Evolution's builtin format (fixes [#1529](https://github.com/chairemobilite/evolution/issues/1529))
-- Fix the type of the `defaultValue` field of the `WidgetConfig#InputMapType` to be or return a geojson point feature as this is what the code really expects.
+- Fix the type of the `defaultValue` field of the `WidgetConfig#InputMapType` to be or return a geojson point feature as this is what the code really expects. (commit [a5b5534](https://github.com/chairemobilite/evolution/commit/a5b55342f79784ea3fa863bc4c462a1d6ab07cb5))
 - Fix UI visibility tests for radio/checkbox widgets. (fixes [#1622](https://github.com/chairemobilite/evolution/issues/1622))
 
 ### Security
