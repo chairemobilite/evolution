@@ -6,12 +6,21 @@
  */
 
 import { v4 as uuidV4 } from 'uuid';
-import { householdAuditChecks } from '../../HouseholdAuditChecks';
-import { createContextWithHouseholdAndHome } from './testHelper';
 import { Vehicle } from 'evolution-common/lib/services/baseObjects/Vehicle';
 import { SurveyObjectsRegistry } from 'evolution-common/lib/services/baseObjects/SurveyObjectsRegistry';
+import { householdAuditChecks } from '../../HouseholdAuditChecks';
+import { createContextWithHouseholdAndHome } from './testHelper';
 
 describe('HH_L_CarNumberVehiclesCountMismatch audit check', () => {
+    it('is disabled: always returns undefined until vehicle objects are implemented', () => {
+        const context = createContextWithHouseholdAndHome({ carNumber: 2 });
+        expect(householdAuditChecks.HH_L_CarNumberVehiclesCountMismatch(context)).toBeUndefined();
+    });
+});
+
+// TODO: Re-enable (replace `describe.skip` with `describe`) once vehicles are
+// implemented as first-class objects on Household.
+describe.skip('HH_L_CarNumberVehiclesCountMismatch audit check (pending vehicle objects)', () => {
     const validHouseholdUuid = uuidV4();
     const validHomeUuid = uuidV4();
     const surveyObjectsRegistry = new SurveyObjectsRegistry();
@@ -81,5 +90,22 @@ describe('HH_L_CarNumberVehiclesCountMismatch audit check', () => {
         }
     );
 
-});
+    it('should fail when vehicles is empty and carNumber is > 0', () => {
+        const context = createContextWithHouseholdAndHome({
+            carNumber: 1,
+            vehicles: []
+        }, undefined, validHouseholdUuid, validHomeUuid);
 
+        const result = householdAuditChecks.HH_L_CarNumberVehiclesCountMismatch(context);
+
+        expect(result).toMatchObject({
+            objectType: 'household',
+            objectUuid: validHouseholdUuid,
+            errorCode: 'HH_L_CarNumberVehiclesCountMismatch',
+            version: 1,
+            level: 'error',
+            message: 'Car number and vehicles count mismatch',
+            ignore: false
+        });
+    });
+});
