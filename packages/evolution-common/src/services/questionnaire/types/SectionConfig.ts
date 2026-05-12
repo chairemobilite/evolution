@@ -9,7 +9,6 @@
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import {
     I18nData,
-    ParsingFunction,
     StartAddGroupedObjects,
     StartNavigate,
     StartRemoveGroupedObjects,
@@ -17,8 +16,8 @@ import {
     UserInterviewAttributes,
     UserRuntimeInterviewAttributes
 } from './Data';
-import { WidgetConfig } from './WidgetConfig';
-import { Activity, Mode } from '../../odSurvey/types';
+import type { WidgetConfig, WidgetConditional } from './WidgetConfig';
+import type { Activity, Mode } from '../../odSurvey/types';
 
 export type SectionPreload = (
     interview: UserInterviewAttributes,
@@ -222,7 +221,7 @@ export type SectionConfig = {
      * FIXME: As we are moving towards a config-only section definition, this
      * function should be replaced with something that can be defined in config
      */
-    enableConditional?: boolean | ParsingFunction<boolean>;
+    enableConditional?: boolean | WidgetConditional;
 
     /**
      * Whether this section and all its iterations should be considered
@@ -232,7 +231,7 @@ export type SectionConfig = {
      * FIXME: As we are moving towards a config-only section definition, this
      * function should be replaced with something that can be defined in config
      */
-    completionConditional?: boolean | ParsingFunction<boolean>;
+    completionConditional?: boolean | WidgetConditional;
 
     /**
      * Whether this section or a specific iteration of it, if it is part of a

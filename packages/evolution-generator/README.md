@@ -289,16 +289,20 @@ Sections in your survey help organize questions into logical groups, making it e
 
 ### Sections Fields
 
-| Field          | Description                                                   | Type     |
-| -------------- | ------------------------------------------------------------- | -------- |
-| section        | Name of the section                                           | string   |
-| abbreviation   | Short abbreviation for the section data dictionary (optional) | string?  |
-| title_fr       | French label for the section (optional)                       | string?  |
-| title_en       | English label for the section (optional)                      | string?  |
-| in_nav         | Section visibility in the navigation                          | boolean  |
-| template       | Template name for the section (optional)                      | string?  |
-| has_preload    | Whether this section has a preload file (optional)            | boolean? |
-| parent_section | Parent section of the current section (optional)              | string?  |
+| Field                  | Description                                                                                     | Type     |
+| ---------------------- | ----------------------------------------------------------------------------------------------- | -------- |
+| section                | Name of the section                                                                             | string   |
+| abbreviation           | Short abbreviation for the section data dictionary (optional)                                   | string?  |
+| title_fr               | French label for the section (optional)                                                         | string?  |
+| title_en               | English label for the section (optional)                                                        | string?  |
+| in_nav                 | Section visibility in the navigation                                                            | boolean  |
+| template               | Template name for the section (optional)                                                        | string?  |
+| has_preload            | Whether this section has a preload file (optional)                                              | boolean? |
+| parent_section         | Parent section of the current section (optional)                                                | string?  |
+| enable_conditional     | Optional. Name of the conditional that controls whether the section can be opened from the nav. | string?  |
+| completion_conditional | Optional. Name of the conditional that marks the section as completed in the nav.               | string?  |
+
+> **Note:** Conditional names ending with `CustomConditional` are imported from `customConditionals`; all other names are taken from generated `conditionals` (see [Generate Conditionals](#generate-conditionals)).
 
 ### Sections Example
 
@@ -326,20 +330,21 @@ export const sectionConfig: SectionConfig = {
         fr: 'Ménage',
         en: 'Household'
     },
-    menuName: {
-        fr: 'Ménage',
-        en: 'Household'
+    navMenu: {
+        type: 'inNav',
+        menuName: {
+            fr: 'Ménage',
+            en: 'Household'
+        }
     },
     widgets: widgetsNames,
-    // Do some actions before the section is loaded
-    preload: preload,
     // Allow to click on the section menu
     enableConditional: function (interview) {
-        return isSectionComplete({ interview, sectionName: previousSectionName });
+        return isSectionCompleted({ interview, sectionName: previousSectionName });
     },
     // Determine if the current section is completed
     completionConditional: function (interview) {
-        return isSectionComplete({ interview, sectionName: currentSectionName });
+        return isSectionCompleted({ interview, sectionName: currentSectionName });
     }
 };
 
@@ -598,4 +603,5 @@ household.transitFares_one: Do you have a transit fare?
 
 | Last Updated | Author                    |
 | ------------ | ------------------------- |
+| 2026-05-12   | Samuel Duhaime-Morissette |
 | 2026-05-05   | Samuel Duhaime-Morissette |

@@ -18,6 +18,19 @@ import os
 import shutil
 
 
+def _section_conditional_ts_expression(name: str) -> str:
+    """
+    TypeScript expression for a section enable/completion conditional, matching widgets:
+    names ending with CustomConditional (e.g. visitedPlacesForPersonIsCompleteCustomConditional)
+        -> customConditionals.<name>
+    generated conditionals from the Conditionals sheet (e.g. hasHouseholdSize1Conditional)
+        -> conditionals.<name>
+    """
+    if name.endswith("CustomConditional"):
+        return f"customConditionals.{name}"
+    return f"conditionals.{name}"
+
+
 # Function to generate sectionConfigs.ts for each section
 def generate_section_configs(excel_file_path: str, section_config_output_folder: str):
     try:
@@ -48,17 +61,6 @@ def generate_section_configs(excel_file_path: str, section_config_output_folder:
         # Find the index of 'section' in headers
         section_index = headers.index("section")
 
-        # Generate TypeScript code
-        ts_code: str = ""  # TypeScript code to be written to file
-
-        # Add Generator comment at the start of the file
-        ts_code += add_generator_comment()
-
-        # Add imports
-        ts_code += f"import {{ isSectionCompleted }} from 'evolution-common/lib/services/questionnaire/sections/navigationHelpers';\n"
-        ts_code += f"import {{ SectionConfig }} from 'evolution-common/lib/services/questionnaire/types';\n"
-        ts_code += f"import {{ widgetsNames }} from './widgetsNames';\n"
-
         # Iterate through each row in the sheet, starting from the second row
         for row_number, row in enumerate(rows[1:], start=2):
             # Get values from the row
@@ -71,17 +73,69 @@ def generate_section_configs(excel_file_path: str, section_config_output_folder:
             parent_section = row_dict.get("parent_section")
             section_has_preload = row_dict.get("has_preload")
             has_preload = section_has_preload is None or section_has_preload == True
+            enable_conditional = row_dict.get("enable_conditional", None)
+            enable_conditional_name = (
+                (str(enable_conditional).strip() or None)
+                if enable_conditional is not None
+                else None
+            )
+            completion_conditional = row_dict.get("completion_conditional", None)
+            completion_conditional_name = (
+                (str(completion_conditional).strip() or None)
+                if completion_conditional is not None
+                else None
+            )
 
             # Generate code for section
             def generate_section_code(previousSection, nextSection):
                 ts_section_code = ""  # TypeScript code for the section
+
+                # Determine if the section needs to import isSectionCompleted
+                needs_is_section_completed = completion_conditional_name is None or (
+                    enable_conditional_name is None and previousSection is not None
+                )
+
+                # Determine if the section needs to import customConditionals
+                needs_custom_conditionals_import = any(
+                    n is not None and n.endswith("CustomConditional")
+                    for n in (
+                        enable_conditional_name,
+                        completion_conditional_name,
+                    )
+                )
+
+                # Determine if the section needs to import conditionals
+                needs_conditionals_import = any(
+                    n is not None and not n.endswith("CustomConditional")
+                    for n in (
+                        enable_conditional_name,
+                        completion_conditional_name,
+                    )
+                )
+
+                # Add generator comment
+                ts_section_code += add_generator_comment()
+
+                # Add imports
+                if needs_is_section_completed:
+                    ts_section_code += "import { isSectionCompleted } from 'evolution-common/lib/services/questionnaire/sections/navigationHelpers';\n"
+                ts_section_code += "import { SectionConfig } from 'evolution-common/lib/services/questionnaire/types';\n"
+                ts_section_code += "import { widgetsNames } from './widgetsNames';\n"
+                if needs_custom_conditionals_import:
+                    ts_section_code += "import * as customConditionals from '../../common/customConditionals';\n"
+                if needs_conditionals_import:
+                    ts_section_code += (
+                        "import * as conditionals from '../../common/conditionals';\n"
+                    )
+
                 # Add the custom preload import if the section has a preload function
                 # FIXME Should the generator provide a default preload function? Currently there are none
                 if has_preload:
                     ts_section_code += (
-                        f"import {{ customPreload }} from './customPreload';\n"
+                        "import { customPreload } from './customPreload';\n"
                     )
 
+                # Generate the section output file
                 section_output_file = (
                     f"{section_config_output_folder}/{section}/sectionConfigs.ts"
                 )
@@ -188,8 +242,12 @@ def generate_section_configs(excel_file_path: str, section_config_output_folder:
                 )
                 if has_preload:
                     ts_section_code += f"{INDENT}preload: customPreload,\n"
+
+                # Generate enableConditional
                 ts_section_code += f"{INDENT}// Allow to click on the section menu\n"
-                if previousSection is None:
+                if enable_conditional_name:
+                    ts_section_code += f"{INDENT}enableConditional: {_section_conditional_ts_expression(enable_conditional_name)},\n"
+                elif previousSection is None:
                     ts_section_code += f"{INDENT}enableConditional:true,\n"
                 else:
                     ts_section_code += (
@@ -197,14 +255,19 @@ def generate_section_configs(excel_file_path: str, section_config_output_folder:
                     )
                     ts_section_code += f"{INDENT}{INDENT}return isSectionCompleted({{ interview, sectionName: previousSectionName }});\n"
                     ts_section_code += f"{INDENT}}},\n"
+
+                # Generate completionConditional
                 ts_section_code += (
                     f"{INDENT}// Determine if the current section is completed\n"
                 )
-                ts_section_code += (
-                    f"{INDENT}completionConditional: function (interview) {{\n"
-                )
-                ts_section_code += f"{INDENT}{INDENT}return isSectionCompleted({{ interview, sectionName: currentSectionName }});\n"
-                ts_section_code += f"{INDENT}}}"
+                if completion_conditional_name:
+                    ts_section_code += f"{INDENT}completionConditional: {_section_conditional_ts_expression(completion_conditional_name)}\n"
+                else:
+                    ts_section_code += (
+                        f"{INDENT}completionConditional: function (interview) {{\n"
+                    )
+                    ts_section_code += f"{INDENT}{INDENT}return isSectionCompleted({{ interview, sectionName: currentSectionName }});\n"
+                    ts_section_code += f"{INDENT}}}"
                 ts_section_code += f"\n}};\n\n"
                 ts_section_code += f"export default sectionConfig;\n"
 
@@ -215,7 +278,7 @@ def generate_section_configs(excel_file_path: str, section_config_output_folder:
                     encoding="utf-8",
                     newline="\n",
                 ) as ts_file:
-                    ts_file.write(ts_code + ts_section_code)
+                    ts_file.write(ts_section_code)
 
                 print(f"Generated {section_output_file} successfully")
 

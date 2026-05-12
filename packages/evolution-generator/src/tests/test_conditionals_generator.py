@@ -10,11 +10,7 @@ import pytest  # pyright: ignore[reportMissingImports]
 
 from scripts.conditionals_generator import ConditionalsGenerator
 from scripts.generate_survey import check_excel_integrity
-from helpers.generator_helpers import (
-    create_mocked_excel_data,
-    delete_file_if_exists,
-    get_workbook,
-)
+from helpers.generator_helpers import create_mocked_excel_data, delete_file_if_exists
 
 # TODO: Add tests for the remaining ConditionalsGenerator class methods:
 # - ConditionalsGenerator.extract_conditionals_from_data (grouping logic for raw rows/headers).
