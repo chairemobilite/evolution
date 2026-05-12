@@ -192,7 +192,7 @@ class TestGenerateLabel:
         }
         result = generate_label(
             section="sectionA",
-            path="foo.bar",
+            label_key="foo.bar",
             row=row,
             gender_fields=self.GENDER_FIELDS,
         )
@@ -212,7 +212,7 @@ class TestGenerateLabel:
         }
         result = generate_label(
             section="sectionA",
-            path="foo.bar",
+            label_key="foo.bar",
             row=row,
             gender_fields=self.GENDER_FIELDS,
         )
@@ -230,7 +230,7 @@ class TestGenerateLabel:
         }
         result = generate_label(
             section="sectionA",
-            path="foo.bar",
+            label_key="foo.bar",
             row=row,
             gender_fields=self.GENDER_FIELDS,
         )
@@ -249,7 +249,7 @@ class TestGenerateLabel:
         }
         result = generate_label(
             section="sectionA",
-            path="foo.bar",
+            label_key="foo.bar",
             row=row,
             gender_fields=self.GENDER_FIELDS,
         )
@@ -271,7 +271,10 @@ class TestGenerateLabel:
             "label::en": "Number of persons: {{count}}",
         }
         result = generate_label(
-            section="sectionB", path="baz", row=row, gender_fields=self.GENDER_FIELDS
+            section="sectionB",
+            label_key="baz",
+            row=row,
+            gender_fields=self.GENDER_FIELDS,
         )
         assert "label: (t: TFunction, interview, path) =>" in result
         assert "return t('sectionB:baz', {" in result
@@ -289,7 +292,7 @@ class TestGenerateLabel:
         }
         gender_fields = GenderFields(has_gender=True, has_sex_assigned_at_birth=False)
         result = generate_label(
-            section="sectionC", path="qux", row=row, gender_fields=gender_fields
+            section="sectionC", label_key="qux", row=row, gender_fields=gender_fields
         )
         assert "label: (t: TFunction, interview, path) =>" in result
         assert "return t('sectionC:qux', {" in result
@@ -307,7 +310,7 @@ class TestGenerateLabel:
             "label::en": "{{gender:He/She}} has a driver's license?",
         }
         result = generate_label(
-            section="sectionC", path="qux", row=row, gender_fields=gender_fields
+            section="sectionC", label_key="qux", row=row, gender_fields=gender_fields
         )
         assert "label: (t: TFunction, interview, path) =>" in result
         assert "context: activePerson?.sexAssignedAtBirth" in result
@@ -321,7 +324,7 @@ class TestGenerateLabel:
         }
         gender_fields = GenderFields(has_gender=True, has_sex_assigned_at_birth=True)
         result = generate_label(
-            section="sectionC", path="qux", row=row, gender_fields=gender_fields
+            section="sectionC", label_key="qux", row=row, gender_fields=gender_fields
         )
         assert "label: (t: TFunction, interview, path) =>" in result
         assert (
@@ -337,7 +340,7 @@ class TestGenerateLabel:
         }
         gender_fields = GenderFields(has_gender=False, has_sex_assigned_at_birth=False)
         result = generate_label(
-            section="sectionC", path="qux", row=row, gender_fields=gender_fields
+            section="sectionC", label_key="qux", row=row, gender_fields=gender_fields
         )
         assert "label: (t: TFunction, interview, path) =>" in result
         assert "context: undefined" in result
@@ -354,7 +357,7 @@ class TestGenerateLabel:
         }
         result = generate_label(
             section="sectionE",
-            path="foo.age",
+            label_key="foo.age",
             row=row,
             gender_fields=self.GENDER_FIELDS,
         )
@@ -376,7 +379,7 @@ class TestGenerateLabel:
         }
         result = generate_label(
             section="sectionD",
-            path="bar.baz",
+            label_key="bar.baz",
             row=row,
             gender_fields=self.GENDER_FIELDS,
         )
@@ -508,7 +511,9 @@ def test_generate_radio_widget_basic():
         "label::fr": "Acceptez-vous d'être contacté pour de l'aide?",
         "label::en": "Do you agree to be contacted for help?",
     }
-    widget_label = generate_label(section=row["section"], path=row["path"], row=row)
+    widget_label = generate_label(
+        section=row["section"], label_key=row["questionName"], row=row
+    )
     code = generate_radio_widget(
         row["questionName"],
         row["path"],
@@ -554,7 +559,9 @@ def test_generate_radio_widget_complex():
         "label::fr": "Acceptez-vous d'être contacté pour de l'aide?",
         "label::en": "Do you agree to be contacted for help?",
     }
-    widget_label = generate_label(section=row["section"], path=row["path"], row=row)
+    widget_label = generate_label(
+        section=row["section"], label_key=row["questionName"], row=row
+    )
     code = generate_radio_widget(
         row["questionName"],
         row["path"],
@@ -595,7 +602,9 @@ def test_generate_next_button_widget_default_conditional():
         "label::fr": "Continuer",
         "label::en": "Continue",
     }
-    widget_label = generate_label(section=row["section"], path=row["path"], row=row)
+    widget_label = generate_label(
+        section=row["section"], label_key=row["questionName"], row=row
+    )
     code = generate_next_button_widget(
         row["questionName"],
         row["path"],
@@ -608,7 +617,7 @@ def test_generate_next_button_widget_default_conditional():
     assert "export const home_save: WidgetConfig.ButtonWidgetConfig = {" in code
     assert "...defaultInputBase.buttonNextBase," in code
     assert "path: 'home.save'," in code
-    assert "label: (t: TFunction) => t('home:home.save')," in code
+    assert "label: (t: TFunction) => t('home:home_save')," in code
     assert "conditional: defaultConditional" in code
     assert code.strip().endswith("};")
 
@@ -625,7 +634,9 @@ def test_generate_next_button_widget_custom_conditional():
         "label::fr": "Continuer",
         "label::en": "Continue",
     }
-    widget_label = generate_label(section=row["section"], path=row["path"], row=row)
+    widget_label = generate_label(
+        section=row["section"], label_key=row["questionName"], row=row
+    )
     code = generate_next_button_widget(
         row["questionName"],
         row["path"],
@@ -654,7 +665,9 @@ def test_generate_next_button_widget_normal_conditional():
         "label::fr": "Continuer",
         "label::en": "Continue",
     }
-    widget_label = generate_label(section=row["section"], path=row["path"], row=row)
+    widget_label = generate_label(
+        section=row["section"], label_key=row["questionName"], row=row
+    )
     code = generate_next_button_widget(
         row["questionName"],
         row["path"],
@@ -683,7 +696,9 @@ def test_generate_radio_number_widget_basic():
         "label::fr": "Combien de personnes dans le ménage?",
         "label::en": "How many people in the household?",
     }
-    widget_label = generate_label(section=row["section"], path=row["path"], row=row)
+    widget_label = generate_label(
+        section=row["section"], label_key=row["questionName"], row=row
+    )
     result = generate_radio_number_widget(
         row["questionName"],
         row["path"],
@@ -722,7 +737,9 @@ def test_generate_radio_number_widget_complex():
         "label::fr": "Combien de personnes dans le ménage?",
         "label::en": "How many people in the household?",
     }
-    widget_label = generate_label(section=row["section"], path=row["path"], row=row)
+    widget_label = generate_label(
+        section=row["section"], label_key=row["questionName"], row=row
+    )
     result = generate_radio_number_widget(
         row["questionName"],
         row["path"],
@@ -762,7 +779,9 @@ def test_generate_radio_number_widget_min_max_field_values():
         "label::fr": "Combien de personnes dans le ménage?",
         "label::en": "How many people in the household?",
     }
-    widget_label = generate_label(section=row["section"], path=row["path"], row=row)
+    widget_label = generate_label(
+        section=row["section"], label_key=row["questionName"], row=row
+    )
     result = generate_radio_number_widget(
         row["questionName"],
         row["path"],
@@ -799,7 +818,9 @@ def test_generate_radio_number_widget_min_gte_max(capsys):
         "label::fr": "Combien de personnes dans le ménage?",
         "label::en": "How many people in the household?",
     }
-    widget_label = generate_label(section=row["section"], path=row["path"], row=row)
+    widget_label = generate_label(
+        section=row["section"], label_key=row["questionName"], row=row
+    )
     result = generate_radio_number_widget(
         row["questionName"],
         row["path"],
@@ -835,7 +856,9 @@ def test_generate_radio_number_widget_unrecognized_parameter_line(capsys):
         "label::fr": "Combien de personnes dans le ménage?",
         "label::en": "How many people in the household?",
     }
-    widget_label = generate_label(section=row["section"], path=row["path"], row=row)
+    widget_label = generate_label(
+        section=row["section"], label_key=row["questionName"], row=row
+    )
     result = generate_radio_number_widget(
         row["questionName"],
         row["path"],
@@ -879,7 +902,7 @@ class TestGenerateStringWidget:
         }
         widget_label = generate_label(
             section=row["section"],
-            path=row["path"],
+            label_key=row["questionName"],
             row=row,
             gender_fields=self.GENDER_FIELDS,
         )
@@ -924,7 +947,7 @@ class TestGenerateStringWidget:
         }
         widget_label = generate_label(
             section=row["section"],
-            path=row["path"],
+            label_key=row["questionName"],
             row=row,
             gender_fields=self.GENDER_FIELDS,
         )
@@ -972,7 +995,7 @@ class TestGenerateStringWidget:
         }
         widget_label = generate_label(
             section=row["section"],
-            path=row["path"],
+            label_key=row["questionName"],
             row=row,
             gender_fields=self.GENDER_FIELDS,
         )
@@ -1009,7 +1032,7 @@ class TestGenerateStringWidget:
         }
         widget_label = generate_label(
             section=row["section"],
-            path=row["path"],
+            label_key=row["questionName"],
             row=row,
             gender_fields=self.GENDER_FIELDS,
         )
