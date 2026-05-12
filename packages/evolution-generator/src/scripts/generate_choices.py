@@ -170,14 +170,14 @@ def _generate_choices_yaml_locales(choices_by_name, labels_output_folder_path: s
             if value is None:
                 continue
             value_key = str(value)
-            path = f"{choice_name}.{value_key}"
+            label_key = f"{choice_name}.{value_key}"
 
             # Add translations for the choice with gender and count suffixes
             label_fr = choice.get("label_yaml", {}).get("fr")
             LabelsGenerator.add_gender_or_base_translations(
                 language="fr",
                 section="choices",
-                path=path,
+                label_key=label_key,
                 gender_dict=LabelsGenerator.expand_gender(label_fr),
                 label=label_fr,
                 extraSuffix="",
@@ -188,7 +188,7 @@ def _generate_choices_yaml_locales(choices_by_name, labels_output_folder_path: s
             LabelsGenerator.add_gender_or_base_translations(
                 language="fr",
                 section="choices",
-                path=path,
+                label_key=label_key,
                 gender_dict=LabelsGenerator.expand_gender(label_fr_one),
                 label=label_fr_one,
                 extraSuffix="_one",
@@ -199,7 +199,7 @@ def _generate_choices_yaml_locales(choices_by_name, labels_output_folder_path: s
             LabelsGenerator.add_gender_or_base_translations(
                 language="en",
                 section="choices",
-                path=path,
+                label_key=label_key,
                 gender_dict=LabelsGenerator.expand_gender(label_en),
                 label=label_en,
                 extraSuffix="",
@@ -210,7 +210,7 @@ def _generate_choices_yaml_locales(choices_by_name, labels_output_folder_path: s
             LabelsGenerator.add_gender_or_base_translations(
                 language="en",
                 section="choices",
-                path=path,
+                label_key=label_key,
                 gender_dict=LabelsGenerator.expand_gender(label_en_one),
                 label=label_en_one,
                 extraSuffix="_one",

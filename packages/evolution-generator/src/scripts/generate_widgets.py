@@ -250,7 +250,9 @@ def generate_widget_statement(row, gender_fields: GenderFields = None) -> Widget
     choices = row["choices"]
     confirm_popup = row.get("confirm_popup", None)  # Optional column
     comments = row.get("comments", None)  # Optional column
-    widget_label = generate_label(section, path, row, gender_fields, key_name="label")
+    widget_label = generate_label(
+        section, question_name, row, gender_fields, key_name="label"
+    )
 
     # Initialize result with default values
     result: WidgetResult = {"statement": "", "has_helper_import": False}
@@ -324,7 +326,7 @@ def generate_widget_statement(row, gender_fields: GenderFields = None) -> Widget
     elif input_type == "InfoText":
         # Widget label have a different key for InfoText
         widget_label = generate_label(
-            section, path, row, gender_fields, key_name="text"
+            section, question_name, row, gender_fields, key_name="text"
         )
         result["statement"] = generate_info_text_widget(
             question_name, path, conditional, widget_label, row
@@ -642,7 +644,7 @@ def generate_join_with(join_with):
 
 
 def generate_label(
-    section, path, row, gender_fields: GenderFields = None, key_name="label"
+    section, label_key, row, gender_fields: GenderFields = None, key_name="label"
 ):
     """
     Generates the TypeScript label or text property for a widget.
@@ -668,7 +670,7 @@ def generate_label(
             return f"{INDENT}{key_name}: customLabels.{custom_labels_name}"
         # TODO: Move to the widget generator validator when we will have one.
         print(
-            f"Warning: Invalid customLabels format in parameters for '{section}:{path}'. Expected customLabels={{{{someCustomLabels}}}}."
+            f"Warning: Invalid customLabels format in parameters for '{section}:{label_key}'. Expected customLabels={{{{someCustomLabels}}}}."
         )
 
     # Initialize gender_fields to a default class if none is provided
@@ -698,14 +700,14 @@ def generate_label(
             gender_context_expression = "activePerson?.sexAssignedAtBirth"
         else:
             print(
-                f"Warning: Gender context used in label for '{section}:{path}' but neither 'gender' nor 'sexAssignedAtBirth' fields are available in this section."
+                f"Warning: Gender context used in label for '{section}:{label_key}' but neither 'gender' nor 'sexAssignedAtBirth' fields are available in this section."
             )
             gender_context_expression = "undefined"
 
     # Generate the TypeScript code for the label property with optional runtime context.
     return generate_label_typescript_with_context(
         property_name=key_name,
-        translation_key=f"{section}:{path}",
+        translation_key=f"{section}:{label_key}",
         base_indent=INDENT,
         has_nickname=has_nickname,
         has_count=has_count,

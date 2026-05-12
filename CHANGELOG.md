@@ -55,6 +55,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `getSegmentsGroupConfig` => `SegmentsGroupConfigFactory`
   - `getSegmentsSectionConfig` => `SegmentsSectionFactory`
 - **BREAKING**: Rename the map widget's `updateDefaultValueWhenResponded` to `resetToDefaultUnlessUserInteracted` for clarity. The property applies to all map types, not just 'findPlace'.
+- **BREAKING**: The generator's `Labels` sheet in the Excel file should rename the "section" and "path" columns to "namespace" and "key", which better represents where we want the key to be (fixes [#1530](https://github.com/chairemobilite/evolution/issues/1530)).
+- **BREAKING**: The generator now use the question name as translation label key instead of the path. Surveys using the generator will automatically update all label fields, but if additional label with context had been added in the "Labels" sheet to match the question's original label, these might need to be updated (fixes [#1530](https://github.com/chairemobilite/evolution/issues/1530)).
 
 
 ### Deprecated

@@ -2,8 +2,12 @@
 # This file is licensed under the MIT License.
 # License text available at https://opensource.org/licenses/MIT
 
+from typing import NamedTuple
+
 from helpers.generator_helpers import add_generator_yaml_header
 from scripts.labels_generator import LabelsGenerator, LabelFormatter
+import pytest
+from helpers.generator_helpers import create_mocked_excel_data, delete_file_if_exists
 
 
 def test_label_formatter_bold():
@@ -106,6 +110,188 @@ def test_get_labels_file_path_widgets():
     assert path == "../../example/demo_generator/fr/section1.yaml"
 
 
+# Path where create_mocked_excel_data writes the workbook; we delete it after each test.
+MOCKED_EXCEL_FILE = "src/tests/references/test.xlsx"
+
+
+class TestAddTranslationsFromExcel:
+    """Tests for add_translations_from_excel function"""
+
+    @pytest.mark.parametrize(
+        "case",
+        [
+            {
+                "sheet_data": {
+                    "sheetName": "Widgets",
+                    "namespaceHeader": "section",
+                    "keyHeader": "questionName",
+                },
+                "headers": [
+                    "section",
+                    "questionName",
+                    "path",
+                    "inputType",
+                    "label::fr",
+                    "label::en",
+                ],
+                "rows": [
+                    [
+                        "section1",
+                        "section1Question1",
+                        "some.path",
+                        "question",
+                        "personne",
+                        "person",
+                    ],
+                    [
+                        "section1",
+                        "section1Question2",
+                        "some.other.path",
+                        "question",
+                        "une question",
+                        "a question",
+                    ],
+                    [
+                        "section2",
+                        "section2Question1",
+                        "another.path",
+                        "question",
+                        "une autre question",
+                        "another question",
+                    ],
+                ],
+                "expected_translations_fr": {
+                    "section1": {
+                        "section1Question1": "personne",
+                        "section1Question2": "une question",
+                    },
+                    "section2": {"section2Question1": "une autre question"},
+                },
+                "expected_translations_en": {
+                    "section1": {
+                        "section1Question1": "person",
+                        "section1Question2": "a question",
+                    },
+                    "section2": {"section2Question1": "another question"},
+                },
+            },
+            {
+                "sheet_data": {
+                    "sheetName": "Labels",
+                    "namespaceHeader": "namespace",
+                    "keyHeader": "path",
+                },
+                "headers": [
+                    "namespace",
+                    "questionName",
+                    "path",
+                    "inputType",
+                    "label::fr",
+                    "label::en",
+                ],
+                "rows": [
+                    [
+                        "section1",
+                        "section1Question1",
+                        "some.path",
+                        "question",
+                        "personne",
+                        "person",
+                    ],
+                    [
+                        "section1",
+                        "section1Question2",
+                        "some.other.path",
+                        "question",
+                        "une question",
+                        "a question",
+                    ],
+                    [
+                        "section2",
+                        "section2Question1",
+                        "another.path",
+                        "question",
+                        "une autre question",
+                        "another question",
+                    ],
+                ],
+                "expected_translations_fr": {
+                    "section1": {
+                        "some.path": "personne",
+                        "some.other.path": "une question",
+                    },
+                    "section2": {"another.path": "une autre question"},
+                },
+                "expected_translations_en": {
+                    "section1": {
+                        "some.path": "person",
+                        "some.other.path": "a question",
+                    },
+                    "section2": {"another.path": "another question"},
+                },
+            },
+        ],
+    )
+    def test_with_question_name_or_path_header(self, monkeypatch, tmp_path, case):
+        """
+        Test add_translations_from_excel with supported sheets and headers.
+        """
+        # Mock the save_translations function to record calls
+        calls = []
+
+        def mock_save_translation(
+            language, section, labels_output_folder_path, translations
+        ):
+            calls.append((language, section, labels_output_folder_path, translations))
+
+        monkeypatch.setattr(
+            "scripts.labels_generator.LabelsGenerator.save_translations",
+            mock_save_translation,
+        )
+        labels_output_folder_path = str(tmp_path / "locales")
+
+        create_mocked_excel_data(
+            case["sheet_data"]["sheetName"],
+            case["headers"],
+            case["rows"],
+        )
+        try:
+            LabelsGenerator.generate_labels(
+                MOCKED_EXCEL_FILE,
+                labels_output_folder_path,
+                sheets_with_labels=[case["sheet_data"]],
+            )
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+        # Verify the calls to save_translation
+        assert len(calls) == 4  # Should have 4 calls (2 sections * 2 languages)
+        assert (
+            "fr",
+            "section1",
+            labels_output_folder_path,
+            case["expected_translations_fr"],
+        ) in calls
+        assert (
+            "fr",
+            "section2",
+            labels_output_folder_path,
+            case["expected_translations_fr"],
+        ) in calls
+        assert (
+            "en",
+            "section1",
+            labels_output_folder_path,
+            case["expected_translations_en"],
+        ) in calls
+        assert (
+            "en",
+            "section2",
+            labels_output_folder_path,
+            case["expected_translations_en"],
+        ) in calls
+
+
 class TestAddGenderOrBaseTranslations:
     """Tests for add_gender_or_base_translations function"""
 
@@ -118,9 +304,9 @@ class TestAddGenderOrBaseTranslations:
         calls = []
 
         def mock_add_translation(
-            language, section, path, value, rowNumber, translations
+            language, section, labelKey, value, rowNumber, translations
         ):
-            calls.append((language, section, path, value, rowNumber, translations))
+            calls.append((language, section, labelKey, value, rowNumber, translations))
 
         monkeypatch.setattr(
             "scripts.labels_generator.LabelsGenerator.add_translation",
@@ -130,7 +316,7 @@ class TestAddGenderOrBaseTranslations:
         # Setup test data
         language = "fr"
         section = "test_section"
-        path = "test.path"
+        labelKey = "test.path"
         gender_dict = {
             "male": "homme",
             "female": "femme",
@@ -145,7 +331,7 @@ class TestAddGenderOrBaseTranslations:
         LabelsGenerator.add_gender_or_base_translations(
             language,
             section,
-            path,
+            labelKey,
             gender_dict,
             None,
             extraSuffix,
@@ -189,9 +375,9 @@ class TestAddGenderOrBaseTranslations:
         calls = []
 
         def mock_add_translation(
-            language, section, path, value, rowNumber, translations
+            language, section, labelKey, value, rowNumber, translations
         ):
-            calls.append((language, section, path, value, rowNumber, translations))
+            calls.append((language, section, labelKey, value, rowNumber, translations))
 
         monkeypatch.setattr(
             "scripts.labels_generator.LabelsGenerator.add_translation",
@@ -201,7 +387,7 @@ class TestAddGenderOrBaseTranslations:
         # Setup test data
         language = "en"
         section = "test_section"
-        path = "test.path"
+        labelKey = "test.path"
         gender_dict = None
         label = "Test label"
         extraSuffix = ""
@@ -212,7 +398,7 @@ class TestAddGenderOrBaseTranslations:
         LabelsGenerator.add_gender_or_base_translations(
             language,
             section,
-            path,
+            labelKey,
             gender_dict,
             label,
             extraSuffix,
@@ -233,9 +419,9 @@ class TestAddGenderOrBaseTranslations:
         calls = []
 
         def mock_add_translation(
-            language, section, path, value, rowNumber, translations
+            language, section, labelKey, value, rowNumber, translations
         ):
-            calls.append((language, section, path, value, rowNumber, translations))
+            calls.append((language, section, labelKey, value, rowNumber, translations))
 
         monkeypatch.setattr(
             "scripts.labels_generator.LabelsGenerator.add_translation",
@@ -245,7 +431,7 @@ class TestAddGenderOrBaseTranslations:
         # Setup test data
         language = "fr"
         section = "test_section"
-        path = "test.path"
+        labelKey = "test.path"
         gender_dict = {
             "male": "étudiant",
             "female": "étudiante",
@@ -260,7 +446,7 @@ class TestAddGenderOrBaseTranslations:
         LabelsGenerator.add_gender_or_base_translations(
             language,
             section,
-            path,
+            labelKey,
             gender_dict,
             None,
             extraSuffix,
@@ -312,9 +498,9 @@ class TestAddGenderOrBaseTranslations:
         calls = []
 
         def mock_add_translation(
-            language, section, path, value, rowNumber, translations
+            language, section, labelKey, value, rowNumber, translations
         ):
-            calls.append((language, section, path, value, rowNumber, translations))
+            calls.append((language, section, labelKey, value, rowNumber, translations))
 
         monkeypatch.setattr(
             "scripts.labels_generator.LabelsGenerator.add_translation",
@@ -324,7 +510,7 @@ class TestAddGenderOrBaseTranslations:
         # Setup test data
         language = "fr"
         section = "test_section"
-        path = "test.path"
+        labelKey = "test.path"
         gender_dict = {
             "male": "moustique",
             "female": "moustique",
@@ -339,7 +525,7 @@ class TestAddGenderOrBaseTranslations:
         LabelsGenerator.add_gender_or_base_translations(
             language,
             section,
-            path,
+            labelKey,
             gender_dict,
             None,
             extraSuffix,
@@ -367,9 +553,9 @@ class TestAddGenderOrBaseTranslations:
         calls = []
 
         def mock_add_translation(
-            language, section, path, value, rowNumber, translations
+            language, section, labelKey, value, rowNumber, translations
         ):
-            calls.append((language, section, path, value, rowNumber, translations))
+            calls.append((language, section, labelKey, value, rowNumber, translations))
 
         monkeypatch.setattr(
             "scripts.labels_generator.LabelsGenerator.add_translation",
@@ -379,7 +565,7 @@ class TestAddGenderOrBaseTranslations:
         # Setup test data
         language = "en"
         section = "test_section"
-        path = "test.path"
+        labelKey = "test.path"
         gender_dict = {
             "male": "actor",
             "female": "actress",
@@ -394,7 +580,7 @@ class TestAddGenderOrBaseTranslations:
         LabelsGenerator.add_gender_or_base_translations(
             language,
             section,
-            path,
+            labelKey,
             gender_dict,
             None,
             extraSuffix,
@@ -438,9 +624,9 @@ class TestAddGenderOrBaseTranslations:
         calls = []
 
         def mock_add_translation(
-            language, section, path, value, rowNumber, translations
+            language, section, labelKey, value, rowNumber, translations
         ):
-            calls.append((language, section, path, value, rowNumber, translations))
+            calls.append((language, section, labelKey, value, rowNumber, translations))
 
         monkeypatch.setattr(
             "scripts.labels_generator.LabelsGenerator.add_translation",
@@ -450,7 +636,7 @@ class TestAddGenderOrBaseTranslations:
         # Setup test data
         language = "en"
         section = "test_section"
-        path = "test.path"
+        labelKey = "test.path"
         gender_dict = None
         label = "Test label"
         extraSuffix = "_one"
@@ -471,7 +657,7 @@ class TestAddGenderOrBaseTranslations:
         LabelsGenerator.add_gender_or_base_translations(
             language,
             section,
-            path,
+            labelKey,
             gender_dict,
             label,
             extraSuffix,
@@ -523,9 +709,9 @@ class TestAddGenderOrBaseTranslations:
         calls = []
 
         def mock_add_translation(
-            language, section, path, value, rowNumber, translations
+            language, section, labelKey, value, rowNumber, translations
         ):
-            calls.append((language, section, path, value, rowNumber, translations))
+            calls.append((language, section, labelKey, value, rowNumber, translations))
 
         monkeypatch.setattr(
             "scripts.labels_generator.LabelsGenerator.add_translation",
@@ -535,7 +721,7 @@ class TestAddGenderOrBaseTranslations:
         # Setup test data
         language = "en"
         section = "test_section"
-        path = "test.path"
+        labelKey = "test.path"
         gender_dict = {
             "male": "moustique",
             "female": "moustique",
@@ -560,7 +746,7 @@ class TestAddGenderOrBaseTranslations:
         LabelsGenerator.add_gender_or_base_translations(
             language,
             section,
-            path,
+            labelKey,
             gender_dict,
             None,
             extraSuffix,

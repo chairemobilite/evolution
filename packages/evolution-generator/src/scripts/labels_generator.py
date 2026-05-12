@@ -7,11 +7,29 @@
 import os  # For interacting with the operating system
 import ruamel.yaml  # For working with YAML files
 import re  # For regular expressions
+from typing import TypedDict
 from helpers.generator_helpers import (
     add_generator_yaml_header,
     get_data_from_excel,
     get_label_context_flags,
 )
+
+
+class SheetWithLabels(TypedDict):
+    """Configuration for one Excel sheet used to generate labels."""
+
+    sheetName: str
+    namespaceHeader: str
+    keyHeader: str
+
+
+DEFAULT_SHEETS_WITH_LABELS: list[SheetWithLabels] = [
+    {
+        "sheetName": "Widgets",
+        "namespaceHeader": "section",
+        "keyHeader": "questionName",
+    }
+]
 
 
 # TODO: We might change some in class functions to private functions, instead of classmethod or staticmethod.
@@ -157,14 +175,16 @@ class LabelsGenerator:
                         raise e
 
     @classmethod
-    def add_translation(cls, language, section, path, value, rowNumber, translations):
+    def add_translation(
+        cls, language, section, labelKey, value, rowNumber, translations
+    ):
         """
         Adds a translation to the locales dictionary.
 
         Args:
             language (str): The language of the translation.
             section (str): The section name.
-            path (str): The path for the translation.
+            label_key (str): The key for the translation.
             value (str): The translation value.
             rowNumber (int): The row number in the Excel file.
             translations (dict): The dictionary of translations.
@@ -180,17 +200,17 @@ class LabelsGenerator:
                 translations[section] = {}
 
             # Check for duplicate keys
-            if path in translations[section]:
+            if labelKey in translations[section]:
                 print(
-                    f"Duplicate key found at row {rowNumber} with language={language}, section={section}, path={path}, value={value}. Skipping this entry."
+                    f"Duplicate key found at row {rowNumber} with language={language}, section={section}, label_key={labelKey}, value={value}. Skipping this entry."
                 )
             else:
                 # Add the translation directly to the dictionary
-                translations[section][path] = yaml_value
+                translations[section][labelKey] = yaml_value
 
         except Exception as e:
             print(
-                f"An error occurred in add_translation at row {rowNumber} with language={language}, section={section}, path={path}, value={value}: {e}"
+                f"An error occurred in add_translation at row {rowNumber} with language={language}, section={section}, label_key={labelKey}, value={value}: {e}"
             )
             raise e
 
@@ -324,7 +344,7 @@ class LabelsGenerator:
         cls,
         language,
         section,
-        path,
+        label_key,
         gender_dict,
         label,
         extraSuffix,
@@ -337,7 +357,7 @@ class LabelsGenerator:
         Args:
             language (str): The language code (e.g., 'fr', 'en')
             section (str): The section name
-            path (str): The base path for the translation key
+            label_key (str): The base key for the translation
             gender_dict (dict or None): Dictionary with gender-specific values or None
             label (str): The default label value to use if gender_dict is None
             rowNumber (int): The row number for error reporting
@@ -357,7 +377,7 @@ class LabelsGenerator:
             cls.add_translation(
                 language=language,
                 section=section,
-                path=path + extraSuffix,
+                labelKey=label_key + extraSuffix,
                 value=gender_dict["other"],
                 rowNumber=rowNumber,
                 translations=translations_dict[language],
@@ -370,7 +390,7 @@ class LabelsGenerator:
             for gender in ["male", "female", "custom"]:
                 # Add gender-specific translation if it differs from "other" or
                 # if extraSuffix exists and there's already a gender version without suffix
-                gender_key = f"{path}_{gender}"
+                gender_key = f"{label_key}_{gender}"
                 if gender_dict[gender] != gender_dict["other"] or (
                     extraSuffix
                     and gender_key in translations_dict[language].get(section, {})
@@ -378,7 +398,7 @@ class LabelsGenerator:
                     cls.add_translation(
                         language=language,
                         section=section,
-                        path=gender_key + extraSuffix,
+                        labelKey=gender_key + extraSuffix,
                         value=gender_dict[gender],
                         rowNumber=rowNumber,
                         translations=translations_dict[language],
@@ -387,7 +407,7 @@ class LabelsGenerator:
             cls.add_translation(
                 language=language,
                 section=section,
-                path=path + extraSuffix,
+                labelKey=label_key + extraSuffix,
                 value=label,
                 rowNumber=rowNumber,
                 translations=translations_dict[language],
@@ -396,13 +416,13 @@ class LabelsGenerator:
             if extraSuffix and label is not None:
                 # Check if gender-specific versions exist in translations without the extra suffix
                 for gender in ["male", "female", "custom"]:
-                    gender_path = f"{path}_{gender}"
-                    if gender_path in translations_dict[language].get(section, {}):
+                    gender_label_key = f"{label_key}_{gender}"
+                    if gender_label_key in translations_dict[language].get(section, {}):
                         # If there's a gender-specific version without suffix, add one with the suffix
                         cls.add_translation(
                             language=language,
                             section=section,
-                            path=gender_path + extraSuffix,
+                            labelKey=gender_label_key + extraSuffix,
                             value=label,
                             rowNumber=rowNumber,
                             translations=translations_dict[language],
@@ -413,7 +433,7 @@ class LabelsGenerator:
         cls,
         excel_file_path,
         labels_output_folder_path,
-        labels_sheet_name="Widgets",
+        sheet_with_labels: SheetWithLabels = DEFAULT_SHEETS_WITH_LABELS[0],
     ):
         """
         Reads translations from an Excel file and adds them to the appropriate YAML files.
@@ -421,17 +441,17 @@ class LabelsGenerator:
         Args:
             excel_file_path (str): The path to the Excel file containing translations.
             labels_output_folder_path (str): The output folder path for the labels.
-            labels_sheet_name (str): The name of the sheet in the Excel file containing labels.
+            sheet_with_labels (SheetWithLabels): Sheet configuration containing sheetName and header names.
         """
         try:
             # Read data from Excel and return rows and headers
             widgets_rows, widgets_headers = get_data_from_excel(
-                excel_file_path, sheet_name=labels_sheet_name
+                excel_file_path, sheet_name=sheet_with_labels["sheetName"]
             )
 
             # Find the index
-            section_index = widgets_headers.index("section")
-            path_index = widgets_headers.index("path")
+            section_index = widgets_headers.index(sheet_with_labels["namespaceHeader"])
+            label_key_index = widgets_headers.index(sheet_with_labels["keyHeader"])
             label_fr_index = widgets_headers.index("label::fr")
             label_en_index = widgets_headers.index("label::en")
             label_fr_one_index = (
@@ -457,7 +477,7 @@ class LabelsGenerator:
                 # Get the row values
                 # question_name = row[question_name_index].value
                 section = row[section_index].value
-                path = row[path_index].value
+                label_key = row[label_key_index].value
                 fr_label = row[label_fr_index].value
                 en_label = row[label_en_index].value
                 fr_label_one = (
@@ -485,7 +505,7 @@ class LabelsGenerator:
                 cls.add_gender_or_base_translations(
                     "fr",
                     section,
-                    path,
+                    label_key,
                     gender_fr,
                     fr_label,
                     "",
@@ -495,7 +515,7 @@ class LabelsGenerator:
                 cls.add_gender_or_base_translations(
                     "fr",
                     section,
-                    path,
+                    label_key,
                     gender_fr_one,
                     fr_label_one,
                     "_one",
@@ -506,7 +526,7 @@ class LabelsGenerator:
                 cls.add_gender_or_base_translations(
                     "en",
                     section,
-                    path,
+                    label_key,
                     gender_en,
                     en_label,
                     "",
@@ -516,7 +536,7 @@ class LabelsGenerator:
                 cls.add_gender_or_base_translations(
                     "en",
                     section,
-                    path,
+                    label_key,
                     gender_en_one,
                     en_label_one,
                     "_one",
@@ -721,7 +741,7 @@ class LabelsGenerator:
         cls,
         excel_file_path,
         labels_output_folder_path,
-        labels_sheet_names=["Widgets"],
+        sheets_with_labels: list[SheetWithLabels] = DEFAULT_SHEETS_WITH_LABELS,
     ):
         """
         Generates the labels locales files from an Excel file for multiple sheets.
@@ -734,20 +754,20 @@ class LabelsGenerator:
         Args:
             excel_file_path (str): The path to the Excel file containing translations.
             labels_output_folder_path (str): The output folder path for the labels.
-            labels_sheet_names (list): List of sheet names in the Excel file containing labels.
+            sheets_with_labels (list[SheetWithLabels]): Sheet configurations for labels extraction.
         """
         try:
-            if not labels_sheet_names:
-                print("Error: No labels_sheet_names provided.")
+            if not sheets_with_labels:
+                print("Error: No sheets_with_labels provided.")
                 return
 
             # Step 1: Collect all unique section names from all sheets
             all_sections = set()
-            for sheet in labels_sheet_names:
+            for sheet in sheets_with_labels:
                 widgets_rows, widgets_headers = get_data_from_excel(
-                    excel_file_path, sheet_name=sheet
+                    excel_file_path, sheet_name=sheet["sheetName"]
                 )
-                section_index = widgets_headers.index("section")
+                section_index = widgets_headers.index(sheet["namespaceHeader"])
                 for row in widgets_rows[1:]:
                     section = row[section_index].value
                     if section:
@@ -761,11 +781,11 @@ class LabelsGenerator:
             )
 
             # Step 3: Process each sheet and merge translations into the same files
-            for sheet in labels_sheet_names:
+            for sheet in sheets_with_labels:
                 cls.add_translations_from_excel(
                     excel_file_path=excel_file_path,
                     labels_output_folder_path=labels_output_folder_path,
-                    labels_sheet_name=sheet,
+                    sheet_with_labels=sheet,
                 )
         except Exception as e:
             print(f"An error occurred: {e}")
