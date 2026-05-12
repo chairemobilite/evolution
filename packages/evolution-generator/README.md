@@ -397,7 +397,8 @@ In this example, we are creating a conditional named `hasDrivingLicenseCondition
 > - `${currentJourney}`
 > - `${currentTrip}`
 > - `${currentVisitedPlace}`
-> - Example: `${currentTrip}.mode`
+> - `${currentSegment}`
+> - Example: `${currentSegment}.mode`
 
 The corresponding TypeScript code for this conditional is shown below:
 

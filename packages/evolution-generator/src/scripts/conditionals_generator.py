@@ -86,6 +86,50 @@ class ConditionalsGenerator:
     # All column names in spec order (e.g. for building a full sheet in tests).
     CONDITIONALS_ALL_HEADERS = tuple(s.name for s in CONDITIONALS_COLUMN_SPECS)
 
+    # Tokens used when expanding conditional paths in generated TypeScript (see ``generate_typescript_code``).
+    CONDITIONALS_CURRENT_CONTEXT_SPECS: tuple[dict, ...] = (
+        {
+            "token": "${currentPerson}",
+            "id_var": "currentPersonId",
+            "helper": "getCurrentPersonId",
+            "prefix": "household.persons.${currentPersonId}.",
+            "deps": (),
+            "comment": "Get the current person id",
+        },
+        {
+            "token": "${currentJourney}",
+            "id_var": "currentJourneyId",
+            "helper": "getCurrentJourneyId",
+            "prefix": "household.persons.${currentPersonId}.journeys.${currentJourneyId}.",
+            "deps": ("currentPersonId",),
+            "comment": "Get the current journey id",
+        },
+        {
+            "token": "${currentTrip}",
+            "id_var": "currentTripId",
+            "helper": "getCurrentTripId",
+            "prefix": "household.persons.${currentPersonId}.journeys.${currentJourneyId}.trips.${currentTripId}.",
+            "deps": ("currentPersonId", "currentJourneyId"),
+            "comment": "Get the current trip id",
+        },
+        {
+            "token": "${currentSegment}",
+            "id_var": "currentSegmentId",
+            "helper": "getCurrentSegmentId",
+            "prefix": "household.persons.${currentPersonId}.journeys.${currentJourneyId}.trips.${currentTripId}.segments.${currentSegmentId}.",
+            "deps": ("currentPersonId", "currentJourneyId", "currentTripId"),
+            "comment": "Get the current segment id",
+        },
+        {
+            "token": "${currentVisitedPlace}",
+            "id_var": "currentVisitedPlaceId",
+            "helper": "getCurrentVisitedPlaceId",
+            "prefix": "household.persons.${currentPersonId}.journeys.${currentJourneyId}.visitedPlaces.${currentVisitedPlaceId}.",
+            "deps": ("currentPersonId", "currentJourneyId"),
+            "comment": "Get the current visited place id",
+        },
+    )
+
     def __init__(self) -> None:
         self._validation_errors = []
 
@@ -225,6 +269,24 @@ class ConditionalsGenerator:
                         f"{prefix}Invalid {spec.name} in row {row_number}: "
                         f"must be one of {sorted(spec.allowed_values - {None})!r} or empty, got {repr(cell_value)}"
                     )
+
+        # Validate that the path contains only one expansion token
+        raw_path = row_dict.get("path")
+        if (
+            "path" not in missing_set
+            and raw_path is not None
+            and isinstance(raw_path, str)
+        ):
+            tokens = ConditionalsGenerator._path_expansion_tokens_found(
+                raw_path,
+                current_context_specs=ConditionalsGenerator.CONDITIONALS_CURRENT_CONTEXT_SPECS,
+            )
+            if len(tokens) > 1:
+                issues.append(
+                    f"{prefix}Invalid path in row {row_number}: "
+                    "only one expansion token is allowed in the path; "
+                    f"found {', '.join(tokens)} in {repr(raw_path)}"
+                )
 
         return issues
 
@@ -376,6 +438,24 @@ class ConditionalsGenerator:
         return None if value == "" else value
 
     @staticmethod
+    def _path_expansion_tokens_found(
+        path: str, *, current_context_specs: tuple[dict, ...]
+    ) -> list[str]:
+        """
+        Return distinct expansion tokens present in ``path``, in a stable order:
+        ``${relativePath}`` first (if present), then each ``${current...}`` token from
+        ``current_context_specs`` if present.
+        """
+        ordered: list[str] = []
+        if "${relativePath}" in path:
+            ordered.append("${relativePath}")
+        for spec in current_context_specs:
+            token = spec["token"]
+            if token in path:
+                ordered.append(token)
+        return list(dict.fromkeys(ordered))
+
+    @staticmethod
     def _expand_tokenized_path(
         original_path: str, *, current_context_specs: tuple[dict, ...]
     ) -> str | None:
@@ -489,40 +569,8 @@ class ConditionalsGenerator:
             NEWLINE = "\n"
             ts_code = ""
 
-            # Current context specs for the current person, journey, trip, and visited place
             current_context_specs = (
-                {
-                    "token": "${currentPerson}",
-                    "id_var": "currentPersonId",
-                    "helper": "getCurrentPersonId",
-                    "prefix": "household.persons.${currentPersonId}.",
-                    "deps": (),
-                    "comment": "Get the current person id",
-                },
-                {
-                    "token": "${currentJourney}",
-                    "id_var": "currentJourneyId",
-                    "helper": "getCurrentJourneyId",
-                    "prefix": "household.persons.${currentPersonId}.journeys.${currentJourneyId}.",
-                    "deps": ("currentPersonId",),
-                    "comment": "Get the current journey id",
-                },
-                {
-                    "token": "${currentTrip}",
-                    "id_var": "currentTripId",
-                    "helper": "getCurrentTripId",
-                    "prefix": "household.persons.${currentPersonId}.journeys.${currentJourneyId}.trips.${currentTripId}.",
-                    "deps": ("currentPersonId", "currentJourneyId"),
-                    "comment": "Get the current trip id",
-                },
-                {
-                    "token": "${currentVisitedPlace}",
-                    "id_var": "currentVisitedPlaceId",
-                    "helper": "getCurrentVisitedPlaceId",
-                    "prefix": "household.persons.${currentPersonId}.journeys.${currentJourneyId}.visitedPlaces.${currentVisitedPlaceId}.",
-                    "deps": ("currentPersonId", "currentJourneyId"),
-                    "comment": "Get the current visited place id",
-                },
+                ConditionalsGenerator.CONDITIONALS_CURRENT_CONTEXT_SPECS
             )
 
             # Add Generator comment at the start of the file
@@ -568,7 +616,7 @@ class ConditionalsGenerator:
                     f"// Remove the last key from the path{NEWLINE}"
                 )
 
-                # Check if any conditional has a path that contains "${currentPerson}", "${currentJourney}", "${currentTrip}", or "${currentVisitedPlace}"
+                # Check if any conditional has a path that contains "${currentPerson}", "${currentJourney}", "${currentTrip}", "${currentSegment}", or "${currentVisitedPlace}"
                 current_context_vars_needed = (
                     ConditionalsGenerator._current_context_vars_needed(
                         conditionals, current_context_specs=current_context_specs
@@ -579,14 +627,14 @@ class ConditionalsGenerator:
                 ts_code += (
                     f"\nexport const {conditional_name}: WidgetConditional = (interview"
                 )
-                # Check if any conditional has a path that contains "${relativePath}" or "${currentPerson}", "${currentJourney}", "${currentTrip}", or "${currentVisitedPlace}"
+                # Check if any conditional has a path that contains "${relativePath}" or "${currentPerson}", "${currentJourney}", "${currentTrip}", "${currentSegment}", or "${currentVisitedPlace}"
                 if conditionals_has_relative_path or conditionals_has_current_context:
                     ts_code += ", path"
                 ts_code += f") => {{{NEWLINE}"
                 ts_code += (
                     declare_relative_path if conditionals_has_relative_path else ""
                 )
-                # Check if any conditional has a path that contains "${currentPerson}", "${currentJourney}", "${currentTrip}", or "${currentVisitedPlace}"
+                # Check if any conditional has a path that contains "${currentPerson}", "${currentJourney}", "${currentTrip}", "${currentSegment}", or "${currentVisitedPlace}"
                 # If so, declare the current context variables
                 if conditionals_has_current_context:
                     for spec in current_context_specs:
@@ -621,7 +669,7 @@ class ConditionalsGenerator:
                     new_value = json.dumps(prim)
                     conditional_has_path = (
                         "${relativePath}" in conditional["path"]
-                        # Check if any conditional has a path that contains "${currentPerson}", "${currentJourney}", "${currentTrip}", or "${currentVisitedPlace}"
+                        # Check if any conditional has a path that contains "${currentPerson}", "${currentJourney}", "${currentTrip}", "${currentSegment}", or "${currentVisitedPlace}"
                         or any(
                             spec["token"] in conditional["path"]
                             for spec in current_context_specs
@@ -629,7 +677,7 @@ class ConditionalsGenerator:
                     )
                     quote = "`" if conditional_has_path else "'"
 
-                    # Check if any conditional has a path that contains "${currentPerson}", "${currentJourney}", "${currentTrip}", or "${currentVisitedPlace}"
+                    # Check if any conditional has a path that contains "${currentPerson}", "${currentJourney}", "${currentTrip}", "${currentSegment}", or "${currentVisitedPlace}"
                     # If so, expand the path
                     expanded_path = ConditionalsGenerator._expand_tokenized_path(
                         conditional["path"], current_context_specs=current_context_specs
