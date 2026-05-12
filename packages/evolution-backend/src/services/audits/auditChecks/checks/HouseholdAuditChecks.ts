@@ -166,15 +166,20 @@ export const householdAuditChecks: { [errorCode: string]: HouseholdAuditCheckFun
     /**
      * Check if car number and vehicles count mismatch
      * validate car number is equal to vehicles count
-     * @param context - HouseholdAuditCheckContext
+     * Only check if household has vehicles and car number is defined
+     * @param _context - HouseholdAuditCheckContext (unused until vehicles exist as objects; see TODO below)
      * @returns AuditForObject
      */
-    HH_L_CarNumberVehiclesCountMismatch: (context: HouseholdAuditCheckContext): AuditForObject | undefined => {
-        const { household } = context;
-        const carNumber = household.carNumber;
-        const vehiclesCount = household.vehicles?.length;
+    HH_L_CarNumberVehiclesCountMismatch: (_context: HouseholdAuditCheckContext): AuditForObject | undefined => {
+        // TODO: This check should only be run when we will have implemented vehicles as objects.
+        // For now, we skip it. When implementing below, you may rename `_context` to `context` for
+        // readability; keeping `_context` is fine too once it is used (either name is valid).
 
-        if (carNumber !== undefined && vehiclesCount !== undefined && carNumber !== vehiclesCount) {
+        /*const { household } = _context;
+        const carNumber = household.carNumber;
+        const hasVehicles = household.vehicles !== undefined && Array.isArray(household.vehicles);
+
+        if (carNumber !== undefined && hasVehicles && carNumber !== household.vehicles!.length) {
             return {
                 objectType: 'household',
                 objectUuid: household._uuid!,
@@ -184,7 +189,7 @@ export const householdAuditChecks: { [errorCode: string]: HouseholdAuditCheckFun
                 message: 'Car number and vehicles count mismatch',
                 ignore: false
             };
-        }
+        }*/
 
         return undefined; // No audit needed
     }
