@@ -161,6 +161,36 @@ export const getCurrentTripId = ({
 };
 
 /**
+ * Get the current segment ID when it can be resolved from the interview and path.
+ * If a path is provided and matches the pattern
+ * `household.persons.{personId}.journeys.{journeyId}.trips.{tripId}.segments.{segmentId}.`,
+ * returns that segment's `_uuid` when the segment exists in the interview response.
+ * Otherwise returns null (active segment id is not stored on the response yet).
+ *
+ * @param {Object} options - The options object.
+ * @param {UserInterviewAttributes} options.interview - The interview object.
+ * @param {string} [options.path] - Optional path string to extract the segment ID from.
+ * @returns {string | null} The segment `_uuid`, or null if not found.
+ */
+export const getCurrentSegmentId = ({
+    interview,
+    path
+}: {
+    interview: UserInterviewAttributes;
+    path?: string;
+}): string | null => {
+    // 1. Try to extract segment id from path
+    if (path) {
+        const context = getSegmentContextFromPath({ interview, path });
+        if (context) {
+            return context.segment._uuid;
+        }
+    }
+    // 2. Otherwise, return null, because the segment id is not stored in Evolution yet
+    return null;
+};
+
+/**
  * Get the current visited place ID from the interview response.
  * If a path is provided and matches a visited places pattern, extracts the
  * visitedPlaceId from the path. Otherwise, returns the currently active visited
@@ -168,7 +198,6 @@ export const getCurrentTripId = ({
  *
  * Supported patterns:
  * - `household.persons.{personId}.journeys.{journeyId}.visitedPlaces.{visitedPlaceId}.`
- * - `household.persons.{personId}.visitedPlaces.{visitedPlaceId}.` (legacy / generator shortcut)
  *
  * @param {Object} options - The options object.
  * @param {UserInterviewAttributes} options.interview - The interview object.

@@ -365,6 +365,44 @@ describe('getCurrentTripId', () => {
     });
 });
 
+describe('getCurrentSegmentId', () => {
+    test('returns segment _uuid from path when that segment exists in the interview', () => {
+        const interview = _cloneDeep(interviewAttributesWithHh) as any;
+        interview.response.household.persons.personId1.journeys = {
+            journeyId1: {
+                _uuid: 'journeyId1',
+                _sequence: 1,
+                trips: {
+                    tripId1: {
+                        _uuid: 'tripId1',
+                        _sequence: 1,
+                        segments: {
+                            segmentId1: { _uuid: 'segmentId1', _sequence: 1 }
+                        }
+                    }
+                }
+            }
+        };
+        const path =
+            'household.persons.personId1.journeys.journeyId1.trips.tripId1.segments.segmentId1.mode';
+        expect(Helpers.getCurrentSegmentId({ interview, path })).toBe('segmentId1');
+    });
+
+    test('returns null when there is no segment context for the path (segment id is not read from responses)', () => {
+        const interview = _cloneDeep(interviewAttributesWithHh) as any;
+        interview.response._activeSegmentId = 'segmentId2';
+        const path =
+            'household.persons.personId1.journeys.journeyId1.trips.tripId1.segments.segmentId1.something';
+        expect(Helpers.getCurrentSegmentId({ interview, path })).toBeNull();
+    });
+
+    test('returns null when path is omitted, even if _activeSegmentId is set', () => {
+        const interview = _cloneDeep(interviewAttributesWithHh) as any;
+        interview.response._activeSegmentId = 'segmentId2';
+        expect(Helpers.getCurrentSegmentId({ interview })).toBeNull();
+    });
+});
+
 describe('getCurrentVisitedPlaceId', () => {
     test('returns visitedPlaceId from journey visitedPlaces path if present', () => {
         const interview = _cloneDeep(interviewAttributesWithHh) as any;

@@ -294,6 +294,14 @@ class TestGenerateTypescriptCode:
             ),
             pytest.param(
                 {
+                    "token_key": "currentSegment",
+                    "conditional_path": "${currentSegment}.mode",
+                    "expected_helper_line": "const currentSegmentId = odSurveyHelpers.getCurrentSegmentId({ interview, path });",
+                    "expected_path_snippet": ".segments.${currentSegmentId}.",
+                },
+            ),
+            pytest.param(
+                {
                     "token_key": "currentVisitedPlace",
                     "conditional_path": "${currentVisitedPlace}.activity",
                     "expected_helper_line": "const currentVisitedPlaceId = odSurveyHelpers.getCurrentVisitedPlaceId({ interview, path });",
@@ -674,6 +682,47 @@ class TestValidateConditionalsRow:
             "must be one of types (str), got int with value 5"
         ]
 
+    def test_path_with_more_than_one_expansion_token_raises(self):
+        """
+        A conditional path may include at most one of `${relativePath}` or a
+        `${current...}` token; combining them is rejected.
+        """
+        path = "${relativePath}.${currentPerson}.age"
+        issues = self.checker._validate_conditionals_row(
+            self._row(path=path), self.ROW_NUMBER
+        )
+        assert len(issues) == 1
+        assert "only one expansion token" in issues[0]
+        assert "${relativePath}" in issues[0]
+        assert "${currentPerson}" in issues[0]
+        assert repr(path) in issues[0]
+
+    def test_path_with_two_current_context_tokens_raises(self):
+        """Two different `${current...}` tokens in the same path are invalid."""
+        path = "${currentPerson}.journeys.${currentJourney}.endTime"
+        issues = self.checker._validate_conditionals_row(
+            self._row(path=path), self.ROW_NUMBER
+        )
+        assert len(issues) == 1
+        assert "only one expansion token" in issues[0]
+        assert "${currentPerson}" in issues[0]
+        assert "${currentJourney}" in issues[0]
+
+    def test_path_with_single_expansion_token_ok(self):
+        """Paths that use exactly one supported token remain valid."""
+        for path in (
+            "${relativePath}.someField",
+            "${currentPerson}.age",
+            "${currentTrip}.segments.0.mode",
+            "${currentSegment}.mode",
+        ):
+            assert (
+                self.checker._validate_conditionals_row(
+                    self._row(path=path), self.ROW_NUMBER
+                )
+                == []
+            )
+
     def test_invalid_logical_operator_raises(self):
         """logical_operator must be '||', '&&', or empty."""
         assert self.checker._validate_conditionals_row(
@@ -933,6 +982,56 @@ class TestEmptyToNone:
         assert ConditionalsGenerator._empty_to_none(" ") == " "
 
 
+class TestPathExpansionTokensFound:
+    """Tests for ``_path_expansion_tokens_found`` (only the ``token`` key is read from each spec)."""
+
+    _SPEC_PERSON = {"token": "${currentPerson}"}
+    _SPEC_JOURNEY = {"token": "${currentJourney}"}
+
+    def test_empty_when_no_tokens(self):
+        assert (
+            ConditionalsGenerator._path_expansion_tokens_found(
+                "household.size",
+                current_context_specs=(
+                    self._SPEC_PERSON,
+                    self._SPEC_JOURNEY,
+                ),
+            )
+            == []
+        )
+
+    def test_relative_path_only(self):
+        assert ConditionalsGenerator._path_expansion_tokens_found(
+            "${relativePath}.field",
+            current_context_specs=(self._SPEC_PERSON,),
+        ) == ["${relativePath}"]
+
+    def test_one_current_context_token(self):
+        assert ConditionalsGenerator._path_expansion_tokens_found(
+            "${currentPerson}.age",
+            current_context_specs=(self._SPEC_PERSON, self._SPEC_JOURNEY),
+        ) == ["${currentPerson}"]
+
+    def test_stable_order_relative_path_then_specs(self):
+        assert ConditionalsGenerator._path_expansion_tokens_found(
+            "${relativePath}.${currentJourney}.x",
+            current_context_specs=(self._SPEC_PERSON, self._SPEC_JOURNEY),
+        ) == ["${relativePath}", "${currentJourney}"]
+
+    def test_two_current_tokens_follow_spec_order(self):
+        assert ConditionalsGenerator._path_expansion_tokens_found(
+            "${currentJourney}.x.${currentPerson}.y",
+            current_context_specs=(self._SPEC_PERSON, self._SPEC_JOURNEY),
+        ) == ["${currentPerson}", "${currentJourney}"]
+
+    def test_duplicate_token_in_path_reported_once(self):
+        path = "${currentPerson}.nested.${currentPerson}.age"
+        assert ConditionalsGenerator._path_expansion_tokens_found(
+            path,
+            current_context_specs=(self._SPEC_PERSON,),
+        ) == ["${currentPerson}"]
+
+
 class TestExpandTokenizedPath:
     def test_expands_relative_path_and_current_person(self):
         specs = (
@@ -987,9 +1086,25 @@ class TestCurrentContextVarsNeeded:
             ),
             pytest.param(
                 {
+                    "name": "currentSegment",
+                    "path": "${currentSegment}.mode",
+                    "expected_needed": {
+                        "currentSegmentId",
+                        "currentTripId",
+                        "currentJourneyId",
+                        "currentPersonId",
+                    },
+                }
+            ),
+            pytest.param(
+                {
                     "name": "currentVisitedPlace",
                     "path": "${currentVisitedPlace}.activity",
-                    "expected_needed": {"currentVisitedPlaceId", "currentPersonId"},
+                    "expected_needed": {
+                        "currentVisitedPlaceId",
+                        "currentPersonId",
+                        "currentJourneyId",
+                    },
                 }
             ),
         ],
@@ -1012,9 +1127,14 @@ class TestCurrentContextVarsNeeded:
                 "deps": ("currentPersonId", "currentJourneyId"),
             },
             {
+                "token": "${currentSegment}",
+                "id_var": "currentSegmentId",
+                "deps": ("currentPersonId", "currentJourneyId", "currentTripId"),
+            },
+            {
                 "token": "${currentVisitedPlace}",
                 "id_var": "currentVisitedPlaceId",
-                "deps": ("currentPersonId",),
+                "deps": ("currentPersonId", "currentJourneyId"),
             },
         )
 
