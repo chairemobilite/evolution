@@ -29,7 +29,8 @@ The Generator is designed to simplify and expedite your workflow. It allows for 
 -   [Generate Labels](#generate-labels)
     -   [Labels Fields](#labels-fields)
     -   [Labels Example](#labels-example)
--   [Document History](#document-history)
+-   [Copy Excel To CSV](#copy-excel-to-csv)
+-   [Last Updated](#last-updated)
 
 ## How to Run?
 
@@ -170,6 +171,7 @@ If you want to start your own survey, you can use the following steps:
         generate_choices: true
         generate_input_range: true
         generate_labels: true
+        copy_excel_to_csv: true
     ```
 
 5.  Navigate to the root folder of your project and run the following command:
@@ -599,9 +601,22 @@ household.transitFares: Does {{nickname}} have a transit fare?
 household.transitFares_one: Do you have a transit fare?
 ```
 
-## Document History
+## Copy Excel To CSV
 
-| Last Updated | Author                    |
-| ------------ | ------------------------- |
-| 2026-05-12   | Samuel Duhaime-Morissette |
-| 2026-05-05   | Samuel Duhaime-Morissette |
+This step is optional and writes one CSV file per Excel sheet so changes to the
+Generator Excel file are easier to review in git diffs. It is run as part of
+`generateSurvey` when enabled.
+
+```YAML
+excel_file_path: ../../../survey/references/<Name_Excel_File>.xlsx
+
+enabled_scripts:
+    copy_excel_to_csv: true
+```
+
+The CSV files are written next to the Excel file in a folder named
+`<Name_Excel_File>_csv`.
+
+## Last Updated
+
+2026-05-13 by Samuel Duhaime-Morissette

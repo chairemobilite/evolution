@@ -1,0 +1,4 @@
+section,abbreviation,title_fr,title_en,in_nav,template,has_preload,parent_section,enable_conditional,completion_conditional
+home,h_,Domicile,Home,True,False,True,,,
+household,hh_,Ménage,Household,True,False,True,,,
+completed,c_,Questionnaire complété,Survey completed,False,False,True,,,

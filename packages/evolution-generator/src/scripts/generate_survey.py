@@ -8,6 +8,7 @@ import argparse  # For command-line arguments
 from dotenv import load_dotenv  # For environment variables
 import os  # For file operations
 import yaml  # For reading the yaml file
+from scripts.excel_to_csv_generator import ExcelToCsvGenerator
 from scripts.generate_excel import generate_excel
 from scripts.generate_folders import generate_folders
 from scripts.generate_section_configs import generate_section_configs
@@ -38,6 +39,7 @@ def generate_survey(config_path):
         excel_file_path = surveyGenerator["excel_file_path"]
         enabled_scripts = surveyGenerator.get("enabled_scripts", [])
         enabled_generate_excel = enabled_scripts.get("generate_excel", False)
+        enabled_copy_excel_to_csv = enabled_scripts.get("copy_excel_to_csv", False)
         enabled_generate_section_configs = enabled_scripts.get(
             "generate_section_configs", False
         )
@@ -81,6 +83,10 @@ def generate_survey(config_path):
         raise Exception(
             f"Excel integrity check failed for {excel_file_path}. Aborting generation."
         )
+
+    # Copy every Excel sheet to CSV if script enabled, so changes are easier to review in git diffs.
+    if enabled_copy_excel_to_csv:
+        ExcelToCsvGenerator.generate_csv_copy(excel_file_path=excel_file_path)
 
     # Call the generate_folders function to generate the folders for the survey
     generate_folders(excel_file_path, survey_folder_path, enabled_scripts)

@@ -1,0 +1,104 @@
+questionName,inputType,active,section,group,path,label::fr,label::en,label_one::fr,label_one::en,parameters,appearance,conditional,validation,choices,help_popup,inputRange,comments,confirm_popup,containsHtml,customPath,customChoice,defaultValue,includeNotApplicable
+accessCode,String,True,home,,accessCode,"**Code d'accès**
+__Inscrit dans la lettre reçue.__","**Access code**
+__Printed on the letter you received.__",,,,,,,,,,,,True,,,,
+acceptToBeContactedForHelp,Radio,True,home,,acceptToBeContactedForHelp,"Je consens à être contacté(e) pour **continuer ou préciser le questionnaire**. 
+__Si je ne le termine pas ou si certains des renseignements fournis sont incohérents.__","I consent to be contacted to **continue the survey**.
+__If I do not complete it or if some of the information provided is incoherent.__",,,,,,,yesNo,,,,,True,,,,
+contactInformationIntro,InfoText,True,home,,contactInformationIntro,Veuillez saisir le courriel **ou** le numéro de téléphone pour vous recontacter.,Please enter the email **or** phone number to get in contact.,,,,,,,joi,,,,,True,,,,
+contactEmail,String,True,home,,contactEmail,**Adresse courriel**,**Email address**,,,,,,emailValidation,,,,,,True,,,,
+phoneNumber,String,True,home,,phoneNumber,"**Numéro de téléphone**
+__Format: 123-456-7890__","**Phone number**
+__Format: 123-456-7890__",,,,join_with=${contactEmail},,phoneValidation,,,,,,True,,,,
+home_address,String,True,home,,home.address,**Adresse**,**Address**,,,,,,,,,,,,True,,,,
+home_city,String,True,home,,home.city,**Ville**,**City**,,,,,,,,cityHelpPopup,,,,True,,,,
+home_region,String,True,home,,home.region,**Province**,**Province**,,,,,hiddenWithQuebecAsDefaultValueCustomConditional,,,,,,,True,,,Québec,
+home_country,String,True,home,,home.country,**Pays**,**Country**,,,,,hiddenWithCanadaAsDefaultValueCustomConditional,,,,,,,True,,,Canada,
+home_postalCode,String,True,home,,home.postalCode,**Code postal**,**Postal Code**,,,,,,postalCodeValidation,,,,,,True,,,,
+home_geography,Custom,True,home,,home.geography,"**Positionnement de votre domicile**
+Recherchez votre domicile en utilisant son code postal ou son adresse en cliquant sur le bouton ci-dessous, ou veuillez positionner le lieu sur la carte en naviguant, zoomant et cliquant. Une fois le lieu localisé, vous pouvez déplacer le point pour plus de précision.","**Positioning your home**
+Search for your home using its postal code or address by clicking the button below, or please position the location on the map by navigating, zooming, and clicking. Once the location is located, you can move the point for greater precision.",,,,,,,,,,,,True,,,,
+household_size,RadioNumber,True,home,,household.size,"**Personnes habitant votre domicile** ou logement.
+__Y compris vous-même.__","**Persons living in your home**
+__Including yourself.__",,,"min=1
+max=6
+overMaxAllowed",,,householdSizeValidation,,householdSizeHelpPopup,,,,True,,,,
+household_carNumber,RadioNumber,True,home,,household.carNumber,"**Automobiles**, VUS, camions légers ou fourgonnettes, etc.
+__À la disposition de votre ménage.__","**Cars**, SUVs, light-duty trucks or vans, etc.
+__Available to one or more members of your household.__",,,"min=0
+max=5
+overMaxAllowed",,,carNumberValidation,,householdCarNumberHelpPopup,,,,True,,,,
+household_bicycleNumber,RadioNumber,True,home,,household.bicycleNumber,"**Vélos**, vélos électriques ou trottinettes électriques possédés par les membres du ménage
+__Inclure seulement les vélos utilisables en bon état.__","**Bicycles**, electric bicycles (e-bikes), or electric scooters owned by household members
+__Include only usable bicycles in good condition.__",,,"min=0
+max=5
+overMaxAllowed",,,bicycleNumberValidation,,,,,,True,,,,
+household_electricBicycleNumber,RadioNumber,True,home,,household.electricBicycleNumber,"Parmi ces vélos, combien sont des **vélos électriques** ou à assistance électrique ?","Among these bicycles, how many are **electric bicycles** (e-bikes)?",,,"min=0
+max=5
+overMaxAllowed",,,,,,,,,True,,,,
+household_atLeastOnePersonWithDisability,Radio,True,home,,household.atLeastOnePersonWithDisability,"Y a-t-il au moins une personne dans votre ménage avec une **incapacité permanente qui limite ses déplacements quotidiens**?>
+__Y compris vous-même__","Is there at least one person in your household having a **permanent disability that limits their daily travel?**
+__Including yourself__",,,,,hasHouseholdSize2OrMoreConditional,,yesNoPreferNotAnswer,,,,,True,,,,
+home_save,NextButton,True,home,,home.save,Enregistrer et continuer,Save and continue,,,,,,,,,,,,True,,,,
+householdMembers,Custom,True,household,,,,,,,,,,,,,,,,True,,,,
+personNickname,String,True,household,householdMembers,nickname,"**Nom ou surnom** pour identifier cette personne pour la suite de l'entrevue.
+__Peut être un surnom, des initiales, ou encore ce que cette personne est pour vous (ex: 'Moi', 'Toto', 'Maman', 'PN').
+Ce nom est seulement utilisé pour faciliter l'enquête et sera ensuite supprimé.__","**Name or nickname** that will allow you to identify this person for the remainder of the interview.
+__Can be a nickname, initials, or who this person represents to you (ex: 'Me','Kiddo','Mum','JT').
+The name is only used to simplify the response process and will be removed from the final dataset.__",,,,,hasHouseholdSize2OrMoreConditional,,,,,,,True,,,,
+personAge,Number,True,household,householdMembers,age,"**Âge**
+__Pour les bébés de moins de 1 an, inscrivez ""0""__","**Age**
+__For babies under the age of 1, write ""0""__",Votre **âge**,Your **age**,,,,ageValidation,,,,,,True,,,,
+personGender,Radio,True,household,householdMembers,gender,"**Sexe à la naissance**
+__Sexe assigné à la naissance ou inscrit dans les documents légaux.__","**Sex at birth**
+__Sex assigned at birth or that which appears on legal documents.__",,,,,ifAge5orMoreConditional,,gender,,,,,True,,,,
+personWorkerType,Radio,True,household,householdMembers,workerType,"**Travailleur**
+__Incluant travailleur autonome, artiste, travailleur en congé de maladie ou parental.__","**Worker**
+__Including self-employed, artist, on sick leave or parental leave.__",,,,,ifAge14orMoreConditional,,participationStatus,,,,,True,,,,
+personStudentType,Radio,True,household,householdMembers,studentType,**Étudiant{{gender:/e/·e}}**,**Student**,,,,,ifAge16OrMoreConditional,,participationStatus,,,,,True,,,,
+personSchoolType,Radio,True,household,householdMembers,schoolType,,,,,customLabels={{personSchoolTypeCustomLabels}},,ifAge15OrLessConditional,,schoolType,,,,,True,schoolTypeOther,other,,
+personOccupation,Radio,True,household,householdMembers,occupation,**Occupation principale**,**Main occupation**,,,,,personOccupationCustomConditional,,personOccupation,,,,,True,,,,
+personDrivingLicenseOwner,Radio,True,household,householdMembers,drivingLicenseOwner,"**Permis de conduire**
+__Inclure les permis d’apprenti{{gender:e}} conduct{{gender:eur/rice/eur·rice}} et probatoires, mais ne pas inclure les permis de cyclomoteur/scooter.__","**Driver's licence**
+__Include learner's and probationary permits, but do not include moped (motorized scooter and moped) permits.__",,,,,ifAge16OrMoreConditional,,yesNoDontKnow,,,,,True,,,,
+personCarSharingMember,Radio,True,household,householdMembers,carSharingMember,"Membre **Autopartage**
+__Abonnement ou laissez-passer à un service d'autopartage (ex. Communauto)__","**Carsharing** member
+__Subscription or pass to a carsharing service (ex. Communauto)__",,,,,hasDrivingLicenseConditional,,yesNoDontKnow,,,,,True,,,,
+personTransitFares,Checkbox,False,household,householdMembers,transitFares,Est-ce que {{nickname}} détient présentement **un laissez-passer ou un abonnement** de transport en commun valide ?,"Does {{nickname}} currently have a valid transit **fare, pass or ticket**?",,,,,ifAge6OrMoreConditional,,transitFareType,,,,,True,,,,
+personHasDisability,Radio,True,household,householdMembers,hasDisability,"**Incapacité permanente d'ordre physique, intellectuelle ou autre** qui influence ou limite ses déplacements quotidiens ?","**Permanent physical, intellectual or other disability** which influences or limits their daily mobility?",,,,,hasOnePersonWithDisabilityOrHhSize1Conditional,,yesNoPreferNotAnswer,,,,,True,,,,
+personWorkLocationType,Radio,True,household,householdMembers,workLocationType,Est-ce que {{nickname}} a un **lieu d'emploi** fixe ?,Does {{nickname}} have a fixed **work location**?,,,,,isWorkerConditional,,workLocationType,,,,,True,,,,
+personSchoolLocationType,Radio,True,household,householdMembers,schoolLocationType,Est-ce que {{nickname}} a un **lieu d'études** fixe ?,Does {{nickname}} have a fixed **study location**?,,,,,isStudentConditional,,studyLocationType,,,,,True,,,,
+personUsualWorkPlaceName,String,True,household,householdMembers,usualWorkPlace.name,**Nom ou adresse** du **lieu habituel de travail** de {{nickname}},**Name or address** of {{nickname}}'s **usual place of work**,,,,,hasWorkingLocationConditional,,,,,,,True,,,,
+personUsualWorkPlaceGeography,Custom,True,household,householdMembers,usualWorkPlace.geography,"Veuillez localiser le **lieu de travail habituel** de {{nickname}}.
+__Naviguez, zoomez, et cliquez sur la carte pour localiser le lieu. Une fois localisé, vous pourrez déplacer le point sur la carte pour davantage de précision.
+Vous pouvez également chercher le lieu sur la carte en utilisant le bouton ""Chercher le lieu"").__","Please locate the **usual place of work** for {{nickname}}.
+__Navigate, zoom, and click on the map to identify the location. Once located, you can move the marker for greater precision.
+You can also search for the place on the map using the ""Search location"" button.__","Veuillez localiser votre **lieu de travail habituel**.
+__Naviguez, zoomez, et cliquez sur la carte pour localiser le lieu. Une fois localisé, vous pourrez déplacer le point sur la carte pour davantage de précision.
+Vous pouvez également chercher le lieu sur la carte en utilisant le bouton ""Chercher le lieu"").__","Please locate your **usual place of work**.
+__Navigate, zoom, and click on the map to identify the location. Once located, you can move the marker for greater precision.
+You can also search for the place on the map using the ""Search location"" button.__",,,hasWorkingLocationConditional,,,,,,,True,,,,
+personUsualSchoolPlaceName,String,True,household,householdMembers,usualSchoolPlace.name,**Nom ou adresse** du **lieu habituel d’études** de {{nickname}},**Name or address** of {{nickname}}'s school or **main study location**,,,,,personUsualSchoolPlaceNameCustomConditional,,,,,,,True,,,,
+personUsualSchoolPlaceGeography,Custom,True,household,householdMembers,usualSchoolPlace.geography,"Veuillez localiser le **lieu habituel d’études** de {{nickname}}.
+__Naviguez, zoomez, et cliquez sur la carte pour localiser le lieu. Une fois localisé, vous pourrez déplacer le point sur la carte pour davantage de précision.
+Vous pouvez également chercher le lieu sur la carte en utilisant le bouton ""Chercher le lieu"").__","Please locate the **usual place of study** for {{nickname}}.
+__Navigate, zoom, and click on the map to identify the location. Once located, you can move the marker for greater precision.
+You can also search for the place on the map using the ""Search location"" button.__","Veuillez localiser votre **lieu habituel d’études**.
+__Naviguez, zoomez, et cliquez sur la carte pour localiser le lieu. Une fois localisé, vous pourrez déplacer le point sur la carte pour davantage de précision.
+Vous pouvez également chercher le lieu sur la carte en utilisant le bouton ""Chercher le lieu"").__","Please locate your **usual place of study**.
+__Navigate, zoom, and click on the map to identify the location. Once located, you can move the marker for greater precision.
+You can also search for the place on the map using the ""Search location"" button.__",,,,,,,,,,True,,,,
+personTravelToWorkDays,Checkbox,False,household,householdMembers,travelToWorkDays,"Durant la dernière **semaine**, quand est-ce que {{nickname}} s'est **déplacé{{gender:/e/·e}}** pour le **travail** ?
+__Pour se rendre au travail ou toute autre raison concernant le travail.__","During the last **week**, did {{nickname}} **travel** for **work**?
+__To get to or for any other reason concerning work.__",,,,,,,yesNoDontKnow,,,,,True,,,,
+personRemoteWorkDays,Checkbox,False,household,householdMembers,remoteWorkDays,"Durant la **dernière semaine**, quand est-ce que {{nickname}} a travaillé en **télé-travail** ?","During the **last week**, when did {{nickname}} **work remotely**?",,,,,,,yesNoDontKnow,,,,,True,,,,
+personTravelToStudyDays,Checkbox,False,household,householdMembers,travelToStudyDays,"Durant la **dernière semaine**, est-ce que {{nickname}} s'est **déplacé{{gender:/e/·e}}** pour les **études**.
+__Pour se rendre à l'établissement d'enseignement ou pour toute autre raison concernant les études.__","During the **last week**, did {{nickname}} **travel** for their <strong>studies</strong>?
+__To get to or for any other reason concerning his studies.__",,,,,,,yesNoDontKnow,,,,,True,,,,
+personRemoteStudyDays,Checkbox,False,household,householdMembers,remoteStudyDays,"Durant la **dernière semaine**, quand est-ce que {{nickname}} a étudié en **télé-études** ?","During the **last week**, when did {{nickname}} **study remotely**?",,,,,,,yesNoDontKnow,,,,,True,,,,
+household_save,NextButton,True,household,,household.save,Enregistrer et continuer,Save and continue,,,,,,,,,,,,True,,,,
+completedText,InfoText,True,completed,,completedText,"**Merci pour votre participation!**
+
+Nous vous remercions d'avoir pris le temps de remplir cette enquête. Vos réponses ont été enregistrées avec succès. Vous pouvez modifier vos réponses en cliquant sur les sections dans le menu ci-dessus.","**Thank you for your participation!**
+
+We thank you for taking the time to fill out this survey. Your answers have been recorded. You can edit your answers by clicking on any of the sections in the menu at the top of the page.",,,,,,,,,,,,True,,,,
