@@ -12,6 +12,7 @@ from scripts.generate_widgets import (
     generate_radio_number_widget,
     generate_next_button_widget,
     generate_string_widget,
+    generate_widget_name,
     generate_widget_statement,
     generate_suffix_label_code,
     generate_label,
@@ -28,7 +29,6 @@ from scripts.generate_widgets import (
 # TODO: Test generate_widgets
 # TODO: Test generate_widget_statement
 # TODO: Test generate_built_in_widget when we are ready to support them
-# TODO: Test generate_widget_name
 # TODO: Test generate_widgets_names_statements
 
 
@@ -1056,6 +1056,7 @@ class TestGenerateWidgetStatementComments:
     def test_single_line_comment_is_preserved(self):
         row = {
             "questionName": "acceptToBeContactedForHelp",
+            "active": True,
             "inputType": "Radio",
             "section": "home",
             "path": "acceptToBeContactedForHelp",
@@ -1079,6 +1080,7 @@ class TestGenerateWidgetStatementComments:
     def test_multi_line_comment_is_preserved(self):
         row = {
             "questionName": "acceptToBeContactedForHelp",
+            "active": True,
             "inputType": "Radio",
             "section": "home",
             "path": "acceptToBeContactedForHelp",
@@ -1102,6 +1104,7 @@ class TestGenerateWidgetStatementComments:
     def test_no_comments_column_does_not_add_comment(self):
         row = {
             "questionName": "acceptToBeContactedForHelp",
+            "active": True,
             "inputType": "Radio",
             "section": "home",
             "path": "acceptToBeContactedForHelp",
@@ -1145,6 +1148,134 @@ class TestGenerateWidgetStatementActiveFlag:
             == "// Note: acceptToBeContactedForHelp widget is not active. This widget will not be displayed in the survey."
         )
         assert "export const acceptToBeContactedForHelp" not in result["statement"]
+
+    def test_inactive_widget_with_active_zero_generates_not_active_comment_only(self):
+        """Test that active=0 (e.g. from Excel) is treated as inactive"""
+        row = {
+            "questionName": "acceptToBeContactedForHelp",
+            "active": 0,
+            "inputType": "Radio",
+            "section": "home",
+            "path": "acceptToBeContactedForHelp",
+            "conditional": "",
+            "validation": "",
+            "inputRange": "",
+            "help_popup": "",
+            "choices": "yesNo",
+            "label::fr": "Acceptez-vous d'être contacté pour de l'aide?",
+            "label::en": "Do you agree to be contacted for help?",
+        }
+
+        result = generate_widget_statement(row, GenderFields())
+        assert (
+            result["statement"]
+            == "// Note: acceptToBeContactedForHelp widget is not active. This widget will not be displayed in the survey."
+        )
+        assert "export const acceptToBeContactedForHelp" not in result["statement"]
+
+    def test_inactive_widget_with_empty_active_defaults_to_inactive(self):
+        """Test that an empty active cell (e.g. from Excel) defaults to inactive"""
+        row = {
+            "questionName": "acceptToBeContactedForHelp",
+            "active": "",
+            "inputType": "Radio",
+            "section": "home",
+            "path": "acceptToBeContactedForHelp",
+            "conditional": "",
+            "validation": "",
+            "inputRange": "",
+            "help_popup": "",
+            "choices": "yesNo",
+            "label::fr": "Acceptez-vous d'être contacté pour de l'aide?",
+            "label::en": "Do you agree to be contacted for help?",
+        }
+
+        result = generate_widget_statement(row, GenderFields())
+        assert (
+            result["statement"]
+            == "// Note: acceptToBeContactedForHelp widget is not active. This widget will not be displayed in the survey."
+        )
+        assert "export const acceptToBeContactedForHelp" not in result["statement"]
+
+    def test_active_widget_with_active_one_generates_widget_statement(self):
+        """Test that active=1 (e.g. from Excel) is treated as active and generates the widget"""
+        row = {
+            "questionName": "acceptToBeContactedForHelp",
+            "active": 1,
+            "inputType": "Radio",
+            "section": "home",
+            "path": "acceptToBeContactedForHelp",
+            "conditional": "",
+            "validation": "",
+            "inputRange": "",
+            "help_popup": "",
+            "choices": "yesNo",
+            "label::fr": "Acceptez-vous d'être contacté pour de l'aide?",
+            "label::en": "Do you agree to be contacted for help?",
+        }
+
+        result = generate_widget_statement(row, GenderFields())
+        assert (
+            "export const acceptToBeContactedForHelp: WidgetConfig.InputRadioType = {"
+            in result["statement"]
+        )
+        assert "path: 'acceptToBeContactedForHelp'," in result["statement"]
+        assert "choices: choices.yesNo" in result["statement"]
+        assert "widget is not active" not in result["statement"]
+        assert result["statement"].strip().endswith("};")
+
+    def test_active_widget_with_active_true_generates_widget_statement(self):
+        """Test that active=True is treated as active and generates the widget"""
+        row = {
+            "questionName": "acceptToBeContactedForHelp",
+            "active": True,
+            "inputType": "Radio",
+            "section": "home",
+            "path": "acceptToBeContactedForHelp",
+            "conditional": "",
+            "validation": "",
+            "inputRange": "",
+            "help_popup": "",
+            "choices": "yesNo",
+            "label::fr": "Acceptez-vous d'être contacté pour de l'aide?",
+            "label::en": "Do you agree to be contacted for help?",
+        }
+
+        result = generate_widget_statement(row, GenderFields())
+        assert (
+            "export const acceptToBeContactedForHelp: WidgetConfig.InputRadioType = {"
+            in result["statement"]
+        )
+        assert "widget is not active" not in result["statement"]
+        assert result["statement"].strip().endswith("};")
+
+
+class TestGenerateWidgetName:
+    """Tests for generate_widget_name function"""
+
+    INDENT = "    "
+
+    def test_active_one_emits_uncommented_name(self):
+        """active=1 (e.g. from Excel) should be treated as active"""
+        row = {"questionName": "homeAddress", "active": 1, "group": ""}
+        result = generate_widget_name(row, group="", is_last=False)
+        assert result == f"{self.INDENT}'homeAddress',"
+
+    def test_active_zero_emits_commented_name(self):
+        """active=0 (e.g. from Excel) should be treated as inactive"""
+        row = {"questionName": "homeAddress", "active": 0, "group": ""}
+        result = generate_widget_name(row, group="", is_last=False)
+        assert result == f"{self.INDENT}// 'homeAddress',"
+
+    def test_last_row_omits_trailing_comma(self):
+        row = {"questionName": "homeAddress", "active": 1, "group": ""}
+        result = generate_widget_name(row, group="", is_last=True)
+        assert result == f"{self.INDENT}'homeAddress'"
+
+    def test_returns_none_when_group_does_not_match_row_group(self):
+        row = {"questionName": "homeAddress", "active": True, "group": "personGroup"}
+        result = generate_widget_name(row, group="", is_last=False)
+        assert result is None
 
 
 # TODO: Test generate_select_widget
