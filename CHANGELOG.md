@@ -58,7 +58,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **BREAKING**: Rename the map widget's `updateDefaultValueWhenResponded` to `resetToDefaultUnlessUserInteracted` for clarity. The property applies to all map types, not just 'findPlace'.
 - **BREAKING**: The generator's `Labels` sheet in the Excel file should rename the "section" and "path" columns to "namespace" and "key", which better represents where we want the key to be (fixes [#1530](https://github.com/chairemobilite/evolution/issues/1530)).
 - **BREAKING**: The generator now use the question name as translation label key instead of the path. Surveys using the generator will automatically update all label fields, but if additional label with context had been added in the "Labels" sheet to match the question's original label, these might need to be updated (fixes [#1530](https://github.com/chairemobilite/evolution/issues/1530)).
-
+- **BREAKING**: Generator inactive widgets: `active` now behaves like a real boolean (Excel `0`/`1` included), defaults to inactive when omitted, and inactive rows stay commented-out in generated widget files instead of emitting broken code (fixes [#1597](https://github.com/chairemobilite/evolution/issues/1597)).
 
 ### Deprecated
 
