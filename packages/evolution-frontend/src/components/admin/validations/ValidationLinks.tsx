@@ -60,6 +60,7 @@ const ValidationLinks: React.FunctionComponent<ValidationLinksProps> = ({
 }: ValidationLinksProps) => {
     const { t } = useTranslation('admin');
     const canConfirm = user.isAuthorized({ Interviews: ['confirm'] });
+    const isInterviewValidated = interviewIsValidated === true;
 
     // State for confirmation modals
     const [showResetConfirmation, setShowResetConfirmation] = useState(false);
@@ -130,10 +131,11 @@ const ValidationLinks: React.FunctionComponent<ValidationLinksProps> = ({
                     <a
                         href="#"
                         className={`_red${interviewIsValid === false ? ' _active-background' : ''}`}
-                        title={t('admin:SetInvalid')}
+                        title={interviewIsValid === false ? t('admin:ClearValidityStatus') : t('admin:SetInvalid')}
                         onClick={(e) => {
                             e.preventDefault();
-                            updateValuesByPath({ is_valid: false });
+                            // Second click on the same choice clears validity (null in DB).
+                            updateValuesByPath({ is_valid: interviewIsValid === false ? null : false });
                         }}
                     >
                         <FontAwesomeIcon icon={faBan} />
@@ -147,10 +149,11 @@ const ValidationLinks: React.FunctionComponent<ValidationLinksProps> = ({
                     <a
                         href="#"
                         className={`_green${interviewIsValid === true ? ' _active-background' : ''}`}
-                        title={t('admin:SetValid')}
+                        title={interviewIsValid === true ? t('admin:ClearValidityStatus') : t('admin:SetValid')}
                         onClick={(e) => {
                             e.preventDefault();
-                            updateValuesByPath({ is_valid: true });
+                            // Second click on the same choice clears validity (null in DB).
+                            updateValuesByPath({ is_valid: interviewIsValid === true ? null : true });
                         }}
                     >
                         <FontAwesomeIcon icon={faCheck} />
@@ -164,10 +167,15 @@ const ValidationLinks: React.FunctionComponent<ValidationLinksProps> = ({
                     <a
                         href="#"
                         className={`_together _red${interviewIsComplete === false ? ' _active-background' : ''}`}
-                        title={t('admin:SetIncomplete')}
+                        title={
+                            interviewIsComplete === false ? t('admin:ClearCompletionStatus') : t('admin:SetIncomplete')
+                        }
                         onClick={(e) => {
                             e.preventDefault();
-                            updateValuesByPath({ is_completed: false });
+                            // Second click on the same choice clears completion (null in DB).
+                            updateValuesByPath({
+                                is_completed: interviewIsComplete === false ? null : false
+                            });
                         }}
                     >
                         <span className="_small">
@@ -184,10 +192,13 @@ const ValidationLinks: React.FunctionComponent<ValidationLinksProps> = ({
                     <a
                         href="#"
                         className={`_together _green${interviewIsComplete === true ? ' _active-background' : ''}`}
-                        title={t('admin:SetComplete')}
+                        title={interviewIsComplete === true ? t('admin:ClearCompletionStatus') : t('admin:SetComplete')}
                         onClick={(e) => {
                             e.preventDefault();
-                            updateValuesByPath({ is_completed: true });
+                            // Second click on the same choice clears completion (null in DB).
+                            updateValuesByPath({
+                                is_completed: interviewIsComplete === true ? null : true
+                            });
                         }}
                     >
                         <span className="_small">
@@ -197,34 +208,18 @@ const ValidationLinks: React.FunctionComponent<ValidationLinksProps> = ({
                     </a>
                 </React.Fragment>
             }
-            {canConfirm && interviewIsValidated === true && (
+            {canConfirm && (
                 <React.Fragment>
                     {' '}
                     &nbsp;&nbsp;
                     <a
                         href="#"
-                        className={'_green _active-background'}
-                        title={t('admin:SetIsValidatedEmpty')}
+                        className={`_green${isInterviewValidated ? ' _active-background' : ''}`}
+                        title={isInterviewValidated ? t('admin:SetIsValidatedEmpty') : t('admin:SetIsValidated')}
                         onClick={(e) => {
                             e.preventDefault();
-                            updateValuesByPath({ is_validated: null });
-                        }}
-                    >
-                        <FontAwesomeIcon icon={faCheckDouble} />
-                    </a>
-                </React.Fragment>
-            )}
-            {canConfirm && interviewIsValidated !== true && (
-                <React.Fragment>
-                    {' '}
-                    &nbsp;&nbsp;
-                    <a
-                        href="#"
-                        className={'_green'}
-                        title={t('admin:SetIsValidated')}
-                        onClick={(e) => {
-                            e.preventDefault();
-                            updateValuesByPath({ is_validated: true });
+                            // Same control as "set validated": second click clears (null in DB).
+                            updateValuesByPath({ is_validated: isInterviewValidated ? null : true });
                         }}
                     >
                         <FontAwesomeIcon icon={faCheckDouble} />
