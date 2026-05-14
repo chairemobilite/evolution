@@ -170,7 +170,7 @@ describe('getAdminSurveyRoutes', () => {
         { path: '/register', wrapperType: 'PublicRoute' },
         { path: '/forgot', wrapperType: 'PublicRoute' },
         { path: '/unconfirmed', wrapperType: 'PublicRoute' },
-        { path: '/verify/:token', wrapperType: 'PublicRoute' },
+        { path: '/verify/:token', wrapperType: 'AdminRoute' },
         { path: '/reset/:token', wrapperType: 'PublicRoute' },
         { path: '/unauthorized', wrapperType: 'PublicRoute' },
         { path: '/maintenance', wrapperType: 'PublicRoute' },
