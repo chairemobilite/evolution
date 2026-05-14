@@ -161,7 +161,7 @@ jobs:
           ].join('\n');
 
           // head is the branch in the current repo, where it has been created, so no need to include the owner
-          await github.rest.pulls.create({
+          const pr = await github.rest.pulls.create({
             owner,
             repo,
             base,
@@ -169,3 +169,29 @@ jobs:
             title,
             body
           });
+
+          const prNumber = pr.data.number;
+
+          // Post a comment with instructions to trigger the CI workflow
+          await github.rest.issues.createComment({
+            owner,
+            repo,
+            issue_number: prNumber,
+            body: [
+              '## :robot: Automated Backport Created',
+              '',
+              'CI workflows are not automatically triggered for backport PRs.',
+              '',
+              '### To run the CI checks:',
+              '',
+              `1. Go to the [Actions tab](${context.payload.repository.html_url}/actions) in the repository`,
+              '2. Find and select the **CI** workflow from the list on the left',
+              `3. Click the **"Run workflow"** dropdown button`,
+              `4. Select branch: **${process.env.BACKPORT_BRANCH}**`,
+              '5. Click **"Run workflow"** to trigger the checks',
+              '',
+              '_The build status is required before merging this backport._'
+            ].join('\n')
+          });
+
+          core.info(`Backport PR #${prNumber} created with CI instructions comment`);
