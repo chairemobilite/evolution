@@ -11,7 +11,7 @@ import re
 
 import openpyxl
 
-from helpers.generator_helpers import is_excel_file
+from helpers.generator_helpers import is_excel_file, get_data_from_excel
 
 
 class ExcelToCsvGenerator:
@@ -73,10 +73,29 @@ class ExcelToCsvGenerator:
         """Write a single sheet to "<SheetName>.csv" and return its path."""
         csv_file_name = f"{self.sanitize_sheet_title(worksheet.title)}.csv"
         csv_file_path = os.path.join(self.output_folder_path, csv_file_name)
+
         with open(csv_file_path, mode="w", encoding="utf-8", newline="") as csv_file:
             writer = csv.writer(csv_file)
-            for row in worksheet.iter_rows(values_only=True):
-                writer.writerow(["" if value is None else value for value in row])
+
+            # Use get_data_from_excel to properly bound rows and headers
+            try:
+                rows, headers = get_data_from_excel(
+                    self.excel_file_path, worksheet.title
+                )
+
+                # Write headers
+                writer.writerow(headers)
+
+                # Write data rows (skip header row at index 0)
+                for row in rows[1:]:
+                    values = ["" if cell.value is None else cell.value for cell in row]
+                    # Trim trailing None/empty values to match header count
+                    values = values[: len(headers)]
+                    writer.writerow(values)
+
+            except Exception as e:
+                print(f"Error processing sheet '{worksheet.title}': {e}")
+                raise
 
         print(f"Generated {csv_file_path} successfully")
         return csv_file_path
