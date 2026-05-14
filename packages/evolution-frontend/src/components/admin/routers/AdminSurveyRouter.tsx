@@ -78,7 +78,7 @@ const getAdminSurveyRoutes = (): RouteObject[] => [
             },
             {
                 path: '/verify/:token',
-                element: <PublicRoute component={VerifyPage} path="/verify/:token" />
+                element: <AdminRoute component={VerifyPage} path="/verify/:token" />
             },
             {
                 path: '/reset/:token',
