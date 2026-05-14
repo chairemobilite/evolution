@@ -8,6 +8,8 @@ on:
     branches: [ main, od_2023, v0.3.0 ]
   pull_request:
     branches: [ main, od_2023, v0.3.0 ]
+  # This event allows to manually trigger the workflow from the Actions tab in GitHub UI, used to manually trigger this workflow on backported branches
+  workflow_dispatch:
 
 jobs:
   build-and-test:
