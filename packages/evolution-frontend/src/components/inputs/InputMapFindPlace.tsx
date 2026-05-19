@@ -16,15 +16,16 @@ import projectConfig from 'chaire-lib-common/lib/config/shared/project.config';
 import { InputMapFindPlaceType } from 'evolution-common/lib/services/questionnaire/types';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import { WithTranslation, withTranslation } from 'react-i18next';
-import { FeatureGeocodedProperties, MarkerData, defaultIconSize, PlaceGeocodedProperties } from './maps/InputMapTypes';
+import { FeatureGeocodedProperties, MarkerData, defaultIconSize, PlaceGeocodedProperties } from './maps/types';
 import InputSelect from 'chaire-lib-frontend/lib/components/input/InputSelect';
 import { CommonInputProps } from './CommonInputProps';
 import Loader from 'react-spinners/HashLoader';
 import SurveyErrorMessage from '../survey/widgets/SurveyErrorMessage';
 
-// TODO Allow to support multiple maps and geocoders
-import InputMapGoogle from './maps/google/InputMapGoogle';
-import { geocodeMultiplePlaces } from './maps/google/GoogleGeocoder';
+// TODO Once a second provider exists, replace this hardcoded import with a
+// conditional import driven by the project config (one adapter per survey,
+// not per widget): a survey picks Google OR OSM, never both at runtime.
+import mapProviderAdapter from './maps/google/GoogleMapAdapter';
 
 export type InputMapFindPlaceProps = CommonInputProps & {
     value?: GeoJSON.Feature<GeoJSON.Point, FeatureGeocodedProperties>;
@@ -58,10 +59,9 @@ interface InputMapFindPlaceState {
 }
 
 /**
- * Allow to select a single point from a map.
- *
- * TODO For now, it only uses google map, but this class should remain map
- * agnostic and support more map types
+ * Allow to select a single point from a map among the candidates returned by
+ * a multi-result geocoding query. The map renderer and geocoder are obtained
+ * through a `MapProviderAdapter`, so this component stays provider-agnostic.
  *
  * TODO This was copy pasted from InputMapPoint and the methods were modified
  * with original InputMapFindPlace. We should try to re-use as much of the code
@@ -202,7 +202,7 @@ export class InputMapFindPlace extends React.Component<
                     // Try each geocoding query string until we get a result
                     for (let i = 0; i < geocodingQueryStringArray.length; i++) {
                         const features =
-                            (await geocodeMultiplePlaces(geocodingQueryStringArray[i].queryString, {
+                            (await mapProviderAdapter.geocodeMultiplePlaces(geocodingQueryStringArray[i].queryString, {
                                 bbox,
                                 language,
                                 ...this.state.geocodingSpecificOptions
@@ -548,7 +548,7 @@ export class InputMapFindPlace extends React.Component<
                 )}
 
                 <div aria-hidden="true" className="survey-question__input-map-container">
-                    <InputMapGoogle
+                    <mapProviderAdapter.InputMap
                         defaultCenter={this.state.defaultCenter}
                         maxGeocodingResultsBounds={this.getMaxGeocodingResultsBounds()}
                         value={this.props.value}

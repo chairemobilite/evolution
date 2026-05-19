@@ -63,6 +63,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Deprecated
 
 - The evolution-frontend's `frontendHelper#getVisitedPlaceDescription` has been deprecated. Use the `getVisitedPlaceDescription` OD survey helper function from `evolution-common/lib/services/odSurvey/helpers`
+- The `InputMapPoint` widget (and the underlying `geocodeSinglePoint` helper) is deprecated in favor of `InputMapFindPlace`. `InputMapPoint` silently auto-selects the first geocoding result, which can mask wrong matches; `InputMapFindPlace` surfaces all candidates to the participant and auto-selects only when there is a single result. New surveys should use `InputMapFindPlace` for all map point inputs.
 
 ### Removed
 

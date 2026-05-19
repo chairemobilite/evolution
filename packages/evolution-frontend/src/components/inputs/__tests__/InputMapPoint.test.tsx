@@ -13,6 +13,11 @@ import { interviewAttributes } from './interviewData';
 import InputMapPoint from '../InputMapPoint';
 import { geocodeSinglePoint } from '../maps/google/GoogleGeocoder';
 
+// Mock react-markdown and remark-gfm as they use syntax not supported by jest;
+// these are pulled in transitively by the map provider adapter (via InfoMap).
+jest.mock('react-markdown', () => 'Markdown');
+jest.mock('remark-gfm', () => 'remark-gfm');
+
 // Mock db queries
 jest.mock('../maps/google/GoogleGeocoder', () => ({
     geocodeSinglePoint: jest.fn()

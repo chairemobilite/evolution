@@ -4,7 +4,7 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import { FeatureGeocodedProperties } from '../InputMapTypes';
+import { FeatureGeocodedProperties } from '../types';
 import { point as turfPoint } from '@turf/turf';
 
 export const geojson = (

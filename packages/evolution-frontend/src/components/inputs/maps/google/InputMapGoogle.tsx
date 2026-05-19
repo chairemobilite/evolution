@@ -13,7 +13,7 @@ import bowser from 'bowser';
 
 import { getCurrentGoogleMapConfig } from '../../../../config/googleMaps.config';
 import InputLoading from '../../InputLoading';
-import { FeatureGeocodedProperties, MarkerData, InfoWindow } from '../InputMapTypes';
+import { FeatureGeocodedProperties, MarkerData, InfoWindow } from '../types';
 import { geojson, toLatLng } from './GoogleMapUtils';
 import { logClientSideMessage } from '../../../../services/errorManagement/errorHandling';
 

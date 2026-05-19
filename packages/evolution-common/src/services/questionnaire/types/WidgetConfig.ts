@@ -286,6 +286,18 @@ type InputMapType = {
     resetToDefaultUnlessUserInteracted?: boolean;
 };
 
+/**
+ * @deprecated Use {@link InputMapFindPlaceType} with
+ * `autoConfirmIfSingleResult: true` instead. The `mapFindPlace` widget covers
+ * this widget's use case (auto-apply when the geocoder returns a single
+ * match) and also handles the common case where the geocoder returns several
+ * candidates by letting the participant pick the right one. Keeping a
+ * dedicated single-result widget that silently picks the first geocoded
+ * result is a data-quality risk: when the geocoder is ambiguous the
+ * participant has no way to correct the chosen location. New surveys should
+ * use `mapFindPlace`; existing `mapPoint` usages will keep working until they
+ * are migrated.
+ */
 export type InputMapPointType = InputMapType &
     BaseQuestionType & {
         inputType: 'mapPoint';
