@@ -13,12 +13,13 @@ import projectConfig from 'evolution-common/lib/config/project.config';
 import { InputMapPointType } from 'evolution-common/lib/services/questionnaire/types';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import { WithTranslation, withTranslation } from 'react-i18next';
-import { FeatureGeocodedProperties, MarkerData } from './maps/InputMapTypes';
+import { FeatureGeocodedProperties, MarkerData } from './maps/types';
 import { CommonInputProps } from './CommonInputProps';
 
-// TODO Allow to support multiple maps and geocoders
-import InputMapGoogle from './maps/google/InputMapGoogle';
-import { geocodeSinglePoint } from './maps/google/GoogleGeocoder';
+// TODO Once a second provider exists, replace this hardcoded import with a
+// conditional import driven by the project config (one adapter per survey,
+// not per widget): a survey picks Google OR OSM, never both at runtime.
+import mapProviderAdapter from './maps/google/GoogleMapAdapter';
 import SurveyErrorMessage from '../survey/widgets/SurveyErrorMessage';
 
 // Default max zoom and zoom
@@ -40,10 +41,19 @@ interface InputMapPointState {
 }
 
 /**
- * Allow to select a single point from a map.
+ * Allow to select a single point from a map. The map renderer and geocoder
+ * are obtained through a `MapProviderAdapter`, so this component stays
+ * provider-agnostic.
  *
- * TODO For now, it only uses google map, but this class should remain map
- * agnostic and support more map types
+ * @deprecated Prefer `InputMapFindPlace` with
+ * `autoConfirmIfSingleResult: true`. That widget already covers this widget's
+ * use case (auto-apply when the geocoder returns a single match) while also
+ * handling the more frequent case where the geocoder returns several
+ * candidates by letting the participant pick the right one. Keeping a
+ * dedicated single-result widget that silently picks the first result is a
+ * data-quality risk: when the geocoder is ambiguous the participant has no
+ * way to correct it. New surveys should use `mapFindPlace`; existing
+ * `mapPoint` usages will keep working until they are migrated.
  */
 export class InputMapPoint extends React.Component<InputMapPointProps & WithTranslation, InputMapPointState> {
     private geocodeButtonRef: React.RefObject<HTMLButtonElement | null> = React.createRef();
@@ -139,7 +149,9 @@ export class InputMapPoint extends React.Component<InputMapPointProps & WithTran
         if (geocodingQueryStringArray) {
             try {
                 // FIXME We may want to adapt this to support multiple geocoding queries, like in the inputMapFindPlace widget
-                const feature = await geocodeSinglePoint(geocodingQueryStringArray[0].queryString, { bbox });
+                const feature = await mapProviderAdapter.geocodeSinglePoint(geocodingQueryStringArray[0].queryString, {
+                    bbox
+                });
                 this.onValueChange(feature);
                 this.setState({ displayMessage: feature === undefined ? 'main:InputMapGeocodeNoResult' : undefined });
             } catch {
@@ -195,7 +207,7 @@ export class InputMapPoint extends React.Component<InputMapPointProps & WithTran
                     <SurveyErrorMessage containsHtml={false} text={this.props.t(this.state.displayMessage)} />
                 )}
                 <div aria-hidden="true" className="survey-question__input-map-container">
-                    <InputMapGoogle
+                    <mapProviderAdapter.InputMap
                         defaultCenter={this.state.defaultCenter}
                         value={this.props.value}
                         onValueChange={this.onValueChange}

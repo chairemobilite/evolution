@@ -4,7 +4,7 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import { FeatureGeocodedProperties, PlaceGeocodedProperties } from '../InputMapTypes';
+import { FeatureGeocodedProperties, PlaceGeocodedProperties } from '../types';
 import { geojson } from './GoogleMapUtils';
 import { point as turfPoint, distance as turfDistance } from '@turf/turf';
 
@@ -12,6 +12,12 @@ import { point as turfPoint, distance as turfDistance } from '@turf/turf';
 const geocodingSearchRadiusMinimum = 500;
 const geocodingSearchRadiusMaximum = 8000;
 
+/**
+ * @deprecated Used only by the deprecated `InputMapPoint` widget. Prefer
+ * `geocodeMultiplePlaces`, which surfaces all candidate matches and avoids
+ * silently picking the first result. Kept for backwards compatibility until
+ * `InputMapPoint` is removed.
+ */
 export const geocodeSinglePoint = (
     addressQueryString: string,
     options: { bbox?: [number, number, number, number] }
