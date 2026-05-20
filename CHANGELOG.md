@@ -44,6 +44,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add a `QuestionnaireConfiguration` type, that allows to configure an optional trip diary (which can include a visited places and segments sections). The `QuestionnaireFactory` class receives the configuration and returns the builtin widgets and sections from config. (commit [be226aa](https://github.com/chairemobilite/evolution/commit/be226aab8ad8f84b027a380dd90af70e2989e62d)).
 - **Generator conditional hidden values**: In the `Conditionals` Excel sheet, you can now set an optional `value_when_hidden` so a value is applied when the conditional hides the question (fixes [#979](https://github.com/chairemobilite/evolution/issues/979)).
 - **Generator section conditionals**: The `Sections` Excel sheet supports optional `enable_conditional` and `completion_conditional` columns. Set them to a conditional name from the `Conditionals` sheet (generated as `conditionals.<name>`) or to a custom conditional whose name ends with `CustomConditional` (generated as `customConditionals.<name>`). When omitted, the generator keeps the previous defaults (`true` or `isSectionCompleted` with the previous or current section as appropriate). (fixes [#997](https://github.com/chairemobilite/evolution/issues/997)).
+- **Generator selective script generation**: The generator now accepts a `--only` command-line argument to generate only specified scripts (e.g., widgets, conditionals, labels) instead of everything (fixes [#1601](https://github.com/chairemobilite/evolution/issues/1601))
 
 ### Changed
 

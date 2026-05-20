@@ -180,6 +180,8 @@ If you want to start your own survey, you can use the following steps:
     yarn generateSurvey
     ```
 
+*Note*: It is also possible to run a single or many specific generation scripts by adding the `--only` parameter to the command line. For example `yarn generateSurvey --only conditionals,labels,widgets` would call the `generate_conditionals`, `generate_labels` and `generate_widgets` scripts, no matter the value in the config file.
+
 ## Generate Excel
 
 This step is optional but can greatly improve your workflow if you're frequently updating your project's Excel document. By using Microsoft 365 cloud storage, you can avoid manually uploading your document every time you make a change. Here's how you can set it up:

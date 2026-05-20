@@ -3,7 +3,9 @@
 # License text available at https://opensource.org/licenses/MIT
 
 # Note: This script generate the survey with multiple scripts.
-# These functions are intended to be invoked with the config YAML file.
+# These functions are intended to be invoked with the config YAML file.  They
+# can be overridden with the --only argument to only run a subset of the
+# scripts, which is useful for development and debugging.
 import argparse  # For command-line arguments
 from dotenv import load_dotenv  # For environment variables
 import os  # For file operations
@@ -23,10 +25,85 @@ from scripts.generate_questionnaire_list import generate_questionnaire_list
 from scripts.generate_questionnaire_dictionary import generate_questionnaire_dictionary
 from scripts.conditionals_generator import ConditionalsGenerator
 
+# Supported script aliases for the --only argument, mapping to the actual script
+# keys in the config file's enabled_scripts section.
+SUPPORTED_SCRIPT_ALIASES = {
+    "excel": "generate_excel",
+    "copy_excel_to_csv": "copy_excel_to_csv",
+    "excel_to_csv": "copy_excel_to_csv",
+    "section_configs": "generate_section_configs",
+    "sections": "generate_sections",
+    "widget_configs": "generate_widgets_configs",
+    "widgets_configs": "generate_widgets_configs",
+    "widgets": "generate_widgets",
+    "conditionals": "generate_conditionals",
+    "choices": "generate_choices",
+    "input_range": "generate_input_range",
+    "labels": "generate_labels",
+    "ui_tests": "generate_UI_tests",
+    "questionnaire_list": "generate_questionnaire_list",
+    "questionnaire_dictionary": "generate_questionnaire_dictionary",
+}
+
+# List all the supported script keys that can be enabled/disabled in the config
+# file and via the --only argument.
+SUPPORTED_SCRIPT_KEYS = [
+    "generate_excel",
+    "copy_excel_to_csv",
+    "generate_section_configs",
+    "generate_sections",
+    "generate_widgets_configs",
+    "generate_widgets",
+    "generate_conditionals",
+    "generate_choices",
+    "generate_input_range",
+    "generate_labels",
+    "generate_UI_tests",
+    "generate_questionnaire_list",
+    "generate_questionnaire_dictionary",
+]
+
+
+# Parse the --only argument to get the set of scripts to run, validating the
+# input and mapping aliases to actual script keys. The script keys are separated
+# by commas.
+def _parse_only_scripts(only_scripts):
+    if only_scripts is None:
+        return None
+
+    normalized_scripts = set()
+    for script_name in only_scripts.split(","):
+        script_key = script_name.strip()
+        if not script_key:
+            continue
+        if script_key not in SUPPORTED_SCRIPT_ALIASES:
+            valid_values = ", ".join(sorted(SUPPORTED_SCRIPT_ALIASES.keys()))
+            raise ValueError(
+                f"Unknown script '{script_key}' in --only argument. "
+                f"Supported values are: {valid_values}"
+            )
+        normalized_scripts.add(SUPPORTED_SCRIPT_ALIASES[script_key])
+
+    # Validate that some values were set
+    if len(normalized_scripts) == 0:
+        valid_values = ", ".join(sorted(SUPPORTED_SCRIPT_ALIASES.keys()))
+        raise ValueError(
+            "--only argument was set with no valid scripts. "
+            f"Supported values are: {valid_values}"
+        )
+
+    return normalized_scripts
+
+
+def _override_enabled_scripts(only_scripts):
+    return {
+        script_key: script_key in only_scripts for script_key in SUPPORTED_SCRIPT_KEYS
+    }
+
 
 # TODO: Add some validation for the config file
 # Generate the survey from the config file
-def generate_survey(config_path):
+def generate_survey(config_path, only_scripts=None):
     # Load environment variables from .env file
     load_dotenv()
 
@@ -37,7 +114,10 @@ def generate_survey(config_path):
         # Get the data from the YAML file
         survey_folder_path = surveyGenerator["survey_folder_path"]
         excel_file_path = surveyGenerator["excel_file_path"]
-        enabled_scripts = surveyGenerator.get("enabled_scripts", [])
+        enabled_scripts = surveyGenerator.get("enabled_scripts", {})
+        # Override enabled_scripts from config file if --only argument is provided
+        if only_scripts is not None:
+            enabled_scripts = _override_enabled_scripts(only_scripts)
         enabled_generate_excel = enabled_scripts.get("generate_excel", False)
         enabled_copy_excel_to_csv = enabled_scripts.get("copy_excel_to_csv", False)
         enabled_generate_section_configs = enabled_scripts.get(
@@ -204,11 +284,20 @@ def main():
     parser.add_argument(
         "--config_path", required=True, help="Path to the Generator config file"
     )
+    parser.add_argument(
+        "--only",
+        required=False,
+        help=(
+            "Comma-separated scripts to run and override enabled_scripts from config. "
+            "Example: --only section_configs,widget_configs"
+        ),
+    )
     args = parser.parse_args()
     config_path = args.config_path
+    only_scripts = _parse_only_scripts(args.only)
 
     # Call the generate_survey function with the config_path argument
-    generate_survey(config_path)
+    generate_survey(config_path, only_scripts=only_scripts)
 
 
 # Check the integrity of the Excel file to avoid generating the survey with invalid data
