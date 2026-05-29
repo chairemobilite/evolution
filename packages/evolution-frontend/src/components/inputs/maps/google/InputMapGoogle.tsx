@@ -1,20 +1,28 @@
 /*
- * Copyright 2022, Polytechnique Montreal and contributors
+ * Copyright Polytechnique Montreal and contributors
  *
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
 
 import React from 'react';
-import { WithTranslation, withTranslation } from 'react-i18next';
-import { GoogleMap, useJsApiLoader, Marker } from '@react-google-maps/api';
+import { useTranslation } from 'react-i18next';
+import {
+    APIProvider,
+    AdvancedMarker,
+    Map,
+    MapCameraChangedEvent,
+    MapMouseEvent,
+    useApiIsLoaded,
+    useMap
+} from '@vis.gl/react-google-maps';
 import GeoJSON from 'geojson';
 import bowser from 'bowser';
 
-import { getCurrentGoogleMapConfig } from '../../../../config/googleMaps.config';
+import { getCurrentGoogleMapConfig, getGoogleMapId } from '../../../../config/googleMaps.config';
 import InputLoading from '../../InputLoading';
-import { FeatureGeocodedProperties, MarkerData, InfoWindow } from '../types';
-import { geojson, toLatLng } from './GoogleMapUtils';
+import { FeatureGeocodedProperties, MarkerData, InfoWindow as InfoWindowData } from '../types';
+import { geojson } from './GoogleMapUtils';
 import { logClientSideMessage } from '../../../../services/errorManagement/errorHandling';
 
 export interface InputGoogleMapPointProps {
@@ -23,19 +31,20 @@ export interface InputGoogleMapPointProps {
     value?: GeoJSON.Feature<GeoJSON.Point, FeatureGeocodedProperties>;
     defaultZoom?: number;
     maxZoom?: number;
-    height?: string; // the height of the map container in css units: example: 28rem or 550px
+    /** Height of the map container, in any css unit (e.g. `28rem`, `550px`). */
+    height?: string;
     markers: MarkerData[];
     onValueChange: (feature: GeoJSON.Feature<GeoJSON.Point, FeatureGeocodedProperties> | undefined) => void;
     onMapReady?: (bbox?: [number, number, number, number]) => void;
     onBoundsChanged?: (bbox?: [number, number, number, number]) => void;
-    // Change this value when map bounds should be increased to fit markers
+    /** Increment to request the map to fit its bounds to the current markers. */
     shouldFitBounds?: number;
-    infoWindow?: InfoWindow;
+    infoWindow?: InfoWindowData;
     setGeocodingOptions?: (options: { [key: string]: unknown }) => void;
 }
 
 const callWithBounds = (
-    bounds?: google.maps.LatLngBounds,
+    bounds: google.maps.LatLngBounds | null | undefined,
     call?: (bbox?: [number, number, number, number]) => void
 ) => {
     if (!call) {
@@ -53,100 +62,135 @@ const callWithBounds = (
     );
 };
 
-const InputMapGoogle: React.FunctionComponent<InputGoogleMapPointProps & WithTranslation> = (
-    props: InputGoogleMapPointProps & WithTranslation
-) => {
-    // Set the google map config once, as it cannot be changed after it is
-    // loaded (for language change for example). see
-    // https://stackoverflow.com/questions/7065420/how-can-i-change-the-language-of-google-maps-on-the-run
-    const googleMapConfig = React.useMemo(() => getCurrentGoogleMapConfig(props.i18n.language), []);
-    const { isLoaded, loadError } = useJsApiLoader(googleMapConfig);
-    if (loadError !== undefined) {
-        const browserTechData = bowser.getParser(window.navigator.userAgent).parse();
-        const errorMessage = `Google Maps API could not be loaded. Browser: ${JSON.stringify(browserTechData)}, error: ${loadError.message}`;
-        logClientSideMessage(errorMessage);
-    }
+/**
+ * Renders a single `<AdvancedMarker>`. Advanced markers require a Google Map ID
+ * to be configured (via `GOOGLE_MAP_ID`); see the README and `.env.example`.
+ */
+const MapMarker: React.FunctionComponent<{
+    markerData: MarkerData;
+    onDragEnd?: (e: google.maps.MapMouseEvent) => void;
+}> = ({ markerData, onDragEnd }) => {
+    const position = {
+        lat: markerData.position.geometry.coordinates[1],
+        lng: markerData.position.geometry.coordinates[0]
+    };
+    return (
+        <AdvancedMarker
+            position={position}
+            draggable={markerData.draggable}
+            onDragEnd={markerData.draggable ? onDragEnd : undefined}
+            onClick={markerData.onClick}
+        >
+            <img src={markerData.icon.url} width={markerData.icon.size[0]} height={markerData.icon.size[1]} alt="" />
+        </AdvancedMarker>
+    );
+};
 
-    const [map, setMap] = React.useState<google.maps.Map | null>(null);
-    const [center, setCenter] = React.useState<{ lat: number; lng: number } | google.maps.LatLng>({
+const InputMapGoogleInner: React.FunctionComponent<InputGoogleMapPointProps> = (props) => {
+    const isLoaded = useApiIsLoaded();
+    const map = useMap();
+
+    // Captured once. `<Map>` is rendered uncontrolled (defaultCenter), and we
+    // pan programmatically via `map.panTo()` afterwards. Passing a controlled
+    // `center` prop would re-snap the camera every render and freeze user pan.
+    const initialCenter = React.useRef<google.maps.LatLngLiteral>({
         lat: props.defaultCenter.lat,
         lng: props.defaultCenter.lon
-    });
+    }).current;
     const [placesInfoWindow, setPlacesInfoWindow] = React.useState<google.maps.InfoWindow | undefined>(undefined);
 
     const changeValueAndPan = React.useCallback(
         (feature: GeoJSON.Feature<GeoJSON.Point, FeatureGeocodedProperties> | undefined) => {
             props.onValueChange(feature);
-            if (feature) {
-                setCenter({ lat: feature.geometry.coordinates[1], lng: feature.geometry.coordinates[0] });
-                (map as google.maps.Map).panTo({
+            if (feature && map) {
+                map.panTo({
                     lat: feature.geometry.coordinates[1],
                     lng: feature.geometry.coordinates[0]
                 });
             }
         },
-        [map]
+        [map, props.onValueChange]
     );
 
-    const onLoad = React.useCallback((map: google.maps.Map) => {
-        setMap(map);
-        if (props.setGeocodingOptions) props.setGeocodingOptions({ map });
+    const recordPositionChange = React.useCallback(
+        (latLng: google.maps.LatLng | null | undefined, triggerEvent: string) => {
+            if (!map) return;
+            const geojsonValue = geojson(latLng);
+            if (geojsonValue) {
+                geojsonValue.properties.lastAction = triggerEvent;
+                geojsonValue.properties.zoom = map.getZoom();
+                geojsonValue.properties.platform = bowser.getParser(window.navigator.userAgent).getPlatformType();
+            }
+            changeValueAndPan(geojsonValue);
+        },
+        [map, changeValueAndPan]
+    );
+
+    // <Map> click: vis.gl wraps the event with `.detail.latLng` as a literal.
+    const onMapClick = React.useCallback(
+        (e: MapMouseEvent) => {
+            const latLng = e.detail.latLng ? new google.maps.LatLng(e.detail.latLng) : null;
+            recordPositionChange(latLng, 'mapClicked');
+        },
+        [recordPositionChange]
+    );
+
+    // <Marker>/<AdvancedMarker> drag: native google.maps.MapMouseEvent with `.latLng`.
+    const onMarkerDragEnd = React.useCallback(
+        (e: google.maps.MapMouseEvent) => {
+            recordPositionChange(e.latLng, 'markerDragged');
+        },
+        [recordPositionChange]
+    );
+
+    const onZoomChange = React.useCallback(
+        (e: MapCameraChangedEvent) => {
+            if (props.maxZoom && e.detail.zoom > props.maxZoom && map) {
+                map.setZoom(props.maxZoom);
+            }
+        },
+        [map, props.maxZoom]
+    );
+
+    const onBoundsChanged = React.useCallback(
+        (e: MapCameraChangedEvent) => {
+            const sw = { lat: e.detail.bounds.south, lng: e.detail.bounds.west };
+            const ne = { lat: e.detail.bounds.north, lng: e.detail.bounds.east };
+            const bounds = new google.maps.LatLngBounds(sw, ne);
+            callWithBounds(bounds, props.onBoundsChanged);
+        },
+        [props.onBoundsChanged]
+    );
+
+    // Wire up the map instance (geocoding context, infoWindow handle, onMapReady).
+    React.useEffect(() => {
+        if (!map) return;
+        if (props.setGeocodingOptions) {
+            props.setGeocodingOptions({ map });
+        }
         callWithBounds(map.getBounds(), props.onMapReady);
         setPlacesInfoWindow(
             new google.maps.InfoWindow({
                 pixelOffset: new google.maps.Size(0, -40)
             })
         );
-    }, []);
-
-    const onUnmount = React.useCallback(() => {
-        setMap(null);
-        if (props.setGeocodingOptions) props.setGeocodingOptions({ map: undefined });
-    }, []);
-
-    const onPositionChange = React.useCallback(
-        (e: google.maps.MapMouseEvent, triggerEvent: string) => {
-            const geojsonValue = geojson(e.latLng);
-            if (geojsonValue) {
-                geojsonValue.properties.lastAction = triggerEvent;
-                geojsonValue.properties.zoom = (map as google.maps.Map).getZoom();
-                geojsonValue.properties.platform = bowser.getParser(window.navigator.userAgent).getPlatformType();
-            }
-            changeValueAndPan(geojsonValue);
-        },
-        [map]
-    );
-
-    const onZoomChange = () => {
-        if (!map) return;
-        const currentZoom = (map as google.maps.Map).getZoom();
-        if (currentZoom && props.maxZoom && props.maxZoom < currentZoom) {
-            (map as google.maps.Map).setZoom(props.maxZoom);
-        }
-    };
-
-    const onBoundsChanged = () => {
-        if (!map) return;
-        callWithBounds((map as google.maps.Map).getBounds(), props.onBoundsChanged);
-    };
+        return () => {
+            if (props.setGeocodingOptions) props.setGeocodingOptions({ map: undefined });
+        };
+    }, [map]);
 
     React.useEffect(() => {
         if (map) {
-            (map as google.maps.Map).panTo({
-                lat: props.defaultCenter.lat,
-                lng: props.defaultCenter.lon
-            });
+            map.panTo({ lat: props.defaultCenter.lat, lng: props.defaultCenter.lon });
         }
-    }, [props.defaultCenter]);
+    }, [props.defaultCenter, map]);
 
     React.useEffect(() => {
         if (!map || !props.defaultZoom) return;
-        // If the zoom is changed, we need to zoom to that level
-        const currentZoom = (map as google.maps.Map).getZoom();
-        if (currentZoom !== props.defaultZoom) {
-            (map as google.maps.Map).setZoom(props.defaultZoom);
+        if (map.getZoom() !== props.defaultZoom) {
+            map.setZoom(props.defaultZoom);
         }
-    }, [props.defaultZoom]);
+    }, [props.defaultZoom, map]);
 
     React.useEffect(() => {
         if (map && props.markers.length >= 1) {
@@ -164,7 +208,6 @@ const InputMapGoogle: React.FunctionComponent<InputGoogleMapPointProps & WithTra
                     lng: marker.position.geometry.coordinates[0]
                 };
                 markerBounds.extend(position);
-
                 if (!maxMapBounds.isEmpty() && maxMapBounds.contains(position)) {
                     atLeastOneMarkerInMaxBounds = true;
                     boundsForMarkersInMaxBounds.extend(position);
@@ -191,11 +234,9 @@ const InputMapGoogle: React.FunctionComponent<InputGoogleMapPointProps & WithTra
     }, [props.shouldFitBounds]);
 
     React.useEffect(() => {
-        if (!placesInfoWindow) {
-            return;
-        }
+        if (!placesInfoWindow) return;
         placesInfoWindow.close();
-        if (props.infoWindow) {
+        if (props.infoWindow && map) {
             placesInfoWindow.setContent(props.infoWindow.content);
             placesInfoWindow.setPosition({
                 lat: props.infoWindow.position.geometry.coordinates[1],
@@ -203,51 +244,73 @@ const InputMapGoogle: React.FunctionComponent<InputGoogleMapPointProps & WithTra
             });
             placesInfoWindow.open(map);
         }
-    }, [props.infoWindow]);
+    }, [props.infoWindow, placesInfoWindow, map]);
 
-    return isLoaded ? (
-        <GoogleMap
-            mapContainerStyle={{
+    if (!isLoaded) {
+        return <InputLoading />;
+    }
+
+    const mapId = getGoogleMapId();
+    return (
+        <Map
+            style={{
                 boxSizing: 'border-box' as const,
                 position: 'relative' as const,
                 width: '100%',
                 height: props.height || '40rem',
                 border: '1px solid rgba(0,0,0,0.2)'
             }}
-            center={center}
-            zoom={props.defaultZoom || 10}
-            options={{
-                zoomControl: true,
-                cameraControl: false,
-                zoomControlOptions: {
-                    position: google.maps.ControlPosition.RIGHT_BOTTOM
-                }
+            defaultCenter={initialCenter}
+            defaultZoom={props.defaultZoom || 10}
+            mapId={mapId}
+            zoomControl={true}
+            cameraControl={false}
+            zoomControlOptions={{
+                position: google.maps.ControlPosition.RIGHT_BOTTOM
             }}
-            onLoad={onLoad}
-            onUnmount={onUnmount}
-            onClick={(e) => onPositionChange(e, 'mapClicked')}
+            clickableIcons={false}
+            onClick={onMapClick}
             onZoomChanged={onZoomChange}
             onBoundsChanged={onBoundsChanged}
-            clickableIcons={false}
         >
             {props.markers.map((markerData, index) => (
-                <Marker
+                <MapMarker
                     key={`marker${index}${markerData.position.geometry.coordinates[0]}_${markerData.position.geometry.coordinates[1]}`}
-                    position={toLatLng(markerData.position)}
-                    onDragEnd={markerData.draggable ? (e) => onPositionChange(e, 'markerDragged') : undefined}
-                    draggable={markerData.draggable}
-                    icon={{
-                        url: markerData.icon.url,
-                        size: new google.maps.Size(markerData.icon.size[0], markerData.icon.size[1]),
-                        scaledSize: new google.maps.Size(markerData.icon.size[0], markerData.icon.size[1])
-                    }}
-                    onClick={markerData.onClick}
+                    markerData={markerData}
+                    onDragEnd={onMarkerDragEnd}
                 />
             ))}
-        </GoogleMap>
-    ) : (
-        <InputLoading />
+        </Map>
     );
 };
 
-export default withTranslation()(InputMapGoogle);
+const InputMapGoogle: React.FunctionComponent<InputGoogleMapPointProps> = (props) => {
+    const { i18n } = useTranslation();
+    // Set the google map config once, as it cannot be changed after it is
+    // loaded (for language change for example). see
+    // https://stackoverflow.com/questions/7065420/how-can-i-change-the-language-of-google-maps-on-the-run
+    const config = React.useMemo(() => getCurrentGoogleMapConfig(i18n.language), []);
+
+    const onLoadError = React.useCallback((error: unknown) => {
+        const browserTechData = bowser.getParser(window.navigator.userAgent).parse();
+        const message =
+            error instanceof Error ? error.message : typeof error === 'string' ? error : JSON.stringify(error);
+        logClientSideMessage(
+            `Google Maps API could not be loaded. Browser: ${JSON.stringify(browserTechData)}, error: ${message}`
+        );
+    }, []);
+
+    return (
+        <APIProvider
+            apiKey={config.apiKey}
+            libraries={config.libraries}
+            language={config.language}
+            region={config.region}
+            onError={onLoadError}
+        >
+            <InputMapGoogleInner {...props} />
+        </APIProvider>
+    );
+};
+
+export default InputMapGoogle;

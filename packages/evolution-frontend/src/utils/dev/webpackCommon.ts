@@ -110,6 +110,7 @@ export const createCommonWebpackConfig = (params: WebpackGenerationConfigParams)
             APP_NAME: JSON.stringify('survey'),
             IS_TESTING: JSON.stringify(currentNodeEnv === 'test'),
             GOOGLE_API_KEY: JSON.stringify(process.env.GOOGLE_API_KEY),
+            GOOGLE_MAP_ID: JSON.stringify(process.env.GOOGLE_MAP_ID),
             ...stringifyEnvValues(params.extraEnvs)
         },
         __CONFIG__: JSON.stringify({

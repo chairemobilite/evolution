@@ -60,6 +60,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **BREAKING**: The generator's `Labels` sheet in the Excel file should rename the "section" and "path" columns to "namespace" and "key", which better represents where we want the key to be (fixes [#1530](https://github.com/chairemobilite/evolution/issues/1530)).
 - **BREAKING**: The generator now use the question name as translation label key instead of the path. Surveys using the generator will automatically update all label fields, but if additional label with context had been added in the "Labels" sheet to match the question's original label, these might need to be updated (fixes [#1530](https://github.com/chairemobilite/evolution/issues/1530)).
 - **BREAKING**: Generator inactive widgets: `active` now behaves like a real boolean (Excel `0`/`1` included), defaults to inactive when omitted, and inactive rows stay commented-out in generated widget files instead of emitting broken code (fixes [#1597](https://github.com/chairemobilite/evolution/issues/1597)).
+- **BREAKING**: The Google map widgets were migrated from the deprecated `@react-google-maps/api` package to `@vis.gl/react-google-maps`, which renders vector maps and uses `AdvancedMarker` (fixes [#453](https://github.com/chairemobilite/evolution/issues/453)). This requires a new `GOOGLE_MAP_ID` environment variable: each deployment must create a Map ID in the Google Cloud Console ("Map Management", associated with a vector map style) and set it in `.env` (`GOOGLE_MAP_ID`). Partners who provide us with a Google API key now also need to provide (or let us create) a Map ID tied to the same Google Cloud project; without it the maps will not render. See `.env.example` and the [Get a Map ID](https://developers.google.com/maps/documentation/get-map-id) docs.
 
 ### Deprecated
 
@@ -80,6 +81,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Dependency updates
 
+- Replaced `@react-google-maps/api` with `@vis.gl/react-google-maps` (and its transitive `@types/google.maps`) for the Google map widgets (fixes [#453](https://github.com/chairemobilite/evolution/issues/453))
 - style-loader: 4.0.0
 - lodash: 4.17.21 => 4.18.1
 - @types/lodash: 4.17.21 => 4.17.23

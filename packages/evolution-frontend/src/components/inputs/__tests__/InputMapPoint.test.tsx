@@ -6,7 +6,7 @@
  */
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event'
+import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 
 import { interviewAttributes } from './interviewData';
@@ -27,13 +27,13 @@ const mockedGeocode = geocodeSinglePoint as jest.MockedFunction<typeof geocodeSi
 const userAttributes = {
     id: 1,
     username: 'foo',
-    preferences: {  },
+    preferences: {},
     serializedPermissions: [],
     isAuthorized: () => true,
     is_admin: false,
     pages: [],
     showUserInfo: true
-}
+};
 
 const baseWidgetConfig = {
     type: 'question' as const,
@@ -41,8 +41,8 @@ const baseWidgetConfig = {
     path: 'test.foo',
     containsHtml: true,
     label: {
-        fr: `Texte en français`,
-        en: `English text`
+        fr: 'Texte en français',
+        en: 'English text'
     },
     inputType: 'mapPoint' as const,
     size: 'medium' as const,
@@ -55,7 +55,7 @@ describe('Render InputMapPoint with various parameters', () => {
         const { container } = render(
             <InputMapPoint
                 id={'test'}
-                onValueChange={() => { /* nothing to do */}}
+                onValueChange={() => { /* nothing to do */ }}
                 widgetConfig={baseWidgetConfig}
                 value={undefined}
                 inputRef={React.createRef()}
@@ -68,12 +68,12 @@ describe('Render InputMapPoint with various parameters', () => {
     });
 
     test('Test with all parameters', () => {
-            
+
         const testWidgetConfig = Object.assign({
             geocodingQueryString: jest.fn(),
             refreshGeocodingLabel: {
-                fr: `Rafraîchir la carte`,
-                en: `Refresh map`
+                fr: 'Rafraîchir la carte',
+                en: 'Refresh map'
             },
             icon: {
                 url: 'path/to/icon',
@@ -85,9 +85,9 @@ describe('Render InputMapPoint with various parameters', () => {
         const { container } = render(
             <InputMapPoint
                 id={'test'}
-                onValueChange={() => { /* nothing to do */}}
+                onValueChange={() => { /* nothing to do */ }}
                 widgetConfig={testWidgetConfig}
-                value={{ type: 'Feature' as const, properties: {}, geometry: { type: 'Point' as const, coordinates: [-73.1, 45.02]}}}
+                value={{ type: 'Feature' as const, properties: {}, geometry: { type: 'Point' as const, coordinates: [-73.1, 45.02] } }}
                 inputRef={React.createRef()}
                 interview={interviewAttributes}
                 user={userAttributes}
@@ -96,7 +96,7 @@ describe('Render InputMapPoint with various parameters', () => {
         );
         expect(container).toMatchSnapshot();
     });
-    
+
 });
 
 describe('Test geocoding requests', () => {
@@ -107,8 +107,8 @@ describe('Test geocoding requests', () => {
     const testWidgetConfig = Object.assign({
         geocodingQueryString: jest.fn().mockReturnValue(geocodingString),
         refreshGeocodingLabel: {
-            fr: `Geocode`,
-            en: `Geocode`
+            fr: 'Geocode',
+            en: 'Geocode'
         },
         icon: {
             url: 'path/to/icon',
@@ -123,93 +123,57 @@ describe('Test geocoding requests', () => {
         resetToDefaultUnlessUserInteracted: true
     }, baseWidgetConfig);
 
-    const geocodedFeature = { 
-        type: 'Feature' as const, 
+    const geocodedFeature = {
+        type: 'Feature' as const,
         geometry: { type: 'Point' as const, coordinates: [-73.2, 45.1] },
-        properties: { geocodingResultMetadata: { formattedAddress: '123 foo street, Montreal, QC' }, lastAction: 'geocoding', geocodingQueryString: geocodingString }
+        properties: {
+            geocodingResultMetadata: { formattedAddress: '123 foo street, Montreal, QC' },
+            lastAction: 'geocoding',
+            geocodingQueryString: geocodingString
+        }
     };
-    
+
+    const renderWidget = () =>
+        render(
+            <InputMapPoint
+                id={testId}
+                onValueChange={mockOnValueChange}
+                widgetConfig={testWidgetConfig}
+                value={{
+                    type: 'Feature' as const,
+                    properties: {},
+                    geometry: { type: 'Point' as const, coordinates: [-73.1, 45.02] }
+                }}
+                inputRef={React.createRef()}
+                interview={interviewAttributes}
+                user={userAttributes}
+                path="foo.test"
+            />
+        );
 
     beforeEach(() => {
         mockedGeocode.mockClear();
         mockOnValueChange.mockClear();
     });
 
-    test('Geocode single result', async () => {
-
-        render(<InputMapPoint
-            id={testId}
-            onValueChange={mockOnValueChange}
-            widgetConfig={testWidgetConfig}
-            value={{ type: 'Feature' as const, properties: {}, geometry: { type: 'Point' as const, coordinates: [-73.1, 45.02]}}}
-            inputRef={React.createRef()}
-            interview={interviewAttributes}
-            user={userAttributes}
-            path='foo.test'
-        />);
+    // Whatever the geocoding outcome, clicking Geocode forwards a single update
+    // call to onValueChange with the matching value (resolved feature or undefined).
+    test.each<[string, () => void, GeoJSON.Feature<GeoJSON.Point> | undefined]>([
+        ['resolved feature', () => mockedGeocode.mockResolvedValueOnce(geocodedFeature), geocodedFeature],
+        ['undefined result', () => mockedGeocode.mockResolvedValueOnce(undefined), undefined],
+        ['rejected promise', () => mockedGeocode.mockRejectedValueOnce('error geocoding'), undefined]
+    ])('Geocode click with %s triggers a single onValueChange', async (_label, primeMock, expected) => {
+        renderWidget();
         const user = userEvent.setup();
 
-        // Find and click on the Geocode button, to return a single result
-        mockedGeocode.mockResolvedValueOnce(geocodedFeature);
+        // Find and click on the Geocode button, to return the prepared result (feature, undefined or rejection)
+        primeMock();
         await user.click(screen.getByText('Geocode'));
+
         expect(mockedGeocode).toHaveBeenCalledTimes(1);
         expect(mockedGeocode).toHaveBeenCalledWith(geocodingString, expect.anything());
-
-        // Make sure the value was changed to the geocoded feature
+        // Make sure the value was changed to the expected feature (or undefined on no result / error)
         expect(mockOnValueChange).toHaveBeenCalledTimes(1);
-        expect(mockOnValueChange).toHaveBeenCalledWith({ target: { value: geocodedFeature }});
-        
+        expect(mockOnValueChange).toHaveBeenCalledWith({ target: { value: expected } });
     });
-
-    test('Geocode with undefined', async () => {
-
-        render(<InputMapPoint
-            id={testId}
-            onValueChange={mockOnValueChange}
-            widgetConfig={testWidgetConfig}
-            value={{ type: 'Feature' as const, properties: {}, geometry: { type: 'Point' as const, coordinates: [-73.1, 45.02]}}}
-            inputRef={React.createRef()}
-            interview={interviewAttributes}
-            user={userAttributes}
-            path='foo.test'
-        />);
-        const user = userEvent.setup();
-
-        // Find and click on the Geocode button, to return undefined values
-        mockedGeocode.mockResolvedValueOnce(undefined);
-        await user.click(screen.getByText('Geocode'));
-        expect(mockedGeocode).toHaveBeenCalledTimes(1);
-        expect(mockedGeocode).toHaveBeenCalledWith(geocodingString, expect.anything());
-
-        // Make sure the value was changed to undefined
-        expect(mockOnValueChange).toHaveBeenCalledTimes(1);
-        expect(mockOnValueChange).toHaveBeenCalledWith({ target: { value: undefined }});
-        
-    });
-
-    test('Geocode with rejection', async () => {
-
-        render(<InputMapPoint
-            id={testId}
-            onValueChange={mockOnValueChange}
-            widgetConfig={testWidgetConfig}
-            value={{ type: 'Feature' as const, properties: {}, geometry: { type: 'Point' as const, coordinates: [-73.1, 45.02]}}}
-            inputRef={React.createRef()}
-            interview={interviewAttributes}
-            user={userAttributes}
-            path='foo.test'
-        />);
-        const user = userEvent.setup();
-
-        // Find and click on the Geocode button, with a rejected promise
-        mockedGeocode.mockRejectedValueOnce('error geocoding');
-        await user.click(screen.getByText('Geocode'));
-        expect(mockedGeocode).toHaveBeenCalledTimes(1);
-        expect(mockedGeocode).toHaveBeenCalledWith(geocodingString, expect.anything());
-
-        // Make sure the value was changed to undefined
-        expect(mockOnValueChange).toHaveBeenCalledTimes(1);
-        expect(mockOnValueChange).toHaveBeenCalledWith({ target: { value: undefined }});
-    });
-
 });
