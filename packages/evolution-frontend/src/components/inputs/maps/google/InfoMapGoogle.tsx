@@ -1,78 +1,85 @@
 /*
- * Copyright 2023, Polytechnique Montreal and contributors
+ * Copyright Polytechnique Montreal and contributors
  *
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
 import React, { useEffect, JSX } from 'react';
 import { useTranslation } from 'react-i18next';
-import { GoogleMap, useJsApiLoader, Marker, Polyline, Polygon, MarkerProps } from '@react-google-maps/api';
+import {
+    APIProvider,
+    AdvancedMarker,
+    Map,
+    MapCameraChangedEvent,
+    useApiIsLoaded,
+    useMap
+} from '@vis.gl/react-google-maps';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
 import projectConfig from 'chaire-lib-common/lib/config/shared/project.config';
-import { getCurrentGoogleMapConfig } from '../../../../config/googleMaps.config';
+import { getCurrentGoogleMapConfig, getGoogleMapId } from '../../../../config/googleMaps.config';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import InputLoading from '../../InputLoading';
 import { InfoMapProps } from '../types';
+import { MapPolygon, MapPolyline } from './GoogleMapOverlays';
 
 const coordinatesToLatLng = (coordinates: number[]) => ({
     lat: coordinates[1],
     lng: coordinates[0]
 });
 
-const InfoMap: React.FC<InfoMapProps> = (props: InfoMapProps) => {
-    const { i18n } = useTranslation();
-    // Set the google map config once, as it cannot be changed after it is
-    // loaded (for language change for example). see
-    // https://stackoverflow.com/questions/7065420/how-can-i-change-the-language-of-google-maps-on-the-run
-    const googleMapConfig = React.useMemo(() => getCurrentGoogleMapConfig(i18n.language), []);
-    const { isLoaded } = useJsApiLoader(googleMapConfig);
+/**
+ * Render a non-draggable `<AdvancedMarker>`. Advanced markers require a Google
+ * Map ID to be configured (via `GOOGLE_MAP_ID`); see the README and
+ * `.env.example`.
+ */
+const InfoMarker: React.FC<{
+    position: google.maps.LatLngLiteral;
+    icon?: { url: string; size: [number, number] };
+}> = ({ position, icon }) => (
+    <AdvancedMarker position={position}>
+        {icon && <img src={icon.url} width={icon.size[0]} height={icon.size[1]} alt="" />}
+    </AdvancedMarker>
+);
 
-    const [map, setMap] = React.useState<google.maps.Map | null>(null);
-    const [center, setCenter] = React.useState<{ lat: number; lng: number } | google.maps.LatLng>({
+const InfoMapInner: React.FC<InfoMapProps> = (props) => {
+    const { i18n } = useTranslation();
+    const isLoaded = useApiIsLoaded();
+    const map = useMap();
+
+    // Captured once on mount. `<Map>` is rendered uncontrolled
+    // (`defaultCenter`) and recentered programmatically via `map.panTo()`
+    // when the parsed config center changes. Passing a controlled `center`
+    // prop would re-snap the camera every render and freeze user pan.
+    const initialCenter = React.useRef<{ lat: number; lng: number }>({
         lat: projectConfig.mapDefaultCenter.lat,
         lng: projectConfig.mapDefaultCenter.lon
-    });
-    // Keep latest center accessible from onMapReady without re-creating the
-    // callback every render (GoogleMap's onLoad fires once on mount).
-    const latestCenterRef = React.useRef(center);
-    React.useEffect(() => {
-        latestCenterRef.current = center;
-    }, [center]);
+    }).current;
 
     useEffect(() => {
-        const configDefaultCenter = surveyHelper.parse(
+        if (!map) return;
+        const widgetDefaultCenter = surveyHelper.parse(
             props.widgetConfig.defaultCenter,
             props.interview,
             props.path,
             props.user
         );
-        const defaultCenter = configDefaultCenter
-            ? { lat: configDefaultCenter.lat, lng: configDefaultCenter.lon }
+        const defaultCenter = widgetDefaultCenter
+            ? { lat: widgetDefaultCenter.lat, lng: widgetDefaultCenter.lon }
             : { lat: projectConfig.mapDefaultCenter.lat, lng: projectConfig.mapDefaultCenter.lon };
-        setCenter(defaultCenter);
-        // `defaultCenter` may be a ParsingFunction whose result depends on the
-        // current interview/path/user, so we must re-run the effect when
-        // those change too.
-    }, [props.widgetConfig.defaultCenter, props.interview, props.path, props.user]);
+        map.panTo(defaultCenter);
+    }, [map, props.widgetConfig.defaultCenter, props.interview, props.path, props.user]);
 
-    const onMapReady = React.useCallback((map: google.maps.Map) => {
-        map.panTo(latestCenterRef.current);
-        setMap(map);
-    }, []);
-
-    const onUnmount = React.useCallback(() => {
-        setMap(null);
-    }, []);
-
-    const onZoomChange = () => {
-        if (!map) return;
-        const currentZoom = (map as google.maps.Map).getZoom();
-        if (currentZoom && props.widgetConfig.maxZoom && props.widgetConfig.maxZoom < currentZoom) {
-            (map as google.maps.Map).setZoom(props.widgetConfig.maxZoom);
-        }
-    };
+    const onZoomChange = React.useCallback(
+        (e: MapCameraChangedEvent) => {
+            const max = props.widgetConfig.maxZoom;
+            if (max && e.detail.zoom > max && map) {
+                map.setZoom(max);
+            }
+        },
+        [map, props.widgetConfig.maxZoom]
+    );
 
     // Memoize geojsons and the coordinates that define the map bounds so the
     // bounds-fitting effect below only runs when the underlying data changes.
@@ -98,8 +105,8 @@ const InfoMap: React.FC<InfoMapProps> = (props: InfoMapProps) => {
         return coords;
     }, [geojsons]);
 
-    // Fit the map to the data bounds only when the map instance or the
-    // underlying coordinates change, instead of on every render.
+    // Fit bounds only when the map instance or the underlying coordinates
+    // change, instead of on every render.
     useEffect(() => {
         if (!map || boundCoords.length === 0) return;
         const bounds = new google.maps.LatLngBounds();
@@ -131,19 +138,13 @@ const InfoMap: React.FC<InfoMapProps> = (props: InfoMapProps) => {
 
     for (let i = 0, countI = points.length; i < countI; i++) {
         const point = points[i];
-        const gLatLng = new google.maps.LatLng(point.geometry.coordinates[1], point.geometry.coordinates[0]);
-        const markerParams: MarkerProps = {
-            position: gLatLng,
-            draggable: false
-        };
-        if (point.properties.icon) {
-            markerParams.icon = {
-                url: point.properties.icon.url,
-                size: new google.maps.Size(point.properties.icon.size[0], point.properties.icon.size[1]),
-                scaledSize: new google.maps.Size(point.properties.icon.size[0], point.properties.icon.size[1])
-            };
-        }
-        gMarkers.push(<Marker key={`gMarker_infoMap_${props.path}__${i}`} {...markerParams} />);
+        gMarkers.push(
+            <InfoMarker
+                key={`gMarker_infoMap_${props.path}__${i}`}
+                position={{ lat: point.geometry.coordinates[1], lng: point.geometry.coordinates[0] }}
+                icon={point.properties.icon}
+            />
+        );
     }
 
     for (let i = 0, countI = linestrings.length; i < countI; i++) {
@@ -185,58 +186,43 @@ const InfoMap: React.FC<InfoMapProps> = (props: InfoMapProps) => {
         };
 
         gPolylines.push(
-            <Polyline
+            <MapPolyline
                 key={`gPolyline_infoMap_black_${props.path}__${i}`}
-                path={polylineCoordinates}
                 options={{
+                    path: polylineCoordinates,
                     strokeColor: '#000000',
                     strokeWeight: 7,
                     strokeOpacity: 0.4,
-                    icons: [
-                        {
-                            icon: gArrowBlack,
-                            offset: '50%'
-                        }
-                    ],
+                    icons: [{ icon: gArrowBlack, offset: '50%' }],
                     zIndex: Math.ceil((1000.0 / Math.max(1, i)) * 1000.0) || 300
                 }}
             />
         );
 
         gPolylines.push(
-            <Polyline
+            <MapPolyline
                 key={`gPolyline_infoMap_white_${props.path}__${i}`}
-                path={polylineCoordinates}
                 options={{
+                    path: polylineCoordinates,
                     strokeColor: '#ffffff',
                     strokeWeight: 5,
                     strokeOpacity: 0.8,
-                    icons: [
-                        {
-                            icon: gArrowWhite,
-                            offset: '50%'
-                        }
-                    ],
+                    icons: [{ icon: gArrowWhite, offset: '50%' }],
                     zIndex: Math.ceil((1000.0 / Math.max(1, i)) * 1000.0) || 400
                 }}
             />
         );
 
         gPolylines.push(
-            <Polyline
+            <MapPolyline
                 key={`gPolyline_infoMap_${props.path}__${i}`}
-                path={polylineCoordinates}
                 options={{
+                    path: polylineCoordinates,
                     strokeColor:
                         linestring.properties && linestring.properties.active ? linestringActiveColor : linestringColor,
                     strokeWeight: 3,
                     strokeOpacity: 0.4,
-                    icons: [
-                        {
-                            icon: gArrow,
-                            offset: '50%'
-                        }
-                    ],
+                    icons: [{ icon: gArrow, offset: '50%' }],
                     zIndex: Math.ceil((1000.0 / Math.max(1, i)) * 1000.0) || 500
                 }}
             />
@@ -253,10 +239,10 @@ const InfoMap: React.FC<InfoMapProps> = (props: InfoMapProps) => {
             );
 
             gPolygons.push(
-                <Polygon
+                <MapPolygon
                     key={`gPolygon_infoMap_${props.path}__${i}`}
-                    paths={polygonCoordinates}
                     options={{
+                        paths: polygonCoordinates,
                         strokeColor: polygon.properties.strokeColor || '#0000FF',
                         strokeOpacity: polygon.properties.strokeOpacity || 0.8,
                         strokeWeight: polygon.properties.strokeWeight || 2,
@@ -272,10 +258,10 @@ const InfoMap: React.FC<InfoMapProps> = (props: InfoMapProps) => {
                 const polygonCoordinates = polyCoords.map((ring: number[][]) => ring.map(coordinatesToLatLng));
 
                 gPolygons.push(
-                    <Polygon
+                    <MapPolygon
                         key={`gPolygon_infoMap_${props.path}__${i}_${polyIndex}`}
-                        paths={polygonCoordinates}
                         options={{
+                            paths: polygonCoordinates,
                             strokeColor: polygon.properties.strokeColor || '#0000FF',
                             strokeOpacity: polygon.properties.strokeOpacity || 0.8,
                             strokeWeight: polygon.properties.strokeWeight || 2,
@@ -288,32 +274,51 @@ const InfoMap: React.FC<InfoMapProps> = (props: InfoMapProps) => {
         }
     }
 
+    const mapId = getGoogleMapId();
+
     return (
         <div className="survey-info-map__map-container">
             <div className="infoMap-title">
                 <Markdown remarkPlugins={[[remarkGfm, { singleTilde: false }]]}>{title}</Markdown>
             </div>
-            <GoogleMap
-                id="info-map"
-                mapContainerStyle={{
-                    boxSizing: 'border-box',
-                    position: 'relative',
+            <Map
+                style={{
+                    boxSizing: 'border-box' as const,
+                    position: 'relative' as const,
                     width: '100%',
                     height: props.widgetConfig.height || '400px',
                     border: '1px solid rgba(0,0,0,0.2)'
                 }}
-                center={center}
-                onLoad={onMapReady}
-                onUnmount={onUnmount}
-                onZoomChanged={onZoomChange}
+                defaultCenter={initialCenter}
+                defaultZoom={props.widgetConfig.defaultZoom || 10}
+                mapId={mapId}
                 clickableIcons={false}
-                zoom={props.widgetConfig.defaultZoom || 10}
+                onZoomChanged={onZoomChange}
             >
                 {gMarkers}
                 {gPolylines}
                 {gPolygons}
-            </GoogleMap>
+            </Map>
         </div>
+    );
+};
+
+const InfoMap: React.FC<InfoMapProps> = (props) => {
+    const { i18n } = useTranslation();
+    // Set the google map config once, as it cannot be changed after it is
+    // loaded (for language change for example). see
+    // https://stackoverflow.com/questions/7065420/how-can-i-change-the-language-of-google-maps-on-the-run
+    const config = React.useMemo(() => getCurrentGoogleMapConfig(i18n.language), []);
+
+    return (
+        <APIProvider
+            apiKey={config.apiKey}
+            libraries={config.libraries}
+            language={config.language}
+            region={config.region}
+        >
+            <InfoMapInner {...props} />
+        </APIProvider>
     );
 };
 

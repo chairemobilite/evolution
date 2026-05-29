@@ -4,37 +4,50 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import { useJsApiLoader } from '@react-google-maps/api';
-import InputLoading from '../components/inputs/InputLoading';
 import projectConfig from 'chaire-lib-common/lib/config/shared/project.config';
 
-const googleMapConfigNew = {
-    id: 'google-map-script',
-    googleMapsApiKey: process.env.GOOGLE_API_KEY as string,
-    libraries: ['places' as const, 'geometry' as const]
+export type GoogleMapApiConfig = {
+    apiKey: string;
+    libraries: string[];
+    region: string;
+    language: string;
 };
 
-// Legacy google map configuration, still used in old PhotonOsmInputMap component
-export default {
+const baseConfig = (): Pick<GoogleMapApiConfig, 'apiKey' | 'libraries' | 'region'> => ({
     apiKey: process.env.GOOGLE_API_KEY as string,
-    LoadingContainer: InputLoading,
-    libraries: ['places', 'geometry']
-};
+    libraries: ['places', 'geometry'],
+    region: projectConfig.region as string
+});
 
 // The google map configuration needs to be global as the loading of the API
 // takes place once for the whole survey and the configuration cannot change,
 // even between sections, otherwise it throws an exception.
-let currentGoogleMapConfig: Parameters<typeof useJsApiLoader>[0] | undefined = undefined;
-export const getCurrentGoogleMapConfig = (
-    language = projectConfig.defaultLocale
-): Parameters<typeof useJsApiLoader>[0] => {
+let currentGoogleMapConfig: GoogleMapApiConfig | undefined = undefined;
+
+/**
+ * Returns the configuration to feed to `<APIProvider>` from `@vis.gl/react-google-maps`.
+ * The result is memoized on the first call: the Google Maps JavaScript API can only be
+ * loaded once per page session, so subsequent calls (e.g. on language change) return
+ * the configuration that was used the first time.
+ *
+ * @param language Locale to load the API with. Defaults to `projectConfig.defaultLocale`.
+ */
+export const getCurrentGoogleMapConfig = (language = projectConfig.defaultLocale): GoogleMapApiConfig => {
     if (currentGoogleMapConfig) {
         return currentGoogleMapConfig;
     }
     currentGoogleMapConfig = {
-        region: projectConfig.region,
-        language: language,
-        ...googleMapConfigNew
+        ...baseConfig(),
+        language: language as string
     };
     return currentGoogleMapConfig;
 };
+
+/**
+ * Returns the Google Cloud Map ID configured via the `GOOGLE_MAP_ID` env var, or
+ * `undefined` when not set. Required to enable `<AdvancedMarker>`; when absent,
+ * the map widgets fall back to the legacy `<Marker>` component.
+ *
+ * See https://developers.google.com/maps/documentation/get-map-id
+ */
+export const getGoogleMapId = (): string | undefined => process.env.GOOGLE_MAP_ID || undefined;

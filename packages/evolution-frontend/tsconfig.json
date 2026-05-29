@@ -5,6 +5,10 @@
         "rootDir": "src",
         "isolatedModules": false, // Should be removed to inherit the true eventually
         "noImplicitAny": false, // Should be removed to inherit the true eventually
+        // Add google.maps to the inherited type list. @types/google.maps is
+        // pulled in transitively by @vis.gl/react-google-maps and provides the
+        // global `google.maps` namespace used by the map widgets.
+        "types": ["node", "jest", "geojson", "google.maps"]
     },
     "include": [
         "src/**/*"
