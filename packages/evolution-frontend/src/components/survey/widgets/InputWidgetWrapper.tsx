@@ -27,7 +27,7 @@ interface InputWidgetWrapperProps {
 const FieldsetWrapper = (props: React.PropsWithChildren<InputWidgetWrapperProps>) => {
     const [isCollapsed, setIsCollapsed] = React.useState(props.isCollapsed);
     return (
-        <fieldset>
+        <fieldset id={props.widgetId}>
             <div className={props.className}>
                 <legend>
                     <div

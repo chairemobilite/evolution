@@ -106,7 +106,9 @@ exports[`Question with widget InputCheckbox Render widget 1`] = `
     class="apptr__form-container two-columns question-type-checkbox question-filled question-valid"
     style="position: relative;"
   >
-    <fieldset>
+    <fieldset
+      id="survey-question__home.region"
+    >
       <div
         class="apptr__form-label-container two-columns"
       >
@@ -371,7 +373,9 @@ exports[`Question with widget InputRadio Render widget 1`] = `
     class="apptr__form-container two-columns question-type-radio question-filled question-valid"
     style="position: relative;"
   >
-    <fieldset>
+    <fieldset
+      id="survey-question__home.region"
+    >
       <div
         class="apptr__form-label-container two-columns"
       >
@@ -449,7 +453,9 @@ exports[`Question with widget InputRadioNumber Render widget 1`] = `
     class="apptr__form-container two-columns question-type-radioNumber question-filled question-valid"
     style="position: relative;"
   >
-    <fieldset>
+    <fieldset
+      id="survey-question__home.region"
+    >
       <div
         class="apptr__form-label-container two-columns"
       >
