@@ -169,11 +169,11 @@ describe('Activity category choices conditionals', () => {
         ['Person with no age and occupation', true, undefined, undefined, undefined],
         ['Full time student occupation', true, 45, 'fullTimeStudent', undefined],
         ['Part time student occupation', true, 10, 'partTimeStudent', undefined],
-        ['Full time Worker occupation', true, 25, 'fullTimeWorker', undefined],
-        ['Part time Worker occupation', true, 18, 'partTimeWorker', undefined],
+        ['Full time Worker occupation', false, 25, 'fullTimeWorker', false],
+        ['Part time Worker occupation', false, 18, 'partTimeWorker', false],
         ['Worker and student occupation', true, 60, 'workerAndStudent', undefined],
         ['No occupation, isStudentFromEnrolled true', true, 4, undefined, true],
-        ['No occupation, isStudentFromEnrolled true', false, 4, undefined, false],
+        ['No occupation, isStudentFromEnrolled false', false, 4, undefined, false],
         ['Non-student/worker occupation, isStudentFromEnrolled true', true, 10, 'other', true],
         ['Non-student/worker occupation, isStudentFromEnrolled false', false, 10, 'other', false]
     ]).test(

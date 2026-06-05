@@ -84,14 +84,11 @@ const perActivityCategoryConditionals: Partial<{ [category in ActivityCategory]:
         if (_isBlank(person.age) && _isBlank(occupation)) {
             return true;
         }
-        // Return true if an occupation is set and it is one of the student or
-        // worker occupations, or if isStudentFromEnrolled is true.
+        // Return true if an occupation is set and it is one of the student occupations, or if isStudentFromEnrolled is true.
         // FIXME Should this condition actually be a single `isStudent` helper function to replace the `isStudentFromEnrolled`? Current condition comes from od_nationale_quebec. See how to implement in Evolution
         return (
             (!_isBlank(occupation) &&
-                ['fullTimeWorker', 'partTimeWorker', 'fullTimeStudent', 'partTimeStudent', 'workerAndStudent'].includes(
-                    occupation!
-                )) ||
+                ['fullTimeStudent', 'partTimeStudent', 'workerAndStudent'].includes(occupation!)) ||
             odHelpers.isStudentFromSchoolType({ person })
         );
     },
