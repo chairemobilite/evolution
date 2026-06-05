@@ -9,6 +9,7 @@ import { initReactI18next } from 'react-i18next';
 import moment from 'moment';
 import LanguageDetector from 'i18next-browser-languagedetector';
 import config from 'chaire-lib-frontend/lib/config/project.config';
+import intervalPlural from 'i18next-intervalplural-postprocessor';
 
 // Declare custom locales path from webpack
 declare const __CUSTOM_LOCALES_PATH__: string | undefined;
@@ -39,6 +40,7 @@ const detectorOrder = config.detectLanguageFromUrl
 
 i18n.use(LanguageDetector)
     .use(initReactI18next)
+    .use(intervalPlural)
     .init(
         {
             detection: {

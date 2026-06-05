@@ -93,6 +93,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - @turf/turf: 7.3.1 => 7.3.5
 - @casl/ability: 6.7.3 => 6.8.1
 - In the root `package.json` add a resolution of `kdbush` to 3.0.0 to avoid compilation errors with some packages depending on a more recent version. This requirement comes from Transition, who does the same (see https://github.com/chairemobilite/transition/issues/921 to track issue to upgrade/remove `kdbush`).
+- Added dependency to `i18next-intervalplural-postprocessor` 3.0.0 to support i18next [interval pluralization](https://www.i18next.com/translation-function/plurals#interval-plurals)
 
 ## [Unreleased (0.5.1)] - YYYY-MM-DD
 
