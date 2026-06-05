@@ -72,7 +72,7 @@ describe('Activity category choices labels', () => {
         const mockedT = jest.fn();
         const choice = choices.find((c) => c.value === choiceValue);
         expect(choice).toBeDefined();
-        translateString(choice?.label, { t: mockedT } as any, interview, 'path');
+        translateString(choice?.label, { t: mockedT } as any, interview, 'interview.response.household.persons.personId1.journeys.journeyId1.visitedPlaces.workPlace1P1.activityCategory');
         expect(mockedT).toHaveBeenCalledWith(expectedLabel);
     });
 
@@ -89,9 +89,33 @@ describe('Activity category choices labels', () => {
         expect(schoolChoice).toBeDefined();
         setActiveSurveyObjects(interview, { personId: 'personId1', journeyId: 'journeyId1', visitedPlaceId: 'workPlace1P1' });
         interview.response.household!.persons!.personId1!.schoolType = schoolType as any;
-        translateString(schoolChoice?.label, { t: mockedT } as any, interview, 'path');
+        translateString(schoolChoice?.label, { t: mockedT } as any, interview, 'interview.response.household.persons.personId1.journeys.journeyId1.visitedPlaces.workPlace1P1.activityCategory');
         expect(mockedT).toHaveBeenCalledWith(expectedLabel);
     });
+
+    test('school label when no schoolType nor age should use generic label', () => {
+        const mockedT = jest.fn();
+        const schoolChoice = choices.find((c) => c.value === 'school');
+        expect(schoolChoice).toBeDefined();
+        setActiveSurveyObjects(interview, { personId: 'personId1', journeyId: 'journeyId1', visitedPlaceId: 'workPlace1P1' });
+        interview.response.household!.persons!.personId1!.schoolType = undefined;
+        interview.response.household!.persons!.personId1!.age = undefined;
+        translateString(schoolChoice?.label, { t: mockedT } as any, interview, 'interview.response.household.persons.personId1.journeys.journeyId1.visitedPlaces.workPlace1P1.activityCategory');
+        expect(mockedT).toHaveBeenCalledWith('visitedPlaces:activityCategories.schoolStudies');
+    });
+
+    test('school label when no schoolType should use age as count', () => {
+        const mockedT = jest.fn();
+        const schoolChoice = choices.find((c) => c.value === 'school');
+        expect(schoolChoice).toBeDefined();
+        const age = 34;
+        setActiveSurveyObjects(interview, { personId: 'personId1', journeyId: 'journeyId1', visitedPlaceId: 'workPlace1P1' });
+        interview.response.household!.persons!.personId1!.schoolType = undefined;
+        interview.response.household!.persons!.personId1!.age = age;
+        translateString(schoolChoice?.label, { t: mockedT } as any, interview, 'interview.response.household.persons.personId1.journeys.journeyId1.visitedPlaces.workPlace1P1.activityCategory');
+        expect(mockedT).toHaveBeenCalledWith('visitedPlaces:activityCategories.schoolStudies_interval', { postProcess: 'interval', count: age });
+    });
+
 });
 
 describe('Activity category choices conditionals', () => {

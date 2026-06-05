@@ -21,17 +21,27 @@ import config from '../../../../config/project.config';
 import * as visitedPlacesHelpers from './helpers';
 
 const perActivityCategoryLabels: Partial<{ [category in ActivityCategory]: I18nData }> = {
-    school: (t: TFunction, interview) => {
-        const person = odHelpers.getPerson({ interview });
-        if (person?.schoolType === 'childcare') {
+    school: (t: TFunction, interview, path) => {
+        const person = odHelpers.getPerson({ interview, path });
+        // If no person or school type and age are unknown, return the generic label for school studies
+        if (!person || (person.schoolType === undefined && person.age === undefined)) {
+            return t('visitedPlaces:activityCategories.schoolStudies');
+        }
+        // If school type is not known, return a label specific to the age if available
+        if (person.schoolType === undefined && person.age !== undefined) {
+            return t('visitedPlaces:activityCategories.schoolStudies_interval', {
+                postProcess: 'interval',
+                count: person.age
+            });
+        }
+        if (person.schoolType === 'childcare') {
             return t('visitedPlaces:activityCategories.childcare');
-        } else if (person?.schoolType === 'kindergarten') {
+        } else if (person.schoolType === 'kindergarten') {
             return t('visitedPlaces:activityCategories.kindergarten');
         } else if (
-            person?.schoolType &&
-            (person.schoolType === 'kindergartenFor4YearsOld' ||
-                person.schoolType === 'primarySchool' ||
-                person.schoolType === 'secondarySchool')
+            person.schoolType === 'kindergartenFor4YearsOld' ||
+            person.schoolType === 'primarySchool' ||
+            person.schoolType === 'secondarySchool'
         ) {
             return t('visitedPlaces:activityCategories.school');
         } else {
@@ -133,6 +143,22 @@ const getActivityCategoryChoices = (filteredCategories: ActivityCategory[]): Rad
 
 /**
  * Get the activity category widget configuration for the visited place section.
+ *
+ * Activity category labels can be overriden by providing translation keys for
+ * `visitedPlaces:activityCategories.${category}`. The school activity category
+ * label can also be customized based on the person's `schoolType` field by
+ * providing translation keys for
+ * `visitedPlaces:activityCategories.schoolStudies`,
+ * `visitedPlaces:activityCategories.childcare`,
+ * `visitedPlaces:activityCategories.kindergarten`,
+ * `visitedPlaces:activityCategories.school`, and
+ * `visitedPlaces:activityCategories.schoolStudies_interval`. If no `schoolType`
+ * is set, the label can be customized based on the person's age by providing a
+ * translation key for `visitedPlaces:activityCategories.schoolStudies_interval`
+ * with i18next interval pluralization, where the count is the person's age and
+ * the intervals are defined based on the age groups relevant for school types
+ * (for example `(0-15)[École];(15-inf)[École / Études];`).
+ *
  * @param sectionConfig The configuration of the section
  * @param options The widget factory options
  * @returns The widget configuration for the activity category question, which
