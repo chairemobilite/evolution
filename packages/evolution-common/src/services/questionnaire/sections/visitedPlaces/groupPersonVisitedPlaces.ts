@@ -17,6 +17,7 @@ import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { VisitedPlaceShortcutWidgetFactory } from './widgetsVisitedPlaceShortcut';
 import { ButtonsVisitedPlaceConfigFactory } from './buttonsVisitedPlace';
 import { VisitedPlaceTimeWidgetFactory } from './widgetsTime';
+import { VisitedPlaceOnTheRoadWidgetFactory } from './widgetsOnTheRoadSpecifics';
 
 /**
  * Widget config factory for the person visited places group. It represents the
@@ -49,6 +50,7 @@ export class PersonVisitedPlacesGroupConfigFactory implements WidgetConfigFactor
             'visitedPlaceName',
             'visitedPlaceShortcut',
             'visitedPlaceAlreadyVisited',
+            'visitedPlaceOnTheRoadPreviousPlaceActivity',
             'visitedPlaceActivity',
             'visitedPlaceActivityCategory'
         ];
@@ -58,6 +60,7 @@ export class PersonVisitedPlacesGroupConfigFactory implements WidgetConfigFactor
             }
         }
         const widgetsAtTheEnd = [
+            'visitedPlaceOnTheRoadNextPlaceCategory',
             'visitedPlaceNextPlaceCategory',
             'visitedPlaceDepartureTime',
             'buttonSaveVisitedPlace',
@@ -126,6 +129,7 @@ export class PersonVisitedPlacesGroupConfigFactory implements WidgetConfigFactor
         );
         const buttonsWidgetFactory = new ButtonsVisitedPlaceConfigFactory(this.sectionConfig, this.options);
         const visitedPlaceTimeWidgetFactory = new VisitedPlaceTimeWidgetFactory(this.sectionConfig, this.options);
+        const onTheRoadWidgetFactory = new VisitedPlaceOnTheRoadWidgetFactory(this.sectionConfig, this.options);
         return {
             personVisitedPlaces: this.getVisitedPlacesGroupConfig(),
             visitedPlaceActivityCategory: getActivityCategoryWidgetConfig(this.sectionConfig, this.options),
@@ -134,6 +138,7 @@ export class PersonVisitedPlacesGroupConfigFactory implements WidgetConfigFactor
             ...geographyWidgetFactory.getWidgetConfigs(),
             visitedPlaceNextPlaceCategory: getNextPlaceCategoryWidgetConfig(this.sectionConfig, this.options),
             ...visitedPlaceTimeWidgetFactory.getWidgetConfigs(),
+            ...onTheRoadWidgetFactory.getWidgetConfigs(),
             ...buttonsWidgetFactory.getWidgetConfigs()
         };
     };
