@@ -17,6 +17,7 @@ import { requiredValidation } from '../../../widgets/validations/validations';
 import * as odHelpers from '../../../odSurvey/helpers';
 import type { WidgetFactoryOptions } from '../types';
 import { getResponse } from '../../../../utils/helpers';
+import { isLastVisitedPlaceConditional, isWorkOnTheRoad } from './helpers';
 
 const nextPlaceCategoryChoices: RadioChoiceType[] = [
     {
@@ -60,22 +61,7 @@ const nextPlaceCategoryChoices: RadioChoiceType[] = [
                 });
             }
         },
-        conditional: function (interview, path) {
-            const visitedPlaceContext = odHelpers.getVisitedPlaceContextFromPath({ interview, path });
-            if (!visitedPlaceContext) {
-                throw new Error('Active journey not found in interview response');
-            }
-            const { journey, visitedPlace: activeVisitedPlace } = visitedPlaceContext;
-            const visitedPlacesArray = odHelpers.getVisitedPlacesArray({ journey });
-            // Display only if the current visited place is the last one in the
-            // list and there is more than one visited place (otherwise, the
-            // person did not make any trips, as the first place is where they
-            // were at the beginning of the day)
-            return (
-                visitedPlacesArray.length > 1 &&
-                visitedPlacesArray[visitedPlacesArray.length - 1]._uuid === activeVisitedPlace._uuid
-            );
-        }
+        conditional: isLastVisitedPlaceConditional
     },
     {
         label: '',
@@ -158,7 +144,7 @@ export const getNextPlaceCategoryWidgetConfig = (
         if (
             !_isBlank(activeVisitedPlace.activity) &&
             visitedPlacesArray[visitedPlacesArray.length - 1]._uuid === activeVisitedPlace._uuid &&
-            activeVisitedPlace.activity !== 'workOnTheRoad'
+            !isWorkOnTheRoad(activeVisitedPlace)
         ) {
             // last visited place and not work on the road
             return [true, null];

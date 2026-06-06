@@ -17,7 +17,8 @@ import type {
     Person,
     UserInterviewAttributes,
     VisitedPlace,
-    VisitedPlacesSectionConfiguration
+    VisitedPlacesSectionConfiguration,
+    WidgetConditional
 } from '../../types';
 import * as odSurveyHelpers from '../../../odSurvey/helpers';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
@@ -401,3 +402,20 @@ export const formatTripDuration = (tripStart: number, tripEnd: number, t: TFunct
  * @returns `true` if the visited place is a work on the road, `false` otherwise
  */
 export const isWorkOnTheRoad = (visitedPlace: VisitedPlace): boolean => visitedPlace.activity === 'workOnTheRoad';
+
+export const isLastVisitedPlaceConditional: WidgetConditional = (interview, path) => {
+    const visitedPlaceContext = odSurveyHelpers.getVisitedPlaceContextFromPath({ interview, path });
+    if (!visitedPlaceContext) {
+        throw new Error('Current visited place context not found in interview response');
+    }
+    const { journey, visitedPlace: activeVisitedPlace } = visitedPlaceContext;
+    const visitedPlacesArray = odSurveyHelpers.getVisitedPlacesArray({ journey });
+    // Display only if the current visited place is the last one in the list and
+    // there is more than one visited place (otherwise, the person did not
+    // declare any trips yet, as the first place is where they were at the
+    // beginning of the day)
+    return (
+        visitedPlacesArray.length > 1 &&
+        visitedPlacesArray[visitedPlacesArray.length - 1]._uuid === activeVisitedPlace._uuid
+    );
+};

@@ -777,3 +777,20 @@ describe('formatTripDuration', () => {
         expect(result).toEqual('1 visitedPlaces:tripDuration.hour');
     });
 });
+
+describe('isLastVisitedPlaceConditional', () => {
+    test.each([
+        ['not last place', false, 'homePlace1P1'],
+        ['last place', true, 'otherPlace2P1']
+    ])('stayedThereUntilTheNextDay conditional: case %s should return %s for place %s', (_, expected, placeUuid) => {
+        const interview = _cloneDeep(interviewAttributesForTestCases);
+        // Test the requested place
+        setActiveSurveyObjects(interview, { personId: 'personId1', journeyId: 'journeyId1', visitedPlaceId: placeUuid });
+        expect(
+            helpers.isLastVisitedPlaceConditional(
+                interview,
+                `household.persons.personId1.journeys.journeyId1.visitedPlaces.${placeUuid}.nextPlaceCategory`
+            )
+        ).toEqual(expected);
+    });
+})
