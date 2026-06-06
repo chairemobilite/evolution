@@ -78,7 +78,6 @@ export const visitedPlacesIntro: any = visitedPlacesWidgets.visitedPlacesIntro;
 export const personDeparturePlaceType: any = visitedPlacesWidgets.personDeparturePlaceType;
 export const visitedPlacesOutro: any = visitedPlacesWidgets.visitedPlacesOutro;
 export const personVisitedPlacesTitle: any = visitedPlacesWidgets.personVisitedPlacesTitle;
-export const personVisitedPlaces: any = visitedPlacesWidgets.personVisitedPlaces;
 export const personVisitedPlacesMap: any = visitedPlacesWidgets.personVisitedPlacesMap;
 export const personLastVisitedPlaceNotHome: any = visitedPlacesWidgets.personLastVisitedPlaceNotHome;
 export const visitedPlaceName: any = visitedPlacesWidgets.visitedPlaceName;
