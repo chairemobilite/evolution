@@ -182,11 +182,11 @@ describe('buttonSaveVisitedPlace widget', () => {
                 activeVisitedPlaceId: 'otherPlace2P1',
                 setup: (interview: typeof interviewAttributesForTestCases) => {
                     const journey = getJourney(interview);
-                    const visitedPlace = journey.visitedPlaces!.otherPlace2P1 as any;
+                    const visitedPlace = journey.visitedPlaces!.otherPlace2P1;
                     visitedPlace.activity = 'workOnTheRoad';
                     visitedPlace.activityCategory = 'work';
-                    visitedPlace.onTheRoadDepartureType = 'home';
-                    visitedPlace.onTheRoadArrivalType = 'home';
+                    visitedPlace.onTheRoadPreviousPlaceActivity = 'home';
+                    visitedPlace.onTheRoadNextPlaceCategory = 'wentBackHome';
                     visitedPlace.arrivalTime = 9 * 60 * 60;
                     visitedPlace.departureTime = 17 * 60 * 60;
                     visitedPlace._previousArrivalTime = 8 * 60 * 60;

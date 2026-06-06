@@ -20,6 +20,7 @@ import { TFunction } from 'i18next';
 import { WidgetConfigFactory, WidgetFactoryOptions } from '../types';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { getResponse } from '../../../../utils/helpers';
+import { isWorkOnTheRoad } from './helpers';
 
 /**
  * Widget config factory for the buttons shown at the bottom of a single visited
@@ -126,7 +127,7 @@ export class ButtonsVisitedPlaceConfigFactory implements WidgetConfigFactory {
     }): Partial<VisitedPlace> | undefined => {
         // on the road departure: home but previous is not home: insert home before on the road:
         if (
-            (currentVisitedPlace as any).onTheRoadDepartureType === 'home' &&
+            currentVisitedPlace.onTheRoadPreviousPlaceActivity === 'home' &&
             (!previousVisitedPlace || previousVisitedPlace.activity !== 'home')
         ) {
             return {
@@ -143,7 +144,7 @@ export class ButtonsVisitedPlaceConfigFactory implements WidgetConfigFactory {
 
             // on the road departure: usual work place but previous is not workUsual: insert work usual before on the road:
         } else if (
-            (currentVisitedPlace as any).onTheRoadDepartureType === 'usualWorkPlace' &&
+            currentVisitedPlace.onTheRoadPreviousPlaceActivity === 'workUsual' &&
             (!previousVisitedPlace || previousVisitedPlace.activity !== 'workUsual')
         ) {
             return {
@@ -170,26 +171,23 @@ export class ButtonsVisitedPlaceConfigFactory implements WidgetConfigFactory {
     }): Partial<VisitedPlace> | undefined => {
         // next place category or on the road arrival type is workUsual but next is not workUsusal: insert workUsual after:
         if (
-            ((currentVisitedPlace as any).nextPlaceCategory === 'wentToUsualWorkPlace' ||
-                (currentVisitedPlace as any).onTheRoadArrivalType === 'usualWorkPlace') &&
+            (currentVisitedPlace.nextPlaceCategory === 'wentToUsualWorkPlace' ||
+                currentVisitedPlace.onTheRoadNextPlaceCategory === 'wentToUsualWorkPlace') &&
             (!nextVisitedPlace || nextVisitedPlace.activity !== 'workUsual')
         ) {
             return {
                 activity: 'workUsual',
                 activityCategory: 'work',
-                arrivalTime:
-                    currentVisitedPlace.activity === 'workOnTheRoad' ? currentVisitedPlace.departureTime : undefined
+                arrivalTime: isWorkOnTheRoad(currentVisitedPlace) ? currentVisitedPlace.departureTime : undefined
             };
 
             // next place category is other but next is not other: insert other after:
         } else if (
             (currentVisitedPlace.nextPlaceCategory === 'visitedAnotherPlace' ||
-                (currentVisitedPlace as any).onTheRoadArrivalType === 'other') &&
+                currentVisitedPlace.onTheRoadNextPlaceCategory === 'visitedAnotherPlace') &&
             (!nextVisitedPlace ||
                 nextVisitedPlace.activityCategory === 'home' ||
-                (currentVisitedPlace.activityCategory === 'work' &&
-                    currentVisitedPlace.activity === 'workOnTheRoad' &&
-                    nextVisitedPlace.activity === 'workUsual'))
+                (isWorkOnTheRoad(currentVisitedPlace) && nextVisitedPlace.activity === 'workUsual'))
         ) {
             return {
                 arrivalTime: odHelpers.isLoopActivity({ visitedPlace: currentVisitedPlace })
@@ -199,8 +197,8 @@ export class ButtonsVisitedPlaceConfigFactory implements WidgetConfigFactory {
 
             // next place category is home but next is not home: insert home after:
         } else if (
-            ((currentVisitedPlace as any).nextPlaceCategory === 'wentBackHome' ||
-                (currentVisitedPlace as any).onTheRoadArrivalType === 'home') &&
+            (currentVisitedPlace.nextPlaceCategory === 'wentBackHome' ||
+                currentVisitedPlace.onTheRoadNextPlaceCategory === 'wentBackHome') &&
             !_isBlank(currentVisitedPlace.activityCategory) &&
             currentVisitedPlace.activityCategory !== 'home' &&
             (!nextVisitedPlace || nextVisitedPlace.activityCategory !== 'home')

@@ -123,15 +123,15 @@ alreadyVisitedBySelfOrAnotherHouseholdMember_one: >-
     Did you previously locate this place on the map?<br /><span class="_pale _oblique">In
     your travel diary or that of another household member.</span>
 shortcut: 'Please select this place from the list of previously located places:'
-visitedPlacePreviousPreviousDepartureTime_usualWorkPlace: >-
+visitedPlacePreviousPreviousDepartureTime_workUsual: >-
     At what time did {{nickname}} leave the previous location ({{previousPlaceDescription}})
     before going to the usual work place?
-visitedPlacePreviousPreviousDepartureTime_usualWorkPlace_one: >-
+visitedPlacePreviousPreviousDepartureTime_workUsual_one: >-
     At what time did you leave the previous location ({{previousPlaceDescription}})
     before going to your usual work place?
-visitedPlacePreviousPreviousDepartureTime_home_usualWorkPlace: 'At what time did {{nickname}} leave home to go
+visitedPlacePreviousPreviousDepartureTime_home_workUsual: 'At what time did {{nickname}} leave home to go
     to the usual work place?'
-visitedPlacePreviousPreviousDepartureTime_home_usualWorkPlace_one: 'At what time did you leave home to go to your
+visitedPlacePreviousPreviousDepartureTime_home_workUsual_one: 'At what time did you leave home to go to your
     usual work place?'
 visitedPlacePreviousPreviousDepartureTime: >-
     At what time did {{nickname}} leave the previous location ({{previousPlaceDescription}})

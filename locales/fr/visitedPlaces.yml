@@ -145,15 +145,15 @@ alreadyVisitedBySelfOrAnotherHouseholdMember_one: >-
     Avez-vous déjà localisé ce lieu?<br /><span class="_pale _oblique">Dans votre 
     entrevue ou dans celles des autres membres du ménage.</span>
 shortcut: 'Veuillez choisir le lieu dans la liste des lieux déjà localisés:'
-visitedPlacePreviousPreviousDepartureTime_usualWorkPlace: >-
+visitedPlacePreviousPreviousDepartureTime_workUsual: >-
     À quelle heure {{nickname}} a-t-il(-elle) quitté le lieu précédent ({{previousPlaceDescription}})
     avant de se rendre à son lieu habituel de travail?
-visitedPlacePreviousPreviousDepartureTime_usualWorkPlace_one: >-
+visitedPlacePreviousPreviousDepartureTime_workUsual_one: >-
     À quelle heure avez-vous quitté le lieu précédent ({{previousPlaceDescription}})
     avant de vous rendre à votre lieu habituel de travail?
-visitedPlacePreviousPreviousDepartureTime_home_usualWorkPlace: >-
+visitedPlacePreviousPreviousDepartureTime_home_workUsual: >-
     À quelle heure {{nickname}} a-t-il(-elle) quitté le domicile pour aller à son lieu habituel de travail?
-visitedPlacePreviousPreviousDepartureTime_home_usualWorkPlace_one: >-
+visitedPlacePreviousPreviousDepartureTime_home_workUsual_one: >-
     À quelle heure avez-vous quitté le domicile pour aller à votre lieu habituel de travail?
 visitedPlacePreviousPreviousDepartureTime: >-
     À quelle heure {{nickname}} a-t-il(-elle) quitté le lieu précédent ({{previousPlaceDescription}})

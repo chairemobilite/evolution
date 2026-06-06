@@ -289,12 +289,12 @@ describe('NextPlaceCategory widget conditional', () => {
         ]);
     });
 
-    test('should return auto-filled stayedThereUntilTheNextDay for loop activity with onTheRoadArrivalType to stayed there', () => {
+    test('should return auto-filled stayedThereUntilTheNextDay for loop activity with onTheRoadNextPlaceCategory to stayed there', () => {
         const visitedPlace = interview.response.household!.persons!.personId1!.journeys!.journeyId1!
             .visitedPlaces!.otherPlace2P1;
-        (visitedPlace as any).activity = 'workOnTheRoad';
-        (visitedPlace as any).activityCategory = 'work';
-        (visitedPlace as any).onTheRoadArrivalType = 'stayedThereUntilTheNextDay';
+        visitedPlace.activity = 'workOnTheRoad';
+        visitedPlace.activityCategory = 'work';
+        visitedPlace.onTheRoadNextPlaceCategory = 'stayedThereUntilTheNextDay';
 
         setActiveSurveyObjects(interview, { personId: 'personId1', journeyId: 'journeyId1', visitedPlaceId: 'otherPlace2P1' });
         expect(
