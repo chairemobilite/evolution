@@ -211,6 +211,15 @@ visitedPlaceDepartureTime_leisureStroll: '{{nickname}} a terminé sa promenade �
 visitedPlaceDepartureTime_leisureStroll_one: 'Vous avez terminé votre promenade à:'
 visitedPlaceDepartureTime_workOnTheRoad: '{{nickname}} a terminé ses déplacements sur la route à:'
 visitedPlaceDepartureTime_workOnTheRoad_one: 'Vous avez terminé vos déplacements sur la route à:'
+visitedPlaceOnTheRoadPreviousPlaceActivity: >-
+    Quel endroit était le point de départ des déplacements sur la route de {{nickname}}?
+visitedPlaceOnTheRoadPreviousPlaceActivity_one: Quel endroit était le point de départ de vos
+    déplacements sur la route?
+visitedPlaceOnTheRoadNextPlaceCategory: >-
+    Quel endroit était le point d'arrivée des déplacements sur la route de {{nickname}}?
+visitedPlaceOnTheRoadNextPlaceCategory_one: Quel endroit était le point d'arrivée de vos
+    déplacements sur la route?
+  
 atThisPlace: à cet endroit
 atThisPlace_home: au domicile
 atThisPlace_schoolUsual: au lieu d'études/école
@@ -222,3 +231,13 @@ thisPlace_home: le domicile
 thisPlace_schoolUsual: le lieu d'études/école
 thisPlace_workUsual: le travail
 theHome: le domicile
+onTheRoadPreviousPlaceActivityChoices:
+    home: Domicile
+    other: Autre lieu
+    workUsual: Lieu de travail habituel
+onTheRoadNextPlaceCategoryChoices:
+    wentBackHome: Domicile
+    wentToUsualWorkPlace: Lieu de travail habituel
+    visitedAnotherPlace: Autre lieu
+    stayedThereUntilTheNextDay: >-
+        Ils ont été complétés après 4:00 du matin le lendemain

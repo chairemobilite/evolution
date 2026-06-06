@@ -168,6 +168,13 @@ visitedPlacePreviousDepartureTime_home_other: >-
     At what time did {{nickname}} leave home to go to this place ({{visitedPlaceDescription}})?
 visitedPlacePreviousDepartureTime_home_other_one: >-
     At what time did you leave home to go to this place ({{visitedPlaceDescription}})?
+visitedPlaceOnTheRoadPreviousPlaceActivity: Where did {{nickname}} begin their work trip on
+    the road?
+visitedPlaceOnTheRoadPreviousPlaceActivity_one: Where did you begin your work trip on the
+    road?
+visitedPlaceOnTheRoadNextPlaceCategory: Where did {{nickname}} end their trips on the road?
+visitedPlaceOnTheRoadNextPlaceCategory_one: Where did you end your trips on the road?
+
 
 tripDurationText: <br /><span class=\"_pale _oblique\">({{durationText}} trip)</span>
 tripDuration:
@@ -203,3 +210,12 @@ thisPlace_home: home
 thisPlace_schoolUsual: school
 thisPlace_workUsual: work
 theHome: home
+onTheRoadPreviousPlaceActivityChoices:
+    home: Home
+    other: Other location
+    workUsual: Usual work place
+onTheRoadNextPlaceCategoryChoices:
+    wentBackHome: Home
+    wentToUsualWorkPlace: Usual work place
+    visitedAnotherPlace: Other location
+    stayedThereUntilTheNextDay: Completed after 4AM the next day
