@@ -17,6 +17,7 @@ import { VisitedPlaceGeographyWidgetFactory } from '../widgetsGeography';
 import { VisitedPlaceShortcutWidgetFactory } from '../widgetsVisitedPlaceShortcut';
 import { ButtonsVisitedPlaceConfigFactory } from '../buttonsVisitedPlace';
 import { VisitedPlaceTimeWidgetFactory } from '../widgetsTime';
+import { VisitedPlaceOnTheRoadWidgetFactory } from '../widgetsOnTheRoadSpecifics';
 
 const visitedPlacesSectionConfig: VisitedPlacesSectionConfiguration = {
     type: 'visitedPlaces',
@@ -30,10 +31,12 @@ describe('PersonVisitedPlacesGroupConfigFactory widgets', () => {
         'personVisitedPlaces',
         'visitedPlaceActivityCategory',
         'visitedPlaceActivity',
+        'visitedPlaceOnTheRoadPreviousPlaceActivity',
         'visitedPlaceAlreadyVisited',
         'visitedPlaceShortcut',
         'visitedPlaceName',
         'visitedPlaceGeography',
+        'visitedPlaceOnTheRoadNextPlaceCategory',
         'visitedPlaceNextPlaceCategory',
         'buttonSaveVisitedPlace',
         'buttonCancelVisitedPlace',
@@ -57,7 +60,7 @@ describe('PersonVisitedPlacesGroupConfigFactory widgets', () => {
             visitedPlacesSectionConfig,
             widgetFactoryOptions
         ).getWidgetConfigs();
-        expect(Object.keys(widgetConfigs)).toHaveLength(16);
+        expect(Object.keys(widgetConfigs)).toHaveLength(18);
     });
 
     test.each([
@@ -136,6 +139,18 @@ describe('PersonVisitedPlacesGroupConfigFactory widgets', () => {
             expected: (config: VisitedPlacesSectionConfiguration) =>
                 new VisitedPlaceTimeWidgetFactory(config, widgetFactoryOptions).getWidgetConfigs().visitedPlaceDepartureTime
         },
+        {
+            widgetName: 'visitedPlaceOnTheRoadPreviousPlaceActivity',
+            expected: (config: VisitedPlacesSectionConfiguration) =>
+                new VisitedPlaceOnTheRoadWidgetFactory(config, widgetFactoryOptions).getWidgetConfigs()
+                    .visitedPlaceOnTheRoadPreviousPlaceActivity
+        },
+        {
+            widgetName: 'visitedPlaceOnTheRoadNextPlaceCategory',
+            expected: (config: VisitedPlacesSectionConfiguration) =>
+                new VisitedPlaceOnTheRoadWidgetFactory(config, widgetFactoryOptions).getWidgetConfigs()
+                    .visitedPlaceOnTheRoadNextPlaceCategory
+        },
     ])(
         'should return the correct widget config for $widgetName',
         ({
@@ -178,6 +193,7 @@ describe('PersonVisitedPlacesGroupConfigFactory personVisitedPlaces GroupConfig 
             widgets: [
                 'visitedPlaceActivityCategory',
                 'visitedPlaceActivity',
+                'visitedPlaceOnTheRoadPreviousPlaceActivity',
                 'visitedPlaceAlreadyVisited',
                 'visitedPlaceShortcut',
                 'visitedPlaceName',
@@ -186,6 +202,7 @@ describe('PersonVisitedPlacesGroupConfigFactory personVisitedPlaces GroupConfig 
                 'visitedPlacePreviousArrivalTime',
                 'visitedPlacePreviousDepartureTime',
                 'visitedPlaceArrivalTime',
+                'visitedPlaceOnTheRoadNextPlaceCategory',
                 'visitedPlaceNextPlaceCategory',
                 'visitedPlaceDepartureTime',
                 'buttonSaveVisitedPlace',
@@ -304,6 +321,7 @@ describe('PersonVisitedPlacesGroupConfigFactory personVisitedPlaces GroupConfig 
             widgets: [
                 'visitedPlaceActivityCategory',
                 'visitedPlaceActivity',
+                'visitedPlaceOnTheRoadPreviousPlaceActivity',
                 'visitedPlaceAlreadyVisited',
                 'visitedPlaceShortcut',
                 'visitedPlaceName',
@@ -314,6 +332,7 @@ describe('PersonVisitedPlacesGroupConfigFactory personVisitedPlaces GroupConfig 
                 'visitedPlaceArrivalTime',
                 'customWidget1',
                 'customWidget2',
+                'visitedPlaceOnTheRoadNextPlaceCategory',
                 'visitedPlaceNextPlaceCategory',
                 'visitedPlaceDepartureTime',
                 'buttonSaveVisitedPlace',
@@ -356,6 +375,7 @@ describe('PersonVisitedPlacesGroupConfigFactory personVisitedPlaces GroupConfig 
             addButtonLocation: 'both',
             widgets: [
                 'visitedPlaceActivityCategory',
+                'visitedPlaceOnTheRoadPreviousPlaceActivity',
                 'visitedPlaceAlreadyVisited',
                 'visitedPlaceShortcut',
                 'visitedPlaceName',
@@ -368,6 +388,7 @@ describe('PersonVisitedPlacesGroupConfigFactory personVisitedPlaces GroupConfig 
                 'customWidget2',
                 'visitedPlaceGeography',
                 'visitedPlaceNextPlaceCategory',
+                'visitedPlaceOnTheRoadNextPlaceCategory',
                 'visitedPlaceDepartureTime',
                 'buttonSaveVisitedPlace',
                 'buttonCancelVisitedPlace',
