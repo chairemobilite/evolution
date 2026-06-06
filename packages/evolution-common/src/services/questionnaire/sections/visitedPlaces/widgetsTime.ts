@@ -77,9 +77,9 @@ type TimeField = (typeof timeFields)[number];
  *   time was not set. The labels to override for this widget are:
  *   `visitedPlaces:visitedPlacePreviousPreviousDepartureTime` and the variants
  *   for specific activities, with
- *   `visitedPlaces:visitedPlacePreviousPreviousDepartureTime_${previousActivity}_${onTheRoadDepartureType}`
+ *   `visitedPlaces:visitedPlacePreviousPreviousDepartureTime_${previousActivity}_${onTheRoadPreviousPlaceActivity}`
  *   and
- *   `visitedPlaces:visitedPlacePreviousPreviousDepartureTime_${onTheRoadDepartureType}`,
+ *   `visitedPlaces:visitedPlacePreviousPreviousDepartureTime_${onTheRoadPreviousPlaceActivity}`,
  *   with gender context, nickname, count as parameters, as well as
  *   previousPlaceDescription and departureTypeActivity.
  * - `visitedPlacePreviousArrivalTime`: Shown when the current place is a work
@@ -141,7 +141,7 @@ export class VisitedPlaceTimeWidgetFactory implements WidgetConfigFactory {
         if (
             previousVisitedPlace.activity &&
             _isBlank(previousVisitedPlace.departureTime) &&
-            (visitedPlace as any).onTheRoadDepartureType === 'usualWorkPlace' &&
+            visitedPlace.onTheRoadPreviousPlaceActivity === 'workUsual' &&
             previousVisitedPlace.activity !== 'workUsual'
         ) {
             return [true, null];
@@ -158,13 +158,13 @@ export class VisitedPlaceTimeWidgetFactory implements WidgetConfigFactory {
             return [false, null];
         }
         // Show if there is a visited place to insert before the work on the
-        // road, ie if the onTheRoadDepartureType does not match the previous
+        // road, ie if the onTheRoadPreviousPlaceActivity does not match the previous
         // place's activity.
-        if ((visitedPlace as any).onTheRoadDepartureType) {
-            if ((visitedPlace as any).onTheRoadDepartureType === 'home' && previousVisitedPlace.activity !== 'home') {
+        if (visitedPlace.onTheRoadPreviousPlaceActivity) {
+            if (visitedPlace.onTheRoadPreviousPlaceActivity === 'home' && previousVisitedPlace.activity !== 'home') {
                 return [true, null];
             } else if (
-                (visitedPlace as any).onTheRoadDepartureType === 'usualWorkPlace' &&
+                visitedPlace.onTheRoadPreviousPlaceActivity === 'workUsual' &&
                 previousVisitedPlace.activity !== 'workUsual'
             ) {
                 return [true, null];
@@ -329,7 +329,7 @@ export class VisitedPlaceTimeWidgetFactory implements WidgetConfigFactory {
                         path
                 );
             }
-            const onTheRoadDepartureType = (visitedPlace as any).onTheRoadDepartureType;
+            const onTheRoadPreviousPlaceActivity = visitedPlace.onTheRoadPreviousPlaceActivity;
             const previousPlaceDescription = odHelpers.getVisitedPlaceDescription({
                 visitedPlace: previousVisitedPlace,
                 interview,
@@ -344,8 +344,8 @@ export class VisitedPlaceTimeWidgetFactory implements WidgetConfigFactory {
             });
 
             const keys = [
-                `visitedPlaces:visitedPlacePreviousPreviousDepartureTime_${previousVisitedPlace?.activity}_${onTheRoadDepartureType}`,
-                `visitedPlaces:visitedPlacePreviousPreviousDepartureTime_${onTheRoadDepartureType}`,
+                `visitedPlaces:visitedPlacePreviousPreviousDepartureTime_${previousVisitedPlace?.activity}_${onTheRoadPreviousPlaceActivity}`,
+                `visitedPlaces:visitedPlacePreviousPreviousDepartureTime_${onTheRoadPreviousPlaceActivity}`,
                 'visitedPlaces:visitedPlacePreviousPreviousDepartureTime'
             ];
             return t(keys, {
@@ -353,7 +353,7 @@ export class VisitedPlaceTimeWidgetFactory implements WidgetConfigFactory {
                 nickname: odHelpers.getPersonIdentificationString({ person, t }),
                 count: odHelpers.getCountOrSelfDeclared({ interview, person }),
                 previousPlaceDescription,
-                departureTypeActivity: t(`visitedPlaces:activities:${onTheRoadDepartureType}`)
+                departureTypeActivity: t(`visitedPlaces:activities:${onTheRoadPreviousPlaceActivity}`)
             });
         },
         minTimeSecondsSinceMidnight: this.getTimeSecondsLowerBoundFromPreviousPlacesAndTimes(
@@ -393,11 +393,11 @@ export class VisitedPlaceTimeWidgetFactory implements WidgetConfigFactory {
             }
             const { person, visitedPlace } = visitedPlaceContext;
 
-            const onTheRoadDepartureType = (visitedPlace as any).onTheRoadDepartureType;
+            const onTheRoadPreviousPlaceActivity = visitedPlace.onTheRoadPreviousPlaceActivity;
 
             const nickname = odHelpers.getPersonIdentificationString({ person, t });
             const keys = [
-                `visitedPlaces:visitedPlacePreviousArrivalTime_${onTheRoadDepartureType}`,
+                `visitedPlaces:visitedPlacePreviousArrivalTime_${onTheRoadPreviousPlaceActivity}`,
                 'visitedPlaces:visitedPlacePreviousArrivalTime'
             ];
             // Use specific keys with departure type if available, but fallback to generic one.
@@ -649,14 +649,14 @@ export class VisitedPlaceTimeWidgetFactory implements WidgetConfigFactory {
                 );
             }
             const { journey, visitedPlace } = visitedPlaceContext;
-            // Do not show if the onTheRoadArrivalType is set and is not
+            // Do not show if the onTheRoadNextPlaceCategory is set and is not
             // "stayedThereUntilTheNextDay"
 
-            // FIXME Remove when onTheRoadArrivalType is merged with nextCategory (#1555)
+            // FIXME Remove when onTheRoadNextPlaceCategory is merged with nextCategory (#1555)
             if (
                 visitedPlace.activity &&
-                (visitedPlace as any).onTheRoadArrivalType &&
-                (visitedPlace as any).onTheRoadArrivalType !== 'stayedThereUntilTheNextDay'
+                visitedPlace.onTheRoadNextPlaceCategory &&
+                visitedPlace.onTheRoadNextPlaceCategory !== 'stayedThereUntilTheNextDay'
             ) {
                 return [true, null];
             }

@@ -135,7 +135,7 @@ export const getNextPlaceCategoryWidgetConfig = (
         // there until the next day, even if they did not explicitly say it
         if (
             odHelpers.isLoopActivity({ visitedPlace: activeVisitedPlace }) &&
-            (activeVisitedPlace as any).onTheRoadArrivalType === 'stayedThereUntilTheNextDay'
+            activeVisitedPlace.onTheRoadNextPlaceCategory === 'stayedThereUntilTheNextDay'
         ) {
             return [false, 'stayedThereUntilTheNextDay'];
         }

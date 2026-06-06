@@ -172,6 +172,7 @@ export type Journey = JourneyAttributes &
         };
     };
 
+type NextPlaceCategory = 'wentBackHome' | 'visitedAnotherPlace' | 'stayedThereUntilTheNextDay' | 'wentToUsualWorkPlace';
 // FIXME We are not using the VisitedPlaceAttributes type here because during survey, most of the data from that type is rather as a property of the geography feature and not as fields of the object
 export type VisitedPlace = QuestionnaireObjectWithUuidAndSequence &
     NamedPlace & {
@@ -186,6 +187,18 @@ export type VisitedPlace = QuestionnaireObjectWithUuidAndSequence &
         activityCategory?: Optional<ActivityCategory>;
         alreadyVisitedBySelfOrAnotherHouseholdMember?: Optional<boolean>;
         shortcut?: Optional<string>;
+        /**
+         * Temporary field to validate the departure place for on the road
+         * activities. This value is used to add a previous place before the on
+         * the road activity if necessary.
+         */
+        onTheRoadPreviousPlaceActivity?: 'home' | 'other' | 'workUsual';
+        /**
+         * Temporary field to inform the next place category for the on the road
+         * arrival trips end. This value is used to add a next place after the
+         * on the road activity if necessary.
+         */
+        onTheRoadNextPlaceCategory?: NextPlaceCategory;
         departureTime?: number;
         arrivalTime?: number;
         /**
@@ -215,11 +228,7 @@ export type VisitedPlace = QuestionnaireObjectWithUuidAndSequence &
          * used for workOnTheRoad trips. It is imputed by values entered by
          * participant
          */
-        nextPlaceCategory?:
-            | 'wentBackHome'
-            | 'visitedAnotherPlace'
-            | 'stayedThereUntilTheNextDay'
-            | 'wentToUsualWorkPlace';
+        nextPlaceCategory?: NextPlaceCategory;
     } & (
         | { alreadyVisitedBySelfOrAnotherHouseholdMember?: false; name?: string; shortcut?: never }
         | { alreadyVisitedBySelfOrAnotherHouseholdMember: true; name?: never; shortcut?: string }

@@ -150,7 +150,7 @@ describe('visitedPlacePreviousPreviousDepartureTime widget', () => {
                 setup: (interview: typeof interviewAttributesForTestCases) => {
                     // Delete departureTime of previous place, current is work on the road with start at usual place, which is not the previous place activity
                     interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.workPlace1P1.activity = 'workOnTheRoad';
-                    (interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.workPlace1P1 as any).onTheRoadDepartureType = 'usualWorkPlace';
+                    interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.workPlace1P1.onTheRoadPreviousPlaceActivity = 'workUsual';
                     delete interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.homePlace1P1.departureTime;
                     interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.homePlace1P1.activity = 'home';
                 },
@@ -162,7 +162,7 @@ describe('visitedPlacePreviousPreviousDepartureTime widget', () => {
                 setup: (interview: typeof interviewAttributesForTestCases) => {
                     // Set departureTime of previous place, current is work on the road with start at usual place, which is not the previous place activity
                     interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.workPlace1P1.activity = 'workOnTheRoad';
-                    (interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.workPlace1P1 as any).onTheRoadDepartureType = 'usualWorkPlace';
+                    interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.workPlace1P1.onTheRoadPreviousPlaceActivity = 'workUsual';
                     interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.homePlace1P1.departureTime = 7 * 60 * 60;
                     interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.homePlace1P1.activity = 'home';
                 },
@@ -192,27 +192,27 @@ describe('visitedPlacePreviousPreviousDepartureTime widget', () => {
                 visitedPlaceId: 'workPlace1P1',
                 setup: (interview: typeof interviewAttributesForTestCases) => {
                     interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.workPlace1P1.activity = 'workOnTheRoad';
-                    (interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.workPlace1P1 as any).onTheRoadDepartureType = 'usualWorkPlace';
+                    interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.workPlace1P1.onTheRoadPreviousPlaceActivity = 'workUsual';
                     interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.homePlace1P1.activity = 'home';
                 },
-                expectedKeys: ['visitedPlaces:visitedPlacePreviousPreviousDepartureTime_home_usualWorkPlace', 'visitedPlaces:visitedPlacePreviousPreviousDepartureTime_usualWorkPlace', 'visitedPlaces:visitedPlacePreviousPreviousDepartureTime']
+                expectedKeys: ['visitedPlaces:visitedPlacePreviousPreviousDepartureTime_home_workUsual', 'visitedPlaces:visitedPlacePreviousPreviousDepartureTime_workUsual', 'visitedPlaces:visitedPlacePreviousPreviousDepartureTime']
             },
             {
                 title: 'uses other generic labels for non-home previous place',
                 visitedPlaceId: 'workPlace1P1',
                 setup: (interview: typeof interviewAttributesForTestCases) => {
                     interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.workPlace1P1.activity = 'workOnTheRoad';
-                    (interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.workPlace1P1 as any).onTheRoadDepartureType = 'usualWorkPlace';
+                    interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.workPlace1P1.onTheRoadPreviousPlaceActivity = 'workUsual';
                     interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.homePlace1P1.activity = 'shopping';
                 },
-                expectedKeys: ['visitedPlaces:visitedPlacePreviousPreviousDepartureTime_shopping_usualWorkPlace', 'visitedPlaces:visitedPlacePreviousPreviousDepartureTime_usualWorkPlace', 'visitedPlaces:visitedPlacePreviousPreviousDepartureTime']
+                expectedKeys: ['visitedPlaces:visitedPlacePreviousPreviousDepartureTime_shopping_workUsual', 'visitedPlaces:visitedPlacePreviousPreviousDepartureTime_workUsual', 'visitedPlaces:visitedPlacePreviousPreviousDepartureTime']
             },
             {
                 title: 'workUsual activity with a home departure place',
                 visitedPlaceId: 'workPlace1P1',
                 setup: (interview: typeof interviewAttributesForTestCases) => {
                     interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.workPlace1P1.activity = 'workOnTheRoad';
-                    (interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.workPlace1P1 as any).onTheRoadDepartureType = 'home';
+                    interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.workPlace1P1.onTheRoadPreviousPlaceActivity = 'home';
                     interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.homePlace1P1.activity = 'workUsual';
                 },
                 expectedKeys: ['visitedPlaces:visitedPlacePreviousPreviousDepartureTime_workUsual_home', 'visitedPlaces:visitedPlacePreviousPreviousDepartureTime_home', 'visitedPlaces:visitedPlacePreviousPreviousDepartureTime']
@@ -474,18 +474,18 @@ describe('visitedPlacePreviousArrivalTime widget', () => {
                 setup: (interview: typeof interviewAttributesForTestCases) => {
                     // Set place to workOnTheRoad activity with home departure, but previous place is workUsual
                     interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.otherPlaceP1.activity = 'workOnTheRoad';
-                    (interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.otherPlaceP1 as any).onTheRoadDepartureType = 'home';
+                    interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.otherPlaceP1.onTheRoadPreviousPlaceActivity = 'home';
                     interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.homePlace2P1.activity = 'workUsual';
                 },
                 expected: [true, null]
             },
             {
-                title: 'returns [true, null] for workOnTheRoad with usualWorkPlace departure and previous not workUsual',
+                title: 'returns [true, null] for workOnTheRoad with workUsual departure and previous not workUsual',
                 visitedPlaceId: 'workPlace1P1',
                 setup: (interview: typeof interviewAttributesForTestCases) => {
-                    // Set place to workOnTheRoad activity with usualWorkPlace departure, but previous place not workUsual
+                    // Set place to workOnTheRoad activity with workUsual departure, but previous place not workUsual
                     interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.workPlace1P1.activity = 'workOnTheRoad';
-                    (interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.workPlace1P1 as any).onTheRoadDepartureType = 'usualWorkPlace';
+                    interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.workPlace1P1.onTheRoadPreviousPlaceActivity = 'workUsual';
                     interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.homePlace1P1.activity = 'home';
                 },
                 expected: [true, null]
@@ -495,7 +495,7 @@ describe('visitedPlacePreviousArrivalTime widget', () => {
                 visitedPlaceId: 'otherPlaceP1',
                 setup: (interview: typeof interviewAttributesForTestCases) => {
                     interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.otherPlaceP1.activity = 'workOnTheRoad';
-                    (interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.otherPlaceP1 as any).onTheRoadDepartureType = 'home';
+                    interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.otherPlaceP1.onTheRoadPreviousPlaceActivity = 'home';
                     interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.homePlace2P1.activity = 'home';
                 },
                 expected: [false, null]
@@ -524,7 +524,7 @@ describe('visitedPlacePreviousArrivalTime widget', () => {
                 visitedPlaceId: 'otherPlaceP1',
                 setup: (interview: typeof interviewAttributesForTestCases) => {
                     interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.otherPlaceP1.activity = 'workOnTheRoad';
-                    (interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.otherPlaceP1 as any).onTheRoadDepartureType = 'home';
+                    interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.otherPlaceP1.onTheRoadPreviousPlaceActivity = 'home';
                 },
                 expectedSpecificKey: 'visitedPlaces:visitedPlacePreviousArrivalTime_home'
             },
@@ -533,9 +533,9 @@ describe('visitedPlacePreviousArrivalTime widget', () => {
                 visitedPlaceId: 'workPlace1P1',
                 setup: (interview: typeof interviewAttributesForTestCases) => {
                     interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.workPlace1P1.activity = 'workOnTheRoad';
-                    (interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.workPlace1P1 as any).onTheRoadDepartureType = 'usualWorkPlace';
+                    interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.workPlace1P1.onTheRoadPreviousPlaceActivity = 'workUsual';
                 },
-                expectedSpecificKey: 'visitedPlaces:visitedPlacePreviousArrivalTime_usualWorkPlace'
+                expectedSpecificKey: 'visitedPlaces:visitedPlacePreviousArrivalTime_workUsual'
             }
         ])('should handle case: $title', ({ visitedPlaceId, setup, expectedSpecificKey }) => {
             const interview = _cloneDeep(interviewAttributesForTestCases);
@@ -1047,7 +1047,7 @@ describe('visitedPlaceArrivalTime widget', () => {
         const setupInterviewWithPreviousPreviousCase = (interview: typeof interviewAttributesForTestCases) => {
             // Delete departureTime of previous place, current is work on the road with start at usual place, which is not the previous place activity
             interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.workPlace1P1.activity = 'workOnTheRoad';
-            (interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.workPlace1P1 as any).onTheRoadDepartureType = 'usualWorkPlace';
+            interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.workPlace1P1.onTheRoadPreviousPlaceActivity = 'workUsual';
             delete interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.homePlace1P1.departureTime;
             interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.homePlace1P1.activity = 'home';
         };
@@ -1423,11 +1423,11 @@ describe('visitedPlaceDepartureTime widget', () => {
 
         test.each([
             {
-                title: 'returns [true, null] when onTheRoadArrivalType is set and not stayedThereUntilTheNextDay',
+                title: 'returns [true, null] when onTheRoadNextPlaceCategory is set and not stayedThereUntilTheNextDay',
                 visitedPlaceId: 'workPlace1P1',
                 setup: (interview: typeof interviewAttributesForTestCases) => {
                     interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.workPlace1P1.activity = 'workOnTheRoad';
-                    (interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.workPlace1P1 as any).onTheRoadArrivalType = 'home';
+                    interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.workPlace1P1.onTheRoadNextPlaceCategory = 'wentBackHome';
                 },
                 expected: [true, null]
             },
