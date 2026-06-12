@@ -434,161 +434,148 @@ label strong,
 
 }
 
-// InputRange component
+// InputRange component (Web Awesome wa-slider)
 .question-type-slider {
     display: flex;
     flex-direction: column;
-    gap: 2rem; // We need this to show correctly the values label on top of the slider
-}
-
-.survey-question__input-range_input_container {
-    margin: 0 auto;
-}
-
-// Slider container
-.input-range__slider-container {
-    transition: none; // Do not use transition or the slider will be very slow
-}
-
-.input-range__label-container {
-    font-weight: 500;
-    left: 0;
-    font-family: settings.$font-family;
+    gap: 2rem;
 }
 
 .survey-question__input-range_input_container_with_labels {
     width: 100%;
 }
 
-.survey-question__input-range_input_labels_container {
-    margin-top: -1rem;
-    margin-left: 10%;
-    margin-right: 10%;
-    display: flex;
-    justify-content: 'space-between';
-    align-items: 'center';
-    font-size: 1.4rem;
-    font-style: oblique;
-}
-
-// Labels for the slider
-.__input-range_input_container_label {
-    margin-top: 1rem; // Space between the slider and the label
-    flex-grow: 1;
-    flex-basis: 0;
-    text-align: left;
-}
-
-.__input-range_input_container_label_middle {
-    text-align: center;
-}
-
-.__input-range_input_container_label_last {
-    text-align: right;
-}
-
-.input-range {
+wa-slider.survey-question__input-range_slider {
     margin-bottom: 3rem;
     margin-left: 1%;
     margin-right: 10%;
     margin-top: 3rem;
     width: 89%;
+    --track-size: 1.2rem;
+    --thumb-width: 2.5rem;
+    --thumb-height: 2.5rem;
 }
 
-.input-range__label {
-    font-size: 1.4rem;
-    bottom: -3rem;
-    font-weight: 300;
-    font-style: oblique;
-    color: rgba(0, 0, 0, 0.6);
+wa-slider.survey-question__input-range_slider::part(track) {
+    border-radius: 0.5rem;
 }
 
-.input-range__slider {
-    background: rgba(255, 255, 255, 1.0);
+wa-slider.survey-question__input-range_slider::part(thumb) {
+    background: rgba(255, 255, 255, 1.0) !important;
+    background-color: rgba(255, 255, 255, 1.0) !important;
     border: 5px solid rgb(61, 66, 74);
+    cursor: grab;
 }
 
-.question-empty .input-range__slider {
-    background: rgba(255, 255, 255, 1.0);
+wa-slider.survey-question__input-range_slider:state(dragging)::part(thumb) {
+    cursor: grabbing;
+}
+
+.survey-question__input-range_input_container_with_labels.input-blank wa-slider.survey-question__input-range_slider::part(thumb) {
     border: 1px solid rgba(61, 66, 74, 0.5);
 }
 
-// Value on top of the slider
-.input-range__label--value {
-    top: -4rem;
-    font-style: normal;
-    font-weight: 700;
-    transform: translateX(-50%); // Center the value
-    color: rgba(0, 0, 0, 0.85);
+wa-slider.survey-question__input-range_slider::part(references) {
+    margin-top: 1rem;
+    font-size: 1.4rem;
+    font-style: oblique;
+    font-family: settings.$font-family;
 }
 
-// Min value label
-.input-range__label--min {
-    display: none; // Hide the min value label
+// Web Awesome fills ::part(indicator) with --wa-form-control-activated-color from min to the
+// thumb. That solid layer hides the track gradient (especially when the value is near max).
+// Hide the indicator entirely so the gradient track stays visible end-to-end.
+wa-slider.survey-question__input-range_slider--colored {
+    --wa-form-control-activated-color: transparent;
 }
 
-// Max value label
-.input-range__label--max .input-range__label-container {
-    display: none; // Hide the max value label
+wa-slider.survey-question__input-range_slider--colored::part(indicator) {
+    display: none !important;
 }
 
-.input-range__label--max {
-    text-align: right;
-    margin-right: 0;
-    padding-right: 0;
-    //text-anchor: start;
+@mixin input-slider-colored-track($gradient) {
+    &::part(track) {
+        background: $gradient !important;
+        box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+        cursor: pointer;
+    }
 }
 
-.input-range__track--background,
-.input-slider-blue {
-    background: linear-gradient(to right, rgba(255, 255, 255, 1.0), rgba(255, 255, 255, 1.0) 10%, rgba(54, 158, 255, 0.3) 10%, rgba(54, 158, 255, 1.0), rgba(0, 49, 139, 1.0));
-    box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+wa-slider.input-slider-blue {
+    @include input-slider-colored-track(
+        linear-gradient(
+            to right,
+            rgba(255, 255, 255, 1.0),
+            rgba(255, 255, 255, 1.0) 10%,
+            rgba(54, 158, 255, 0.3) 10%,
+            rgba(54, 158, 255, 1.0),
+            rgba(0, 49, 139, 1.0)
+        )
+    );
 }
 
-// Any slider with a class starting with "input-slider-"
-[class^="input-slider-"] {
-    cursor: pointer;
+wa-slider.input-slider-blue-red {
+    @include input-slider-colored-track(
+        linear-gradient(
+            to right,
+            rgba(255, 255, 255, 1.0),
+            rgba(255, 255, 255, 1.0) 10%,
+            rgba(54, 158, 255, 1.0) 10%,
+            rgb(220, 0, 0)
+        )
+    );
 }
 
-.input-slider-red-yellow-green {
-    background: linear-gradient(to right, rgba(255, 255, 255, 1.0), rgba(255, 255, 255, 1.0) 10%, rgb(220, 0, 0) 10%, rgb(255, 234, 0), rgb(72, 167, 13));
-    box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+wa-slider.input-slider-red-yellow-green {
+    @include input-slider-colored-track(
+        linear-gradient(
+            to right,
+            rgba(255, 255, 255, 1.0),
+            rgba(255, 255, 255, 1.0) 10%,
+            rgb(220, 0, 0) 10%,
+            rgb(255, 234, 0),
+            rgb(72, 167, 13)
+        )
+    );
 }
 
-.input-slider-red-white-green {
-    background: linear-gradient(to right, rgba(255, 255, 255, 1.0), rgba(255, 255, 255, 1.0) 10%, rgb(220, 0, 0) 10%, rgb(255, 255, 255), rgb(72, 167, 13));
-    box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+wa-slider.input-slider-red-white-green {
+    @include input-slider-colored-track(
+        linear-gradient(
+            to right,
+            rgba(255, 255, 255, 1.0),
+            rgba(255, 255, 255, 1.0) 10%,
+            rgb(220, 0, 0) 10%,
+            rgb(255, 255, 255),
+            rgb(72, 167, 13)
+        )
+    );
 }
 
-.input-slider-green-yellow-red {
-    background: linear-gradient(to right, rgba(255, 255, 255, 1.0), rgba(255, 255, 255, 1.0) 10%, rgb(72, 167, 13) 10%, rgb(255, 234, 0), rgb(220, 0, 0));
-    box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
+wa-slider.input-slider-green-yellow-red {
+    @include input-slider-colored-track(
+        linear-gradient(
+            to right,
+            rgba(255, 255, 255, 1.0),
+            rgba(255, 255, 255, 1.0) 10%,
+            rgb(72, 167, 13) 10%,
+            rgb(255, 234, 0),
+            rgb(220, 0, 0)
+        )
+    );
 }
 
-.input-slider-green-white-red {
-    background: linear-gradient(to right, rgba(255, 255, 255, 1.0), rgba(255, 255, 255, 1.0) 10%, rgb(72, 167, 13) 10%, rgb(255, 255, 255), rgb(220, 0, 0));
-    box-shadow: 0 0 2px rgba(0, 0, 0, 0.5);
-}
-
-
-.input-range__track--active {
-    background: none;
-    //box-shadow: 0 0 5px rgba(54, 158, 255, 1.0);
-}
-
-// Slider circle
-.input-range__slider {
-    height: 2.5rem;
-    width: 2.5rem;
-    margin-left: -1.25rem; // Center the slider
-    margin-top: -1.75rem; // Center the slider
-    cursor: grabbing; // Change the cursor when dragging the slider
-}
-
-// Slider track
-.input-range__track {
-    border-radius: 0.5rem;
-    height: 1.2rem;
+wa-slider.input-slider-green-white-red {
+    @include input-slider-colored-track(
+        linear-gradient(
+            to right,
+            rgba(255, 255, 255, 1.0),
+            rgba(255, 255, 255, 1.0) 10%,
+            rgb(72, 167, 13) 10%,
+            rgb(255, 255, 255),
+            rgb(220, 0, 0)
+        )
+    );
 }
 
 .react-select-container {
