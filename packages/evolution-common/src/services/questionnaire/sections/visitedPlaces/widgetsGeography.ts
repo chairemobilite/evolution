@@ -16,6 +16,7 @@ import * as odHelpers from '../../../odSurvey/helpers';
 import { getResponse } from '../../../../utils/helpers';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { type Activity, loopActivities } from '../../../odSurvey/types';
+import * as visitedPlacesHelpers from './helpers';
 import { getActivityMarkerIcon } from './activityIconMapping';
 
 // This is the minimum zoom required to avoid placement errors when selecting an
@@ -34,12 +35,20 @@ const visitedPlacesMapClickDragDefaultZoom = 15;
  * Widget factory that creates a pair of widgets for a location name and geography
  */
 export class VisitedPlaceGeographyWidgetFactory implements WidgetConfigFactory {
+    private readonly shouldDisplayUsualPlacesGeography: boolean;
+
     constructor(
         private sectionConfig: VisitedPlacesSectionConfiguration,
         private options: WidgetFactoryOptions
     ) {
-        /** Nothing to do */
+        const inlineUsualPlacesEntry = sectionConfig.inlineUsualPlacesEntry === true;
+        this.shouldDisplayUsualPlacesGeography = inlineUsualPlacesEntry;
     }
+
+    private getUsualPlaceHelperFunction = (activity: 'workUsual' | 'schoolUsual') =>
+        activity === 'workUsual'
+            ? visitedPlacesHelpers.getPersonUsualWorkPlace
+            : visitedPlacesHelpers.getPersonUsualSchoolPlace;
 
     private getNameWidgetConfiguration = (): LocationWithNameWidgetOptions['nameWidget'] => ({
         containsHtml: true,
@@ -62,18 +71,14 @@ export class VisitedPlaceGeographyWidgetFactory implements WidgetConfigFactory {
         conditional: (interview, path) => {
             const visitedPlace: any = getResponse(interview, path, null, '../');
             const activity = visitedPlace.activity;
-            const person = odHelpers.getActivePerson({ interview });
 
             // Do not display if the activity is a usual place and that place is set
-            if (activity === 'workUsual' && (person as any).usualWorkPlace && (person as any).usualWorkPlace.name) {
-                return [false, (person as any).usualWorkPlace.name];
-            }
-            if (
-                activity === 'schoolUsual' &&
-                (person as any).usualSchoolPlace &&
-                (person as any).usualSchoolPlace.name
-            ) {
-                return [false, (person as any).usualSchoolPlace.name];
+            // If activity is a usual place and their entry is not inlined, hide and pre-populate with a clone of the geography
+            if ((activity === 'workUsual' || activity === 'schoolUsual') && !this.shouldDisplayUsualPlacesGeography) {
+                const { usualPlace } = this.getUsualPlaceHelperFunction(activity)(interview, path);
+                if (usualPlace && usualPlace.name) {
+                    return [false, usualPlace.name];
+                }
             }
 
             // Do not display for loop activity if activity is not set, if it is
@@ -89,6 +94,30 @@ export class VisitedPlaceGeographyWidgetFactory implements WidgetConfigFactory {
             }
             return [shouldDisplay, null];
         },
+        defaultValue: this.shouldDisplayUsualPlacesGeography
+            ? (interview, path) => {
+                const visitedPlaceContext = odHelpers.getVisitedPlaceContextFromPath({ interview, path });
+                if (visitedPlaceContext === null) {
+                    throw new Error(
+                        'widgetVisitedPlaceGeography: defaultValue function: visited place context not found for path' +
+                              path
+                    );
+                }
+                const { visitedPlace } = visitedPlaceContext || {};
+
+                // If the activity is a usual place and it is inlined, default to the name of that place
+                if (
+                    (visitedPlace.activity === 'workUsual' || visitedPlace.activity === 'schoolUsual') &&
+                      this.shouldDisplayUsualPlacesGeography
+                ) {
+                    const { usualPlace } = this.getUsualPlaceHelperFunction(visitedPlace.activity)(interview, path);
+                    if (usualPlace && usualPlace.name) {
+                        return usualPlace.name;
+                    }
+                }
+                return '';
+            }
+            : undefined,
         validations: (value) => {
             return [
                 {
@@ -174,7 +203,7 @@ export class VisitedPlaceGeographyWidgetFactory implements WidgetConfigFactory {
             ];
             return validations;
         },
-        defaultValue: function (interview, path) {
+        defaultValue: (interview, path) => {
             const visitedPlaceContext = odHelpers.getVisitedPlaceContextFromPath({ interview, path });
             if (visitedPlaceContext === null) {
                 throw new Error(
@@ -202,6 +231,23 @@ export class VisitedPlaceGeographyWidgetFactory implements WidgetConfigFactory {
                     return clonedGeography;
                 }
             }
+            // If the activity is a usual place and it is inlined, default to a
+            // copy of that usual place geography
+
+            // FIXME This implies the geography of other usual locations may
+            // diverge from the first one. This will clone the first one only.
+            // We still need to define the spec for multiple usual places.
+            if (
+                (visitedPlace.activity === 'workUsual' || visitedPlace.activity === 'schoolUsual') &&
+                this.shouldDisplayUsualPlacesGeography
+            ) {
+                const { usualPlace } = this.getUsualPlaceHelperFunction(visitedPlace.activity)(interview, path);
+                if (usualPlace && usualPlace.geography) {
+                    const clonedGeography = _cloneDeep(usualPlace.geography);
+                    clonedGeography.properties!.lastAction = 'copy';
+                    return clonedGeography;
+                }
+            }
             return undefined;
         },
         resetToDefaultUnlessUserInteracted: true,
@@ -214,18 +260,19 @@ export class VisitedPlaceGeographyWidgetFactory implements WidgetConfigFactory {
             const visitedPlaceContext = odHelpers.getVisitedPlaceContextFromPath({ interview, path });
             if (visitedPlaceContext === null) {
                 throw new Error(
-                    'widgetVisitedPlaceShortcut: defaultValue function: visited place context not found for path' + path
+                    'widgetVisitedPlaceGeography: defaultValue function: visited place context not found for path' +
+                        path
                 );
             }
-            const { person, visitedPlace } = visitedPlaceContext || {};
+            const { visitedPlace } = visitedPlaceContext || {};
 
             const activity = visitedPlace.activity;
-            // Do not diplay if the activity is a usual place and that place is set with a geography
-            if (activity === 'workUsual' && person.usualWorkPlace && person.usualWorkPlace.geography) {
-                return [false, _cloneDeep(person.usualWorkPlace.geography)];
-            }
-            if (activity === 'schoolUsual' && person.usualSchoolPlace && person.usualSchoolPlace.geography) {
-                return [false, _cloneDeep(person.usualSchoolPlace.geography)];
+            // If activity is a usual place and their entry is not inlined, hide and pre-populate with a clone of the geography
+            if ((activity === 'workUsual' || activity === 'schoolUsual') && !this.shouldDisplayUsualPlacesGeography) {
+                const { usualPlace } = this.getUsualPlaceHelperFunction(activity)(interview, path);
+                if (usualPlace && usualPlace.geography) {
+                    return [false, _cloneDeep(usualPlace.geography)];
+                }
             }
 
             // Show if the activity is not home or a loop activity. If it is a

@@ -92,7 +92,20 @@ export type Household = HouseholdAttributes & {
 };
 
 type SurveyPointProperties = {
-    lastAction: 'findPlace' | 'shortcut' | 'mapClicked' | 'markerDragged';
+    /**
+     * The type of action done on a point:
+     *
+     * ```
+     * - findPlace: the point was created by geocoding a place with a query
+     * - shortcut: the point was created by using a shortcut to another visited place
+     * - mapClicked: the point was created by clicking on the map
+     * - markerDragged: the point was created by dragging an existing point on the map
+     * - copy: the point was created by copying an existing point (used for usual places when inlined)
+     * ```
+     * This is used to determine how the point was created and can be useful for
+     * validation and analysis.
+     */
+    lastAction: 'findPlace' | 'shortcut' | 'mapClicked' | 'markerDragged' | 'copy';
 };
 
 /**
@@ -110,7 +123,7 @@ export type QuestionnaireObjectWithUuidAndSequence = {
     _sequence: number;
 };
 
-type NamedPlace = {
+export type NamedPlace = {
     name?: string;
     geography?: GeoJSON.Feature<GeoJSON.Point, SurveyPointProperties>;
 };

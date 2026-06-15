@@ -546,6 +546,16 @@ export type VisitedPlacesSectionConfiguration = {
      */
     activityExclude?: Activity[];
     /**
+     * Specify whether the usual work/school places are expected to be entered
+     * when required (inline) or if they are expected to have been entered
+     * previously as part of each household member's questionnaire. If set to
+     * `true`, the usual places activities will appear even if the place is not
+     * defined, and the participant will have the possibility to enter it.
+     * Otherwise, the activities won't be available if the previous is not
+     * defined. Defaults to `false`.
+     */
+    inlineUsualPlacesEntry?: boolean;
+    /**
      * The minimum time of day for the trip diary, in seconds since midnight.
      *
      * TODO When we support daily or multi-day diaries, this configuration should go only for daily ones. (https://github.com/chairemobilite/evolution/issues/1458)

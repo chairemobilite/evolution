@@ -26,6 +26,7 @@ import { PersonVisitedPlacesGroupConfigFactory } from './groupPersonVisitedPlace
 import { getButtonConfirmGotoNextSectionWidgetConfig } from './buttonConfirmGotoNextSection';
 import { tripDiarySectionVisibleConditional } from '../tripDiary/tripDiaryHelpers';
 import { Activity, ActivityCategory } from '../../../odSurvey/types';
+import { initializeVisitedPlaceSectionHelpers } from './helpers';
 
 export class VisitedPlacesSectionFactory implements SectionConfigFactory {
     private _sectionConfig: SectionConfig | undefined = undefined;
@@ -35,7 +36,7 @@ export class VisitedPlacesSectionFactory implements SectionConfigFactory {
         private sectionConfig: VisitedPlacesSectionConfiguration,
         private options: WidgetFactoryOptions
     ) {
-        /** Nothing to do */
+        initializeVisitedPlaceSectionHelpers(this.sectionConfig);
         this.prepareWidgetsAndSection();
     }
 

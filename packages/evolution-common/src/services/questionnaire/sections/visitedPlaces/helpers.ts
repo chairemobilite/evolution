@@ -14,6 +14,8 @@ import {
 } from '../../../odSurvey/types';
 import type {
     Journey,
+    NamedPlace,
+    ParsingFunction,
     Person,
     UserInterviewAttributes,
     VisitedPlace,
@@ -24,6 +26,7 @@ import * as odSurveyHelpers from '../../../odSurvey/helpers';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { toXXhrYYminZZsec } from 'chaire-lib-common/lib/utils/DateTimeUtils';
 import { TFunction } from 'i18next';
+import config from '../../../../config/project.config';
 
 /**
  * Validate that the activity of the previous and next places are not in the
@@ -419,3 +422,157 @@ export const isLastVisitedPlaceConditional: WidgetConditional = (interview, path
         visitedPlacesArray[visitedPlacesArray.length - 1]._uuid === activeVisitedPlace._uuid
     );
 };
+
+// Internal interface for various implementations of the segment next/previous
+// locations, depending on the received configuration.
+interface VisitedPlaceSectionHelpersImplementation {
+    getPersonUsualWorkPlace: ParsingFunction<{
+        mayHaveUsualPlace: boolean;
+        usualPlace: NamedPlace | null;
+    }>;
+    getPersonUsualSchoolPlace: ParsingFunction<{
+        mayHaveUsualPlace: boolean;
+        usualPlace: NamedPlace | null;
+    }>;
+}
+type GetUsualPlaceFct = (person: Person, journey: Journey) => NamedPlace | undefined;
+
+class VisitedPlaceHelpersBaseClass {
+    // The person may have a usual work place if both
+    // 1- the occupation, if set, includes worker
+    // 2- the person's has a usual workPlaceType set and that implies a usual place
+    protected mayHaveUsualWorkPlace = (person: Person) =>
+        (person.occupation === undefined ||
+            ['fullTimeWorker', 'partTimeWorker', 'workerAndStudent'].includes(person.occupation)) &&
+        (person.workPlaceType === undefined ||
+            ['onTheRoadWithUsualPlace', 'onLocation', 'hybrid'].includes(person.workPlaceType));
+
+    // The person may have a usual school place if both
+    // 1- the occupation, if set, includes student or the age is less than the school mandatory age
+    // 2- the person's has a usual schoolPlaceType set and that implies a usual place
+    protected mayHaveUsualSchoolPlace = (person: Person) =>
+        (person.occupation === undefined ||
+            ['fullTimeStudent', 'partTimeStudent', 'workerAndStudent'].includes(person.occupation) ||
+            (!_isBlank(person.age) && person.age! <= config.schoolMandatoryAge)) &&
+        (person.schoolPlaceType === undefined || ['onLocation', 'hybrid'].includes(person.schoolPlaceType));
+
+    protected getPersonUsualPlace: ({
+        mayHavePlaceConditional,
+        getUsualPlaceFct
+    }: {
+        mayHavePlaceConditional: (person: Person) => boolean;
+        getUsualPlaceFct: GetUsualPlaceFct;
+    }) => ParsingFunction<{
+        mayHaveUsualPlace: boolean;
+        usualPlace: NamedPlace | null;
+    }> =
+            ({ mayHavePlaceConditional, getUsualPlaceFct }) =>
+                (interview, path) => {
+                    const journeyContext = odSurveyHelpers.getJourneyContextFromPath({ interview, path });
+                    if (journeyContext === null) {
+                        throw new Error('Journey context not found in interview response');
+                    }
+                    const { journey, person } = journeyContext;
+
+                    // The person may have a usual work place if both
+                    // 1- the occupation, if set, includes worker
+                    // 2- the person's has a usual workPlaceType set and that implies a usual place
+
+                    const mayHaveUsualPlace = mayHavePlaceConditional(person);
+
+                    if (mayHaveUsualPlace) {
+                        const usualPlace = getUsualPlaceFct(person, journey);
+                        if (usualPlace) {
+                            return { mayHaveUsualPlace: mayHaveUsualPlace, usualPlace: usualPlace };
+                        }
+                    }
+
+                    return { mayHaveUsualPlace: mayHaveUsualPlace, usualPlace: null };
+                };
+}
+
+class VisitedPlaceHelpersInline
+    extends VisitedPlaceHelpersBaseClass
+    implements VisitedPlaceSectionHelpersImplementation {
+    private getUsualPlaceFromTripDiary =
+        (usualActivity: 'schoolUsual' | 'workUsual'): GetUsualPlaceFct =>
+            (_person: Person, journey: Journey): NamedPlace | undefined => {
+            // The usual school place may be in the trip diary. If so, return that visited place
+                const visitedPlaces = odSurveyHelpers.getVisitedPlacesArray({ journey });
+                const usualSchoolPlaceVisitedPlace = visitedPlaces.find(
+                    (visitedPlace) => visitedPlace.activity === usualActivity
+                );
+                return usualSchoolPlaceVisitedPlace;
+            };
+
+    getPersonUsualWorkPlace: ParsingFunction<{ mayHaveUsualPlace: boolean; usualPlace: NamedPlace | null }> =
+        this.getPersonUsualPlace({
+            mayHavePlaceConditional: this.mayHaveUsualWorkPlace,
+            getUsualPlaceFct: this.getUsualPlaceFromTripDiary('workUsual')
+        });
+    getPersonUsualSchoolPlace: ParsingFunction<{ mayHaveUsualPlace: boolean; usualPlace: NamedPlace | null }> =
+        this.getPersonUsualPlace({
+            mayHavePlaceConditional: this.mayHaveUsualSchoolPlace,
+            getUsualPlaceFct: this.getUsualPlaceFromTripDiary('schoolUsual')
+        });
+}
+
+class VisitedPlaceHelpersInPersonProfile
+    extends VisitedPlaceHelpersBaseClass
+    implements VisitedPlaceSectionHelpersImplementation {
+    // Get a usual place directly in the person's attributes
+    private getUsualPlaceFromPerson =
+        (placeName: 'usualSchoolPlace' | 'usualWorkPlace'): GetUsualPlaceFct =>
+            (person: Person, _journey: Journey): NamedPlace | undefined => {
+                const usualPlace = person[placeName];
+                return usualPlace && usualPlace.geography ? usualPlace : undefined;
+            };
+
+    getPersonUsualWorkPlace: ParsingFunction<{ mayHaveUsualPlace: boolean; usualPlace: NamedPlace | null }> =
+        this.getPersonUsualPlace({
+            mayHavePlaceConditional: this.mayHaveUsualWorkPlace,
+            getUsualPlaceFct: this.getUsualPlaceFromPerson('usualWorkPlace')
+        });
+    getPersonUsualSchoolPlace: ParsingFunction<{ mayHaveUsualPlace: boolean; usualPlace: NamedPlace | null }> =
+        this.getPersonUsualPlace({
+            mayHavePlaceConditional: this.mayHaveUsualSchoolPlace,
+            getUsualPlaceFct: this.getUsualPlaceFromPerson('usualSchoolPlace')
+        });
+}
+
+const defaultVisitedPlaceSectionHelpers = new VisitedPlaceHelpersInPersonProfile();
+
+let visitedPlaceSectionHelpers: VisitedPlaceSectionHelpersImplementation = defaultVisitedPlaceSectionHelpers;
+
+export const initializeVisitedPlaceSectionHelpers = (visitedPlaceConfig: VisitedPlacesSectionConfiguration): void => {
+    visitedPlaceSectionHelpers =
+        visitedPlaceConfig.inlineUsualPlacesEntry === true
+            ? new VisitedPlaceHelpersInline()
+            : defaultVisitedPlaceSectionHelpers;
+};
+
+/**
+ * Get the person's usual work place
+ *
+ * TODO Eventually support multiple usual places
+ *
+ * @returns Whether the person may have a usual work place from the person's
+ * data, along with that place, if available
+ */
+export const getPersonUsualWorkPlace: ParsingFunction<{ mayHaveUsualPlace: boolean; usualPlace: NamedPlace | null }> = (
+    interview,
+    path
+) => visitedPlaceSectionHelpers.getPersonUsualWorkPlace(interview, path);
+
+/**
+ * Get the person's usual school place
+ *
+ * TODO Eventually support multiple usual places
+ *
+ * @returns Whether the person may have a usual school place from the person's
+ * data, along with that place, if available
+ */
+export const getPersonUsualSchoolPlace: ParsingFunction<{
+    mayHaveUsualPlace: boolean;
+    usualPlace: NamedPlace | null;
+}> = (interview, path) => visitedPlaceSectionHelpers.getPersonUsualSchoolPlace(interview, path);

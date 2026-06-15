@@ -15,16 +15,18 @@ import { loopActivities } from '../../../../odSurvey/types';
 import { VisitedPlaceGeographyWidgetFactory } from '../widgetsGeography';
 import { getActivityMarkerIcon } from '../activityIconMapping';
 import { homeGeographyCoordinates, shoppingPlace1P2Coordinates } from '../../../../../tests/surveys/testCasesInterview';
+import { initializeVisitedPlaceSectionHelpers } from '../helpers';
 
 const visitedPlacesSectionConfig = {
     type: 'visitedPlaces' as const,
     enabled: true,
+    inlineUsualPlacesEntry: false,
     tripDiaryMinTimeOfDay: 4 * 60 * 60, // 4h in seconds
     tripDiaryMaxTimeOfDay: 28 * 60 * 60 // 28h in seconds (i.e. 4h the next day)
 };
 
 describe('VisitedPlaceGeographyWidgetFactory', () => {
-    test('should return expected location widgets configuration', () => {
+    test('should return expected location widgets configuration when inlineUsualPlacesEntry is false', () => {
         const widgetConfig = new VisitedPlaceGeographyWidgetFactory(
             visitedPlacesSectionConfig,
             widgetFactoryOptions
@@ -84,11 +86,76 @@ describe('VisitedPlaceGeographyWidgetFactory', () => {
             }
         });
     });
+
+    test('should return expected location widgets configuration when inlineUsualPlacesEntry is true', () => {
+        const widgetConfig = new VisitedPlaceGeographyWidgetFactory(
+            { ...visitedPlacesSectionConfig, inlineUsualPlacesEntry: true },
+            widgetFactoryOptions
+        ).getWidgetConfigs();
+
+        expect(widgetConfig).toEqual({
+            visitedPlaceName: {
+                type: 'question',
+                inputType: 'string',
+                path: 'name',
+                datatype: 'string',
+                twoColumns: false,
+                containsHtml: true,
+                label: expect.any(Function),
+                conditional: expect.any(Function),
+                validations: expect.any(Function),
+                defaultValue: expect.any(Function),
+                maxLength: undefined,
+                placeholder: undefined,
+                joinWith: 'visitedPlaceGeography',
+                textTransform: undefined
+            },
+            visitedPlaceGeography: {
+                type: 'question',
+                inputType: 'mapFindPlace',
+                path: 'geography',
+                datatype: 'geojson',
+                twoColumns: false,
+                containsHtml: true,
+                label: expect.any(Function),
+                height: '32rem',
+                defaultCenter: expect.any(Function),
+                defaultZoom: undefined,
+                maxZoom: undefined,
+                icon: {
+                    url: expect.any(Function),
+                    size: [70, 70]
+                },
+                placesIcon: {
+                    url: '/dist/icons/interface/markers/marker_round_with_small_circle.svg',
+                    size: [35, 35]
+                },
+                selectedIcon: {
+                    url: '/dist/icons/interface/markers/marker_round_with_small_circle_selected.svg',
+                    size: [35, 35]
+                },
+                geocodingQueryString: expect.any(Function),
+                maxGeocodingResultsBounds: undefined,
+                showSearchPlaceButton: expect.any(Function),
+                searchPlaceButtonColor: undefined,
+                invalidGeocodingResultTypes: expect.any(Array),
+                refreshGeocodingLabel: expect.any(Function),
+                defaultValue: expect.any(Function),
+                resetToDefaultUnlessUserInteracted: true,
+                validations: expect.any(Function),
+                conditional: expect.any(Function)
+            }
+        });
+    });
 });
 
 describe('visitedPlaceName widget', () => {
-    const widgetConfig = new VisitedPlaceGeographyWidgetFactory(
+    const widgetConfigUsualPlacesNotInlined = new VisitedPlaceGeographyWidgetFactory(
         visitedPlacesSectionConfig,
+        widgetFactoryOptions
+    ).getWidgetConfigs()['visitedPlaceName'] as QuestionWidgetConfig & InputStringType;
+    const widgetConfigUsualPlacesInlined = new VisitedPlaceGeographyWidgetFactory(
+        { ...visitedPlacesSectionConfig, inlineUsualPlacesEntry: true },
         widgetFactoryOptions
     ).getWidgetConfigs()['visitedPlaceName'] as QuestionWidgetConfig & InputStringType;
 
@@ -97,7 +164,7 @@ describe('visitedPlaceName widget', () => {
     });
 
     describe('label', () => {
-        const label = widgetConfig.label;
+        const label = widgetConfigUsualPlacesNotInlined.label;
 
         test('should include example help text when i18n key exists and activity is set', () => {
             const interview = _cloneDeep(interviewAttributesForTestCases);
@@ -158,37 +225,15 @@ describe('visitedPlaceName widget', () => {
         });
     });
 
-    describe('conditional', () => {
+    describe.each([
+        { widgetConfig: widgetConfigUsualPlacesNotInlined, description: 'when usual places are not inlined', setup: () => { initializeVisitedPlaceSectionHelpers(visitedPlacesSectionConfig); } },
+        { widgetConfig: widgetConfigUsualPlacesInlined, description: 'when usual places are inlined', setup: () => { initializeVisitedPlaceSectionHelpers({ ...visitedPlacesSectionConfig, inlineUsualPlacesEntry: true }); } }
+    ])('conditional, common cases $description', ({ widgetConfig, setup }) => {
         const conditional = widgetConfig.conditional;
-
-        test('should hide widget and return usual work place name for workUsual activity', () => {
-            const interview = _cloneDeep(interviewAttributesForTestCases);
-            setActiveSurveyObjects(interview, { personId: 'personId1', journeyId: 'journeyId1', visitedPlaceId: 'workPlace1P1' });
-            // Add the person's usual work place
-            (interview.response.household!.persons!.personId1 as any).usualWorkPlace = { name: 'My usual work place' };
-
-            expect(
-                conditional!(
-                    interview,
-                    'household.persons.personId1.journeys.journeyId1.visitedPlaces.workPlace1P1.name'
-                )
-            ).toEqual([false, 'My usual work place']);
-        });
-
-        test('should hide widget and return usual school place name for schoolUsual activity', () => {
-            const interview = _cloneDeep(interviewAttributesForTestCases);
-            setActiveSurveyObjects(interview, { personId: 'personId3', journeyId: 'journeyId3', visitedPlaceId: 'schoolPlace1P3' });
-            // Set the person's usual school place
-            (interview.response.household!.persons!.personId3 as any).usualSchoolPlace = {
-                name: 'My usual school place'
-            };
-
-            expect(
-                conditional!(
-                    interview,
-                    'household.persons.personId3.journeys.journeyId3.visitedPlaces.schoolPlace1P3.name'
-                )
-            ).toEqual([false, 'My usual school place']);
+        
+        beforeEach(() => {
+            // Setup the helpers for the test
+            setup();
         });
 
         test('should hide widget for home activity', () => {
@@ -257,8 +302,89 @@ describe('visitedPlaceName widget', () => {
         });
     });
 
+    describe('conditional when inline usual places are disabled', () => {
+        const conditional = widgetConfigUsualPlacesNotInlined.conditional;
+
+        beforeEach(() => {
+            initializeVisitedPlaceSectionHelpers(visitedPlacesSectionConfig);
+        });
+
+        test('should hide widget and return usual work place name for workUsual activity', () => {
+            const interview = _cloneDeep(interviewAttributesForTestCases);
+            setActiveSurveyObjects(interview, { personId: 'personId1', journeyId: 'journeyId1', visitedPlaceId: 'workPlace1P1' });
+            // Add the person's usual work place
+            interview.response.household!.persons!.personId1.usualWorkPlace = {
+                name: 'My usual work place',
+                geography: {
+                    type: 'Feature',
+                    geometry: { type: 'Point', coordinates: [0, 0] },
+                    properties: { lastAction: 'mapClicked' }
+                }
+            };
+
+            expect(
+                conditional!(
+                    interview,
+                    'household.persons.personId1.journeys.journeyId1.visitedPlaces.workPlace1P1.name'
+                )
+            ).toEqual([false, 'My usual work place']);
+        });
+
+        test('should hide widget and return usual school place name for schoolUsual activity', () => {
+            const interview = _cloneDeep(interviewAttributesForTestCases);
+            setActiveSurveyObjects(interview, { personId: 'personId3', journeyId: 'journeyId3', visitedPlaceId: 'schoolPlace1P3' });
+            // Set the person's usual school place
+            interview.response.household!.persons!.personId3.usualSchoolPlace = {
+                name: 'My usual school place',
+                geography: {
+                    type: 'Feature',
+                    geometry: { type: 'Point', coordinates: [0, 0] },
+                    properties: { lastAction: 'mapClicked' }
+                }
+            };
+
+            expect(
+                conditional!(
+                    interview,
+                    'household.persons.personId3.journeys.journeyId3.visitedPlaces.schoolPlace1P3.name'
+                )
+            ).toEqual([false, 'My usual school place']);
+        });
+
+    });
+
+    describe('conditional when inline usual places are enabled', () => {
+        initializeVisitedPlaceSectionHelpers({ ...visitedPlacesSectionConfig, inlineUsualPlacesEntry: true });
+        const conditional = widgetConfigUsualPlacesInlined.conditional;
+
+        test('should show widget for workUsual activity', () => {
+            const interview = _cloneDeep(interviewAttributesForTestCases);
+            setActiveSurveyObjects(interview, { personId: 'personId1', journeyId: 'journeyId1', visitedPlaceId: 'workPlace1P1' });
+
+            expect(
+                conditional!(
+                    interview,
+                    'household.persons.personId1.journeys.journeyId1.visitedPlaces.workPlace1P1.name'
+                )
+            ).toEqual([true, null]);
+        });
+
+        test('should show widget for schoolUsual activity', () => {
+            const interview = _cloneDeep(interviewAttributesForTestCases);
+            setActiveSurveyObjects(interview, { personId: 'personId3', journeyId: 'journeyId3', visitedPlaceId: 'schoolPlace1P3' });
+            
+            expect(
+                conditional!(
+                    interview,
+                    'household.persons.personId3.journeys.journeyId3.visitedPlaces.schoolPlace1P3.name'
+                )
+            ).toEqual([true, null]);
+        });
+
+    });
+
     describe('validations', () => {
-        const validations = widgetConfig.validations;
+        const validations = widgetConfigUsualPlacesNotInlined.validations;
 
         test('should require non-blank value', () => {
             const interview = _cloneDeep(interviewAttributesForTestCases);
@@ -282,11 +408,106 @@ describe('visitedPlaceName widget', () => {
             expect(mockedT).toHaveBeenCalledWith('visitedPlaces:activityNameIsRequiredError');
         });
     });
+
+    describe('defaultValues when inline usual places are enabled', () => {
+        const defaultValueFct = widgetConfigUsualPlacesInlined.defaultValue as ParsingFunction<string | undefined>;
+
+        beforeEach(() => {
+            initializeVisitedPlaceSectionHelpers({ ...visitedPlacesSectionConfig, inlineUsualPlacesEntry: true })
+        });
+
+        test('should be empty string if there is no usual work place set yet', () => {
+            const interview = _cloneDeep(interviewAttributesForTestCases);
+            // Person2 has no usual work place defined yet
+            setActiveSurveyObjects(interview, { personId: 'personId2', journeyId: 'journeyId2', visitedPlaceId: 'otherWorkPlace1P2' });
+            // Set the activity to workUsual and make sure to remove name and geography
+            interview.response.household!.persons!.personId2.journeys!.journeyId2.visitedPlaces!.otherWorkPlace1P2.activity = 'workUsual';
+            delete interview.response.household!.persons!.personId2.journeys!.journeyId2.visitedPlaces!.otherWorkPlace1P2.name;
+            delete interview.response.household!.persons!.personId2.journeys!.journeyId2.visitedPlaces!.otherWorkPlace1P2.geography;
+
+            expect(
+                defaultValueFct!(
+                    interview,
+                    'household.persons.personId2.journeys.journeyId2.visitedPlaces.otherWorkPlace1P2.name'
+                )
+            ).toEqual('');
+        });
+
+        test('should default to value of previous work place if there is one already defined', () => {
+            const interview = _cloneDeep(interviewAttributesForTestCases);
+            // Person1's workPlace1P1 is a usual work place, so it should default to its name
+            setActiveSurveyObjects(interview, { personId: 'personId1', journeyId: 'journeyId1', visitedPlaceId: 'otherPlaceP1' });
+            // Change type of otherPlaceP1 to workUsual to trigger usual work place default value and make sure the widget is shown
+            interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.otherPlaceP1.activity = 'workUsual';
+
+            expect(
+                defaultValueFct!(
+                    interview,
+                    'household.persons.personId1.journeys.journeyId1.visitedPlaces.otherPlaceP1.name'
+                )
+            ).toEqual(interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.workPlace1P1.name);
+        });
+
+        test('should be empty string for other activity', () => {
+            const interview = _cloneDeep(interviewAttributesForTestCases);
+            // Person1's workPlace1P1 is a usual work place, but the current place is not a work usual activity
+            setActiveSurveyObjects(interview, { personId: 'personId1', journeyId: 'journeyId1', visitedPlaceId: 'otherPlaceP1' });
+            
+            expect(
+                defaultValueFct!(
+                    interview,
+                    'household.persons.personId1.journeys.journeyId1.visitedPlaces.otherPlaceP1.name'
+                )
+            ).toEqual('');
+        });
+
+        test('should be empty string if there is no usual school place set yet', () => {
+            const interview = _cloneDeep(interviewAttributesForTestCases);
+            // Person2 has no school place defined yet
+            setActiveSurveyObjects(interview, { personId: 'personId2', journeyId: 'journeyId2', visitedPlaceId: 'otherWorkPlace1P2' });
+            // Set the activity to schoolUsual and make sure to remove name and geography
+            interview.response.household!.persons!.personId2.journeys!.journeyId2.visitedPlaces!.otherWorkPlace1P2.activity = 'schoolUsual';
+            delete interview.response.household!.persons!.personId2.journeys!.journeyId2.visitedPlaces!.otherWorkPlace1P2.name;
+            delete interview.response.household!.persons!.personId2.journeys!.journeyId2.visitedPlaces!.otherWorkPlace1P2.geography;
+
+            expect(
+                defaultValueFct!(
+                    interview,
+                    'household.persons.personId2.journeys.journeyId2.visitedPlaces.otherWorkPlace1P2.name'
+                )
+            ).toEqual('');
+        });
+
+        test('should default to value of previous work place if there is one already defined', () => {
+            const interview = _cloneDeep(interviewAttributesForTestCases);
+
+            // Person3's schoolPlace1P3 is a usual school place, so it should default to its name
+            setActiveSurveyObjects(interview, { personId: 'personId3', journeyId: 'journeyId3', visitedPlaceId: 'newSchoolPlaceP3' });
+            // Add a new place for P3 as there are too few places to test
+            interview.response.household!.persons!.personId3.journeys!.journeyId3.visitedPlaces!.newSchoolPlaceP3 = {
+                _uuid: 'newSchoolPlaceP3',
+                _sequence: 4,
+                activity: 'schoolUsual'
+            };
+
+            expect(
+                defaultValueFct!(
+                    interview,
+                    'household.persons.personId3.journeys.journeyId3.visitedPlaces.newSchoolPlaceP3.name'
+                )
+            ).toEqual(interview.response.household!.persons!.personId3.journeys!.journeyId3.visitedPlaces!.schoolPlace1P3.name);
+        });
+
+    });
 });
 
 describe('visitedPlaceGeography widget', () => {
-    const widgetConfig = new VisitedPlaceGeographyWidgetFactory(
+    const widgetConfigUsualPlacesNotInlined = new VisitedPlaceGeographyWidgetFactory(
         visitedPlacesSectionConfig,
+        widgetFactoryOptions
+    ).getWidgetConfigs()['visitedPlaceGeography'] as QuestionWidgetConfig & InputMapFindPlaceType;
+    const widgetConfigUsualPlacesInlined = new VisitedPlaceGeographyWidgetFactory(
+        { ...visitedPlacesSectionConfig, inlineUsualPlacesEntry: true },
         widgetFactoryOptions
     ).getWidgetConfigs()['visitedPlaceGeography'] as QuestionWidgetConfig & InputMapFindPlaceType;
 
@@ -298,7 +519,7 @@ describe('visitedPlaceGeography widget', () => {
         const mockedT = jest.fn();
         const interview = _cloneDeep(interviewAttributesForTestCases);
 
-        translateString(widgetConfig.label, { t: mockedT } as any, interview, 'path');
+        translateString(widgetConfigUsualPlacesNotInlined.label, { t: mockedT } as any, interview, 'path');
         expect(mockedT).toHaveBeenCalledWith('visitedPlaces:geography');
     });
 
@@ -306,14 +527,14 @@ describe('visitedPlaceGeography widget', () => {
         const mockedT = jest.fn();
         const interview = _cloneDeep(interviewAttributesForTestCases);
 
-        translateString(widgetConfig.refreshGeocodingLabel, { t: mockedT } as any, interview, 'path');
+        translateString(widgetConfigUsualPlacesNotInlined.refreshGeocodingLabel, { t: mockedT } as any, interview, 'path');
         expect(mockedT).toHaveBeenCalledWith('visitedPlaces:refreshGeocodingButton');
     });
 
     describe('icon.url', () => {
         test('should return marker icon for the activity', () => {
             const interview = _cloneDeep(interviewAttributesForTestCases);
-            const iconUrl = widgetConfig.icon!.url as any;
+            const iconUrl = widgetConfigUsualPlacesNotInlined.icon!.url as any;
 
             expect(
                 iconUrl(
@@ -330,7 +551,7 @@ describe('visitedPlaceGeography widget', () => {
                 'household.persons.personId1.journeys.journeyId1.visitedPlaces.workPlace1P1.activity',
                 undefined
             );
-            const iconUrl = widgetConfig.icon!.url as any;
+            const iconUrl = widgetConfigUsualPlacesNotInlined.icon!.url as any;
 
             expect(
                 iconUrl(
@@ -342,7 +563,7 @@ describe('visitedPlaceGeography widget', () => {
     });
 
     describe('defaultCenter', () => {
-        const defaultCenter = widgetConfig.defaultCenter as any;
+        const defaultCenter = widgetConfigUsualPlacesNotInlined.defaultCenter as any;
 
         test('should use active previous visited place geography if no geography and a previous place exists', () => {
             const interview = _cloneDeep(interviewAttributesForTestCases);
@@ -376,7 +597,7 @@ describe('visitedPlaceGeography widget', () => {
     });
 
     describe('validations', () => {
-        const validations = widgetConfig.validations;
+        const validations = widgetConfigUsualPlacesNotInlined.validations;
         const mockedT = jest.fn().mockImplementation((key: string) => key);
 
         beforeEach(() => {
@@ -508,8 +729,62 @@ describe('visitedPlaceGeography widget', () => {
         });
     });
 
-    describe('conditional', () => {
+    describe.each([
+        { widgetConfig: widgetConfigUsualPlacesNotInlined, description: 'when usual places are not inlined', setup: () => { initializeVisitedPlaceSectionHelpers(visitedPlacesSectionConfig); } },
+        { widgetConfig: widgetConfigUsualPlacesInlined, description: 'when usual places are inlined', setup: () => { initializeVisitedPlaceSectionHelpers({ ...visitedPlacesSectionConfig, inlineUsualPlacesEntry: true }); } }
+    ])('conditional, common cases $description', ({ widgetConfig, setup }) => {
         const conditional = widgetConfig.conditional;
+        
+        beforeEach(() => {
+            // Setup the helpers for the test
+            setup();
+        });
+
+        test('should hide widget for home activity', () => {
+            const interview = _cloneDeep(interviewAttributesForTestCases);
+
+            expect(
+                conditional!(
+                    interview,
+                    'household.persons.personId1.journeys.journeyId1.visitedPlaces.homePlace1P1.geography'
+                )
+            ).toEqual([false, null]);
+        });
+
+        test.each(loopActivities)('should hide widget for loop activity %s', (activity) => {
+            const interview = _cloneDeep(interviewAttributesForTestCases);
+            setResponse(
+                interview,
+                'household.persons.personId1.journeys.journeyId1.visitedPlaces.otherPlaceP1.activity',
+                activity
+            );
+
+            expect(
+                conditional!(
+                    interview,
+                    'household.persons.personId1.journeys.journeyId1.visitedPlaces.otherPlaceP1.geography'
+                )
+            ).toEqual([false, null]);
+        });
+
+        test('should show widget for non-home non-loop activity', () => {
+            const interview = _cloneDeep(interviewAttributesForTestCases);
+
+            expect(
+                conditional!(
+                    interview,
+                    'household.persons.personId1.journeys.journeyId1.visitedPlaces.otherPlaceP1.geography'
+                )
+            ).toEqual([true, null]);
+        });
+    });
+
+    describe('conditional when usual places are not inlined', () => {
+        const conditional = widgetConfigUsualPlacesNotInlined.conditional;
+
+        beforeEach(() => {
+            initializeVisitedPlaceSectionHelpers(visitedPlacesSectionConfig);
+        });
 
         test('should hide widget and return usual work place geography for workUsual activity', () => {
             const interview = _cloneDeep(interviewAttributesForTestCases);
@@ -552,48 +827,40 @@ describe('visitedPlaceGeography widget', () => {
             // Should return a clone of the usual school place geography, not the same object
             expect((conditionalResult as [boolean, unknown])[1]).not.toBe(usualSchoolPlaceGeography);
         });
+    });
 
-        test('should hide widget for home activity', () => {
-            const interview = _cloneDeep(interviewAttributesForTestCases);
+    describe('conditional when usual places are inlined', () => {
+        const conditional = widgetConfigUsualPlacesInlined.conditional;
 
-            expect(
-                conditional!(
-                    interview,
-                    'household.persons.personId1.journeys.journeyId1.visitedPlaces.homePlace1P1.geography'
-                )
-            ).toEqual([false, null]);
+        beforeEach(() => {
+            initializeVisitedPlaceSectionHelpers({ ...visitedPlacesSectionConfig, inlineUsualPlacesEntry: true })
         });
 
-        test.each(loopActivities)('should hide widget for loop activity %s', (activity) => {
+        test('should show widget for workUsual activity', () => {
             const interview = _cloneDeep(interviewAttributesForTestCases);
-            setResponse(
+            setActiveSurveyObjects(interview, { personId: 'personId1', journeyId: 'journeyId1', visitedPlaceId: 'workPlace1P1' });
+
+            const conditionalResult = conditional!(
                 interview,
-                'household.persons.personId1.journeys.journeyId1.visitedPlaces.otherPlaceP1.activity',
-                activity
+                'household.persons.personId1.journeys.journeyId1.visitedPlaces.workPlace1P1.geography'
             );
-
-            expect(
-                conditional!(
-                    interview,
-                    'household.persons.personId1.journeys.journeyId1.visitedPlaces.otherPlaceP1.geography'
-                )
-            ).toEqual([false, null]);
+            expect(conditionalResult).toEqual([true, null]);
         });
 
-        test('should show widget for non-home non-loop activity', () => {
+        test('should show widget for schoolUsual activity', () => {
             const interview = _cloneDeep(interviewAttributesForTestCases);
-
-            expect(
-                conditional!(
-                    interview,
-                    'household.persons.personId1.journeys.journeyId1.visitedPlaces.otherPlaceP1.geography'
-                )
-            ).toEqual([true, null]);
+            setActiveSurveyObjects(interview, { personId: 'personId3', journeyId: 'journeyId3', visitedPlaceId: 'schoolPlace1P3' });
+            
+            const conditionalResult = conditional!(
+                interview,
+                'household.persons.personId3.journeys.journeyId3.visitedPlaces.schoolPlace1P3.geography'
+            )
+            expect(conditionalResult).toEqual([true, null]);
         });
     });
 
     describe('geocodingQueryString', () => {
-        const geocodingQueryString = widgetConfig.geocodingQueryString;
+        const geocodingQueryString = widgetConfigUsualPlacesNotInlined.geocodingQueryString;
 
         test('should use in-group name field for geocoding query', () => {
             const interview = _cloneDeep(interviewAttributesForTestCases);
@@ -619,7 +886,7 @@ describe('visitedPlaceGeography widget', () => {
     });
 
     describe('showSearchPlaceButton', () => {
-        const showSearchPlaceButton = widgetConfig.showSearchPlaceButton as ParsingFunction<boolean>;
+        const showSearchPlaceButton = widgetConfigUsualPlacesNotInlined.showSearchPlaceButton as ParsingFunction<boolean>;
 
         test('should show search place button when place not a shortcut', () => {
             const interview = _cloneDeep(interviewAttributesForTestCases);
@@ -646,8 +913,16 @@ describe('visitedPlaceGeography widget', () => {
         });
     });
 
-    describe('defaultValue', () => {
+    describe.each([
+        { widgetConfig: widgetConfigUsualPlacesNotInlined, description: 'when usual places are not inlined', setup: () => { initializeVisitedPlaceSectionHelpers(visitedPlacesSectionConfig); } },
+        { widgetConfig: widgetConfigUsualPlacesInlined, description: 'when usual places are inlined', setup: () => { initializeVisitedPlaceSectionHelpers({ ...visitedPlacesSectionConfig, inlineUsualPlacesEntry: true }); } }
+    ])('defaultValue, common cases $description', ({ widgetConfig, setup }) => {
         const defaultValue = widgetConfig.defaultValue as ParsingFunction<GeoJSON.Feature<GeoJSON.Point>>;
+
+        beforeEach(() => {
+            // Setup the helpers for the test
+            setup();
+        });
 
         test('should return undefined if place not a shortcut', () => {
             const interview = _cloneDeep(interviewAttributesForTestCases);
@@ -687,6 +962,97 @@ describe('visitedPlaceGeography widget', () => {
                     'household.persons.personId2.journeys.journeyId2.visitedPlaces.shoppingPlace1P2.geography'
                 )
             ).toBeUndefined();
+        });
+    });
+
+    describe('defaultValue when usual places are inlined', () => {
+        initializeVisitedPlaceSectionHelpers({ ...visitedPlacesSectionConfig, inlineUsualPlacesEntry: true });
+        const defaultValueFct = widgetConfigUsualPlacesInlined.defaultValue as ParsingFunction<GeoJSON.Feature<GeoJSON.Point>>;
+
+        test('should be undefined if there is no usual work place set yet', () => {
+            const interview = _cloneDeep(interviewAttributesForTestCases);
+            // Person2 has no usual work place defined yet
+            setActiveSurveyObjects(interview, { personId: 'personId2', journeyId: 'journeyId2', visitedPlaceId: 'otherWorkPlace1P2' });
+            // Set the activity to workUsual and make sure to remove name and geography
+            interview.response.household!.persons!.personId2.journeys!.journeyId2.visitedPlaces!.otherWorkPlace1P2.activity = 'workUsual';
+            delete interview.response.household!.persons!.personId2.journeys!.journeyId2.visitedPlaces!.otherWorkPlace1P2.name;
+            delete interview.response.household!.persons!.personId2.journeys!.journeyId2.visitedPlaces!.otherWorkPlace1P2.geography;
+
+            expect(
+                defaultValueFct!(
+                    interview,
+                    'household.persons.personId2.journeys.journeyId2.visitedPlaces.otherWorkPlace1P2.geography'
+                )
+            ).toEqual(undefined);
+        });
+
+        test('should default to value of previous work place if there is one already defined', () => {
+            const interview = _cloneDeep(interviewAttributesForTestCases);
+            // Person1's workPlace1P1 is a usual work place, so it should default to its name
+            setActiveSurveyObjects(interview, { personId: 'personId1', journeyId: 'journeyId1', visitedPlaceId: 'otherPlaceP1' });
+            // Change type of otherPlaceP1 to workUsual to trigger usual work place default value and make sure the widget is shown
+            interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.otherPlaceP1.activity = 'workUsual';
+
+            const defaultValueResult = defaultValueFct!(
+                interview,
+                'household.persons.personId1.journeys.journeyId1.visitedPlaces.otherPlaceP1.geography'
+            )! as GeoJSON.Feature<GeoJSON.Point>;
+            expect(defaultValueResult.geometry).toEqual(interview.response.household!.persons!.personId1!.journeys!.journeyId1!.visitedPlaces!.workPlace1P1.geography!.geometry);               
+            // Make sure the returned geography is a clone, not the same object
+            expect(defaultValueResult).not.toBe(interview.response.household!.persons!.personId1!.journeys!.journeyId1!.visitedPlaces!.workPlace1P1.geography);
+            expect(defaultValueResult.properties!.lastAction).toEqual('copy');
+        });
+
+        test('should be undefined for other activity', () => {
+            const interview = _cloneDeep(interviewAttributesForTestCases);
+            // Person1's workPlace1P1 is a usual work place, but the current place is not a work usual activity
+            setActiveSurveyObjects(interview, { personId: 'personId1', journeyId: 'journeyId1', visitedPlaceId: 'otherPlaceP1' });
+            
+            expect(
+                defaultValueFct!(
+                    interview,
+                    'household.persons.personId1.journeys.journeyId1.visitedPlaces.otherPlaceP1.geography'
+                )
+            ).toEqual(undefined);
+        });
+
+        test('should be undefined if there is no usual school place set yet', () => {
+            const interview = _cloneDeep(interviewAttributesForTestCases);
+            // Person2 has no school place defined yet
+            setActiveSurveyObjects(interview, { personId: 'personId2', journeyId: 'journeyId2', visitedPlaceId: 'otherWorkPlace1P2' });
+            // Set the activity to schoolUsual and make sure to remove name and geography
+            interview.response.household!.persons!.personId2.journeys!.journeyId2.visitedPlaces!.otherWorkPlace1P2.activity = 'schoolUsual';
+            delete interview.response.household!.persons!.personId2.journeys!.journeyId2.visitedPlaces!.otherWorkPlace1P2.name;
+            delete interview.response.household!.persons!.personId2.journeys!.journeyId2.visitedPlaces!.otherWorkPlace1P2.geography;
+
+            expect(
+                defaultValueFct!(
+                    interview,
+                    'household.persons.personId2.journeys.journeyId2.visitedPlaces.otherWorkPlace1P2.geography'
+                )
+            ).toEqual(undefined);
+        });
+
+        test('should default to value of previous work place if there is one already defined', () => {
+            const interview = _cloneDeep(interviewAttributesForTestCases);
+
+            // Person3's schoolPlace1P3 is a usual school place, so it should default to its name
+            setActiveSurveyObjects(interview, { personId: 'personId3', journeyId: 'journeyId3', visitedPlaceId: 'newSchoolPlaceP3' });
+            // Add a new place for P3 as there are too few places to test
+            interview.response.household!.persons!.personId3.journeys!.journeyId3.visitedPlaces!.newSchoolPlaceP3 = {
+                _uuid: 'newSchoolPlaceP3',
+                _sequence: 4,
+                activity: 'schoolUsual'
+            };
+
+            const defaultValueResult = defaultValueFct!(
+                interview,
+                'household.persons.personId3.journeys.journeyId3.visitedPlaces.newSchoolPlaceP3.geography'
+            )! as GeoJSON.Feature<GeoJSON.Point>;
+            expect(defaultValueResult.geometry).toEqual(interview.response.household!.persons!.personId3!.journeys!.journeyId3!.visitedPlaces!.schoolPlace1P3.geography!.geometry);               
+            // Make sure the returned geography is a clone, not the same object
+            expect(defaultValueResult).not.toBe(interview.response.household!.persons!.personId3!.journeys!.journeyId3!.visitedPlaces!.schoolPlace1P3.geography);
+            expect(defaultValueResult.properties!.lastAction).toEqual('copy');
         });
     });
 });
