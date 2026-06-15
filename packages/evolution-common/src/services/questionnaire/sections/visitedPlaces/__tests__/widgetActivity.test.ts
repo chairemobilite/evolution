@@ -65,7 +65,9 @@ describe('getActivityWidgetConfig', () => {
 });
 
 describe('Activity choices conditionals', () => {
-    const widgetConfig = getActivityWidgetConfig(visitedPlacesSectionConfig, widgetFactoryOptions) as QuestionWidgetConfig &
+    const visitedPlaceConfig = { ...visitedPlacesSectionConfig, inlineUsualPlacesEntry: true };
+    visitedPlacesHelpers.initializeVisitedPlaceSectionHelpers(visitedPlaceConfig);
+    const widgetConfig = getActivityWidgetConfig(visitedPlaceConfig, widgetFactoryOptions) as QuestionWidgetConfig &
         InputRadioType;
     const choices = widgetConfig.choices as RadioChoiceType[];
 
@@ -81,6 +83,8 @@ describe('Activity choices conditionals', () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
+        // Reset helpers to the default
+        visitedPlacesHelpers.initializeVisitedPlaceSectionHelpers(visitedPlacesSectionConfig);
     });
 
     afterEach(() => {
@@ -127,9 +131,57 @@ describe('Activity choices labels', () => {
         const mockedT = jest.fn();
         const choice = choices.find((c) => c.value === choiceValue);
         expect(choice).toBeDefined();
-        translateString(choice?.label, { t: mockedT } as any, interview, 'path');
+        translateString(choice?.label, { t: mockedT } as any, interview, 'household.persons.personId1.journeys.journeyId1.visitedPlaces.workPlace1P1.activity');
         expect(mockedT).toHaveBeenCalledWith(`visitedPlaces:activities.${choiceValue}`);
     });
+
+    test('schoolUsual choice label should include the school name if available', () => {
+        const mockedT = jest.fn();
+        const choice = choices.find((c) => c.value === 'schoolUsual');
+        expect(choice).toBeDefined();
+
+        // Setup the interview with a usual school place with a name
+        interview.response.household!.persons!.personId1!.usualSchoolPlace = {
+            name: 'My usual school',
+            geography: {
+                type: 'Feature',
+                geometry: { type: 'Point', coordinates: [-73, 45] },
+                properties: { lastAction: 'mapClicked' }
+            }
+        };
+
+        translateString(choice?.label, { t: mockedT } as any, interview, 'household.persons.personId1.journeys.journeyId1.visitedPlaces.workPlace1P1.activity');
+        expect(mockedT).toHaveBeenCalledWith(
+            ['visitedPlaces:activities.schoolUsual_withPlace', 'visitedPlaces:activities.schoolUsual'],
+            {
+                placeName: 'My usual school'
+            }
+        );
+    });
+
+    test('workUsual choice label should include the work place name if available', () => {
+        const mockedT = jest.fn();
+        const choice = choices.find((c) => c.value === 'workUsual');
+        expect(choice).toBeDefined();
+
+        // Setup the interview with a usual work place with a name
+        interview.response.household!.persons!.personId1!.usualWorkPlace = {
+            name: 'My usual work',
+            geography: {
+                type: 'Feature',
+                geometry: { type: 'Point', coordinates: [-73, 45] },
+                properties: { lastAction: 'mapClicked' }
+            }
+        };
+
+        translateString(choice?.label, { t: mockedT } as any, interview, 'household.persons.personId1.journeys.journeyId1.visitedPlaces.workPlace1P1.activity');
+        expect(mockedT).toHaveBeenCalledWith(
+            ['visitedPlaces:activities.workUsual_withPlace', 'visitedPlaces:activities.workUsual'],
+            {
+                placeName: 'My usual work'
+            }
+        );
+    })
 });
 
 describe('Activity per-choice conditionals', () => {
@@ -141,91 +193,295 @@ describe('Activity per-choice conditionals', () => {
         jest.clearAllMocks();
     });
 
-    test('workUsual conditional should return false for non-worker occupation without usual work place', () => {
-        const interview = _cloneDeep(interviewAttributesForTestCases);
-        const workUsualChoice = choices.find((c) => c.value === 'workUsual');
-        expect(workUsualChoice).toBeDefined();
+    describe('workUsual/schoolUsual conditionals, with pre-defined usual places', () => {
+        const widgetConfig = getActivityWidgetConfig(visitedPlacesSectionConfig, widgetFactoryOptions) as QuestionWidgetConfig &
+            InputRadioType;
+        const choices = widgetConfig.choices as RadioChoiceType[];
 
-        setActiveSurveyObjects(interview, { personId: 'personId1', journeyId: 'journeyId1', visitedPlaceId: 'workPlace1P1' });
-        interview.response.household!.persons!.personId1!.occupation = 'fullTimeStudent';
-        (interview.response.household!.persons!.personId1! as any).usualWorkPlace = undefined;
+        beforeEach(() => {
+            // Reset helpers to the default
+            visitedPlacesHelpers.initializeVisitedPlaceSectionHelpers(visitedPlacesSectionConfig);
+        });
 
-        expect(workUsualChoice?.conditional?.(interview, 'household.persons.personId1.journeys.journeyId1.visitedPlaces.workPlace1P1.activity')).toEqual(false);
+        test('workUsual conditional should return false for non-worker occupation without usual work place', () => {
+            const interview = _cloneDeep(interviewAttributesForTestCases);
+            const workUsualChoice = choices.find((c) => c.value === 'workUsual');
+            expect(workUsualChoice).toBeDefined();
+
+            setActiveSurveyObjects(interview, { personId: 'personId1', journeyId: 'journeyId1', visitedPlaceId: 'workPlace1P1' });
+            interview.response.household!.persons!.personId1!.occupation = 'fullTimeStudent';
+            interview.response.household!.persons!.personId1!.usualWorkPlace = undefined;
+
+            expect(workUsualChoice?.conditional?.(interview, 'household.persons.personId1.journeys.journeyId1.visitedPlaces.workPlace1P1.activity')).toEqual(false);
+        });
+
+        test('workUsual conditional should return true for worker with usual work place', () => {
+            const interview = _cloneDeep(interviewAttributesForTestCases);
+            const workUsualChoice = choices.find((c) => c.value === 'workUsual');
+            expect(workUsualChoice).toBeDefined();
+
+            setActiveSurveyObjects(interview, { personId: 'personId1', journeyId: 'journeyId1', visitedPlaceId: 'workPlace1P1' });
+            interview.response.household!.persons!.personId1!.occupation = 'fullTimeWorker';
+            interview.response.household!.persons!.personId1!.usualWorkPlace = {
+                geography: {
+                    type: 'Feature',
+                    geometry: { type: 'Point', coordinates: [-73, 45] },
+                    properties: { lastAction: 'mapClicked' }
+                }
+            };
+
+            expect(workUsualChoice?.conditional?.(interview, 'household.persons.personId1.journeys.journeyId1.visitedPlaces.workPlace1P1.activity')).toEqual(true);
+        });
+
+        test('workUsual conditional should return false for worker with usual work place, but when it is not set', () => {
+            const interview = _cloneDeep(interviewAttributesForTestCases);
+            const workUsualChoice = choices.find((c) => c.value === 'workUsual');
+            expect(workUsualChoice).toBeDefined();
+
+            setActiveSurveyObjects(interview, { personId: 'personId1', journeyId: 'journeyId1', visitedPlaceId: 'workPlace1P1' });
+            interview.response.household!.persons!.personId1!.occupation = 'fullTimeWorker';
+            interview.response.household!.persons!.personId1!.usualWorkPlace = undefined;
+
+            expect(workUsualChoice?.conditional?.(interview, 'household.persons.personId1.journeys.journeyId1.visitedPlaces.workPlace1P1.activity')).toEqual(false);
+        });
+
+        test('workUsual conditional should return true if occupation is not set, but work place set', () => {
+            const interview = _cloneDeep(interviewAttributesForTestCases);
+            const workUsualChoice = choices.find((c) => c.value === 'workUsual');
+            expect(workUsualChoice).toBeDefined();
+
+            setActiveSurveyObjects(interview, { personId: 'personId1', journeyId: 'journeyId1', visitedPlaceId: 'workPlace1P1' });
+            interview.response.household!.persons!.personId1!.occupation = undefined;
+            interview.response.household!.persons!.personId1!.usualWorkPlace = {
+                geography: {
+                    type: 'Feature',
+                    geometry: { type: 'Point', coordinates: [-73, 45] },
+                    properties: { lastAction: 'mapClicked' }
+                }
+            };
+
+            expect(workUsualChoice?.conditional?.(interview, 'household.persons.personId1.journeys.journeyId1.visitedPlaces.workPlace1P1.activity')).toEqual(true);
+        });
+
+        test('schoolUsual conditional should throw an error when active person is missing', () => {
+            const interview = _cloneDeep(interviewAttributesForTestCases);
+            // Set wrong active person to trigger invalid person condition in the conditional function
+            setActiveSurveyObjects(interview, { personId: 'personId4', journeyId: 'journeyId4', visitedPlaceId: 'schoolPlace1P4' });
+            const schoolUsualChoice = choices.find((c) => c.value === 'schoolUsual');
+            expect(schoolUsualChoice).toBeDefined();
+
+            expect(() => schoolUsualChoice?.conditional?.(interview, 'household.persons.personId4.journeys.journeyId4.visitedPlaces.schoolPlace1P4.activity')).toThrow(Error);
+        });
+
+        test('schoolUsual conditional should return true for person aged 10', () => {
+            const interview = _cloneDeep(interviewAttributesForTestCases);
+            const schoolUsualChoice = choices.find((c) => c.value === 'schoolUsual');
+            expect(schoolUsualChoice).toBeDefined();
+
+            setActiveSurveyObjects(interview, { personId: 'personId3', journeyId: 'journeyId3', visitedPlaceId: 'schoolPlace1P3' });
+            interview.response.household!.persons!.personId3!.age = 10;
+            interview.response.household!.persons!.personId3!.usualSchoolPlace = {
+                geography: {
+                    type: 'Feature',
+                    geometry: { type: 'Point', coordinates: [-73, 45] },
+                    properties: { lastAction: 'mapClicked' }
+                }
+            };
+
+            expect(schoolUsualChoice?.conditional?.(interview, 'household.persons.personId3.journeys.journeyId3.visitedPlaces.schoolPlace1P3.activity')).toEqual(true);
+        });
+
+        test('schoolUsual conditional should return true if occupation is not set, but usual school place is set', () => {
+            const interview = _cloneDeep(interviewAttributesForTestCases);
+            const schoolUsualChoice = choices.find((c) => c.value === 'schoolUsual');
+            expect(schoolUsualChoice).toBeDefined();
+
+            setActiveSurveyObjects(interview, { personId: 'personId3', journeyId: 'journeyId3', visitedPlaceId: 'schoolPlace1P3' });
+            interview.response.household!.persons!.personId3!.occupation = undefined;
+            interview.response.household!.persons!.personId3!.usualSchoolPlace = {
+                geography: {
+                    type: 'Feature',
+                    geometry: { type: 'Point', coordinates: [-73, 45] },
+                    properties: { lastAction: 'mapClicked' }
+                }
+            };
+
+            expect(schoolUsualChoice?.conditional?.(interview, 'household.persons.personId3.journeys.journeyId3.visitedPlaces.schoolPlace1P3.activity')).toEqual(true);
+        });
+
+        test('schoolUsual conditional should return false for non-student without usual school place', () => {
+            const interview = _cloneDeep(interviewAttributesForTestCases);
+            const schoolUsualChoice = choices.find((c) => c.value === 'schoolUsual');
+            expect(schoolUsualChoice).toBeDefined();
+
+            setActiveSurveyObjects(interview, { personId: 'personId3', journeyId: 'journeyId3', visitedPlaceId: 'schoolPlace1P3' });
+            interview.response.household!.persons!.personId3!.occupation = 'fullTimeWorker';
+            interview.response.household!.persons!.personId3!.age = 30;
+            interview.response.household!.persons!.personId3!.usualSchoolPlace = undefined;
+
+            expect(schoolUsualChoice?.conditional?.(interview, 'household.persons.personId3.journeys.journeyId3.visitedPlaces.schoolPlace1P3.activity')).toEqual(false);
+        });
+
+        test('schoolUsual conditional should return false for student with no usual school place set', () => {
+            const interview = _cloneDeep(interviewAttributesForTestCases);
+            const schoolUsualChoice = choices.find((c) => c.value === 'schoolUsual');
+            expect(schoolUsualChoice).toBeDefined();
+
+            setActiveSurveyObjects(interview, { personId: 'personId3', journeyId: 'journeyId3', visitedPlaceId: 'schoolPlace1P3' });
+            interview.response.household!.persons!.personId3!.occupation = 'fullTimeStudent';
+            interview.response.household!.persons!.personId3!.age = 30;
+            interview.response.household!.persons!.personId3!.usualSchoolPlace = undefined;
+
+            expect(schoolUsualChoice?.conditional?.(interview, 'household.persons.personId3.journeys.journeyId3.visitedPlaces.schoolPlace1P3.activity')).toEqual(false);
+        });
     });
 
-    test('workUsual conditional should return true for worker with usual work place', () => {
-        const interview = _cloneDeep(interviewAttributesForTestCases);
-        const workUsualChoice = choices.find((c) => c.value === 'workUsual');
-        expect(workUsualChoice).toBeDefined();
+    describe('workUsual/schoolUsual conditionals, with inline usual places', () => {
+        const visitedPlaceConfig = { ...visitedPlacesSectionConfig, inlineUsualPlacesEntry: true };
+        visitedPlacesHelpers.initializeVisitedPlaceSectionHelpers(visitedPlaceConfig);
+        const widgetConfig = getActivityWidgetConfig(visitedPlaceConfig, widgetFactoryOptions) as QuestionWidgetConfig &
+            InputRadioType;
+        const choices = widgetConfig.choices as RadioChoiceType[];
 
-        setActiveSurveyObjects(interview, { personId: 'personId1', journeyId: 'journeyId1', visitedPlaceId: 'workPlace1P1' });
-        interview.response.household!.persons!.personId1!.occupation = 'fullTimeWorker';
-        (interview.response.household!.persons!.personId1! as any).usualWorkPlace = {
-            geography: {
-                type: 'Feature',
-                geometry: { type: 'Point', coordinates: [-73, 45] },
-                properties: { lastAction: 'mapClicked' }
-            }
-        };
+        beforeEach(() => {
+            // Set helpers with inline
+            visitedPlacesHelpers.initializeVisitedPlaceSectionHelpers(visitedPlaceConfig);
+        });
 
-        expect(workUsualChoice?.conditional?.(interview, 'household.persons.personId1.journeys.journeyId1.visitedPlaces.workPlace1P1.activity')).toEqual(true);
-    });
+        test('workUsual conditional should return false for non-worker occupation without usual work place', () => {
+            const interview = _cloneDeep(interviewAttributesForTestCases);
+            const workUsualChoice = choices.find((c) => c.value === 'workUsual');
+            expect(workUsualChoice).toBeDefined();
 
-    test('workUsual conditional should return true if occupation is not set', () => {
-        const interview = _cloneDeep(interviewAttributesForTestCases);
-        const workUsualChoice = choices.find((c) => c.value === 'workUsual');
-        expect(workUsualChoice).toBeDefined();
+            setActiveSurveyObjects(interview, { personId: 'personId1', journeyId: 'journeyId1', visitedPlaceId: 'workPlace1P1' });
+            interview.response.household!.persons!.personId1!.occupation = 'fullTimeStudent';
+            interview.response.household!.persons!.personId1!.usualWorkPlace = undefined;
 
-        setActiveSurveyObjects(interview, { personId: 'personId1', journeyId: 'journeyId1', visitedPlaceId: 'workPlace1P1' });
-        interview.response.household!.persons!.personId1!.occupation = undefined;
-        (interview.response.household!.persons!.personId1! as any).usualWorkPlace = undefined;
+            expect(workUsualChoice?.conditional?.(interview, 'household.persons.personId1.journeys.journeyId1.visitedPlaces.workPlace1P1.activity')).toEqual(false);
+        });
 
-        expect(workUsualChoice?.conditional?.(interview, 'household.persons.personId1.journeys.journeyId1.visitedPlaces.workPlace1P1.activity')).toEqual(true);
-    });
+        test('workUsual conditional should return true for worker, without usual workplace set', () => {
+            const interview = _cloneDeep(interviewAttributesForTestCases);
+            const workUsualChoice = choices.find((c) => c.value === 'workUsual');
+            expect(workUsualChoice).toBeDefined();
 
-    test('schoolUsual conditional should return false when active person is missing', () => {
-        const interview = _cloneDeep(interviewAttributesForTestCases);
-        // Set wrong active person to trigger invalid person condition in the conditional function
-        setActiveSurveyObjects(interview, { personId: 'personId4', journeyId: 'journeyId4', visitedPlaceId: 'schoolPlace1P4' });
-        const schoolUsualChoice = choices.find((c) => c.value === 'schoolUsual');
-        expect(schoolUsualChoice).toBeDefined();
+            setActiveSurveyObjects(interview, { personId: 'personId1', journeyId: 'journeyId1', visitedPlaceId: 'workPlace1P1' });
+            interview.response.household!.persons!.personId1!.occupation = 'fullTimeWorker';
+            interview.response.household!.persons!.personId1!.usualWorkPlace = undefined;
 
-        expect(schoolUsualChoice?.conditional?.(interview, 'household.persons.personId3.journeys.journeyId3.visitedPlaces.schoolPlace1P3.activity')).toEqual(false);
-    });
+            expect(workUsualChoice?.conditional?.(interview, 'household.persons.personId1.journeys.journeyId1.visitedPlaces.workPlace1P1.activity')).toEqual(true);
+        });
 
-    test('schoolUsual conditional should return true for kindergarten', () => {
-        const interview = _cloneDeep(interviewAttributesForTestCases);
-        const schoolUsualChoice = choices.find((c) => c.value === 'schoolUsual');
-        expect(schoolUsualChoice).toBeDefined();
+        test('workUsual conditional should return true for worker with usual work place type set onLocation', () => {
+            const interview = _cloneDeep(interviewAttributesForTestCases);
+            const workUsualChoice = choices.find((c) => c.value === 'workUsual');
+            expect(workUsualChoice).toBeDefined();
 
-        setActiveSurveyObjects(interview, { personId: 'personId3', journeyId: 'journeyId3', visitedPlaceId: 'schoolPlace1P3' });
-        interview.response.household!.persons!.personId3!.schoolType = 'kindergarten';
+            setActiveSurveyObjects(interview, { personId: 'personId1', journeyId: 'journeyId1', visitedPlaceId: 'workPlace1P1' });
+            interview.response.household!.persons!.personId1!.occupation = 'fullTimeWorker';
+            interview.response.household!.persons!.personId1!.workPlaceType = 'onLocation';
+            interview.response.household!.persons!.personId1!.usualWorkPlace = undefined;
 
-        expect(schoolUsualChoice?.conditional?.(interview, 'household.persons.personId3.journeys.journeyId3.visitedPlaces.schoolPlace1P3.activity')).toEqual(true);
-    });
+            expect(workUsualChoice?.conditional?.(interview, 'household.persons.personId1.journeys.journeyId1.visitedPlaces.workPlace1P1.activity')).toEqual(true);
+        });
 
-    test('schoolUsual conditional should return true if occupation is not set', () => {
-        const interview = _cloneDeep(interviewAttributesForTestCases);
-        const schoolUsualChoice = choices.find((c) => c.value === 'schoolUsual');
-        expect(schoolUsualChoice).toBeDefined();
+        test('workUsual conditional should return false for worker with usual work place type remote', () => {
+            const interview = _cloneDeep(interviewAttributesForTestCases);
+            const workUsualChoice = choices.find((c) => c.value === 'workUsual');
+            expect(workUsualChoice).toBeDefined();
 
-        setActiveSurveyObjects(interview, { personId: 'personId3', journeyId: 'journeyId3', visitedPlaceId: 'schoolPlace1P3' });
-        interview.response.household!.persons!.personId3!.occupation = undefined;
+            setActiveSurveyObjects(interview, { personId: 'personId1', journeyId: 'journeyId1', visitedPlaceId: 'workPlace1P1' });
+            interview.response.household!.persons!.personId1!.occupation = 'fullTimeWorker';
+            interview.response.household!.persons!.personId1!.workPlaceType = 'remote';
+            interview.response.household!.persons!.personId1!.usualWorkPlace = undefined;
 
-        expect(schoolUsualChoice?.conditional?.(interview, 'household.persons.personId3.journeys.journeyId3.visitedPlaces.schoolPlace1P3.activity')).toEqual(true);
-    });
+            expect(workUsualChoice?.conditional?.(interview, 'household.persons.personId1.journeys.journeyId1.visitedPlaces.workPlace1P1.activity')).toEqual(false);
+        });
 
-    test('schoolUsual conditional should return false for non-student without usual school place', () => {
-        const interview = _cloneDeep(interviewAttributesForTestCases);
-        const schoolUsualChoice = choices.find((c) => c.value === 'schoolUsual');
-        expect(schoolUsualChoice).toBeDefined();
+        test('workUsual conditional should return true if occupation is not set', () => {
+            const interview = _cloneDeep(interviewAttributesForTestCases);
+            const workUsualChoice = choices.find((c) => c.value === 'workUsual');
+            expect(workUsualChoice).toBeDefined();
 
-        setActiveSurveyObjects(interview, { personId: 'personId3', journeyId: 'journeyId3', visitedPlaceId: 'schoolPlace1P3' });
-        interview.response.household!.persons!.personId3!.occupation = 'fullTimeWorker';
-        interview.response.household!.persons!.personId3!.age = 30;
-        (interview.response.household!.persons!.personId3! as any).usualSchoolPlace = undefined;
+            setActiveSurveyObjects(interview, { personId: 'personId1', journeyId: 'journeyId1', visitedPlaceId: 'workPlace1P1' });
+            interview.response.household!.persons!.personId1!.occupation = undefined;
 
-        expect(schoolUsualChoice?.conditional?.(interview, 'household.persons.personId3.journeys.journeyId3.visitedPlaces.schoolPlace1P3.activity')).toEqual(false);
+            expect(workUsualChoice?.conditional?.(interview, 'household.persons.personId1.journeys.journeyId1.visitedPlaces.workPlace1P1.activity')).toEqual(true);
+        });
+
+        test('schoolUsual conditional should throw an error when active person is missing', () => {
+            const interview = _cloneDeep(interviewAttributesForTestCases);
+            // Set wrong active person to trigger invalid person condition in the conditional function
+            setActiveSurveyObjects(interview, { personId: 'personId4', journeyId: 'journeyId4', visitedPlaceId: 'schoolPlace1P4' });
+            const schoolUsualChoice = choices.find((c) => c.value === 'schoolUsual');
+            expect(schoolUsualChoice).toBeDefined();
+
+            expect(() => schoolUsualChoice?.conditional?.(interview, 'household.persons.personId4.journeys.journeyId4.visitedPlaces.schoolPlace1P4.activity')).toThrow(Error);
+        });
+
+        test('schoolUsual conditional should return true for person aged 10 without usual place set', () => {
+            const interview = _cloneDeep(interviewAttributesForTestCases);
+            const schoolUsualChoice = choices.find((c) => c.value === 'schoolUsual');
+            expect(schoolUsualChoice).toBeDefined();
+
+            setActiveSurveyObjects(interview, { personId: 'personId3', journeyId: 'journeyId3', visitedPlaceId: 'schoolPlace1P3' });
+            interview.response.household!.persons!.personId3!.age = 10;
+            interview.response.household!.persons!.personId3!.usualSchoolPlace = undefined;
+
+            expect(schoolUsualChoice?.conditional?.(interview, 'household.persons.personId3.journeys.journeyId3.visitedPlaces.schoolPlace1P3.activity')).toEqual(true);
+        });
+
+        test('schoolUsual conditional should return false for non-student without usual school place', () => {
+            const interview = _cloneDeep(interviewAttributesForTestCases);
+            const schoolUsualChoice = choices.find((c) => c.value === 'schoolUsual');
+            expect(schoolUsualChoice).toBeDefined();
+
+            setActiveSurveyObjects(interview, { personId: 'personId3', journeyId: 'journeyId3', visitedPlaceId: 'schoolPlace1P3' });
+            interview.response.household!.persons!.personId3!.occupation = 'fullTimeWorker';
+            interview.response.household!.persons!.personId3!.age = 30;
+            interview.response.household!.persons!.personId3!.usualSchoolPlace = undefined;
+
+            expect(schoolUsualChoice?.conditional?.(interview, 'household.persons.personId3.journeys.journeyId3.visitedPlaces.schoolPlace1P3.activity')).toEqual(false);
+        });
+
+        test('schoolUsual conditional should return true for student with no usual school place set', () => {
+            const interview = _cloneDeep(interviewAttributesForTestCases);
+            const schoolUsualChoice = choices.find((c) => c.value === 'schoolUsual');
+            expect(schoolUsualChoice).toBeDefined();
+
+            setActiveSurveyObjects(interview, { personId: 'personId3', journeyId: 'journeyId3', visitedPlaceId: 'schoolPlace1P3' });
+            interview.response.household!.persons!.personId3!.occupation = 'fullTimeStudent';
+            interview.response.household!.persons!.personId3!.age = 30;
+            interview.response.household!.persons!.personId3!.usualSchoolPlace = undefined;
+
+            expect(schoolUsualChoice?.conditional?.(interview, 'household.persons.personId3.journeys.journeyId3.visitedPlaces.schoolPlace1P3.activity')).toEqual(true);
+        });
+
+        test('schoolUsual conditional should return true for student with usual school place on location', () => {
+            const interview = _cloneDeep(interviewAttributesForTestCases);
+            const schoolUsualChoice = choices.find((c) => c.value === 'schoolUsual');
+            expect(schoolUsualChoice).toBeDefined();
+
+            setActiveSurveyObjects(interview, { personId: 'personId3', journeyId: 'journeyId3', visitedPlaceId: 'schoolPlace1P3' });
+            interview.response.household!.persons!.personId3!.occupation = 'fullTimeStudent';
+            interview.response.household!.persons!.personId3!.schoolPlaceType = 'onLocation';
+            interview.response.household!.persons!.personId3!.usualSchoolPlace = undefined;
+
+            expect(schoolUsualChoice?.conditional?.(interview, 'household.persons.personId3.journeys.journeyId3.visitedPlaces.schoolPlace1P3.activity')).toEqual(true);
+        });
+
+        test('schoolUsual conditional should return false for student with usual school place type remote', () => {
+            const interview = _cloneDeep(interviewAttributesForTestCases);
+            const schoolUsualChoice = choices.find((c) => c.value === 'schoolUsual');
+            expect(schoolUsualChoice).toBeDefined();
+
+            setActiveSurveyObjects(interview, { personId: 'personId3', journeyId: 'journeyId3', visitedPlaceId: 'schoolPlace1P3' });
+            interview.response.household!.persons!.personId3!.occupation = 'fullTimeStudent';
+            interview.response.household!.persons!.personId3!.schoolPlaceType = 'remote';
+            interview.response.household!.persons!.personId3!.usualSchoolPlace = undefined;
+
+            expect(schoolUsualChoice?.conditional?.(interview, 'household.persons.personId3.journeys.journeyId3.visitedPlaces.schoolPlace1P3.activity')).toEqual(false);
+        });
     });
 
     test('carElectricChargingStation conditional should delegate to hasOrUnknownDrivingLicense', () => {

@@ -778,6 +778,440 @@ describe('formatTripDuration', () => {
     });
 });
 
+describe('Visited places helpers - getPersonUsualWorkPlace', () => {
+    type GetPersonUsualWorkPlaceCase = {
+        title: string;
+        setup: (interview: UserRuntimeInterviewAttributes) => {
+            path: string;
+            expectedMayHaveUsualWorkPlace: boolean;
+            expectedWorkPlaceUuid?: string;
+            expectedWorkPlaceName?: string;
+            expectedWorkPlaceHasGeography?: boolean;
+            expectedWorkPlaceShouldBeNull: boolean;
+        };
+    };
+
+    test.each<GetPersonUsualWorkPlaceCase>([
+        {
+            title: 'returns null work place even if person work place has geography',
+            setup: (interview: UserRuntimeInterviewAttributes) => {
+                // From the config, that place is not expected to exist, do not return it here even if it does
+                interview.response.household!.persons!.personId3!.usualWorkPlace = {
+                    geography: {
+                        type: 'Feature' as const,
+                        geometry: { type: 'Point' as const, coordinates: [-74.1, 46.1] },
+                        properties: { lastAction: 'findPlace' as const }
+                    },
+                    name: 'Configured usual work'
+                };
+                return {
+                    path: 'household.persons.personId3.journeys.journeyId3.visitedPlaces.schoolPlace1P3.activity',
+                    expectedMayHaveUsualWorkPlace: true,
+                    expectedWorkPlaceUuid: undefined,
+                    expectedWorkPlaceHasGeography: false,
+                    expectedWorkPlaceShouldBeNull: true
+                }
+            }
+        },
+        {
+            title: 'Use the work usual place from journey',
+            setup: (interview: UserRuntimeInterviewAttributes) => {
+                // person1 has a usual work place configure in the journey
+                return {
+                    path: 'household.persons.personId1.journeys.journeyId1.visitedPlaces.homePlace1P1.activity',
+                    expectedMayHaveUsualWorkPlace: true,
+                    expectedWorkPlaceUuid: 'workPlace1P1',
+                    expectedWorkPlaceHasGeography: true,
+                    expectedWorkPlaceShouldBeNull: false
+                }
+            }
+        },
+        {
+            title: 'returns false when occupation indicates the person is not a worker',
+            setup: (interview: UserRuntimeInterviewAttributes) => {
+                interview.response.household!.persons!.personId1!.occupation = 'fullTimeStudent' as any;
+                return {
+                    path: 'household.persons.personId1.journeys.journeyId1.visitedPlaces.homePlace1P1.activity',
+                    expectedMayHaveUsualWorkPlace: false,
+                    expectedWorkPlaceHasGeography: false,
+                    expectedWorkPlaceShouldBeNull: true
+                };
+            }
+        },
+        {
+            title: 'returns false when workPlaceType does not imply a usual place',
+            setup: (interview: UserRuntimeInterviewAttributes) => {
+                interview.response.household!.persons!.personId1!.workPlaceType = 'onTheRoadWithoutUsualPlace' as any;
+                return {
+                    path: 'household.persons.personId1.journeys.journeyId1.visitedPlaces.homePlace1P1.activity',
+                    expectedMayHaveUsualWorkPlace: false,
+                    expectedWorkPlaceHasGeography: false,
+                    expectedWorkPlaceShouldBeNull: true
+                };
+            }
+        }
+    ])('getPersonUsualWorkPlace with inlineUsualPlacesEntry true: $title', ({ setup }) => {
+        const interview = _cloneDeep(interviewAttributesForTestCases);
+        const {
+            path,
+            expectedMayHaveUsualWorkPlace,
+            expectedWorkPlaceUuid,
+            expectedWorkPlaceName,
+            expectedWorkPlaceHasGeography,
+            expectedWorkPlaceShouldBeNull
+        } = setup(interview);
+
+        helpers.initializeVisitedPlaceSectionHelpers({ ...defaultVisitedPlaceConfig, inlineUsualPlacesEntry: true })
+        const result = helpers.getPersonUsualWorkPlace(interview, path);
+
+        expect(result.mayHaveUsualPlace).toBe(expectedMayHaveUsualWorkPlace);
+
+        if (expectedWorkPlaceShouldBeNull) {
+            expect(result.usualPlace).toBeNull();
+        } else {
+            expect(result.usualPlace).not.toBeNull();
+        }
+
+        if (expectedWorkPlaceUuid) {
+            expect((result.usualPlace as any)?._uuid).toBe(expectedWorkPlaceUuid);
+        }
+        if (expectedWorkPlaceName) {
+            expect((result.usualPlace as any)?.name).toBe(expectedWorkPlaceName);
+        }
+
+        if (expectedWorkPlaceHasGeography) {
+            expect(result.usualPlace?.geography).toBeDefined();
+        }
+    });
+
+    test.each<GetPersonUsualWorkPlaceCase>([
+        {
+            title: 'returns the usual work place when it has geography',
+            setup: (interview: UserRuntimeInterviewAttributes) => {
+                interview.response.household!.persons!.personId1!.usualWorkPlace = {
+                    geography: {
+                        type: 'Feature' as const,
+                        geometry: { type: 'Point' as const, coordinates: [-74, 46] },
+                        properties: { lastAction: 'findPlace' as const }
+                    },
+                    name: 'Configured usual work'
+                };
+                return {
+                    path: 'household.persons.personId1.journeys.journeyId1.visitedPlaces.homePlace1P1.activity',
+                    expectedMayHaveUsualWorkPlace: true,
+                    expectedWorkPlaceUuid: undefined,
+                    expectedWorkPlaceName: 'Configured usual work',
+                    expectedWorkPlaceHasGeography: true,
+                    expectedWorkPlaceShouldBeNull: false
+                };
+            }
+        },
+        {
+            title: 'returns null when the person has no usual work place geography',
+            // personId1 has a usual work place in the journey, but it should not be returned
+            setup: (_interview: UserRuntimeInterviewAttributes) => ({
+                path: 'household.persons.personId1.journeys.journeyId1.visitedPlaces.homePlace1P1.activity',
+                expectedMayHaveUsualWorkPlace: true,
+                expectedWorkPlaceShouldBeNull: true
+            })
+        },
+        {
+            title: 'returns false when occupation indicates the person is not a worker',
+            setup: (interview: UserRuntimeInterviewAttributes) => {
+                interview.response.household!.persons!.personId1!.occupation = 'fullTimeStudent' as any;
+                return {
+                    path: 'household.persons.personId1.journeys.journeyId1.visitedPlaces.homePlace1P1.activity',
+                    expectedMayHaveUsualWorkPlace: false,
+                    expectedWorkPlaceHasGeography: false,
+                    expectedWorkPlaceShouldBeNull: true
+                };
+            }
+        },
+        {
+            title: 'returns false when workPlaceType does not imply a usual place',
+            setup: (interview: UserRuntimeInterviewAttributes) => {
+                interview.response.household!.persons!.personId1!.workPlaceType = 'onTheRoad' as any;
+                return {
+                    path: 'household.persons.personId1.journeys.journeyId1.visitedPlaces.homePlace1P1.activity',
+                    expectedMayHaveUsualWorkPlace: false,
+                    expectedWorkPlaceHasGeography: false,
+                    expectedWorkPlaceShouldBeNull: true
+                };
+            }
+        }
+    ])('getPersonUsualWorkPlace with inlineUsualPlacesEntry false: $title', ({ setup }) => {
+        const interview = _cloneDeep(interviewAttributesForTestCases);
+        const {
+            path,
+            expectedMayHaveUsualWorkPlace,
+            expectedWorkPlaceUuid,
+            expectedWorkPlaceName,
+            expectedWorkPlaceHasGeography,
+            expectedWorkPlaceShouldBeNull
+        } = setup(interview);
+
+        helpers.initializeVisitedPlaceSectionHelpers({ ...defaultVisitedPlaceConfig, inlineUsualPlacesEntry: false })
+        const result = helpers.getPersonUsualWorkPlace(interview, path);
+
+        expect(result.mayHaveUsualPlace).toBe(expectedMayHaveUsualWorkPlace);
+
+        if (expectedWorkPlaceShouldBeNull) {
+            expect(result.usualPlace).toBeNull();
+        } else {
+            expect(result.usualPlace).not.toBeNull();
+        }
+
+        if (expectedWorkPlaceUuid) {
+            expect((result.usualPlace as any)?._uuid).toBe(expectedWorkPlaceUuid);
+        }
+        if (expectedWorkPlaceName) {
+            expect((result.usualPlace as any)?.name).toBe(expectedWorkPlaceName);
+        }
+
+        if (expectedWorkPlaceHasGeography) {
+            expect(result.usualPlace?.geography).toBeDefined();
+        }
+    });
+
+    test('getPersonUsualWorkPlace throws if the person cannot be resolved', () => {
+        const interview = _cloneDeep(interviewAttributesForTestCases);
+        helpers.initializeVisitedPlaceSectionHelpers({ ...defaultVisitedPlaceConfig, inlineUsualPlacesEntry: false })
+
+        expect(() =>
+            helpers.getPersonUsualWorkPlace(
+                interview,
+                'household.persons.invalidPerson.journeys.journeyId1.visitedPlaces.homePlace1P1.activity'
+            )
+        ).toThrow('Journey context not found in interview response');
+    });
+});
+
+describe('Visited places helpers - getPersonUsualSchoolPlace', () => {
+    type GetPersonUsualSchoolPlaceCase = {
+        title: string;
+        setup: (interview: UserRuntimeInterviewAttributes) => {
+            path: string;
+            expectedMayHaveUsualSchoolPlace: boolean;
+            expectedSchoolPlaceUuid?: string;
+            expectedSchoolPlaceName?: string;
+            expectedSchoolPlaceHasGeography?: boolean;
+            expectedSchoolPlaceShouldBeNull: boolean;
+        };
+    };
+
+    test.each<GetPersonUsualSchoolPlaceCase>([
+        {
+            title: 'returns null school place even if school place has geography, and no occupation or schoolPlaceType set',
+            setup: (interview: UserRuntimeInterviewAttributes) => {
+                // From the config, that place is not expected to exist, do not return it here even if it does
+                interview.response.household!.persons!.personId1!.usualSchoolPlace = {
+                    geography: {
+                        type: 'Feature' as const,
+                        geometry: { type: 'Point' as const, coordinates: [-74.1, 46.1] },
+                        properties: { lastAction: 'findPlace' as const }
+                    },
+                    name: 'Configured usual school'
+                };
+                return {
+                    path: 'household.persons.personId1.journeys.journeyId1.visitedPlaces.workPlace1P1.activity',
+                    expectedMayHaveUsualSchoolPlace: true,
+                    expectedSchoolPlaceUuid: undefined,
+                    expectedSchoolPlaceName: undefined,
+                    expectedSchoolPlaceHasGeography: false,
+                    expectedSchoolPlaceShouldBeNull: true
+                };
+            }
+        },
+        {
+            title: 'Use the school usual place from journey',
+            setup: (_interview: UserRuntimeInterviewAttributes) => ({
+                path: 'household.persons.personId3.journeys.journeyId3.visitedPlaces.homePlace1P3.activity',
+                expectedMayHaveUsualSchoolPlace: true,
+                expectedSchoolPlaceUuid: 'schoolPlace1P3',
+                expectedSchoolPlaceHasGeography: true,
+                expectedSchoolPlaceShouldBeNull: false
+            })
+        },
+        {
+            title: 'returns true when person is under mandatory school age even if occupation is not student',
+            setup: (interview: UserRuntimeInterviewAttributes) => {
+                interview.response.household!.persons!.personId1!.occupation = 'fullTimeWorker' as any;
+                interview.response.household!.persons!.personId1!.age = 6;
+                return {
+                    path: 'household.persons.personId1.journeys.journeyId1.visitedPlaces.homePlace1P1.activity',
+                    expectedMayHaveUsualSchoolPlace: true,
+                    expectedSchoolPlaceShouldBeNull: true
+                };
+            }
+        },
+        {
+            title: 'returns false when schoolPlaceType does not imply a usual place',
+            setup: (interview: UserRuntimeInterviewAttributes) => {
+                interview.response.household!.persons!.personId1!.schoolPlaceType = 'remote' as any;
+                return {
+                    path: 'household.persons.personId1.journeys.journeyId1.visitedPlaces.homePlace1P1.activity',
+                    expectedMayHaveUsualSchoolPlace: false,
+                    expectedSchoolPlaceShouldBeNull: true
+                };
+            }
+        },
+        {
+            title: 'returns true when no occupation set',
+            setup: (interview: UserRuntimeInterviewAttributes) => {
+                return {
+                    path: 'household.persons.personId1.journeys.journeyId1.visitedPlaces.homePlace1P1.activity',
+                    expectedMayHaveUsualSchoolPlace: true,
+                    expectedSchoolPlaceShouldBeNull: true
+                };
+            }
+        },
+        {
+            title: 'returns false when no occupation is not a student type',
+            setup: (interview: UserRuntimeInterviewAttributes) => {
+                interview.response.household!.persons!.personId1!.occupation = 'retired' as any;
+                return {
+                    path: 'household.persons.personId1.journeys.journeyId1.visitedPlaces.homePlace1P1.activity',
+                    expectedMayHaveUsualSchoolPlace: false,
+                    expectedSchoolPlaceShouldBeNull: true
+                };
+            }
+        }
+    ])('getPersonUsualSchoolPlace when inlineUsualPlacesEntry is true: $title', ({ setup }) => {
+        const interview = _cloneDeep(interviewAttributesForTestCases);
+        const {
+            path,
+            expectedMayHaveUsualSchoolPlace,
+            expectedSchoolPlaceUuid,
+            expectedSchoolPlaceName,
+            expectedSchoolPlaceHasGeography,
+            expectedSchoolPlaceShouldBeNull
+        } = setup(interview);
+
+        helpers.initializeVisitedPlaceSectionHelpers({ ...defaultVisitedPlaceConfig, inlineUsualPlacesEntry: true })
+        const result = helpers.getPersonUsualSchoolPlace(interview, path);
+
+        expect(result.mayHaveUsualPlace).toBe(expectedMayHaveUsualSchoolPlace);
+
+        if (expectedSchoolPlaceShouldBeNull) {
+            expect(result.usualPlace).toBeNull();
+        } else {
+            expect(result.usualPlace).not.toBeNull();
+        }
+
+        if (expectedSchoolPlaceUuid) {
+            expect((result.usualPlace as any)?._uuid).toBe(expectedSchoolPlaceUuid);
+        }
+        if (expectedSchoolPlaceName) {
+            expect((result.usualPlace as any)?.name).toBe(expectedSchoolPlaceName);
+        }
+
+        if (expectedSchoolPlaceHasGeography) {
+            expect(result.usualPlace?.geography).toBeDefined();
+        }
+    });
+
+    test.each<GetPersonUsualSchoolPlaceCase>([
+        {
+            title: 'returns the usual school place when it has geography',
+            setup: (interview: UserRuntimeInterviewAttributes) => {
+                interview.response.household!.persons!.personId3!.usualSchoolPlace = {
+                    geography: {
+                        type: 'Feature' as const,
+                        geometry: { type: 'Point' as const, coordinates: [-74.1, 46.1] },
+                        properties: { lastAction: 'findPlace' as const }
+                    },
+                    name: 'Configured usual school'
+                };
+                return {
+                    path: 'household.persons.personId3.journeys.journeyId3.visitedPlaces.schoolPlace1P3.activity',
+                    expectedMayHaveUsualSchoolPlace: true,
+                    expectedSchoolPlaceUuid: undefined,
+                    expectedSchoolPlaceName: 'Configured usual school',
+                    expectedSchoolPlaceHasGeography: true,
+                    expectedSchoolPlaceShouldBeNull: false
+                };
+            }
+        },
+        {
+            title: 'Do not look at schoolUsual place from journey when no usual school place geography exists',
+            setup: (_interview: UserRuntimeInterviewAttributes) => ({
+                path: 'household.persons.personId3.journeys.journeyId3.visitedPlaces.homePlace1P3.activity',
+                expectedMayHaveUsualSchoolPlace: true,
+                expectedSchoolPlaceUuid: undefined,
+                expectedSchoolPlaceHasGeography: false,
+                expectedSchoolPlaceShouldBeNull: true
+            })
+        },
+        {
+            title: 'returns true when person is under mandatory school age even if occupation is not student',
+            setup: (interview: UserRuntimeInterviewAttributes) => {
+                interview.response.household!.persons!.personId1!.occupation = 'fullTimeWorker';
+                interview.response.household!.persons!.personId1!.age = 6;
+                return {
+                    path: 'household.persons.personId1.journeys.journeyId1.visitedPlaces.homePlace1P1.activity',
+                    expectedMayHaveUsualSchoolPlace: true,
+                    expectedSchoolPlaceShouldBeNull: true
+                };
+            }
+        },
+        {
+            title: 'returns false when schoolPlaceType does not imply a usual place',
+            setup: (interview: UserRuntimeInterviewAttributes) => {
+                interview.response.household!.persons!.personId1!.schoolPlaceType = 'remote';
+                return {
+                    path: 'household.persons.personId1.journeys.journeyId1.visitedPlaces.homePlace1P1.activity',
+                    expectedMayHaveUsualSchoolPlace: false,
+                    expectedSchoolPlaceShouldBeNull: true
+                };
+            }
+        }
+    ])('getPersonUsualSchoolPlace when inlineUsualPlacesEntry is false: $title', ({ setup }) => {
+        const interview = _cloneDeep(interviewAttributesForTestCases);
+        const {
+            path,
+            expectedMayHaveUsualSchoolPlace,
+            expectedSchoolPlaceUuid,
+            expectedSchoolPlaceName,
+            expectedSchoolPlaceHasGeography,
+            expectedSchoolPlaceShouldBeNull
+        } = setup(interview);
+
+        helpers.initializeVisitedPlaceSectionHelpers({ ...defaultVisitedPlaceConfig, inlineUsualPlacesEntry: false })
+        const result = helpers.getPersonUsualSchoolPlace(interview, path);
+
+        expect(result.mayHaveUsualPlace).toBe(expectedMayHaveUsualSchoolPlace);
+
+        if (expectedSchoolPlaceShouldBeNull) {
+            expect(result.usualPlace).toBeNull();
+        } else {
+            expect(result.usualPlace).not.toBeNull();
+        }
+
+        if (expectedSchoolPlaceUuid) {
+            expect((result.usualPlace as any)?._uuid).toBe(expectedSchoolPlaceUuid);
+        }
+        if (expectedSchoolPlaceName) {
+            expect((result.usualPlace as any)?.name).toBe(expectedSchoolPlaceName);
+        }
+
+        if (expectedSchoolPlaceHasGeography) {
+            expect(result.usualPlace?.geography).toBeDefined();
+        }
+    });
+
+    test('getPersonUsualSchoolPlace throws if the person cannot be resolved', () => {
+        const interview = _cloneDeep(interviewAttributesForTestCases);
+        helpers.initializeVisitedPlaceSectionHelpers({ ...defaultVisitedPlaceConfig, inlineUsualPlacesEntry: true })
+
+        expect(() =>
+            helpers.getPersonUsualSchoolPlace(
+                interview,
+                'household.persons.invalidPerson.journeys.journeyId3.visitedPlaces.homePlace1P3.activity'
+            )
+        ).toThrow('Journey context not found in interview response');
+    });
+});
+
 describe('isLastVisitedPlaceConditional', () => {
     test.each([
         ['not last place', false, 'homePlace1P1'],
