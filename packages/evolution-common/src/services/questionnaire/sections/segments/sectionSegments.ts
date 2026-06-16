@@ -11,6 +11,7 @@ import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { removeGroupedObjects, addGroupedObjects } from '../../../../utils/helpers';
 import * as odHelpers from '../../../odSurvey/helpers';
 import { SectionConfig, SegmentSectionConfiguration, Trip, WidgetConfig } from '../../types';
+import { initializeSegmentSectionHelpers } from './helpers';
 import { SectionConfigFactory, WidgetFactoryOptions } from '../types';
 import { getPersonsTripsTitleWidgetConfig } from './widgetPersonTripsTitle';
 import { SwitchPersonWidgetsFactory } from '../common/widgetsSwitchPerson';
@@ -27,7 +28,7 @@ export class SegmentsSectionFactory implements SectionConfigFactory {
         private sectionConfig: SegmentSectionConfiguration,
         private options: WidgetFactoryOptions
     ) {
-        /** Nothing to do */
+        initializeSegmentSectionHelpers(this.sectionConfig);
         this.prepareSegmentsAndSection();
     }
 
