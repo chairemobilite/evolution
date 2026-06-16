@@ -10,7 +10,7 @@ import * as odHelpers from '../../../../odSurvey/helpers';
 import { interviewAttributesForTestCases, setActiveSurveyObjects } from '../../../../../tests/surveys';
 import { getResponse, setResponse } from '../../../../../utils/helpers';
 import * as helpers from '../helpers';
-import { Journey, Person } from '../../../types';
+import type { Journey, Person, Segment } from '../../../types';
 import { modeValues, Mode } from '../../../../odSurvey/types';
 
 describe('getPreviousTripSingleSegment', () => {
@@ -581,4 +581,347 @@ describe('Mode/modePre filtering based on configuration', () => {
         expect(filteredModesPre).not.toContain('carDriver');
         expect(filteredModesPre.length).toEqual(2);
     });
+});
+
+describe('getSegmentPreviousLocation and getSegmentNextLocation', () => {
+    const originFeature = {
+        type: 'Feature',
+        geometry: { type: 'Point', coordinates: [0, 0] },
+        properties: {}
+    } as GeoJSON.Feature<GeoJSON.Point>;
+    const destinationFeature = {
+        type: 'Feature',
+        geometry: { type: 'Point', coordinates: [1, 1] },
+        properties: {}
+    } as GeoJSON.Feature<GeoJSON.Point>;
+    const stationFeatureCollection = {
+        type: 'FeatureCollection',
+        features: [{
+            type: 'Feature',
+            id: 'station1',
+            geometry: { type: 'Point', coordinates: [2, 2] },
+            properties: {}
+        }, {
+            type: 'Feature',
+            id: 'station2',
+            geometry: { type: 'Point', coordinates: [3, 2] },
+            properties: {}
+        }, {
+            type: 'Feature',
+            id: 'station3',
+            geometry: { type: 'Point', coordinates: [3, 2] },
+            properties: {}
+        }]
+    } as GeoJSON.FeatureCollection<GeoJSON.Point>;
+
+    const fieldsWithGeojsonPoint = [
+        { 
+            fieldName: 'originStation', 
+            type: 'fromCollection'  as const,
+            featureCollection: stationFeatureCollection,
+        } as const, {
+            fieldName: 'junction',
+            type: 'point'  as const
+        } as const, {
+            fieldName: 'destinationStation',
+            type: 'fromCollection' as const,
+            featureCollection: stationFeatureCollection
+        } as const
+    ];
+
+    // Build trip segments with a few additional fields that may or may not be used in the fieldWithGeojson
+    // originStation is the entry station of a segment
+    // destinationStation is the exit station of a segment
+    // junction is a point on the map
+
+    // segmentOne has no data
+    const segmentOne = {
+        _uuid: 'segment1',
+        _sequence: 1,
+        _isNew: false
+    } as any;
+    // segmentTwo has entry/exit station
+    const segmentTwo = {
+        _uuid: 'segment2',
+        _sequence: 2,
+        _isNew: false,
+        originStation: 'station1',
+        destinationStation: 'station2'
+    } as any;
+    // segmentTwo has no data
+    const segmentThree = {
+        _uuid: 'segment3',
+        _sequence: 3,
+        _isNew: false,
+    } as any;
+    const makeTripWithSegments = () => {
+        const trip = {
+            _uuid: 'trip1',
+            _originVisitedPlaceUuid: 'originPlace',
+            _destinationVisitedPlaceUuid: 'destinationPlace',
+            segments: {
+                segment1: _cloneDeep(segmentOne),
+                segment2: _cloneDeep(segmentTwo),
+                segment3: _cloneDeep(segmentThree)
+            }
+        } as any;
+
+        const journey = {
+            visitedPlaces: {
+                originPlace: {
+                    _uuid: 'originPlace',
+                    _sequence: 1,
+                    geography: originFeature
+                },
+                destinationPlace: {
+                    _uuid: 'destinationPlace',
+                    _sequence: 2,
+                    geography: destinationFeature
+                }
+            },
+            trips: {
+                trip1: trip
+            }
+        } as any as Journey;
+
+        return { journey, trip };
+    };
+
+    each([
+        {
+            description: 'first segment',
+            expected: originFeature,
+            currentSegment: segmentOne
+        },
+        {
+            description: 'last segment',
+            expected: originFeature,
+            currentSegment: segmentThree
+        }
+    ]).test('getSegmentPreviousLocation: Uses the trip origin when fieldsWithGeojsonPoint is not configured: $description', ({ currentSegment, expected }) => {
+        const { journey, trip } = makeTripWithSegments();
+        helpers.initializeSegmentSectionHelpers({ type: 'segments', enabled: true });
+
+        const result = helpers.getSegmentPreviousLocation({ segment: currentSegment, trip, journey })
+        expect(result).toEqual(expected);
+    });
+
+    each([
+        {
+            description: 'first segment',
+            expected: destinationFeature,
+            currentSegment: segmentOne
+        },
+        {
+            description: 'last segment',
+            expected: destinationFeature,
+            currentSegment: segmentThree
+        }
+    ]).test('getSegmentNextLocation: Uses the trip destination when fieldsWithGeojsonPoint is not configured: $description', ({ currentSegment, expected }) => {
+        const { journey, trip } = makeTripWithSegments();
+        helpers.initializeSegmentSectionHelpers({ type: 'segments', enabled: true });
+
+        const result = helpers.getSegmentNextLocation({ segment: currentSegment, trip, journey })
+        expect(result).toEqual(expected);
+    });
+
+    each([
+        {
+            description: 'use origin for first segment',
+            expected: originFeature,
+            currentSegmentUuid: segmentOne._uuid
+        },
+        {
+            description: 'Use previous segment\'s destination station when set',
+            expected: stationFeatureCollection.features.find(feature => feature.id === segmentTwo.destinationStation),
+            currentSegmentUuid: segmentThree._uuid
+        },
+        {
+            description: 'use location of the previous segment that has one',
+            expected: stationFeatureCollection.features.find(feature => feature.id === segmentTwo.destinationStation),
+            setup: () => {
+                // Put segmentTwo at the first position, so that last 2 segments do not have location data
+                const { journey, trip } = makeTripWithSegments();
+                trip.segments.segment2._sequence = 1;
+                trip.segments.segment3._sequence = 2;
+                return { journey, trip }
+            },
+            currentSegmentUuid: segmentThree._uuid
+        },
+        {
+            description: 'return trip origin when previous segments do not have location',
+            expected: originFeature,
+            currentSegmentUuid: segmentTwo._uuid
+        },
+        {
+            description: 'use point if it exists',
+            expected: { type: 'Feature', properties: {}, geometry: { type: 'Point', coordinates: [50, 50] } },
+            setup: () => {
+                // let segment2 have junction instead of stations
+                const { journey, trip } = makeTripWithSegments();
+                delete trip.segments.segment2.originStation;
+                delete trip.segments.segment2.destinationStation;
+                trip.segments.segment2.junction = { type: 'Feature', properties: {}, geometry: { type: 'Point', coordinates: [50, 50] } };
+                return { journey, trip }
+            },
+            currentSegmentUuid: segmentThree._uuid
+        },
+    ]).test('getSegmentPreviousLocation: Find correct origin when fieldsWithGeojsonPoint are configured: $description', ({ currentSegmentUuid, expected, setup }) => {
+        // Initialize journey and trips
+        const { journey, trip } = setup ? setup() : makeTripWithSegments();
+        helpers.initializeSegmentSectionHelpers({ type: 'segments', enabled: true, fieldsWithGeojsonPoint });
+        
+        // Get the current segment
+        const currentSegment = trip.segments[currentSegmentUuid];
+        
+        // Get segment destination
+        const result = helpers.getSegmentPreviousLocation({ segment: currentSegment, trip, journey })
+        expect(result).toEqual(expected);
+    });
+
+    each([
+        {
+            description: 'use destination for last segment',
+            expected: destinationFeature,
+            currentSegmentUuid: segmentThree._uuid
+        },
+        {
+            description: 'Use next segment\'s origin station when set',
+            expected: stationFeatureCollection.features.find(feature => feature.id === segmentTwo.originStation),
+            currentSegmentUuid: segmentOne._uuid
+        },
+        {
+            description: 'use location of the next segment that has one',
+            expected: stationFeatureCollection.features.find(feature => feature.id === segmentTwo.originStation),
+            setup: () => {
+                // Put segmentTwo at the last position, so that first 2 segments do not have location data
+                const { journey, trip } = makeTripWithSegments();
+                trip.segments.segment2._sequence = 3;
+                trip.segments.segment3._sequence = 2;
+                return { journey, trip }
+            },
+            currentSegmentUuid: segmentOne._uuid
+        },
+        {
+            description: 'return trip destination when next segments do not have location',
+            expected: destinationFeature,
+            currentSegmentUuid: segmentTwo._uuid
+        },
+        {
+            description: 'use point if it exists',
+            expected: { type: 'Feature', properties: {}, geometry: { type: 'Point', coordinates: [50, 50] } },
+            setup: () => {
+                // let segment2 have junction instead of stations
+                const { journey, trip } = makeTripWithSegments();
+                delete trip.segments.segment2.originStation;
+                delete trip.segments.segment2.destinationStation;
+                trip.segments.segment2.junction = { type: 'Feature', properties: {}, geometry: { type: 'Point', coordinates: [50, 50] } };
+                return { journey, trip }
+            },
+            currentSegmentUuid: segmentOne._uuid
+        },
+    ]).test('getSegmentNextLocation: Find correct destination when fieldsWithGeojsonPoint are configured: $description', ({ currentSegmentUuid, expected, setup }) => {
+        // Initialize journey and trips
+        const { journey, trip } = setup ? setup() : makeTripWithSegments();
+        helpers.initializeSegmentSectionHelpers({ type: 'segments', enabled: true, fieldsWithGeojsonPoint });
+        
+        // Get the current segment
+        const currentSegment = trip.segments[currentSegmentUuid];
+        
+        // Get segment destination
+        const result = helpers.getSegmentNextLocation({ segment: currentSegment, trip, journey })
+        expect(result).toEqual(expected);
+    });
+
+    test('getCurrentSegmentOriginLocation: return null when no fields configured', () => {
+        const { trip } = makeTripWithSegments();
+        helpers.initializeSegmentSectionHelpers({ type: 'segments', enabled: true });
+
+        const result = helpers.getCurrentSegmentOriginLocation({ segment: trip.segments.segment2 })
+        expect(result).toEqual(null);
+    });
+
+    test('getCurrentSegmentDestinationLocation: return null when no fields configured', () => {
+        const { trip } = makeTripWithSegments();
+        helpers.initializeSegmentSectionHelpers({ type: 'segments', enabled: true });
+
+        const result = helpers.getCurrentSegmentDestinationLocation({ segment: trip.segments.segment2 })
+        expect(result).toEqual(null);
+    });
+
+    each([
+        {
+            description: 'use originStation for current segment origin when available',
+            expected: stationFeatureCollection.features.find(feature => feature.id === segmentTwo.originStation),
+            currentSegmentUuid: segmentTwo._uuid
+        },
+        {
+            description: 'use the first available field for current segment origin',
+            expected: { type: 'Feature', properties: {}, geometry: { type: 'Point', coordinates: [50, 50] } },
+            setup: () => {
+                const { journey, trip } = makeTripWithSegments();
+                delete trip.segments.segment2.originStation;
+                delete trip.segments.segment2.destinationStation;
+                trip.segments.segment2.junction = { type: 'Feature', properties: {}, geometry: { type: 'Point', coordinates: [50, 50] } };
+                return { journey, trip };
+            },
+            currentSegmentUuid: segmentTwo._uuid
+        },
+        {
+            description: 'return null when current segment has no matching geojson fields and no previous segments',
+            expected: null,
+            currentSegmentUuid: segmentOne._uuid
+        },
+        {
+            description: 'return null when current segment has no matching geojson fields, even with previous segments',
+            expected: null,
+            currentSegmentUuid: segmentThree._uuid
+        }
+    ]).test('getCurrentSegmentOriginLocation: Find correct origin for the current segment when fieldsWithGeojsonPoint are configured: $description', ({ currentSegmentUuid, expected, setup }) => {
+        const { trip } = setup ? setup() : makeTripWithSegments();
+        helpers.initializeSegmentSectionHelpers({ type: 'segments', enabled: true, fieldsWithGeojsonPoint });
+
+        const currentSegment = trip.segments[currentSegmentUuid];
+        const result = helpers.getCurrentSegmentOriginLocation({ segment: currentSegment });
+
+        expect(result).toEqual(expected);
+    });
+
+    each([
+        {
+            description: 'use destinationStation for current segment destination when available',
+            expected: stationFeatureCollection.features.find(feature => feature.id === segmentTwo.destinationStation),
+            currentSegmentUuid: segmentTwo._uuid
+        },
+        {
+            description: 'use the last available field for current segment destination if destinationStation is missing',
+            expected: { type: 'Feature', properties: {}, geometry: { type: 'Point', coordinates: [50, 50] } },
+            setup: () => {
+                const { journey, trip } = makeTripWithSegments();
+                delete trip.segments.segment2.destinationStation;
+                trip.segments.segment2.junction = { type: 'Feature', properties: {}, geometry: { type: 'Point', coordinates: [50, 50] } };
+                return { journey, trip };
+            },
+            currentSegmentUuid: segmentTwo._uuid
+        },
+        {
+            description: 'return null when current segment has no matching geojson fields, even with next segments',
+            expected: null,
+            currentSegmentUuid: segmentOne._uuid
+        },
+        {
+            description: 'return null when current segment has no matching geojson fields and no next segment',
+            expected: null,
+            currentSegmentUuid: segmentOne._uuid
+        }
+    ]).test('getCurrentSegmentDestinationLocation: Find correct destination for the current segment when fieldsWithGeojsonPoint are configured: $description', ({ currentSegmentUuid, expected, setup }) => {
+        const { trip } = setup ? setup() : makeTripWithSegments();
+        helpers.initializeSegmentSectionHelpers({ type: 'segments', enabled: true, fieldsWithGeojsonPoint });
+
+        const currentSegment = trip.segments[currentSegmentUuid];
+        const result = helpers.getCurrentSegmentDestinationLocation({ segment: currentSegment });
+
+        expect(result).toEqual(expected);
+    });
+
 });

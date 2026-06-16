@@ -517,6 +517,27 @@ export type SegmentSectionConfiguration = {
      * driver question will be added with the additional questions
      */
     askSegmentDriver?: boolean;
+    /**
+     * Describes which fields in the Segment object map to geojson locations.
+     * Each element specifies a field name and how its value represents a location:
+     *
+     * - `fieldName`: The name of the field in the Segment object
+     * - `type: 'point'`: The field value is directly a GeoJSON point
+     * - `type: 'fromCollection'`: The field value corresponds to the `id` of one of the
+     *   features in the provided `featureCollection`. The feature collection represents
+     *   the available choices for this field.
+     *
+     * The array should be ordered such that fields appearing first are closer to the
+     * segment origin, and fields appearing last are closer to the destination. This
+     * ordering informs the helpers when determining previous/next known locations
+     * during segment entry. For example, if there are multiple segments, the
+     * origin/destination of each segment will use the location data specified by
+     * these fields based on their position in the journey.
+     */
+    fieldsWithGeojsonPoint?: ({ fieldName: string } & (
+        | { type: 'point' }
+        | { type: 'fromCollection'; featureCollection: GeoJSON.FeatureCollection<GeoJSON.Point> }
+    ))[];
 };
 
 /**
