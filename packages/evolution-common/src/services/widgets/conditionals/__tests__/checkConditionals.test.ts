@@ -13,6 +13,8 @@ const interview = {
         _isArray: ['a', 'b', 'c'],
         _isEmptyArray: [],
         _isString: 'a',
+        _isNumericString: '0',
+        _isEmptyString: '',
         _isTrueBoolean: true,
         _isFalseBoolean: false,
         _isNumber1: 1,
@@ -99,6 +101,18 @@ const testCases: Array<{
             }
         ],
         expected: [true, null]
+    },
+    {
+        testTitle:
+            '_isNull === 0 (number), should return false (Number(null) converts to 0, but it should fail).',
+        conditionals: [
+            {
+                path: '_isNull',
+                comparisonOperator: '===',
+                value: 0
+            }
+        ],
+        expected: [false, null]
     },
     {
         testTitle:
@@ -410,6 +424,83 @@ const testCases: Array<{
             }
         ],
         expected: [true, null]
+    },
+    {
+        testTitle: '_isNumericString <= 2, should return true.',
+        conditionals: [
+            {
+                path: '_isNumericString',
+                comparisonOperator: '<=',
+                value: 2
+            }
+        ],
+        expected: [true, null]
+    },
+    {
+        testTitle: '_isNumericString === 0, should return true.',
+        conditionals: [
+            {
+                path: '_isNumericString',
+                comparisonOperator: '===',
+                value: 0
+            }
+        ],
+        expected: [true, null]
+    },
+    {
+        testTitle: '_isNumericString > 2, should return false.',
+        conditionals: [
+            {
+                path: '_isNumericString',
+                comparisonOperator: '>',
+                value: 2
+            }
+        ],
+        expected: [false, null]
+    },
+    {
+        testTitle: '_isEmptyString === 0, should return false.',
+        conditionals: [
+            {
+                path: '_isEmptyString',
+                comparisonOperator: '===',
+                value: 0
+            }
+        ],
+        expected: [false, null]
+    },
+    {
+        testTitle: '_isEmptyString > 0, should return false.',
+        conditionals: [
+            {
+                path: '_isEmptyString',
+                comparisonOperator: '>',
+                value: 0
+            }
+        ],
+        expected: [false, null]
+    },
+    {
+        testTitle: '_isEmptyString < 0, should return false.',
+        conditionals: [
+            {
+                path: '_isEmptyString',
+                comparisonOperator: '<',
+                value: 0
+            }
+        ],
+        expected: [false, null]
+    },
+    {
+        testTitle: '_isString === 0, should return false. The string is not a number',
+        conditionals: [
+            {
+                path: '_isString',
+                comparisonOperator: '===',
+                value: 0
+            }
+        ],
+        expected: [false, null]
     },
     {
         testTitle: 'Wrong comparison operator with number, should return false.',

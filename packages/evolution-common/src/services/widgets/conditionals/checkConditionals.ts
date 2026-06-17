@@ -116,26 +116,32 @@ export const checkConditionals = ({
                 conditionMet = false;
                 break;
             }
-        } else if (typeof value === 'number') {
-            // For Number
+        } else if (typeof value === 'number' && (typeof response === 'number' || typeof response === 'string')) {
+            const responseAsNumber =
+                typeof response === 'number'
+                    ? response
+                    : response.trim() !== '' && Number.isFinite(Number(response))
+                        ? Number(response)
+                        : NaN;
+            // For Number values, when response is string or number
             switch (comparisonOperator) {
             case '===':
-                conditionMet = Number(response) === value;
+                conditionMet = responseAsNumber === value;
                 break;
             case '!==':
-                conditionMet = Number(response) !== value;
+                conditionMet = responseAsNumber !== value;
                 break;
             case '>':
-                conditionMet = Number(response) > value;
+                conditionMet = responseAsNumber > value;
                 break;
             case '<':
-                conditionMet = Number(response) < value;
+                conditionMet = responseAsNumber < value;
                 break;
             case '>=':
-                conditionMet = Number(response) >= value;
+                conditionMet = responseAsNumber >= value;
                 break;
             case '<=':
-                conditionMet = Number(response) <= value;
+                conditionMet = responseAsNumber <= value;
                 break;
             default:
                 conditionMet = false;
