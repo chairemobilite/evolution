@@ -6,7 +6,7 @@
  */
 import moment from 'moment';
 // eslint-disable-next-line n/no-unpublished-import
-import { test, expect, Page, Browser, Locator } from '@playwright/test';
+import { test, expect, Page, Browser, BrowserContext, Locator } from '@playwright/test';
 import configureI18n, { registerTranslationDir } from './configurei18n';
 import { SurveyObjectDetector } from './SurveyObjectDetectors';
 
@@ -107,6 +107,8 @@ type SectionProgressBarTest = (
  * example test instances)
  * @param {{[cookieName: string]: string}} options.cookies - The cookies to set
  */
+const browserContexts: BrowserContext[] = [];
+
 export const initializeTestPage = async (
     browser: Browser,
     surveyObjectDetector: SurveyObjectDetector,
@@ -117,6 +119,7 @@ export const initializeTestPage = async (
     } = {}
 ): Promise<Page> => {
     const context = await browser.newContext({ ignoreHTTPSErrors: options.ignoreHTTPSErrors === true });
+    browserContexts.push(context);
     const page = await context.newPage();
 
     const baseUrlString = test.info().project.use.baseURL;
@@ -165,9 +168,9 @@ export const initializeTestPage = async (
     return page;
 };
 
-// Close the browser after all the tests
-test.afterAll(async ({ browser }) => {
-    await browser.close();
+// Close created browser contexts after all tests
+test.afterAll(async () => {
+    await Promise.all(browserContexts.map((context) => context.close()));
 });
 
 const getTestCounter = (context: CommonTestParameters['context'], testKey: string) => {
