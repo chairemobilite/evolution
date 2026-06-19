@@ -16,6 +16,7 @@ expect.extend(toHaveNoViolations);
 import { interviewAttributes } from '../../inputs/__tests__/interviewData';
 import Question from '../Question';
 import { WidgetStatus } from 'evolution-common/lib/services/questionnaire/types';
+import { featureCollection } from '@turf/turf';
 
 // Mock react-markdown and remark-gfm as they use syntax not supported by jest
 jest.mock('react-markdown', () => 'Markdown');
@@ -82,6 +83,17 @@ const defaultWidgetStatus: WidgetStatus = {
     value: null
 };
 
+// Feature collection for the inputSelectFeature test
+const testFeatureCollection = {
+    type: 'FeatureCollection' as const,
+    features: [
+        { type: 'Feature' as const, id: 'feature1', properties: { label: 'Label For Feature 1' }, geometry: { type: 'Point' as const, coordinates: [0,0] } },
+        { type: 'Feature' as const, id: 'feature2', properties: { label: 'Label For Feature 2' }, geometry: { type: 'Point' as const, coordinates: [1,1] } },
+        { type: 'Feature' as const, id: 'feature3', properties: { label: 'Label For Feature 3' }, geometry: { type: 'Point' as const, coordinates: [2,3] } },
+        { type: 'Feature' as const, id: 'feature4', properties: { label: 'Label For Feature 4' }, geometry: { type: 'Point' as const, coordinates: [3,1] } }
+    ]
+}
+
 each([
     ['InputSelect', { ...commonWidgetConfig, inputType: 'select', choices: [{ label: 'choice 1', value: 'c1' }, { label: 'choice 2', value: 'c2' }] }, 'c2'],
     ['InputRadio', { ...commonWidgetConfig, inputType: 'radio', choices: [{ label: 'choice 1', value: 'c1' }, { label: 'choice 2', value: 'c2' }] }, 'c2'],
@@ -94,6 +106,7 @@ each([
     ['InputText', { ...commonWidgetConfig, inputType: 'text' }, 'foo'], // This test needs a value
     ['InputString', { ...commonWidgetConfig, inputType: 'string' }],
     ['InputTime', { ...commonWidgetConfig, inputType: 'time', minTimeSecondsSinceMidnight: 3600, maxTimeSecondsSinceMidnight: 7200, minuteStep: 10 }, 3660], // This test needs a value
+    ['InputSelectFeature', { ...commonWidgetConfig, inputType: 'selectFeature', featureCollection: testFeatureCollection, labelProperty: 'label', referenceGeography: jest.fn().mockReturnValue(null) }],
 ]).describe('Question with widget %s', (_widget, widgetConfig, value: unknown = undefined) => {
 
     const widgetStatus = _cloneDeep(defaultWidgetStatus);

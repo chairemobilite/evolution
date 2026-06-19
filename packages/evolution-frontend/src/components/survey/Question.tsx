@@ -26,6 +26,7 @@ import InputMultiselect from '../inputs/InputMultiselect';
 import InputTime from '../inputs/InputTime';
 import InputRadioNumber from '../inputs/InputRadioNumber';
 import InputText from '../inputs/InputText';
+import InputSelectFeature from '../inputs/InputSelectFeature';
 import Modal from 'react-modal';
 import { checkValidations } from '../../actions/utils';
 import { withSurveyContext, WithSurveyContextProps } from '../hoc/WithSurveyContextHoc';
@@ -283,6 +284,14 @@ export class Question extends React.Component<QuestionProps & WithSurveyContextP
             case 'select':
                 return (
                     <InputSelect
+                        {...commonProps}
+                        value={widgetStatus.value as any}
+                        widgetConfig={widgetConfig as any}
+                    />
+                );
+            case 'selectFeature':
+                return (
+                    <InputSelectFeature
                         {...commonProps}
                         value={widgetStatus.value as any}
                         widgetConfig={widgetConfig as any}

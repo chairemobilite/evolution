@@ -1,0 +1,85 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`Render InputSelect with normal option type, no sorting 1`] = `
+<div>
+  <div
+    class="survey-question__input-select-container"
+  >
+    <select
+      id="test"
+      style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis; max-width: 100%;"
+    >
+      <option
+        class="input-select-option"
+        value=""
+      />
+      <option
+        class="input-select-option"
+        value="feature1"
+      >
+        Label For Feature 1
+      </option>
+      <option
+        class="input-select-option"
+        value="feature2"
+      >
+        Label For Feature 2
+      </option>
+      <option
+        class="input-select-option"
+        value="feature3"
+      >
+        Label For Feature 3
+      </option>
+      <option
+        class="input-select-option"
+        value="feature4"
+      >
+        Label For Feature 4
+      </option>
+    </select>
+  </div>
+</div>
+`;
+
+exports[`Render InputSelect with normal option type, proximity sorting 1`] = `
+<div>
+  <div
+    class="survey-question__input-select-container"
+  >
+    <select
+      id="test"
+      style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis; max-width: 100%;"
+    >
+      <option
+        class="input-select-option"
+        value=""
+      />
+      <option
+        class="input-select-option"
+        value="feature4"
+      >
+        Label For Feature 4
+      </option>
+      <option
+        class="input-select-option"
+        value="feature2"
+      >
+        Label For Feature 2
+      </option>
+      <option
+        class="input-select-option"
+        value="feature1"
+      >
+        Label For Feature 1
+      </option>
+      <option
+        class="input-select-option"
+        value="feature3"
+      >
+        Label For Feature 3
+      </option>
+    </select>
+  </div>
+</div>
+`;
