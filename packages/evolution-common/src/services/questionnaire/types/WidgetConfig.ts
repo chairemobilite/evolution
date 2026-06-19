@@ -198,6 +198,23 @@ export type InputSelectType = BaseQuestionType & {
     datatype?: 'string' | 'integer' | 'float' | 'text';
 };
 
+/**
+ * Type for a select input whose values are geographical features from a feature
+ * collection. The features are sorted by proximity to a reference geography.
+ * The feature collection is expected to have an `id` field that will be used as
+ * the value of the choices.
+ *
+ * @experimental This widget is still experimental and is implemented for a very
+    specific use case to sort choices wrt a segment's origin/destination. The
+    implementation may change rapidly if new cases are discovered.
+ */
+export type InputSelectFeatureType = BaseQuestionType & {
+    inputType: 'selectFeature';
+    featureCollection: GeoJSON.FeatureCollection<GeoJSON.Point>;
+    labelProperty: string;
+    referenceGeography: ParsingFunction<GeoJSON.Feature<GeoJSON.Point> | null>;
+};
+
 export type InputMultiselectType = BaseQuestionType & {
     inputType: 'multiselect';
     choices: ChoiceType[] | ParsingFunction<ChoiceType[]>;
@@ -395,6 +412,7 @@ export type QuestionWidgetConfig =
     | InputRangeType
     | InputDatePickerType
     | InputSelectType
+    | InputSelectFeatureType
     | InputRadioNumberType;
 
 const inputTypesWithArrayValue: QuestionWidgetConfig['inputType'][] = ['checkbox', 'multiselect'];

@@ -735,6 +735,68 @@ exports[`Question with widget InputSelect Render widget 1`] = `
 </div>
 `;
 
+exports[`Question with widget InputSelectFeature Render widget 1`] = `
+<div>
+  <div
+    class="apptr__form-container two-columns question-type-selectFeature question-filled question-valid"
+    style="position: relative;"
+  >
+    <div
+      class="apptr__form-label-container two-columns"
+    >
+      <label
+        for="survey-question__home.region"
+      >
+        <div>
+          English text
+        </div>
+      </label>
+    </div>
+    <div
+      class="apptr__form-input-container two-columns"
+    >
+      <div
+        class="survey-question__input-select-container"
+      >
+        <select
+          id="survey-question__home.region"
+          style="overflow: hidden; white-space: nowrap; text-overflow: ellipsis; max-width: 100%;"
+        >
+          <option
+            class="input-select-option"
+            value=""
+          />
+          <option
+            class="input-select-option"
+            value="feature1"
+          >
+            Label For Feature 1
+          </option>
+          <option
+            class="input-select-option"
+            value="feature2"
+          >
+            Label For Feature 2
+          </option>
+          <option
+            class="input-select-option"
+            value="feature3"
+          >
+            Label For Feature 3
+          </option>
+          <option
+            class="input-select-option"
+            value="feature4"
+          >
+            Label For Feature 4
+          </option>
+        </select>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
 exports[`Question with widget InputString Render widget 1`] = `
 <div>
   <div
