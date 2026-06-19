@@ -213,11 +213,15 @@ interface SegmentSectionHelpersImplementation {
         segment: Segment;
         journey: Journey;
         trip: Trip;
+        person: Person;
+        interview: UserInterviewAttributes;
     }) => GeoJSON.Feature<GeoJSON.Point> | null;
     getSegmentNextLocation: (params: {
         segment: Segment;
         journey: Journey;
         trip: Trip;
+        person: Person;
+        interview: UserInterviewAttributes;
     }) => GeoJSON.Feature<GeoJSON.Point> | null;
     getCurrentSegmentOriginLocation: (param: { segment: Segment }) => GeoJSON.Feature<GeoJSON.Point> | null;
     getCurrentSegmentDestinationLocation: (param: { segment: Segment }) => GeoJSON.Feature<GeoJSON.Point> | null;
@@ -232,10 +236,20 @@ interface SegmentSectionHelpersImplementation {
  * @param options.journey The journey the trip is part of
  * @returns
  */
-const getTripOrigin = ({ trip, journey }: { journey: Journey; trip: Trip }): GeoJSON.Feature<GeoJSON.Point> | null => {
+const getTripOrigin = ({
+    trip,
+    journey,
+    interview,
+    person
+}: {
+    journey: Journey;
+    trip: Trip;
+    interview: UserInterviewAttributes;
+    person: Person;
+}): GeoJSON.Feature<GeoJSON.Point> | null => {
     const visitedPlaces = odHelpers.getVisitedPlaces({ journey });
     const origin = odHelpers.getOrigin({ trip, visitedPlaces });
-    return origin?.geography ?? null;
+    return origin !== null ? odHelpers.getVisitedPlaceGeography({ visitedPlace: origin, interview, person }) : null;
 };
 
 /**
@@ -249,14 +263,20 @@ const getTripOrigin = ({ trip, journey }: { journey: Journey; trip: Trip }): Geo
  */
 const getTripDestination = ({
     trip,
-    journey
+    journey,
+    interview,
+    person
 }: {
     journey: Journey;
     trip: Trip;
+    interview: UserInterviewAttributes;
+    person: Person;
 }): GeoJSON.Feature<GeoJSON.Point> | null => {
     const visitedPlaces = odHelpers.getVisitedPlaces({ journey });
     const destination = odHelpers.getDestination({ trip, visitedPlaces });
-    return destination?.geography ?? null;
+    return destination !== null
+        ? odHelpers.getVisitedPlaceGeography({ visitedPlace: destination, interview, person })
+        : null;
 };
 
 class SegmentSectionHelpersWithFields implements SegmentSectionHelpersImplementation {
@@ -297,11 +317,15 @@ class SegmentSectionHelpersWithFields implements SegmentSectionHelpersImplementa
     public getSegmentPreviousLocation({
         segment,
         trip,
-        journey
+        journey,
+        person,
+        interview
     }: {
         segment: Segment;
         journey: Journey;
         trip: Trip;
+        person: Person;
+        interview: UserInterviewAttributes;
     }): GeoJSON.Feature<GeoJSON.Point> | null {
         const segments = odHelpers.getSegmentsArray({ trip });
         const previousSegments = segments.slice(
@@ -316,17 +340,21 @@ class SegmentSectionHelpersWithFields implements SegmentSectionHelpersImplementa
                 return location;
             }
         }
-        return getTripOrigin({ trip, journey });
+        return getTripOrigin({ trip, journey, interview, person });
     }
 
     public getSegmentNextLocation({
         segment,
         trip,
-        journey
+        journey,
+        person,
+        interview
     }: {
         segment: Segment;
         journey: Journey;
         trip: Trip;
+        person: Person;
+        interview: UserInterviewAttributes;
     }): GeoJSON.Feature<GeoJSON.Point> | null {
         const segments = odHelpers.getSegmentsArray({ trip });
         const nextSegments = segments.slice(
@@ -340,7 +368,7 @@ class SegmentSectionHelpersWithFields implements SegmentSectionHelpersImplementa
                 return location;
             }
         }
-        return getTripDestination({ trip, journey });
+        return getTripDestination({ trip, journey, person, interview });
     }
 
     public getCurrentSegmentOriginLocation({ segment }: { segment: Segment }): GeoJSON.Feature<GeoJSON.Point> | null {
@@ -373,24 +401,32 @@ class SegmentSectionHelpersWithFields implements SegmentSectionHelpersImplementa
 class DefaultSegmentSectionHelpers implements SegmentSectionHelpersImplementation {
     public getSegmentPreviousLocation({
         trip,
-        journey
+        journey,
+        person,
+        interview
     }: {
         segment: Segment;
         journey: Journey;
         trip: Trip;
+        person: Person;
+        interview: UserInterviewAttributes;
     }): GeoJSON.Feature<GeoJSON.Point> | null {
-        return getTripOrigin({ trip, journey });
+        return getTripOrigin({ trip, journey, person, interview });
     }
 
     public getSegmentNextLocation({
         trip,
-        journey
+        journey,
+        person,
+        interview
     }: {
         segment: Segment;
         journey: Journey;
         trip: Trip;
+        person: Person;
+        interview: UserInterviewAttributes;
     }): GeoJSON.Feature<GeoJSON.Point> | null {
-        return getTripDestination({ trip, journey });
+        return getTripDestination({ trip, journey, person, interview });
     }
 
     public getCurrentSegmentOriginLocation(): GeoJSON.Feature<GeoJSON.Point> | null {
@@ -433,13 +469,17 @@ export const initializeSegmentSectionHelpers = (segmentConfig: SegmentSectionCon
 export const getSegmentPreviousLocation = ({
     segment,
     trip,
-    journey
+    journey,
+    person,
+    interview
 }: {
     segment: Segment;
     journey: Journey;
     trip: Trip;
+    person: Person;
+    interview: UserInterviewAttributes;
 }): GeoJSON.Feature<GeoJSON.Point> | null => {
-    return segmentSectionHelpers.getSegmentPreviousLocation({ segment, trip, journey });
+    return segmentSectionHelpers.getSegmentPreviousLocation({ segment, trip, journey, person, interview });
 };
 
 /**
@@ -459,13 +499,17 @@ export const getSegmentPreviousLocation = ({
 export const getSegmentNextLocation = ({
     segment,
     trip,
-    journey
+    journey,
+    person,
+    interview
 }: {
     segment: Segment;
     journey: Journey;
     trip: Trip;
+    person: Person;
+    interview: UserInterviewAttributes;
 }): GeoJSON.Feature<GeoJSON.Point> | null => {
-    return segmentSectionHelpers.getSegmentNextLocation({ segment, trip, journey });
+    return segmentSectionHelpers.getSegmentNextLocation({ segment, trip, journey, person, interview });
 };
 
 /**

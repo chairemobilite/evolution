@@ -10,7 +10,7 @@ import * as odHelpers from '../../../../odSurvey/helpers';
 import { interviewAttributesForTestCases, setActiveSurveyObjects } from '../../../../../tests/surveys';
 import { getResponse, setResponse } from '../../../../../utils/helpers';
 import * as helpers from '../helpers';
-import type { Journey, Person, Segment } from '../../../types';
+import type { Journey, Person, Segment, UserInterviewAttributes } from '../../../types';
 import { modeValues, Mode } from '../../../../odSurvey/types';
 
 describe('getPreviousTripSingleSegment', () => {
@@ -584,16 +584,9 @@ describe('Mode/modePre filtering based on configuration', () => {
 });
 
 describe('getSegmentPreviousLocation and getSegmentNextLocation', () => {
-    const originFeature = {
-        type: 'Feature',
-        geometry: { type: 'Point', coordinates: [0, 0] },
-        properties: {}
-    } as GeoJSON.Feature<GeoJSON.Point>;
-    const destinationFeature = {
-        type: 'Feature',
-        geometry: { type: 'Point', coordinates: [1, 1] },
-        properties: {}
-    } as GeoJSON.Feature<GeoJSON.Point>;
+    // Use tripId2P2 of personId2 by default, which is a trip between two places defined in trip diary
+    const originFeature = _cloneDeep(interviewAttributesForTestCases.response.household!.persons!.personId2.journeys!.journeyId2.visitedPlaces!.shoppingPlace1P2.geography);
+    const destinationFeature = _cloneDeep(interviewAttributesForTestCases.response.household!.persons!.personId2.journeys!.journeyId2.visitedPlaces!.otherWorkPlace1P2.geography);;
     const stationFeatureCollection = {
         type: 'FeatureCollection',
         features: [{
@@ -654,35 +647,15 @@ describe('getSegmentPreviousLocation and getSegmentNextLocation', () => {
         _sequence: 3,
         _isNew: false,
     } as any;
-    const makeTripWithSegments = () => {
-        const trip = {
-            _uuid: 'trip1',
-            _originVisitedPlaceUuid: 'originPlace',
-            _destinationVisitedPlaceUuid: 'destinationPlace',
-            segments: {
-                segment1: _cloneDeep(segmentOne),
-                segment2: _cloneDeep(segmentTwo),
-                segment3: _cloneDeep(segmentThree)
-            }
-        } as any;
-
-        const journey = {
-            visitedPlaces: {
-                originPlace: {
-                    _uuid: 'originPlace',
-                    _sequence: 1,
-                    geography: originFeature
-                },
-                destinationPlace: {
-                    _uuid: 'destinationPlace',
-                    _sequence: 2,
-                    geography: destinationFeature
-                }
-            },
-            trips: {
-                trip1: trip
-            }
-        } as any as Journey;
+    const makeTripWithSegments = (interview: UserInterviewAttributes) => {
+        // Modify the tripId2P2 from PersonId2 to contain various segments
+        const journey = interview.response.household!.persons!.personId2.journeys!.journeyId2;
+        const trip = journey.trips!.tripId2P2;
+        trip.segments = {
+            segment1: _cloneDeep(segmentOne),
+            segment2: _cloneDeep(segmentTwo),
+            segment3: _cloneDeep(segmentThree)
+        }
 
         return { journey, trip };
     };
@@ -697,12 +670,27 @@ describe('getSegmentPreviousLocation and getSegmentNextLocation', () => {
             description: 'last segment',
             expected: originFeature,
             currentSegment: segmentThree
+        },
+        {
+            description: 'home location if origin is home',
+            expected: interviewAttributesForTestCases.response.home?.geography,
+            currentSegment: segmentOne,
+            setup: (interview) => {
+                // Use tripId1P2 with home as origin geography and set its segments
+                const tripWithHomeAsOrigin = interview.response.household.persons!.personId2.journeys!.journeyId2.trips!.tripId1P2;
+                tripWithHomeAsOrigin.segments = {
+                    [segmentOne._uuid]: _cloneDeep(segmentOne)
+                };
+                return { trip: tripWithHomeAsOrigin, journey: interview.response.household.persons!.personId2.journeys!.journeyId2 }
+            }
         }
-    ]).test('getSegmentPreviousLocation: Uses the trip origin when fieldsWithGeojsonPoint is not configured: $description', ({ currentSegment, expected }) => {
-        const { journey, trip } = makeTripWithSegments();
+    ]).test('getSegmentPreviousLocation: Uses the trip origin when fieldsWithGeojsonPoint is not configured: $description', ({ currentSegment, expected, setup }) => {
+        const interview = _cloneDeep(interviewAttributesForTestCases);
+        const { journey, trip } = setup ? setup(interview) : makeTripWithSegments(interview);
+
         helpers.initializeSegmentSectionHelpers({ type: 'segments', enabled: true });
 
-        const result = helpers.getSegmentPreviousLocation({ segment: currentSegment, trip, journey })
+        const result = helpers.getSegmentPreviousLocation({ segment: currentSegment, trip, journey, interview, person: interview.response.household!.persons!.personId2 })
         expect(result).toEqual(expected);
     });
 
@@ -716,12 +704,26 @@ describe('getSegmentPreviousLocation and getSegmentNextLocation', () => {
             description: 'last segment',
             expected: destinationFeature,
             currentSegment: segmentThree
+        },
+        {
+            description: 'home location if origin is home',
+            expected: interviewAttributesForTestCases.response.home?.geography,
+            currentSegment: segmentOne,
+            setup: (interview) => {
+                // Use tripId3P2 with home as destination geography and set its segments
+                const tripWithHomeAsDestination = interview.response.household.persons!.personId2.journeys!.journeyId2.trips!.tripId3P2;
+                tripWithHomeAsDestination.segments = {
+                    [segmentOne._uuid]: _cloneDeep(segmentOne)
+                };
+                return { trip: tripWithHomeAsDestination, journey: interview.response.household.persons!.personId2.journeys!.journeyId2 }
+            }
         }
-    ]).test('getSegmentNextLocation: Uses the trip destination when fieldsWithGeojsonPoint is not configured: $description', ({ currentSegment, expected }) => {
-        const { journey, trip } = makeTripWithSegments();
+    ]).test('getSegmentNextLocation: Uses the trip destination when fieldsWithGeojsonPoint is not configured: $description', ({ currentSegment, expected, setup }) => {
+        const interview = _cloneDeep(interviewAttributesForTestCases);
+        const { journey, trip } = setup ? setup(interview) : makeTripWithSegments(interview);
         helpers.initializeSegmentSectionHelpers({ type: 'segments', enabled: true });
 
-        const result = helpers.getSegmentNextLocation({ segment: currentSegment, trip, journey })
+        const result = helpers.getSegmentNextLocation({ segment: currentSegment, trip, journey, interview, person: interview.response.household!.persons!.personId2 })
         expect(result).toEqual(expected);
     });
 
@@ -739,11 +741,11 @@ describe('getSegmentPreviousLocation and getSegmentNextLocation', () => {
         {
             description: 'use location of the previous segment that has one',
             expected: stationFeatureCollection.features.find(feature => feature.id === segmentTwo.destinationStation),
-            setup: () => {
+            setup: (interview) => {
                 // Put segmentTwo at the first position, so that last 2 segments do not have location data
-                const { journey, trip } = makeTripWithSegments();
-                trip.segments.segment2._sequence = 1;
-                trip.segments.segment3._sequence = 2;
+                const { journey, trip } = makeTripWithSegments(interview);
+                trip.segments!.segment2._sequence = 1;
+                trip.segments!.segment3._sequence = 2;
                 return { journey, trip }
             },
             currentSegmentUuid: segmentThree._uuid
@@ -756,26 +758,40 @@ describe('getSegmentPreviousLocation and getSegmentNextLocation', () => {
         {
             description: 'use point if it exists',
             expected: { type: 'Feature', properties: {}, geometry: { type: 'Point', coordinates: [50, 50] } },
-            setup: () => {
+            setup: (interview) => {
                 // let segment2 have junction instead of stations
-                const { journey, trip } = makeTripWithSegments();
-                delete trip.segments.segment2.originStation;
-                delete trip.segments.segment2.destinationStation;
-                trip.segments.segment2.junction = { type: 'Feature', properties: {}, geometry: { type: 'Point', coordinates: [50, 50] } };
-                return { journey, trip }
+                const { journey, trip } = makeTripWithSegments(interview);
+                delete (trip.segments!.segment2 as any).originStation;
+                delete (trip.segments!.segment2 as any).destinationStation;
+                (trip.segments!.segment2 as any).junction = { type: 'Feature', properties: {}, geometry: { type: 'Point', coordinates: [50, 50] } };
+                return { journey, trip };
             },
             currentSegmentUuid: segmentThree._uuid
         },
+        {
+            description: 'return home location if trip origin',
+            expected: interviewAttributesForTestCases.response.home?.geography,
+            setup: (interview) => {
+                // Use tripId1P2 with home as origin geography and set its segments
+                const tripWithHomeAsOrigin = interview.response.household.persons!.personId2.journeys!.journeyId2.trips!.tripId1P2;
+                tripWithHomeAsOrigin.segments = {
+                    [segmentOne._uuid]: _cloneDeep(segmentOne)
+                };
+                return { trip: tripWithHomeAsOrigin, journey: interview.response.household.persons!.personId2.journeys!.journeyId2 };
+            },
+            currentSegmentUuid: segmentOne._uuid
+        }
     ]).test('getSegmentPreviousLocation: Find correct origin when fieldsWithGeojsonPoint are configured: $description', ({ currentSegmentUuid, expected, setup }) => {
         // Initialize journey and trips
-        const { journey, trip } = setup ? setup() : makeTripWithSegments();
+        const interview = _cloneDeep(interviewAttributesForTestCases);
+        const { journey, trip } = setup ? setup(interview) : makeTripWithSegments(interview);
         helpers.initializeSegmentSectionHelpers({ type: 'segments', enabled: true, fieldsWithGeojsonPoint });
         
         // Get the current segment
         const currentSegment = trip.segments[currentSegmentUuid];
         
         // Get segment destination
-        const result = helpers.getSegmentPreviousLocation({ segment: currentSegment, trip, journey })
+        const result = helpers.getSegmentPreviousLocation({ segment: currentSegment, trip, journey, interview, person: interview.response.household!.persons!.personId2 })
         expect(result).toEqual(expected);
     });
 
@@ -793,11 +809,11 @@ describe('getSegmentPreviousLocation and getSegmentNextLocation', () => {
         {
             description: 'use location of the next segment that has one',
             expected: stationFeatureCollection.features.find(feature => feature.id === segmentTwo.originStation),
-            setup: () => {
+            setup: (interview) => {
                 // Put segmentTwo at the last position, so that first 2 segments do not have location data
-                const { journey, trip } = makeTripWithSegments();
-                trip.segments.segment2._sequence = 3;
-                trip.segments.segment3._sequence = 2;
+                const { journey, trip } = makeTripWithSegments(interview);
+                trip.segments!.segment2._sequence = 3;
+                trip.segments!.segment3._sequence = 2;
                 return { journey, trip }
             },
             currentSegmentUuid: segmentOne._uuid
@@ -810,42 +826,58 @@ describe('getSegmentPreviousLocation and getSegmentNextLocation', () => {
         {
             description: 'use point if it exists',
             expected: { type: 'Feature', properties: {}, geometry: { type: 'Point', coordinates: [50, 50] } },
-            setup: () => {
+            setup: (interview) => {
                 // let segment2 have junction instead of stations
-                const { journey, trip } = makeTripWithSegments();
-                delete trip.segments.segment2.originStation;
-                delete trip.segments.segment2.destinationStation;
-                trip.segments.segment2.junction = { type: 'Feature', properties: {}, geometry: { type: 'Point', coordinates: [50, 50] } };
+                const { journey, trip } = makeTripWithSegments(interview);
+                delete (trip.segments!.segment2 as any).originStation;
+                delete (trip.segments!.segment2 as any).destinationStation;
+                (trip.segments!.segment2 as any).junction = { type: 'Feature', properties: {}, geometry: { type: 'Point', coordinates: [50, 50] } };
                 return { journey, trip }
             },
             currentSegmentUuid: segmentOne._uuid
         },
+        {
+            description: 'return home location if next destination',
+            expected: interviewAttributesForTestCases.response.home?.geography,
+            setup: (interview) => {
+                // Use tripId3P2 with home as destination geography and set its segments
+                const tripWithHomeAsDestination = interview.response.household.persons!.personId2.journeys!.journeyId2.trips!.tripId3P2;
+                tripWithHomeAsDestination.segments = {
+                    [segmentOne._uuid]: _cloneDeep(segmentOne)
+                };
+                return { trip: tripWithHomeAsDestination, journey: interview.response.household.persons!.personId2.journeys!.journeyId2 }
+            },
+            currentSegmentUuid: segmentOne._uuid
+        }
     ]).test('getSegmentNextLocation: Find correct destination when fieldsWithGeojsonPoint are configured: $description', ({ currentSegmentUuid, expected, setup }) => {
         // Initialize journey and trips
-        const { journey, trip } = setup ? setup() : makeTripWithSegments();
+        const interview = _cloneDeep(interviewAttributesForTestCases);
+        const { journey, trip } = setup ? setup(interview) : makeTripWithSegments(interview);
         helpers.initializeSegmentSectionHelpers({ type: 'segments', enabled: true, fieldsWithGeojsonPoint });
         
         // Get the current segment
         const currentSegment = trip.segments[currentSegmentUuid];
         
         // Get segment destination
-        const result = helpers.getSegmentNextLocation({ segment: currentSegment, trip, journey })
+        const result = helpers.getSegmentNextLocation({ segment: currentSegment, trip, journey, interview, person: interview.response.household!.persons!.personId2 })
         expect(result).toEqual(expected);
     });
 
     test('getCurrentSegmentOriginLocation: return null when no fields configured', () => {
-        const { trip } = makeTripWithSegments();
+        const interview = _cloneDeep(interviewAttributesForTestCases);
+        const { trip } = makeTripWithSegments(interview);
         helpers.initializeSegmentSectionHelpers({ type: 'segments', enabled: true });
 
-        const result = helpers.getCurrentSegmentOriginLocation({ segment: trip.segments.segment2 })
+        const result = helpers.getCurrentSegmentOriginLocation({ segment: trip.segments!.segment2 })
         expect(result).toEqual(null);
     });
 
     test('getCurrentSegmentDestinationLocation: return null when no fields configured', () => {
-        const { trip } = makeTripWithSegments();
+        const interview = _cloneDeep(interviewAttributesForTestCases);
+        const { trip } = makeTripWithSegments(interview);
         helpers.initializeSegmentSectionHelpers({ type: 'segments', enabled: true });
 
-        const result = helpers.getCurrentSegmentDestinationLocation({ segment: trip.segments.segment2 })
+        const result = helpers.getCurrentSegmentDestinationLocation({ segment: trip.segments!.segment2 })
         expect(result).toEqual(null);
     });
 
@@ -858,11 +890,11 @@ describe('getSegmentPreviousLocation and getSegmentNextLocation', () => {
         {
             description: 'use the first available field for current segment origin',
             expected: { type: 'Feature', properties: {}, geometry: { type: 'Point', coordinates: [50, 50] } },
-            setup: () => {
-                const { journey, trip } = makeTripWithSegments();
-                delete trip.segments.segment2.originStation;
-                delete trip.segments.segment2.destinationStation;
-                trip.segments.segment2.junction = { type: 'Feature', properties: {}, geometry: { type: 'Point', coordinates: [50, 50] } };
+            setup: (interview) => {
+                const { journey, trip } = makeTripWithSegments(interview);
+                delete (trip.segments!.segment2 as any).originStation;
+                delete(trip.segments!.segment2 as any).destinationStation;
+                (trip.segments!.segment2 as any).junction = { type: 'Feature', properties: {}, geometry: { type: 'Point', coordinates: [50, 50] } };
                 return { journey, trip };
             },
             currentSegmentUuid: segmentTwo._uuid
@@ -878,7 +910,9 @@ describe('getSegmentPreviousLocation and getSegmentNextLocation', () => {
             currentSegmentUuid: segmentThree._uuid
         }
     ]).test('getCurrentSegmentOriginLocation: Find correct origin for the current segment when fieldsWithGeojsonPoint are configured: $description', ({ currentSegmentUuid, expected, setup }) => {
-        const { trip } = setup ? setup() : makeTripWithSegments();
+        // Initialize journey and trips
+        const interview = _cloneDeep(interviewAttributesForTestCases);
+        const { journey, trip } = setup ? setup(interview) : makeTripWithSegments(interview);
         helpers.initializeSegmentSectionHelpers({ type: 'segments', enabled: true, fieldsWithGeojsonPoint });
 
         const currentSegment = trip.segments[currentSegmentUuid];
@@ -896,10 +930,10 @@ describe('getSegmentPreviousLocation and getSegmentNextLocation', () => {
         {
             description: 'use the last available field for current segment destination if destinationStation is missing',
             expected: { type: 'Feature', properties: {}, geometry: { type: 'Point', coordinates: [50, 50] } },
-            setup: () => {
-                const { journey, trip } = makeTripWithSegments();
-                delete trip.segments.segment2.destinationStation;
-                trip.segments.segment2.junction = { type: 'Feature', properties: {}, geometry: { type: 'Point', coordinates: [50, 50] } };
+            setup: (interview) => {
+                const { journey, trip } = makeTripWithSegments(interview);
+                delete (trip.segments!.segment2 as any).destinationStation;
+                (trip.segments!.segment2 as any).junction = { type: 'Feature', properties: {}, geometry: { type: 'Point', coordinates: [50, 50] } };
                 return { journey, trip };
             },
             currentSegmentUuid: segmentTwo._uuid
@@ -915,7 +949,9 @@ describe('getSegmentPreviousLocation and getSegmentNextLocation', () => {
             currentSegmentUuid: segmentOne._uuid
         }
     ]).test('getCurrentSegmentDestinationLocation: Find correct destination for the current segment when fieldsWithGeojsonPoint are configured: $description', ({ currentSegmentUuid, expected, setup }) => {
-        const { trip } = setup ? setup() : makeTripWithSegments();
+        // Initialize journey and trips
+        const interview = _cloneDeep(interviewAttributesForTestCases);
+        const { trip } = setup ? setup(interview) : makeTripWithSegments(interview);
         helpers.initializeSegmentSectionHelpers({ type: 'segments', enabled: true, fieldsWithGeojsonPoint });
 
         const currentSegment = trip.segments[currentSegmentUuid];
