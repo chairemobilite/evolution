@@ -146,3 +146,52 @@ describe('PersonsTripsGroupConfigFactory main group config', () => {
     });
 
 });
+
+describe('PersonsTripsGroupConfigFactory segments GroupConfig widget with additional widget names', () => {
+
+    test('should return correct widget names when no duplicate', () => {
+        const segmentSectionConfigWithWidgets: SegmentSectionConfiguration = _cloneDeep(segmentSectionConfig);
+        segmentSectionConfigWithWidgets.additionalTripsWidgetNames = ['customWidget1', 'customWidget2'];
+        const widgetConfig = new PersonTripsGroupConfigFactory(segmentSectionConfigWithWidgets, widgetFactoryOptions).getWidgetConfigs()['personTrips'] as GroupConfig;
+        expect(widgetConfig).toEqual({
+            type: 'group',
+            path: 'household.persons.{_activePersonId}.journeys.{_activeJourneyId}.trips',
+            title: expect.any(Function),
+            filter: expect.any(Function),
+            showTitle: false,
+            showGroupedObjectDeleteButton: false,
+            showGroupedObjectAddButton: false,
+            widgets: [
+                'segmentIntro',
+                'segments',
+                'customWidget1',
+                'customWidget2',
+                'buttonSaveTrip'
+            ]
+        });
+    });
+
+    test('should not return duplicate widget names', () => {
+        const segmentSectionConfigWithWidgets: SegmentSectionConfiguration = _cloneDeep(segmentSectionConfig);
+        segmentSectionConfigWithWidgets.additionalTripsWidgetNames = ['customWidget1', 'segments', 'customWidget2', 'buttonSaveTrip'];
+        // Custom segment widgets should not be there
+        segmentSectionConfigWithWidgets.additionalSegmentWidgetNames = ['customWidget3', 'customWidget4'];
+        const widgetConfig = new PersonTripsGroupConfigFactory(segmentSectionConfigWithWidgets, widgetFactoryOptions).getWidgetConfigs()['personTrips'] as GroupConfig;
+        expect(widgetConfig).toEqual({
+            type: 'group',
+            path: 'household.persons.{_activePersonId}.journeys.{_activeJourneyId}.trips',
+            title: expect.any(Function),
+            filter: expect.any(Function),
+            showTitle: false,
+            showGroupedObjectDeleteButton: false,
+            showGroupedObjectAddButton: false,
+            widgets: [
+                'segmentIntro',
+                'segments',
+                'customWidget1',
+                'customWidget2',
+                'buttonSaveTrip'
+            ]
+        });
+    });
+});

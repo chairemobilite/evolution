@@ -21,39 +21,47 @@ export class PersonTripsGroupConfigFactory implements WidgetConfigFactory {
         /** Nothing to do */
     }
 
+    private getGroupWidgetNames = (): string[] => {
+        const additionalWidgetNames = this.sectionConfig.additionalTripsWidgetNames || [];
+        const personTripsWidgetNames = [
+            // Hard-coded, mandatory questions
+            'segmentIntro',
+            'segments',
+            // Add custom widgets before save button
+            ...additionalWidgetNames,
+            'buttonSaveTrip'
+        ];
+        return Array.from(new Set(personTripsWidgetNames));
+    };
+
+    private getTripsGroupConfig = (): GroupConfig => {
+        return {
+            type: 'group',
+            // FIXME Why do we have the full path here, but a relative path in the segments group? This should be consistent, but it's probably how evolution is structured
+            path: 'household.persons.{_activePersonId}.journeys.{_activeJourneyId}.trips',
+            title: (t: TFunction) => t(['customSurvey:segments:TripsTitle', 'segments:TripsTitle']),
+            filter: function (interview, groupedObjects) {
+                // Only the active trip should be shown with its widgets, if no active trip, return an empty object
+                const activeTripId = getResponse(interview, '_activeTripId', null);
+                if (typeof activeTripId === 'string' && groupedObjects[activeTripId]) {
+                    return { [activeTripId]: groupedObjects[activeTripId] };
+                }
+                return {};
+            },
+            showTitle: false,
+            showGroupedObjectDeleteButton: false,
+            showGroupedObjectAddButton: false,
+            widgets: this.getGroupWidgetNames()
+        };
+    };
+
     getWidgetConfigs = (): Record<string, WidgetConfig> => {
         const segmentGroupConfig = new SegmentsGroupConfigFactory(this.sectionConfig, this.options);
         return {
-            personTrips: personsTripsGroupConfig,
+            personTrips: this.getTripsGroupConfig(),
             segmentIntro: getTripSegmentsIntro(this.options),
             ...segmentGroupConfig.getWidgetConfigs(),
             buttonSaveTrip: getButtonSaveTripSegmentsConfig(this.options)
         };
     };
 }
-
-const personsTripsGroupConfig: GroupConfig = {
-    type: 'group',
-    // FIXME Why do we have the full path here, but a relative path in the segments group? This should be consistent, but it's probably how evolution is structured
-    path: 'household.persons.{_activePersonId}.journeys.{_activeJourneyId}.trips',
-    title: (t: TFunction) => t(['customSurvey:segments:TripsTitle', 'segments:TripsTitle']),
-    filter: function (interview, groupedObjects) {
-        // Only the active trip should be shown with its widgets, if no active trip, return an empty object
-        const activeTripId = getResponse(interview, '_activeTripId', null);
-        if (typeof activeTripId === 'string' && groupedObjects[activeTripId]) {
-            return { [activeTripId]: groupedObjects[activeTripId] };
-        }
-        return {};
-    },
-    showTitle: false,
-    showGroupedObjectDeleteButton: false,
-    showGroupedObjectAddButton: false,
-    widgets: [
-        // TODO Those widget names do not link to anything! They should accompany their actual widgets somewhere
-        // Hard-coded, mandatory questions
-        'segmentIntro',
-        'segments',
-        'buttonSaveTrip'
-        // TODO Add more configurable widgets here, either custom or depending on the segments section configuration
-    ]
-};
