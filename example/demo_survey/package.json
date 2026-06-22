@@ -54,7 +54,7 @@
         "uuid": "^11.1.0"
     },
     "devDependencies": {
-        "@playwright/test": "^1.56.1",
+        "@playwright/test": "^1.61.1",
         "@types/geojson": "^7946.0.16",
         "@types/lodash": "^4.17.23",
         "@types/node": "^24.10.4",
