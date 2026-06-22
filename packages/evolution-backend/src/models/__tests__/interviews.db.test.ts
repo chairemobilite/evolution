@@ -723,6 +723,14 @@ describe('list interviews', () => {
             .rejects
             .toThrow('Cannot get interview list in table sv_interviews database (knex error: Invalid field for where clause in sv_interviews database (DBQCR0005))');
 
+        // The `in` operator is only allowed on response.* fields, should throw an error otherwise
+        await expect(dbQueries.getList({
+            filters: { uuid: { value: ['some-uuid'], op: 'in' } },
+            pageIndex: 0, pageSize: -1
+        }))
+            .rejects
+            .toThrow('Cannot get interview list in table sv_interviews database (knex error: The \'in\' operator is only supported for response fields in sv_interviews database (DBQCR0007))');
+
     });
 
     test('Get list by geographic filter', async () => {

@@ -101,7 +101,12 @@
     },
     "interviewByCodeFilter": {
         "title": "Access Code",
-        "button": "Filter by access code"
+        "button": "Filter by access code",
+        "placeholder": "One or more access codes, separated by commas or new lines",
+        "importButton": "Import a list of access codes (CSV, one code per line)",
+        "importedCount_one": "{{count}} code imported",
+        "importedCount_other": "{{count}} codes imported",
+        "importError": "Could not read the file."
     },
     "interviewByDateFilter": {
         "title": "Interview date",

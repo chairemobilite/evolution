@@ -101,7 +101,12 @@
     },
     "interviewByCodeFilter": {
         "title": "Code d'accès",
-        "button": "Filtrer par code d'accès"
+        "button": "Filtrer par code d'accès",
+        "placeholder": "Un ou plusieurs codes d'accès, séparés par des virgules ou des retours de ligne",
+        "importButton": "Importer une liste de codes d'accès (CSV, un code par ligne)",
+        "importedCount_one": "{{count}} code importé",
+        "importedCount_other": "{{count}} codes importés",
+        "importError": "Impossible de lire le fichier."
     },
     "interviewByDateFilter": {
         "title": "Date d'entrevue",
