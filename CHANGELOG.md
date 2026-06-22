@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Validation list: filter by several access codes at once, typed or imported from a CSV file (fixes [#1660](https://github.com/chairemobilite/evolution/issues/1660)).
 - **Generator Excel to CSV copy**: Generator can now write one CSV file per Excel sheet in a `<Name_Excel_File>_csv` folder next to the Excel file, making Excel changes easier to review in git diffs. To enable it, add `copy_excel_to_csv: true` under `enabled_scripts` in your `generatorConfig.yaml` (fixes [#1580](https://github.com/chairemobilite/evolution/issues/1580)).
 - **CSS refresh in dev mode**: Changes to `.scss` files are automatically picked up by `yarn build:dev` and apply after a page reload (fixes [#1403](https://github.com/chairemobilite/evolution/issues/1403)). Survey projects that want the same: see [#1407](https://github.com/chairemobilite/evolution/pull/1407) for the webpack modifications.
 - Added `maxAccessEgressTravelTimeMinutes` and `walkingSpeedKmPerHour` to accessibility map calculation parameters ([#1379](https://github.com/chairemobilite/evolution/pull/1379))

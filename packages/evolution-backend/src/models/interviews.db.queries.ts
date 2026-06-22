@@ -391,6 +391,16 @@ const getRawWhereClause = (
             'DatabaseInvalidWhereClauseUserEntry'
         );
     }
+    // The `in` operator expands to a SQL `IN (...)` clause and is only supported
+    // for response.* fields. Reject it early on other fields to avoid generating
+    // invalid SQL.
+    if (filter.op === 'in' && field.split('.')[0] !== 'response') {
+        throw new TrError(
+            `The 'in' operator is only supported for response fields in ${tableName} database`,
+            'DBQCR0007',
+            'DatabaseInvalidWhereClauseUserEntry'
+        );
+    }
     const getBooleanFilter = (fieldName: string, filter: ValueFilterType) => {
         const validityValue = _booleish(filter.value);
         const notStr = filter.op === 'not' ? ' NOT ' : '';
@@ -468,14 +478,20 @@ const getRawWhereClause = (
             ];
         }
         // The `in` operator matches any of the provided values (e.g. a list of
-        // access codes imported from a CSV). An empty list matches nothing.
+        // access codes imported from a CSV). Only scalar values are kept, since
+        // they are bound to a SQL `IN (...)` clause; an empty list (or a list
+        // with no scalar value) matches nothing.
         if (filter.op === 'in') {
-            const values = Array.isArray(filter.value) ? filter.value : [filter.value];
+            const rawValues = Array.isArray(filter.value) ? filter.value : [filter.value];
+            const values = rawValues.filter(
+                (value): value is string | boolean | number =>
+                    typeof value === 'string' || typeof value === 'boolean' || typeof value === 'number'
+            );
             if (values.length === 0) {
                 return ['FALSE'];
             }
             const placeholders = values.map(() => '?').join(', ');
-            return [[`${prefix}->>'${field}' IN (${placeholders})`, values as (string | boolean | number)[]]];
+            return [[`${prefix}->>'${field}' IN (${placeholders})`, values]];
         }
         return filter.value === null
             ? [`${prefix}->>'${field}' ${filter.op === 'not' ? ' IS NOT NULL' : ' IS NULL'}`]
