@@ -280,7 +280,7 @@ const update = async (
 /**
  * Array of valid operator keys for ValueFilterType
  */
-export const VALID_OPERATORS = ['eq', 'gt', 'lt', 'gte', 'lte', 'not', 'like'] as const;
+export const VALID_OPERATORS = ['eq', 'gt', 'lt', 'gte', 'lte', 'not', 'like', 'in'] as const;
 
 /**
  * An enumeration of operator keys that can be used in filters
@@ -296,7 +296,11 @@ const operatorSigns: OperatorSigns = {
     gte: '>=',
     lte: '<=',
     not: '!=',
-    like: 'like'
+    like: 'like',
+    // `in` is handled as a special case (it expands to `IN (?, ?, ...)`) and is
+    // only supported for `response.*` fields, but it is listed here to keep the
+    // operator map exhaustive with VALID_OPERATORS.
+    in: 'in'
 };
 
 // Even if it is typed, in reality, this data comes from the universe and can be anything. Make sure we don't inject sql
@@ -363,14 +367,15 @@ const addLikeBinding = (operator: keyof OperatorSigns | undefined, binding: stri
  * Create a raw where clause from a filter
  *
  * @returns Either a string with the raw where clause, an array where the first
- * element is the raw where clause and the second is the value to bind with they
- * query, or undefined if the field is unknown
+ * element is the raw where clause and the second is the value (or array of
+ * values, for the `in` operator) to bind with the query, or undefined if the
+ * field is unknown
  */
 const getRawWhereClause = (
     field: string,
     filter: ValueFilterType,
     tblAlias: string
-): (string | [string, string | boolean | number] | undefined)[] => {
+): (string | [string, string | boolean | number | (string | boolean | number)[]] | undefined)[] => {
     // Make sure the field is a legitimate field to avoid sql injection. Field
     // is either the name of a field, or a dot-separated path in a json object
     // of the 'response' field. We should not accept anything else.
@@ -462,6 +467,16 @@ const getRawWhereClause = (
                 `${prefix}->'${field}' is not null AND ST_CONTAINS(${st.geomFromGeoJSON(JSON.stringify((filter.value as GeoJSON.Feature<GeoJSON.Polygon>).geometry))}, ST_GeomFromGeoJSON(${prefix}->'${field}'->'geometry'))`
             ];
         }
+        // The `in` operator matches any of the provided values (e.g. a list of
+        // access codes imported from a CSV). An empty list matches nothing.
+        if (filter.op === 'in') {
+            const values = Array.isArray(filter.value) ? filter.value : [filter.value];
+            if (values.length === 0) {
+                return ['FALSE'];
+            }
+            const placeholders = values.map(() => '?').join(', ');
+            return [[`${prefix}->>'${field}' IN (${placeholders})`, values as (string | boolean | number)[]]];
+        }
         return filter.value === null
             ? [`${prefix}->>'${field}' ${filter.op === 'not' ? ' IS NOT NULL' : ' IS NULL'}`]
             : Array.isArray(filter.value)
@@ -512,7 +527,13 @@ const updateRawWhereClause = (
                 rawFilter += ` AND ${whereClause}`;
             } else if (Array.isArray(whereClause)) {
                 rawFilter += ` AND ${whereClause[0]}`;
-                bindings.push(whereClause[1]);
+                // The binding may be a single value or, for the `in` operator, an
+                // array of values to spread into the bindings (one per `?`).
+                if (Array.isArray(whereClause[1])) {
+                    bindings.push(...whereClause[1]);
+                } else {
+                    bindings.push(whereClause[1]);
+                }
             }
         });
     });

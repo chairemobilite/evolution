@@ -582,6 +582,27 @@ describe('list interviews', () => {
         expect(filterAccessCodeArrayRes.length).toEqual(1);
         expect((filterAccessCodeArrayRes[0].response as any).accessCode).toEqual(localUserInterviewAttributes.response.accessCode);
 
+        // Query with the `in` operator: matches interviews whose access code is any of the
+        // listed codes (e.g. a list imported from a CSV). Cannot use test.each here since
+        // this runs inside a single test that relies on the seeded data above.
+        const localAccessCode = localUserInterviewAttributes.response.accessCode;
+        const googleAccessCode = googleUserInterviewAttributes.response.accessCode;
+        const inCases: [string, string[], number][] = [
+            ['both existing codes', [localAccessCode, googleAccessCode], 2],
+            ['one existing and one unknown code', [localAccessCode, 'unknown-code'], 1],
+            ['only unknown codes', ['unknown-1', 'unknown-2'], 0],
+            ['empty list matches nothing', [], 0]
+        ];
+        for (const [, codes, expectedCount] of inCases) {
+            const { interviews, totalCount } = await dbQueries.getList({
+                filters: { 'response.accessCode': { value: codes, op: 'in' } },
+                pageIndex: 0,
+                pageSize: -1
+            });
+            expect(totalCount).toEqual(expectedCount);
+            expect(interviews.length).toEqual(expectedCount);
+        }
+
     });
 
     test('Combine filter and paging', async () => {
