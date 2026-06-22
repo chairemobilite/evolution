@@ -5,8 +5,16 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
+import { hasOrUnknownDrivingLicense } from 'evolution-common/lib/services/odSurvey/helpers';
+import type { Person as ResponsePerson } from 'evolution-common/lib/services/questionnaire/types';
+
 import type { AuditForObject } from 'evolution-common/lib/services/audits/types';
 import type { HouseholdAuditCheckContext, HouseholdAuditCheckFunction } from '../AuditCheckContexts';
+
+// Above this number of cars per potential driving license holder, the car number
+// is considered suspiciously high and flagged for validation (warning only, not an error).
+// TODO: make this threshold configurable per survey with a default from project config.
+export const MAX_CAR_NUMBER_PER_POTENTIAL_DRIVING_LICENSE = 3;
 
 export const householdAuditChecks: { [errorCode: string]: HouseholdAuditCheckFunction } = {
     /**
@@ -190,6 +198,52 @@ export const householdAuditChecks: { [errorCode: string]: HouseholdAuditCheckFun
                     ignore: false
                 };
             }
+        }
+
+        return undefined; // No audit needed
+    },
+
+    /**
+     * Check if the number of cars is suspiciously high compared to the number of potential
+     * driving license holders. This ratio is not validated live during the interview, so it
+     * is audited here. Two situations are flagged:
+     * - cars but no potential driver at all (nobody can legally drive them), or
+     * - more than MAX_CAR_NUMBER_PER_POTENTIAL_DRIVING_LICENSE cars per potential driver.
+     * Warning only: both are unusual but not necessarily errors.
+     * @param context - HouseholdAuditCheckContext
+     * @returns AuditForObject
+     */
+    HH_L_CarNumberPerPotentialDrivingLicenseTooHigh: (
+        context: HouseholdAuditCheckContext
+    ): AuditForObject | undefined => {
+        const { household } = context;
+        const carNumber = household.carNumber;
+        // household.members are base object Person instances; they expose the same
+        // drivingLicenseOwnership/age attributes the helper reads (getters of the same name).
+        const potentialDrivingLicenseCount = (household.members ?? []).filter((person) =>
+            hasOrUnknownDrivingLicense({ person: person as unknown as ResponsePerson })
+        ).length;
+
+        // No cars: nothing to flag. With cars, flag when there is no potential driver,
+        // or when the cars-per-potential-driver ratio exceeds the threshold.
+        if (carNumber === undefined || !Number.isInteger(carNumber) || carNumber <= 0) {
+            return undefined;
+        }
+
+        const ratioTooHigh =
+            potentialDrivingLicenseCount === 0 ||
+            carNumber / potentialDrivingLicenseCount > MAX_CAR_NUMBER_PER_POTENTIAL_DRIVING_LICENSE;
+
+        if (ratioTooHigh) {
+            return {
+                objectType: 'household',
+                objectUuid: household._uuid!,
+                errorCode: 'HH_L_CarNumberPerPotentialDrivingLicenseTooHigh',
+                version: 1,
+                level: 'warning',
+                message: 'Car number per potential driving license holder > 3',
+                ignore: false
+            };
         }
 
         return undefined; // No audit needed
