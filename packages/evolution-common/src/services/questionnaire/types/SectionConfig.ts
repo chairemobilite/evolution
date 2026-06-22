@@ -512,6 +512,13 @@ export type SegmentSectionConfiguration = {
      */
     additionalSegmentWidgetNames?: string[];
     /**
+     * Names of additional widgets to include in the person's trips group of the
+     * section. The widgets need to be defined by these names in the survey's
+     * widget configuration. They will be added after segment group, before the
+     * save button.
+     */
+    additionalTripsWidgetNames?: string[];
+    /**
      * Whether to ask the segment driver question to car passengers in the
      * segments section.  Defaults to `false`. If set to `true`, the segment
      * driver question will be added with the additional questions
