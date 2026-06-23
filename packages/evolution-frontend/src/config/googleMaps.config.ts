@@ -45,9 +45,12 @@ export const getCurrentGoogleMapConfig = (language = projectConfig.defaultLocale
 
 /**
  * Returns the Google Cloud Map ID configured via the `GOOGLE_MAP_ID` env var, or
- * `undefined` when not set. Required to enable `<AdvancedMarker>`; when absent,
+ * the default one when not set. Required to enable `<AdvancedMarker>`; when absent,
  * the map widgets fall back to the legacy `<Marker>` component.
  *
  * See https://developers.google.com/maps/documentation/get-map-id
+ *
+ * We created a default public style for every use which will provide
+ * the default Evolution style. People can still override it. It's define in chairemobilite's google project
  */
-export const getGoogleMapId = (): string | undefined => process.env.GOOGLE_MAP_ID || undefined;
+export const getGoogleMapId = (): string => process.env.GOOGLE_MAP_ID || '6af0f7e6a40bebff21ac2b52';
