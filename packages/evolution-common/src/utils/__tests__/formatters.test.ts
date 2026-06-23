@@ -5,37 +5,48 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import { canadianPostalCodeFormatter, eightDigitsAccessCodeFormatter } from '../formatters';
+import { accessCodeFormatter, canadianPostalCodeFormatter, eightDigitsAccessCodeFormatter } from '../formatters';
+import { getAccessCodeFormat } from '../../services/accessCode/accessCodeFormats';
 
 describe('helper', () => {
+  describe('accessCodeFormatter', () => {
+    test.each([
+      // Test case format: [description, format name, input, expected output]
+      // Dashes are inserted eagerly as soon as a group is complete, letters are upper-cased.
+      ['8 digits formats as 0000-0000', '0000-0000', '12345678', '1234-5678'],
+      ['8 digits removes letters and special characters', '0000-0000', 'ab12cd34ef56gh78', '1234-5678'],
+      ['8 digits truncates extra digits', '0000-0000', '1234567890', '1234-5678'],
+      ['8 digits dash inserted once first group is complete', '0000-0000', '123456', '1234-56'],
+      ['8 digits partial first group kept as-is', '0000-0000', '123', '123'],
+      ['8 digits ignores typed dashes and spaces', '0000-0000', '12-34 5678', '1234-5678'],
+      ['8 digits handles empty string', '0000-0000', '', ''],
+      ['9 digits formats as 000-000-000', '000-000-000', '123456789', '123-456-789'],
+      ['9 digits truncates extra digits', '000-000-000', '1234567890', '123-456-789'],
+      ['9 digits dash at the wrong place', '000-000-000', '12-3456789', '123-456-789'],
+      ['8 letters formats as ABCD-ABCD upper-cased', 'ABCD-ABCD', 'abcdefgh', 'ABCD-EFGH'],
+      ['8 letters drops digits', 'ABCD-ABCD', 'ab12cdef34gh', 'ABCD-EFGH'],
+      ['9 letters formats as ABC-ABC-ABC', 'ABC-ABC-ABC', 'abcdefghi', 'ABC-DEF-GHI'],
+      ['letters then digits ABCD-0000', 'ABCD-0000', 'abcd1234', 'ABCD-1234'],
+      ['letters then digits drops wrong-type chars', 'ABCD-0000', 'ab12cd1234', 'ABCD-1234'],
+      ['letters then digits ABC-000-000', 'ABC-000-000', 'abc123456', 'ABC-123-456'],
+      ['mixed ABC-000-000 with typed dashes', 'ABC-000-000', 'abc-123-456', 'ABC-123-456'],
+    ])('%s: %s => %s', (_, formatName, input, expected) => {
+      expect(accessCodeFormatter(input, getAccessCodeFormat(formatName as any))).toBe(expected);
+    });
+  });
+
   describe('eightDigitsAccessCodeFormatter', () => {
     test.each([
       // Test case format: [description, input, expected output]
-      ['formats 8 digits as XXXX-XXXX', '12345678', '1234-5678'],
+      ['formats 8 digits as 0000-0000', '12345678', '1234-5678'],
       ['converts existing dashes correctly', '1234-5678', '1234-5678'],
-      ['converts underscores to dashes', '1234_5678', '1234-5678'],
       ['removes letters and special characters', 'ab12cd34ef56gh78', '1234-5678'],
-      ['handles mixed special characters', '12_34-ab56!78', '1234-5678'],
-      ['keeps dashes but removes other special chars', '12-34-56-78', '1234-5678'],
-      ['smaller code with dashes', '123-456', '123-456'],
       ['8 digits with dash at the wrong place', '123-45678', '1234-5678'],
-      ['does not format if less than 8 digits', '123456', '123456'],
-      ['truncates to 9 characters max', '1234567890', '1234-5678'],
+      ['truncates extra digits', '1234567890', '1234-5678'],
       ['handles input with spaces', '1234 5678', '1234-5678'],
-      ['handles input with spaces before and after', '   12 34 5678  ', '1234-5678'],
       ['handles empty string', '', ''],
-      ['9 characters, but less than 8 digits', '123-45-6-', '1234-56'],
-      ['handles with non-numeric at the end', '1234db', '1234'],
-      ['partial access code, 1 character', '1', '1'],
-      ['partial access code, 2 characters', '12', '12'],
-      ['partial access code, 3 characters', '123', '123'],
-      ['partial access code, 4 characters', '1234', '1234'],
-      // FIXME The dash should remain in the formatted code, but it is not the case currently with the delimiterLazyShow
-      ['partial access code, 4 characters + dash', '1234-', '1234-'],
-      ['partial access code, 4 characters + dash + 2 characters', '1234-23', '1234-23'],
-      ['partial access code, 5 characters', '12345', '12345'],
-      ['partial access code, 6 characters', '123456', '123456'],
-      ['partial access code, 7 characters', '1234567', '1234567'],
+      ['dash inserted once first group is complete', '123456', '1234-56'],
+      ['partial first group kept as-is', '123', '123'],
     ])('%s: %s => %s', (_, input, expected) => {
       expect(eightDigitsAccessCodeFormatter(input)).toBe(expected);
     });

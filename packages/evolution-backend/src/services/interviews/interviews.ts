@@ -7,7 +7,7 @@
 import _cloneDeep from 'lodash/cloneDeep';
 import moment from 'moment';
 import { updateInterview, copyResponseToCorrectedResponse } from './interview';
-import { validateAccessCode } from '../accessCode';
+import { validateAccessCode, normalizeAccessCode } from '../accessCode';
 import { validate as validateUuid } from 'uuid';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import interviewsDbQueries, {
@@ -81,7 +81,8 @@ export default class Interviews {
         if (!validateAccessCode(accessCode)) {
             return [];
         }
-        return await interviewsDbQueries.findByResponse({ accessCode });
+        // Search the canonical form so accepted input variants (no dash, spaces, lower case) match the stored value
+        return await interviewsDbQueries.findByResponse({ accessCode: normalizeAccessCode(accessCode) });
     };
 
     static getInterviewByUuid = async (interviewId: string): Promise<InterviewAttributes | undefined> => {

@@ -7,6 +7,8 @@
 
 import { accessCodeValidation } from 'evolution-common/lib/services/widgets/validations/validations';
 import { type UserInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
+import projectConfig from 'evolution-common/lib/config/project.config';
+import { getAccessCodeFormat, normalizeAccessCode } from 'evolution-common/lib/services/accessCode/accessCodeFormats';
 
 /**
  * Whether a value passes the access code validation. `accessCodeValidation`
@@ -30,17 +32,20 @@ const isValidAccessCode = (value: string): boolean =>
  * first column is used, which lets validators export a single-column CSV from a
  * spreadsheet without extra formatting. Blank lines, surrounding whitespace and
  * quotes are ignored. Values that fail the access code validation are dropped
- * (this also discards a header row such as "accessCode"), and duplicates are
- * removed while preserving order.
+ * (this also discards a header row such as "accessCode"). Valid codes are
+ * normalized to their canonical stored form (dashes, upper-cased) so they match
+ * the stored values, and duplicates are removed while preserving order.
  *
  * @param content The raw text content of the uploaded CSV file
- * @returns The de-duplicated list of valid access codes, in file order
+ * @returns The de-duplicated list of canonical valid access codes, in file order
  */
 export const parseAccessCodesFromCsv = (content: string): string[] => {
+    const format = getAccessCodeFormat(projectConfig.accessCodeFormat);
     const codes = content
         .split(/\r?\n/)
         .map((line) => line.split(',')[0])
         .map((cell) => cell.trim().replace(/^"|"$/g, '').trim())
-        .filter((code) => isValidAccessCode(code));
+        .filter((code) => isValidAccessCode(code))
+        .map((code) => normalizeAccessCode(code, format));
     return Array.from(new Set(codes));
 };

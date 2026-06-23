@@ -8,9 +8,10 @@
 import * as validations from '../validations';
 import projectConfig from '../../../../config/project.config';
 
-// Mock the project config to be able to change the postalCodeRegion
+// Mock the project config to be able to change the postalCodeRegion and accessCodeFormat
 jest.mock('../../../../config/project.config', () => ({
-    postalCodeRegion: 'canada'  // Default for tests
+    postalCodeRegion: 'canada', // Default for tests
+    accessCodeFormat: '0000-0000' // Default 8-digits format for tests
 }));
 
 describe('postalCodeValidation', () => {
@@ -277,7 +278,10 @@ describe('accessCodeValidation', () => {
     });
     
     describe('eight digits access code validation', () => {
-        
+        beforeEach(() => {
+            projectConfig.accessCodeFormat = '0000-0000';
+        });
+
         test.each([
             '2345-2345', 
             '1234 1234',
@@ -302,5 +306,32 @@ describe('accessCodeValidation', () => {
             expect(mockTranslation).toHaveBeenLastCalledWith('survey:errors:accessCodeInvalid');
         });
     });
-    
+
+    describe('nine digits access code validation', () => {
+        beforeEach(() => {
+            projectConfig.accessCodeFormat = '000-000-000';
+        });
+
+        test.each([
+            '234-234-234',
+            '234 234 234',
+            '234234234'
+        ])('should accept valid 9-digits access codes: %s', (accessCode) => {
+            const result = validations.accessCodeValidation(accessCode, undefined, {} as any, 'accessCode');
+            expect(result[0].validation).toBe(false); // Empty validation passes
+            expect(result[1].validation).toBe(false); // Should be valid
+        });
+
+        test.each([
+            ['234-abc-234', 'Contains letters'],
+            ['234-234', 'Too short (8 digits)'],
+            ['234-234-2345', 'Too long'],
+            ['23-4234-234', 'Misplaced dash']
+        ])('should reject invalid 9-digits access code: %s (%s)', (accessCode, _reason) => {
+            const result = validations.accessCodeValidation(accessCode, undefined, {} as any, 'accessCode');
+            expect(result[0].validation).toBe(false); // Empty validation passes
+            expect(result[1].validation).toBe(true); // Should be invalid
+        });
+    });
+
 });

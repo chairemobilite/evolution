@@ -68,16 +68,33 @@ mockDbCreate.mockImplementation(async (newObject: Partial<InterviewAttributes>, 
 (interviewsQueries.getValidationAuditStats as any).mockResolvedValue({ audits: [] });
 
 describe('Find by access code', () => {
-    const validCode = '7145328';
-    registerAccessCodeValidationFunction((accessCode) => accessCode === validCode);
+    // Canonical 8-digit code (matches the default '0000-0000' format)
+    const validCode = '1234-5678';
+
+    beforeAll(() => {
+        // Rely on the configured format only (no additional survey-specific check)
+        registerAccessCodeValidationFunction(() => true);
+    });
+
+    afterAll(() => {
+        // Reset to default permissive validation
+        registerAccessCodeValidationFunction(() => true);
+    });
 
     beforeEach(async () => {
         (interviewsQueries.findByResponse as any).mockClear();
     });
 
     test('Get all users', async() => {
-
         const response = await Interviews.findByAccessCode(validCode);
+        expect(interviewsQueries.findByResponse).toHaveBeenCalledTimes(1);
+        expect(interviewsQueries.findByResponse).toHaveBeenCalledWith({ accessCode: validCode });
+        expect(response.length).toBeGreaterThan(0);
+    });
+
+    test('Accepted variant is searched in canonical form', async() => {
+        // '12345678' is a valid variant of '1234-5678' and must be normalized before searching
+        const response = await Interviews.findByAccessCode('12345678');
         expect(interviewsQueries.findByResponse).toHaveBeenCalledTimes(1);
         expect(interviewsQueries.findByResponse).toHaveBeenCalledWith({ accessCode: validCode });
         expect(response.length).toBeGreaterThan(0);
