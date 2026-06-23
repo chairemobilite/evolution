@@ -10,6 +10,7 @@ import projectConfig, {
 } from 'chaire-lib-common/lib/config/shared/project.config';
 import { ISODateTimeStringWithTimezoneOffset } from '../utils/DateTimeUtils';
 import { AuditChecksGroup, SurveyBase, AuditRequiredFieldsBySurveyObject } from '../services/audits/types';
+import { AccessCodeFormatName } from '../services/accessCode/accessCodeFormats';
 
 /**
  * Specific configuration for the Evolution project
@@ -144,6 +145,29 @@ export type EvolutionProjectConfiguration = {
     hasAccessCode: boolean;
 
     /**
+     * The expected access code format, chosen among the predefined formats in
+     * the catalog (see `accessCodeFormats`). The name matches the example, e.g.
+     * `'0000-0000'` (8 digits), `'000-000-000'` (9 digits) or `'ABC-000-000'`.
+     * Defaults to `'0000-0000'`.
+     *
+     * Set it in the survey's `config.js`, for example:
+     * ```js
+     * accessCodeFormat: '000-000-000'
+     * ```
+     *
+     * It is the single source of truth for the access code format: it drives
+     * the widget validation and live formatting, the admin validation list
+     * filter and CSV import, and the default backend audit check
+     * (`I_I_InvalidAccessCodeFormat`). Surveys can still override the backend
+     * validation with `registerAccessCodeValidationFunction` for
+     * survey-specific checks (e.g. verifying a code was actually issued).
+     *
+     * To support a new format, add an entry to the `accessCodeFormats` catalog
+     * (ideally via an issue/PR on evolution so it is shared).
+     */
+    accessCodeFormat: AccessCodeFormatName;
+
+    /**
      * Color palette for person visualization in maps and charts
      */
     personColorsPalette: string[];
@@ -235,6 +259,7 @@ const defaultConfig = {
     title: { en: 'Survey', fr: 'Enquête' },
     postalCodeRegion: 'other',
     hasAccessCode: false,
+    accessCodeFormat: '0000-0000',
     personColorsPalette: [
         // FIXME See this issue https://github.com/chairemobilite/evolution/issues/1246
         '#FFAE70',

@@ -58,6 +58,8 @@ module.exports = {
     postalCodeRegion: 'canada',
     logDatabaseUpdates: true,
     askForAccessCode: true,
+    // Access code format, chosen among the predefined formats (see accessCodeFormats catalog), e.g. '000-000-000'. Defaults to '0000-0000'.
+    accessCodeFormat: '0000-0000',
     surveySupportForm: true,
     captchaComponentType: 'capjs',
     interviewableAge: 5,

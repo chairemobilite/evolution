@@ -8,6 +8,7 @@ import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { type ValidationFunction } from '../../questionnaire/types';
 import * as surveyHelperNew from '../../../utils/helpers';
 import projectConfig from '../../../config/project.config';
+import { getAccessCodeFormat, matchesAccessCodeFormat } from '../../accessCode/accessCodeFormats';
 
 /**
  * Make sure the question is answered.
@@ -365,10 +366,6 @@ export const postalCodeValidation: ValidationFunction = (value) => {
     ];
 };
 
-// Eight digits access code validation regex
-const eightDigitsAccessCodeValidation = /^\d{4}-? *\d{4}$/i;
-// FIXME Support more access code formats in the future. For now, only one format is supported if using this validation function
-const getAccessCodeRegex = () => eightDigitsAccessCodeValidation;
 export const accessCodeValidation: ValidationFunction = (value) => {
     return [
         {
@@ -376,7 +373,7 @@ export const accessCodeValidation: ValidationFunction = (value) => {
             errorMessage: (t) => t('survey:errors:accessCodeRequired')
         },
         {
-            validation: !getAccessCodeRegex().test(String(value)),
+            validation: !matchesAccessCodeFormat(String(value), getAccessCodeFormat(projectConfig.accessCodeFormat)),
             errorMessage: (t) => t('survey:errors:accessCodeInvalid')
         }
     ];

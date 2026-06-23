@@ -157,7 +157,8 @@ export const interviewAuditChecks: { [errorCode: string]: InterviewAuditCheckFun
      * It does not verify that the access code is valid
      * (for instance it does not check if a letter has been sent with this access code)
      * Some surveys may not implement access codes at all.
-     * The validateAccessCode function is defined in the survey project.
+     * The format is validated against the configured accessCodeFormat; surveys
+     * can register an additional check for survey-specific validation.
      * @param context - InterviewAuditCheckContext
      * @returns {AuditForObject | undefined}
      */

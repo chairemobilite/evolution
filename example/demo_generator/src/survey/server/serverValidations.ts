@@ -4,11 +4,10 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import { validateAccessCode, registerAccessCodeValidationFunction } from 'evolution-backend/lib/services/accessCode';
+import { validateAccessCode } from 'evolution-backend/lib/services/accessCode';
 import { getResponse } from 'evolution-common/lib/utils/helpers';
 
-// Access code is 4 digits, dash, 4 digits
-registerAccessCodeValidationFunction((accessCode) => accessCode.match(/^\d{4}-? *\d{4}$/gi) !== null);
+// The access code format is enforced by the configured `accessCodeFormat` (here the default '0000-0000').
 
 export default {
     accessCode: {

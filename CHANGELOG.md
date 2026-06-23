@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Config: Support several access code formats. Set the `accessCodeFormat` config option to one of the predefined formats (e.g. `'0000-0000'` (default), `'000-000-000'`, `'ABCD-ABCD'`, `'ABC-000-000'`) to choose your survey's format (fixes [#1668](https://github.com/chairemobilite/evolution/issues/1668)).
 - Validation list: filter by several access codes at once, typed or imported from a CSV file (fixes [#1660](https://github.com/chairemobilite/evolution/issues/1660)).
 - **Generator Excel to CSV copy**: Generator can now write one CSV file per Excel sheet in a `<Name_Excel_File>_csv` folder next to the Excel file, making Excel changes easier to review in git diffs. To enable it, add `copy_excel_to_csv: true` under `enabled_scripts` in your `generatorConfig.yaml` (fixes [#1580](https://github.com/chairemobilite/evolution/issues/1580)).
 - **CSS refresh in dev mode**: Changes to `.scss` files are automatically picked up by `yarn build:dev` and apply after a page reload (fixes [#1403](https://github.com/chairemobilite/evolution/issues/1403)). Survey projects that want the same: see [#1407](https://github.com/chairemobilite/evolution/pull/1407) for the webpack modifications.
@@ -67,6 +68,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+- `eightDigitsAccessCodeFormatter` is deprecated. Set the `accessCodeFormat` config option to `'0000-0000'` (the default) and use `accessCodeFormatter` instead (fixes [#1668](https://github.com/chairemobilite/evolution/issues/1668)).
 - The evolution-frontend's `frontendHelper#getVisitedPlaceDescription` has been deprecated. Use the `getVisitedPlaceDescription` OD survey helper function from `evolution-common/lib/services/odSurvey/helpers` (commit [d203578](https://github.com/chairemobilite/evolution/commit/d20357804046c1691278b97a5fd9caa74a2d587a))
 - The `InputMapPoint` widget (and the underlying `geocodeSinglePoint` helper) is deprecated in favor of `InputMapFindPlace`. `InputMapPoint` silently auto-selects the first geocoding result, which can mask wrong matches; `InputMapFindPlace` surfaces all candidates to the participant and auto-selects only when there is a single result. New surveys should use `InputMapFindPlace` for all map point inputs. (commit [59d66d7](https://github.com/chairemobilite/evolution/commit/59d66d7341c00541528e9b453d869f1c85809454))
 
