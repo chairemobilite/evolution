@@ -127,7 +127,10 @@
     },
     "interviewMember": {
         "Keep": "Keep",
-        "Discard": "Discard"
+        "Discard": "Discard",
+        "InvalidateTripDiary": "Invalidate trip diary",
+        "RevalidateTripDiary": "Make trip diary valid",
+        "TripDiaryInvalidMessage": "Trip diary invalidated and ignored in the export"
     },
     "AllAudits": "All Audits",
     "auditLevels": {

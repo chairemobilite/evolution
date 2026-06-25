@@ -54,6 +54,18 @@ const InterviewStats = (props: InterviewStatsProps) => {
         props.startUpdateInterview({ valuesByPath });
     };
 
+    // Invalidate (false) or revalidate (undefined) the person's whole trip diary
+    const invalidateTripDiary = ({
+        tripDiaryValid,
+        personId
+    }: {
+        tripDiaryValid: boolean | undefined;
+        personId: string;
+    }) => {
+        const valuesByPath = { [`response.household.persons.${personId}.tripDiaryValid`]: tripDiaryValid };
+        props.startUpdateInterview({ valuesByPath });
+    };
+
     // Use unserialized objects - show error if not available
     const surveyObjects = props.surveyObjectsAndAudits;
 
@@ -181,6 +193,7 @@ const InterviewStats = (props: InterviewStatsProps) => {
                             selectPlace={props.selectPlace}
                             selectTrip={props.selectTrip}
                             keepDiscard={keepDiscard}
+                            invalidateTripDiary={invalidateTripDiary}
                             showAuditErrorCode={props.prefs?.showAuditErrorCode}
                         />
                     );

@@ -196,6 +196,35 @@ const getLastUuidFromPath = function (path) {
     return undefined;
 };
 
+/**
+ * Whether a response path belongs to the trip diary of a given person, i.e. the
+ * person's journeys (and legacy visited places stored directly on the person).
+ * Used to exclude these paths from the export when the reviewer invalidated the
+ * person's trip diary. The person's own attributes (age, gender, etc.) are kept.
+ * @param path The response path (with real uuids)
+ * @param personUuid The uuid of the person whose trip diary should be excluded
+ * @returns Whether the path is part of that person's trip diary
+ */
+const isPersonTripDiaryPath = function (path: string, personUuid: string): boolean {
+    const prefix = `household.persons.${personUuid}.`;
+    if (!path.startsWith(prefix)) {
+        return false;
+    }
+    const suffix = path.substring(prefix.length);
+    return suffix.startsWith('journeys.') || suffix.startsWith('visitedPlaces.');
+};
+
+/**
+ * Collect the uuids of the persons whose trip diary was invalidated by a
+ * reviewer (`tripDiaryValid === false`).
+ * @param response The interview response (corrected response when available)
+ * @returns The uuids of the persons whose trip diary is invalid
+ */
+const getInvalidTripDiaryPersonUuids = function (response: any): string[] {
+    const persons = response?.household?.persons || {};
+    return Object.keys(persons).filter((personUuid) => persons[personUuid]?.tripDiaryValid === false);
+};
+
 const getInterviewStream = (options: ExportOptions) =>
     interviewsDbQueries.getInterviewsStream({
         filters: {},
@@ -436,6 +465,9 @@ export const exportAllToCsvBySurveyObjectTask = async function (
                 const exportedInterviewDataBySurveyObjectPath = _cloneDeep(exportedDataBySurveyObjectPath);
 
                 const interviewPaths = getPaths('', response, undefined);
+                // Persons whose trip diary was invalidated by a reviewer: their
+                // journeys/visited places are excluded from the export below.
+                const invalidTripDiaryPersonUuids = getInvalidTripDiaryPersonUuids(response);
                 const objectsBySurveyObjectPath = {
                     interview: exportedInterviewDataBySurveyObjectPath.interview
                 };
@@ -451,6 +483,14 @@ export const exportAllToCsvBySurveyObjectTask = async function (
 
                 for (let j = 0, countJ = interviewPaths.length; j < countJ; j++) {
                     const path = interviewPaths[j];
+                    // Skip the trip diary (journeys/visited places) of persons the
+                    // reviewer invalidated, while keeping their other attributes.
+                    if (
+                        invalidTripDiaryPersonUuids.length > 0 &&
+                        invalidTripDiaryPersonUuids.some((personUuid) => isPersonTripDiaryPath(path, personUuid))
+                    ) {
+                        continue;
+                    }
                     const pathUuid = getLastUuidFromPath(path);
                     const pathWithoutUuids = removeUuidsFromPath(path);
                     let foundObjectPath = false;

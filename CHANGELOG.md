@@ -48,6 +48,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Generator section conditionals**: The `Sections` Excel sheet supports optional `enable_conditional` and `completion_conditional` columns. Set them to a conditional name from the `Conditionals` sheet (generated as `conditionals.<name>`) or to a custom conditional whose name ends with `CustomConditional` (generated as `customConditionals.<name>`). When omitted, the generator keeps the previous defaults (`true` or `isSectionCompleted` with the previous or current section as appropriate). (fixes [#997](https://github.com/chairemobilite/evolution/issues/997)).
 - **Generator selective script generation**: The generator now accepts a `--only` command-line argument to generate only specified scripts (e.g., widgets, conditionals, labels) instead of everything (fixes [#1601](https://github.com/chairemobilite/evolution/issues/1601))
 - **Experimental** Add a `selectFeature` input type that takes a geojson point feature collection and sorts them in a select widget by proximity to a reference geography in the survey (fixes [#1604](https://github.com/chairemobilite/evolution/issues/1604))
+- Validation: reviewers can invalidate a person's whole trip diary from the review column. The diary is then excluded from the trips/visited places export (the person's other answers are kept). Stored as `tripDiaryValid` on the person in the corrected response (fixes [#1675](https://github.com/chairemobilite/evolution/issues/1675)).
 
 ### Changed
 

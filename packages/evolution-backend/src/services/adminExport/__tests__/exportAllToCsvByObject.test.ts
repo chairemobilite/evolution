@@ -436,4 +436,76 @@ describe('exportAllToCsvBySurveyObject', () => {
 
     });
 
+    test('Skips the trip diary of persons whose tripDiaryValid is false, keeping their attributes', async () => {
+        const person1Uuid = uuidV4();
+        const person2Uuid = uuidV4();
+        const journey1Uuid = uuidV4();
+        const journey2Uuid = uuidV4();
+        const visitedPlace1Uuid = uuidV4();
+        const visitedPlace2Uuid = uuidV4();
+        const interviewData = {
+            id: 1,
+            uuid: uuidV4(),
+            'updated_at': '2024-10-11 09:02:00',
+            is_valid: true,
+            is_completed: true,
+            is_validated: null,
+            is_questionable: null,
+            response: {
+                household: {
+                    size: 2,
+                    persons: {
+                        [person1Uuid]: {
+                            _uuid: person1Uuid,
+                            age: 30,
+                            journeys: {
+                                [journey1Uuid]: {
+                                    _uuid: journey1Uuid,
+                                    visitedPlaces: { [visitedPlace1Uuid]: { _uuid: visitedPlace1Uuid, name: 'Place 1' } }
+                                }
+                            }
+                        },
+                        // Person 2's trip diary was invalidated by the reviewer
+                        [person2Uuid]: {
+                            _uuid: person2Uuid,
+                            age: 25,
+                            tripDiaryValid: false,
+                            journeys: {
+                                [journey2Uuid]: {
+                                    _uuid: journey2Uuid,
+                                    visitedPlaces: { [visitedPlace2Uuid]: { _uuid: visitedPlace2Uuid, name: 'Place 2' } }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            corrected_response_available: true
+        };
+
+        // Add the interview to the stream twice, for the paths and the export
+        mockGetInterviewsStream.mockReturnValueOnce(new ObjectReadableMock([interviewData]) as any);
+        mockGetInterviewsStream.mockReturnValueOnce(new ObjectReadableMock([interviewData]) as any);
+
+        await exportAllToCsvBySurveyObjectTask({ responseType: 'correctedIfAvailable' });
+
+        // Both persons are still exported, including the invalidated one (with its tripDiaryValid flag)
+        const personsCsvFileName = Object.keys(fileStreams).find((filename) => filename.endsWith('corrected_household_persons_test.csv'));
+        const personsRows = await getCsvFileRows(fileStreams[personsCsvFileName as string].data);
+        expect(personsRows.map((row) => row._uuid).sort()).toEqual([person1Uuid, person2Uuid].sort());
+        const person2Row = personsRows.find((row) => row._uuid === person2Uuid);
+        expect(person2Row.age).toEqual(String(interviewData.response.household.persons[person2Uuid].age));
+        expect(person2Row.tripDiaryValid).toEqual('false');
+
+        // Only the valid person's journey is exported
+        const journeysCsvFileName = Object.keys(fileStreams).find((filename) => filename.endsWith('corrected_household_persons_journeys_test.csv'));
+        const journeysRows = await getCsvFileRows(fileStreams[journeysCsvFileName as string].data);
+        expect(journeysRows.map((row) => row._uuid)).toEqual([journey1Uuid]);
+
+        // Only the valid person's visited place is exported
+        const visitedPlacesCsvFileName = Object.keys(fileStreams).find((filename) => filename.endsWith('corrected_household_persons_journeys_visitedPlaces_test.csv'));
+        const visitedPlacesRows = await getCsvFileRows(fileStreams[visitedPlacesCsvFileName as string].data);
+        expect(visitedPlacesRows.map((row) => row._uuid)).toEqual([visitedPlace1Uuid]);
+    });
+
 });

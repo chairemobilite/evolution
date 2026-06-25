@@ -38,6 +38,7 @@ export const personAttributes = [
     '_sequence',
     '_color',
     '_keepDiscard',
+    'tripDiaryValid',
     'age',
     'ageGroup',
     'gender',
@@ -84,6 +85,7 @@ export const personAttributesWithComposedAttributes = [
 export const nonStringAttributes = [
     '_weights',
     '_isValid',
+    'tripDiaryValid',
     '_uuid',
     ...completableAttributeNames,
     '_sequence',
@@ -106,6 +108,10 @@ export type PersonAttributes = {
     _sequence?: Optional<number>;
     _color?: Optional<string>; // used for reviewing to color each person's trips on map
     _keepDiscard?: Optional<string>; // 'Keep' or 'Discard'
+    // Set by the reviewer to invalidate the whole trip diary of the person:
+    // `false` means the trip diary is invalid (excluded from trips/places export),
+    // `undefined` (or `true`) means it is valid.
+    tripDiaryValid?: Optional<boolean>;
     age?: Optional<PAttr.Age>;
     ageGroup?: Optional<PAttr.AgeGroup>; // generated, do not use as a widget
     gender?: Optional<PAttr.Gender>;
@@ -270,6 +276,14 @@ export class Person extends SurveyObject {
 
     set _keepDiscard(value: Optional<string>) {
         this._attributes._keepDiscard = value;
+    }
+
+    get tripDiaryValid(): Optional<boolean> {
+        return this._attributes.tripDiaryValid;
+    }
+
+    set tripDiaryValid(value: Optional<boolean>) {
+        this._attributes.tripDiaryValid = value;
     }
 
     get age(): Optional<PAttr.Age> {
@@ -879,6 +893,9 @@ export class Person extends SurveyObject {
 
         // Validate _isValid:
         errors.push(...ParamsValidatorUtils.isBoolean('_isValid', dirtyParams._isValid, displayName));
+
+        // Validate tripDiaryValid (reviewer flag invalidating the person's trip diary):
+        errors.push(...ParamsValidatorUtils.isBoolean('tripDiaryValid', dirtyParams.tripDiaryValid, displayName));
 
         errors.push(...SurveyObject.validateCompletableParams(dirtyParams, displayName));
 

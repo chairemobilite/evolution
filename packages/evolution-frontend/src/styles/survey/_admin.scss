@@ -47,6 +47,43 @@
             }
         }
     }
+
+    // Boxed trip diary (visited places + trips) with the invalidate button in its
+    // top-right corner. Button colors are shared with the top toolbar via the
+    // _red / _active-background utilities.
+    ._trip-diary-box {
+        position: relative;
+        margin-top: 0.5rem;
+        padding: 0.5rem;
+        border: 1px solid rgba(0, 0, 0, 0.2);
+        border-radius: 4px;
+
+        // Highlight the box in red when the reviewer invalidated the trip diary
+        &._invalid {
+            background-color: rgba(settings.$red, 0.05);
+            border-color: rgba(settings.$red, 0.3);
+        }
+
+        ._trip-diary-invalid-message {
+            // Leave room for the invalidate button in the top-right corner
+            margin: 0 2rem 0.5rem 0;
+        }
+
+        ._member-trip-diary-invalidate {
+            position: absolute;
+            top: 0.25rem;
+            right: 0.25rem;
+            padding: 0.15rem 0.4rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+
+            // Let the button's native title (tooltip) show on hover over the icon
+            svg {
+                pointer-events: none;
+            }
+        }
+    }
 }
 
 .admin-widget-container._full-width {

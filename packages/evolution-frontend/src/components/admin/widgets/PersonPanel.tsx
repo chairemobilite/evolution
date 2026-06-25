@@ -29,6 +29,7 @@ import { Segment } from 'evolution-common/lib/services/baseObjects/Segment';
 import { AuditForObject } from 'evolution-common/lib/services/audits/types';
 import { VisitedPlaceDecorator } from '../../../services/surveyObjectDecorators/VisitedPlaceDecorator';
 import KeepDiscard from '../validations/KeepDiscard';
+import InvalidateTripDiary from '../validations/InvalidateTripDiary';
 import AuditDisplay from '../AuditDisplay';
 
 export interface PersonPanelProps {
@@ -42,6 +43,7 @@ export interface PersonPanelProps {
     selectPlace: (path: string | undefined) => void;
     selectTrip: (uuid: string | undefined) => void;
     keepDiscard: (params: { choice: string; personId: string }) => void;
+    invalidateTripDiary: (params: { tripDiaryValid: boolean | undefined; personId: string }) => void;
     showAuditErrorCode?: boolean;
 }
 
@@ -56,9 +58,26 @@ export const PersonPanel = ({
     selectPlace,
     selectTrip,
     keepDiscard,
+    invalidateTripDiary,
     showAuditErrorCode
 }: PersonPanelProps) => {
     const { t } = useTranslation(['admin']);
+
+    // Track the trip diary validity locally so the box updates immediately on
+    // click (the deserialized person object is only refreshed on a new fetch)
+    const [tripDiaryValid, setTripDiaryValid] = React.useState(person.tripDiaryValid);
+    React.useEffect(() => {
+        setTripDiaryValid(person.tripDiaryValid);
+    }, [person.tripDiaryValid]);
+
+    const onInvalidateTripDiary = (data: { tripDiaryValid: boolean | undefined; personId: string }) => {
+        setTripDiaryValid(data.tripDiaryValid);
+        invalidateTripDiary(data);
+    };
+
+    // Only offer to invalidate the trip diary when the person has a non-empty
+    // journey, i.e. at least one visited place or trip that the export would drop
+    const hasTripDiary = (journey?.visitedPlaces?.length || 0) > 0 || (journey?.trips?.length || 0) > 0;
 
     // Handle visited places
     const visitedPlacesStats: JSX.Element[] = [];
@@ -283,10 +302,23 @@ export const PersonPanel = ({
                 </span>
             )}
             {audits && audits.length > 0 && <AuditDisplay audits={audits} showAuditErrorCode={showAuditErrorCode} />}
-            {visitedPlacesStats.length > 0 && <br />}
-            {visitedPlacesStats}
-            {tripsStats.length > 0 && <br />}
-            {tripsStats}
+            {hasTripDiary && (
+                <div className={`_trip-diary-box${tripDiaryValid === false ? ' _invalid' : ''}`}>
+                    <InvalidateTripDiary
+                        personId={personId}
+                        tripDiaryValid={tripDiaryValid}
+                        onChange={onInvalidateTripDiary}
+                    />
+                    {tripDiaryValid === false && (
+                        <p className="_red _oblique _small _trip-diary-invalid-message">
+                            {t('admin:interviewMember:TripDiaryInvalidMessage')}
+                        </p>
+                    )}
+                    {visitedPlacesStats}
+                    {tripsStats.length > 0 && <br />}
+                    {tripsStats}
+                </div>
+            )}
         </details>
     );
 };

@@ -127,7 +127,10 @@
     },
     "interviewMember": {
         "Keep": "Garder",
-        "Discard": "Écarter"
+        "Discard": "Écarter",
+        "InvalidateTripDiary": "Invalider le carnet de déplacements",
+        "RevalidateTripDiary": "Rendre le carnet de déplacements valide",
+        "TripDiaryInvalidMessage": "Carnet de déplacements invalidé et ignoré dans l'export"
     },
     "AllAudits": "Tous les audits",
     "auditLevels": {
