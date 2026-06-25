@@ -132,7 +132,31 @@ describe('VisitedPlacesSectionFactory#getWidgetConfigs', () => {
 			).getWidgetConfigs();
 			expect(maskFunctions(widgetConfigs[widgetName])).toEqual(maskFunctions(expected));
 		});
-	});
+    });
+
+    test('should attach additional label options for visited place widgets when configured', () => {
+        const sectionConfigWithLabelOptions = _cloneDeep(visitedPlacesSectionConfig);
+        const mockedAdditionalLabelFct = jest.fn();
+        sectionConfigWithLabelOptions.additionalLabelOptionFunctions = {
+            visitedPlaceActivity: mockedAdditionalLabelFct.mockReturnValue({ extraOption: 'extraValue' })
+        };
+
+        const widgetConfigs = new VisitedPlacesSectionFactory(
+            sectionConfigWithLabelOptions,
+            widgetFactoryOptions
+        ).getWidgetConfigs();
+        const visitedPlaceActivityConfig = widgetConfigs.visitedPlaceActivity;
+        expect(visitedPlaceActivityConfig).toBeDefined();
+        const mockedT = jest.fn();
+        const path = 'household.persons.personId1.journeys.journeyId1.visitedPlaces.workPlace1P1';
+        ((visitedPlaceActivityConfig as any).label as any)(mockedT, interviewAttributesForTestCases, path);
+        expect(mockedT).toHaveBeenCalledWith('visitedPlaces:Activity', { extraOption: 'extraValue' });
+        expect(mockedAdditionalLabelFct).toHaveBeenCalledWith({
+            interview: interviewAttributesForTestCases,
+            t: mockedT,
+            path
+        })
+    });
 
 	test('should not return extra widgets', () => {
 		const widgetConfigs = new VisitedPlacesSectionFactory(visitedPlacesSectionConfig, widgetFactoryOptions).getWidgetConfigs();

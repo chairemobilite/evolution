@@ -7,6 +7,7 @@
 // Contains types for the questionnaire sections configuration
 
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
+import type { TFunction } from 'i18next';
 import {
     I18nData,
     StartAddGroupedObjects,
@@ -481,6 +482,19 @@ export type SurveyWidgets = {
 };
 
 /**
+ * The type of the function to implement to add additional interpolation keys to
+ * a section widget label or text. The function receives the interview, the
+ * original `t` function for translation, the current person, journey and the
+ * current section-specific context object (for example `VisitedPlace` or
+ * `Trip`).
+ */
+export type AdditionalSectionLabelOptionFct = (args: {
+    interview: UserInterviewAttributes;
+    t: TFunction;
+    path: string;
+}) => Record<string, unknown>;
+
+/**
  * Configuration for the segments section of the questionnaire
  */
 export type SegmentSectionConfiguration = {
@@ -545,6 +559,18 @@ export type SegmentSectionConfiguration = {
         | { type: 'point' }
         | { type: 'fromCollection'; featureCollection: GeoJSON.FeatureCollection<GeoJSON.Point> }
     ))[];
+    /**
+     * Maps a widget name to a function run when the label is displayed to allow
+     * to define additional options to pass to the label function. These
+     * functions return a key/value pair where the key can be interpolated in
+     * the translated string for a maximum flexibility. Most widget's label
+     * already support gender context, the person's `nickname` and the `count`
+     * for adressing the person as you or by nickname. By specifying a function
+     * here, any additional interpolation key can be added to the string.
+     */
+    additionalLabelOptionFunctions?: {
+        [widgetName: string]: AdditionalSectionLabelOptionFct;
+    };
 };
 
 /**
@@ -615,6 +641,18 @@ export type VisitedPlacesSectionConfiguration = {
      * that can be removed and others that cannot, etc.
      */
     additionalVisitedPlacesWidgetNames?: string[];
+    /**
+     * Maps a widget name to a function run when the label is displayed to allow
+     * to define additional options to pass to the label function. These
+     * functions return a key/value pair where the key can be interpolated in
+     * the translated string for a maximum flexibility. Most widget's label
+     * already support gender context, the person's `nickname` and the `count`
+     * for adressing the person as you or by nickname. By specifying a function
+     * here, any additional interpolation key can be added to the string.
+     */
+    additionalLabelOptionFunctions?: {
+        [widgetName: string]: AdditionalSectionLabelOptionFct;
+    };
 };
 
 /**
