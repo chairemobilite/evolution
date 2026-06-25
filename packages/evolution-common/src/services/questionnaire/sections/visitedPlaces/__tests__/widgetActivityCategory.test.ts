@@ -303,7 +303,7 @@ describe('Activity category widget label', () => {
         const mockedT = jest.fn().mockReturnValue('translatedLabel');
         const path = 'household.persons.personId1.journeys.journeyId1.visitedPlaces.homePlace1P1.activityCategory';
         expect(translateString(label, { t: mockedT } as any, interview, path)).toEqual('translatedLabel');
-        expect(mockedT).toHaveBeenCalledWith('visitedPlaces:ActivityCategoryFirstLocation');
+        expect(mockedT).toHaveBeenCalledWith('visitedPlaces:visitedPlaceActivityCategory_firstLocation');
     });
 
     test('should use after home label for second place when first place activity is home', () => {
@@ -311,7 +311,7 @@ describe('Activity category widget label', () => {
         const mockedT = jest.fn().mockReturnValue('translatedLabel');
         const path = 'household.persons.personId1.journeys.journeyId1.visitedPlaces.workPlace1P1.activityCategory';
         expect(translateString(label, { t: mockedT } as any, interview, path)).toEqual('translatedLabel');
-        expect(mockedT).toHaveBeenCalledWith('visitedPlaces:ActivityCategoryAfterHome');
+        expect(mockedT).toHaveBeenCalledWith('visitedPlaces:visitedPlaceActivityCategory_afterHome');
     });
 
     test('should use default activity category label for other places', () => {
@@ -319,7 +319,7 @@ describe('Activity category widget label', () => {
         const mockedT = jest.fn().mockReturnValue('translatedLabel');
         const path = 'household.persons.personId1.journeys.journeyId1.visitedPlaces.homePlace2P1.activityCategory';
         expect(translateString(label, { t: mockedT } as any, interview, path)).toEqual('translatedLabel');
-        expect(mockedT).toHaveBeenCalledWith('visitedPlaces:ActivityCategory');
+        expect(mockedT).toHaveBeenCalledWith('visitedPlaces:visitedPlaceActivityCategory');
     });
 });
 

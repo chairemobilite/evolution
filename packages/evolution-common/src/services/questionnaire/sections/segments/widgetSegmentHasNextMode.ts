@@ -10,11 +10,9 @@ import { TFunction } from 'i18next';
 import * as odHelpers from '../../../odSurvey/helpers';
 import { getPreviousTripSingleSegment, shouldShowSameAsReverseTripQuestion } from './helpers';
 import { yesNoChoices } from '../common/choices';
+import { WidgetFactoryOptions } from '../types';
 
-export const getSegmentHasNextModeWidgetConfig = (
-    // FIXME: Type this when there is a few more widgets implemented
-    options: { context?: () => string } = {}
-): WidgetConfig => {
+export const getSegmentHasNextModeWidgetConfig = (_options: WidgetFactoryOptions): WidgetConfig => {
     return {
         type: 'question',
         path: 'hasNextMode',
@@ -37,21 +35,26 @@ export const getSegmentHasNextModeWidgetConfig = (
                     : destination && odHelpers.isLoopActivity({ visitedPlace: destination })
                         ? destination.activity
                         : undefined;
+            const labelKeys = [
+                `segments:segmentHasNextMode_${tripLoopActivity ? tripLoopActivity : destinationActivity}`,
+                'segments:segmentHasNextMode'
+            ];
             if (tripLoopActivity) {
-                return t(['customSurvey:segments:SegmentHasNextModeLoop', 'segments:SegmentHasNextModeLoop'], {
-                    context: options.context?.(),
+                return t(labelKeys, {
+                    context: odHelpers.getPersonGenderContext({ person }),
                     nickname: person.nickname,
-                    thisTrip: t(['customSurvey:thisTrip', 'survey:thisTrip'], { context: tripLoopActivity }),
+                    thisTrip: t('survey:thisTrip', { context: tripLoopActivity }),
+                    destinationName: '',
                     count: odHelpers.getCountOrSelfDeclared({ interview, person })
                 });
             }
             const destinationName = destination
                 ? odHelpers.getVisitedPlaceName({ t, visitedPlace: destination, interview })
-                : t(['customSurvey:survey:destination', 'survey:destination']);
-            return t(['customSurvey:segments:SegmentHasNextMode', 'segments:SegmentHasNextMode'], {
-                context: options.context?.(),
+                : t('survey:destination');
+            return t(labelKeys, {
+                context: odHelpers.getPersonGenderContext({ person }),
                 nickname: person.nickname,
-                thisTrip: t(['customSurvey:thisTrip', 'survey:thisTrip'], { context: destinationActivity }),
+                thisTrip: t('survey:thisTrip', { context: destinationActivity }),
                 destinationName,
                 count: odHelpers.getCountOrSelfDeclared({ interview, person })
             });
@@ -61,7 +64,7 @@ export const getSegmentHasNextModeWidgetConfig = (
             return [
                 {
                     validation: _isBlank(value),
-                    errorMessage: (t: TFunction) => t(['customSurvey:ResponseIsRequired', 'survey:ResponseIsRequired'])
+                    errorMessage: (t: TFunction) => t('survey:ResponseIsRequired')
                 }
             ];
         },

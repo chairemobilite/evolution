@@ -36,7 +36,7 @@ const visitedPlaceAlreadyVisited: InputRadioType = {
         }
         const nickname = odHelpers.getPersonIdentificationString({ person: activePerson, t });
         const countPersons = odHelpers.countPersons({ interview });
-        return t('visitedPlaces:alreadyVisitedBySelfOrAnotherHouseholdMember', {
+        return t('visitedPlaces:visitedPlaceAlreadyVisited', {
             nickname,
             count: countPersons
         });
@@ -86,7 +86,7 @@ const visitedPlaceShortcut: InputSelectType = {
         }
         const nickname = odHelpers.getPersonIdentificationString({ person: activePerson, t });
         const countPersons = odHelpers.countPersons({ interview });
-        return t('visitedPlaces:shortcut', {
+        return t('visitedPlaces:visitedPlaceShortcut', {
             nickname,
             count: countPersons
         });

@@ -118,8 +118,11 @@ export const getSegmentDriverWidgetConfig = (
         twoColumns: false,
         label: (t: TFunction, interview, path) => {
             const person = odHelpers.getPerson({ interview, path });
-            return t('segments:Driver', {
-                context: person?.gender || person?.sexAssignedAtBirth,
+            if (person === null) {
+                throw new Error('segmentDriver label: person context not found for path ' + path);
+            }
+            return t('segments:segmentDriver', {
+                context: odHelpers.getPersonGenderContext({ person }),
                 count: person ? odHelpers.getCountOrSelfDeclared({ interview, person }) : 1
             });
         },

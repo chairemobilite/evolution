@@ -210,7 +210,7 @@ describe('NextPlaceCategory widget label', () => {
     test('should call translation function with correct key and context', () => {
         translateString(label, { t: mockedT } as any, interview, 'household.persons.personId1.journeys.journeyId1.visitedPlaces.workPlace1P1.nextPlaceCategory');
         expect(mockedT).toHaveBeenCalledWith(
-            'visitedPlaces:nextPlaceCategory',
+            'visitedPlaces:visitedPlaceNextPlaceCategory',
             expect.objectContaining({
                 context: undefined,
                 nickname: expect.any(String),

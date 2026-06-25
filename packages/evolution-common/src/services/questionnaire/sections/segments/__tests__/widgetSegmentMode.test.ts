@@ -150,7 +150,7 @@ describe('Mode choices labels', () => {
     const choices = widgetConfig.choices as RadioChoiceType[];
 
     each(
-        modeValues.map((mode) => [mode, [`customSurvey:segments:mode:${_upperFirst(mode)}`, `segments:mode:${_upperFirst(mode)}`]])
+        modeValues.map((mode) => [mode, `segments:mode:${_upperFirst(mode)}`])
     ).test('should return the right label for %s choice', (choiceValue, expectedLabel) => {
         const mockedT = jest.fn();
         const choice = choices.find((choice) => choice.value === choiceValue);
@@ -182,7 +182,7 @@ describe('Mode validations', () => {
         const validation = validations!('carDriver', null, interview, 'household.persons.personId2.journeys.journeyId2.trips.tripId1P2.segments.segmentId1P2T1.mode');
         const mockedT = jest.fn();
         translateString(validation[0].errorMessage, { t: mockedT } as any, interview, 'path');
-        expect(mockedT).toHaveBeenCalledWith(['customSurvey:segments:ModeIsRequired', 'segments:ModeIsRequired']);
+        expect(mockedT).toHaveBeenCalledWith('segments:ModeIsRequired');
     });
 
 });
@@ -312,11 +312,7 @@ describe('Widget label', () => {
         jest.clearAllMocks();
     });
 
-    test('should return the right label with context', () => {
-        // Add context data
-        const context = 'currentContext';
-        mockedGetContext.mockReturnValueOnce(context);
-
+    test('should return the right label', () => {
         // Prepare interview
         const interview = _cloneDeep(interviewAttributesForTestCases);
         interview.response._activePersonId = 'personId2';
@@ -325,24 +321,7 @@ describe('Widget label', () => {
 
         // Test label function
         translateString(label, { t: mockedT } as any, interview, `${p2t2segmentsPath}.segmentId1P2T2.mode`);
-        expect(mockedT).toHaveBeenCalledWith(['customSurvey:segments:ModeSpecify', 'segments:ModeSpecify'], {
-            context
-        });
-        expect(mockedT).toHaveBeenCalledTimes(1);
-    });
-
-    test('should return the right label without context', () => {
-        // Prepare interview
-        const interview = _cloneDeep(interviewAttributesForTestCases);
-        interview.response._activePersonId = 'personId2';
-        interview.response._activeJourneyId = 'journeyId2';
-        interview.response._activeTripId = 'tripId2P2';
-
-        // Test label function
-        translateString(label, { t: mockedT } as any, interview, `${p2t2segmentsPath}.segmentId1P2T2.mode`);
-        expect(mockedT).toHaveBeenCalledWith(['customSurvey:segments:ModeSpecify', 'segments:ModeSpecify'], {
-            context: undefined
-        });
+        expect(mockedT).toHaveBeenCalledWith('segments:segmentMode');
         expect(mockedT).toHaveBeenCalledTimes(1);
     });
 });

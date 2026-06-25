@@ -150,7 +150,7 @@ describe('VisitedPlacesSectionFactory#getWidgetConfigs', () => {
         const mockedT = jest.fn();
         const path = 'household.persons.personId1.journeys.journeyId1.visitedPlaces.workPlace1P1';
         ((visitedPlaceActivityConfig as any).label as any)(mockedT, interviewAttributesForTestCases, path);
-        expect(mockedT).toHaveBeenCalledWith('visitedPlaces:Activity', { extraOption: 'extraValue' });
+        expect(mockedT).toHaveBeenCalledWith('visitedPlaces:visitedPlaceActivity', { extraOption: 'extraValue' });
         expect(mockedAdditionalLabelFct).toHaveBeenCalledWith({
             interview: interviewAttributesForTestCases,
             t: mockedT,

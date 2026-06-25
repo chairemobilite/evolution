@@ -16,7 +16,8 @@ import * as odHelpers from '../../../../odSurvey/helpers';
 jest.mock('../../../../odSurvey/helpers', () => ({
     getInterviewablePersonsArray: jest.fn().mockReturnValue([]),
     getActivePerson: jest.fn().mockReturnValue(null),
-    countPersons: jest.fn().mockReturnValue(0)
+    countPersons: jest.fn().mockReturnValue(0),
+    getPersonIdentificationString: jest.fn().mockReturnValue('test')
 }));
 const mockedGetInterviewablePersonsArray = odHelpers.getInterviewablePersonsArray as jest.MockedFunction<typeof odHelpers.getInterviewablePersonsArray>;
 const mockedGetActivePerson = odHelpers.getActivePerson as jest.MockedFunction<typeof odHelpers.getActivePerson>;
@@ -92,17 +93,11 @@ describe('activePersonTitle widget', () => {
             expect(mockedT).not.toHaveBeenCalled();
         });
 
-        test('Active person has a nickname', () => {
+        test('Active person with nickname', () => {
             const nickname = 'John Doe';
             mockedGetActivePerson.mockReturnValue({ _uuid: 'person1', _sequence: 1, nickname });
             utilHelpers.translateString(text, { t: mockedT } as any, interviewAttributesForTestCases, 'path');
-            expect(mockedT).toHaveBeenCalledWith(['customSurvey:ActivePersonTitle', 'survey:ActivePersonTitle'], { context: '', name: nickname });
-        });
-
-        test('Active person does not have a nickname', () => {
-            mockedGetActivePerson.mockReturnValue({ _uuid: 'person1', _sequence: 1 });
-            utilHelpers.translateString(text, { t: mockedT } as any, interviewAttributesForTestCases, 'path');
-            expect(mockedT).toHaveBeenCalledWith(['customSurvey:ActivePersonTitle', 'survey:ActivePersonTitle'], { context: 'unnamed', name: 1 });
+            expect(mockedT).toHaveBeenCalledWith('tripsIntro:activePersonTitle', { nickname: 'test' });
         });
 
     });
@@ -144,7 +139,7 @@ describe('buttonSwitchPerson widget', () => {
         const text = widgetConfig.label;
         expect(text).toBeDefined();
         utilHelpers.translateString(text, { t: mockedT } as any, interviewAttributesForTestCases, 'path');
-        expect(mockedT).toHaveBeenCalledWith(['customSurvey:SwitchPersonTitle', 'survey:SwitchPersonTitle']);
+        expect(mockedT).toHaveBeenCalledWith('tripsIntro:buttonSwitchPerson');
     });
 
     describe('confirmPopup', () => {
@@ -180,7 +175,7 @@ describe('buttonSwitchPerson widget', () => {
             const text = confirmPopup!.content;
             expect(text).toBeDefined();
             utilHelpers.translateString(text, { t: mockedT } as any, interviewAttributesForTestCases, 'path');
-            expect(mockedT).toHaveBeenCalledWith(['customSurvey:SwitchPersonNeedComplete', 'survey:SwitchPersonNeedComplete']);
+            expect(mockedT).toHaveBeenCalledWith('tripsIntro:buttonSwitchPersonNeedComplete');
         });
 
         test('cancelButtonLabel', () => {

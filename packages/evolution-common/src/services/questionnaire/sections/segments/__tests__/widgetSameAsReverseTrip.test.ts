@@ -8,7 +8,7 @@ import _cloneDeep from 'lodash/cloneDeep';
 import each from 'jest-each';
 
 import { getSameAsReverseTripWidgetConfig } from '../widgetSameAsReverseTrip';
-import { interviewAttributesForTestCases } from '../../../../../tests/surveys';
+import { interviewAttributesForTestCases, widgetFactoryOptions } from '../../../../../tests/surveys';
 import { InputRadioType, QuestionWidgetConfig, RadioChoiceType } from '../../../../questionnaire/types';
 import { translateString } from '../../../../../utils/helpers';
 import * as surveyHelper from '../../../../odSurvey/helpers';
@@ -25,7 +25,7 @@ const mockedGetPreviousTripSingleSegment = getPreviousTripSingleSegment as jest.
 describe('getSameAsReverseTripWidgetConfig', () => {
 
     test('should return the correct widget config', () => {
-        const widgetConfig = getSameAsReverseTripWidgetConfig();
+        const widgetConfig = getSameAsReverseTripWidgetConfig(widgetFactoryOptions);
         expect(widgetConfig).toEqual({
             type: 'question',
             path: 'sameModeAsReverseTrip',
@@ -52,7 +52,7 @@ describe('getSameAsReverseTripWidgetConfig', () => {
 
 describe('sameAsReverseTripWidget choice labels', () => {
     // Prepare test data with active person/journey/trip
-    const widgetConfig = getSameAsReverseTripWidgetConfig({}) as QuestionWidgetConfig & InputRadioType;
+    const widgetConfig = getSameAsReverseTripWidgetConfig(widgetFactoryOptions) as QuestionWidgetConfig & InputRadioType;
     const choices = widgetConfig.choices as RadioChoiceType[];
 
     each([
@@ -69,7 +69,7 @@ describe('sameAsReverseTripWidget choice labels', () => {
 
 describe('sameAsReverseTripWidget conditional', () => {
 
-    const widgetConfig = getSameAsReverseTripWidgetConfig({}) as QuestionWidgetConfig & InputRadioType;
+    const widgetConfig = getSameAsReverseTripWidgetConfig(widgetFactoryOptions) as QuestionWidgetConfig & InputRadioType;
     const conditional = widgetConfig.conditional;
     const segmentPath = 'household.persons.personId2.journeys.journeyId2.trips.tripId1P2.segments.segmentId1P2T1';
 
@@ -99,7 +99,7 @@ describe('sameAsReverseTripWidget validations', () => {
     // Prepare test data with active person/journey/trip
     const interview = _cloneDeep(interviewAttributesForTestCases);
 
-    const widgetConfig = getSameAsReverseTripWidgetConfig({}) as QuestionWidgetConfig & InputRadioType;
+    const widgetConfig = getSameAsReverseTripWidgetConfig(widgetFactoryOptions) as QuestionWidgetConfig & InputRadioType;
     const validations = widgetConfig.validations;
 
     test('Valid response', () => {
@@ -118,7 +118,7 @@ describe('sameAsReverseTripWidget validations', () => {
         const validation = validations!(null, null, interview, 'household.persons.personId2.journeys.journeyId2.trips.tripId1P2.segments.segmentId1P2T1.sameModeAsReverseTrip');
         const mockedT = jest.fn();
         translateString(validation[0].errorMessage, { t: mockedT } as any, interview, 'path');
-        expect(mockedT).toHaveBeenCalledWith(['customSurvey:ResponseIsRequired', 'survey:ResponseIsRequired']);
+        expect(mockedT).toHaveBeenCalledWith('survey:ResponseIsRequired');
     });
 
 
@@ -128,16 +128,15 @@ describe('sameAsReverseTripWidget label', () => {
     // Mock a few functions
     jest.spyOn(surveyHelper, 'getCountOrSelfDeclared').mockReturnValue(1);
     const mockedT = jest.fn().mockReturnValue('translatedString');
-    const mockedGetContext = jest.fn();
 
-    const widgetConfig = getSameAsReverseTripWidgetConfig({ context: mockedGetContext }) as QuestionWidgetConfig & InputRadioType;
+    const widgetConfig = getSameAsReverseTripWidgetConfig(widgetFactoryOptions) as QuestionWidgetConfig & InputRadioType;
     const label = widgetConfig.label;
 
     beforeEach(() => {
         jest.clearAllMocks();
     });
 
-    test('With return home, context and previous segment', () => {
+    test('With return home and previous segment', () => {
         // tripId2P1 is return trip home
         const baseTestInterview = _cloneDeep(interviewAttributesForTestCases);
         baseTestInterview.response._activePersonId = 'personId1';
@@ -147,21 +146,17 @@ describe('sameAsReverseTripWidget label', () => {
         // Return the previous segment
         mockedGetPreviousTripSingleSegment.mockReturnValueOnce({ _isNew: false, modePre: 'walk', mode: 'walk', _uuid: 'segmentId1P1T1', _sequence: 1 });
 
-        // Add a context
-        const context = 'currentContext';
-        mockedGetContext.mockReturnValueOnce(context);
-
         translateString(label, { t: mockedT } as any, baseTestInterview, 'household.persons.personId1.journeys.journeyId1.trips.tripId2P1.segments.segmentId1P1T1.sameModeAsReverseTrip');
         expect(mockedT).toHaveBeenCalledTimes(2);
-        expect(mockedT).toHaveBeenCalledWith(['customSurvey:segments:SegmentSameModeReturnHome', 'segments:SegmentSameModeReturnHome'], {
-            context,
+        expect(mockedT).toHaveBeenCalledWith(['segments:segmentSameModeAsReverseTrip_home', 'segments:segmentSameModeAsReverseTrip'], {
+            context: undefined, // No gender context
             previousMode: 'translatedString',
             count: 1
         });
-        expect(mockedT).toHaveBeenCalledWith(['customSurvey:segments:mode:short:walk', 'segments:mode:short:walk']);
+        expect(mockedT).toHaveBeenCalledWith('segments:mode:short:walk');
     });
 
-    test('With return to other place, no context and missing previous segment', () => {
+    test('With return to other place and missing previous segment', () => {
         // tripId3P1 would be a return to another place (it's not really a simple loop, but the label does not validate it, the conditional should have done it)
         const baseTestInterview = _cloneDeep(interviewAttributesForTestCases);
         baseTestInterview.response._activePersonId = 'personId1';
@@ -173,7 +168,7 @@ describe('sameAsReverseTripWidget label', () => {
 
         translateString(label, { t: mockedT } as any, baseTestInterview, 'household.persons.personId1.journeys.journeyId1.trips.tripId3P1.segments.segmentId1P1T1.sameModeAsReverseTrip');
         expect(mockedT).toHaveBeenCalledTimes(1);
-        expect(mockedT).toHaveBeenCalledWith(['customSurvey:segments:SegmentSameModeReturn', 'segments:SegmentSameModeReturn'], {
+        expect(mockedT).toHaveBeenCalledWith(['segments:segmentSameModeAsReverseTrip_shopping', 'segments:segmentSameModeAsReverseTrip'], {
             context: undefined,
             previousMode: '',
             count: 1

@@ -194,16 +194,16 @@ export const getActivityCategoryWidgetConfig = (
             const firstVisitedPlace = visitedPlacesArray[0];
             const secondVisitedPlace = visitedPlacesArray[1];
             if (firstVisitedPlace && firstVisitedPlace._uuid === activeVisitedPlace._uuid) {
-                return t('visitedPlaces:ActivityCategoryFirstLocation');
+                return t('visitedPlaces:visitedPlaceActivityCategory_firstLocation');
             } else if (
                 firstVisitedPlace &&
                 secondVisitedPlace &&
                 firstVisitedPlace.activity === 'home' &&
                 secondVisitedPlace._uuid === activeVisitedPlace._uuid
             ) {
-                return t('visitedPlaces:ActivityCategoryAfterHome');
+                return t('visitedPlaces:visitedPlaceActivityCategory_afterHome');
             } else {
-                return t('visitedPlaces:ActivityCategory');
+                return t('visitedPlaces:visitedPlaceActivityCategory');
             }
         },
         validations: function (value) {

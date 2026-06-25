@@ -43,7 +43,17 @@ describe('getButtonValidateAndGotoNextSection labels', () => {
         const title = widgetConfig.label;
         expect(title).toBeDefined();
         utilHelpers.translateString(title, { t: mockedT } as any, interviewAttributesForTestCases, 'path');
-        expect(mockedT).toHaveBeenCalledWith([`customSurvey:${translatableKey}`, translatableKey]);
+        expect(mockedT).toHaveBeenCalledWith(translatableKey);
+    });
+
+    test('should return the right label for title when passing array', () => {
+        const translatableKeys = ['custom:buttonKey', 'buttonKey'];
+        const widgetConfig = getButtonValidateAndGotoNextSection(translatableKeys, widgetFactoryOptions);
+        const mockedT = jest.fn();
+        const title = widgetConfig.label;
+        expect(title).toBeDefined();
+        utilHelpers.translateString(title, { t: mockedT } as any, interviewAttributesForTestCases, 'path');
+        expect(mockedT).toHaveBeenCalledWith(translatableKeys);
     });
 
 });

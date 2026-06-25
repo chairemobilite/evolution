@@ -5,16 +5,6 @@ No: Non
 thisTrip: ce déplacement
 thisTrip_workOnTheRoad: les déplacements sur la route
 thisTrip_leisureStroll: la promenade
-SwitchPersonTitle: Changer de personne
-SwitchPersonNeedComplete: Veuillez compléter cette section avant de changer de personne.
-ActivePersonTitle: >-
-    <p class="_orange center _em" style="margin-bottom: 0;">Entrevue de <strong>{{name}}</strong></p>
-ActivePersonTitle_unnamed: >-
-    <p class="_orange center _em" style="margin-bottom: 0;">Entrevue de personne <strong>{{name}}</strong></p>
-TripsMap: Carte des déplacements de {{nickname}} le {{journeyDates}}
-TripsMap_one: Carte de vos déplacements le {{journeyDates}}
-TripsMap_undated: Carte des déplacements de {{nickname}}
-TripsMap_undated_one: Carte de vos déplacements
 
 # Button texts
 ConfirmAndContinue: Confirmer et continuer

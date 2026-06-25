@@ -633,7 +633,7 @@ describe('Activity widget label', () => {
         const interview = _cloneDeep(interviewAttributesForTestCases);
 
         translateString(label, { t: mockedT } as any, interview, 'path');
-        expect(mockedT).toHaveBeenCalledWith('visitedPlaces:Activity');
+        expect(mockedT).toHaveBeenCalledWith('visitedPlaces:visitedPlaceActivity');
     });
 });
 

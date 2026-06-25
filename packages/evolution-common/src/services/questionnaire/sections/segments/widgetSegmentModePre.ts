@@ -21,9 +21,7 @@ const perModePreLabels: Partial<{ [mode in ModePre]: I18nData }> = {
     walk: (t: TFunction, interview) => {
         const person = odHelpers.getActivePerson({ interview });
         const personMayHaveDisability = person && odHelpers.personMayHaveDisability({ person: person as Person });
-        return personMayHaveDisability
-            ? t(['customSurvey:segments:modePre:WalkOrMobilityHelp', 'segments:modePre:WalkOrMobilityHelp'])
-            : t(['customSurvey:segments:modePre:Walk', 'segments:modePre:Walk']);
+        return personMayHaveDisability ? t('segments:modePre:WalkOrMobilityHelp') : t('segments:modePre:Walk');
     }
 };
 
@@ -55,15 +53,14 @@ const getModePreChoices = (filteredModesPre: ModePre[]) =>
         value: mode,
         label: perModePreLabels[mode]
             ? perModePreLabels[mode]
-            : (t: TFunction) =>
-                t([`customSurvey:segments:modePre:${_upperFirst(mode)}`, `segments:modePre:${_upperFirst(mode)}`]),
+            : (t: TFunction) => t(`segments:modePre:${_upperFirst(mode)}`),
         conditional: perModePreConditionals[mode] !== undefined ? perModePreConditionals[mode] : undefined,
         iconPath: getModePreIcon(mode)
     }));
 
 export const getModePreWidgetConfig = (
     sectionConfig: SegmentSectionConfiguration,
-    options: WidgetFactoryOptions
+    _options: WidgetFactoryOptions
 ): WidgetConfig => {
     // TODO Use a segment configuration to determine which modes should be
     // presented and in which order
@@ -98,24 +95,17 @@ export const getModePreWidgetConfig = (
             const origin = odHelpers.getOrigin({ trip: trip!, visitedPlaces });
             const originName = origin
                 ? odHelpers.getVisitedPlaceName({ t, visitedPlace: origin, interview })
-                : t(['customSurvey:survey:origin', 'survey:origin']);
+                : t('survey:origin');
             const destination = odHelpers.getDestination({ trip: trip!, visitedPlaces });
             const destinationName = destination
                 ? odHelpers.getVisitedPlaceName({ t, visitedPlace: destination, interview })
-                : t(['customSurvey:survey:destination', 'survey:destination']);
-            return sequence === 1
-                ? t(['customSurvey:segments:ModeFirst', 'segments:ModeFirst'], {
-                    context: options.context?.(),
-                    originName,
-                    destinationName,
-                    count: odHelpers.getCountOrSelfDeclared({ interview, person })
-                })
-                : t(['customSurvey:segments:ModeThen', 'segments:ModeThen'], {
-                    context: options.context?.(),
-                    originName,
-                    destinationName,
-                    count: odHelpers.getCountOrSelfDeclared({ interview, person })
-                });
+                : t('survey:destination');
+            return t('segments:segmentModePre', {
+                context: sequence === 1 ? 'first' : 'then',
+                originName,
+                destinationName,
+                count: odHelpers.getCountOrSelfDeclared({ interview, person })
+            });
         },
         validations: function (value) {
             return [

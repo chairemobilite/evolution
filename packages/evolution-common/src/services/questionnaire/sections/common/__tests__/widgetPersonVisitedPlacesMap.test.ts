@@ -44,12 +44,7 @@ beforeEach(() => {
 describe('personVisitedPlacesMapConfig', () => {
     it('should return the correct widget config', () => {
 
-        const options = {
-            context: jest.fn(),
-            getFormattedDate: mockGetFormattedDate
-        };
-
-        const widgetConfig = getPersonVisitedPlacesMapConfig(options);
+        const widgetConfig = getPersonVisitedPlacesMapConfig(widgetFactoryOptions);
 
         expect(widgetConfig).toEqual({
             type: 'infoMap',
@@ -82,13 +77,12 @@ describe('personVisitedPlacesMapConfig title', () => {
     test('should call translation with correct parameters if one person household and no journey dates', () => {
         mockedGetJourneyContextFromPath.mockReturnValueOnce({ person: { _uuid: 'person1', _sequence: 1 }, journey: { _uuid: 'journey1', _sequence: 1 } });
         expect(widgetTitle(mockedT, interviewAttributesForTestCases, 'path')).toEqual('translatedString');
-        expect(mockedT).toHaveBeenCalledWith(['customSurvey:survey:TripsMap', 'survey:TripsMap'], {
+        expect(mockedT).toHaveBeenCalledWith('visitedPlaces:personVisitedPlacesMap', {
             context: 'undated',
             count: 1,
             nickname: 'translatedString', // Should have called the getPersonIdentificationString function and translated the name
             journeyDates: null
         });
-        expect(options.context).toHaveBeenCalledWith('undated');
     });
 
     test('should call translation with correct parameters if multiple person household and journey with start date', () => {
@@ -96,13 +90,12 @@ describe('personVisitedPlacesMapConfig title', () => {
         mockedGetJourneyContextFromPath.mockReturnValueOnce({ person: { _uuid: 'person1', _sequence: 1, nickname }, journey: { _uuid: 'journey1', _sequence: 1, startDate: '2024-11-18' } });
         mockedGetCountOrSelfDeclared.mockReturnValueOnce(2);
         expect(widgetTitle(mockedT, interviewAttributesForTestCases, 'path')).toEqual('translatedString');
-        expect(mockedT).toHaveBeenCalledWith(['customSurvey:survey:TripsMap', 'survey:TripsMap'], {
+        expect(mockedT).toHaveBeenCalledWith('visitedPlaces:personVisitedPlacesMap', {
             context: undefined,
             count: 2,
             nickname,
             journeyDates: 'formattedDate'
         });
-        expect(options.context).toHaveBeenCalledWith(undefined);
     });
 
 });
@@ -114,7 +107,7 @@ describe('personVisitedPlacesMapConfig geojsons', () => {
         getFormattedDate: mockGetFormattedDate
     };
 
-    const widgetGeojsons = getPersonVisitedPlacesMapConfig(options).geojsons as any;
+    const widgetGeojsons = getPersonVisitedPlacesMapConfig(widgetFactoryOptions).geojsons as any;
     const mockedT = jest.fn().mockReturnValue('translatedString');
     const person = { _uuid: 'person1', _sequence: 1 };
     const journey = { _uuid: 'journeyId1', _sequence: 1 };

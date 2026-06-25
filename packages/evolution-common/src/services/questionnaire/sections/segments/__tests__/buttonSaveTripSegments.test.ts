@@ -57,7 +57,7 @@ describe('getButtonSaveTripSegmentsConfig labels', () => {
         const title = widgetConfig.label;
         expect(title).toBeDefined();
         utilHelpers.translateString(title, { t: mockedT } as any, interviewAttributesForTestCases, 'path');
-        expect(mockedT).toHaveBeenCalledWith(['customSurvey:segments:SaveTripLabel', 'segments:SaveTripLabel']);
+        expect(mockedT).toHaveBeenCalledWith('segments:buttonSaveTrip');
     });
 
 });

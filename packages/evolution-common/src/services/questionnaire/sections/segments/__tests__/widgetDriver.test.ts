@@ -48,7 +48,7 @@ describe('widgetDriver label', () => {
         ) as QuestionWidgetConfig;
         translateString(widgetConfig.label, { t: mockedT } as any, interview, path);
 
-        expect(mockedT).toHaveBeenCalledWith('segments:Driver', { context: 'female', count: 2 });
+        expect(mockedT).toHaveBeenCalledWith('segments:segmentDriver', { context: 'female', count: 2 });
         expect(mockedGetCountOrSelfDeclared).toHaveBeenCalledWith({
             interview,
             person: interview.response.household!.persons!.personId2

@@ -159,7 +159,7 @@ export class SegmentsSectionFactory implements SectionConfigFactory {
 
             // Section specific configuration
             template: 'tripsAndSegmentsWithMap',
-            title: (t: TFunction) => t(['customSurvey:segments:SegmentsTitle', 'segments:SegmentsTitle']),
+            title: (t: TFunction) => t('segments:SegmentsTitle'),
             customStyle: {
                 // FIXME Why?
                 maxWidth: '120rem'
@@ -188,7 +188,10 @@ export class SegmentsSectionFactory implements SectionConfigFactory {
             personTripsTitle: getPersonsTripsTitleWidgetConfig(this.options),
             ...personTripsGroup.getWidgetConfigs(),
             personVisitedPlacesMap: getPersonVisitedPlacesMapConfig(this.options),
-            buttonConfirmNextSection: getButtonValidateAndGotoNextSection('survey:ConfirmAndContinue', this.options)
+            buttonConfirmNextSection: getButtonValidateAndGotoNextSection(
+                ['segments:buttonConfirmNextSection', 'survey:ConfirmAndContinue'],
+                this.options
+            )
         };
 
         this._widgets = applySectionAdditionalLabelOptions(

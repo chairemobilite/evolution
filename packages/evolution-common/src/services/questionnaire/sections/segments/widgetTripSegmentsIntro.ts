@@ -8,11 +8,9 @@
 import { TextWidgetConfig } from '../../../questionnaire/types';
 import * as odHelpers from '../../../odSurvey/helpers';
 import { TFunction } from 'i18next';
+import { WidgetFactoryOptions } from '../types';
 
-export const getTripSegmentsIntro = (
-    // FIXME: Type this when there is a few more widgets implemented
-    options: { context?: (additionalContext?: string) => string } = {}
-): TextWidgetConfig => ({
+export const getTripSegmentsIntro = (_options: WidgetFactoryOptions): TextWidgetConfig => ({
     type: 'text',
     text: (t: TFunction, interview) => {
         const person = odHelpers.getPerson({ interview });
@@ -35,8 +33,8 @@ export const getTripSegmentsIntro = (
         const activityContext = odHelpers.isLoopActivity({ visitedPlace: origin })
             ? origin.activity
             : destination.activity;
-        return t(['customSurvey:segments:CurrentTripSegmentsIntro', 'segments:CurrentTripSegmentsIntro'], {
-            context: options.context?.(activityContext) || activityContext,
+        return t('segments:segmentIntro', {
+            context: activityContext,
             count: odHelpers.getCountOrSelfDeclared({ interview, person }),
             originName,
             destinationName

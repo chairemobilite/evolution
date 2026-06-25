@@ -1,6 +1,6 @@
-ActivityCategoryFirstLocation: Main activity carried out at the starting point of the day
-ActivityCategoryAfterHome: Main activity carried out at the first location visited after leaving home
-ActivityCategory: Main activity carried out at this location
+visitedPlaceActivityCategory_firstLocation: Main activity carried out at the starting point of the day
+visitedPlaceActivityCategory_afterHome: Main activity carried out at the first location visited after leaving home
+visitedPlaceActivityCategory: Main activity carried out at this location
 activityIsRequiredError: Activity is required.
 addVisitedPlace: Add the next location
 deleteVisitedPlace: Delete
@@ -9,7 +9,7 @@ deleteThisGroupedObject: Delete this location
 cancelEditVisitedPlaces: Cancel
 editVisitedPlace: Edit
 insertVisitedPlace: Insert a location here
-saveAndContinue: Confirm locations and continue
+buttonVisitedPlacesConfirmNextSection: Confirm locations and continue
 activities:
     accompanySomeone: Accompany someone
     carElectricChargingStation: Car charging station
@@ -57,34 +57,34 @@ activityCategories:
     work: Work
     dontKnow: Don't know
     preferNotToAnswer: Prefer not to answer
-Activity: 'Specify:'
-LocationNameAddress: Name or address of the place
-LocationNameAddressExample: 50 Petunia street, corner 1st avenue / 3rd street, etc.
-LocationNameAddressExample_workUsual: Lighthouse building, Les Petits génies CPE
-LocationNameAddressExample_workUsual_onTheRoadOften: Rivière distribution center, Alma St-Hubert BBQ
-LocationNameAddressExample_workNotUsual: Chateau Frontenac, Co-work on the Long lake
-LocationNameAddressExample_schoolUsual: Marguerite-Bourgeoys school, CDI College Québec, UQAR
-LocationNameAddressExample_schoolNotUsual: National library, music school Doremi
-LocationNameAddressExample_shopping: Le Carrefour shopping mall, Provigo St-Félicien, IKEA Boucherville
-LocationNameAddressExample_restaurant: Normandin in Lévis, Snack bar chez Raymond, Subway restaurant in Rawdon
-LocationNameAddressExample_dropSomeone: Central bus station, des Collines arena, des Pionniers high school
-LocationNameAddressExample_fetchSomeone: Central bus station, des Collines arena, des Pionniers high school
-LocationNameAddressExample_leisureArtsMusicCulture: Des chutes cinema, de Verdure Theatre, Mason Jar National Museum
-LocationNameAddressExample_leisureSports: Nautilus St-Georges, Climbing La Grimpe, de la Rose Park
-LocationNameAddressExample_leisureTourism: Camping Ste-Madeleine, Paris France, Hotel Days Inn St-Flavien
-LocationNameAddressExample_leisureStroll: Waterside park, Petit train du nord, de la Montagne promenade
-LocationNameAddressExample_visiting: Address of the visited person, corner des Rossignols and de l’Étang
-LocationNameAddressExample_medical: >-
+visitedPlaceActivity: 'Specify:'
+visitedPlaceName: Name or address of the place
+visitedPlaceNameExample: 50 Petunia street, corner 1st avenue / 3rd street, etc.
+visitedPlaceNameExample_workUsual: Lighthouse building, Les Petits génies CPE
+visitedPlaceNameExample_workUsual_onTheRoadOften: Rivière distribution center, Alma St-Hubert BBQ
+visitedPlaceNameExample_workNotUsual: Chateau Frontenac, Co-work on the Long lake
+visitedPlaceNameExample_schoolUsual: Marguerite-Bourgeoys school, CDI College Québec, UQAR
+visitedPlaceNameExample_schoolNotUsual: National library, music school Doremi
+visitedPlaceNameExample_shopping: Le Carrefour shopping mall, Provigo St-Félicien, IKEA Boucherville
+visitedPlaceNameExample_restaurant: Normandin in Lévis, Snack bar chez Raymond, Subway restaurant in Rawdon
+visitedPlaceNameExample_dropSomeone: Central bus station, des Collines arena, des Pionniers high school
+visitedPlaceNameExample_fetchSomeone: Central bus station, des Collines arena, des Pionniers high school
+visitedPlaceNameExample_leisureArtsMusicCulture: Des chutes cinema, de Verdure Theatre, Mason Jar National Museum
+visitedPlaceNameExample_leisureSports: Nautilus St-Georges, Climbing La Grimpe, de la Rose Park
+visitedPlaceNameExample_leisureTourism: Camping Ste-Madeleine, Paris France, Hotel Days Inn St-Flavien
+visitedPlaceNameExample_leisureStroll: Waterside park, Petit train du nord, de la Montagne promenade
+visitedPlaceNameExample_visiting: Address of the visited person, corner des Rossignols and de l’Étang
+visitedPlaceNameExample_medical: >-
     des Marguerites medical clinic, Rimouski regional hospital, des Rivières
     CLSC
-LocationNameAddressExample_service: High class Hair salon, Caisse Desjardins Limoilou
-LocationNameAddressExample_worship: >-
+visitedPlaceNameExample_service: High class Hair salon, Caisse Desjardins Limoilou
+visitedPlaceNameExample_worship: >-
     Saint-Nicéphore church, de la Capitale mosque, Congregation Beth Israel Ohev
     Sholem
-LocationNameAddressExample_secondaryHome: Secondary home or cottage address
-LocationNameAddressExample_schoolNotStudent: language centre, Tecnic driving school
+visitedPlaceNameExample_secondaryHome: Secondary home or cottage address
+visitedPlaceNameExample_schoolNotStudent: language centre, Tecnic driving school
 activityNameIsRequiredError: Description is required.
-geography: >-
+visitedPlaceGeography: >-
     Please locate this place on the map<br /><span class="_pale _oblique">Pan,
     zoom and click on map. Once a pin icon has been dropped, you will be able to
     drag the icon to specify a more precise location. You can also search for a
@@ -103,26 +103,26 @@ personVisitedPlacesTitle: >-
 personVisitedPlacesTitle_one: >-
     Places you went on {{journeyDate}}:<br />Chronological order must be respected
     (i.e. sequence matters).
-nextPlaceCategory: >-
+visitedPlaceNextPlaceCategory: >-
     After being {{atPlace}}, {{nickname}}…
-nextPlaceCategory_one: >-
+visitedPlaceNextPlaceCategory_one: >-
     After being {{atPlace}}, you…
 nextPlaceRadioChoices.stayedHomeUntilTheNextDay: Stayed home until the next day
 nextPlaceRadioChoices.stayedThereUntilTheNextDay: Stayed at this place until the next
     day
 nextPlaceRadioChoices.visitedAnotherPlace: Went or stopped elsewhere
 nextPlaceRadioChoices.wentBackHome: Returned home directly ({{address}})
-personVisitedPlacesGroupTitle: Visited places
+personVisitedPlaces: Visited places
 VisitedPlaceSequence: 'Location #{{count}}'
 VisitedPlaceSequence_one: Departure place for this day
 VisitedPlacesTitle: Visited Places
-alreadyVisitedBySelfOrAnotherHouseholdMember: >-
+visitedPlaceAlreadyVisited: >-
     Did you previously locate this place on the map?<br /><span class="_pale _oblique">In
     {{nickname}}'s travel diary or that of another household member.</span>
-alreadyVisitedBySelfOrAnotherHouseholdMember_one: >-
+visitedPlaceAlreadyVisited_one: >-
     Did you previously locate this place on the map?<br /><span class="_pale _oblique">In
     your travel diary or that of another household member.</span>
-shortcut: 'Please select this place from the list of previously located places:'
+visitedPlaceShortcut: 'Please select this place from the list of previously located places:'
 visitedPlacePreviousPreviousDepartureTime_workUsual: >-
     At what time did {{nickname}} leave the previous location ({{previousPlaceDescription}})
     before going to the usual work place?
@@ -219,3 +219,7 @@ onTheRoadNextPlaceCategoryChoices:
     wentToUsualWorkPlace: Usual work place
     visitedAnotherPlace: Other location
     stayedThereUntilTheNextDay: Completed after 4AM the next day
+personVisitedPlacesMap: Map of {{nickname}}'s trips on {{journeyDates}}
+personVisitedPlacesMap_one: Map of your trips on {{journeyDates}}
+personVisitedPlacesMap_undated: Map of {{nickname}}'s trips
+personVisitedPlacesMap_undated_one: Map of your trips

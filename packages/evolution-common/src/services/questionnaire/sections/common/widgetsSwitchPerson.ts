@@ -24,9 +24,8 @@ const activePersonTitle: TextWidgetConfig = {
         if (activePerson === null) {
             return '';
         }
-        return t(['customSurvey:ActivePersonTitle', 'survey:ActivePersonTitle'], {
-            context: activePerson.nickname === undefined ? 'unnamed' : '',
-            name: activePerson.nickname || activePerson._sequence
+        return t('tripsIntro:activePersonTitle', {
+            nickname: odHelpers.getPersonIdentificationString({ person: activePerson, t })
         });
     },
     // Show if there is more than one person in the interview, even if there is only one interviewable person
@@ -40,12 +39,12 @@ const buttonSwitchPerson: ButtonWidgetConfig = {
     color: 'blue',
     size: 'small',
     hideWhenRefreshing: true,
-    label: (t: TFunction) => t(['customSurvey:SwitchPersonTitle', 'survey:SwitchPersonTitle']),
+    label: (t: TFunction) => t('tripsIntro:buttonSwitchPerson'),
     confirmPopup: {
         // FIXME Does the popup work? It seems like the allWidgetsValid is not really verified and the action happens anyway
         // FIXME allWdigetsValid is a frontend concept, figure out a better way to handle this
         conditional: (interview) => !(interview as any).allWidgetsValid,
-        content: (t: TFunction) => t(['customSurvey:SwitchPersonNeedComplete', 'survey:SwitchPersonNeedComplete']),
+        content: (t: TFunction) => t('tripsIntro:buttonSwitchPersonNeedComplete'),
         showConfirmButton: false,
         cancelButtonColor: 'blue',
         cancelButtonLabel: (t: TFunction) => t('main:OK')

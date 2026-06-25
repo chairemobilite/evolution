@@ -15,7 +15,10 @@ export const getButtonConfirmGotoNextSectionWidgetConfig = (
     _sectionConfig: VisitedPlacesSectionConfiguration,
     options: WidgetFactoryOptions
 ): ButtonWidgetConfig => {
-    const gotoNextDefaultButtonConfig = getButtonValidateAndGotoNextSection('visitedPlaces:saveAndContinue', options);
+    const gotoNextDefaultButtonConfig = getButtonValidateAndGotoNextSection(
+        'visitedPlaces:buttonVisitedPlacesConfirmNextSection',
+        options
+    );
     return {
         ...gotoNextDefaultButtonConfig,
         conditional: (interview: UserInterviewAttributes) => {

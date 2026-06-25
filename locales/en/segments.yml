@@ -1,12 +1,12 @@
-TripsTitle: Trips
-GroupTitle: Modes
+personTrips: Trips
+segments: Modes
 SegmentsTitle: Modes of transport
 GroupName: Mode of transport {{sequence}}
 ModeIsRequired: Mode of transport is required.
-Description: Trips made by {{nickname}} on {{journeyDates}}
-Description_one: Trips you made on {{journeyDates}}
-Description_undated: Trips made by {{nickname}}
-Description_undated_one: Trips you made
+personTripsTitle: Trips made by {{nickname}} on {{journeyDates}}
+personTripsTitle_one: Trips you made on {{journeyDates}}
+personTripsTitle_undated: Trips made by {{nickname}}
+personTripsTitle_undated_one: Trips you made
 modePre:
     CarDriver: <strong>Driver</strong> (car/moto/scooter/truck)
     CarPassenger: <strong>Passenger</strong> (car/moto/scooter/truck)
@@ -107,38 +107,32 @@ mode:
         other: Other
         dontKnow: Don't know
         preferNotToAnswer: Prefer not to answer
-ModeFirst: Which mode of transport was used first?
-ModeFirst_cati: >-
-    Which mode of transport was used first to go from {{originName}} to
-    {{destinationName}}?
-ModeThen: Which mode of transport was used after?
-ModeThen_cati: >-
-    Which mode of transport was used after to go from {{originName}} to
-    {{destinationName}}?
-ModeSpecify: 'Please specify:'
-SegmentSameModeReturnHome: >-
+segmentModePre_first: Which mode of transport was used first?
+segmentModePre_then: Which mode of transport was used after?
+segmentModePre: Which mode of transport was used?
+segmentMode: 'Please specify:'
+segmentSameModeAsReverseTrip_home: >-
     Was it the same mode of transport used for the return home trip
     ({{previousMode}})?
-SegmentSameModeReturn: >-
+segmentSameModeAsReverseTrip: >-
     Was it the same mode of transport used as the previous trip
     ({{previousMode}})?
-SegmentHasNextModeLoop: Other mode of transport used to complete {{thisTrip}}?
-SegmentHasNextMode: Other mode of transport used to complete {{thisTrip}}?
+segmentHasNextMode: Other mode of transport used to complete {{thisTrip}}?
 AddButtonLabel_zero: Select the first (or only) mode of transport used during this trip
 AddButtonLabel: Select the next mode of transport
-CurrentTripSegmentsIntro: >-
+segmentIntro: >-
     Please indicate all modes of transport used for this trip (from
     {{originName}} to {{destinationName}}), in chronological order:
-CurrentTripSegmentsIntro_workOnTheRoad: >-
+segmentIntro_workOnTheRoad: >-
     Please indicate all modes of transport used to complete work trip on the
     road, in chronological order:
-CurrentTripSegmentsIntro_leisureStroll: >-
+segmentIntro_leisureStroll: >-
     Please indicate all modes of transport used to complete the stroll, in
     chronological order:
-SaveTripLabel: Confirm this trip
+buttonSaveTrip: Confirm this trip
 deleteThisGroupedObject: Delete this mode of transport
 addGroupedObject: Add a mode of transport
-Driver: Who drove?
+segmentDriver: Who drove?
 DriverFamily: Friend or family
 DriverColleague: A work colleague or fellow classmate
 DriverTaxi: Taxi or Uber driver

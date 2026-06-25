@@ -156,7 +156,7 @@ export const getActivityWidgetConfig = (
         twoColumns: false,
         datatype: 'string',
         columns: 2,
-        label: (t: TFunction) => t('visitedPlaces:Activity'),
+        label: (t: TFunction) => t('visitedPlaces:visitedPlaceActivity'),
         choices: activityChoices,
         validations: function (value) {
             return [

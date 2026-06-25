@@ -6,7 +6,7 @@
  */
 import _cloneDeep from 'lodash/cloneDeep';
 import { getTripSegmentsIntro } from '../widgetTripSegmentsIntro';
-import { interviewAttributesForTestCases, setActiveSurveyObjects } from '../../../../../tests/surveys';
+import { interviewAttributesForTestCases, setActiveSurveyObjects, widgetFactoryOptions } from '../../../../../tests/surveys';
 
 beforeEach(() => {
     jest.clearAllMocks();
@@ -19,7 +19,7 @@ describe('getTripSegmentsIntro', () => {
             context: jest.fn()
         };
 
-        const widgetConfig = getTripSegmentsIntro(options);
+        const widgetConfig = getTripSegmentsIntro(widgetFactoryOptions);
 
         expect(widgetConfig).toEqual({
             type: 'text',
@@ -30,11 +30,7 @@ describe('getTripSegmentsIntro', () => {
 
 describe('tripSegmentsIntro text', () => {
 
-    const options = {
-        context: jest.fn()
-    };
-
-    const widgetText = getTripSegmentsIntro(options).text as any;
+    const widgetText = getTripSegmentsIntro(widgetFactoryOptions).text as any;
     const mockedT = jest.fn().mockReturnValue('translatedString');
     const p2t2segmentsPath = 'household.persons.personId2.journeys.journeyId2.trips.tripId2P2.segments';
    
@@ -70,14 +66,13 @@ describe('tripSegmentsIntro text', () => {
         setActiveSurveyObjects(testInterview, { personId: 'personId2', journeyId: 'journeyId2', activeTripId: 'tripId2P2' });
         
         expect(widgetText(mockedT, testInterview)).toEqual('translatedString');
-        expect(mockedT).toHaveBeenCalledWith(['customSurvey:segments:CurrentTripSegmentsIntro', 'segments:CurrentTripSegmentsIntro'], {
+        expect(mockedT).toHaveBeenCalledWith('segments:segmentIntro', {
             context: 'other',
             count: 3,
             destinationName: testInterview.response.household!.persons!.personId2.journeys!.journeyId2.visitedPlaces!.otherWorkPlace1P2.name,
             // leads to shortcut
             originName: testInterview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.otherPlace2P1.name
         });
-        expect(options.context).toHaveBeenCalledWith('other');
     });
 
     test('should return correct string with loop activity at origin', () => {
@@ -86,7 +81,7 @@ describe('tripSegmentsIntro text', () => {
         setActiveSurveyObjects(testInterview, { personId: 'personId2', journeyId: 'journeyId2', activeTripId: 'tripId1P2' });
         testInterview.response.household!.persons!.personId2.journeys!.journeyId2.visitedPlaces!.homePlace1P2.activity = 'leisureStroll';
         expect(widgetText(mockedT, testInterview)).toEqual('translatedString');
-        expect(mockedT).toHaveBeenCalledWith(['customSurvey:segments:CurrentTripSegmentsIntro', 'segments:CurrentTripSegmentsIntro'], {
+        expect(mockedT).toHaveBeenCalledWith('segments:segmentIntro', {
             context: 'leisureStroll',
             count: 3,
             originName: 'translatedString', // origin has no name
@@ -94,17 +89,16 @@ describe('tripSegmentsIntro text', () => {
             destinationName: testInterview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.otherPlace2P1.name
         });
         expect(mockedT).toHaveBeenCalledWith('survey:placeWithSequenceGeneric', { sequence: 1 });
-        expect(options.context).toHaveBeenCalledWith('leisureStroll');
     });
 
     test('should return correct string with normal activities and no context function', () => {
         // No context sent as options
-        const widgetText = getTripSegmentsIntro().text as any;
+        const widgetText = getTripSegmentsIntro(widgetFactoryOptions).text as any;
         const testInterview = _cloneDeep(interviewAttributesForTestCases);
         setActiveSurveyObjects(testInterview, { personId: 'personId2', journeyId: 'journeyId2', activeTripId: 'tripId2P2' });
         
         expect(widgetText(mockedT, testInterview)).toEqual('translatedString');
-        expect(mockedT).toHaveBeenCalledWith(['customSurvey:segments:CurrentTripSegmentsIntro', 'segments:CurrentTripSegmentsIntro'], {
+        expect(mockedT).toHaveBeenCalledWith('segments:segmentIntro', {
             context: 'other',
             count: 3,
             destinationName: testInterview.response.household!.persons!.personId2.journeys!.journeyId2.visitedPlaces!.otherWorkPlace1P2.name,
