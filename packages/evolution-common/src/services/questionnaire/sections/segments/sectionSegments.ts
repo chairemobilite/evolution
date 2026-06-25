@@ -11,6 +11,7 @@ import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { removeGroupedObjects, addGroupedObjects } from '../../../../utils/helpers';
 import * as odHelpers from '../../../odSurvey/helpers';
 import { SectionConfig, SegmentSectionConfiguration, Trip, WidgetConfig } from '../../types';
+import { applySectionAdditionalLabelOptions } from '../common/applyAdditionalLabelOptions';
 import { initializeSegmentSectionHelpers } from './helpers';
 import { SectionConfigFactory, WidgetFactoryOptions } from '../types';
 import { getPersonsTripsTitleWidgetConfig } from './widgetPersonTripsTitle';
@@ -182,13 +183,18 @@ export class SegmentsSectionFactory implements SectionConfigFactory {
         this._sectionConfig = this.getSegmentsSectionConfig();
         const switchPersonsWidget = new SwitchPersonWidgetsFactory(this.options);
         const personTripsGroup = new PersonTripsGroupConfigFactory(this.sectionConfig, this.options);
-        this._widgets = {
+        const widgetConfigs: Record<string, WidgetConfig> = {
             ...switchPersonsWidget.getWidgetConfigs(),
             personTripsTitle: getPersonsTripsTitleWidgetConfig(this.options),
             ...personTripsGroup.getWidgetConfigs(),
             personVisitedPlacesMap: getPersonVisitedPlacesMapConfig(this.options),
             buttonConfirmNextSection: getButtonValidateAndGotoNextSection('survey:ConfirmAndContinue', this.options)
         };
+
+        this._widgets = applySectionAdditionalLabelOptions(
+            widgetConfigs,
+            this.sectionConfig.additionalLabelOptionFunctions
+        );
     }
 
     getSectionConfig(): SectionConfig {

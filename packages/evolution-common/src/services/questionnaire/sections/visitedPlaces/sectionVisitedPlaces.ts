@@ -27,6 +27,7 @@ import { getButtonConfirmGotoNextSectionWidgetConfig } from './buttonConfirmGoto
 import { tripDiarySectionVisibleConditional } from '../tripDiary/tripDiaryHelpers';
 import { Activity, ActivityCategory } from '../../../odSurvey/types';
 import { initializeVisitedPlaceSectionHelpers } from './helpers';
+import { applySectionAdditionalLabelOptions } from '../common/applyAdditionalLabelOptions';
 
 export class VisitedPlacesSectionFactory implements SectionConfigFactory {
     private _sectionConfig: SectionConfig | undefined = undefined;
@@ -200,16 +201,19 @@ export class VisitedPlacesSectionFactory implements SectionConfigFactory {
         const personVisitedPlacesGroup = new PersonVisitedPlacesGroupConfigFactory(this.sectionConfig, this.options);
 
         // Prepare the widgets for this section
-        this._widgets = {
-            ...switchPersonsWidget.getWidgetConfigs(),
-            personVisitedPlacesTitle: getPersonVisitedPlacesTitleWidgetConfig(this.sectionConfig, this.options),
-            ...personVisitedPlacesGroup.getWidgetConfigs(),
-            personVisitedPlacesMap: getPersonVisitedPlacesMapConfig(this.options),
-            buttonVisitedPlacesConfirmNextSection: getButtonConfirmGotoNextSectionWidgetConfig(
-                this.sectionConfig,
-                this.options
-            )
-        };
+        this._widgets = applySectionAdditionalLabelOptions(
+            {
+                ...switchPersonsWidget.getWidgetConfigs(),
+                personVisitedPlacesTitle: getPersonVisitedPlacesTitleWidgetConfig(this.sectionConfig, this.options),
+                ...personVisitedPlacesGroup.getWidgetConfigs(),
+                personVisitedPlacesMap: getPersonVisitedPlacesMapConfig(this.options),
+                buttonVisitedPlacesConfirmNextSection: getButtonConfirmGotoNextSectionWidgetConfig(
+                    this.sectionConfig,
+                    this.options
+                )
+            },
+            this.sectionConfig.additionalLabelOptionFunctions
+        );
     }
 
     getSectionConfig(): SectionConfig {

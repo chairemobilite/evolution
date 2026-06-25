@@ -24,7 +24,7 @@ jest.mock('uuid', () => ({
     v4: jest.fn().mockReturnValue('newTripId')
 }));
 const mockUuidv4 = uuidv4 as jest.MockedFunction<typeof uuidv4>;
-const segmentSectionConfig = {
+const segmentSectionConfig: SegmentSectionConfiguration = {
     type: 'segments' as const,
     enabled: true
 };
@@ -129,6 +129,30 @@ describe('SegmentsSectionFactory#getWidgetConfigs', () => {
             expect(maskFunctions(widgetConfig)).toEqual(maskFunctions(expected));
         });
     });
+
+    test('should attach additional label options for segment widgets when configured', () => {
+            const sectionConfigWithLabelOptions = _cloneDeep(segmentSectionConfig);
+            const mockedAdditionalLabelFct = jest.fn();
+            sectionConfigWithLabelOptions.additionalLabelOptionFunctions = {
+                segmentMode: mockedAdditionalLabelFct.mockReturnValue({ extraOption: 'extraValue' })
+            };
+    
+            const widgetConfigs = new SegmentsSectionFactory(
+                sectionConfigWithLabelOptions,
+                widgetFactoryOptions
+            ).getWidgetConfigs();
+            const segmentModeConfig = widgetConfigs.segmentMode;
+            expect(segmentModeConfig).toBeDefined();
+            const mockedT = jest.fn();
+            const path = 'household.persons.personId1.journeys.journeyId1.trips.tripId1P1';
+            ((segmentModeConfig as any).label as any)(mockedT, interviewAttributesForTestCases, path);
+            expect(mockedT).toHaveBeenCalledWith(['customSurvey:segments:ModeSpecify', 'segments:ModeSpecify'], { extraOption: 'extraValue' });
+            expect(mockedAdditionalLabelFct).toHaveBeenCalledWith({
+                interview: interviewAttributesForTestCases,
+                t: mockedT,
+                path
+            })
+        });
 
     test('should not return extra widgets', () => {
         const widgetConfigs = new SegmentsSectionFactory(segmentSectionConfig, widgetFactoryOptions).getWidgetConfigs();
