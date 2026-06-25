@@ -76,7 +76,6 @@ label strong,
 .apptr__form-join-next {
     border-radius: 1.7rem 1.7rem 0 0 !important;
     margin-bottom: 0 !important;
-    padding-bottom: 1rem !important; // This is to have a padding with the joined widget
 }
 
 .apptr__form-join-next:not(.question-invalid) {
@@ -86,6 +85,16 @@ label strong,
 .apptr__form-join-next+.apptr__form-container {
     padding-top: 0 !important;
     border-radius: 0 0 1.7rem 1.7rem !important;
+
+    // Space between joined widgets. It lives inside the label/input columns (not
+    // as outer padding on the box) so the dashed vertical separator, drawn as a
+    // background on the label column, stays continuous across the join (#1621).
+    .apptr__form-label-container.two-columns,
+    .apptr__form-input-container.two-columns {
+        @media only screen and (min-width: settings.$desktop-breakpoint) {
+            padding-top: 1.5rem;
+        }
+    }
 }
 
 .apptr__form-join-next+.apptr__form-container:not(.question-invalid) {
@@ -95,6 +104,7 @@ label strong,
 .apptr__form-join-next+.apptr__form-join-next {
     border-radius: 0 0 0 0 !important;
 }
+
 
 .validation .apptr__form-input-container {
 
