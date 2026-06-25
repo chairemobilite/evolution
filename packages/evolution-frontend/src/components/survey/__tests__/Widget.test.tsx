@@ -281,3 +281,57 @@ describe('With server errors', () => {
         expect(container).toMatchSnapshot();
     });
 });
+
+// Regression test for issue #1621: widgets within a group were never joined,
+// because the next widget status was always read from `widgets` instead of the
+// group path. Here the next widget is visible only inside the group, so the
+// join is correct only when the status is read from the group path.
+describe('joinWith for a widget within a group (issue #1621)', () => {
+    const interviewWithNextVisibleOnlyInGroup = {
+        ...frontendInterviewAttributes,
+        widgets: {
+            [testWidgetShortname]: _cloneDeep(groupWidgetStatus),
+            // In `widgets`, the next widget is not visible (would prevent the join)
+            [testNextWidgetShortname]: { ..._cloneDeep(groupWidgetStatus), isVisible: false }
+        },
+        groups: {
+            myGroup: {
+                myGroupId: {
+                    [testWidgetShortname]: _cloneDeep(groupWidgetStatus),
+                    // In the group, the next widget is visible (should trigger the join)
+                    [testNextWidgetShortname]: { ..._cloneDeep(groupWidgetStatus), isVisible: true }
+                }
+            }
+        }
+    };
+
+    test('joins with the next widget using the group status path', () => {
+        mockedContext.widgets[testWidgetShortname] = {
+            ...commonWidgetConfig,
+            joinWith: testNextWidgetShortname
+        };
+
+        const { container } = render(
+            <TestContextProvider>
+                <InGroupWidget
+                    currentWidgetShortname={testWidgetShortname}
+                    nextWidgetShortname={testNextWidgetShortname}
+                    sectionName='myGroupName'
+                    interview={interviewWithNextVisibleOnlyInGroup}
+                    loadingState={0}
+                    errors={{}}
+                    user={userAttributes}
+                    startUpdateInterview={jest.fn()}
+                    startAddGroupedObjects={jest.fn()}
+                    startRemoveGroupedObjects={jest.fn()}
+                    startNavigate={jest.fn()}
+                    widgetStatusPath='groups.myGroup.myGroupId'
+                    pathPrefix='groupPath.uuid.groupName'
+                    groupedObjectId='myGroupId'
+                    parentObjectIds={{ myGroupName: 'myGroupId' }}
+                />
+            </TestContextProvider>
+        );
+        expect(container.textContent).toContain('join: true');
+    });
+});

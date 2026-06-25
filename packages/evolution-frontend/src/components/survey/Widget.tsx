@@ -42,6 +42,8 @@ type SingleWidgetProps = WidgetProps & {
     path?: string;
     customPath?: string;
     widgetStatus: WidgetStatus;
+    /** Interview path where the widget statuses live (`widgets` outside a group, `groups.<shortname>.<id>` inside a group) */
+    widgetStatusPath: string;
     groupedObjectId: string;
     parentObjectIds: { [shortname: string]: string };
 };
@@ -62,6 +64,7 @@ export const Widget: React.FC<WidgetProps & InterviewUpdateCallbacks> = (
             path={widgetConfig?.path}
             customPath={(widgetConfig as any)?.customPath}
             widgetStatus={widgetStatus}
+            widgetStatusPath="widgets"
             groupedObjectId=""
             parentObjectIds={{}}
         />
@@ -167,8 +170,11 @@ const SingleWidget: React.FC<SingleWidgetProps & InterviewUpdateCallbacks> = (
         const nextWidgetConfig = props.nextWidgetShortname
             ? surveyContext.widgets[props.nextWidgetShortname]
             : undefined;
+        // Read the next widget status from the same path as the current widget:
+        // `widgets` outside a group, but `groups.<shortname>.<id>` inside a group
+        // (otherwise widgets within a group are never joined, see issue #1621).
         const nextWidgetStatus = nextWidgetConfig
-            ? (_get(props.interview, `widgets.${props.nextWidgetShortname}`, {}) as any)
+            ? (_get(props.interview, `${props.widgetStatusPath}.${props.nextWidgetShortname}`, {}) as any)
             : undefined;
         const join =
                 nextWidgetStatus &&
