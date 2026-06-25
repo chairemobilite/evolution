@@ -45,9 +45,8 @@ export class SegmentsGroupConfigFactory implements WidgetConfigFactory {
         return {
             type: 'group',
             path: 'segments',
-            title: (t: TFunction) => t(['customSurvey:segments:GroupTitle', 'segments:GroupTitle']),
-            name: (t: TFunction, _groupedObject, sequence) =>
-                t(['customSurvey:segments:GroupName', 'segments:GroupName'], { sequence }),
+            title: (t: TFunction) => t('segments:segments'),
+            name: (t: TFunction, _groupedObject, sequence) => t('segments:GroupName', { sequence }),
             showTitle: false,
             showGroupedObjectDeleteButton: function (interview, path) {
                 const segment = getResponse(interview, path, null) as Segment | null;
@@ -65,7 +64,7 @@ export class SegmentsGroupConfigFactory implements WidgetConfigFactory {
             groupedObjectAddButtonLabel: (t: TFunction, interview, path) => {
                 const segments = getResponse(interview, path, {}) as { [segmentId: string]: Segment };
                 const segmentsCount = Object.keys(segments).length;
-                return t(['customSurvey:segments:AddButtonLabel', 'segments:AddButtonLabel'], { count: segmentsCount });
+                return t('segments:AddButtonLabel', { count: segmentsCount });
             },
             addButtonLocation: 'bottom' as const,
             widgets: this.getGroupWidgetNames()

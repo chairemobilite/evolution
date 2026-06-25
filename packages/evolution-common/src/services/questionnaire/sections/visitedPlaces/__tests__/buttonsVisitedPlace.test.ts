@@ -98,7 +98,7 @@ describe('buttonSaveVisitedPlace widget', () => {
         test('should return the right label', () => {
             const mockedT = jest.fn();
             utilHelpers.translateString(widgetConfig.label, { t: mockedT } as any, interviewAttributesForTestCases, 'path');
-            expect(mockedT).toHaveBeenCalledWith('main:Confirm');
+            expect(mockedT).toHaveBeenCalledWith(['visitedPlaces:buttonSaveVisitedPlace', 'main:Confirm']);
         });
     });
 
@@ -399,7 +399,7 @@ describe('buttonDeleteVisitedPlace widget', () => {
         test('should return the right label', () => {
             const mockedT = jest.fn();
             utilHelpers.translateString(widgetConfig.label, { t: mockedT } as any, interviewAttributesForTestCases, 'path');
-            expect(mockedT).toHaveBeenCalledWith('visitedPlaces:deleteThisGroupedObject');
+            expect(mockedT).toHaveBeenCalledWith(['visitedPlaces:buttonDeleteVisitedPlace', 'visitedPlaces:deleteThisGroupedObject']);
         });
 
         test('should return the right confirm popup content', () => {
@@ -520,7 +520,7 @@ describe('buttonCancelVisitedPlace widget', () => {
         test('should return the right label', () => {
             const mockedT = jest.fn();
             utilHelpers.translateString(widgetConfig.label, { t: mockedT } as any, interviewAttributesForTestCases, 'path');
-            expect(mockedT).toHaveBeenCalledWith('main:Cancel');
+            expect(mockedT).toHaveBeenCalledWith(['visitedPlaces:buttonCancelVisitedPlace', 'main:Cancel']);
         });
     });
 

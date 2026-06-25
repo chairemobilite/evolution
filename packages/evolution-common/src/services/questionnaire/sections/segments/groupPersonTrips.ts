@@ -39,7 +39,7 @@ export class PersonTripsGroupConfigFactory implements WidgetConfigFactory {
             type: 'group',
             // FIXME Why do we have the full path here, but a relative path in the segments group? This should be consistent, but it's probably how evolution is structured
             path: 'household.persons.{_activePersonId}.journeys.{_activeJourneyId}.trips',
-            title: (t: TFunction) => t(['customSurvey:segments:TripsTitle', 'segments:TripsTitle']),
+            title: (t: TFunction) => t('segments:personTrips'),
             filter: function (interview, groupedObjects) {
                 // Only the active trip should be shown with its widgets, if no active trip, return an empty object
                 const activeTripId = getResponse(interview, '_activeTripId', null);

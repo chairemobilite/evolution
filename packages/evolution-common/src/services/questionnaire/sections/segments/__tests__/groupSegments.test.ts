@@ -120,7 +120,7 @@ describe('SegmentsGroupConfigFactory segments GroupConfig widget', () => {
             const title = widgetConfig.title;
             expect(title).toBeDefined();
             utilHelpers.translateString(title, { t: mockedT } as any, interviewAttributesForTestCases, 'path');
-            expect(mockedT).toHaveBeenCalledWith(['customSurvey:segments:GroupTitle', 'segments:GroupTitle']);
+            expect(mockedT).toHaveBeenCalledWith('segments:segments');
         });
 
         test('should return the right label for group name', () => {
@@ -128,7 +128,7 @@ describe('SegmentsGroupConfigFactory segments GroupConfig widget', () => {
             const name = widgetConfig.name;
             expect(name).toBeDefined();
             (name as any)(mockedT, {}, 2);
-            expect(mockedT).toHaveBeenCalledWith(['customSurvey:segments:GroupName', 'segments:GroupName'], { sequence: 2 });
+            expect(mockedT).toHaveBeenCalledWith('segments:GroupName', { sequence: 2 });
         });
 
         test('should return the right label for add button', () => {
@@ -139,12 +139,12 @@ describe('SegmentsGroupConfigFactory segments GroupConfig widget', () => {
             // Call the function with a path with no segments
             jest.spyOn(utilHelpers, 'getResponse').mockReturnValue({});
             utilHelpers.translateString(addButtonLabel, { t: mockedT } as any, interviewAttributesForTestCases, 'path');
-            expect(mockedT).toHaveBeenCalledWith(['customSurvey:segments:AddButtonLabel', 'segments:AddButtonLabel'], { count: 0 });
+            expect(mockedT).toHaveBeenCalledWith('segments:AddButtonLabel', { count: 0 });
 
             // Call the function with a path with segments
             jest.spyOn(utilHelpers, 'getResponse').mockReturnValue({ segment1: { _uuid: 'segment1', _sequence: 1}});
             utilHelpers.translateString(addButtonLabel, { t: mockedT } as any, interviewAttributesForTestCases, 'path');
-            expect(mockedT).toHaveBeenCalledWith(['customSurvey:segments:AddButtonLabel', 'segments:AddButtonLabel'], { count: 1 });
+            expect(mockedT).toHaveBeenCalledWith('segments:AddButtonLabel', { count: 1 });
         });
 
         test('should return the right label for delete button', () => {

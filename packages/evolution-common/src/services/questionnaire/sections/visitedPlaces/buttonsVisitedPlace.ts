@@ -63,7 +63,7 @@ export class ButtonsVisitedPlaceConfigFactory implements WidgetConfigFactory {
         type: 'button',
         color: 'red',
         icon: this.options.iconMapper['delete-trash'],
-        label: (t: TFunction) => t('visitedPlaces:deleteThisGroupedObject'),
+        label: (t: TFunction) => t(['visitedPlaces:buttonDeleteVisitedPlace', 'visitedPlaces:deleteThisGroupedObject']),
         hideWhenRefreshing: true,
         path: 'deleteVisitedPlace',
         conditional: function (interview, path) {
@@ -93,7 +93,7 @@ export class ButtonsVisitedPlaceConfigFactory implements WidgetConfigFactory {
     private getCancelVisitedPlaceButtonWidgetConfig = (): ButtonWidgetConfig => ({
         type: 'button',
         color: 'grey',
-        label: (t: TFunction) => t('main:Cancel'),
+        label: (t: TFunction) => t(['visitedPlaces:buttonCancelVisitedPlace', 'main:Cancel']),
         hideWhenRefreshing: true,
         path: 'cancelVisitedPlace',
         conditional: function (interview, path) {
@@ -278,7 +278,7 @@ export class ButtonsVisitedPlaceConfigFactory implements WidgetConfigFactory {
     private getSaveVisitedPlaceButtonWidgetConfig = (): ButtonWidgetConfig => ({
         type: 'button',
         color: 'green',
-        label: (t: TFunction) => t('main:Confirm'),
+        label: (t: TFunction) => t(['visitedPlaces:buttonSaveVisitedPlace', 'main:Confirm']),
         hideWhenRefreshing: true,
         path: 'saveVisitedPlace',
         icon: this.options.iconMapper['check-circle'],

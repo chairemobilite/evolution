@@ -60,13 +60,13 @@ export class VisitedPlaceGeographyWidgetFactory implements WidgetConfigFactory {
             // with condition `_booleish((person as any).workOnTheRoad)
             // === true && activity === 'workUsual'` to have activyt
             // workOnTheRoadOften. See if we want to support it here
-            const key = 'visitedPlaces:LocationNameAddressExample';
+            const key = 'visitedPlaces:visitedPlaceNameExample';
 
             const helpText =
                 i18n.exists(key) && !_isBlank(activity)
                     ? `<span class="_pale _oblique">(${t('survey:forExampleAbbreviation')}: ${t(key, { context: activity })})</span>`
                     : '';
-            return t('visitedPlaces:LocationNameAddress') + ' ' + helpText;
+            return t('visitedPlaces:visitedPlaceName') + ' ' + helpText;
         },
         conditional: (interview, path) => {
             const visitedPlace: any = getResponse(interview, path, null, '../');
@@ -130,7 +130,7 @@ export class VisitedPlaceGeographyWidgetFactory implements WidgetConfigFactory {
 
     private getGeographyWidgetConfiguration = (): LocationWithNameWidgetOptions['geographyWidget'] => ({
         containsHtml: true,
-        label: (t: TFunction) => t('visitedPlaces:geography'),
+        label: (t: TFunction) => t('visitedPlaces:visitedPlaceGeography'),
         refreshGeocodingLabel: (t: TFunction) => t('visitedPlaces:refreshGeocodingButton'),
         icon: {
             url: (interview, path) => {

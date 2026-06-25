@@ -146,7 +146,7 @@ describe('SegmentsSectionFactory#getWidgetConfigs', () => {
             const mockedT = jest.fn();
             const path = 'household.persons.personId1.journeys.journeyId1.trips.tripId1P1';
             ((segmentModeConfig as any).label as any)(mockedT, interviewAttributesForTestCases, path);
-            expect(mockedT).toHaveBeenCalledWith(['customSurvey:segments:ModeSpecify', 'segments:ModeSpecify'], { extraOption: 'extraValue' });
+            expect(mockedT).toHaveBeenCalledWith('segments:segmentMode', { extraOption: 'extraValue' });
             expect(mockedAdditionalLabelFct).toHaveBeenCalledWith({
                 interview: interviewAttributesForTestCases,
                 t: mockedT,
@@ -191,7 +191,7 @@ describe('sectionConfig functionalities', () => {
             const title = widgetConfig.title;
             expect(title).toBeDefined();
             utilHelpers.translateString(title, { t: mockedT } as any, interviewWithTestPerson, 'path');
-            expect(mockedT).toHaveBeenCalledWith(['customSurvey:segments:SegmentsTitle', 'segments:SegmentsTitle']);
+            expect(mockedT).toHaveBeenCalledWith('segments:SegmentsTitle');
         });
 
     });

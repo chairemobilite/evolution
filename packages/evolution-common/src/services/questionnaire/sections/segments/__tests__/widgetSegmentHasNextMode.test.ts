@@ -7,7 +7,7 @@
 import _cloneDeep from 'lodash/cloneDeep';
 import { InputRadioType, QuestionWidgetConfig } from '../../../../questionnaire/types';
 import { getSegmentHasNextModeWidgetConfig } from '../widgetSegmentHasNextMode';
-import { interviewAttributesForTestCases } from '../../../../../tests/surveys';
+import { interviewAttributesForTestCases, widgetFactoryOptions } from '../../../../../tests/surveys';
 import { getResponse, setResponse, translateString } from '../../../../../utils/helpers';
 import * as surveyHelper from '../../../../odSurvey/helpers';
 import { shouldShowSameAsReverseTripQuestion, getPreviousTripSingleSegment } from '../helpers';
@@ -22,11 +22,7 @@ const mockedGetPreviousTripSingleSegment = getPreviousTripSingleSegment as jest.
 describe('getSegmentHasNextModeWidgetConfig', () => {
     it('should return the correct widget config', () => {
 
-        const options = {
-            context: jest.fn()
-        };
-
-        const widgetConfig = getSegmentHasNextModeWidgetConfig(options);
+        const widgetConfig = getSegmentHasNextModeWidgetConfig(widgetFactoryOptions);
 
         expect(widgetConfig).toEqual({
             type: 'question',
@@ -55,7 +51,7 @@ describe('segmentHasNextMode validations', () => {
     // Prepare test data with active person/journey/trip
     const interview = _cloneDeep(interviewAttributesForTestCases);
 
-    const widgetConfig = getSegmentHasNextModeWidgetConfig({}) as QuestionWidgetConfig & InputRadioType;
+    const widgetConfig = getSegmentHasNextModeWidgetConfig(widgetFactoryOptions) as QuestionWidgetConfig & InputRadioType;
     const validations = widgetConfig.validations;
 
     test('should return no error if value is not empty', () => {
@@ -72,13 +68,13 @@ describe('segmentHasNextMode validations', () => {
         const validation = validations!('carDriver', null, interview, 'household.persons.personId2.journeys.journeyId2.trips.tripId1P2.segments.segmentId1P2T1.hasNextMode');
         const mockedT = jest.fn();
         translateString(validation[0].errorMessage, { t: mockedT } as any, interview, 'path');
-        expect(mockedT).toHaveBeenCalledWith(['customSurvey:ResponseIsRequired', 'survey:ResponseIsRequired']);
+        expect(mockedT).toHaveBeenCalledWith('survey:ResponseIsRequired');
     });
 
 });
 
 describe('segmentHasNextMode conditional', () => {
-    const widgetConfig = getSegmentHasNextModeWidgetConfig({}) as QuestionWidgetConfig & InputRadioType;
+    const widgetConfig = getSegmentHasNextModeWidgetConfig(widgetFactoryOptions) as QuestionWidgetConfig & InputRadioType;
     const conditional = widgetConfig.conditional;
 
     // Prepare test data with active person/journey/trip
@@ -173,10 +169,9 @@ describe('segmentHasNextMode label', () => {
     const mockedGetCountOrSelfDeclared = surveyHelper.getCountOrSelfDeclared as jest.MockedFunction<typeof surveyHelper.getCountOrSelfDeclared>;
     const translatedStringResponse = 'translatedString';
     const mockedT = jest.fn().mockReturnValue(translatedStringResponse);
-    const mockedGetContext = jest.fn();
 
     // Prepare common data
-    const widgetConfig = getSegmentHasNextModeWidgetConfig({ context: mockedGetContext }) as QuestionWidgetConfig & InputRadioType;
+    const widgetConfig = getSegmentHasNextModeWidgetConfig(widgetFactoryOptions) as QuestionWidgetConfig & InputRadioType;
     const label = widgetConfig.label;
     const p2t2segmentsPath = 'household.persons.personId2.journeys.journeyId2.trips.tripId2P2.segments';
 
@@ -187,9 +182,7 @@ describe('segmentHasNextMode label', () => {
     test('should return the right label for normal activities', () => {
         // Prepare mocked data
         const destinationName = 'destinationName';
-        const context = 'currentContext';
         mockedGetPlaceName.mockReturnValueOnce(destinationName);
-        mockedGetContext.mockReturnValue(context);
 
         // Prepare interview
         const interview = _cloneDeep(interviewAttributesForTestCases);
@@ -199,9 +192,9 @@ describe('segmentHasNextMode label', () => {
 
         // Test label function
         translateString(label, { t: mockedT } as any, interview, `${p2t2segmentsPath}.segmentId1P2T2.hasNextMode`);
-        expect(mockedT).toHaveBeenCalledWith(['customSurvey:thisTrip', 'survey:thisTrip'], { context: 'other' });
-        expect(mockedT).toHaveBeenCalledWith(['customSurvey:segments:SegmentHasNextMode', 'segments:SegmentHasNextMode'], {
-            context,
+        expect(mockedT).toHaveBeenCalledWith('survey:thisTrip', { context: 'other' });
+        expect(mockedT).toHaveBeenCalledWith(['segments:segmentHasNextMode_other', 'segments:segmentHasNextMode'], {
+            context: undefined,
             nickname: 'p2',
             thisTrip: translatedStringResponse,
             destinationName,
@@ -214,9 +207,7 @@ describe('segmentHasNextMode label', () => {
 
     test('should return label with generic place names, when origin/destination do not exist', () => {
         // Prepare mocked data
-        const context = 'currentContext';
         const count = 3;
-        mockedGetContext.mockReturnValue(context);
         mockedGetCountOrSelfDeclared.mockReturnValueOnce(count);
 
         // Prepare interview
@@ -242,9 +233,9 @@ describe('segmentHasNextMode label', () => {
 
         // Test label function
         translateString(label, { t: mockedT } as any, interview, `${p2t2segmentsPath}.segmentId1P2T2.hasNextMode`);
-        expect(mockedT).toHaveBeenCalledWith(['customSurvey:thisTrip', 'survey:thisTrip'], { context: '' });
-        expect(mockedT).toHaveBeenCalledWith(['customSurvey:segments:SegmentHasNextMode', 'segments:SegmentHasNextMode'], {
-            context,
+        expect(mockedT).toHaveBeenCalledWith('survey:thisTrip', { context: '' });
+        expect(mockedT).toHaveBeenCalledWith(['segments:segmentHasNextMode_', 'segments:segmentHasNextMode'], {
+            context: undefined,
             nickname: 'p2',
             thisTrip: translatedStringResponse,
             destinationName: 'translatedString',
@@ -255,9 +246,7 @@ describe('segmentHasNextMode label', () => {
 
     test('should return the right label for loop activities', () => {
         // Prepare mocked data
-        const context = 'currentContext';
         const count = 3;
-        mockedGetContext.mockReturnValue(context);
         mockedGetCountOrSelfDeclared.mockReturnValueOnce(count);
 
         // Prepare interview
@@ -270,40 +259,15 @@ describe('segmentHasNextMode label', () => {
 
         // Test label function
         translateString(label, { t: mockedT } as any, interview, `${p2t2segmentsPath}.segmentId1P2T2.hasNextMode`);
-        expect(mockedT).toHaveBeenCalledWith(['customSurvey:thisTrip', 'survey:thisTrip'], { context: 'leisureStroll' });
-        expect(mockedT).toHaveBeenCalledWith(['customSurvey:segments:SegmentHasNextModeLoop', 'segments:SegmentHasNextModeLoop'], {
-            context,
+        expect(mockedT).toHaveBeenCalledWith('survey:thisTrip', { context: 'leisureStroll' });
+        expect(mockedT).toHaveBeenCalledWith(['segments:segmentHasNextMode_leisureStroll', 'segments:segmentHasNextMode'], {
+            context: undefined,
             nickname: 'p2',
             thisTrip: translatedStringResponse,
+            destinationName: '',
             count
         });
         expect(mockedGetPlaceName).not.toHaveBeenCalled();
     });
 
-    test('undefined context function', () => {
-        // New widget config without context function
-        const testWidgetConfig = getSegmentHasNextModeWidgetConfig({ }) as QuestionWidgetConfig & InputRadioType;
-        const label = testWidgetConfig.label;
-
-        // Prepare mocked data
-        const destinationName = 'destinationName';
-        mockedGetPlaceName.mockReturnValueOnce(destinationName);
-
-        // Prepare interview
-        const interview = _cloneDeep(interviewAttributesForTestCases);
-        interview.response._activePersonId = 'personId2';
-        interview.response._activeJourneyId = 'journeyId2';
-        interview.response._activeTripId = 'tripId2P2';
-
-        // Test label function
-        translateString(label, { t: mockedT } as any, interview, `${p2t2segmentsPath}.segmentId1P2T2.hasNextMode`);
-        expect(mockedT).toHaveBeenCalledWith(['customSurvey:thisTrip', 'survey:thisTrip'], { context: 'other' });
-        expect(mockedT).toHaveBeenCalledWith(['customSurvey:segments:SegmentHasNextMode', 'segments:SegmentHasNextMode'], {
-            context: undefined,
-            nickname: 'p2',
-            thisTrip: translatedStringResponse,
-            destinationName,
-            count: 1
-        });
-    });
 });

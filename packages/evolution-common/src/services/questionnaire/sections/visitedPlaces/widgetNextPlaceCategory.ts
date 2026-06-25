@@ -102,7 +102,7 @@ export const getNextPlaceCategoryWidgetConfig = (
         const atPlace = !_isBlank(visitedPlaceName)
             ? t('survey:atPlace', { placeName: _escape(visitedPlaceName) })
             : t('survey:atThisPlace', { context: activeVisitedPlace.activity });
-        return t('visitedPlaces:nextPlaceCategory', {
+        return t('visitedPlaces:visitedPlaceNextPlaceCategory', {
             context: odHelpers.getPersonGenderContext({ person }),
             nickname: odHelpers.getPersonIdentificationString({ person, t }),
             atPlace,

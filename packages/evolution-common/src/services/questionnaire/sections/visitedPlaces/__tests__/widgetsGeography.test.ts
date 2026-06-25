@@ -178,12 +178,12 @@ describe('visitedPlaceName widget', () => {
                 'household.persons.personId1.journeys.journeyId1.visitedPlaces.workPlace1P1.name'
             );
 
-            expect(result).toContain('visitedPlaces:LocationNameAddress');
+            expect(result).toContain('visitedPlaces:visitedPlaceName');
             expect(result).toContain('survey:forExampleAbbreviation');
-            expect(result).toContain('visitedPlaces:LocationNameAddressExample');
-            expect(mockedT).toHaveBeenCalledWith('visitedPlaces:LocationNameAddress');
+            expect(result).toContain('visitedPlaces:visitedPlaceNameExample');
+            expect(mockedT).toHaveBeenCalledWith('visitedPlaces:visitedPlaceName');
             expect(mockedT).toHaveBeenCalledWith('survey:forExampleAbbreviation');
-            expect(mockedT).toHaveBeenCalledWith('visitedPlaces:LocationNameAddressExample', { context: 'workUsual' });
+            expect(mockedT).toHaveBeenCalledWith('visitedPlaces:visitedPlaceNameExample', { context: 'workUsual' });
         });
 
         test('should not include help text when i18n key does not exist', () => {
@@ -198,9 +198,9 @@ describe('visitedPlaceName widget', () => {
                 'household.persons.personId1.journeys.journeyId1.visitedPlaces.workPlace1P1.name'
             );
 
-            expect(result).toEqual('visitedPlaces:LocationNameAddress ');
+            expect(result).toEqual('visitedPlaces:visitedPlaceName ');
             expect(mockedT).toHaveBeenCalledTimes(1);
-            expect(mockedT).toHaveBeenCalledWith('visitedPlaces:LocationNameAddress');
+            expect(mockedT).toHaveBeenCalledWith('visitedPlaces:visitedPlaceName');
         });
 
         test('should not include help text when activity is blank', () => {
@@ -220,7 +220,7 @@ describe('visitedPlaceName widget', () => {
                 'household.persons.personId1.journeys.journeyId1.visitedPlaces.workPlace1P1.name'
             );
 
-            expect(result).toEqual('visitedPlaces:LocationNameAddress ');
+            expect(result).toEqual('visitedPlaces:visitedPlaceName ');
             expect(mockedT).toHaveBeenCalledTimes(1);
         });
     });
@@ -520,7 +520,7 @@ describe('visitedPlaceGeography widget', () => {
         const interview = _cloneDeep(interviewAttributesForTestCases);
 
         translateString(widgetConfigUsualPlacesNotInlined.label, { t: mockedT } as any, interview, 'path');
-        expect(mockedT).toHaveBeenCalledWith('visitedPlaces:geography');
+        expect(mockedT).toHaveBeenCalledWith('visitedPlaces:visitedPlaceGeography');
     });
 
     test('refreshGeocodingLabel should use the right translation key', () => {

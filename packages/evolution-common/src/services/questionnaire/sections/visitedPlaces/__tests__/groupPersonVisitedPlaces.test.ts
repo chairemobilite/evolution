@@ -218,7 +218,7 @@ describe('PersonVisitedPlacesGroupConfigFactory personVisitedPlaces GroupConfig 
             const title = widgetConfig.title;
             expect(title).toBeDefined();
             utilHelpers.translateString(title, { t: mockedT } as any, interviewAttributesForTestCases, 'path');
-            expect(mockedT).toHaveBeenCalledWith('visitedPlaces:personVisitedPlacesGroupTitle');
+            expect(mockedT).toHaveBeenCalledWith('visitedPlaces:personVisitedPlaces');
         });
 
         test.each([

@@ -15,7 +15,7 @@ export const getButtonSaveTripSegmentsConfig = (options: WidgetFactoryOptions): 
     return {
         type: 'button',
         color: 'green',
-        label: (t: TFunction) => t(['customSurvey:segments:SaveTripLabel', 'segments:SaveTripLabel']),
+        label: (t: TFunction) => t('segments:buttonSaveTrip'),
         hideWhenRefreshing: true,
         path: 'buttonSaveTrip',
         // FIXME This requires dependencies

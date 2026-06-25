@@ -1,15 +1,15 @@
-ActivityCategoryFirstLocation: Activité principale au lieu de départ de la journée
-ActivityCategoryAfterHome: >-
+visitedPlaceActivityCategory_firstLocation: Activité principale au lieu de départ de la journée
+visitedPlaceActivityCategory_afterHome: >-
     Activité principale au premier lieu visité dans la journée après avoir
     quitté le domicile
-ActivityCategory: Activité principale à ce lieu
+visitedPlaceActivityCategory: Activité principale à ce lieu
 activityIsRequiredError: L'activité est requise
 editVisitedPlace: Modifier
 deleteVisitedPlace: Supprimer
 deleteThisGroupedObject: Supprimer ce lieu
 insertVisitedPlace: Insérer un lieu ici
 addVisitedPlace: Ajouter le prochain lieu
-saveAndContinue: Confirmer les lieux et continuer
+buttonVisitedPlacesConfirmNextSection: Confirmer les lieux et continuer
 activities:
     accompanySomeone: Accompagner quelqu'un
     carElectricChargingStation: Borne de recharge de véhicule électrique
@@ -57,31 +57,32 @@ activityCategories:
     work: Travail
     dontKnow: Ne sait pas
     preferNotToAnswer: Préfère ne pas répondre
-Activity: 'Spécifier:'
-LocationNameAddress: Nom ou adresse du lieu
-LocationNameAddressExample: 50 rue des Fleurs, coin 1er avenue / 3e rue, etc.
-LocationNameAddressExample_workUsual: Édifice du Phare, CPE les petits génies
-LocationNameAddressExample_workNotUsual: Palais des congrès de Montréal, Le Co-work du lac Long
-LocationNameAddressExample_schoolUsual: École Marguerite-Bourgeoys, Collège CDI Québec, UQAR
-LocationNameAddressExample_schoolNotUsual: Bibliothèque à Livre ouvert, École de musique Dorémi
-LocationNameAddressExample_shopping: Centre d’achat Le Carrefour, Provigo St-Félicien, IKEA Boucherville
-LocationNameAddressExample_restaurant: Normandin de Lévis, Snack bar chez Raymond, Resto Subway de Rawdon
-LocationNameAddressExample_dropSomeone: Gare d’autocar, Aréna des Collines, École des Pionniers
-LocationNameAddressExample_fetchSomeone: Gare d’autocar, Aréna des Collines, École des Pionniers
-LocationNameAddressExample_leisureArtsMusicCulture: Cinéma des chutes, Théâtre de Verdure, Musée national des petits pots Masson
-LocationNameAddressExample_leisureSports: Nautilus St-Georges, Escalade La Grimpe, Parc de la Rose
-LocationNameAddressExample_leisureTourism: Camping Ste-Madeleine, Paris France, Hôtel Days Inn St-Flavien
-LocationNameAddressExample_leisureStroll: Parc au bord de l’eau, Petit train du nord, Stroll de la Montagne
-LocationNameAddressExample_visiting: Adresse de la personne visitée, Coin des Rossignols et de l’Étang
-LocationNameAddressExample_medical: >-
+visitedPlaceActivity: 'Spécifier:'
+visitedPlaceName: Nom ou adresse du lieu
+visitedPlaceNameExample: 50 rue des Fleurs, coin 1er avenue / 3e rue, etc.
+visitedPlaceNameExample_workUsual: Édifice du Phare, CPE les petits génies
+visitedPlaceNameExample_workUsual_onTheRoadOften: Centre de distribution Rivière, St-Hubert BBQ Lajeunesse
+visitedPlaceNameExample_workNotUsual: Palais des congrès de Montréal, Le Co-work du lac Long
+visitedPlaceNameExample_schoolUsual: École Marguerite-Bourgeoys, Collège CDI Québec, UQAR
+visitedPlaceNameExample_schoolNotUsual: Bibliothèque à Livre ouvert, École de musique Dorémi
+visitedPlaceNameExample_shopping: Centre d’achat Le Carrefour, Provigo St-Félicien, IKEA Boucherville
+visitedPlaceNameExample_restaurant: Normandin de Lévis, Snack bar chez Raymond, Resto Subway de Rawdon
+visitedPlaceNameExample_dropSomeone: Gare d’autocar, Aréna des Collines, École des Pionniers
+visitedPlaceNameExample_fetchSomeone: Gare d’autocar, Aréna des Collines, École des Pionniers
+visitedPlaceNameExample_leisureArtsMusicCulture: Cinéma des chutes, Théâtre de Verdure, Musée national des petits pots Masson
+visitedPlaceNameExample_leisureSports: Nautilus St-Georges, Escalade La Grimpe, Parc de la Rose
+visitedPlaceNameExample_leisureTourism: Camping Ste-Madeleine, Paris France, Hôtel Days Inn St-Flavien
+visitedPlaceNameExample_leisureStroll: Parc au bord de l’eau, Petit train du nord, Stroll de la Montagne
+visitedPlaceNameExample_visiting: Adresse de la personne visitée, Coin des Rossignols et de l’Étang
+visitedPlaceNameExample_medical: >-
     Clinique Médicale des Marguerites, Hôpital régional de Rimouski, CLSC des
     Rivières
-LocationNameAddressExample_service: Coiffure Dans le Vent, Caisse Desjardins de Limoilou
-LocationNameAddressExample_worship: Église Saint-Nicéphore, Mosquée de la Capitale, Synagogue Maison Chabad
-LocationNameAddressExample_secondaryHome: Adresse de la résidence secondaire ou du chalet
-LocationNameAddressExample_schoolNotStudent: Institut Linguistique, École de conduite Tecnic
+visitedPlaceNameExample_service: Coiffure Dans le Vent, Caisse Desjardins de Limoilou
+visitedPlaceNameExample_worship: Église Saint-Nicéphore, Mosquée de la Capitale, Synagogue Maison Chabad
+visitedPlaceNameExample_secondaryHome: Adresse de la résidence secondaire ou du chalet
+visitedPlaceNameExample_schoolNotStudent: Institut Linguistique, École de conduite Tecnic
 activityNameIsRequiredError: La description est requise.
-geography: >-
+visitedPlaceGeography: >-
     Veuillez positionner le lieu sur la carte<br /><span class="_pale
     _oblique">Naviguez, zoomez, et cliquez sur la carte pour localiser le lieu.
     Une fois localisé, vous pourrez déplacer le point pour davantage de
@@ -114,9 +115,9 @@ personVisitedPlacesTitle_male_one: >-
 personVisitedPlacesTitle_female_one: >-
     Lieux où vous êtes allée le {{journeyDate}}:<br />L'ordre chronologique doit
     être respecté.
-nextPlaceCategory: >-
+visitedPlaceNextPlaceCategory: >-
     Après avoir été {{atPlace}}, {{nickname}} est…
-nextPlaceCategory_one: >-
+visitedPlaceNextPlaceCategory_one: >-
     Après avoir été {{atPlace}}, vous êtes…
 nextPlaceRadioChoices.stayedHomeUntilTheNextDay: Resté(e) au domicile jusqu'au lendemain
 nextPlaceRadioChoices.stayedHomeUntilTheNextDay_male: Resté au domicile jusqu'au lendemain
@@ -134,17 +135,17 @@ nextPlaceRadioChoices.visitedAnotherPlace_female: Allée ou arrêtée à un autr
 nextPlaceRadioChoices.wentBackHome: Retourné(e) au domicile directement ({{address}})
 nextPlaceRadioChoices.wentBackHome_male: Retourné au domicile directement ({{address}})
 nextPlaceRadioChoices.wentBackHome_female: Retournée au domicile directement ({{address}})
-personVisitedPlacesGroupTitle: Lieux visités
+personVisitedPlaces: Lieux visités
 VisitedPlaceSequence: 'Lieu #{{count}}'
 VisitedPlaceSequence_one: Lieu de départ de la journée
 VisitedPlacesTitle: Lieux visités
-alreadyVisitedBySelfOrAnotherHouseholdMember: >-
+visitedPlaceAlreadyVisited: >-
     Avez-vous déjà localisé ce lieu?<br /><span class="_pale _oblique">Dans l'entrevue
     de {{nickname}} ou dans celles des autres membres du ménage.</span>
-alreadyVisitedBySelfOrAnotherHouseholdMember_one: >-
+visitedPlaceAlreadyVisited_one: >-
     Avez-vous déjà localisé ce lieu?<br /><span class="_pale _oblique">Dans votre 
     entrevue ou dans celles des autres membres du ménage.</span>
-shortcut: 'Veuillez choisir le lieu dans la liste des lieux déjà localisés:'
+visitedPlaceShortcut: 'Veuillez choisir le lieu dans la liste des lieux déjà localisés:'
 visitedPlacePreviousPreviousDepartureTime_workUsual: >-
     À quelle heure {{nickname}} a-t-il(-elle) quitté le lieu précédent ({{previousPlaceDescription}})
     avant de se rendre à son lieu habituel de travail?
@@ -241,3 +242,7 @@ onTheRoadNextPlaceCategoryChoices:
     visitedAnotherPlace: Autre lieu
     stayedThereUntilTheNextDay: >-
         Ils ont été complétés après 4:00 du matin le lendemain
+personVisitedPlacesMap: Carte des déplacements de {{nickname}} le {{journeyDates}}
+personVisitedPlacesMap_one: Carte de vos déplacements le {{journeyDates}}
+personVisitedPlacesMap_undated: Carte des déplacements de {{nickname}}
+personVisitedPlacesMap_undated_one: Carte de vos déplacements

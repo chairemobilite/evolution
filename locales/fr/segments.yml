@@ -1,12 +1,12 @@
-TripsTitle: Déplacements
-GroupTitle: Modes
+personTrips: Déplacements
+segments: Modes
 SegmentsTitle: Modes de transport
 GroupName: Mode de transport {{sequence}}
 ModeIsRequired: Le mode de transport est requis.
-Description: Déplacements de {{nickname}} le {{journeyDates}}
-Description_one: Vos déplacements le {{journeyDates}}
-Description_undated: Déplacements de {{nickname}}
-Description_undated_one: Vos déplacements
+personTripsTitle: Déplacements de {{nickname}} le {{journeyDates}}
+personTripsTitle_one: Vos déplacements le {{journeyDates}}
+personTripsTitle_undated: Déplacements de {{nickname}}
+personTripsTitle_undated_one: Vos déplacements
 modePre:
     CarDriver: <strong>Conducteur</strong> (voiture/moto/scooter/camion)
     CarPassenger: <strong>Passager</strong> (voiture/moto/scooter/camion)
@@ -107,41 +107,35 @@ mode:
         other: Autre
         dontKnow: Inconnu
         preferNotToAnswer: Préfère ne pas répondre
-ModeFirst: Quel mode de transport a été utilisé en premier?
-ModeFirst_cati: >-
-    Quel mode de transport a été utilisé en premier pour se rendre de
-    {{originName}} à {{destinationName}}?
-ModeThen: Quel mode de transport a été utilisé ensuite?
-ModeThen_cati: >-
-    Quel mode de transport a été utilisé ensuite pour se rendre de
-    {{originName}} à {{destinationName}}?
-ModeSpecify: 'Veuillez préciser:'
-SegmentSameModeReturnHome: >-
+segmentModePre_first: Quel mode de transport a été utilisé en premier?
+segmentModePre_then: Quel mode de transport a été utilisé ensuite?
+segmentModePre: Quel mode de transport a été utilisé?
+segmentMode: 'Veuillez préciser:'
+segmentSameModeAsReverseTrip_home: >-
     Était-ce le même mode de transport utilisé pour le retour au domicile
     ({{previousMode}})?
-SegmentSameModeReturn: >-
-    Était-ce le même mode de transport utilisé que le déplacement précédent
+segmentSameModeAsReverseTrip: >-
+    Était-ce le même mode de transport que celui utilisé pour le déplacement précédent
     ({{previousMode}})?
-SegmentHasNextModeLoop: Autre mode utilisé pour compléter {{thisTrip}} avant l'arrivée?
-SegmentHasNextMode: Autre mode utilisé pour compléter {{thisTrip}} avant l'arrivée?
+segmentHasNextMode: Autre mode utilisé pour compléter {{thisTrip}} avant l'arrivée?
 AddButtonLabel_zero: >-
     Sélectionner le premier (ou le seul) mode de transport utilisé pour ce
     déplacement
 AddButtonLabel: Sélectionner le mode de transport suivant
-CurrentTripSegmentsIntro: >-
+segmentIntro: >-
     Veuillez indiquer tous les modes de transport utilisés pour effectuer ce
     déplacement (de {{originName}} à {{destinationName}}), dans l'ordre
     chronologique:
-CurrentTripSegmentsIntro_workOnTheRoad: >-
+segmentIntro_workOnTheRoad: >-
     Veuillez indiquer tous les modes de transport utilisés pour effectuer les
     déplacements sur la route, dans l'ordre chronologique:
-CurrentTripSegmentsIntro_leisureStroll: >-
+segmentIntro_leisureStroll: >-
     Veuillez indiquer tous les modes de transport utilisés pour effectuer la
     promenade, dans l'ordre chronologique:
-SaveTripLabel: Confirmer ce déplacement
+buttonSaveTrip: Confirmer ce déplacement
 deleteThisGroupedObject: Supprimer ce mode de transport
 addGroupedObject: Ajouter un mode de transport
-Driver: Qui conduisait ?
+segmentDriver: Qui conduisait ?
 DriverFamily: Ami ou famille
 DriverColleague: Un collègue de travail ou d'études
 DriverTaxi: Chauffeur Taxi ou Uber

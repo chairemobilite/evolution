@@ -222,16 +222,16 @@ describe('Mode choices labels', () => {
     const choices = widgetConfig.choices as RadioChoiceType[];
 
     each([
-        ['carDriver', ['customSurvey:segments:modePre:CarDriver', 'segments:modePre:CarDriver']],
-        ['carPassenger', ['customSurvey:segments:modePre:CarPassenger', 'segments:modePre:CarPassenger']],
-        ['taxi', ['customSurvey:segments:modePre:Taxi', 'segments:modePre:Taxi']],
-        ['bicycle', ['customSurvey:segments:modePre:Bicycle', 'segments:modePre:Bicycle']],
-        ['transit', ['customSurvey:segments:modePre:Transit', 'segments:modePre:Transit']],
-        ['walk', ['customSurvey:segments:modePre:Walk', 'segments:modePre:Walk']],
-        ['paratransit', ['customSurvey:segments:modePre:Paratransit', 'segments:modePre:Paratransit']],
-        ['other', ['customSurvey:segments:modePre:Other', 'segments:modePre:Other']],
-        ['dontKnow', ['customSurvey:segments:modePre:DontKnow', 'segments:modePre:DontKnow']],
-        ['preferNotToAnswer', ['customSurvey:segments:modePre:PreferNotToAnswer', 'segments:modePre:PreferNotToAnswer']]
+        ['carDriver', 'segments:modePre:CarDriver'],
+        ['carPassenger', 'segments:modePre:CarPassenger'],
+        ['taxi', 'segments:modePre:Taxi'],
+        ['bicycle', 'segments:modePre:Bicycle'],
+        ['transit', 'segments:modePre:Transit'],
+        ['walk', 'segments:modePre:Walk'],
+        ['paratransit', 'segments:modePre:Paratransit'],
+        ['other', 'segments:modePre:Other'],
+        ['dontKnow', 'segments:modePre:DontKnow'],
+        ['preferNotToAnswer', 'segments:modePre:PreferNotToAnswer']
     ]).test('should return the right label for %s choice', (choiceValue, expectedLabel) => {
         const mockedT = jest.fn();
         const choice = choices.find((choice) => choice.value === choiceValue);
@@ -249,7 +249,7 @@ describe('Mode choices labels', () => {
         const mockedT = jest.fn();
         const choice = choices.find((choice) => choice.value === 'walk');
         translateString(choice?.label, { t: mockedT } as any, interview, 'path');
-        expect(mockedT).toHaveBeenCalledWith(['customSurvey:segments:modePre:WalkOrMobilityHelp', 'segments:modePre:WalkOrMobilityHelp']);
+        expect(mockedT).toHaveBeenCalledWith('segments:modePre:WalkOrMobilityHelp');
     });
 
 });
@@ -389,8 +389,8 @@ describe('ModePre label', () => {
 
         // Test label function
         translateString(label, { t: mockedT } as any, interview, `${p2t2segmentsPath}.segmentId1P2T2.modePre`);
-        expect(mockedT).toHaveBeenCalledWith(['customSurvey:segments:ModeFirst', 'segments:ModeFirst'], {
-            context,
+        expect(mockedT).toHaveBeenCalledWith('segments:segmentModePre', {
+            context: 'first',
             originName,
             destinationName,
             count: 1
@@ -431,10 +431,10 @@ describe('ModePre label', () => {
 
         // Test label function
         translateString(label, { t: mockedT } as any, interview, `${p2t2segmentsPath}.segmentId1P2T2.modePre`);
-        expect(mockedT).toHaveBeenCalledWith(['customSurvey:survey:origin', 'survey:origin']);
-        expect(mockedT).toHaveBeenCalledWith(['customSurvey:survey:destination', 'survey:destination']);
-        expect(mockedT).toHaveBeenCalledWith(['customSurvey:segments:ModeFirst', 'segments:ModeFirst'], {
-            context,
+        expect(mockedT).toHaveBeenCalledWith('survey:origin');
+        expect(mockedT).toHaveBeenCalledWith('survey:destination');
+        expect(mockedT).toHaveBeenCalledWith('segments:segmentModePre', {
+            context: 'first',
             originName: expect.anything(),
             destinationName: expect.anything(),
             count
@@ -470,8 +470,8 @@ describe('ModePre label', () => {
 
         // Test label function
         translateString(label, { t: mockedT } as any, interview, `${p2t2segmentsPath}.segmentId2P2T2.modePre`);
-        expect(mockedT).toHaveBeenCalledWith(['customSurvey:segments:ModeThen', 'segments:ModeThen'], {
-            context,
+        expect(mockedT).toHaveBeenCalledWith('segments:segmentModePre', {
+            context: 'then',
             originName,
             destinationName,
             count: 1
@@ -497,8 +497,8 @@ describe('ModePre label', () => {
 
         // Test label function
         translateString(label, { t: mockedT } as any, interview, `${p2t2segmentsPath}.segmentId1P2T2.modePre`);
-        expect(mockedT).toHaveBeenCalledWith(['customSurvey:segments:ModeFirst', 'segments:ModeFirst'], {
-            context: undefined,
+        expect(mockedT).toHaveBeenCalledWith('segments:segmentModePre', {
+            context: 'first',
             originName,
             destinationName,
             count: 1

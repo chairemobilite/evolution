@@ -99,7 +99,7 @@ describe('visitedPlaceAlreadyVisited widget', () => {
             translateString(label, { t: mockedT } as any, interview, alreadyVisitedPath('otherPlaceP1'));
 
             expect(mockedT).toHaveBeenCalledWith(
-                'visitedPlaces:alreadyVisitedBySelfOrAnotherHouseholdMember',
+                'visitedPlaces:visitedPlaceAlreadyVisited',
                 expect.objectContaining({ count: 3 }) // 3 persons in testCasesInterview
             );
         });
@@ -283,7 +283,7 @@ describe('visitedPlaceShortcut widget', () => {
             translateString(label, { t: mockedT } as any, interview, shortcutPath('otherPlaceP1'));
 
             expect(mockedT).toHaveBeenCalledWith(
-                'visitedPlaces:shortcut',
+                'visitedPlaces:visitedPlaceShortcut',
                 expect.objectContaining({ count: 3 }) // 3 persons in testCasesInterview
             );
         });

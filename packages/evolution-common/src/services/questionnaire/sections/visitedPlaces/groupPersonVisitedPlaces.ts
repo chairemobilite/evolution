@@ -79,7 +79,7 @@ export class PersonVisitedPlacesGroupConfigFactory implements WidgetConfigFactor
         return {
             type: 'group',
             path: 'household.persons.{_activePersonId}.journeys.{_activeJourneyId}.visitedPlaces',
-            title: (t: TFunction) => t('visitedPlaces:personVisitedPlacesGroupTitle'),
+            title: (t: TFunction) => t('visitedPlaces:personVisitedPlaces'),
             filter: function (interview, groupedObjects) {
                 // Keep only the grouped object that corresponds to the active
                 // visited place, so that only one is shown at a time in the

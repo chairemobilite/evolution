@@ -13,13 +13,9 @@ import projectConfig from '../../../../config/project.config';
 import { pointsToBezierCurve } from '../../../geodata/SurveyGeographyUtils';
 import { UserInterviewAttributes } from '../../types';
 import { getActivityMarkerIcon } from '../visitedPlaces/activityIconMapping';
+import { WidgetFactoryOptions } from '../types';
 
-export const getPersonVisitedPlacesMapConfig = (
-    // FIXME: Type this when there is a few more widgets implemented
-    // FIXME: Add a common type for the getFormattedDate function if we keep it as option here (the actual implementation is frontend-only as it requires i18n locale)
-    options: { context?: (context?: string) => string; getFormattedDate: (date: string) => string }
-): InfoMapWidgetConfig => {
-    const getContext = options.context || ((str) => str);
+export const getPersonVisitedPlacesMapConfig = (options: WidgetFactoryOptions): InfoMapWidgetConfig => {
     return {
         type: 'infoMap',
         path: 'household.persons.{_activePersonId}.journeys.{_activeJourneyId}.visitedPlacesMap',
@@ -38,8 +34,8 @@ export const getPersonVisitedPlacesMapConfig = (
             const journeyDates = journeyContext.journey.startDate
                 ? options.getFormattedDate(journeyContext.journey.startDate)
                 : null;
-            return t(['customSurvey:survey:TripsMap', 'survey:TripsMap'], {
-                context: getContext(journeyDates === null ? 'undated' : undefined),
+            return t('visitedPlaces:personVisitedPlacesMap', {
+                context: journeyDates === null ? 'undated' : undefined,
                 nickname: odHelpers.getPersonIdentificationString({ person: journeyContext.person, t }),
                 journeyDates,
                 count: odHelpers.getCountOrSelfDeclared({ interview, person: journeyContext.person })

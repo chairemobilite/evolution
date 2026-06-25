@@ -58,7 +58,7 @@ describe('personsTripsTitleWidgetConfig text', () => {
         }
         delete testInterview.response.household!.persons!.personId1.journeys!.journeyId1.startDate;
         expect(widgetText(mockedT, testInterview)).toEqual('translatedString');
-        expect(mockedT).toHaveBeenCalledWith(['customSurvey:segments:Description', 'segments:Description'], {
+        expect(mockedT).toHaveBeenCalledWith('segments:personTripsTitle', {
             context: 'undated',
             count: 1,
             nickname: '',
@@ -76,7 +76,7 @@ describe('personsTripsTitleWidgetConfig text', () => {
         testInterview.response.household!.persons!.personId1.journeys!.journeyId1.startDate = '2024-01-01';
 
         expect(widgetText(mockedT, testInterview)).toEqual('translatedString');
-        expect(mockedT).toHaveBeenCalledWith(['customSurvey:segments:Description', 'segments:Description'], {
+        expect(mockedT).toHaveBeenCalledWith('segments:personTripsTitle', {
             context: undefined,
             count: 3,
             nickname,

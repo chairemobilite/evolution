@@ -200,7 +200,7 @@ export const personVisitedPlacesTitle = {
     }
 };
 
-export const personVisitedPlacesMap = getPersonVisitedPlacesMapConfig({ getFormattedDate });
+export const personVisitedPlacesMap = getPersonVisitedPlacesMapConfig(widgetFactoryOptions);
 
 export const visitedPlaceName = {
     ...geographyWidgets.visitedPlaceName,

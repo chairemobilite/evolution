@@ -26,8 +26,7 @@ const perModeConditionals: Partial<{ [mode in Mode]: WidgetConditional }> = {
 const getModeChoices = (filteredModes: Mode[]) =>
     filteredModes.map((mode) => ({
         value: mode,
-        label: (t: TFunction) =>
-            t([`customSurvey:segments:mode:${_upperFirst(mode)}`, `segments:mode:${_upperFirst(mode)}`]),
+        label: (t: TFunction) => t(`segments:mode:${_upperFirst(mode)}`),
         conditional: function (interview, path) {
             const segment = getResponse(interview, path, null, '../') as Segment;
             if (segment !== null && segment.modePre) {
@@ -44,7 +43,7 @@ const getModeChoices = (filteredModes: Mode[]) =>
 
 export const getModeWidgetConfig = (
     sectionConfig: SegmentSectionConfiguration,
-    options: WidgetFactoryOptions
+    _options: WidgetFactoryOptions
 ): WidgetConfig => {
     // TODO Use a segment configuration to determine which modes should be
     // presented and in which order
@@ -61,17 +60,13 @@ export const getModeWidgetConfig = (
         datatype: 'string',
         iconSize: '2.25em',
         columns: 2,
-        label: (t: TFunction) =>
-            t(['customSurvey:segments:ModeSpecify', 'segments:ModeSpecify'], {
-                context: options.context?.()
-            }),
+        label: (t: TFunction) => t('segments:segmentMode'),
         choices: segmentModeChoices,
         validations: function (value) {
             return [
                 {
                     validation: _isBlank(value),
-                    errorMessage: (t: TFunction) =>
-                        t(['customSurvey:segments:ModeIsRequired', 'segments:ModeIsRequired'])
+                    errorMessage: (t: TFunction) => t('segments:ModeIsRequired')
                 }
             ];
         },

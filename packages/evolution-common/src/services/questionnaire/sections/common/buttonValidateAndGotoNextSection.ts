@@ -23,7 +23,7 @@ import { WidgetFactoryOptions } from '../types';
  * @returns {ButtonWidgetConfig} The configuration object for the button widget.
  */
 export const getButtonValidateAndGotoNextSection = (
-    translatableLabel: string,
+    translatableLabel: string | string[],
     options: WidgetFactoryOptions
 ): ButtonWidgetConfig => {
     return {
@@ -31,7 +31,7 @@ export const getButtonValidateAndGotoNextSection = (
         // FIXME Is the path important for a button? Should it be configurable, like the text?
         path: 'buttonValidateGotoNextSection',
         color: 'green',
-        label: (t: TFunction) => t([`customSurvey:${translatableLabel}`, translatableLabel]),
+        label: (t: TFunction) => t(translatableLabel),
         hideWhenRefreshing: true,
         icon: options.iconMapper['check-circle'],
         align: 'center',

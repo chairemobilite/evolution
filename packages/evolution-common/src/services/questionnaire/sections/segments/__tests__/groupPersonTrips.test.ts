@@ -105,7 +105,7 @@ describe('PersonsTripsGroupConfigFactory main group config', () => {
             const title = widgetConfig.title;
             expect(title).toBeDefined();
             utilHelpers.translateString(title, { t: mockedT } as any, interviewAttributesForTestCases, 'path');
-            expect(mockedT).toHaveBeenCalledWith(['customSurvey:segments:TripsTitle', 'segments:TripsTitle']);
+            expect(mockedT).toHaveBeenCalledWith('segments:personTrips');
         });
 
     });

@@ -10,11 +10,9 @@ import { TFunction } from 'i18next';
 import * as odHelpers from '../../../odSurvey/helpers';
 import { getPreviousTripSingleSegment, shouldShowSameAsReverseTripQuestion } from './helpers';
 import { yesNoChoices } from '../common/choices';
+import { WidgetFactoryOptions } from '../types';
 
-export const getSameAsReverseTripWidgetConfig = (
-    // FIXME: Type this when there is a few more widgets implemented
-    options: { context?: () => string } = {}
-): WidgetConfig => {
+export const getSameAsReverseTripWidgetConfig = (_options: WidgetFactoryOptions): WidgetConfig => {
     return {
         type: 'question',
         path: 'sameModeAsReverseTrip',
@@ -30,17 +28,18 @@ export const getSameAsReverseTripWidgetConfig = (
             const previousSegment = getPreviousTripSingleSegment({ journey, trip });
             const visitedPlaces = odHelpers.getVisitedPlaces({ journey });
             const destination = trip ? odHelpers.getDestination({ trip, visitedPlaces }) : undefined;
-            const labelWithDestination = `segments:SegmentSameModeReturn${destination && destination.activity === 'home' ? 'Home' : ''}`;
-            return t([`customSurvey:${labelWithDestination}`, labelWithDestination], {
-                context: options.context?.(),
+            const labelKeys =
+                destination && destination.activity
+                    ? [
+                        `segments:segmentSameModeAsReverseTrip_${destination.activity}`,
+                        'segments:segmentSameModeAsReverseTrip'
+                    ]
+                    : 'segments:segmentSameModeAsReverseTrip';
+            return t(labelKeys, {
+                context: odHelpers.getPersonGenderContext({ person }),
                 count: odHelpers.getCountOrSelfDeclared({ interview, person }),
                 previousMode:
-                    previousSegment && previousSegment.mode
-                        ? t([
-                            `customSurvey:segments:mode:short:${previousSegment.mode}`,
-                            `segments:mode:short:${previousSegment.mode}`
-                        ])
-                        : ''
+                    previousSegment && previousSegment.mode ? t(`segments:mode:short:${previousSegment.mode}`) : ''
             });
         },
         choices: yesNoChoices,
@@ -48,7 +47,7 @@ export const getSameAsReverseTripWidgetConfig = (
             return [
                 {
                     validation: _isBlank(value),
-                    errorMessage: (t: TFunction) => t(['customSurvey:ResponseIsRequired', 'survey:ResponseIsRequired'])
+                    errorMessage: (t: TFunction) => t('survey:ResponseIsRequired')
                 }
             ];
         },

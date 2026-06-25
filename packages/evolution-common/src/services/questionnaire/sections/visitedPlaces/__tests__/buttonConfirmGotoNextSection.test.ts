@@ -50,7 +50,7 @@ describe('getButtonConfirmGotoNextSectionWidgetConfig label', () => {
         expect(title).toBeDefined();
         utilHelpers.translateString(title, { t: mockedT } as any, interviewAttributesForTestCases, 'path');
         // FIXME Base button had the old custom survey translation. Change when #1441 is fixed
-        expect(mockedT).toHaveBeenCalledWith(['customSurvey:visitedPlaces:saveAndContinue', 'visitedPlaces:saveAndContinue']);
+        expect(mockedT).toHaveBeenCalledWith('visitedPlaces:buttonVisitedPlacesConfirmNextSection');
     });
 
 });
