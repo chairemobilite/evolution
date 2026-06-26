@@ -6,10 +6,12 @@
  */
 
 import type {
+    ReviewDecisions,
     ReviewDecision,
+    ReviewDecisionEffectiveStatus,
+    ReviewDecisionsByObject,
     ReviewDecisionStatusByObject,
-    ReviewDecisionStatusForObject,
-    ReviewDecisionsByObject
+    ReviewDecisionStatusForObject
 } from './types';
 import type { SurveyObjectNames } from '../baseObjects/types';
 
@@ -35,67 +37,101 @@ const emptyReviewDecisionStatusByObject = (): ReviewDecisionStatusByObject => ({
     segments: {}
 });
 
-const pushReview = (reviewDecisionsByObject: ReviewDecisionsByObject, review: ReviewDecision): void => {
-    switch (review.objectType) {
+const pushReviewDecision = (reviewDecisionsByObject: ReviewDecisionsByObject, reviewDecision: ReviewDecision): void => {
+    switch (reviewDecision.objectType) {
     case 'interview':
-        reviewDecisionsByObject.interview.push(review);
+        reviewDecisionsByObject.interview.push(reviewDecision);
         break;
     case 'household':
-        reviewDecisionsByObject.household.push(review);
+        reviewDecisionsByObject.household.push(reviewDecision);
         break;
     case 'home':
-        reviewDecisionsByObject.home.push(review);
+        reviewDecisionsByObject.home.push(reviewDecision);
         break;
     case 'person':
-        if (!reviewDecisionsByObject.persons[review.objectUuid]) {
-            reviewDecisionsByObject.persons[review.objectUuid] = [];
+        if (!reviewDecisionsByObject.persons[reviewDecision.objectUuid]) {
+            reviewDecisionsByObject.persons[reviewDecision.objectUuid] = [];
         }
-        reviewDecisionsByObject.persons[review.objectUuid].push(review);
+        reviewDecisionsByObject.persons[reviewDecision.objectUuid].push(reviewDecision);
         break;
     case 'journey':
-        if (!reviewDecisionsByObject.journeys[review.objectUuid]) {
-            reviewDecisionsByObject.journeys[review.objectUuid] = [];
+        if (!reviewDecisionsByObject.journeys[reviewDecision.objectUuid]) {
+            reviewDecisionsByObject.journeys[reviewDecision.objectUuid] = [];
         }
-        reviewDecisionsByObject.journeys[review.objectUuid].push(review);
+        reviewDecisionsByObject.journeys[reviewDecision.objectUuid].push(reviewDecision);
         break;
     case 'visitedPlace':
-        if (!reviewDecisionsByObject.visitedPlaces[review.objectUuid]) {
-            reviewDecisionsByObject.visitedPlaces[review.objectUuid] = [];
+        if (!reviewDecisionsByObject.visitedPlaces[reviewDecision.objectUuid]) {
+            reviewDecisionsByObject.visitedPlaces[reviewDecision.objectUuid] = [];
         }
-        reviewDecisionsByObject.visitedPlaces[review.objectUuid].push(review);
+        reviewDecisionsByObject.visitedPlaces[reviewDecision.objectUuid].push(reviewDecision);
         break;
     case 'trip':
-        if (!reviewDecisionsByObject.trips[review.objectUuid]) {
-            reviewDecisionsByObject.trips[review.objectUuid] = [];
+        if (!reviewDecisionsByObject.trips[reviewDecision.objectUuid]) {
+            reviewDecisionsByObject.trips[reviewDecision.objectUuid] = [];
         }
-        reviewDecisionsByObject.trips[review.objectUuid].push(review);
+        reviewDecisionsByObject.trips[reviewDecision.objectUuid].push(reviewDecision);
         break;
     case 'segment':
-        if (!reviewDecisionsByObject.segments[review.objectUuid]) {
-            reviewDecisionsByObject.segments[review.objectUuid] = [];
+        if (!reviewDecisionsByObject.segments[reviewDecision.objectUuid]) {
+            reviewDecisionsByObject.segments[reviewDecision.objectUuid] = [];
         }
-        reviewDecisionsByObject.segments[review.objectUuid].push(review);
+        reviewDecisionsByObject.segments[reviewDecision.objectUuid].push(reviewDecision);
         break;
     default:
-        console.error(`Unknown review object type: ${review.objectType}`);
+        console.error(`Unknown review object type: ${reviewDecision.objectType}`);
         break;
     }
 };
 
 /**
- * Groups review rows by survey object type and uuid.
- * @param reviewsArray - Flat list of reviewDecisions for an interview
- * @returns Reviews grouped by object type
+ * Groups review decision rows by survey object type and uuid.
+ * @param reviewDecisions - Flat list of review decisions for an interview
+ * @returns Review decisions grouped by object type
  */
-export const reviewDecisionsArrayToReviewDecisionsByObject = (reviewsArray: ReviewDecision[]): ReviewDecisionsByObject => {
+export const reviewDecisionsArrayToReviewDecisionsByObject = (
+    reviewDecisions: ReviewDecision[]
+): ReviewDecisionsByObject => {
     const reviewDecisionsByObject = emptyReviewDecisionsByObject();
-    reviewsArray.forEach((review) => pushReview(reviewDecisionsByObject, review));
+    reviewDecisions.forEach((reviewDecision) => pushReviewDecision(reviewDecisionsByObject, reviewDecision));
     return reviewDecisionsByObject;
+};
+
+const findForceApproveReviewDecision = (objectReviewDecisions: ReviewDecision[]): ReviewDecision | undefined =>
+    objectReviewDecisions
+        .filter((reviewDecision) => reviewDecision.forceApproved)
+        .sort((left, right) => (right.updatedAt ?? '').localeCompare(left.updatedAt ?? ''))[0];
+
+/**
+ * Resolves export-gate status from reviewer counts and optional admin force-approve.
+ * @param approvalCount - Number of approve decisions
+ * @param rejectionCount - Number of reject decisions
+ * @param isForceApproved - Whether an admin force-approved the object
+ * @returns Effective review status for the object
+ */
+export const computeReviewDecisionEffectiveStatus = (
+    approvalCount: number,
+    rejectionCount: number,
+    isForceApproved: boolean
+): ReviewDecisionEffectiveStatus => {
+    if (isForceApproved) {
+        return 'forceApproved';
+    }
+    if (approvalCount > 0 && rejectionCount > 0) {
+        return 'conflict';
+    }
+    if (approvalCount > 0) {
+        return 'approved';
+    }
+    if (rejectionCount > 0) {
+        return 'rejected';
+    }
+    return 'notReviewed';
 };
 
 /**
  * Computes aggregated review status for one object from reviewer decisions.
- * @param reviewDecisions - All reviewDecisions for the interview
+ * @param reviewDecisions - All review decisions for the interview
  * @param objectType - Survey object type
  * @param objectUuid - Survey object uuid
  * @param currentUserId - Optional current reviewer user id
@@ -107,19 +143,25 @@ export const computeReviewDecisionStatusForObject = (
     objectUuid: string,
     currentUserId?: number
 ): ReviewDecisionStatusForObject => {
-    const objectReviews = reviewDecisions.filter(
-        (review) => review.objectType === objectType && review.objectUuid === objectUuid
+    const objectReviewDecisions = reviewDecisions.filter(
+        (reviewDecision) => reviewDecision.objectType === objectType && reviewDecision.objectUuid === objectUuid
     );
-    const approvalCount = objectReviews.filter((review) => review.decision === 'approve').length;
-    const rejectionCount = objectReviews.filter((review) => review.decision === 'reject').length;
+    const approvalCount = objectReviewDecisions.filter(
+        (reviewDecision) => reviewDecision.decision === 'approve'
+    ).length;
+    const rejectionCount = objectReviewDecisions.filter(
+        (reviewDecision) => reviewDecision.decision === 'reject'
+    ).length;
     const hasApprove = approvalCount > 0;
     const hasReject = rejectionCount > 0;
-    const reReviewRequestedUserIds = objectReviews
-        .filter((review) => review.reReviewRequested)
-        .map((review) => review.userId);
-    const currentUserReview = currentUserId
-        ? objectReviews.find((review) => review.userId === currentUserId)
+    const reReviewRequestedUserIds = objectReviewDecisions
+        .filter((reviewDecision) => reviewDecision.reReviewRequested)
+        .map((reviewDecision) => reviewDecision.userId);
+    const currentUserReviewDecision = currentUserId
+        ? objectReviewDecisions.find((reviewDecision) => reviewDecision.userId === currentUserId)
         : undefined;
+    const forceApproveReviewDecision = findForceApproveReviewDecision(objectReviewDecisions);
+    const isForceApproved = forceApproveReviewDecision !== undefined;
 
     return {
         objectType,
@@ -127,10 +169,15 @@ export const computeReviewDecisionStatusForObject = (
         approvalCount,
         rejectionCount,
         hasConflict: hasApprove && hasReject,
-        currentUserDecision: currentUserReview?.decision,
-        currentUserReReviewRequested: currentUserReview?.reReviewRequested,
+        isForceApproved,
+        forceApprovedByUserId: forceApproveReviewDecision?.userId,
+        forceApproveComment: forceApproveReviewDecision?.forceApproveComment,
+        effectiveStatus: computeReviewDecisionEffectiveStatus(approvalCount, rejectionCount, isForceApproved),
+        currentUserDecision: currentUserReviewDecision?.decision,
+        currentUserForceApproved: currentUserReviewDecision?.forceApproved,
+        currentUserReReviewRequested: currentUserReviewDecision?.reReviewRequested,
         reReviewRequestedUserIds,
-        isReviewed: objectReviews.length > 0
+        isReviewed: objectReviewDecisions.length > 0
     };
 };
 
@@ -169,8 +216,8 @@ const setReviewDecisionStatus = (
 };
 
 /**
- * Computes aggregated review status for every object that has at least one review.
- * @param reviewDecisions - All reviewDecisions for the interview
+ * Computes aggregated review status for every object that has at least one review decision.
+ * @param reviewDecisions - All review decisions for the interview
  * @param currentUserId - Optional current reviewer user id
  * @returns Review status grouped by object type
  */
@@ -179,7 +226,9 @@ export const computeReviewDecisionStatusByObject = (
     currentUserId?: number
 ): ReviewDecisionStatusByObject => {
     const reviewDecisionStatusByObject = emptyReviewDecisionStatusByObject();
-    const objectKeys = new Set(reviewDecisions.map((review) => `${review.objectType}.${review.objectUuid}`));
+    const objectKeys = new Set(
+        reviewDecisions.map((reviewDecision) => `${reviewDecision.objectType}.${reviewDecision.objectUuid}`)
+    );
 
     objectKeys.forEach((objectKey) => {
         const [objectType, objectUuid] = objectKey.split('.') as [SurveyObjectNames, string];
@@ -191,12 +240,12 @@ export const computeReviewDecisionStatusByObject = (
 };
 
 /**
- * Builds the review payload returned to the admin review UI.
- * @param reviewDecisions - All reviewDecisions for the interview
+ * Builds the review decisions payload returned to the admin review UI.
+ * @param reviewDecisions - All review decisions for the interview
  * @param currentUserId - Optional current reviewer user id
- * @returns Review lists and aggregated status
+ * @returns Review decision lists and aggregated status
  */
-export const buildInterviewReview = (reviewDecisions: ReviewDecision[], currentUserId?: number) => ({
+export const buildReviewDecisions = (reviewDecisions: ReviewDecision[], currentUserId?: number): ReviewDecisions => ({
     reviewDecisions,
     reviewDecisionsByObject: reviewDecisionsArrayToReviewDecisionsByObject(reviewDecisions),
     reviewDecisionStatusByObject: computeReviewDecisionStatusByObject(reviewDecisions, currentUserId)

@@ -5,7 +5,8 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import type { ParentSurveyObjects, SurveyObjectNames } from '../baseObjects/types';
+import type { ParentSurveyObjects } from '../baseObjects/types';
+import type { SurveyObjectNames } from '../baseObjects/types';
 export type ReviewDecisionValue = 'approve' | 'reject';
 
 /**
@@ -18,6 +19,10 @@ export type ReviewDecision = {
     decision: ReviewDecisionValue;
     /** Comment left with the approve/reject decision. */
     comment?: string;
+    /** True when this reviewer force-approved the object (admin override; kept with decision). */
+    forceApproved?: boolean;
+    /** Comment left with the force-approve action. */
+    forceApproveComment?: string;
     /** True when this reviewer is asked to review the object again (GitHub-style re-request). */
     reReviewRequested?: boolean;
     /** User who requested the re-review (may differ from the target reviewer). */
@@ -27,6 +32,8 @@ export type ReviewDecision = {
     reReviewRequestComment?: string;
     updatedAt?: string;
 };
+
+export type ReviewDecisionEffectiveStatus = 'forceApproved' | 'approved' | 'rejected' | 'conflict' | 'notReviewed';
 
 /**
  * Aggregated review state for one object, derived from all reviewer decisions.
@@ -38,7 +45,15 @@ export type ReviewDecisionStatusForObject = {
     rejectionCount: number;
     /** True when at least one reviewer approved and another rejected the same object. */
     hasConflict: boolean;
+    /** True when an admin force-approved this object (overrides conflicts). */
+    isForceApproved: boolean;
+    forceApprovedByUserId?: number;
+    forceApproveComment?: string;
+    /** Resolved status for export gates; force approve wins over reviewer disagreements. */
+    effectiveStatus: ReviewDecisionEffectiveStatus;
     currentUserDecision?: ReviewDecisionValue;
+    /** True when the current reviewer force-approved this object on their row. */
+    currentUserForceApproved?: boolean;
     /** True when the current reviewer must look at this object again. */
     currentUserReReviewRequested?: boolean;
     /** Reviewer user ids asked to re-review this object. */
@@ -99,3 +114,6 @@ export type ReviewDecisions = {
 };
 
 export type SurveyObjectsWithReviews = ParentSurveyObjects & InterviewReview;
+
+/** Survey objects with automated audits and manual reviewer decisions. */
+export type SurveyObjectsWithAuditsAndReviewDecisions = ParentSurveyObjects & InterviewReview;

@@ -6,7 +6,8 @@
  */
 
 import {
-    buildInterviewReview,
+    buildReviewDecisions,
+    computeReviewDecisionEffectiveStatus,
     computeReviewDecisionStatusForObject,
     reviewDecisionsArrayToReviewDecisionsByObject
 } from '../ReviewDecisionUtils';
@@ -22,7 +23,7 @@ const reviewDecisions: ReviewDecision[] = [
 ];
 
 describe('ReviewDecisionUtils', () => {
-    test('reviewDecisionsArrayToReviewDecisionsByObject groups reviewDecisions by object type and uuid', () => {
+    test('reviewDecisionsArrayToReviewDecisionsByObject groups review decisions by object type and uuid', () => {
         const grouped = reviewDecisionsArrayToReviewDecisionsByObject(reviewDecisions);
 
         expect(grouped.persons[personUuid]).toHaveLength(2);
@@ -64,7 +65,7 @@ describe('ReviewDecisionUtils', () => {
     });
 
     test('flags reviewers asked to re-review an object', () => {
-        const reviewsWithReReview: ReviewDecision[] = [
+        const reviewDecisionsWithReReview: ReviewDecision[] = [
             {
                 objectType: 'person',
                 objectUuid: personUuid,
@@ -77,7 +78,7 @@ describe('ReviewDecisionUtils', () => {
             }
         ];
 
-        const status = computeReviewDecisionStatusForObject(reviewsWithReReview, 'person', personUuid, 2);
+        const status = computeReviewDecisionStatusForObject(reviewDecisionsWithReReview, 'person', personUuid, 2);
 
         expect(status).toMatchObject({
             rejectionCount: 1,
@@ -86,19 +87,60 @@ describe('ReviewDecisionUtils', () => {
         });
     });
 
-    test('buildInterviewReview returns grouped reviewDecisions and status', () => {
-        const payload = buildInterviewReview(reviewDecisions, 1);
+    test('buildReviewDecisions returns grouped review decisions and status', () => {
+        const payload = buildReviewDecisions(reviewDecisions, 1);
 
         expect(payload.reviewDecisions).toEqual(reviewDecisions);
         expect(payload.reviewDecisionsByObject.persons[personUuid]).toHaveLength(2);
         expect(payload.reviewDecisionStatusByObject.persons[personUuid]).toMatchObject({
             hasConflict: true,
-            currentUserDecision: 'approve'
+            currentUserDecision: 'approve',
+            effectiveStatus: 'conflict'
         });
         expect(payload.reviewDecisionStatusByObject.trips[tripUuid]).toMatchObject({
             approvalCount: 1,
             rejectionCount: 0,
-            hasConflict: false
+            hasConflict: false,
+            effectiveStatus: 'approved'
         });
+    });
+
+    test('force approve on admin row overrides conflict but keeps their decision', () => {
+        const reviewDecisionsWithForce: ReviewDecision[] = [
+            { objectType: 'person', objectUuid: personUuid, userId: 1, decision: 'approve' },
+            { objectType: 'person', objectUuid: personUuid, userId: 2, decision: 'reject' },
+            {
+                objectType: 'person',
+                objectUuid: personUuid,
+                userId: 3,
+                decision: 'reject',
+                forceApproved: true,
+                forceApproveComment: 'admin override'
+            }
+        ];
+        const status = computeReviewDecisionStatusForObject(reviewDecisionsWithForce, 'person', personUuid, 3);
+
+        expect(status).toMatchObject({
+            hasConflict: true,
+            isForceApproved: true,
+            forceApprovedByUserId: 3,
+            forceApproveComment: 'admin override',
+            currentUserDecision: 'reject',
+            currentUserForceApproved: true,
+            effectiveStatus: 'forceApproved'
+        });
+    });
+
+    // [title, approvalCount, rejectionCount, isForceApproved, expected]
+    const effectiveStatusCases: [string, number, number, boolean, ReturnType<typeof computeReviewDecisionEffectiveStatus>][] = [
+        ['force approve wins over conflict', 1, 1, true, 'forceApproved'],
+        ['conflict when reviewers disagree', 1, 1, false, 'conflict'],
+        ['approved when only approvals', 2, 0, false, 'approved'],
+        ['rejected when only rejections', 0, 2, false, 'rejected'],
+        ['not reviewed when no decisions', 0, 0, false, 'notReviewed']
+    ];
+
+    it.each(effectiveStatusCases)('computeReviewDecisionEffectiveStatus: %s', (_title, approvalCount, rejectionCount, isForceApproved, expected) => {
+        expect(computeReviewDecisionEffectiveStatus(approvalCount, rejectionCount, isForceApproved)).toBe(expected);
     });
 });
