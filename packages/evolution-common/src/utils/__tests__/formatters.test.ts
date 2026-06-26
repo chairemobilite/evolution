@@ -10,7 +10,7 @@ import { getAccessCodeFormat } from '../../services/accessCode/accessCodeFormats
 
 describe('helper', () => {
   describe('accessCodeFormatter', () => {
-    test.each([
+    describe.each([
       // Test case format: [description, format name, input, expected output]
       // Dashes are inserted eagerly as soon as a group is complete, letters are upper-cased.
       ['8 digits formats as 0000-0000', '0000-0000', '12345678', '1234-5678'],
@@ -31,7 +31,19 @@ describe('helper', () => {
       ['letters then digits ABC-000-000', 'ABC-000-000', 'abc123456', 'ABC-123-456'],
       ['mixed ABC-000-000 with typed dashes', 'ABC-000-000', 'abc-123-456', 'ABC-123-456'],
     ])('%s: %s => %s', (_, formatName, input, expected) => {
-      expect(accessCodeFormatter(input, getAccessCodeFormat(formatName as any))).toBe(expected);
+      test('function call with formatter parameter', () => {
+        expect(accessCodeFormatter(input, getAccessCodeFormat(formatName as any))).toBe(expected);
+      });
+
+      test('using the project configured format as default', async() => {
+        await jest.isolateModulesAsync(async () => {
+          const { default: projectConfig } = await import('../../config/project.config');
+          projectConfig.accessCodeFormat = formatName as any;
+          const { accessCodeFormatter } = await import('../formatters');
+
+          expect(accessCodeFormatter(input)).toBe(expected);
+        });
+      })
     });
   });
 

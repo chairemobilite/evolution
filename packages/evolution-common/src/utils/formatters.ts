@@ -5,12 +5,14 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
+import projectConfig from '../config/project.config';
 import {
     type AccessCodeFormat,
     getAccessCodeFormat,
     normalizeAccessCode
 } from '../services/accessCode/accessCodeFormats';
 
+const accessCodeFormat = getAccessCodeFormat(projectConfig.accessCodeFormat);
 /**
  * Format an access code while typing, following the provided format. For
  * example, `'0000-0000'` produces `1234-5678` and `'ABC-000-000'` produces
@@ -19,10 +21,11 @@ import {
  * dropped and dashes are inserted at group boundaries.
  *
  * @param input The input to format
- * @param format The access code format describing the successive groups
+ * @param [format] The access code format describing the successive groups.
+ * Defaults to the configured access code
  * @returns The formatted access code
  */
-export const accessCodeFormatter = (input: string, format: AccessCodeFormat): string =>
+export const accessCodeFormatter = (input: string, format: AccessCodeFormat = accessCodeFormat): string =>
     normalizeAccessCode(input, format);
 
 /**
