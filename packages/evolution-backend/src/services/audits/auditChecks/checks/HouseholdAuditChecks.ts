@@ -164,6 +164,38 @@ export const householdAuditChecks: { [errorCode: string]: HouseholdAuditCheckFun
     },
 
     /**
+     * Check that each household member _sequence matches its index (1..n).
+     * PersonFactory already sorts members by _sequence; this verifies the
+     * resulting order and that sequences form a contiguous 1..n range.
+     * @param context - HouseholdAuditCheckContext
+     * @returns AuditForObject
+     */
+    HH_L_InvalidPersonSequences: (context: HouseholdAuditCheckContext): AuditForObject | undefined => {
+        const { household } = context;
+        const members = household.members;
+
+        if (!members || members.length === 0) {
+            return undefined;
+        }
+
+        for (let i = 0; i < members.length; i++) {
+            if (members[i].attributes._sequence !== i + 1) {
+                return {
+                    objectType: 'household',
+                    objectUuid: household._uuid!,
+                    errorCode: 'HH_L_InvalidPersonSequences',
+                    version: 1,
+                    level: 'error',
+                    message: 'At least one person sequence is invalid',
+                    ignore: false
+                };
+            }
+        }
+
+        return undefined; // No audit needed
+    },
+
+    /**
      * Check if car number and vehicles count mismatch
      * validate car number is equal to vehicles count
      * Only check if household has vehicles and car number is defined
