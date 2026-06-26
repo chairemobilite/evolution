@@ -7,21 +7,26 @@
 
 import { v4 as uuidV4 } from 'uuid';
 import { Person } from 'evolution-common/lib/services/baseObjects/Person';
+import type { PersonAttributes } from 'evolution-common/lib/services/baseObjects/Person';
 import { householdAuditChecks, MAX_CAR_NUMBER_PER_POTENTIAL_DRIVING_LICENSE } from '../../HouseholdAuditChecks';
 import { createContextWithHouseholdAndHome } from './testHelper';
+import { SurveyObjectsRegistry } from 'evolution-common/lib/services/baseObjects/SurveyObjectsRegistry';
 
 describe('HH_L_CarNumberPerPotentialDrivingLicenseTooHigh audit check', () => {
     const validHouseholdUuid = uuidV4();
     const validHomeUuid = uuidV4();
+    const surveyObjectsRegistry = new SurveyObjectsRegistry();
 
-    // Members are plain objects cast as Person, consistent with the other household test helpers.
-    const licenseHolder = { drivingLicenseOwnership: 'yes' } as Person;
-    const adultUnknownLicense = { age: 40, drivingLicenseOwnership: 'dontKnow' } as Person;
-    const adultMissingLicenseOwnership = { age: 40 } as Person;
-    const childNoLicense = { age: 10, drivingLicenseOwnership: 'dontKnow' } as Person;
-    const childMissingLicenseOwnership = { age: 10 } as Person;
-    const adultNoLicense = { age: 40, drivingLicenseOwnership: 'no' } as Person;
-    const memberMissingAgeAndLicense = {} as Person;
+    const makeMember = (attrs: Partial<PersonAttributes> = {}) =>
+        new Person({ _uuid: uuidV4(), ...attrs }, surveyObjectsRegistry);
+
+    const licenseHolder = makeMember({ drivingLicenseOwnership: 'yes' });
+    const adultUnknownLicense = makeMember({ age: 40, drivingLicenseOwnership: 'dontKnow' });
+    const adultMissingLicenseOwnership = makeMember({ age: 40 });
+    const childNoLicense = makeMember({ age: 10, drivingLicenseOwnership: 'dontKnow' });
+    const childMissingLicenseOwnership = makeMember({ age: 10 });
+    const adultNoLicense = makeMember({ age: 40, drivingLicenseOwnership: 'no' });
+    const memberMissingAgeAndLicense = makeMember();
 
     // [title, carNumber, members, shouldWarn]
     const cases: [string, number | undefined, Person[], boolean][] = [
@@ -32,18 +37,14 @@ describe('HH_L_CarNumberPerPotentialDrivingLicenseTooHigh audit check', () => {
             false
         ],
         ['ratio above the threshold warns', MAX_CAR_NUMBER_PER_POTENTIAL_DRIVING_LICENSE + 1, [licenseHolder], true],
-        ['adult with unknown license counts as a potential driver', 4, [adultUnknownLicense], true],
+        ['adult with unknown license counts as a potential driver', 1, [adultUnknownLicense], false],
+        ['adult with unknown license, ratio above threshold warns', 4, [adultUnknownLicense], true],
+        ['adult without drivingLicenseOwnership counts as a potential driver', 1, [adultMissingLicenseOwnership], false],
         [
-            'adult without drivingLicenseOwnership counts as a potential driver',
+            'adult without drivingLicenseOwnership, ratio above threshold warns',
             4,
             [adultMissingLicenseOwnership],
             true
-        ],
-        [
-            'one car with adult without drivingLicenseOwnership does not warn',
-            1,
-            [adultMissingLicenseOwnership],
-            false
         ],
         ['cars but only a child (no potential driver) warns', 1, [childNoLicense], true],
         [

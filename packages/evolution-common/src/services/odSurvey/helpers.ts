@@ -545,6 +545,9 @@ export const isStudentFromSchoolType = ({ person }: { person: Person }): boolean
  * they are of driving age and did not answer the question about driving license
  * ownership.
  *
+ * TODO: consolidate with `Person.hasOrUnknownDrivingLicense`; this helper reads
+ * interview response Person shapes while audits use base object Person instances.
+ *
  * @param {Object} options - The options object.
  * @param {Person} options.person The current person
  * @returns {boolean} `true` if the person either has a driving license or the

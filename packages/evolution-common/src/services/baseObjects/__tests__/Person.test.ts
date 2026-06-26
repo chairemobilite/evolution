@@ -17,6 +17,7 @@ import { VisitedPlace } from '../VisitedPlace';
 import { isOk, hasErrors, unwrap } from '../../../types/Result.type';
 import { WeightMethod, WeightMethodAttributes } from '../WeightMethod';
 import { SurveyObjectsRegistry } from '../SurveyObjectsRegistry';
+import projectConfig from '../../../config/project.config';
 import {
     describeCompletableSurveyObjectMixinValues,
     describeCreateRejectsNonBooleanCompletableParams
@@ -943,6 +944,28 @@ describe('Person', () => {
             const value = valueFactory();
             person[attribute] = value;
             expect(person[attribute]).toEqual(value);
+        });
+    });
+
+    describe('hasOrUnknownDrivingLicense', () => {
+        test.each([
+            ['explicit yes', { drivingLicenseOwnership: 'yes' }, 18, true],
+            ['explicit no, adult age', { age: 35, drivingLicenseOwnership: 'no' }, 18, false],
+            ['dont know, below driving age', { age: 17, drivingLicenseOwnership: 'dontKnow' }, 18, false],
+            ['dont know, at driving age threshold', { age: 18, drivingLicenseOwnership: 'dontKnow' }, 18, true],
+            ['undefined ownership, above driving age', { age: 20 }, 18, true],
+            ['undefined ownership, below driving age', { age: 10 }, 18, false],
+            ['undefined ownership and age', {}, 18, false],
+            ['custom threshold is respected', { age: 20, drivingLicenseOwnership: 'dontKnow' }, 21, false]
+        ] as const)('%s', (_title, attrs, drivingLicenseAge, expected) => {
+            const originalDrivingLicenseAge = projectConfig.drivingLicenseAge;
+            projectConfig.drivingLicenseAge = drivingLicenseAge;
+            try {
+                const person = new Person({ _uuid: uuidV4(), ...attrs }, registry);
+                expect(person.hasOrUnknownDrivingLicense()).toEqual(expected);
+            } finally {
+                projectConfig.drivingLicenseAge = originalDrivingLicenseAge;
+            }
         });
     });
 
