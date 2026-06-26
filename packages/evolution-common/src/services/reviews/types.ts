@@ -5,8 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import type { ParentSurveyObjects } from '../baseObjects/types';
-import type { SurveyObjectNames } from '../baseObjects/types';
+import type { ParentSurveyObjects, SurveyObjectNames } from '../baseObjects/types';
 export type ReviewDecisionValue = 'approve' | 'reject';
 
 /**
@@ -17,7 +16,15 @@ export type ReviewDecision = {
     objectUuid: string;
     userId: number;
     decision: ReviewDecisionValue;
+    /** Comment left with the approve/reject decision. */
     comment?: string;
+    /** True when this reviewer is asked to review the object again (GitHub-style re-request). */
+    reReviewRequested?: boolean;
+    /** User who requested the re-review (may differ from the target reviewer). */
+    reReviewRequestedByUserId?: number;
+    reReviewRequestedAt?: string;
+    /** Comment explaining why a re-review was requested. */
+    reReviewRequestComment?: string;
     updatedAt?: string;
 };
 
@@ -32,6 +39,10 @@ export type ReviewDecisionStatusForObject = {
     /** True when at least one reviewer approved and another rejected the same object. */
     hasConflict: boolean;
     currentUserDecision?: ReviewDecisionValue;
+    /** True when the current reviewer must look at this object again. */
+    currentUserReReviewRequested?: boolean;
+    /** Reviewer user ids asked to re-review this object. */
+    reReviewRequestedUserIds: number[];
     /** False when no reviewer has decided yet for this object. */
     isReviewed: boolean;
 };

@@ -114,6 +114,12 @@ export const computeReviewDecisionStatusForObject = (
     const rejectionCount = objectReviews.filter((review) => review.decision === 'reject').length;
     const hasApprove = approvalCount > 0;
     const hasReject = rejectionCount > 0;
+    const reReviewRequestedUserIds = objectReviews
+        .filter((review) => review.reReviewRequested)
+        .map((review) => review.userId);
+    const currentUserReview = currentUserId
+        ? objectReviews.find((review) => review.userId === currentUserId)
+        : undefined;
 
     return {
         objectType,
@@ -121,9 +127,9 @@ export const computeReviewDecisionStatusForObject = (
         approvalCount,
         rejectionCount,
         hasConflict: hasApprove && hasReject,
-        currentUserDecision: currentUserId
-            ? objectReviews.find((review) => review.userId === currentUserId)?.decision
-            : undefined,
+        currentUserDecision: currentUserReview?.decision,
+        currentUserReReviewRequested: currentUserReview?.reReviewRequested,
+        reReviewRequestedUserIds,
         isReviewed: objectReviews.length > 0
     };
 };

@@ -63,6 +63,29 @@ describe('ReviewDecisionUtils', () => {
         });
     });
 
+    test('flags reviewers asked to re-review an object', () => {
+        const reviewsWithReReview: ReviewDecision[] = [
+            {
+                objectType: 'person',
+                objectUuid: personUuid,
+                userId: 2,
+                decision: 'reject',
+                comment: 'fix age',
+                reReviewRequested: true,
+                reReviewRequestedByUserId: 3,
+                reReviewRequestComment: 'age was corrected'
+            }
+        ];
+
+        const status = computeReviewDecisionStatusForObject(reviewsWithReReview, 'person', personUuid, 2);
+
+        expect(status).toMatchObject({
+            rejectionCount: 1,
+            currentUserReReviewRequested: true,
+            reReviewRequestedUserIds: [2]
+        });
+    });
+
     test('buildInterviewReview returns grouped reviewDecisions and status', () => {
         const payload = buildInterviewReview(reviewDecisions, 1);
 
