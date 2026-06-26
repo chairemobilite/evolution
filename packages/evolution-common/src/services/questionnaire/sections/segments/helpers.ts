@@ -8,7 +8,7 @@
 import _isEqual from 'lodash/isEqual';
 import { isFeature, isPoint } from 'geojson-validation';
 import * as odHelpers from '../../../odSurvey/helpers';
-import { simpleModes, Mode, ModePre, modeValues, modePreValues, modeToModePreMap } from '../../../odSurvey/types';
+import { simpleModes, Mode, modeValues, defaultModePreValues, defaultModeToModePreMap } from '../../../odSurvey/types';
 import type { Optional } from '../../../../types/Optional.type';
 import type {
     Journey,
@@ -193,17 +193,17 @@ export const getFilteredModes = (segmentConfig: SegmentSectionConfiguration): Mo
  * Filter the available mode categories (modePre) based on the filtered modes.
  * Only keep modePre values that have at least one available mode.
  */
-export const getFilteredModesPre = (availableModes: Mode[]): ModePre[] => {
+export const getFilteredModesPre = (availableModes: Mode[]): string[] => {
     // Keep only modePre values that have at least one mode in the availableModes
-    return modePreValues.filter((modePre) => {
+    return defaultModePreValues.filter((modePre) => {
         // Get all modes for this modePre from the reverse map
-        const modesForThisModePre = Object.entries(modeToModePreMap)
+        const modesForThisModePre = Object.entries(defaultModeToModePreMap)
             .filter(([_mode, modePres]) => modePres.includes(modePre))
             .map(([mode, _modePres]) => mode as Mode);
 
         // Check if at least one of these modes is in the availableModes
         return modesForThisModePre.some((mode) => availableModes.includes(mode));
-    }) as ModePre[];
+    });
 };
 
 // Internal interface for various implementations of the segment next/previous

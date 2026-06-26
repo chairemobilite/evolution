@@ -5,7 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import { Mode, ModePre } from '../../../odSurvey/types';
+import { Mode } from '../../../odSurvey/types';
 
 /**
  * Maps modes to their corresponding icon paths
@@ -79,7 +79,7 @@ export const modeToIconMapping: Record<Mode, string> = {
     preferNotToAnswer: '/dist/icons/modes/other/air_balloon.svg'
 };
 
-const modePreToModeIconMapping: Record<ModePre, Mode> = {
+const defaultModePreToModeIconMapping: Record<string, Mode> = {
     walk: 'walk',
     bicycle: 'bicycle',
     paratransit: 'paratransit',
@@ -104,9 +104,13 @@ export const getModeIcon = (mode: Mode): string => {
 
 /**
  * Returns the appropriate icon path for a given mode
+ *
+ * FIXME ModePre is not typed anymore, we need to way for various modePre to
+ * advertise icons and provide the mapping
+ *
  * @param modePre The transportation mode
  * @returns The path to the icon for the mode
  */
-export const getModePreIcon = (modePre: ModePre): string => {
-    return modeToIconMapping[modePreToModeIconMapping[modePre]] || '/dist/icons/modes/other/air_balloon.svg';
+export const getModePreIcon = (modePre: string): string => {
+    return modeToIconMapping[defaultModePreToModeIconMapping[modePre]] || '/dist/icons/modes/other/air_balloon.svg';
 };

@@ -10,9 +10,9 @@ import each from 'jest-each';
 import { InputRadioType, QuestionWidgetConfig, RadioChoiceType } from '../../../../questionnaire/types';
 import { getModeWidgetConfig } from '../widgetSegmentMode';
 import { interviewAttributesForTestCases, widgetFactoryOptions } from '../../../../../tests/surveys';
-import { getResponse, setResponse, translateString } from '../../../../../utils/helpers';
+import { setResponse, translateString } from '../../../../../utils/helpers';
 import * as surveyHelper from '../../../../odSurvey/helpers';
-import { Mode, ModePre, modePreToModeMap, modeToModePreMap, modeValues } from '../../../../odSurvey/types';
+import { Mode, defaultModePreToModeMap, defaultModeToModePreMap, modeValues } from '../../../../odSurvey/types';
 import { shouldShowSameAsReverseTripQuestion, getPreviousTripSingleSegment } from '../helpers';
 import { modeToIconMapping } from '../modeIconMapping';
 
@@ -85,7 +85,7 @@ describe('Mode choices conditionals', () => {
     // modePreToModeMap to get the values, but filter out the modes that have
     // specific conditionals and that will be tested separately
     each(
-        modeValues.filter((mode) => !['wheelchair', 'mobilityScooter', 'paratransit'].includes(mode)).flatMap((mode) => Object.keys(modePreToModeMap).map((modePre) => [mode, modePre, modeToModePreMap[mode].includes(modePre as any)]))
+        modeValues.filter((mode) => !['wheelchair', 'mobilityScooter', 'paratransit'].includes(mode)).flatMap((mode) => Object.keys(defaultModePreToModeMap).map((modePre) => [mode, modePre, defaultModeToModePreMap[mode].includes(modePre as any)]))
     ).test('Test modePre conditional for mode %s with modePre %s: %s', (choiceValue, modePreValue, expected) => {
         // Find the right choice choice
         const modeChoice = choices.find((choice) => choice.value === choiceValue);
@@ -97,7 +97,7 @@ describe('Mode choices conditionals', () => {
 
     // Test specific conditional for modes, where person may have disability
     each(
-        ['wheelchair' as Mode, 'mobilityScooter' as Mode].flatMap((mode: Mode) => Object.keys(modePreToModeMap).flatMap((modePre) => [[true, mode, modePre, modeToModePreMap[mode].includes(modePre as ModePre)], [false, mode, modePre, modeToModePreMap[mode].includes(modePre as ModePre)]]))
+        ['wheelchair' as Mode, 'mobilityScooter' as Mode].flatMap((mode: Mode) => Object.keys(defaultModePreToModeMap).flatMap((modePre) => [[true, mode, modePre, defaultModeToModePreMap[mode].includes(modePre)], [false, mode, modePre, defaultModeToModePreMap[mode].includes(modePre)]]))
     ).test('Test modePre with person may have disability (%s) conditional for mode %s with modePre %s: %s', (personMayHaveDisability, choiceValue, modePreValue, expectedIfTrue) => {
         // Spy on the personMayHaveDisability function
         if (expectedIfTrue) {
@@ -120,7 +120,7 @@ describe('Mode choices conditionals', () => {
 
     // Test specific conditional for modes, where they may be disabilities in the household
     each(
-        ['paratransit' as Mode].flatMap((mode: Mode) => Object.keys(modePreToModeMap).flatMap((modePre) => [[true, mode, modePre, modeToModePreMap[mode].includes(modePre as ModePre)], [false, mode, modePre, modeToModePreMap[mode].includes(modePre as ModePre)]]))
+        ['paratransit' as Mode].flatMap((mode: Mode) => Object.keys(defaultModePreToModeMap).flatMap((modePre) => [[true, mode, modePre, defaultModeToModePreMap[mode].includes(modePre)], [false, mode, modePre, defaultModeToModePreMap[mode].includes(modePre)]]))
     ).test('Test modePre with hh may have disability (%s) conditional for mode %s with modePre %s: %s', (hhMayHaveDisability, choiceValue, modePreValue, expectedIfTrue) => {
         // Spy on the householdMayHaveDisability function
         if (expectedIfTrue) {
