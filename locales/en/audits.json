@@ -16,6 +16,7 @@
     "HH_L_InvalidPersonSequences": "At least one person sequence is invalid",
     "HH_L_CarNumberVehiclesCountMismatch": "Car number and vehicles count mismatch",
     "HH_M_Home": "Home is missing",
+    "HH_M_AtLeastOnePersonWithDisability": "At least one person with disability is missing",
 
     "HM_I_preGeographyAndHomeGeographyTooFarApartError": "Pre-filled and declared home geographies are far apart",
     "HM_I_preGeographyAndHomeGeographyTooFarApartWarning": "Pre-filled and declared home geographies are a bit far apart",
