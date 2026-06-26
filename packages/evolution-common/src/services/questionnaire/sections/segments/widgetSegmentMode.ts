@@ -11,7 +11,7 @@ import { getResponse } from '../../../../utils/helpers';
 import { TFunction } from 'i18next';
 import * as odHelpers from '../../../odSurvey/helpers';
 import * as segmentHelpers from './helpers';
-import { Mode, defaultModePreToModeMap } from '../../../odSurvey/types';
+import { Mode } from '../../../odSurvey/types';
 import type { Segment } from '../../types';
 import { getModeIcon } from './modeIconMapping';
 import { WidgetFactoryOptions } from '../types';
@@ -23,14 +23,14 @@ const perModeConditionals: Partial<{ [mode in Mode]: WidgetConditional }> = {
 };
 
 /** TODO Get a segment config in parameter to set the sort order and choices */
-const getModeChoices = (filteredModes: Mode[]) =>
+const getModeChoices = (filteredModes: Mode[], modePreToModeMap: { [modePre: string]: Mode[] }) =>
     filteredModes.map((mode) => ({
         value: mode,
         label: (t: TFunction) => t(`segments:mode:${_upperFirst(mode)}`),
         conditional: function (interview, path) {
             const segment = getResponse(interview, path, null, '../') as Segment;
             if (segment !== null && segment.modePre) {
-                if (!defaultModePreToModeMap[segment.modePre].includes(mode)) {
+                if (!modePreToModeMap[segment.modePre].includes(mode)) {
                     return false;
                 }
             }
@@ -51,7 +51,7 @@ export const getModeWidgetConfig = (
     if (filteredModes.length === 0) {
         throw new Error('No available modes to create mode widget configuration');
     }
-    const segmentModeChoices = getModeChoices(filteredModes);
+    const segmentModeChoices = getModeChoices(filteredModes, segmentHelpers.getModePreToModeMap(sectionConfig));
     return {
         type: 'question',
         path: 'mode',

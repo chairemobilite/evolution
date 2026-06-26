@@ -495,6 +495,31 @@ export type AdditionalSectionLabelOptionFct = (args: {
 }) => Record<string, unknown>;
 
 /**
+ * Configures a mode category
+ */
+export type ModeCategoryConfiguration = {
+    /**
+     * the array of modes under this mode category
+     * */
+    modes: Mode[];
+    /**
+     * the name of the mode whose icon to use to represent this category. If not
+     * set, the category name will be used.
+     */
+    icon?: Mode;
+    /**
+     * the translatable label to feed to the translation function to
+     * name this mode. If not set, it will be
+     * `segments:modePre:CapitalizedMode`.
+     */
+    label?: string;
+    /**
+     * specific conditional function for this category
+     */
+    conditional?: WidgetConditional;
+};
+
+/**
  * Configuration for the segments section of the questionnaire
  */
 export type SegmentSectionConfiguration = {
@@ -518,6 +543,20 @@ export type SegmentSectionConfiguration = {
      * the modePre and mode questions.
      */
     modesExclude?: Mode[];
+    /**
+     * Provide a mode category to modes mapping, to override the default modePre
+     * <-> mode categorization. If provided, the keys from this map will be the
+     * choices for the mode category question, while the values will be the
+     * choices for the mode question when this modePre is selected. There can be
+     * multiple modes in a modePre and a mode can be in various modePre. Note
+     * that, if set, all modes included need to be in at least one modePre.
+     *
+     * If not set, the available modePre fall back to the
+     * {@link defaultModePreValues} and default mapping.
+     */
+    modeCategoryToModeMap?: {
+        [modePre: string]: ModeCategoryConfiguration;
+    };
     /**
      * Names of additional widgets to include in the segment group of the
      * section besides the default ones (modePre, mode, etc). The widgets need
