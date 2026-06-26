@@ -156,3 +156,48 @@ describe('setReview and getReviewDecisionsForInterview', () => {
         expect(reviewDecisions).toHaveLength(0);
     });
 });
+
+describe('requestReReview', () => {
+    const reReviewPersonUuid = uuidV4();
+
+    beforeEach(async () => {
+        await dbQueries.deleteReviewDecisionsForInterview(localUserInterviewAttributes.id);
+        await dbQueries.setReviewDecisionDecision(localUserInterviewAttributes.id, reviewer2.id, {
+            objectType: 'person',
+            objectUuid: reReviewPersonUuid,
+            decision: 'reject',
+            comment: 'fix household size'
+        });
+    });
+
+    test('flags an existing reviewer to look at the object again', async () => {
+        const review = await dbQueries.requestReReview(
+            localUserInterviewAttributes.id,
+            reviewer2.id,
+            reviewer1.id,
+            {
+                objectType: 'person',
+                objectUuid: reReviewPersonUuid,
+                reReviewRequestComment: 'size was corrected'
+            }
+        );
+
+        expect(review).toMatchObject({
+            userId: reviewer2.id,
+            decision: 'reject',
+            comment: 'fix household size',
+            reReviewRequested: true,
+            reReviewRequestedByUserId: reviewer1.id,
+            reReviewRequestComment: 'size was corrected'
+        });
+    });
+
+    test('clears the re-review flag when the reviewer submits a new decision', async () => {
+        await dbQueries.requestReReview(localUserInterviewAttributes.id, reviewer2.id, reviewer1.id, {
+            objectType: 'person',
+            objectUuid: reReviewPersonUuid,
+            reReviewRequestComment: 'please verify'
+        });
+
+        const updatedReview = await dbQueries.setReviewDecisionDecision(localUserInterviewAttributes.id, reviewer2.id, {
+            objectType: 'person',

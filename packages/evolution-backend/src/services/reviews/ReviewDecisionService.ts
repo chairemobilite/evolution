@@ -40,4 +40,41 @@ export class ReviewDecisionService {
         await reviewDecisionsDbQueries.setReviewDecisionDecision(interviewId, userId, review);
         return ReviewDecisionService.getInterviewReview(interviewId, currentUserId ?? userId);
     }
+
+    /**
+     * Ask every other reviewer who already decided on an object to look at it
+     * again (GitHub-style re-request review after corrections). The requester is
+     * never asked, and reviewers without a prior decision are skipped.
+     * @param interviewId - Interview database id
+     * @param requestedByUserId - User requesting the re-review (excluded from the request)
+     * @param review - Object type, uuid and optional re-review comment
+     * @param currentUserId - Optional current reviewer user id for status aggregation
+     * @returns Updated review payload for the interview
+     */
+    static async requestReReviewAndGetInterviewReview(
+        interviewId: number,
+        requestedByUserId: number,
+        review: Pick<ReviewDecision, 'objectType' | 'objectUuid' | 'reReviewRequestComment'>,
+        currentUserId?: number
+    ): Promise<InterviewReview> {
+        const reviewDecisions = await reviewDecisionsDbQueries.getReviewDecisionsForInterview(interviewId);
+        const otherReviewerIds = [
+            ...new Set(
+                reviewDecisions
+                    .filter(
+                        (existing) =>
+                            existing.objectType === review.objectType &&
+                            existing.objectUuid === review.objectUuid &&
+                            existing.userId !== requestedByUserId
+                    )
+                    .map((existing) => existing.userId)
+            )
+        ];
+        await Promise.all(
+            otherReviewerIds.map((targetUserId) =>
+                reviewDecisionsDbQueries.requestReReview(interviewId, targetUserId, requestedByUserId, review)
+            )
+        );
+        return ReviewDecisionService.getInterviewReview(interviewId, currentUserId ?? requestedByUserId);
+    }
 }

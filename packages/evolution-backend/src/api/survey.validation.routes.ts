@@ -385,6 +385,51 @@ router.post('/validation/reviewDecision/:interviewUuid', validateUuidMiddleware,
     }
 });
 
+router.post(
+    '/validation/requestReReview/:interviewUuid',
+    validateUuidMiddleware,
+    async (req: Request, res: Response) => {
+        try {
+            const { objectType, objectUuid, comment } = req.body;
+            const user = req.user as UserAttributes | undefined;
+
+            if (!user?.id) {
+                return res.status(401).json({ status: 'error', error: 'Unauthorized' });
+            }
+            if (!isReviewableObjectType(objectType)) {
+                return res.status(400).json({ status: 'error', error: 'Object type is not reviewable for this survey' });
+            }
+            if (!uuidValidate(objectUuid)) {
+                return res.status(400).json({ status: 'error', error: 'Invalid object uuid' });
+            }
+
+            const interview = await Interviews.getInterviewByUuid(req.params.interviewUuid);
+            if (!interview) {
+                return res.status(404).json({ status: 'error', error: 'Interview does not exist' });
+            }
+            if (!isUserAllowed(user, interview, ['validate'])) {
+                return res
+                    .status(403)
+                    .json({ status: 'error', error: 'Validate permission required to request a re-review' });
+            }
+
+            const surveyReviews = await ReviewDecisionService.requestReReviewAndGetInterviewReview(interview.id, user.id, {
+                objectType,
+                objectUuid,
+                reReviewRequestComment: typeof comment === 'string' ? comment : undefined
+            });
+
+            return res.status(200).json({
+                status: 'success',
+                surveyReviews
+            });
+        } catch (error) {
+            console.log('error requesting re-review for interview:', error);
+            return res.status(500).json({ status: 'error' });
+        }
+    }
+);
+
 /**
  * Batch run audits on interviews matching the provided filters
  */
