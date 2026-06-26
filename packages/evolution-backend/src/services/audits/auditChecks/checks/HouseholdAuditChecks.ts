@@ -196,6 +196,33 @@ export const householdAuditChecks: { [errorCode: string]: HouseholdAuditCheckFun
     },
 
     /**
+     * Info flag when the household has at least one transit segment in any trip.
+     * @param context - HouseholdAuditCheckContext
+     * @returns AuditForObject
+     */
+    HH_F_AtLeastOneTransitSegmentInHousehold: (context: HouseholdAuditCheckContext): AuditForObject | undefined => {
+        const { household } = context;
+
+        const hasTransitSegment = (household.members ?? []).some((person) =>
+            (person.journeys ?? []).some((journey) => (journey.trips ?? []).some((trip) => trip.hasTransit()))
+        );
+
+        if (hasTransitSegment) {
+            return {
+                objectType: 'household',
+                objectUuid: household._uuid!,
+                errorCode: 'HH_F_AtLeastOneTransitSegmentInHousehold',
+                version: 1,
+                level: 'info',
+                message: 'At least one transit trip in household',
+                ignore: false
+            };
+        }
+
+        return undefined; // No audit needed
+    },
+
+    /**
      * Check if car number and vehicles count mismatch
      * validate car number is equal to vehicles count
      * Only check if household has vehicles and car number is defined

@@ -15,6 +15,7 @@
     "HH_L_SizeMembersCountMismatch": "La taille du ménage et le nombre de personnes ne correspondent pas",
     "HH_L_InvalidPersonSequences": "Le numéro de séquence d'au moins une personne est invalide",
     "HH_L_CarNumberVehiclesCountMismatch": "Le nombre de véhicules automobiles et le nombre de véhicules déclarés ne correspondent pas",
+    "HH_F_AtLeastOneTransitSegmentInHousehold": "Au moins un déplacement transport collectif dans le ménage",
     "HH_M_Home": "Le domicile est manquant",
 
     "HM_I_preGeographyAndHomeGeographyTooFarApartError": "Les géographies pré-remplie et déclarée du domicile sont éloignées",
