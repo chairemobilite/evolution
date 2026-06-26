@@ -5,9 +5,6 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import { hasOrUnknownDrivingLicense } from 'evolution-common/lib/services/odSurvey/helpers';
-import type { Person as ResponsePerson } from 'evolution-common/lib/services/questionnaire/types';
-
 import type { AuditForObject } from 'evolution-common/lib/services/audits/types';
 import type { HouseholdAuditCheckContext, HouseholdAuditCheckFunction } from '../AuditCheckContexts';
 
@@ -218,10 +215,8 @@ export const householdAuditChecks: { [errorCode: string]: HouseholdAuditCheckFun
     ): AuditForObject | undefined => {
         const { household } = context;
         const carNumber = household.carNumber;
-        // household.members are base object Person instances; they expose the same
-        // drivingLicenseOwnership/age attributes the helper reads (getters of the same name).
         const potentialDrivingLicenseCount = (household.members ?? []).filter((person) =>
-            hasOrUnknownDrivingLicense({ person: person as unknown as ResponsePerson })
+            person.hasOrUnknownDrivingLicense()
         ).length;
 
         // No cars: nothing to flag. With cars, flag when there is no potential driver,
