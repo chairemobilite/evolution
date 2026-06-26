@@ -12,8 +12,8 @@ import type { TFunction } from 'i18next';
 import * as odHelpers from '../../../odSurvey/helpers';
 import config from '../../../../config/project.config';
 import * as segmentHelpers from './helpers';
-import type { Person } from '../../types';
-import { getModePreIcon } from './modeIconMapping';
+import type { ModeCategoryConfiguration, Person } from '../../types';
+import { getModeIcon, getModePreIcon } from './modeIconMapping';
 import { WidgetFactoryOptions } from '../types';
 
 const perModePreLabels: Partial<{ [modePre: string]: I18nData }> = {
@@ -46,16 +46,46 @@ const perModePreConditionals: Partial<{ [modePre: string]: WidgetConditional }> 
     carDriver: canPersonDriveCar
 };
 
+const getDefaultModePreChoice = (modeCategory: string) => ({
+    value: modeCategory,
+    label: perModePreLabels[modeCategory]
+        ? perModePreLabels[modeCategory]
+        : (t: TFunction) => t(`segments:modePre:${_upperFirst(modeCategory)}`),
+    conditional: perModePreConditionals[modeCategory],
+    iconPath: getModePreIcon(modeCategory)
+});
+
+const getModePreChoiceFromConfig = (modeCategory: string, categoryConfiguration: ModeCategoryConfiguration) => ({
+    value: modeCategory,
+    label:
+        categoryConfiguration.label === undefined && perModePreLabels[modeCategory]
+            ? perModePreLabels[modeCategory]
+            : (t: TFunction) =>
+                t(
+                    categoryConfiguration.label === undefined
+                        ? `segments:modePre:${_upperFirst(modeCategory)}`
+                        : categoryConfiguration.label
+                ),
+    // FIXME Additionally, a conditional should make sure some of the choices
+    // are available, as we do not know anymore that they are in the case of a
+    // mapping. To do so, widgetSegmentMode and widgetSegmentModePre should go
+    // together in a shared widget factory, so they can share their choices and
+    // lists.
+    conditional: categoryConfiguration.conditional ?? perModePreConditionals[modeCategory] ?? undefined,
+    iconPath: getModeIcon(categoryConfiguration.icon ?? (modeCategory as any))
+});
+
 /** TODO Get a segment config in parameter to set the sort order and choices */
-const getModePreChoices = (filteredModesPre: string[]) =>
-    filteredModesPre.map((mode) => ({
-        value: mode,
-        label: perModePreLabels[mode]
-            ? perModePreLabels[mode]
-            : (t: TFunction) => t(`segments:modePre:${_upperFirst(mode)}`),
-        conditional: perModePreConditionals[mode] !== undefined ? perModePreConditionals[mode] : undefined,
-        iconPath: getModePreIcon(mode)
-    }));
+const getModePreChoices = (
+    filteredModesPre: string[],
+    modeCategoryToModeMap: SegmentSectionConfiguration['modeCategoryToModeMap']
+) => {
+    return filteredModesPre.map((modePre) =>
+        modeCategoryToModeMap?.[modePre] !== undefined
+            ? getModePreChoiceFromConfig(modePre, modeCategoryToModeMap[modePre])
+            : getDefaultModePreChoice(modePre)
+    );
+};
 
 export const getModePreWidgetConfig = (
     sectionConfig: SegmentSectionConfiguration,
@@ -67,8 +97,8 @@ export const getModePreWidgetConfig = (
     if (filteredModes.length === 0) {
         throw new Error('No available modes to create modePre widget configuration');
     }
-    const filteredModesPre = segmentHelpers.getFilteredModesPre(filteredModes);
-    const choices = getModePreChoices(filteredModesPre);
+    const filteredModesPre = segmentHelpers.getFilteredModesPre(sectionConfig, filteredModes);
+    const choices = getModePreChoices(filteredModesPre, sectionConfig.modeCategoryToModeMap);
 
     return {
         type: 'question',

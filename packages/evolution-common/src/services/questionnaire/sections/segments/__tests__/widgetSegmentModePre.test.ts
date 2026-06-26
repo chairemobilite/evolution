@@ -109,6 +109,88 @@ describe('getModePreWidgetConfig', () => {
             conditional: expect.any(Function)
         });
     });
+
+    it('should return the correct widget config with a modeCategoryToModeMap configuration', () => {
+
+        const options = {
+            ...widgetFactoryOptions,
+            context: jest.fn()
+        };
+
+        const bicycleConditional = jest.fn();
+
+        const configuration = {
+            ...segmentSectionConfig,
+            modesIncludeOnly: [ 'walk', 'bicycle', 'transitBus', 'carDriver', 'carPassenger', 'plane', 'dontKnow' ] as Mode[],
+            modeCategoryToModeMap: {
+                walking: { // Will use the fallback icon
+                    modes: ['walk'] as Mode[],
+                    label: `segments:mode:Walk`
+                },
+                bicycle: { // Should have thsi conditional
+                    modes: ['bicycle'] as Mode[],
+                    conditional: bicycleConditional
+                },
+                transit: { // Should use icon from transit
+                    modes: ['transitBus', 'plane'] as Mode[],
+                    icon: 'transitBus' as Mode
+                },
+                carDriver: { // Should use conditional for carDriver
+                    modes: ['carDriver', 'carPassenger' ] as Mode[]
+                },
+                dontKnow: {
+                    modes: ['dontKnow'] as Mode[]
+                }
+            }
+        }
+
+        const widgetConfig = getModePreWidgetConfig(configuration, options);
+
+        expect(widgetConfig).toEqual({
+            type: 'question',
+            path: 'modePre',
+            inputType: 'radio',
+            twoColumns: false,
+            datatype: 'string',
+            iconSize: '2.25em',
+            columns: 2,
+            label: expect.any(Function),
+            choices: expect.arrayContaining([
+                expect.objectContaining({
+                    value: 'walking',
+                    label: expect.any(Function),
+                    conditional: undefined,
+                    iconPath: '/dist/icons/modes/other/air_balloon.svg'
+                }),
+                expect.objectContaining({
+                    value: 'bicycle',
+                    label: expect.any(Function),
+                    conditional: bicycleConditional,
+                    iconPath: '/dist/icons/modes/bicycle/bicycle_with_rider.svg'
+                }),
+                expect.objectContaining({
+                    value: 'transit',
+                    label: expect.any(Function),
+                    conditional: undefined,
+                    iconPath: '/dist/icons/modes/bus/bus_city.svg'
+                }),
+                expect.objectContaining({
+                    value: 'carDriver',
+                    label: expect.any(Function),
+                    conditional: expect.any(Function),
+                    iconPath: '/dist/icons/modes/car/car_driver_without_passenger.svg'
+                }),
+                expect.objectContaining({
+                    value: 'dontKnow',
+                    label: expect.any(Function),
+                    conditional: undefined,
+                    iconPath: '/dist/icons/modes/other/question_mark.svg'
+                })
+            ]),
+            validations: expect.any(Function),
+            conditional: expect.any(Function)
+        });
+    });
 });
 
 describe('Mode choices conditionals', () => {
@@ -215,6 +297,74 @@ describe('Mode choices conditionals', () => {
 
 });
 
+describe('Mode choices conditionals, from configurable map', () => {
+    // Include carDriver, to use the default conditional, transitBus, without condition and plane, with a condition
+    const otherConditional = jest.fn()
+    const configuration = {
+        ...segmentSectionConfig,
+        modesIncludeOnly: [ 'transitBus', 'carDriver', 'plane' ] as Mode[],
+        modeCategoryToModeMap: {
+            carDriver: { // Should use default conditional
+                modes: ['carDriver'] as Mode[]
+            },
+            transit: { // Should not have a conditional
+                modes: ['transitBus', 'plane'] as Mode[],
+            },
+            other: { // Should use conditional this conditional
+                modes: ['plane'] as Mode[],
+                conditional: otherConditional
+            }
+        }
+    }
+    const widgetConfig = getModePreWidgetConfig(configuration, widgetFactoryOptions) as QuestionWidgetConfig & InputRadioType;
+    const choices = widgetConfig.choices as RadioChoiceType[];
+
+    test('configured mode carDriver should use default conditional if the category has a conditional', () => {
+        // Prepare test data with active person/journey/trip
+        const interview = _cloneDeep(interviewAttributesForTestCases);
+        interview.response._activePersonId = 'personId1';
+        interview.response._activeJourneyId = 'journeyId1';
+        interview.response._activeTripId = 'tripId1P1';
+
+        // Find the carDriver choice
+        const carDriverChoice = choices.find((choice) => choice.value === 'carDriver');
+        expect(carDriverChoice).toBeDefined();
+        expect(carDriverChoice?.conditional).toEqual(expect.any(Function));
+        const carDriverResult = carDriverChoice?.conditional?.(interview, 'household.persons.personId1.journeys.journeyId1.trips.tripId1P1.segments.segmentId1P1T1.modePre');
+        expect(carDriverResult).toEqual(true);
+    });
+
+    test('configured mode transit should not have a conditional', () => {
+        // Prepare test data with active person/journey/trip
+        const interview = _cloneDeep(interviewAttributesForTestCases);
+        interview.response._activePersonId = 'personId2';
+        interview.response._activeJourneyId = 'journeyId2';
+        interview.response._activeTripId = 'tripId1P2';
+
+        // Find the transit choice
+        const transitChoice = choices.find((choice) => choice.value === 'transit');
+        expect(transitChoice).toBeDefined();
+        expect(transitChoice?.conditional).toBeUndefined();
+    });
+
+    test('configured mode other should use provided conditional', () => {
+        // Prepare test data with active person/journey/trip
+        const interview = _cloneDeep(interviewAttributesForTestCases);
+        interview.response._activePersonId = 'personId3';
+        interview.response._activeJourneyId = 'journeyId3';
+        interview.response._activeTripId = 'tripId1P3';
+
+        // Find the other choice
+        const otherChoice = choices.find((choice) => choice.value === 'other');
+        expect(otherChoice).toBeDefined();
+        expect(otherChoice?.conditional).toBeDefined();
+        otherConditional.mockReturnValue(true);
+        const otherResult = otherChoice?.conditional?.(interview, 'household.persons.personId3.journeys.journeyId3.trips.tripId1P2.segments.segmentId1P3T1.modePre');
+        expect(otherResult).toEqual(true);
+        expect(otherConditional).toHaveBeenCalledWith(interview, 'household.persons.personId3.journeys.journeyId3.trips.tripId1P2.segments.segmentId1P3T1.modePre')
+    });
+});
+
 describe('Mode choices labels', () => {
     // Prepare test data with active person/journey/trip
     const interview = _cloneDeep(interviewAttributesForTestCases);
@@ -251,6 +401,41 @@ describe('Mode choices labels', () => {
         translateString(choice?.label, { t: mockedT } as any, interview, 'path');
         expect(mockedT).toHaveBeenCalledWith('segments:modePre:WalkOrMobilityHelp');
     });
+
+    describe('should return the right label for configured mode category mapping', () => {
+        // Add labels to a simple choice mapping
+        const configuration = {
+            ...segmentSectionConfig,
+            modesIncludeOnly: [ 'transitBus', 'carDriver' ] as Mode[],
+            modeCategoryToModeMap: {
+                category1: { // Should use provided label
+                    modes: ['carDriver'] as Mode[],
+                    label: 'myLabel'
+                },
+                category2: { // Should append the category2 
+                    modes: ['transitBus'] as Mode[],
+                }
+            }
+        }
+        const widgetConfig = getModePreWidgetConfig(configuration, widgetFactoryOptions) as QuestionWidgetConfig & InputRadioType;
+        const choices = widgetConfig.choices as RadioChoiceType[];
+
+        test('should use provided label if available', () => {
+            const mockedT = jest.fn();
+            const choice = choices.find((choice) => choice.value === 'category1');
+            expect(choice).toBeDefined();
+            translateString(choice?.label, { t: mockedT } as any, interview, 'path');
+            expect(mockedT).toHaveBeenCalledWith('myLabel');
+        });
+
+        test('should fallback to adding the category to default namespace if not provided', () => {
+            const mockedT = jest.fn();
+            const choice = choices.find((choice) => choice.value === 'category2');
+            expect(choice).toBeDefined();
+            translateString(choice?.label, { t: mockedT } as any, interview, 'path');
+            expect(mockedT).toHaveBeenCalledWith('segments:modePre:Category2');
+        });
+    })
 
 });
 

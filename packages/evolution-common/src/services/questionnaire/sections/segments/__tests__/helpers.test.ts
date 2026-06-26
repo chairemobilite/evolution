@@ -11,7 +11,7 @@ import { interviewAttributesForTestCases, setActiveSurveyObjects } from '../../.
 import { getResponse, setResponse } from '../../../../../utils/helpers';
 import * as helpers from '../helpers';
 import type { Journey, Person, Segment, UserInterviewAttributes } from '../../../types';
-import { modeValues, Mode } from '../../../../odSurvey/types';
+import { modeValues, Mode, defaultModePreToModeMap } from '../../../../odSurvey/types';
 
 describe('getPreviousTripSingleSegment', () => {
 
@@ -546,8 +546,13 @@ describe('Mode/modePre filtering based on configuration', () => {
     });
 
     test('getFilteredModesPre should only include categories with available modes', () => {
+        const segmentConfig = {
+            type: 'segments' as const,
+            enabled: true,
+            modesIncludeOnly: ['walk', 'bicycle', 'bicycleElectric'] as Mode[]
+        };
         const availableModes = ['walk', 'bicycle', 'bicycleElectric'] as Mode[];
-        const filteredModesPre = helpers.getFilteredModesPre(availableModes);
+        const filteredModesPre = helpers.getFilteredModesPre(segmentConfig, availableModes);
 
         // Should include walk and bicycle categories
         expect(filteredModesPre).toContain('walk');
@@ -560,8 +565,13 @@ describe('Mode/modePre filtering based on configuration', () => {
     });
 
     test('getFilteredModesPre should include transit when any transit mode is available', () => {
+        const segmentConfig = {
+            type: 'segments' as const,
+            enabled: true,
+            modesIncludeOnly: ['transitBus', 'walk'] as Mode[]
+        };
         const availableModes = ['transitBus', 'walk'] as Mode[];
-        const filteredModesPre = helpers.getFilteredModesPre(availableModes);
+        const filteredModesPre = helpers.getFilteredModesPre(segmentConfig, availableModes);
 
         // Should include transit because transitBus is available
         expect(filteredModesPre).toContain('transit');
@@ -571,8 +581,13 @@ describe('Mode/modePre filtering based on configuration', () => {
     });
 
     test('getFilteredModesPre should handle modes that belong to multiple categories', () => {
+        const segmentConfig = {
+            type: 'segments' as const,
+            enabled: true,
+            modesIncludeOnly: ['wheelchair', 'mobilityScooter'] as Mode[]
+        };
         const availableModes = ['wheelchair', 'mobilityScooter'] as Mode[];
-        const filteredModesPre = helpers.getFilteredModesPre(availableModes);
+        const filteredModesPre = helpers.getFilteredModesPre(segmentConfig, availableModes);
 
         // wheelchair and mobilityScooter belong to both 'walk' and 'other'
         expect(filteredModesPre).toContain('walk');
@@ -581,6 +596,125 @@ describe('Mode/modePre filtering based on configuration', () => {
         expect(filteredModesPre).not.toContain('carDriver');
         expect(filteredModesPre.length).toEqual(2);
     });
+
+    test('getFilteredModesPre should use the modeCategoryToModeMap when available', () => {
+        const segmentConfig = {
+            type: 'segments' as const,
+            enabled: true,
+            modesIncludeOnly: ['wheelchair', 'mobilityScooter'] as Mode[],
+            modeCategoryToModeMap: {
+                active: {
+                    modes: ['walk', 'bicycle'] as Mode[]
+                },
+                personal: {
+                    modes: ['carDriver', 'carPassenger'] as Mode[],
+                    label: 'segments:myLabel'
+                },
+                public: {
+                    modes: ['transitRRT', 'transitHSR'] as Mode[],
+                    icon: 'transitRRT' as Mode,
+                },
+                other: {
+                    modes: ['plane', 'transitBus'] as Mode[]
+                }
+            }
+        };
+        const availableModes = ['walk', 'bicycle', 'transitRRT', 'transitHSR', 'plane', 'carDriver', 'carPassenger'] as Mode[];
+        const filteredModesPre = helpers.getFilteredModesPre(segmentConfig, availableModes);
+
+        expect(filteredModesPre).toEqual(['active', 'personal', 'public', 'other']);
+    });
+
+    test('getFilteredModesPre should use the modeCategoryToModeMap when available, returning only categories with modes', () => {
+        const segmentConfig = {
+            type: 'segments' as const,
+            enabled: true,
+            modesIncludeOnly: ['wheelchair', 'mobilityScooter'] as Mode[],
+            modeCategoryToModeMap: {
+                active: {
+                    modes: ['walk', 'bicycle'] as Mode[]
+                },
+                personal: {
+                    modes: ['carDriver', 'carPassenger'] as Mode[],
+                    label: 'segments:myLabel'
+                },
+                public: {
+                    modes: ['transitRRT', 'transitHSR'] as Mode[],
+                    icon: 'transitRRT' as Mode,
+                },
+                other: {
+                    modes: ['plane', 'transitBus'] as Mode[]
+                }
+            }
+        };
+        // Should include only active and personal
+        const availableModes = ['walk', 'bicycle', 'carDriver', 'carPassenger'] as Mode[];
+        const filteredModesPre = helpers.getFilteredModesPre(segmentConfig, availableModes);
+
+        expect(filteredModesPre).toEqual(['active', 'personal']);
+    });
+
+    test('getFilteredModesPre should throw error when modes are missing from modeCategoryToModeMap', () => {
+        const segmentConfig = {
+            type: 'segments' as const,
+            enabled: true,
+            modesIncludeOnly: ['wheelchair', 'mobilityScooter'] as Mode[],
+            modeCategoryToModeMap: {
+                active: {
+                    modes: ['walk', 'bicycle'] as Mode[]
+                },
+                personal: {
+                    modes: ['carDriver', 'carPassenger'] as Mode[],
+                    label: 'segments:myLabel'
+                },
+                public: {
+                    modes: ['transitRRT', 'transitHSR'] as Mode[],
+                    icon: 'transitRRT' as Mode,
+                },
+                other: {
+                    modes: ['plane', 'transitBus'] as Mode[]
+                }
+            }
+        };
+        // 'dontKnow' is in no category
+        const availableModes = ['walk', 'bicycle', 'carDriver', 'carPassenger', 'dontKnow'] as Mode[];
+
+        expect(() => helpers.getFilteredModesPre(segmentConfig, availableModes)).toThrow('modeCategoryToModeMap: some modes are not part of any mapping: dontKnow');
+    });
+
+    test('getModePreToModeMap should return default if no modeCategoryToModeMap', () => {
+        const segmentConfig = {
+            type: 'segments' as const,
+            enabled: true,
+            modesIncludeOnly: ['wheelchair', 'mobilityScooter'] as Mode[],
+        };
+        expect(helpers.getModePreToModeMap(segmentConfig)).toEqual(defaultModePreToModeMap);
+    });
+
+    test('getModePreToModeMap should return mapping from modeCategoryToModeMap', () => {
+        const segmentConfig = {
+            type: 'segments' as const,
+            enabled: true,
+            modesIncludeOnly: ['wheelchair', 'mobilityScooter'] as Mode[],
+            modeCategoryToModeMap: {
+                active: {
+                    modes: ['walk', 'bicycle'] as Mode[]
+                },
+                public: {
+                    modes: ['transitRRT', 'transitHSR', 'transitBus'] as Mode[],
+                    icon: 'transitRRT' as Mode,
+                },
+                other: {
+                    modes: ['plane', 'transitBus', 'walk'] as Mode[]
+                }
+            }
+        };
+        expect(helpers.getModePreToModeMap(segmentConfig)).toEqual({
+            active: ['walk', 'bicycle'],
+            public: ['transitRRT', 'transitHSR', 'transitBus'],
+            other: ['plane', 'transitBus', 'walk']
+        });
+    })
 });
 
 describe('getSegmentPreviousLocation and getSegmentNextLocation', () => {

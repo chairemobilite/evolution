@@ -8,7 +8,14 @@
 import _isEqual from 'lodash/isEqual';
 import { isFeature, isPoint } from 'geojson-validation';
 import * as odHelpers from '../../../odSurvey/helpers';
-import { simpleModes, Mode, modeValues, defaultModePreValues, defaultModeToModePreMap } from '../../../odSurvey/types';
+import {
+    simpleModes,
+    Mode,
+    modeValues,
+    defaultModePreValues,
+    defaultModeToModePreMap,
+    defaultModePreToModeMap
+} from '../../../odSurvey/types';
 import type { Optional } from '../../../../types/Optional.type';
 import type {
     Journey,
@@ -189,13 +196,9 @@ export const getFilteredModes = (segmentConfig: SegmentSectionConfiguration): Mo
     return modeValues as unknown as Mode[];
 };
 
-/**
- * Filter the available mode categories (modePre) based on the filtered modes.
- * Only keep modePre values that have at least one available mode.
- */
-export const getFilteredModesPre = (availableModes: Mode[]): string[] => {
+const getFilteredModesPreFromDefault = (availableModes: Mode[]) =>
     // Keep only modePre values that have at least one mode in the availableModes
-    return defaultModePreValues.filter((modePre) => {
+    defaultModePreValues.filter((modePre) => {
         // Get all modes for this modePre from the reverse map
         const modesForThisModePre = Object.entries(defaultModeToModePreMap)
             .filter(([_mode, modePres]) => modePres.includes(modePre))
@@ -204,6 +207,51 @@ export const getFilteredModesPre = (availableModes: Mode[]): string[] => {
         // Check if at least one of these modes is in the availableModes
         return modesForThisModePre.some((mode) => availableModes.includes(mode));
     });
+
+const getFilteredModesPreFromConfig = (
+    modeCategoryToModeMap: Exclude<SegmentSectionConfiguration['modeCategoryToModeMap'], undefined>,
+    availableModes: Mode[]
+) => {
+    const modeToModePreMap = Object.entries(modeCategoryToModeMap).reduce((acc, [category, catDesc]) => {
+        catDesc.modes.forEach((mode) => {
+            if (!acc[mode]) {
+                acc[mode] = [];
+            }
+            acc[mode].push(category);
+        });
+        return acc;
+    }, {});
+    // Make sure all available modes are configured in the category mapping
+    const missingModes = availableModes.filter((mode) => !Object.keys(modeToModePreMap).includes(mode));
+    if (missingModes.length > 0) {
+        throw new Error('modeCategoryToModeMap: some modes are not part of any mapping: ' + missingModes.join(', '));
+    }
+    // Return only categories with available modes
+    return Object.keys(modeCategoryToModeMap).filter((category) =>
+        modeCategoryToModeMap[category].modes.some((mode) => availableModes.includes(mode))
+    );
+};
+
+export const getModePreToModeMap = (sectionConfig: SegmentSectionConfiguration) =>
+    sectionConfig.modeCategoryToModeMap === undefined
+        ? defaultModePreToModeMap
+        : Object.entries(sectionConfig.modeCategoryToModeMap).reduce((acc, [category, catDesc]) => {
+            if (catDesc.modes.length > 0) {
+                acc[category] = catDesc.modes;
+            }
+            return acc;
+        }, {});
+
+/**
+ * Filter the available mode categories (modePre) based on the filtered modes.
+ * Only keep modePre values that have at least one available mode.
+ */
+export const getFilteredModesPre = (sectionConfig: SegmentSectionConfiguration, availableModes: Mode[]): string[] => {
+    if (sectionConfig.modeCategoryToModeMap) {
+        return getFilteredModesPreFromConfig(sectionConfig.modeCategoryToModeMap, availableModes);
+    } else {
+        return getFilteredModesPreFromDefault(availableModes);
+    }
 };
 
 // Internal interface for various implementations of the segment next/previous

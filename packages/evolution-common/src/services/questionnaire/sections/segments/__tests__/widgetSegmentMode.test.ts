@@ -7,7 +7,7 @@
 import _upperFirst from 'lodash/upperFirst';
 import _cloneDeep from 'lodash/cloneDeep';
 import each from 'jest-each';
-import { InputRadioType, QuestionWidgetConfig, RadioChoiceType } from '../../../../questionnaire/types';
+import { InputRadioType, QuestionWidgetConfig, RadioChoiceType, SegmentSectionConfiguration } from '../../../../questionnaire/types';
 import { getModeWidgetConfig } from '../widgetSegmentMode';
 import { interviewAttributesForTestCases, widgetFactoryOptions } from '../../../../../tests/surveys';
 import { setResponse, translateString } from '../../../../../utils/helpers';
@@ -140,6 +140,47 @@ describe('Mode choices conditionals', () => {
             expect(mockedHhMayHaveDisability).not.toHaveBeenCalled();
         }
     });
+
+    describe('Test modePre conditional when a modeCategoryToModeMap is provided', () => {
+        const configuration: SegmentSectionConfiguration = {
+            ...segmentSectionConfig,
+            modesIncludeOnly: [ 'walk', 'bicycle', 'transitBus', 'carDriver', 'carPassenger', 'plane', 'dontKnow' ] as Mode[],
+            modeCategoryToModeMap: {
+                walking: { // Will use the fallback icon
+                    modes: ['walk'] as Mode[],
+                    label: `segments:mode:Walk`
+                },
+                bicycle: {
+                    modes: ['bicycle'] as Mode[]
+                },
+                transit: { // Should use icon from transit
+                    modes: ['transitBus', 'plane'] as Mode[],
+                    icon: 'transitBus' as Mode
+                },
+                carDriver: { // Should use conditional for carDriver
+                    modes: ['carDriver', 'carPassenger' ] as Mode[]
+                },
+                dontKnow: {
+                    modes: ['dontKnow'] as Mode[]
+                }
+            }
+        }
+        const widgetConfig = getModeWidgetConfig(configuration, widgetFactoryOptions) as QuestionWidgetConfig & InputRadioType;
+        const choices = widgetConfig.choices as RadioChoiceType[];
+
+        const modePres = ['walking', 'bicycle', 'transit', 'carDriver', 'dontKnow'];
+
+        each(
+            modePres.flatMap((modePre) => configuration.modesIncludeOnly!.map((mode) => [mode, modePre, (configuration.modeCategoryToModeMap as any)[modePre].modes.includes(mode as any)]))
+        ).test('Test modePre conditional for mode %s with modePre %s: %s', (choiceValue, modePreValue, expected) => {
+            // Find the right choice choice
+            const modeChoice = choices.find((choice) => choice.value === choiceValue);
+            expect(modeChoice).toBeDefined();
+            setResponse(interview, 'household.persons.personId1.journeys.journeyId1.trips.tripId1P1.segments.segmentId1P1T1.modePre', modePreValue);
+            const modeResult = modeChoice?.conditional?.(interview, 'household.persons.personId1.journeys.journeyId1.trips.tripId1P1.segments.segmentId1P1T1.mode');
+            expect(modeResult).toEqual(expected);
+        });
+    })
 
 });
 
