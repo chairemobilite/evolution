@@ -312,6 +312,25 @@ export class Person extends SurveyObject {
         this._attributes.drivingLicenseOwnership = value;
     }
 
+    /**
+     * Return whether this person has a driving license or is a potential driver
+     * (driving age with unknown license ownership).
+     *
+     * TODO: consolidate with `hasOrUnknownDrivingLicense` in `odSurvey/helpers.ts`;
+     * duplicate logic until questionnaire helpers and base object methods are unified.
+     *
+     * @returns `true` if the person has a license or is of driving age with unknown ownership
+     */
+    hasOrUnknownDrivingLicense(): boolean {
+        const drivingLicenseOwnership = this.drivingLicenseOwnership ?? 'dontKnow';
+        return (
+            drivingLicenseOwnership === 'yes' ||
+            (this.age !== undefined &&
+                this.age >= projectConfig.drivingLicenseAge &&
+                drivingLicenseOwnership === 'dontKnow')
+        );
+    }
+
     get transitPassOwnership(): Optional<PAttr.TransitPassOwnership> {
         return this._attributes.transitPassOwnership;
     }
