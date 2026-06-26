@@ -12,6 +12,7 @@
     "HH_M_Size": "La taille du ménage est manquante",
     "HH_M_CarNumber": "Le nombre de véhicules automobiles est manquant",
     "HH_I_CarNumber": "Le nombre de véhicules automobiles est en dehors de la plage autorisée (devrait être un entier entre 0 et 13)",
+    "HH_L_CarNumberPerPotentialDrivingLicenseTooHigh": "Le nombre de véhicules automobiles par titulaire potentiel d'un permis de conduire > 3",
     "HH_L_SizeMembersCountMismatch": "La taille du ménage et le nombre de personnes ne correspondent pas",
     "HH_L_InvalidPersonSequences": "Le numéro de séquence d'au moins une personne est invalide",
     "HH_L_CarNumberVehiclesCountMismatch": "Le nombre de véhicules automobiles et le nombre de véhicules déclarés ne correspondent pas",
