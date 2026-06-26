@@ -15,6 +15,7 @@
     "HH_L_SizeMembersCountMismatch": "Size and members count mismatch",
     "HH_L_InvalidPersonSequences": "At least one person sequence is invalid",
     "HH_L_CarNumberVehiclesCountMismatch": "Car number and vehicles count mismatch",
+    "HH_F_AtLeastOneTransitSegmentInHousehold": "At least one transit trip in household",
     "HH_M_Home": "Home is missing",
 
     "HM_I_preGeographyAndHomeGeographyTooFarApartError": "Pre-filled and declared home geographies are far apart",
