@@ -16,6 +16,7 @@
     "HH_L_InvalidPersonSequences": "Le numéro de séquence d'au moins une personne est invalide",
     "HH_L_CarNumberVehiclesCountMismatch": "Le nombre de véhicules automobiles et le nombre de véhicules déclarés ne correspondent pas",
     "HH_M_Home": "Le domicile est manquant",
+    "HH_M_AtLeastOnePersonWithDisability": "La présence d'au moins une personne avec un handicap est manquante",
 
     "HM_I_preGeographyAndHomeGeographyTooFarApartError": "Les géographies pré-remplie et déclarée du domicile sont éloignées",
     "HM_I_preGeographyAndHomeGeographyTooFarApartWarning": "Les géographies pré-remplie et déclarée du domicile sont un peu éloignées",
