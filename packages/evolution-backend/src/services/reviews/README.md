@@ -2,7 +2,7 @@
 
 **Review** is the post-submission process of examining an interview in the admin app. A **review decision** is one reviewer's approve/reject on a specific survey object during that process.
 
-Each review decision is persisted in the `sv_reviews` database table and surfaced to reviewers in the admin app. Review decisions do *not* block the respondent while they fill the questionnaire.
+Each review decision is persisted in the `sv_reviews` database table and surfaced to reviewers in the admin app.
 
 Each row records:
 
@@ -13,18 +13,31 @@ Each row records:
 - an optional **comment** on the review decision
 - an optional **re-review request** (`re_review_requested`) so a reviewer can be asked to look again after corrections, with `re_review_request_comment`
 
-This replaces the legacy `_isValid` flag on survey objects (`IValidatable`), which mixed structural validation with reviewer workflow.
+## Persistence model
 
-## API
+One row per `(interview, object, user)` — **upsert only**, no history for the same reviewer on the same object. If a reviewer changes their mind (reject → approve, or vice versa), the existing row is updated. Different reviewers still get separate rows, so approve/reject disagreements remain visible.
 
-- `POST /validation/reviewDecision/:interviewUuid` — submit an approve/reject review decision with optional `comment`
+Optional columns on the same row:
+
+- `force_approved` — admin override on this reviewer's row (kept alongside `decision_value`)
+- `force_approve_comment` — comment for the force-approve action (separate from the review decision `comment`)
+
+- `GET /survey/correctInterview/:uuid` — interview payload includes `surveyObjectsAndAuditsAndReviewDecisions` (survey objects, audits, and review decisions)
+- `POST /validation/reviewDecision/:interviewUuid` — submit an approve/reject review decision with optional `comment`; returns updated `surveyObjectsAndAuditsAndReviewDecisions` (review decisions slice)
 - `POST /validation/requestReReview/:interviewUuid` — ask **every other reviewer** who already submitted a review decision on the object to look again (`comment` explains what to verify). The requester is never asked; reviewers without a prior review decision are skipped.
 
 Submitting a new approve/reject review decision clears the pending re-review flag for that reviewer.
 
+## Admin force-approve
+
+When reviewers disagree on an object (`hasConflict`), a user with the `confirm` permission can **force-approve** it. This sets `force_approved = true` on the admin's own `sv_reviews` row and does not change their `decision_value` or review decision `comment` — both traces are kept (e.g. reject + force approve).
+
+- `effectiveStatus` becomes `forceApproved` when any review decision row has `force_approved`
+- `POST /validation/forceApprove/:interviewUuid` — body: `objectType`, `objectUuid`, optional `comment` (stored as `force_approve_comment`); requires `confirm` permission
+
 ## Related modules
 
-- Types and aggregation: `evolution-common/src/services/reviewDecisions/`
+- Types and aggregation: `evolution-common/src/services/reviews/`
 - Interface for survey objects: `evolution-common/src/services/baseObjects/IReviewable.ts`
 - Database queries: `evolution-backend/src/models/reviewDecisions.db.queries.ts`
 - API routes: `evolution-backend/src/api/survey.validation.routes.ts`

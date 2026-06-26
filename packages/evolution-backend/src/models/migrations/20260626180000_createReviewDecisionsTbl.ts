@@ -19,6 +19,8 @@ export async function up(knex: Knex): Promise<unknown> {
         table.uuid('object_uuid').notNullable();
         table.enu('decision_value', ['approve', 'reject']).notNullable();
         table.text('comment').nullable();
+        table.boolean('force_approved').notNullable().defaultTo(false);
+        table.text('force_approve_comment').nullable();
         table.boolean('re_review_requested').notNullable().defaultTo(false);
         table.integer('re_review_requested_by_user_id').nullable().index();
         table.foreign('re_review_requested_by_user_id').references('users.id').onDelete('SET NULL');

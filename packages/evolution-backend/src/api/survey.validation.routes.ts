@@ -22,12 +22,13 @@ import { logUserAccessesMiddleware } from '../services/logging/queryLoggingMiddl
 import { _booleish, _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { SurveyObjectsAndAuditsFactory } from '../services/audits/SurveyObjectsAndAuditsFactory';
 import { SurveyObjectsWithAudits } from 'evolution-common/lib/services/audits/types';
+import type { SurveyObjectsWithAuditsAndReviewDecisions } from 'evolution-common/lib/services/reviews/types';
 import { InterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import validateUuidMiddleware from './helpers/validateUuidMiddleware';
 import { getParadataLoggingFunction } from '../services/logging/paradataLogging';
 import { BatchAuditService } from '../services/audits/BatchAuditService';
-import { ReviewDecisionService } from '../services/reviewDecisions/ReviewDecisionService';
-import type { ReviewDecisionValue } from 'evolution-common/lib/services/reviewDecisions/types';
+import { ReviewDecisionService } from '../services/reviews/ReviewDecisionService';
+import type { ReviewDecisionValue } from 'evolution-common/lib/services/reviews/types';
 import type { SurveyObjectNames } from 'evolution-common/lib/services/baseObjects/types';
 import { validate as uuidValidate } from 'uuid';
 import { hasErrors } from 'evolution-common/lib/types/Result.type';
@@ -68,11 +69,11 @@ function sanitizeFilters(filters: Record<string, unknown>): { [key: string]: Fil
     return actualFilters;
 }
 
-const isReviewDecision = (value: unknown): value is ReviewDecision => value === 'approve' || value === 'reject';
+const isReviewDecisionValue = (value: unknown): value is ReviewDecisionValue =>
+    value === 'approve' || value === 'reject';
 
 const isReviewableObjectType = (value: unknown): value is SurveyObjectNames =>
-    typeof value === 'string' &&
-    commonProjectConfig.reviewableSurveyObjects.includes(value as SurveyObjectNames);
+    typeof value === 'string' && commonProjectConfig.reviewableSurveyObjects.includes(value as SurveyObjectNames);
 
 // This route fetches the interview for correction. It runs the audit and
 // returns serialized objects for the interview summary page.
@@ -111,7 +112,10 @@ router.get(
                             runExtendedAuditChecks
                         );
                     const userId = req.user ? (req.user as UserAttributes).id : undefined;
-                    const surveyReviews = await ReviewDecisionService.getInterviewReview(interview.id, userId);
+                    const surveyObjectsAndAuditsAndReviewDecisions: SurveyObjectsWithAuditsAndReviewDecisions = {
+                        ...objectsAndAudits,
+                        ...(await ReviewDecisionService.getReviewDecisions(interview.id, userId))
+                    };
 
                     // TODO Here, the response field should not make it to frontend. But make sure there are no side effect in the frontend, where the _response is used or checked.
                     const { response, corrected_response, ...rest } = interview;
@@ -120,8 +124,7 @@ router.get(
                         interview: {
                             response: corrected_response,
                             _response: response,
-                            surveyObjectsAndAudits: objectsAndAudits,
-                            surveyReviews,
+                            surveyObjectsAndAuditsAndReviewDecisions,
                             ...rest,
                             validationDataDirty:
                                 response._updatedAt !== undefined &&
@@ -299,7 +302,7 @@ router.post('/validationList', async (req, res) => {
             interviews: response.interviews.map(projectConfig.validationListFilter)
         });
     } catch (error) {
-        console.log('error getting interview list:', error);
+        console.error('error getting interview list:', error);
         return res.status(500).json({ status: 'Error' });
     }
 });
@@ -319,7 +322,7 @@ router.post('/validation/auditStats', async (req: Request, res: Response) => {
             auditStats: response.auditStats
         });
     } catch (error) {
-        console.log('error getting interview list:', error);
+        console.error('error getting interview list:', error);
         return res.status(500).json({ status: 'Error' });
     }
 });
@@ -337,53 +340,62 @@ router.post('/validation/updateAudits/:uuid', async (req, res, _next) => {
             status: 'ok'
         });
     } catch (error) {
-        console.log('error updating audits for interview:', error);
+        console.error('error updating audits for interview:', error);
         return res.status(500).json({ status: 'Error' });
     }
 });
 
-router.post('/validation/reviewDecision/:interviewUuid', validateUuidMiddleware, async (req: Request, res: Response) => {
-    try {
-        const { objectType, objectUuid, decision, comment } = req.body;
-        const user = req.user as UserAttributes | undefined;
+router.post(
+    '/validation/reviewDecision/:interviewUuid',
+    validateUuidMiddleware,
+    async (req: Request, res: Response) => {
+        try {
+            const { objectType, objectUuid, decision, comment } = req.body;
+            const user = req.user as UserAttributes | undefined;
 
-        if (!user?.id) {
-            return res.status(401).json({ status: 'error', error: 'Unauthorized' });
-        }
-        if (!isReviewableObjectType(objectType)) {
-            return res.status(400).json({ status: 'error', error: 'Object type is not reviewable for this survey' });
-        }
-        if (!uuidValidate(objectUuid)) {
-            return res.status(400).json({ status: 'error', error: 'Invalid object uuid' });
-        }
-        if (!isReviewDecisionValue(decision)) {
-            return res.status(400).json({ status: 'error', error: 'Invalid review decision' });
-        }
+            if (!user?.id) {
+                return res.status(401).json({ status: 'error', error: 'Unauthorized' });
+            }
+            if (!isReviewableObjectType(objectType)) {
+                return res
+                    .status(400)
+                    .json({ status: 'error', error: 'Object type is not reviewable for this survey' });
+            }
+            if (!uuidValidate(objectUuid)) {
+                return res.status(400).json({ status: 'error', error: 'Invalid object uuid' });
+            }
+            if (!isReviewDecisionValue(decision)) {
+                return res.status(400).json({ status: 'error', error: 'Invalid review decision' });
+            }
 
-        const interview = await Interviews.getInterviewByUuid(req.params.interviewUuid);
-        if (!interview) {
-            return res.status(404).json({ status: 'error', error: 'Interview does not exist' });
-        }
-        if (!isUserAllowed(user, interview, ['validate'])) {
-            return res.status(403).json({ status: 'error', error: 'Validate permission required to review objects' });
-        }
+            const interview = await Interviews.getInterviewByUuid(req.params.interviewUuid);
+            if (!interview) {
+                return res.status(404).json({ status: 'error', error: 'Interview does not exist' });
+            }
+            if (!isUserAllowed(user, interview, ['validate'])) {
+                return res
+                    .status(403)
+                    .json({ status: 'error', error: 'Validate permission required to review objects' });
+            }
 
-        const surveyReviews = await ReviewDecisionService.setReviewDecisionAndGetInterviewReview(interview.id, user.id, {
-            objectType,
-            objectUuid,
-            decision,
-            comment: typeof comment === 'string' ? comment : undefined
-        });
+            const surveyObjectsAndAuditsAndReviewDecisions =
+                await ReviewDecisionService.setReviewDecisionAndGetReviewDecisions(interview.id, user.id, {
+                    objectType,
+                    objectUuid,
+                    decision,
+                    comment: typeof comment === 'string' ? comment : undefined
+                });
 
-        return res.status(200).json({
-            status: 'success',
-            surveyReviews
-        });
-    } catch (error) {
-        console.log('error setting review for interview:', error);
-        return res.status(500).json({ status: 'error' });
+            return res.status(200).json({
+                status: 'success',
+                surveyObjectsAndAuditsAndReviewDecisions
+            });
+        } catch (error) {
+            console.error('error setting review for interview:', error);
+            return res.status(500).json({ status: 'error' });
+        }
     }
-});
+);
 
 router.post(
     '/validation/requestReReview/:interviewUuid',
@@ -397,7 +409,9 @@ router.post(
                 return res.status(401).json({ status: 'error', error: 'Unauthorized' });
             }
             if (!isReviewableObjectType(objectType)) {
-                return res.status(400).json({ status: 'error', error: 'Object type is not reviewable for this survey' });
+                return res
+                    .status(400)
+                    .json({ status: 'error', error: 'Object type is not reviewable for this survey' });
             }
             if (!uuidValidate(objectUuid)) {
                 return res.status(400).json({ status: 'error', error: 'Invalid object uuid' });
@@ -413,22 +427,63 @@ router.post(
                     .json({ status: 'error', error: 'Validate permission required to request a re-review' });
             }
 
-            const surveyReviews = await ReviewDecisionService.requestReReviewAndGetInterviewReview(interview.id, user.id, {
-                objectType,
-                objectUuid,
-                reReviewRequestComment: typeof comment === 'string' ? comment : undefined
-            });
+            const surveyObjectsAndAuditsAndReviewDecisions =
+                await ReviewDecisionService.requestReReviewAndGetReviewDecisions(interview.id, user.id, {
+                    objectType,
+                    objectUuid,
+                    reReviewRequestComment: typeof comment === 'string' ? comment : undefined
+                });
 
             return res.status(200).json({
                 status: 'success',
-                surveyReviews
+                surveyObjectsAndAuditsAndReviewDecisions
             });
         } catch (error) {
-            console.log('error requesting re-review for interview:', error);
+            console.error('error requesting re-review for interview:', error);
             return res.status(500).json({ status: 'error' });
         }
     }
 );
+
+router.post('/validation/forceApprove/:interviewUuid', validateUuidMiddleware, async (req: Request, res: Response) => {
+    try {
+        const { objectType, objectUuid, comment } = req.body;
+        const user = req.user as UserAttributes | undefined;
+
+        if (!user?.id) {
+            return res.status(401).json({ status: 'error', error: 'Unauthorized' });
+        }
+        if (!isReviewableObjectType(objectType)) {
+            return res.status(400).json({ status: 'error', error: 'Object type is not reviewable for this survey' });
+        }
+        if (!uuidValidate(objectUuid)) {
+            return res.status(400).json({ status: 'error', error: 'Invalid object uuid' });
+        }
+
+        const interview = await Interviews.getInterviewByUuid(req.params.interviewUuid);
+        if (!interview) {
+            return res.status(404).json({ status: 'error', error: 'Interview does not exist' });
+        }
+        if (!isUserAllowed(user, interview, ['confirm'])) {
+            return res.status(403).json({ status: 'error', error: 'Confirm permission required to force approve' });
+        }
+
+        const surveyObjectsAndAuditsAndReviewDecisions =
+            await ReviewDecisionService.setForceApproveAndGetReviewDecisions(interview.id, user.id, {
+                objectType,
+                objectUuid,
+                forceApproveComment: typeof comment === 'string' ? comment : undefined
+            });
+
+        return res.status(200).json({
+            status: 'success',
+            surveyObjectsAndAuditsAndReviewDecisions
+        });
+    } catch (error) {
+        console.error('error force-approving object for interview:', error);
+        return res.status(500).json({ status: 'error' });
+    }
+});
 
 /**
  * Batch run audits on interviews matching the provided filters
