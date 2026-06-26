@@ -39,7 +39,7 @@ jobs:
       TARGET_BRANCH: ${{ inputs.target_branch }}
     steps:
     - name: Checkout target branch
-      uses: actions/checkout@v6
+      uses: actions/checkout@v7
       with:
         # Start from the maintenance branch we backport to. This is a trusted reference since only maintainers can merge PRs to main, and the workflow only runs on merged PRs.
         ref: ${{ env.TARGET_BRANCH }}
