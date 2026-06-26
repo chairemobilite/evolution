@@ -173,6 +173,9 @@ export const personGender = {
     customChoice: 'custom',
     inputType: 'radio',
     datatype: 'string',
+    // Example of joinWith for a widget within a group (see issue #1621): this
+    // widget is rendered on the same line as the next one (personOccupation).
+    joinWith: 'personOccupation',
     label: {
         fr: 'Sexe',
         en: 'Gender'

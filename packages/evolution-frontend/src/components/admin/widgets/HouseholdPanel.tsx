@@ -11,20 +11,32 @@ import { faCircleUser, faCar, faDollarSign } from '@fortawesome/free-solid-svg-i
 import { Household } from 'evolution-common/lib/services/baseObjects/Household';
 import { AuditForObject } from 'evolution-common/lib/services/audits/types';
 import AuditDisplay from '../AuditDisplay';
+import type { ObjectReviewHandlers } from '../validations/objectReviewHandlers';
+import { renderObjectReviewButtons } from '../validations/renderObjectReviewButtons';
+import {
+    buildSurveyObjectBoxClassName,
+    getReviewDecisionStatusForObject
+} from '../../../services/admin/reviewDecisionStatusHelper';
 
 export interface HouseholdPanelProps {
     household?: Household;
     audits?: AuditForObject[];
     showAuditErrorCode?: boolean;
+    objectReviewHandlers?: ObjectReviewHandlers;
 }
 
-export const HouseholdPanel = ({ household, audits, showAuditErrorCode }: HouseholdPanelProps) => {
+export const HouseholdPanel = ({
+    household,
+    audits,
+    showAuditErrorCode,
+    objectReviewHandlers
+}: HouseholdPanelProps) => {
     const { t } = useTranslation(['admin']);
 
     if (!household) {
         return (
             <div className="admin__interview-stats" key="household">
-                <details open={true}>
+                <details open={true} className="admin__survey-object-box">
                     <summary>
                         <h4 style={{ display: 'inline', margin: 0 }}>{t('Household')}</h4>
                     </summary>
@@ -34,12 +46,23 @@ export const HouseholdPanel = ({ household, audits, showAuditErrorCode }: Househ
         );
     }
 
+    const householdUuid = household._uuid;
+    const reviewDecisionStatus = getReviewDecisionStatusForObject(
+        objectReviewHandlers?.reviewDecisionStatusByObject,
+        'household',
+        householdUuid
+    );
+
     return (
         <div className="admin__interview-stats" key="household">
-            <details open={true}>
+            <details
+                open={true}
+                className={buildSurveyObjectBoxClassName('household', reviewDecisionStatus, '', householdUuid)}
+            >
                 <summary>
                     <h4 style={{ display: 'inline', margin: 0 }}>{t('Household')}</h4>
                 </summary>
+                {renderObjectReviewButtons(objectReviewHandlers, 'household', householdUuid, reviewDecisionStatus)}
                 <span className="_widget">
                     <FontAwesomeIcon icon={faCircleUser} className="faIconLeft" />
                     {household.size}

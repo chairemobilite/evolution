@@ -14,7 +14,8 @@ import LoadingPage from 'chaire-lib-frontend/lib/components/pages/LoadingPage';
 import {
     startUpdateSurveyCorrectedInterview,
     startSubmitObjectReview,
-    startForceApproveObject
+    startForceApproveObject,
+    startRequestReReview
 } from '../../../actions/SurveyAdmin';
 import ValidationCommentForm from './ValidationCommentForm';
 import AdminErrorBoundary from '../hoc/AdminErrorBoundary';
@@ -26,7 +27,7 @@ import { InterviewMapProps } from './InterviewMap';
 import { InterviewStatsProps } from './InterviewStats';
 import { StartUpdateInterview } from 'evolution-common/lib/services/questionnaire/types';
 import type { SurveyObjectNames } from 'evolution-common/lib/services/baseObjects/types';
-import type { ReviewDecisionValue } from 'evolution-common/lib/services/reviewDecisions/types';
+import type { ReviewDecisionValue } from 'evolution-common/lib/services/reviews/types';
 
 const ValidationOnePageSummary = () => {
     // We need two separate place paths because of deduplication:
@@ -61,12 +62,16 @@ const ValidationOnePageSummary = () => {
     const startUpdateInterview: StartUpdateInterview = (data, callback) =>
         dispatch(startUpdateSurveyCorrectedInterview(data, callback));
 
-    const handleObjectReview = (objectType: SurveyObjectNames, objectUuid: string, decision: ReviewDecision) => {
+    const handleObjectReview = (objectType: SurveyObjectNames, objectUuid: string, decision: ReviewDecisionValue) => {
         dispatch(startSubmitObjectReview(objectType, objectUuid, decision));
     };
 
     const handleObjectForceApprove = (objectType: SurveyObjectNames, objectUuid: string) => {
         dispatch(startForceApproveObject(objectType, objectUuid));
+    };
+
+    const handleObjectRequestReReview = (objectType: SurveyObjectNames, objectUuid: string) => {
+        dispatch(startRequestReReview(objectType, objectUuid));
     };
 
     useEffect(() => {
@@ -314,6 +319,7 @@ const ValidationOnePageSummary = () => {
                                     validationDataDirty={validationDataDirty}
                                     onObjectReview={handleObjectReview}
                                     onObjectForceApprove={handleObjectForceApprove}
+                                    onObjectRequestReReview={handleObjectRequestReReview}
                                 />
                             </AdminErrorBoundary>
                         }

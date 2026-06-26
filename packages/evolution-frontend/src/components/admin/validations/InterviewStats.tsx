@@ -11,9 +11,9 @@ import {
     UserRuntimeInterviewAttributes
 } from 'evolution-common/lib/services/questionnaire/types';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
-import { SurveyObjectsWithAuditsAndReviewDecisions } from 'evolution-common/lib/services/reviewDecisions/types';
+import { SurveyObjectsWithAuditsAndReviewDecisions } from 'evolution-common/lib/services/reviews/types';
 import type { SurveyObjectNames } from 'evolution-common/lib/services/baseObjects/types';
-import type { ReviewDecisionValue } from 'evolution-common/lib/services/reviewDecisions/types';
+import type { ReviewDecisionValue } from 'evolution-common/lib/services/reviews/types';
 import { Person } from 'evolution-common/lib/services/baseObjects/Person';
 import { Journey } from 'evolution-common/lib/services/baseObjects/Journey';
 import { Household } from 'evolution-common/lib/services/baseObjects/Household';
@@ -46,8 +46,9 @@ export type InterviewStatsProps = {
     prefs?: InterviewStatsPrefs;
     toggleAuditErrorCode?: () => void;
     validationDataDirty?: boolean;
-    onObjectReview?: (objectType: SurveyObjectNames, objectUuid: string, decision: ReviewDecision) => void;
+    onObjectReview?: (objectType: SurveyObjectNames, objectUuid: string, decision: ReviewDecisionValue) => void;
     onObjectForceApprove?: (objectType: SurveyObjectNames, objectUuid: string) => void;
+    onObjectRequestReReview?: (objectType: SurveyObjectNames, objectUuid: string) => void;
 };
 
 const InterviewStats = (props: InterviewStatsProps) => {
@@ -131,6 +132,9 @@ const InterviewStats = (props: InterviewStatsProps) => {
         },
         onObjectForceApprove: (objectType, objectUuid) => {
             props.onObjectForceApprove?.(objectType, objectUuid);
+        },
+        onObjectRequestReReview: (objectType, objectUuid) => {
+            props.onObjectRequestReReview?.(objectType, objectUuid);
         }
     };
 

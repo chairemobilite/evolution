@@ -10,27 +10,49 @@ import { useTranslation } from 'react-i18next';
 import { Interview } from 'evolution-common/lib/services/baseObjects/interview/Interview';
 import { AuditForObject } from 'evolution-common/lib/services/audits/types';
 import AuditDisplay from '../AuditDisplay';
+import type { ObjectReviewHandlers } from '../validations/objectReviewHandlers';
+import { renderObjectReviewButtons } from '../validations/renderObjectReviewButtons';
+import {
+    buildSurveyObjectBoxClassName,
+    getReviewDecisionStatusForObject
+} from '../../../services/admin/reviewDecisionStatusHelper';
 
 export interface InterviewPanelProps {
     interview: Interview;
     audits?: AuditForObject[];
     showAuditErrorCode?: boolean;
+    objectReviewHandlers?: ObjectReviewHandlers;
 }
 
-export const InterviewPanel = ({ interview, audits, showAuditErrorCode }: InterviewPanelProps) => {
+export const InterviewPanel = ({
+    interview,
+    audits,
+    showAuditErrorCode,
+    objectReviewHandlers
+}: InterviewPanelProps) => {
     const { t } = useTranslation(['admin']);
 
     const formattedTripsDate = interview.assignedDate ? moment(interview.assignedDate).format('LL') : '-';
 
     const languages = interview.paradata?.languages || [];
     const formattedLanguages = languages.map((language) => language.language || '?').join('|') || '?';
+    const interviewUuid = interview._uuid || interview.uuid;
+    const reviewDecisionStatus = getReviewDecisionStatusForObject(
+        objectReviewHandlers?.reviewDecisionStatusByObject,
+        'interview',
+        interviewUuid
+    );
 
     return (
         <div className="admin__interview-stats" key="interview">
-            <details open={true}>
+            <details
+                open={true}
+                className={buildSurveyObjectBoxClassName('interview', reviewDecisionStatus, '', interviewUuid)}
+            >
                 <summary>
                     <h4 style={{ display: 'inline', margin: 0 }}>{t('Interview')}</h4>
                 </summary>
+                {renderObjectReviewButtons(objectReviewHandlers, 'interview', interviewUuid, reviewDecisionStatus)}
                 <span className="_widget">
                     {t('interviewStats.labels.uuid')}: <span className="_strong">{interview.uuid}</span>
                 </span>

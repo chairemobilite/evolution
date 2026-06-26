@@ -32,8 +32,8 @@ import {
     StartUpdateInterview,
     UserRuntimeInterviewAttributes
 } from 'evolution-common/lib/services/questionnaire/types';
-import { SurveyObjectsWithAuditsAndReviewDecisions } from 'evolution-common/lib/services/reviewDecisions/types';
-import type { ReviewDecisionValue } from 'evolution-common/lib/services/reviewDecisions/types';
+import { SurveyObjectsWithAuditsAndReviewDecisions } from 'evolution-common/lib/services/reviews/types';
+import type { ReviewDecisionValue } from 'evolution-common/lib/services/reviews/types';
 import type { SurveyObjectNames } from 'evolution-common/lib/services/baseObjects/types';
 
 // Extended type for admin interviews that includes surveyObjectsAndAuditsAndReviewDecisions
@@ -448,7 +448,7 @@ const mergeReviewDecisionsPayloadIntoInterview = (
 export const startSubmitObjectReview = (
     objectType: SurveyObjectNames,
     objectUuid: string,
-    decision: ReviewDecision
+    decision: ReviewDecisionValue
 ) => {
     return async (
         dispatch: ThunkDispatch<RootState, unknown, SurveyAction | AuthAction | LoadingStateAction>,
@@ -486,6 +486,54 @@ export const startSubmitObjectReview = (
             }
         } catch (error) {
             console.error('Error submitting object review:', error);
+        }
+    };
+};
+
+/**
+ * Ask every other reviewer who decided on a survey object to review it again,
+ * after corrections were made (GitHub-style re-request review).
+ * @param objectType - Survey object type key
+ * @param objectUuid - Survey object uuid
+ * @returns Thunk that persists the re-review request and refreshes review state in Redux
+ */
+export const startRequestReReview = (objectType: SurveyObjectNames, objectUuid: string) => {
+    return async (
+        dispatch: ThunkDispatch<RootState, unknown, SurveyAction | AuthAction | LoadingStateAction>,
+        getState: () => RootState
+    ) => {
+        const interview = getState().survey.interview as AdminInterviewAttributes | undefined;
+        if (!interview?.uuid) {
+            return;
+        }
+        try {
+            const response = await fetch(`/api/validation/requestReReview/${interview.uuid}`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ objectType, objectUuid })
+            });
+            if (response.status === 200) {
+                const body = await response.json();
+                if (body.surveyObjectsAndAuditsAndReviewDecisions) {
+                    const currentInterview = getState().survey.interview as AdminInterviewAttributes | undefined;
+                    if (!currentInterview?.uuid) {
+                        return;
+                    }
+                    dispatch(
+                        updateInterviewState(
+                            mergeReviewDecisionsPayloadIntoInterview(
+                                currentInterview,
+                                body.surveyObjectsAndAuditsAndReviewDecisions
+                            )
+                        )
+                    );
+                }
+            } else {
+                console.error('Error requesting re-review:', response.status);
+            }
+        } catch (error) {
+            console.error('Error requesting re-review:', error);
         }
     };
 };
