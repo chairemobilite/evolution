@@ -196,6 +196,32 @@ export const householdAuditChecks: { [errorCode: string]: HouseholdAuditCheckFun
     },
 
     /**
+     * Check if atLeastOnePersonWithDisability is missing for multi-person households.
+     * For single-person households, disability is asked per person instead.
+     * @param context - HouseholdAuditCheckContext
+     * @returns AuditForObject
+     */
+    HH_M_AtLeastOnePersonWithDisability: (context: HouseholdAuditCheckContext): AuditForObject | undefined => {
+        const { household } = context;
+        const size = household.size;
+        const atLeastOnePersonWithDisability = household.atLeastOnePersonWithDisability;
+
+        if (size !== undefined && size > 1 && atLeastOnePersonWithDisability === undefined) {
+            return {
+                objectType: 'household',
+                objectUuid: household._uuid!,
+                errorCode: 'HH_M_AtLeastOnePersonWithDisability',
+                version: 1,
+                level: 'error',
+                message: 'At least one person with disability is missing',
+                ignore: false
+            };
+        }
+
+        return undefined; // No audit needed
+    },
+
+    /**
      * Check if car number and vehicles count mismatch
      * validate car number is equal to vehicles count
      * Only check if household has vehicles and car number is defined
