@@ -11,7 +11,7 @@ import { getResponse } from '../../../../utils/helpers';
 import { TFunction } from 'i18next';
 import * as odHelpers from '../../../odSurvey/helpers';
 import * as segmentHelpers from './helpers';
-import { Mode, modePreToModeMap } from '../../../odSurvey/types';
+import { Mode, defaultModePreToModeMap } from '../../../odSurvey/types';
 import type { Segment } from '../../types';
 import { getModeIcon } from './modeIconMapping';
 import { WidgetFactoryOptions } from '../types';
@@ -30,7 +30,7 @@ const getModeChoices = (filteredModes: Mode[]) =>
         conditional: function (interview, path) {
             const segment = getResponse(interview, path, null, '../') as Segment;
             if (segment !== null && segment.modePre) {
-                if (!modePreToModeMap[segment.modePre].includes(mode)) {
+                if (!defaultModePreToModeMap[segment.modePre].includes(mode)) {
                     return false;
                 }
             }

@@ -12,12 +12,11 @@ import type { TFunction } from 'i18next';
 import * as odHelpers from '../../../odSurvey/helpers';
 import config from '../../../../config/project.config';
 import * as segmentHelpers from './helpers';
-import type { ModePre } from '../../../odSurvey/types';
 import type { Person } from '../../types';
 import { getModePreIcon } from './modeIconMapping';
 import { WidgetFactoryOptions } from '../types';
 
-const perModePreLabels: Partial<{ [mode in ModePre]: I18nData }> = {
+const perModePreLabels: Partial<{ [modePre: string]: I18nData }> = {
     walk: (t: TFunction, interview) => {
         const person = odHelpers.getActivePerson({ interview });
         const personMayHaveDisability = person && odHelpers.personMayHaveDisability({ person: person as Person });
@@ -42,13 +41,13 @@ const canPersonDriveCar: WidgetConditional = (interview) => {
     return drivingLicenseOwnership === 'yes';
 };
 
-const perModePreConditionals: Partial<{ [mode in ModePre]: WidgetConditional }> = {
+const perModePreConditionals: Partial<{ [modePre: string]: WidgetConditional }> = {
     paratransit: segmentHelpers.conditionalHhMayHaveDisability,
     carDriver: canPersonDriveCar
 };
 
 /** TODO Get a segment config in parameter to set the sort order and choices */
-const getModePreChoices = (filteredModesPre: ModePre[]) =>
+const getModePreChoices = (filteredModesPre: string[]) =>
     filteredModesPre.map((mode) => ({
         value: mode,
         label: perModePreLabels[mode]

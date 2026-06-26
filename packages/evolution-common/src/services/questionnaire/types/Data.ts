@@ -14,7 +14,7 @@ import { Optional } from '../../../types/Optional.type';
 import { SegmentAttributes } from '../../baseObjects/Segment';
 import { HouseholdAttributes } from '../../baseObjects/Household';
 import { NavigationSection } from './NavigationTypes';
-import type { Activity, ActivityCategory, Mode, ModePre } from '../../odSurvey/types';
+import type { Activity, ActivityCategory, Mode } from '../../odSurvey/types';
 import { YesNoDontKnow } from '../../baseObjects/attributeTypes/GenericAttributes';
 
 export type ParsingFunction<T> = (interview: UserInterviewAttributes, path: string, user?: CliUser) => T;
@@ -259,7 +259,14 @@ export type Trip = TripAttributes &
 export type Segment = Omit<SegmentAttributes, 'mode'> &
     QuestionnaireObjectWithUuidAndSequence & {
         _isNew: boolean;
-        modePre?: ModePre;
+        /**
+         * A questionnaire-time value used to group modes under certain
+         * categories.
+         */
+        modePre?: string;
+        /**
+         * The mode of transport used during this segment
+         */
         mode?: Mode;
         sameModeAsReverseTrip?: boolean;
         hasNextMode?: boolean;

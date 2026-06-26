@@ -82,7 +82,7 @@ export const modeValues = [
 
 export type Mode = (typeof modeValues)[number];
 
-export const modePreValues = [
+export const defaultModePreValues = [
     'carDriver',
     'carPassenger',
     'walk',
@@ -98,12 +98,11 @@ export const modePreValues = [
     'dontKnow',
     'preferNotToAnswer'
 ] as const;
-export type ModePre = (typeof modePreValues)[number];
 
 /**
  * Map each mode to the mode categories under which they should appear
  */
-export const modeToModePreMap: { [mode in Mode]: ModePre[] } = {
+export const defaultModeToModePreMap: { [mode in Mode]: string[] } = {
     walk: ['walk'],
     bicycle: ['bicycle'],
     bicyclePassenger: ['bicycle'],
@@ -152,7 +151,7 @@ export const modeToModePreMap: { [mode in Mode]: ModePre[] } = {
  * Map each mode category to the modes that belong to it, it is the reverse of
  * the modeToModePreMap
  */
-export const modePreToModeMap: { [modePre in ModePre]: Mode[] } = Object.entries(modeToModePreMap).reduce(
+export const defaultModePreToModeMap: { [modePre: string]: Mode[] } = Object.entries(defaultModeToModePreMap).reduce(
     (acc, [mode, modePres]) => {
         modePres.forEach((modePre) => {
             if (!acc[modePre]) {
@@ -162,10 +161,10 @@ export const modePreToModeMap: { [modePre in ModePre]: Mode[] } = Object.entries
         });
         return acc;
     },
-    modePreValues.reduce((acc, modePre) => {
+    defaultModePreValues.reduce((acc, modePre) => {
         acc[modePre] = [];
         return acc;
-    }, {}) as { [key in ModePre]: Mode[] }
+    }, {}) as { [modePre: string]: Mode[] }
 );
 
 export const activityCategoryValues = [
