@@ -16,6 +16,9 @@ import { createMockHome } from '../home/testHelper';
 export const createMockHousehold = (overrides: Partial<Household> = {}, validUuid = uuidV4()) => {
     return {
         _uuid: validUuid,
+        get uuid() {
+            return this._uuid;
+        },
         size: 3,
         ...overrides
     } as Household;

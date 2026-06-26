@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, Polytechnique Montreal and contributors
+ * Copyright Polytechnique Montreal and contributors
  *
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
@@ -263,6 +263,33 @@ export const householdAuditChecks: { [errorCode: string]: HouseholdAuditCheckFun
                 version: 1,
                 level: 'warning',
                 message: 'Car number per potential driving license holder > 3',
+                ignore: false
+            };
+        }
+
+        return undefined; // No audit needed
+    },
+
+    /**
+     * Info flag when the household has at least one transit segment in any trip.
+     * @param context - HouseholdAuditCheckContext
+     * @returns AuditForObject
+     */
+    HH_F_AtLeastOneTransitSegmentInHousehold: (context: HouseholdAuditCheckContext): AuditForObject | undefined => {
+        const { household } = context;
+
+        const hasTransitSegment = (household.members ?? []).some((person) =>
+            (person.journeys ?? []).some((journey) => (journey.trips ?? []).some((trip) => trip.hasTransit()))
+        );
+
+        if (hasTransitSegment) {
+            return {
+                objectType: 'household',
+                objectUuid: household.uuid!,
+                errorCode: 'HH_F_AtLeastOneTransitSegmentInHousehold',
+                version: 1,
+                level: 'info',
+                message: 'At least one transit trip in household',
                 ignore: false
             };
         }
