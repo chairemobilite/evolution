@@ -30,6 +30,17 @@ describe('ReviewDecisionUtils', () => {
         expect(grouped.household).toHaveLength(0);
     });
 
+    test('different reviewers can approve and reject the same object', () => {
+        const status = computeReviewDecisionStatusForObject(reviewDecisions, 'person', personUuid);
+
+        expect(status).toMatchObject({
+            approvalCount: 1,
+            rejectionCount: 1,
+            hasConflict: true,
+            isReviewed: true
+        });
+    });
+
     // [title, currentUserId, expectedConflict, expectedCurrentDecision, expectedIsReviewed]
     const statusCases: [string, number | undefined, boolean, 'approve' | 'reject' | undefined, boolean][] = [
         ['conflict when reviewers disagree', 1, true, 'approve', true],
