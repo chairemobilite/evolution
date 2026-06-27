@@ -1,5 +1,5 @@
 /*
- * Copyright 2023, Polytechnique Montreal and contributors
+ * Copyright Polytechnique Montreal and contributors
  *
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
@@ -11,7 +11,9 @@ import {
     UserRuntimeInterviewAttributes
 } from 'evolution-common/lib/services/questionnaire/types';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
-import { SurveyObjectsWithAudits } from 'evolution-common/lib/services/audits/types';
+import { SurveyObjectsWithAuditsAndReviewDecisions } from 'evolution-common/lib/services/reviewDecisions/types';
+import type { SurveyObjectNames } from 'evolution-common/lib/services/baseObjects/types';
+import type { ReviewDecisionValue } from 'evolution-common/lib/services/reviewDecisions/types';
 import { Person } from 'evolution-common/lib/services/baseObjects/Person';
 import { Journey } from 'evolution-common/lib/services/baseObjects/Journey';
 import { Household } from 'evolution-common/lib/services/baseObjects/Household';
@@ -24,6 +26,7 @@ import { PersonPanel } from '../widgets/PersonPanel';
 import AuditDisplay from '../AuditDisplay';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
+import type { ObjectReviewHandlers } from './objectReviewHandlers';
 
 // TODO This component should be replaced by the v2 audits that come from the server and uses an object to validate the survey.
 
@@ -34,7 +37,7 @@ export type InterviewStatsPrefs = {
 export type InterviewStatsProps = {
     startUpdateInterview: StartUpdateInterview;
     interview: UserRuntimeInterviewAttributes;
-    surveyObjectsAndAudits?: SurveyObjectsWithAudits;
+    surveyObjectsAndAuditsAndReviewDecisions?: SurveyObjectsWithAuditsAndReviewDecisions;
     user: CliUser;
     activeTripUuid?: string;
     selectPlace: (path: string | undefined) => void;
@@ -43,6 +46,8 @@ export type InterviewStatsProps = {
     prefs?: InterviewStatsPrefs;
     toggleAuditErrorCode?: () => void;
     validationDataDirty?: boolean;
+    onObjectReview?: (objectType: SurveyObjectNames, objectUuid: string, decision: ReviewDecision) => void;
+    onObjectForceApprove?: (objectType: SurveyObjectNames, objectUuid: string) => void;
 };
 
 const InterviewStats = (props: InterviewStatsProps) => {
@@ -55,7 +60,7 @@ const InterviewStats = (props: InterviewStatsProps) => {
     };
 
     // Use unserialized objects - show error if not available
-    const surveyObjects = props.surveyObjectsAndAudits;
+    const surveyObjects = props.surveyObjectsAndAuditsAndReviewDecisions;
 
     // Debug logging
     if (!surveyObjects) {
@@ -118,6 +123,17 @@ const InterviewStats = (props: InterviewStatsProps) => {
             (surveyObjects?.audits && surveyObjects.audits.length > 0)
     );
 
+    const objectReviewHandlers: ObjectReviewHandlers = {
+        reviewDecisionStatusByObject: surveyObjects?.reviewDecisionStatusByObject,
+        canForceApprove: props.user.isAuthorized({ Interviews: ['confirm'] }),
+        onObjectReview: (objectType, objectUuid, decision) => {
+            props.onObjectReview?.(objectType, objectUuid, decision);
+        },
+        onObjectForceApprove: (objectType, objectUuid) => {
+            props.onObjectForceApprove?.(objectType, objectUuid);
+        }
+    };
+
     return (
         <React.Fragment>
             {props.validationDataDirty && (
@@ -146,17 +162,20 @@ const InterviewStats = (props: InterviewStatsProps) => {
                     interview={surveyObjects.interview}
                     audits={surveyObjects?.auditsByObject?.interview}
                     showAuditErrorCode={props.prefs?.showAuditErrorCode}
+                    objectReviewHandlers={objectReviewHandlers}
                 />
             )}
             <HomePanel
                 home={home}
                 audits={surveyObjects?.auditsByObject?.home}
                 showAuditErrorCode={props.prefs?.showAuditErrorCode}
+                objectReviewHandlers={objectReviewHandlers}
             />
             <HouseholdPanel
                 household={household}
                 audits={surveyObjects?.auditsByObject?.household}
                 showAuditErrorCode={props.prefs?.showAuditErrorCode}
+                objectReviewHandlers={objectReviewHandlers}
             />
             <div className="admin__interview-stats" key="persons">
                 <h4>{t('interviewStats.labels.persons')}</h4>
@@ -182,6 +201,7 @@ const InterviewStats = (props: InterviewStatsProps) => {
                             selectTrip={props.selectTrip}
                             keepDiscard={keepDiscard}
                             showAuditErrorCode={props.prefs?.showAuditErrorCode}
+                            objectReviewHandlers={objectReviewHandlers}
                         />
                     );
                 })}

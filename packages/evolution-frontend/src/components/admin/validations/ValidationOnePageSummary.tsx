@@ -1,5 +1,5 @@
 /*
- * Copyright 2023, Polytechnique Montreal and contributors
+ * Copyright Polytechnique Montreal and contributors
  *
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
@@ -11,7 +11,11 @@ import Preferences from 'chaire-lib-common/lib/config/Preferences';
 import appConfig from '../../../config/application.config';
 import config from 'evolution-common/lib/config/project.config';
 import LoadingPage from 'chaire-lib-frontend/lib/components/pages/LoadingPage';
-import { startUpdateSurveyCorrectedInterview } from '../../../actions/SurveyAdmin';
+import {
+    startUpdateSurveyCorrectedInterview,
+    startSubmitObjectReview,
+    startForceApproveObject
+} from '../../../actions/SurveyAdmin';
 import ValidationCommentForm from './ValidationCommentForm';
 import AdminErrorBoundary from '../hoc/AdminErrorBoundary';
 import { generateMapFeatureFromInterview } from '../../../services/admin/odSurveyAdminHelper';
@@ -21,6 +25,8 @@ import { SurveyAction } from '../../../store/survey';
 import { InterviewMapProps } from './InterviewMap';
 import { InterviewStatsProps } from './InterviewStats';
 import { StartUpdateInterview } from 'evolution-common/lib/services/questionnaire/types';
+import type { SurveyObjectNames } from 'evolution-common/lib/services/baseObjects/types';
+import type { ReviewDecisionValue } from 'evolution-common/lib/services/reviewDecisions/types';
 
 const ValidationOnePageSummary = () => {
     // We need two separate place paths because of deduplication:
@@ -54,6 +60,14 @@ const ValidationOnePageSummary = () => {
     const dispatch = useDispatch<ThunkDispatch<RootState, unknown, SurveyAction>>();
     const startUpdateInterview: StartUpdateInterview = (data, callback) =>
         dispatch(startUpdateSurveyCorrectedInterview(data, callback));
+
+    const handleObjectReview = (objectType: SurveyObjectNames, objectUuid: string, decision: ReviewDecision) => {
+        dispatch(startSubmitObjectReview(objectType, objectUuid, decision));
+    };
+
+    const handleObjectForceApprove = (objectType: SurveyObjectNames, objectUuid: string) => {
+        dispatch(startForceApproveObject(objectType, objectUuid));
+    };
 
     useEffect(() => {
         const loadComponents = async () => {
@@ -119,8 +133,8 @@ const ValidationOnePageSummary = () => {
                 pathToUniqueKeyMap: new Map()
             };
 
-        if (appConfig.generateMapFeatures && interview?.surveyObjectsAndAudits) {
-            const result = appConfig.generateMapFeatures(interview.surveyObjectsAndAudits);
+        if (appConfig.generateMapFeatures && interview?.surveyObjectsAndAuditsAndReviewDecisions) {
+            const result = appConfig.generateMapFeatures(interview.surveyObjectsAndAuditsAndReviewDecisions);
             return { ...result, pathToUniqueKeyMap: new Map() }; // Custom generators don't have mapping yet
         } else {
             const result = generateMapFeatureFromInterview(interview, {
@@ -289,13 +303,17 @@ const ValidationOnePageSummary = () => {
                                     selectTrip={toggleActiveTripUuid}
                                     activeTripUuid={activeTripUuid}
                                     interview={interview}
-                                    surveyObjectsAndAudits={interview?.surveyObjectsAndAudits}
+                                    surveyObjectsAndAuditsAndReviewDecisions={
+                                        interview?.surveyObjectsAndAuditsAndReviewDecisions
+                                    }
                                     activePlacePath={activeStatsPlacePath}
                                     user={user}
                                     startUpdateInterview={startUpdateInterview}
                                     prefs={{ showAuditErrorCode }}
                                     toggleAuditErrorCode={toggleAuditErrorCode}
                                     validationDataDirty={validationDataDirty}
+                                    onObjectReview={handleObjectReview}
+                                    onObjectForceApprove={handleObjectForceApprove}
                                 />
                             </AdminErrorBoundary>
                         }

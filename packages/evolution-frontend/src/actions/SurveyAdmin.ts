@@ -1,5 +1,5 @@
 /*
- * Copyright 2022, Polytechnique Montreal and contributors
+ * Copyright Polytechnique Montreal and contributors
  *
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
@@ -32,11 +32,13 @@ import {
     StartUpdateInterview,
     UserRuntimeInterviewAttributes
 } from 'evolution-common/lib/services/questionnaire/types';
-import { SurveyObjectsWithAudits } from 'evolution-common/lib/services/audits/types';
+import { SurveyObjectsWithAuditsAndReviewDecisions } from 'evolution-common/lib/services/reviewDecisions/types';
+import type { ReviewDecisionValue } from 'evolution-common/lib/services/reviewDecisions/types';
+import type { SurveyObjectNames } from 'evolution-common/lib/services/baseObjects/types';
 
-// Extended type for admin interviews that includes surveyObjectsAndAudits
+// Extended type for admin interviews that includes surveyObjectsAndAuditsAndReviewDecisions
 type AdminInterviewAttributes = UserRuntimeInterviewAttributes & {
-    surveyObjectsAndAudits?: SurveyObjectsWithAudits;
+    surveyObjectsAndAuditsAndReviewDecisions?: SurveyObjectsWithAuditsAndReviewDecisions;
 };
 import { incrementLoadingState, decrementLoadingState } from './LoadingState';
 import { handleHttpOtherResponseCode } from '../services/errorManagement/errorHandling';
@@ -54,20 +56,25 @@ import { LoadingStateAction } from '../store/loadingState';
 import { AuthAction } from 'chaire-lib-frontend/lib/store/auth';
 
 /**
- * Helper function to unserialize surveyObjectsAndAudits from an interview.
+ * Helper function to unserialize surveyObjectsAndAuditsAndReviewDecisions from an interview.
  * Mutates the interview object in place if unserialization is successful.
  *
- * @param interview - The interview containing surveyObjectsAndAudits to unserialize
+ * @param interview - The interview containing surveyObjectsAndAuditsAndReviewDecisions to unserialize
  * @param errorContext - Optional context string to include in error message (e.g., 'for reset')
  */
 const unserializeSurveyObjectsAndAudits = (interview: AdminInterviewAttributes, errorContext: string = ''): boolean => {
-    if (interview.surveyObjectsAndAudits && SurveyObjectsUnserializer.hasValidData(interview.surveyObjectsAndAudits)) {
+    if (
+        interview.surveyObjectsAndAuditsAndReviewDecisions &&
+        SurveyObjectsUnserializer.hasValidData(interview.surveyObjectsAndAuditsAndReviewDecisions)
+    ) {
         try {
-            interview.surveyObjectsAndAudits = SurveyObjectsUnserializer.unserialize(interview.surveyObjectsAndAudits);
+            interview.surveyObjectsAndAuditsAndReviewDecisions = SurveyObjectsUnserializer.unserialize(
+                interview.surveyObjectsAndAuditsAndReviewDecisions
+            );
             return true;
         } catch (error) {
             const contextSuffix = errorContext ? ` ${errorContext}` : '';
-            console.error(`Failed to unserialize surveyObjectsAndAudits${contextSuffix}:`, error);
+            console.error(`Failed to unserialize surveyObjectsAndAuditsAndReviewDecisions${contextSuffix}:`, error);
             return false;
         }
     }
@@ -132,8 +139,11 @@ const updateSurveyCorrectedInterview = async (
                 affectedPaths,
                 valuesByPath as { [path: string]: unknown }
             );
-            // Preserve surveyObjectsAndAudits after validation
-            updatedInterview = { ...updatedInterview, surveyObjectsAndAudits: interview.surveyObjectsAndAudits };
+            // Preserve surveyObjectsAndAuditsAndReviewDecisions after validation
+            updatedInterview = {
+                ...updatedInterview,
+                surveyObjectsAndAuditsAndReviewDecisions: interview.surveyObjectsAndAuditsAndReviewDecisions
+            };
         }
 
         if (!updatedInterview.sectionLoaded || updatedInterview.sectionLoaded !== sectionShortname) {
@@ -360,7 +370,7 @@ export const startFetchCorrectedInterviewAndAudits = (
                 if (body.interview) {
                     const interview = body.interview;
 
-                    // Unserialize surveyObjectsAndAudits if present
+                    // Unserialize surveyObjectsAndAuditsAndReviewDecisions if present
                     unserializeSurveyObjectsAndAudits(interview);
 
                     // Set the interview in the state first
@@ -401,7 +411,7 @@ export const startResetCorrectedInterview = (
                 if (body.interview) {
                     const interview = body.interview;
 
-                    // Unserialize surveyObjectsAndAudits if present
+                    // Unserialize surveyObjectsAndAuditsAndReviewDecisions if present
                     unserializeSurveyObjectsAndAudits(interview, 'for reset');
 
                     // Set the interview in the state and initialize navigation
@@ -413,6 +423,116 @@ export const startResetCorrectedInterview = (
             }
         } catch (err) {
             surveyHelper.devLog('Error fetching interview to reset.', err);
+        }
+    };
+};
+
+const mergeReviewDecisionsPayloadIntoInterview = (
+    interview: AdminInterviewAttributes,
+    reviewPayload: Partial<SurveyObjectsWithAuditsAndReviewDecisions>
+): AdminInterviewAttributes => ({
+    ...interview,
+    surveyObjectsAndAuditsAndReviewDecisions: {
+        ...(interview.surveyObjectsAndAuditsAndReviewDecisions ?? {}),
+        ...reviewPayload
+    } as SurveyObjectsWithAuditsAndReviewDecisions
+});
+
+/**
+ * Submit an approve/reject decision for one survey object during admin review.
+ * @param objectType - Survey object type key
+ * @param objectUuid - Survey object uuid
+ * @param decision - Reviewer decision
+ * @returns Thunk that persists the decision and refreshes review state in Redux
+ */
+export const startSubmitObjectReview = (
+    objectType: SurveyObjectNames,
+    objectUuid: string,
+    decision: ReviewDecision
+) => {
+    return async (
+        dispatch: ThunkDispatch<RootState, unknown, SurveyAction | AuthAction | LoadingStateAction>,
+        getState: () => RootState
+    ) => {
+        const interview = getState().survey.interview as AdminInterviewAttributes | undefined;
+        if (!interview?.uuid) {
+            return;
+        }
+        try {
+            const response = await fetch(`/api/validation/reviewDecision/${interview.uuid}`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ objectType, objectUuid, decision })
+            });
+            if (response.status === 200) {
+                const body = await response.json();
+                if (body.surveyObjectsAndAuditsAndReviewDecisions) {
+                    const currentInterview = getState().survey.interview as AdminInterviewAttributes | undefined;
+                    if (!currentInterview?.uuid) {
+                        return;
+                    }
+                    dispatch(
+                        updateInterviewState(
+                            mergeReviewDecisionsPayloadIntoInterview(
+                                currentInterview,
+                                body.surveyObjectsAndAuditsAndReviewDecisions
+                            )
+                        )
+                    );
+                }
+            } else {
+                console.error('Error submitting object review:', response.status);
+            }
+        } catch (error) {
+            console.error('Error submitting object review:', error);
+        }
+    };
+};
+
+/**
+ * Admin force-approve on a survey object, overriding reviewer disagreements.
+ * @param objectType - Survey object type key
+ * @param objectUuid - Survey object uuid
+ * @returns Thunk that persists the force-approve and refreshes review state in Redux
+ */
+export const startForceApproveObject = (objectType: SurveyObjectNames, objectUuid: string) => {
+    return async (
+        dispatch: ThunkDispatch<RootState, unknown, SurveyAction | AuthAction | LoadingStateAction>,
+        getState: () => RootState
+    ) => {
+        const interview = getState().survey.interview as AdminInterviewAttributes | undefined;
+        if (!interview?.uuid) {
+            return;
+        }
+        try {
+            const response = await fetch(`/api/validation/forceApprove/${interview.uuid}`, {
+                method: 'POST',
+                credentials: 'include',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ objectType, objectUuid })
+            });
+            if (response.status === 200) {
+                const body = await response.json();
+                if (body.surveyObjectsAndAuditsAndReviewDecisions) {
+                    const currentInterview = getState().survey.interview as AdminInterviewAttributes | undefined;
+                    if (!currentInterview?.uuid) {
+                        return;
+                    }
+                    dispatch(
+                        updateInterviewState(
+                            mergeReviewDecisionsPayloadIntoInterview(
+                                currentInterview,
+                                body.surveyObjectsAndAuditsAndReviewDecisions
+                            )
+                        )
+                    );
+                }
+            } else {
+                console.error('Error force-approving object:', response.status);
+            }
+        } catch (error) {
+            console.error('Error force-approving object:', error);
         }
     };
 };

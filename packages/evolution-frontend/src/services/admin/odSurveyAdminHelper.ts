@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, Polytechnique Montreal and contributors
+ * Copyright Polytechnique Montreal and contributors
  *
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
@@ -61,7 +61,7 @@ export const generateMapFeatureFromInterview = (
     const persons = odSurveyHelper.getPersonsArray({ interview });
 
     // But get person colors from deserialized survey objects
-    const deserializedPersons = (interview as any)?.surveyObjectsAndAudits?.household?.members || [];
+    const deserializedPersons = (interview as any)?.surveyObjectsAndAuditsAndReviewDecisions?.household?.members || [];
     const personColorMap = new Map<string, string>();
 
     // Build a map of person UUID to color from deserialized objects

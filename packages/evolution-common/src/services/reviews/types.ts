@@ -5,8 +5,10 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import type { ParentSurveyObjects } from '../baseObjects/types';
+import type { SurveyObjectsWithAudits } from '../audits/types';
 import type { SurveyObjectNames } from '../baseObjects/types';
+
+/** Approve/reject value stored in `sv_reviews.decision_value`. */
 export type ReviewDecisionValue = 'approve' | 'reject';
 
 /**
@@ -113,7 +115,8 @@ export type ReviewDecisions = {
     reviewDecisionStatusByObject: ReviewDecisionStatusByObject;
 };
 
-export type SurveyObjectsWithReviews = ParentSurveyObjects & InterviewReview;
-
-/** Survey objects with automated audits and manual reviewer decisions. */
-export type SurveyObjectsWithAuditsAndReviewDecisions = ParentSurveyObjects & InterviewReview;
+/**
+ * Survey objects with automated audits and manual reviewer decisions.
+ * Canonical type for the `surveyObjectsAndAuditsAndReviewDecisions` admin API and Redux payload.
+ */
+export type SurveyObjectsWithAuditsAndReviewDecisions = SurveyObjectsWithAudits & ReviewDecisions;

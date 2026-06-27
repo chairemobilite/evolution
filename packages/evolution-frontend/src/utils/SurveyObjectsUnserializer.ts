@@ -1,11 +1,17 @@
 /*
- * Copyright 2025, Polytechnique Montreal and contributors
+ * Copyright Polytechnique Montreal and contributors
  *
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
 
 import { SurveyObjectsWithAudits, AuditForObject, AuditsByObject } from 'evolution-common/lib/services/audits/types';
+import {
+    ReviewDecision,
+    ReviewDecisionsByObject,
+    ReviewDecisionStatusByObject,
+    SurveyObjectsWithAuditsAndReviewDecisions
+} from 'evolution-common/lib/services/reviews/types';
 import { Home } from 'evolution-common/lib/services/baseObjects/Home';
 import { Household } from 'evolution-common/lib/services/baseObjects/Household';
 import { Interview } from 'evolution-common/lib/services/baseObjects/interview/Interview';
@@ -13,15 +19,15 @@ import { SurveyObjectsRegistry } from 'evolution-common/lib/services/baseObjects
 
 /**
  * Utility class to unserialize survey objects from their serialized form
- * This is used when receiving surveyObjectsAndAudits from the backend
+ * This is used when receiving surveyObjectsAndAuditsAndReviewDecisions from the backend
  */
 export class SurveyObjectsUnserializer {
     /**
-     * Unserialize surveyObjectsAndAudits from the backend
-     * @param serializedData - The serialized SurveyObjectsWithAudits data
-     * @returns Unserialized SurveyObjectsWithAudits with proper object instances
+     * Unserialize surveyObjectsAndAuditsAndReviewDecisions from the backend
+     * @param serializedData - The serialized survey objects payload from the backend
+     * @returns Unserialized survey objects with proper object instances
      */
-    static unserialize(serializedData: unknown): SurveyObjectsWithAudits | undefined {
+    static unserialize(serializedData: unknown): SurveyObjectsWithAuditsAndReviewDecisions | undefined {
         if (!serializedData) {
             return undefined;
         }
@@ -32,9 +38,30 @@ export class SurveyObjectsUnserializer {
 
         try {
             const data = serializedData as Record<string, unknown>;
-            const result: SurveyObjectsWithAudits = {
+            const result: SurveyObjectsWithAuditsAndReviewDecisions = {
                 audits: (data.audits as AuditForObject[]) || [],
                 auditsByObject: (data.auditsByObject as AuditsByObject) || {
+                    interview: [],
+                    household: [],
+                    home: [],
+                    persons: {},
+                    journeys: {},
+                    visitedPlaces: {},
+                    trips: {},
+                    segments: {}
+                },
+                reviewDecisions: (data.reviewDecisions as ReviewDecision[]) || [],
+                reviewDecisionsByObject: (data.reviewDecisionsByObject as ReviewDecisionsByObject) || {
+                    interview: [],
+                    household: [],
+                    home: [],
+                    persons: {},
+                    journeys: {},
+                    visitedPlaces: {},
+                    trips: {},
+                    segments: {}
+                },
+                reviewDecisionStatusByObject: (data.reviewDecisionStatusByObject as ReviewDecisionStatusByObject) || {
                     interview: [],
                     household: [],
                     home: [],
@@ -81,13 +108,13 @@ export class SurveyObjectsUnserializer {
 
             return result;
         } catch (error) {
-            console.error('Failed to unserialize surveyObjectsAndAudits:', error);
+            console.error('Failed to unserialize surveyObjectsAndAuditsAndReviewDecisions:', error);
             return undefined;
         }
     }
 
     /**
-     * Check if surveyObjectsAndAudits data is present and valid
+     * Check if surveyObjectsAndAuditsAndReviewDecisions data is present and valid
      * @param data - The data to check
      * @returns boolean indicating if data is present
      */
