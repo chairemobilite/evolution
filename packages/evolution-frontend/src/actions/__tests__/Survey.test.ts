@@ -531,10 +531,22 @@ describe('Update interview', () => {
         // Interview to prepare includes changes from valuesByPath
         const expectedInterviewToPrepare = _cloneDeep(interviewAttributes);
         (expectedInterviewToPrepare.response as any).section1.q1 = 'foo';
-        // Interview to set as state includes modifications by server
-        const expectedInterviewAsState = _cloneDeep(expectedInterviewToPrepare);
-        (expectedInterviewAsState.response as any).section1.q2 = 'bar';
-        expectedInterviewAsState.sectionLoaded = 'section';
+
+        // Interview to prepare after the server update, includes modifications by server and first preparation
+        const expectedInterviewToPrepareAfterServerUpdate = _cloneDeep(expectedInterviewToPrepare);
+        (expectedInterviewToPrepareAfterServerUpdate.response as any).section1.q2 = 'bar';
+        expectedInterviewToPrepareAfterServerUpdate.sectionLoaded = 'section';
+        // Make sure tampered value from mockPrepared are present
+        (expectedInterviewToPrepareAfterServerUpdate as any).someValue = 'tampered';
+
+        // Interview to set as state includes data after second preparation
+        const expectedInterviewAsState = _cloneDeep(expectedInterviewToPrepareAfterServerUpdate);
+        // Make sure tampered value from mockPrepared are present
+        (expectedInterviewAsState as any).someValue2 = 'tampered';
+
+        // Let the prepareSection function tamper with the interview to identify the result from the parameter
+        mockPrepareSectionWidgets.mockImplementationOnce((_sectionShortname, interview, _affectedPaths, valuesByPath) => ({ updatedInterview: { ...(_cloneDeep(interview)), someValue: 'tampered' }, updatedValuesByPath: _cloneDeep(valuesByPath), needUpdate: false }));
+        mockPrepareSectionWidgets.mockImplementationOnce((_sectionShortname, interview, _affectedPaths, valuesByPath) => ({ updatedInterview: { ...(_cloneDeep(interview)), someValue2: 'tampered' }, updatedValuesByPath: _cloneDeep(valuesByPath), needUpdate: false }))
 
         // Do the actual test
         const callback = SurveyActions.startUpdateInterview({ sectionShortname: 'section', valuesByPath: _cloneDeep(valuesByPath), interview: _cloneDeep(interviewAttributes) }, updateCallback);
@@ -550,8 +562,8 @@ describe('Update interview', () => {
         // Extract the actual interview argument and verify with a strict comparison approach
         const actualInterviewArg2 = mockPrepareSectionWidgets.mock.calls[1][1];
         // Use lodash's isEqual as the equal will ignore undefined vs missing property differences
-        expect(_isEqual(actualInterviewArg2, expectedInterviewAsState)).toBe(true);
-        expect(mockPrepareSectionWidgets).toHaveBeenCalledWith('section', expectedInterviewAsState, { 'response.section1.q2': true }, { ...serverUpdatedValues }, true, testUser);
+        expect(_isEqual(actualInterviewArg2, expectedInterviewToPrepareAfterServerUpdate)).toBe(true);
+        expect(mockPrepareSectionWidgets).toHaveBeenCalledWith('section', expectedInterviewToPrepareAfterServerUpdate, { 'response.section1.q2': true }, { ...serverUpdatedValues }, true, testUser);
         expect(fetchRetryMock).toHaveBeenCalledTimes(1);
         expect(fetchRetryMock).toHaveBeenCalledWith('/api/survey/updateInterview', expect.objectContaining({
             method: 'POST',
