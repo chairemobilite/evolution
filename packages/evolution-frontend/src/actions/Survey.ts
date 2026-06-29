@@ -402,7 +402,7 @@ const updateInterviewCallback = async (
                     )
                 );
                 if (typeof callback === 'function') {
-                    callback(updatedInterview);
+                    callback(serverUpdatedInterview);
                 }
             } else if (body.status === 'redirect') {
                 // Logout from the application and redirect to the specified URL
