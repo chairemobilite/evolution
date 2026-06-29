@@ -53,8 +53,6 @@ export type ValueFilterType = {
  * so it is always available here and can be used from config
  */
 const getSurveyId = async (): Promise<number> => {
-    // Here we repeat check for _surveyId multiple time to make
-    // sure another thread didn't create it in the meantime:
     if (_surveyId) {
         return _surveyId;
     }
@@ -63,21 +61,20 @@ const getSurveyId = async (): Promise<number> => {
     const matchingSurvey = await knex.select('*').from(surveyTable).where('shortname', config.projectShortname);
 
     if (matchingSurvey.length === 1) {
+        _surveyId = matchingSurvey[0].id;
         return matchingSurvey[0].id;
     }
 
     // no match: create a new survey using upsert (onConflict) for race conditions:
-    if (!_surveyId) {
-        await knex(surveyTable)
-            .insert({
-                shortname: config.projectShortname
-            })
-            .onConflict('shortname')
-            .ignore();
-        const newSurvey = await knex.select('*').from(surveyTable).where('shortname', config.projectShortname);
-        if (!_surveyId && newSurvey && newSurvey[0] && newSurvey[0].id) {
-            _surveyId = newSurvey[0].id;
-        }
+    await knex(surveyTable)
+        .insert({
+            shortname: config.projectShortname
+        })
+        .onConflict('shortname')
+        .ignore();
+    const newSurvey = await knex.select('*').from(surveyTable).where('shortname', config.projectShortname);
+    if (newSurvey?.[0]?.id) {
+        _surveyId = newSurvey[0].id;
     }
 
     if (!_surveyId) {
