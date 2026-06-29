@@ -71,6 +71,7 @@ type FetchGoogleMapsApiResponse = (params: {
 }) => Promise<{ results: any[]; resultsNumber: number }>;
 type InputRadioTest = (params: PathAndValueBoolOrStr & CommonTestParameters) => void | Promise<Locator>;
 type InputSelectTest = (params: PathAndValue & CommonTestParameters) => void;
+type InputMultiSelectTest = (params: { path: Path; values: Value | Value[] } & CommonTestParameters) => void;
 type InputStringTest = (params: PathAndValue & OptionalExpectedValue & CommonTestParameters) => void | Promise<Locator>;
 type InputRangeTest = (params: { path: Path; value: number; sliderColor?: string } & CommonTestParameters) => void;
 type InputCheckboxTest = (params: { path: Path; values: Value[] } & CommonTestParameters) => void;
@@ -507,6 +508,26 @@ export const expectInputSelectOptionsTest = ({
             ).toBeTruthy();
         }
         expect(selectOptions.length).toEqual(options.length + 1);
+    });
+};
+
+// Test input multi select widget
+export const inputMultiSelectTest: InputMultiSelectTest = ({ context, path, values }) => {
+    test(`Select ${values} for ${path} - ${getTestCounter(context, `${path} - ${values}`)}`, async () => {
+        const newPath = context.objectDetector.replaceWithIds(path);
+        const searchValues = Array.isArray(values) ? values : [values];
+        const resolvedValues = searchValues.map((value) =>
+            typeof value === 'string' ? context.objectDetector.replaceWithIds(value) : value
+        );
+
+        const multiSelectWidget = context.page.locator(`id=survey-question__${newPath}`);
+        await multiSelectWidget.scrollIntoViewIfNeeded();
+        // Fill the value and hit the tab key to complete the selection
+        for (let i = 0; i < resolvedValues.length; i++) {
+            await multiSelectWidget.fill(resolvedValues[i]);
+            await context.page.keyboard.press('Tab');
+        }
+        await focusOut(context.page);
     });
 };
 
