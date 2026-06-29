@@ -8,11 +8,18 @@ import { v4 as uuidV4 } from 'uuid';
 import knex from 'chaire-lib-backend/lib/config/shared/db.config';
 import { create, truncate } from 'chaire-lib-backend/lib/models/db/default.db.queries';
 import { _removeBlankFields } from 'chaire-lib-common/lib/utils/LodashExtensions';
+import config from 'chaire-lib-common/lib/config/shared/project.config';
 
-import dbQueries from '../interviews.db.queries';
+import dbQueries, { resetSurveyIdCacheForTests } from '../interviews.db.queries';
 import { INTERVIEWER_PARTICIPANT_PREFIX } from 'evolution-common/lib/services/interviews/interview';
 import moment from 'moment';
 import { InterviewAttributes, InterviewListAttributes, InterviewResponse } from 'evolution-common/lib/services/questionnaire/types';
+
+const surveysTable = 'sv_surveys';
+const localSurvey = {
+    id: 1,
+    shortname: config.projectShortname
+};
 
 const permission1 = 'role1';
 const permission2 = 'role2';
@@ -138,8 +145,11 @@ const googleUserInterviewAttributes = {
 
 beforeAll(async () => {
     jest.setTimeout(10000);
+    resetSurveyIdCacheForTests();
     await truncate(knex, 'sv_audits');
     await truncate(knex, 'sv_interviews');
+    await truncate(knex, surveysTable);
+    await knex(surveysTable).insert(localSurvey);
     await truncate(knex, 'sv_participants');
     await create(knex, 'sv_participants', undefined, localUser as any);
     await create(knex, 'sv_participants', undefined, facebookParticipant as any);
@@ -160,6 +170,7 @@ beforeAll(async () => {
 afterAll(async () => {
     await truncate(knex, 'sv_audits');
     await truncate(knex, 'sv_interviews');
+    await truncate(knex, surveysTable);
     await truncate(knex, 'users');
     await truncate(knex, 'sv_participants');
     await knex.destroy();
@@ -506,26 +517,36 @@ describe('list interviews', () => {
         expect(countCreate).toEqual(5);
         expect(filterCreate.length).toEqual(5);
 
+        // Pin created_at values so timestamp filter assertions are deterministic
+        const pinnedCreatedAtBaseSeconds = 1_700_000_000;
+        for (let index = 0; index < filterCreate.length; index++) {
+            await knex('sv_interviews')
+                .where('id', filterCreate[index].id)
+                .update({ created_at: knex.raw(`to_timestamp(${pinnedCreatedAtBaseSeconds + index})`) });
+        }
+
         // Query by creation time, use second value and offset otherwise test fails sometimes
-        const createdAt = (moment(filterCreate[2].created_at).valueOf() - 1) / 1000;
+        const createdAt = pinnedCreatedAtBaseSeconds + 1;
         const { interviews: filterCreate2, totalCount: countCreate2 } = await dbQueries.getList({ filters: { created_at: { value: createdAt, op: 'gt' } }, pageIndex: 0, pageSize: -1 });
         expect(countCreate2).toEqual(3);
         expect(filterCreate2.length).toEqual(3);
 
         // Query by creation time range
-        const createdAtStart = (moment(filterCreate[2].created_at).valueOf() - 1) / 1000;
-        const createdAtEnd = (moment(filterCreate[4].created_at).valueOf() + 1) / 1000;
+        const createdAtStart = pinnedCreatedAtBaseSeconds + 1;
+        const createdAtEnd = pinnedCreatedAtBaseSeconds + 3;
         const { interviews: filterCreate3, totalCount: countCreate3 } = await dbQueries.getList({ filters: { created_at: { value: [createdAtStart, createdAtEnd] as any } }, pageIndex: 0, pageSize: -1 });
         expect(countCreate3).toEqual(3);
         expect(filterCreate3.length).toEqual(3);
 
         // Update one interview and query again by same updated time, it should return the udpated interview
+        const databaseNowResult = await knex.raw('SELECT extract(epoch FROM now()) AS now_seconds');
+        const updatedAtBeforeSingleUpdate = Number(databaseNowResult.rows[0].now_seconds);
         const addAttributes = { response: { foo: 'test' }, validations: { bar: true, other: 'data' } };
         const newAttributes = {
             response: Object.assign({}, googleUserInterviewAttributes.response, addAttributes.response)
         };
         await dbQueries.update(googleUserInterviewAttributes.uuid, newAttributes, 'uuid');
-        const { interviews: filterUpdatedAfterNow2, totalCount: countUpdatedAfterNow2 } = await dbQueries.getList({ filters: { updated_at: { value: updatedAt, op: 'gt' } }, pageIndex: 0, pageSize: -1 });
+        const { interviews: filterUpdatedAfterNow2, totalCount: countUpdatedAfterNow2 } = await dbQueries.getList({ filters: { updated_at: { value: updatedAtBeforeSingleUpdate, op: 'gt' } }, pageIndex: 0, pageSize: -1 });
         expect(countUpdatedAfterNow2).toEqual(1);
         expect(filterUpdatedAfterNow2.length).toEqual(1);
         expect(filterUpdatedAfterNow2[0].uuid).toEqual(googleUserInterviewAttributes.uuid);
@@ -759,17 +780,17 @@ describe('list interviews', () => {
             const response = { ...interview.response, home: { ...interview.response.home, geography: homeGeography } };
             await dbQueries.update(interview.uuid, { response }, 'uuid');
         };
-        addHomeGeography(interviews[0], {
+        await addHomeGeography(interviews[0], {
             type: 'Feature',
             geometry: { type: 'Point', coordinates: [-73.572, 45.511] },
             properties: { lastAction: 'findPlace' }
         });
-        addHomeGeography(interviews[1], {
+        await addHomeGeography(interviews[1], {
             type: 'Feature',
             geometry: { type: 'Point', coordinates: [-73.472, 45.202] },
             properties: { lastAction: 'findPlace' }
         });
-        addHomeGeography(interviews[2], {
+        await addHomeGeography(interviews[2], {
             type: 'Feature',
             geometry: { type: 'Point', coordinates: [-100.472, 25.202] },
             properties: { lastAction: 'findPlace' }
