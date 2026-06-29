@@ -1,0 +1,4 @@
+activePersonTitle: >-
+    <p class="_orange center _em" style="margin-bottom: 0;">Entrevue de <strong>{{nickname}}</strong></p>
+buttonSwitchPerson: Changer de personne
+buttonSwitchPersonNeedComplete: Veuillez compléter cette section avant de changer de personne.
