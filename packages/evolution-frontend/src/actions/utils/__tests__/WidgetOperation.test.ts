@@ -319,6 +319,65 @@ describe('Test with previous status', () => {
 
     });
 
+    test('Should not reset value to default if previously invisible, affected path and unaffected path', () => {
+        // Prepare test data, both widgets were previously invisible, we change
+        // the value of q2, which should not be reset to undefined, but q1
+        // should
+        const newValue = 2;
+        const testInterviewAttributes = _cloneDeep(runtimeInterviewAttributes);
+        (testInterviewAttributes as any).response.section1.q2 = newValue;
+        const valuesByPath = { 'response.section1.q2': newValue };
+        // Set statuses before update, both widgets are invisible
+        const previousStatuses = _cloneDeep(previousWidgetStatuses);
+        previousStatuses.widget1.isVisible = false;
+        previousStatuses.widget2.isVisible = false;
+        testInterviewAttributes.widgets = previousStatuses;
+
+        // Prepare expected interview
+        const expectedInterview = _cloneDeep(interviewAttributes) as any;
+        expectedInterview.response.section1.q2 = newValue;
+        expectedInterview.response.section1.q1 = undefined;
+
+        // Test, both widgets should be visible, only widget 1 is valid
+        const { updatedInterview, updatedValuesByPath, needUpdate } = prepareSectionWidgets(mainSection, testInterviewAttributes, { 'response.section1.q2': true }, _cloneDeep(valuesByPath));
+
+        // Interview data should correspond to expected, needUpdate is true because one of the value is reset
+        expect(updatedInterview).toEqual(expect.objectContaining(expectedInterview));
+        expect(updatedValuesByPath).toEqual(Object.assign({}, valuesByPath, { 'response.section1.q1': undefined }));
+        expect(needUpdate).toEqual(true);
+
+        // Check calls of the validation function, should have been called for both widgets as visibility changes
+        expect(mockedCheckValidations).toHaveBeenCalledTimes(2);
+        expect(mockedCheckValidations).toHaveBeenCalledWith(widgets.widget2.validations, newValue, undefined, testInterviewAttributes, 'section1.q2', undefined);
+        expect(mockedCheckValidations).toHaveBeenCalledWith(undefined, undefined, undefined, testInterviewAttributes, 'section1.q1', undefined);
+
+        // Check calls to the conditional function, called twice, once for each widget
+        expect(mockedCheckConditional).toHaveBeenCalledTimes(2);
+        expect(mockedCheckConditional).toHaveBeenCalledWith(undefined, testInterviewAttributes, 'section1.q1', undefined);
+        expect(mockedCheckConditional).toHaveBeenCalledWith(undefined, testInterviewAttributes, 'section1.q2', undefined);
+
+        // Widget statuses should now show both as visible
+        expect(updatedInterview.widgets).toEqual({
+            widget1: {
+                ...previousWidgetStatuses.widget1,
+                currentUpdateKey: 1,
+                isVisible: true,
+                value: undefined,
+                isEmpty: true,
+                isResponded: false
+            },
+            widget2: {
+                ...previousWidgetStatuses.widget2,
+                value: newValue
+            }
+        });
+
+        // Check the visible widgets and the allWidgetsValid flag
+        expect(updatedInterview.visibleWidgets).toEqual(['section1.q1', 'section1.q2']);
+        expect(updatedInterview.allWidgetsValid).toEqual(true);
+
+    });
+
     test('Check all widgets if "_all" is affected', () => {
         // Prepare test data, no changes
         const testInterviewAttributes = _cloneDeep(runtimeInterviewAttributes);

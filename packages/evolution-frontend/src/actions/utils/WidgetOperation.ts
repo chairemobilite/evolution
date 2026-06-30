@@ -208,7 +208,10 @@ const prepareSimpleWidget = (
             widgetConfig.useAssignedValueOnHide && !_isBlank(assignedValue)
                 ? assignedValue
                 : surveyHelper.parse(widgetConfig.defaultValue, data.interview, path, data.user);
-        if (value !== defaultValue) {
+        // Reset the value if it differs from defaultValue, but not if this
+        // widget's value is just set in the affectedPaths. It is then the valid
+        // result of an action or server callback or user action.
+        if (value !== defaultValue && data.affectedPaths['response.' + path] !== true) {
             surveyHelper.setResponse(data.interview, path, defaultValue);
             data.valuesByPath['response.' + path] = defaultValue;
             value = defaultValue;
