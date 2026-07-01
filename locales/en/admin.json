@@ -126,8 +126,13 @@
         "error": "Error while refreshing the cache"
     },
     "interviewMember": {
-        "Keep": "Keep",
-        "Discard": "Discard"
+        "approveObject": "Approve this object",
+        "rejectObject": "Reject this object",
+        "forceApproveObject": "Force approve (override reviewer disagreements)",
+        "reviewConflict": "Reviewers disagree on this object",
+        "forceApproveRequiresConflict": "Force approve is only available when reviewers disagree on this object",
+        "requestReReview": "Ask the other reviewers to review this object again",
+        "reReviewRequested": "You are asked to review this object again"
     },
     "AllAudits": "All Audits",
     "auditLevels": {
@@ -139,6 +144,7 @@
         "errors": {
             "error": "Error",
             "surveyObjectsNotAvailable": "Survey objects not available. Please ensure the interview has been properly processed.",
+            "reviewActionFailed": "The review action could not be completed. Please try again.",
             "interviewNotAvailable": "Interview not available. Please ensure the interview has been properly processed.",
             "householdNotAvailable": "Household not available. Please ensure the interview has been properly processed.",
             "homeNotAvailable": "Home not available. Please ensure the interview has been properly processed."

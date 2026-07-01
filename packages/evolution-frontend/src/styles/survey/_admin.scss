@@ -20,33 +20,6 @@
             list-style: none;
         }
     }
-
-    ._member-survey-keeper {
-        display: flex;
-        gap: 2rem;
-
-        margin: 0.25rem 0;
-
-        button {
-            flex: 1;
-            max-width: 10rem;
-
-            align-items: center;
-            padding: 0.15rem;
-
-            &._member-survey-keeper-left {
-                justify-content: flex-start;
-            }
-
-            &._member-survey-keeper-center {
-                justify-content: center;
-            }
-
-            &._member-survey-keeper-right {
-                justify-content: flex-end;
-            }
-        }
-    }
 }
 
 .admin-widget-container._full-width {
@@ -60,8 +33,90 @@
 
 ._widget_container {
     padding-bottom: 0.3rem;
-    border-bottom: 1px dashed rgba(0, 0, 0, 0.1);
     margin-bottom: 0.5rem;
+}
+
+// Boxed survey object in the admin review column. Nested boxes get a slightly
+// darker background for visual depth. position:relative leaves room for controls
+// (e.g. review buttons) in the top-right corner.
+.admin__survey-object-box {
+    position: relative;
+    margin: 0.35rem 0;
+    padding: 0.4rem 0.5rem;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 0.5rem;
+    background: rgba(255, 255, 255, 0.9);
+
+    .admin__survey-object-box:not(.admin__survey-object-box--rejected):not(.admin__survey-object-box--approved):not(.admin__survey-object-box--conflict) {
+        background: rgba(0, 0, 0, 0.025);
+        border-color: rgba(0, 0, 0, 0.12);
+    }
+
+    &._selectable:hover {
+        cursor: pointer;
+    }
+
+    &--has-review {
+        // Reserve top-right space for absolutely positioned review controls on this box.
+        $review-controls-width: 9.5rem;
+        padding-right: calc(0.5rem + #{$review-controls-width});
+    }
+
+    &--rejected {
+        background-color: rgba(settings.$red, 0.05);
+        border-color: rgba(settings.$red, 0.3);
+    }
+
+    &--approved {
+        background-color: rgba(settings.$green, 0.08);
+        border-color: rgba(settings.$green, 0.35);
+    }
+
+    &--conflict {
+        background-color: rgba(settings.$yellow, 0.12);
+        border-color: rgba(settings.$yellow, 0.45);
+    }
+
+    &__review-controls {
+        position: absolute;
+        top: 0.25rem;
+        right: 0.25rem;
+        display: flex;
+        align-items: center;
+        gap: 0.15rem;
+        z-index: 1;
+    }
+
+    &__review-warning {
+        font-size: 1rem;
+        margin-right: 0.1rem;
+    }
+
+    &__review-button {
+        padding: 0.15rem 0.35rem;
+        background: none;
+        border: none;
+        cursor: pointer;
+        border-radius: 50%;
+        line-height: 1;
+
+        svg {
+            pointer-events: none;
+        }
+
+        &--active-reject {
+            background-color: rgba(settings.$red, 0.3);
+        }
+
+        &--active-approve,
+        &--active-force {
+            background-color: rgba(settings.$green, 0.3);
+        }
+
+        &--active-rereview {
+            background-color: rgba(settings.$yellow, 0.3);
+        }
+    }
 }
 
 .survey.validation {
@@ -899,7 +954,7 @@ header {
     border-color: black !important;
     width: 30px !important;
     height: 30px !important;
-    
+
     svg {
         width: 16px !important;
         height: 16px !important;
