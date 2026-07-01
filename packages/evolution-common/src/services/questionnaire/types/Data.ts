@@ -7,6 +7,7 @@
 // This file contains types that are used for the questionnaire configuration and flow
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { TFunction } from 'i18next';
+import type { SurveyObjectsWithAuditsAndReviewDecisions } from '../../reviews/types';
 import { PersonAttributes } from '../../baseObjects/Person';
 import { JourneyAttributes } from '../../baseObjects/Journey';
 import { TripAttributes } from '../../baseObjects/Trip';
@@ -389,6 +390,8 @@ export interface InterviewAttributes extends UserInterviewAttributes {
     created_at?: string;
     updated_at?: string;
     survey_id?: number;
+    /** Admin validation payload from `correctInterview` and review mutation routes. */
+    surveyObjectsAndAuditsAndReviewDecisions?: SurveyObjectsWithAuditsAndReviewDecisions;
 }
 
 export interface InterviewListAttributes {

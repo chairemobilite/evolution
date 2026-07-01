@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, Polytechnique Montreal and contributors
+ * Copyright Polytechnique Montreal and contributors
  *
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
@@ -10,6 +10,7 @@ import projectConfig, {
 } from 'chaire-lib-common/lib/config/shared/project.config';
 import { ISODateTimeStringWithTimezoneOffset } from '../utils/DateTimeUtils';
 import { AuditChecksGroup, SurveyBase, AuditRequiredFieldsBySurveyObject } from '../services/audits/types';
+import type { SurveyObjectName } from '../services/baseObjects/types';
 import { AccessCodeFormatName } from '../services/accessCode/accessCodeFormats';
 
 /**
@@ -217,6 +218,12 @@ export type EvolutionProjectConfiguration = {
     requiredFieldsBySurveyObject: AuditRequiredFieldsBySurveyObject;
 
     /**
+     * Survey objects on which approve/reject controls appear in the review summary.
+     * Uses the same names as {@link SurveyObjectName}.
+     */
+    reviewableSurveyObjects: SurveyObjectName[];
+
+    /**
      * Path to the GeoJSON file for the survey area.
      * Relative to the survey project directory, which is set in config's
      * projectDirectory param
@@ -306,6 +313,7 @@ const defaultConfig = {
         workPlace: [],
         schoolPlace: []
     },
+    reviewableSurveyObjects: ['interview', 'home', 'household', 'person', 'journey', 'visitedPlace', 'trip', 'segment'],
     auditChecksGroup: 'custom', // custom by default so older surveys works.
     surveyBase: 'householdBased'
 };
