@@ -166,6 +166,31 @@ export const initializeTestPage = async (
             surveyObjectDetector.detectSurveyObjects(data);
         }
     });
+    // Also listen to responses in case the server returns new object data in
+    // the response (the server update callback may update the interview server
+    // side and send updated data to the client)
+    page.on('response', async (response) => {
+        try {
+            // Listen to the response of the `survey/updateInterview` endpoint
+            if (!response.url().includes('survey/updateInterview')) {
+                return;
+            }
+            const text = await response.text();
+            if (!text) {
+                return;
+            }
+            const parsed = JSON.parse(text);
+            // The server response may contain an `updatedValuesByPath` property
+            // which contains the updated values
+            const valuesByPath = parsed && parsed['updatedValuesByPath'];
+            if (valuesByPath !== undefined && Object.keys(valuesByPath).length > 0) {
+                // Detect the survey objects in the updated values by path
+                surveyObjectDetector.detectSurveyObjects(valuesByPath);
+            }
+        } catch (error) {
+            console.error(`Error while parsing survey/updateInterview response: ${error}`);
+        }
+    });
     return page;
 };
 
