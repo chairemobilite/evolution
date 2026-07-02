@@ -9,6 +9,7 @@ import auditsDbQueries from '../../models/audits.db.queries';
 import { InterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { AuditService } from './AuditService';
 import { auditsArrayToAuditsByObject } from 'evolution-common/lib/services/audits/AuditUtils';
+import { assertCorrectedResponsePresent } from '../interviews/assertCorrectedResponsePresent';
 
 /**
  * Static class to manage various survey objects creation and audits operations
@@ -25,6 +26,21 @@ export class SurveyObjectsAndAuditsFactory {
     };
 
     /**
+     * Create survey objects and audits for an interview without persisting audits.
+     * @param interview - The interview to create survey objects and audits for
+     * @param runExtendedAuditChecks - Whether to run extended audit checks
+     * @returns Survey objects and audits for the admin UI
+     */
+    private static createSurveyObjectsAndAudits = async (
+        interview: InterviewAttributes,
+        runExtendedAuditChecks: boolean = false
+    ): Promise<SurveyObjectsWithAudits> => {
+        assertCorrectedResponsePresent(interview);
+
+        return AuditService.auditInterview(interview, runExtendedAuditChecks);
+    };
+
+    /**
      * Create survey objects and audits for an interview then save audits to db
      * @param {InterviewAttributes} interview - The interview to create survey objects and audits for
      * @param {boolean} runExtendedAuditChecks - Whether to run extended audit checks
@@ -37,17 +53,10 @@ export class SurveyObjectsAndAuditsFactory {
         interview: InterviewAttributes,
         runExtendedAuditChecks: boolean = false
     ): Promise<SurveyObjectsWithAudits> => {
-        /**
-         * corrected_response is required to create survey objects and audits.
-         * It must have been created on a previous review or copied from response
-         * in the frontend if it is the first review.
-         */
-        if (!interview.corrected_response) {
-            throw new Error('Corrected response is required to create survey objects and audits');
-        }
-
-        // Create survey objects, check errors and get audits:
-        const surveyObjectsWithAudits = await AuditService.auditInterview(interview, runExtendedAuditChecks);
+        const surveyObjectsWithAudits = await SurveyObjectsAndAuditsFactory.createSurveyObjectsAndAudits(
+            interview,
+            runExtendedAuditChecks
+        );
 
         // Save audits to database and return updated structure
         const newAudits = await auditsDbQueries.setAuditsForInterview(interview.id, surveyObjectsWithAudits.audits);

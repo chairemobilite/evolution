@@ -1,5 +1,5 @@
 /*
- * Copyright 2022, Polytechnique Montreal and contributors
+ * Copyright Polytechnique Montreal and contributors
  *
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
@@ -14,7 +14,7 @@ import Interviews, { FilterType } from '../services/interviews/interviews';
 import { updateInterview, copyResponseToCorrectedResponse } from '../services/interviews/interview';
 import { VALID_OPERATORS } from '../models/interviews.db.queries';
 import interviewUserIsAuthorized, { isUserAllowed } from '../services/auth/userAuthorization';
-import projectConfig from '../config/projectConfig';
+import serverProjectConfig from '../config/projectConfig';
 import { handleUserActionSideEffect, mapResponseToCorrectedResponse } from '../services/interviews/interviewUtils';
 import { UserAttributes } from 'chaire-lib-backend/lib/services/users/user';
 import { logUserAccessesMiddleware } from '../services/logging/queryLoggingMiddleware';
@@ -23,11 +23,75 @@ import { SurveyObjectsAndAuditsFactory } from '../services/audits/SurveyObjectsA
 import { SurveyObjectsWithAudits } from 'evolution-common/lib/services/audits/types';
 import { InterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import validateUuidMiddleware from './helpers/validateUuidMiddleware';
+import validateReviewObjectMiddleware, {
+    getReviewObjectContext,
+    sendError
+} from './helpers/validateReviewObjectMiddleware';
 import { getParadataLoggingFunction } from '../services/logging/paradataLogging';
 import { BatchAuditService } from '../services/audits/BatchAuditService';
+import { ReviewDecisionService } from '../services/reviews/ReviewDecisionService';
+import { CANNOT_FORCE_APPROVE_WITHOUT_CONFLICT_ERROR_CODE } from '../services/reviews/reviewDecisionErrors';
+import type { ReviewDecisionValue, ReviewDecisions } from 'evolution-common/lib/services/reviews/types';
 import { hasErrors } from 'evolution-common/lib/types/Result.type';
+import TrError from 'chaire-lib-common/lib/utils/TrError';
 
 const router = express.Router();
+
+/**
+ * Maps known review-mutation TrErrors to HTTP responses.
+ * @param res - Express response
+ * @param error - Caught error from a review mutation handler
+ * @returns True when a client-facing response was sent
+ */
+const sendReviewMutationErrorResponse = (res: Response, error: unknown): boolean => {
+    if (!TrError.isTrError(error)) {
+        return false;
+    }
+    const exportedError = error.export();
+    if (exportedError.errorCode === CANNOT_FORCE_APPROVE_WITHOUT_CONFLICT_ERROR_CODE) {
+        res.status(409).json({
+            status: 'error',
+            error: exportedError.error,
+            errorCode: exportedError.errorCode
+        });
+        return true;
+    }
+    return false;
+};
+
+/**
+ * Logs and responds for review-mutation route failures not handled by {@link sendReviewMutationErrorResponse}.
+ * @param res - Express response
+ * @param error - Caught error from a review mutation handler
+ * @param logMessage - Route-specific message prefix for server logs
+ */
+const handleReviewMutationRouteError = (res: Response, error: unknown, logMessage: string): Response => {
+    if (sendReviewMutationErrorResponse(res, error)) {
+        return res;
+    }
+    console.error(logMessage, error);
+    return res.status(500).json({ status: 'error' });
+};
+
+/**
+ * Runs a review mutation and returns the standard success JSON payload.
+ * @param res - Express response
+ * @param logMessage - Route-specific message prefix for server logs
+ * @param mutate - ReviewDecisionService call for the route
+ * @returns HTTP response with review decisions or a mutation error
+ */
+const respondWithReviewMutationResult = async (
+    res: Response,
+    logMessage: string,
+    mutate: () => Promise<ReviewDecisions>
+): Promise<Response> => {
+    try {
+        const reviewDecisions = await mutate();
+        return res.status(200).json({ status: 'success', reviewDecisions });
+    } catch (error) {
+        return handleReviewMutationRouteError(res, error, logMessage);
+    }
+};
 
 router.use(interviewUserIsAuthorized(['validate', 'read']));
 
@@ -63,6 +127,33 @@ function sanitizeFilters(filters: Record<string, unknown>): { [key: string]: Fil
     return actualFilters;
 }
 
+const isReviewDecisionValue = (value: unknown): value is ReviewDecisionValue =>
+    value === 'approve' || value === 'reject';
+
+/**
+ * Parses an optional string field from a review mutation request body.
+ * @param value - Raw request body field
+ * @param res - Express response used for validation errors
+ * @param errorMessage - Error message when the field has the wrong type
+ * @returns Parsed value on success, or `{ ok: false }` after sending a 400 response
+ */
+type ParseOptionalStringBodyFieldResult = { ok: true; value: string | undefined } | { ok: false };
+
+const parseOptionalStringBodyField = (
+    value: unknown,
+    res: Response,
+    errorMessage: string
+): ParseOptionalStringBodyFieldResult => {
+    if (value === undefined || value === null) {
+        return { ok: true, value: undefined };
+    }
+    if (typeof value === 'string') {
+        return { ok: true, value };
+    }
+    res.status(400).json({ status: 'error', error: errorMessage });
+    return { ok: false };
+};
+
 // This route fetches the interview for correction. It runs the audit and
 // returns serialized objects for the interview summary page.
 router.get(
@@ -94,7 +185,7 @@ router.get(
                         await copyResponseToCorrectedResponse(interview);
                     }
                     // Run audits on the corrected_response
-                    const objectsAndAudits: SurveyObjectsWithAudits =
+                    const surveyObjectsAndAudits: SurveyObjectsWithAudits =
                         await SurveyObjectsAndAuditsFactory.createSurveyObjectsAndSaveAuditsToDb(
                             interview,
                             runExtendedAuditChecks
@@ -107,7 +198,7 @@ router.get(
                         interview: {
                             response: corrected_response,
                             _response: response,
-                            surveyObjectsAndAudits: objectsAndAudits,
+                            surveyObjectsAndAudits,
                             ...rest,
                             validationDataDirty:
                                 response._updatedAt !== undefined &&
@@ -282,11 +373,11 @@ router.post('/validationList', async (req, res) => {
         return res.status(200).json({
             status: 'success',
             totalCount: response.totalCount,
-            interviews: response.interviews.map(projectConfig.validationListFilter)
+            interviews: response.interviews.map(serverProjectConfig.validationListFilter)
         });
     } catch (error) {
-        console.log('error getting interview list:', error);
-        return res.status(500).json({ status: 'Error' });
+        console.error('error getting interview list:', error);
+        return res.status(500).json({ status: 'error' });
     }
 });
 
@@ -305,8 +396,8 @@ router.post('/validation/auditStats', async (req: Request, res: Response) => {
             auditStats: response.auditStats
         });
     } catch (error) {
-        console.log('error getting interview list:', error);
-        return res.status(500).json({ status: 'Error' });
+        console.error('error getting validation audit stats:', error);
+        return res.status(500).json({ status: 'error' });
     }
 });
 
@@ -323,10 +414,144 @@ router.post('/validation/updateAudits/:uuid', async (req, res, _next) => {
             status: 'ok'
         });
     } catch (error) {
-        console.log('error updating audits for interview:', error);
-        return res.status(500).json({ status: 'Error' });
+        console.error('error updating audits for interview:', error);
+        return res.status(500).json({ status: 'error' });
     }
 });
+
+// This route fetches the review decisions for an interview, separately from
+// the interview and its audits, so each can be requested/refreshed independently.
+router.get(
+    '/review/decisions/:interviewId',
+    validateUuidMiddleware,
+    interviewUserIsAuthorized(['read']),
+    async (req: Request, res: Response) => {
+        try {
+            const interview = await Interviews.getInterviewByUuid(req.params.interviewId);
+            if (!interview) {
+                return sendError(res, 404, 'Interview does not exist');
+            }
+            const reviewDecisions = await ReviewDecisionService.getReviewDecisions(
+                interview.id,
+                (req.user as UserAttributes).id
+            );
+            return res.status(200).json({
+                status: 'success',
+                reviewDecisions
+            });
+        } catch (error) {
+            console.error('error getting review decisions for interview:', error);
+            return res.status(500).json({ status: 'error' });
+        }
+    }
+);
+
+router.post(
+    '/review/decision/:interviewId',
+    validateUuidMiddleware,
+    interviewUserIsAuthorized(['validate']),
+    validateReviewObjectMiddleware,
+    async (req: Request, res: Response) => {
+        const { decision, comment } = req.body;
+        if (!isReviewDecisionValue(decision)) {
+            return res.status(400).json({ status: 'error', error: 'Invalid review decision' });
+        }
+        const parsedComment = parseOptionalStringBodyField(comment, res, 'Invalid comment');
+        if (!parsedComment.ok) {
+            return;
+        }
+        const { interview, user, objectType, objectUuid } = getReviewObjectContext(res);
+
+        return respondWithReviewMutationResult(res, 'error setting review for interview:', () =>
+            ReviewDecisionService.setReviewDecision(interview.id, user.id, {
+                objectType,
+                objectUuid,
+                decision,
+                comment: parsedComment.value
+            })
+        );
+    }
+);
+
+router.post(
+    '/review/reReview/:interviewId',
+    validateUuidMiddleware,
+    interviewUserIsAuthorized(['validate']),
+    validateReviewObjectMiddleware,
+    async (req: Request, res: Response) => {
+        const { comment } = req.body;
+        const parsedComment = parseOptionalStringBodyField(comment, res, 'Invalid comment');
+        if (!parsedComment.ok) {
+            return;
+        }
+        const { interview, user, objectType, objectUuid } = getReviewObjectContext(res);
+
+        return respondWithReviewMutationResult(res, 'error requesting re-review for interview:', () =>
+            ReviewDecisionService.requestReReview(interview.id, user.id, {
+                objectType,
+                objectUuid,
+                reReviewRequestComment: parsedComment.value
+            })
+        );
+    }
+);
+
+router.post(
+    '/review/clearDecision/:interviewId',
+    validateUuidMiddleware,
+    interviewUserIsAuthorized(['validate']),
+    validateReviewObjectMiddleware,
+    async (req: Request, res: Response) => {
+        const { interview, user, objectType, objectUuid } = getReviewObjectContext(res);
+
+        return respondWithReviewMutationResult(res, 'error clearing review for interview:', () =>
+            ReviewDecisionService.clearReviewDecision(interview.id, user.id, {
+                objectType,
+                objectUuid
+            })
+        );
+    }
+);
+
+router.post(
+    '/review/clearForceApprove/:interviewId',
+    validateUuidMiddleware,
+    interviewUserIsAuthorized(['confirm']),
+    validateReviewObjectMiddleware,
+    async (req: Request, res: Response) => {
+        const { interview, user, objectType, objectUuid } = getReviewObjectContext(res);
+
+        return respondWithReviewMutationResult(res, 'error clearing force approve for interview:', () =>
+            ReviewDecisionService.clearForceApprove(interview.id, user.id, {
+                objectType,
+                objectUuid
+            })
+        );
+    }
+);
+
+router.post(
+    '/review/forceApprove/:interviewId',
+    validateUuidMiddleware,
+    interviewUserIsAuthorized(['confirm']),
+    validateReviewObjectMiddleware,
+    async (req: Request, res: Response) => {
+        const { comment } = req.body;
+        const parsedComment = parseOptionalStringBodyField(comment, res, 'Invalid comment');
+        if (!parsedComment.ok) {
+            return;
+        }
+        const { interview, user, objectType, objectUuid } = getReviewObjectContext(res);
+
+        return respondWithReviewMutationResult(res, 'error force-approving object for interview:', () =>
+            ReviewDecisionService.setForceApprove(interview.id, user.id, {
+                objectType,
+                objectUuid,
+                forceApproveComment: parsedComment.value
+            })
+        );
+    }
+);
 
 /**
  * Batch run audits on interviews matching the provided filters
