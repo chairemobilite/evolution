@@ -5,7 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import { ParentSurveyObjects, SurveyObjectNames } from '../baseObjects/types';
+import { ParentSurveyObjects, SurveyObjectName } from '../baseObjects/types';
 
 export type Audit = {
     /**
@@ -119,5 +119,5 @@ export type SurveyBase = 'householdBased' | 'personBased';
  * See audit checks directory for details: evolution-backend/src/services/audits/auditChecks
  */
 export type AuditRequiredFieldsBySurveyObject = {
-    [key in SurveyObjectNames]: string[];
+    [key in SurveyObjectName]: string[];
 };
