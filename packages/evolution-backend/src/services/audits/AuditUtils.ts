@@ -6,7 +6,7 @@
  */
 import projectConfig from 'evolution-common/lib/config/project.config';
 import { AuditForObject, Audits } from 'evolution-common/lib/services/audits/types';
-import { SurveyObjectNames } from 'evolution-common/lib/services/baseObjects/types';
+import { SurveyObjectName } from 'evolution-common/lib/services/baseObjects/types';
 import slugify from 'slugify';
 
 /**
@@ -67,9 +67,9 @@ export const mergeWithExisting = (existingAudits: Audits, newAudits: Audits, ove
 
 /**
  * Check if a field is required based on configuration
- * @param {SurveyObjectNames} objectType - The type of survey object
+ * @param {SurveyObjectName} objectType - The type of survey object
  * @param {string} field - The field to check
  * @returns {boolean} true if the field is required, false otherwise
  */
-export const fieldIsRequired = (objectType: SurveyObjectNames, field: string) =>
+export const fieldIsRequired = (objectType: SurveyObjectName, field: string) =>
     (projectConfig.requiredFieldsBySurveyObject?.[objectType] ?? []).includes(field);
