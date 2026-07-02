@@ -9,7 +9,7 @@ import slugify from 'slugify';
 
 import { mergeWithExisting, convertParamsErrorsToAudits } from '../AuditUtils';
 import type { Audits } from 'evolution-common/lib/services/audits/types';
-import type { SurveyObjectNames } from 'evolution-common/lib/services/baseObjects/types';
+import type { SurveyObjectName } from 'evolution-common/lib/services/baseObjects/types';
 
 const arbitraryUuid = uuidV4();
 
@@ -97,8 +97,8 @@ describe('mergeWithExisting', () => {
 // running in parallel across different test files. We use await import() inside isolateModulesAsync to get
 // fresh module instances per test, ensuring each test has an isolated projectConfig state.
 describe('fieldIsRequired', () => {
-    it.each<{ objectType: SurveyObjectNames; field: string; isRequired: boolean }>([
-        // Test all SurveyObjectNames with required fields
+    it.each<{ objectType: SurveyObjectName; field: string; isRequired: boolean }>([
+        // Test all SurveyObjectName with required fields
         { objectType: 'interview', field: 'accessCode', isRequired: true },
         { objectType: 'household', field: 'size', isRequired: true },
         { objectType: 'home', field: 'address', isRequired: true },
@@ -113,7 +113,7 @@ describe('fieldIsRequired', () => {
         { objectType: 'junction', field: 'location', isRequired: true },
         { objectType: 'workPlace', field: 'name', isRequired: true },
         { objectType: 'schoolPlace', field: 'name', isRequired: true },
-        // Test all SurveyObjectNames with non-required fields
+        // Test all SurveyObjectName with non-required fields
         { objectType: 'interview', field: 'accessCode', isRequired: false },
         { objectType: 'household', field: 'size', isRequired: false },
         { objectType: 'home', field: 'address', isRequired: false },

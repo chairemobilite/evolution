@@ -8,12 +8,12 @@ const moment = require('moment-business-days');
 
 moment.updateLocale('fr', {
   holidays: ['2018-09-03', '2018-10-08', '2018-12-25'],
-  holidayFormat: 'YYYY-MM-DD' 
+  holidayFormat: 'YYYY-MM-DD'
 });
 
 moment.updateLocale('en', {
   holidays: ['2018-09-03', '2018-10-08', '2018-12-25'],
-  holidayFormat: 'YYYY-MM-DD' 
+  holidayFormat: 'YYYY-MM-DD'
 });
 
 moment.updateLocale('fr', {
@@ -93,5 +93,15 @@ module.exports = {
   timezone: 'America/Montreal',
   region: 'CA', // Used for Google Maps localization. See https://developers.google.com/maps/coverage for possible region codes
   hasSectionProgressBar: true, // If true, show a progress bar at the top of each section
-  surveyAreaGeojsonPath: '../surveyArea.geojson.example'
+  surveyAreaGeojsonPath: '../surveyArea.geojson.example',
+  reviewableSurveyObjects: [
+        'interview',
+        'home',
+        'household',
+        'person',
+        'journey',
+        'visitedPlace',
+        'trip',
+        'segment'
+    ]
 };

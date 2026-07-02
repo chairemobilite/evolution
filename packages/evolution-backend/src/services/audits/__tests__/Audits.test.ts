@@ -5,9 +5,11 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import _omit from 'lodash/omit';
+import TrError from 'chaire-lib-common/lib/utils/TrError';
 import auditsDbQueries from '../../../models/audits.db.queries';
 import { SurveyObjectsAndAuditsFactory } from '../SurveyObjectsAndAuditsFactory';
 import { AuditService } from '../AuditService';
+import { CORRECTED_RESPONSE_REQUIRED_ERROR_CODE } from '../../interviews/assertCorrectedResponsePresent';
 import type { AuditForObject } from 'evolution-common/lib/services/audits/types';
 import type { Interview } from 'evolution-common/lib/services/baseObjects/interview/Interview';
 import type { Household } from 'evolution-common/lib/services/baseObjects/Household';
@@ -94,10 +96,16 @@ describe('createSurveyObjectsAndSaveAuditsToDb', () => {
         uuid: '123e4567-e89b-12d3-a456-426614174000',
         participant_id: 1,
         is_valid: true,
-        response: {},
+        response: {
+            _uuid: '123e4567-e89b-12d3-a456-426614174000',
+            household: { _uuid: 'household-uuid-123', size: 2 }
+        },
         validations: {},
         is_completed: false,
-        corrected_response: {}
+        corrected_response: {
+            _uuid: '123e4567-e89b-12d3-a456-426614174000',
+            household: { _uuid: 'household-uuid-123', size: 2 }
+        }
     };
 
     // Mock audits returned by AuditService
@@ -132,6 +140,17 @@ describe('createSurveyObjectsAndSaveAuditsToDb', () => {
     test('corrected_response not set in interview', async () => {
         await expect(SurveyObjectsAndAuditsFactory.createSurveyObjectsAndSaveAuditsToDb(_omit(interviewAttributes, 'corrected_response')))
             .rejects.toThrow('Corrected response is required to create survey objects and audits');
+        expect(mockAuditInterview).not.toHaveBeenCalled();
+    });
+
+    test('blank corrected_response rejects before auditing', async () => {
+        const thrownError = await SurveyObjectsAndAuditsFactory.createSurveyObjectsAndSaveAuditsToDb({
+            ...interviewAttributes,
+            corrected_response: {}
+        }).catch((error) => error);
+
+        expect(TrError.isTrError(thrownError)).toBe(true);
+        expect(thrownError.getCode()).toBe(CORRECTED_RESPONSE_REQUIRED_ERROR_CODE);
         expect(mockAuditInterview).not.toHaveBeenCalled();
     });
 
