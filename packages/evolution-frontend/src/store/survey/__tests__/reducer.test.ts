@@ -172,6 +172,44 @@ describe('Navigate action', () => {
 
 });
 
+describe('SET_REVIEW_DECISIONS action', () => {
+    const reviewDecisionsPayload = {
+        reviewDecisions: [],
+        reviewDecisionsByObject: {} as any,
+        reviewDecisionStatusByObject: {} as any
+    };
+
+    test('stores review decisions as a separate slice', () => {
+        const initialState = {
+            interview: testInterview,
+            interviewLoaded: true
+        };
+
+        expect(
+            surveyReducer(initialState, {
+                type: SurveyActionTypes.SET_REVIEW_DECISIONS as const,
+                reviewDecisions: reviewDecisionsPayload
+            })
+        ).toEqual({ ...initialState, reviewDecisions: reviewDecisionsPayload });
+    });
+
+    test('setting a new interview resets review decisions', () => {
+        const initialState = {
+            interview: testInterview,
+            interviewLoaded: true,
+            reviewDecisions: reviewDecisionsPayload
+        };
+
+        const newState = surveyReducer(initialState, {
+            type: SurveyActionTypes.SET_INTERVIEW as const,
+            interview: testInterview,
+            interviewLoaded: true
+        });
+
+        expect(newState.reviewDecisions).toBeUndefined();
+    });
+});
+
 describe('Init navigate action', () => {
     const action = {
         type: SurveyActionTypes.INIT_NAVIGATE as const,

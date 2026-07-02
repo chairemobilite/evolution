@@ -19,7 +19,8 @@ const reducer: Reducer<SurveyState, SurveyAction> = (state = initialState, actio
             // Reset navigation and other states for this newly set interview, to not clash with previous interviews
             navigation: undefined,
             errors: undefined,
-            submitted: undefined
+            submitted: undefined,
+            reviewDecisions: undefined
         };
     case SurveyActionTypes.UPDATE_INTERVIEW:
         return {
@@ -46,6 +47,11 @@ const reducer: Reducer<SurveyState, SurveyAction> = (state = initialState, actio
             }
         };
     }
+    case SurveyActionTypes.SET_REVIEW_DECISIONS:
+        return {
+            ...state,
+            reviewDecisions: action.reviewDecisions
+        };
     case SurveyActionTypes.INIT_NAVIGATE: {
         const { navigationService } = action;
         return {

@@ -37,7 +37,6 @@ export const personAttributes = [
     ...completableAttributeNames,
     '_sequence',
     '_color',
-    '_keepDiscard',
     'age',
     'ageGroup',
     'gender',
@@ -105,7 +104,6 @@ export type PersonAttributes = {
      */
     _sequence?: Optional<number>;
     _color?: Optional<string>; // used for reviewing to color each person's trips on map
-    _keepDiscard?: Optional<string>; // 'Keep' or 'Discard'
     age?: Optional<PAttr.Age>;
     ageGroup?: Optional<PAttr.AgeGroup>; // generated, do not use as a widget
     gender?: Optional<PAttr.Gender>;
@@ -262,14 +260,6 @@ export class Person extends SurveyObject {
 
     set _color(value: Optional<string>) {
         this._attributes._color = value;
-    }
-
-    get _keepDiscard(): Optional<string> {
-        return this._attributes._keepDiscard;
-    }
-
-    set _keepDiscard(value: Optional<string>) {
-        this._attributes._keepDiscard = value;
     }
 
     get age(): Optional<PAttr.Age> {
