@@ -28,8 +28,10 @@ import { Trip } from 'evolution-common/lib/services/baseObjects/Trip';
 import { Segment } from 'evolution-common/lib/services/baseObjects/Segment';
 import { AuditForObject } from 'evolution-common/lib/services/audits/types';
 import { VisitedPlaceDecorator } from '../../../services/surveyObjectDecorators/VisitedPlaceDecorator';
-import KeepDiscard from '../validations/KeepDiscard';
 import AuditDisplay from '../AuditDisplay';
+import { SurveyObjectBox } from './SurveyObjectBox';
+import { getRejectedForDisplay } from '../../../services/admin/reviewDecisionStatusHelper';
+import { useReviewDecisionStatusByObject } from '../../../services/admin/useObjectReview';
 
 export interface PersonPanelProps {
     person: Person;
@@ -41,8 +43,9 @@ export interface PersonPanelProps {
     activePlacePath?: string;
     selectPlace: (path: string | undefined) => void;
     selectTrip: (uuid: string | undefined) => void;
-    keepDiscard: (params: { choice: string; personId: string }) => void;
     showAuditErrorCode?: boolean;
+    /** Rejected styling inherited from rejected interview/household ancestors (display only). */
+    inheritedRejected?: boolean;
 }
 
 export const PersonPanel = ({
@@ -55,10 +58,28 @@ export const PersonPanel = ({
     activePlacePath,
     selectPlace,
     selectTrip,
-    keepDiscard,
-    showAuditErrorCode
+    showAuditErrorCode,
+    inheritedRejected = false
 }: PersonPanelProps) => {
     const { t } = useTranslation(['admin']);
+
+    const journeyUuid = journey?._uuid;
+    const personUuid = person._uuid;
+
+    const reviewDecisionStatusByObject = useReviewDecisionStatusByObject();
+    const personRejectedForDisplay = getRejectedForDisplay(
+        reviewDecisionStatusByObject,
+        'person',
+        personUuid,
+        inheritedRejected
+    );
+    const journeyRejectedForDisplay = getRejectedForDisplay(
+        reviewDecisionStatusByObject,
+        'journey',
+        journeyUuid,
+        false
+    );
+    const journeySubtreeInheritedRejected = personRejectedForDisplay || journeyRejectedForDisplay;
 
     // Handle visited places
     const visitedPlacesStats: JSX.Element[] = [];
@@ -68,17 +89,42 @@ export const PersonPanel = ({
         const visitedPlace: VisitedPlace = visitedPlacesArray[i];
         const visitedPlaceDecorator = new VisitedPlaceDecorator(visitedPlace);
         const visitedPlaceId = visitedPlace._uuid!;
-        const visitedPlacePath = `response.household.persons.${personId}.journeys.${journey?.uuid}.visitedPlaces.${visitedPlaceId}`;
-
-        const visitedPlaceStats = (
-            <div className="" key={visitedPlaceId} onClick={() => selectPlace(visitedPlacePath)}>
-                <span className={`_widget${activePlacePath === visitedPlacePath ? ' _active' : ''}`}>
-                    {i + 1}. {visitedPlaceDecorator.getDescription(true)}{' '}
-                    {visitedPlace.startTime && visitedPlace.endTime
-                        ? '(' + Math.round((10 * (visitedPlace.endTime - visitedPlace.startTime)) / 3600) / 10 + 'h)'
-                        : ''}
-                </span>
-            </div>
+        const visitedPlacePath = journeyUuid
+            ? `response.household.persons.${personId}.journeys.${journeyUuid}.visitedPlaces.${visitedPlaceId}`
+            : undefined;
+        const visitedPlaceLabel = (
+            <>
+                {i + 1}. {visitedPlaceDecorator.getDescription(true)}{' '}
+                {visitedPlace.startTime && visitedPlace.endTime
+                    ? '(' + Math.round((10 * (visitedPlace.endTime - visitedPlace.startTime)) / 3600) / 10 + 'h)'
+                    : ''}
+            </>
+        );
+        const isVisitedPlaceActive = Boolean(visitedPlacePath && activePlacePath === visitedPlacePath);
+        const visitedPlaceStats = visitedPlacePath ? (
+            <SurveyObjectBox
+                key={visitedPlaceId}
+                objectType="visitedPlace"
+                objectUuid={visitedPlaceId}
+                extraClassNames="_selectable"
+                inheritedRejected={journeySubtreeInheritedRejected}
+                nested
+                onClick={() => selectPlace(visitedPlacePath)}
+                selectableClassName="_widget"
+                isActive={isVisitedPlaceActive}
+            >
+                {visitedPlaceLabel}
+            </SurveyObjectBox>
+        ) : (
+            <SurveyObjectBox
+                key={visitedPlaceId}
+                objectType="visitedPlace"
+                objectUuid={visitedPlaceId}
+                inheritedRejected={journeySubtreeInheritedRejected}
+                nested
+            >
+                <span className="_widget">{visitedPlaceLabel}</span>
+            </SurveyObjectBox>
         );
         visitedPlacesStats.push(visitedPlaceStats);
     }
@@ -95,6 +141,13 @@ export const PersonPanel = ({
             const startAt = trip.startPlace.endTime as number;
             const endAt = trip.endPlace.startTime as number;
             const duration = !_isBlank(startAt) && !_isBlank(endAt) ? endAt! - startAt! : undefined;
+
+            const tripSubtreeInheritedRejected = getRejectedForDisplay(
+                reviewDecisionStatusByObject,
+                'trip',
+                tripId,
+                journeySubtreeInheritedRejected
+            );
 
             const segmentsArray: Segment[] = trip.segments || [];
             const segmentsStats: JSX.Element[] = [];
@@ -117,56 +170,88 @@ export const PersonPanel = ({
                         );
                     }
                 }
+                const segmentId = segment._uuid!;
                 segmentsStats.push(
-                    <span className="" style={{ display: 'block' }} key={segment._uuid}>
+                    <SurveyObjectBox
+                        key={segmentId}
+                        objectType="segment"
+                        objectUuid={segmentId}
+                        inheritedRejected={tripSubtreeInheritedRejected}
+                        nested
+                    >
                         <strong>{segment.mode || '?'}</strong>: {segmentStats}
-                    </span>
+                    </SurveyObjectBox>
                 );
             }
 
+            const isTripActive = activeTripUuid === tripId;
             const tripStats = (
-                <div className="" key={tripId} onClick={() => selectTrip(tripId)}>
-                    <span key="trip" className={`_widget${activeTripUuid === tripId ? ' _active' : ''}`}>
-                        {i + 1}. <FontAwesomeIcon icon={faClock} className="faIconLeft" />
-                        {secondsSinceMidnightToTimeStr(startAt)}
-                        <FontAwesomeIcon icon={faArrowRight} />
-                        {secondsSinceMidnightToTimeStr(endAt)} ({Math.ceil(duration! / 60)} min)
-                    </span>
-                    <span
-                        key="segments"
-                        style={{ marginLeft: '1rem' }}
-                        className={`_widget${activeTripUuid === tripId ? ' _active' : ''}`}
-                    >
+                <SurveyObjectBox
+                    key={tripId}
+                    objectType="trip"
+                    objectUuid={tripId}
+                    extraClassNames="_selectable"
+                    inheritedRejected={journeySubtreeInheritedRejected}
+                    nested
+                    onClick={() => selectTrip(tripId)}
+                    selectableClassName="_widget"
+                    isActive={isTripActive}
+                    selectableContent={
+                        <>
+                            {i + 1}. <FontAwesomeIcon icon={faClock} className="faIconLeft" />
+                            {!_isBlank(startAt) ? secondsSinceMidnightToTimeStr(startAt) : '?'}
+                            <FontAwesomeIcon icon={faArrowRight} />
+                            {!_isBlank(endAt) ? secondsSinceMidnightToTimeStr(endAt) : '?'}
+                            {duration !== undefined ? ` (${Math.ceil(duration / 60)} min)` : ''}
+                        </>
+                    }
+                >
+                    <div key="segments" className={`_widget${isTripActive ? ' _active' : ''}`}>
                         {segmentsStats}
-                    </span>
-                </div>
+                    </div>
+                </SurveyObjectBox>
             );
             tripsStats.push(tripStats);
         }
     }
 
+    const journeySubtreeContent =
+        visitedPlacesStats.length > 0 || tripsStats.length > 0 ? (
+            <>
+                {visitedPlacesStats.length > 0 && <br />}
+                {visitedPlacesStats}
+                {tripsStats.length > 0 && <br />}
+                {tripsStats}
+            </>
+        ) : null;
+
     return (
-        <details open={person._keepDiscard !== 'Discard'} className="_widget_container" key={personId}>
-            <summary>
-                {personIndex || 1}.{' '}
-                <span
-                    style={{
-                        display: 'inline-block',
-                        width: '1.2rem',
-                        height: '1.2rem',
-                        borderRadius: '50%',
-                        backgroundColor: person._color || '#000000',
-                        marginRight: '0.2rem'
-                    }}
-                ></span>{' '}
-                {person.gender || person.sexAssignedAtBirth || '?'} • {person.age || '?'}{' '}
-                {t('interviewStats.labels.yearsOld')}
-                <KeepDiscard
-                    personId={personId}
-                    choice={person._keepDiscard as 'Keep' | 'Discard' | undefined}
-                    onChange={(data) => keepDiscard({ choice: data.choice || 'Keep', personId: data.personId })}
-                />
-            </summary>
+        <SurveyObjectBox
+            key={personId}
+            as="details"
+            defaultOpen
+            objectType="person"
+            objectUuid={personUuid}
+            extraClassNames="_widget_container"
+            inheritedRejected={inheritedRejected}
+            summary={
+                <summary>
+                    {personIndex || 1}.{' '}
+                    <span
+                        style={{
+                            display: 'inline-block',
+                            width: '1.2rem',
+                            height: '1.2rem',
+                            borderRadius: '50%',
+                            backgroundColor: person._color || '#000000',
+                            marginRight: '0.2rem'
+                        }}
+                    ></span>{' '}
+                    {person.gender || person.sexAssignedAtBirth || '?'} • {person.age ?? '?'}{' '}
+                    {t('interviewStats.labels.yearsOld')}
+                </summary>
+            }
+        >
             <span className="_widget">
                 <FontAwesomeIcon icon={faCircleUser} className="faIconLeft" />
                 {person.age} {t('interviewStats.labels.yearsOld')}
@@ -283,10 +368,18 @@ export const PersonPanel = ({
                 </span>
             )}
             {audits && audits.length > 0 && <AuditDisplay audits={audits} showAuditErrorCode={showAuditErrorCode} />}
-            {visitedPlacesStats.length > 0 && <br />}
-            {visitedPlacesStats}
-            {tripsStats.length > 0 && <br />}
-            {tripsStats}
-        </details>
+            {journeyUuid ? (
+                <SurveyObjectBox
+                    objectType="journey"
+                    objectUuid={journeyUuid}
+                    inheritedRejected={personRejectedForDisplay}
+                    nested
+                >
+                    <div>{journeySubtreeContent}</div>
+                </SurveyObjectBox>
+            ) : (
+                journeySubtreeContent
+            )}
+        </SurveyObjectBox>
     );
 };
