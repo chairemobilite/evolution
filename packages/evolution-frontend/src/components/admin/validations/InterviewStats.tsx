@@ -1,17 +1,17 @@
 /*
- * Copyright 2023, Polytechnique Montreal and contributors
+ * Copyright Polytechnique Montreal and contributors
  *
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-    StartUpdateInterview,
-    UserRuntimeInterviewAttributes
+import type {
+    UserRuntimeInterviewAttributes,
+    StartUpdateInterview
 } from 'evolution-common/lib/services/questionnaire/types';
-import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
-import { SurveyObjectsWithAudits } from 'evolution-common/lib/services/audits/types';
+import type { CliUser } from 'chaire-lib-common/lib/services/user/userType';
+import type { SurveyObjectsWithAudits } from 'evolution-common/lib/services/audits/types';
 import { Person } from 'evolution-common/lib/services/baseObjects/Person';
 import { Journey } from 'evolution-common/lib/services/baseObjects/Journey';
 import { Household } from 'evolution-common/lib/services/baseObjects/Household';
@@ -24,6 +24,8 @@ import { PersonPanel } from '../widgets/PersonPanel';
 import AuditDisplay from '../AuditDisplay';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
+import { getRejectedForDisplay } from '../../../services/admin/reviewDecisionStatusHelper';
+import { useReviewDecisionStatusByObject } from '../../../services/admin/useObjectReview';
 
 // TODO This component should be replaced by the v2 audits that come from the server and uses an object to validate the survey.
 
@@ -32,9 +34,14 @@ export type InterviewStatsPrefs = {
 };
 
 export type InterviewStatsProps = {
-    startUpdateInterview: StartUpdateInterview;
     interview: UserRuntimeInterviewAttributes;
-    surveyObjectsAndAudits?: SurveyObjectsWithAudits;
+    surveyObjectsAndAudits: SurveyObjectsWithAudits;
+    /**
+     * Unused by this default component, but part of the props contract because
+     * survey-specific custom InterviewStats components (appConfig.getCustomInterviewStat)
+     * still use it to update corrected_response inline.
+     */
+    startUpdateInterview?: StartUpdateInterview;
     user: CliUser;
     activeTripUuid?: string;
     selectPlace: (path: string | undefined) => void;
@@ -47,23 +54,15 @@ export type InterviewStatsProps = {
 
 const InterviewStats = (props: InterviewStatsProps) => {
     const { t } = useTranslation(['admin']);
+    const reviewDecisionStatusByObject = useReviewDecisionStatusByObject();
 
-    const keepDiscard = ({ choice, personId }) => {
-        const valuesByPath = {};
-        valuesByPath[`response.household.persons.${personId}._keepDiscard`] = choice;
-        props.startUpdateInterview({ valuesByPath });
-    };
-
-    // Use unserialized objects - show error if not available
     const surveyObjects = props.surveyObjectsAndAudits;
 
-    // Debug logging
     if (!surveyObjects) {
-        console.error('❌ InterviewStats - No survey objects available');
         return (
             <div className="admin__interview-stats">
                 <h4>{t('interviewStats.errors.error')}</h4>
-                <p className="_red">{t('interviewStats.errors.surveyObjectsNotAvailable')}</p>
+                <p className="_red">{t('interviewStats.errors.interviewNotAvailable')}</p>
             </div>
         );
     }
@@ -118,6 +117,15 @@ const InterviewStats = (props: InterviewStatsProps) => {
             (surveyObjects?.audits && surveyObjects.audits.length > 0)
     );
 
+    const interviewUuid = interview._uuid;
+    const interviewRejectedForDisplay = getRejectedForDisplay(reviewDecisionStatusByObject, 'interview', interviewUuid);
+    const householdRejectedForDisplay = getRejectedForDisplay(
+        reviewDecisionStatusByObject,
+        'household',
+        household._uuid
+    );
+    const personInheritedRejected = interviewRejectedForDisplay || householdRejectedForDisplay;
+
     return (
         <React.Fragment>
             {props.validationDataDirty && (
@@ -152,11 +160,13 @@ const InterviewStats = (props: InterviewStatsProps) => {
                 home={home}
                 audits={surveyObjects?.auditsByObject?.home}
                 showAuditErrorCode={props.prefs?.showAuditErrorCode}
+                inheritedRejected={interviewRejectedForDisplay}
             />
             <HouseholdPanel
                 household={household}
                 audits={surveyObjects?.auditsByObject?.household}
                 showAuditErrorCode={props.prefs?.showAuditErrorCode}
+                inheritedRejected={interviewRejectedForDisplay}
             />
             <div className="admin__interview-stats" key="persons">
                 <h4>{t('interviewStats.labels.persons')}</h4>
@@ -180,8 +190,8 @@ const InterviewStats = (props: InterviewStatsProps) => {
                             activePlacePath={props.activePlacePath}
                             selectPlace={props.selectPlace}
                             selectTrip={props.selectTrip}
-                            keepDiscard={keepDiscard}
                             showAuditErrorCode={props.prefs?.showAuditErrorCode}
+                            inheritedRejected={personInheritedRejected}
                         />
                     );
                 })}

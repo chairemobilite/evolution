@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, Polytechnique Montreal and contributors
+ * Copyright Polytechnique Montreal and contributors
  *
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
@@ -8,7 +8,8 @@
  * de-serialized interview object, when the admin's Interview objects are ready
  * to be used with sufficient defaults in evolution */
 import _get from 'lodash/get';
-import { InterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
+import type { AdminInterviewAttributes } from './adminInterviewTypes';
+import type { Person } from 'evolution-common/lib/services/baseObjects/Person';
 import * as odSurveyHelper from 'evolution-common/lib/services/odSurvey/helpers';
 import { pointsToBezierCurve } from 'evolution-common/lib/services/geodata/SurveyGeographyUtils';
 
@@ -39,7 +40,9 @@ import { pointsToBezierCurve } from 'evolution-common/lib/services/geodata/Surve
  *   - This allows the UI to know which deduplicated place corresponds to the originally selected place path
  */
 export const generateMapFeatureFromInterview = (
-    interview: InterviewAttributes,
+    // Admin interviews carry the unserialized audits payload (see SurveyAdmin.ts),
+    // used here only for person colors.
+    interview: AdminInterviewAttributes,
     { activePlacePath, activeTripUuid }: { activePlacePath?: string; activeTripUuid?: string }
 ): {
     placesCollection: GeoJSON.FeatureCollection<GeoJSON.Point>;
@@ -60,12 +63,13 @@ export const generateMapFeatureFromInterview = (
     // Use raw response data for trip generation (as it was working before)
     const persons = odSurveyHelper.getPersonsArray({ interview });
 
-    // But get person colors from deserialized survey objects
-    const deserializedPersons = (interview as any)?.surveyObjectsAndAudits?.household?.members || [];
+    // Person colors from deserialized survey objects (surveyObjectsAndAudits.household.members).
+    // Color lookup still falls back to _color on the raw response person when the map misses.
+    const deserializedPersons = interview.surveyObjectsAndAudits?.household?.members ?? [];
     const personColorMap = new Map<string, string>();
 
     // Build a map of person UUID to color from deserialized objects
-    deserializedPersons.forEach((person: any) => {
+    deserializedPersons.forEach((person: Person) => {
         if (person._uuid && person._color) {
             personColorMap.set(person._uuid, person._color);
         }
@@ -89,8 +93,8 @@ export const generateMapFeatureFromInterview = (
 
     // Add the visited places and trips to the places and trips collections for each person
     for (const person of persons) {
-        // Get person color from deserialized objects, fallback to raw data, then default
-        const personColor = personColorMap.get(person._uuid as string) || (person as any)._color || '#000000';
+        // Prefer deserialized color map; fall back to raw person _color, then default.
+        const personColor = personColorMap.get(person._uuid as string) || person._color || '#000000';
 
         const personPath = `response.household.persons.${person._uuid}`;
         const journeys = odSurveyHelper.getJourneysArray({ person });

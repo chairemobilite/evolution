@@ -6,13 +6,15 @@
  */
 import { UserRuntimeInterviewAttributes, NavigationSection } from 'evolution-common/lib/services/questionnaire/types';
 import { NavigationService } from 'evolution-common/lib/services/questionnaire/sections/NavigationService';
+import type { ReviewDecisions } from 'evolution-common/lib/services/reviews/types';
 
 export enum SurveyActionTypes {
     SET_INTERVIEW = 'SET_INTERVIEW',
     UPDATE_INTERVIEW = 'UPDATE_INTERVIEW',
     ADD_CONSENT = 'ADD_CONSENT',
     NAVIGATE = 'NAVIGATE',
-    INIT_NAVIGATE = 'INIT_NAVIGATE'
+    INIT_NAVIGATE = 'INIT_NAVIGATE',
+    SET_REVIEW_DECISIONS = 'SET_REVIEW_DECISIONS'
 }
 
 export type SurveyAction =
@@ -43,6 +45,10 @@ export type SurveyAction =
     | {
           type: SurveyActionTypes.INIT_NAVIGATE;
           navigationService: NavigationService;
+      }
+    | {
+          type: SurveyActionTypes.SET_REVIEW_DECISIONS;
+          reviewDecisions: ReviewDecisions | undefined;
       };
 
 export type NavigationState = {
@@ -69,4 +75,6 @@ export interface SurveyState {
     readonly hasConsent?: boolean;
     readonly navigation?: NavigationState;
     readonly navigationService?: NavigationService;
+    /** Admin review decisions for the open interview, kept as a layer separate from the interview data. */
+    readonly reviewDecisions?: ReviewDecisions;
 }

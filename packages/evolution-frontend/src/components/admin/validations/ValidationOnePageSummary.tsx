@@ -1,11 +1,12 @@
 /*
- * Copyright 2023, Polytechnique Montreal and contributors
+ * Copyright Polytechnique Montreal and contributors
  *
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { useTranslation } from 'react-i18next';
 import Preferences from 'chaire-lib-common/lib/config/Preferences';
 
 import appConfig from '../../../config/application.config';
@@ -22,7 +23,11 @@ import { InterviewMapProps } from './InterviewMap';
 import { InterviewStatsProps } from './InterviewStats';
 import { StartUpdateInterview } from 'evolution-common/lib/services/questionnaire/types';
 
+/** Max wait for `surveyObjectsAndAudits` before showing the unavailable fallback. */
+const SURVEY_OBJECTS_LOAD_TIMEOUT_MS = 30000;
+
 const ValidationOnePageSummary = () => {
+    const { t } = useTranslation(['admin']);
     // We need two separate place paths because of deduplication:
     // - activeMapPlacePath: Controls which icon is enlarged on the map (uses representative path for deduplicated places)
     // - activeStatsPlacePath: Controls which visited place is highlighted in stats (uses the actual clicked path)
@@ -45,6 +50,7 @@ const ValidationOnePageSummary = () => {
     const [InterviewStats, setInterviewStats] = useState<React.ComponentType<InterviewStatsProps> | null>(null);
     const [InterviewMap, setInterviewMap] = useState<React.ComponentType<InterviewMapProps> | null>(null);
     const [showAuditErrorCode, setShowAuditErrorCode] = useState<boolean>(false);
+    const [surveyObjectsLoadTimedOut, setSurveyObjectsLoadTimedOut] = useState(false);
 
     // FIXME Admin interview type should be different from participant, with more types
     const interview = useSelector((state: RootState) => state.survey.interview) as any;
@@ -70,6 +76,21 @@ const ValidationOnePageSummary = () => {
 
         loadComponents();
     }, []);
+
+    // The audited survey objects arrive with the interview fetch and may never show up if
+    // that request fails or returns without them. Instead of showing the loading spinner
+    // forever, flag the load as timed out after SURVEY_OBJECTS_LOAD_TIMEOUT_MS so the UI
+    // can display an explicit error message. The flag is reset whenever the interview
+    // changes or the objects finally arrive.
+    useEffect(() => {
+        setSurveyObjectsLoadTimedOut(false);
+
+        if (interview?.surveyObjectsAndAudits) {
+            return undefined;
+        }
+        const timeoutId = window.setTimeout(() => setSurveyObjectsLoadTimedOut(true), SURVEY_OBJECTS_LOAD_TIMEOUT_MS);
+        return () => window.clearTimeout(timeoutId);
+    }, [interview?.uuid, interview?.surveyObjectsAndAudits]);
 
     // Load preferences and set up preference change listener
     useEffect(() => {
@@ -119,16 +140,24 @@ const ValidationOnePageSummary = () => {
                 pathToUniqueKeyMap: new Map()
             };
 
-        if (appConfig.generateMapFeatures && interview?.surveyObjectsAndAudits) {
-            const result = appConfig.generateMapFeatures(interview.surveyObjectsAndAudits);
-            return { ...result, pathToUniqueKeyMap: new Map() }; // Custom generators don't have mapping yet
-        } else {
-            const result = generateMapFeatureFromInterview(interview, {
-                activePlacePath: activeMapPlacePath,
-                activeTripUuid
-            });
-            return result;
+        if (appConfig.generateMapFeatures) {
+            // Custom map generators require surveyObjectsAndAudits (sync admin deploy).
+            // Falls back to generateMapFeatureFromInterview when the payload is not loaded yet or generation fails.
+            const surveyObjects = interview.surveyObjectsAndAudits;
+            if (surveyObjects) {
+                try {
+                    const result = appConfig.generateMapFeatures(surveyObjects);
+                    return { ...result, pathToUniqueKeyMap: new Map() }; // Custom generators don't have mapping yet
+                } catch (error) {
+                    console.error('Custom map generation failed, falling back to default generator:', error);
+                }
+            }
         }
+        const result = generateMapFeatureFromInterview(interview, {
+            activePlacePath: activeMapPlacePath,
+            activeTripUuid
+        });
+        return result;
     }, [interview, activeMapPlacePath, activeTripUuid, interview?.updateCount]);
 
     // Smart place selection function that maps visited place paths to unique icons
@@ -256,6 +285,20 @@ const ValidationOnePageSummary = () => {
         return <LoadingPage />;
     }
 
+    if (!interview?.surveyObjectsAndAudits) {
+        if (surveyObjectsLoadTimedOut) {
+            return (
+                <div className="survey validation">
+                    <div className="admin__interview-stats">
+                        <h4>{t('interviewStats.errors.error')}</h4>
+                        <p className="_red">{t('interviewStats.errors.surveyObjectsLoadTimedOut')}</p>
+                    </div>
+                </div>
+            );
+        }
+        return <LoadingPage />;
+    }
+
     const mapCenter =
         placesCollection.features.length > 0
             ? (placesCollection.features[0].geometry.coordinates as [number, number])
@@ -289,7 +332,7 @@ const ValidationOnePageSummary = () => {
                                     selectTrip={toggleActiveTripUuid}
                                     activeTripUuid={activeTripUuid}
                                     interview={interview}
-                                    surveyObjectsAndAudits={interview?.surveyObjectsAndAudits}
+                                    surveyObjectsAndAudits={interview.surveyObjectsAndAudits}
                                     activePlacePath={activeStatsPlacePath}
                                     user={user}
                                     startUpdateInterview={startUpdateInterview}

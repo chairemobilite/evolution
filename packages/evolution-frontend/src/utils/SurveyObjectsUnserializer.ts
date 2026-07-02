@@ -1,5 +1,5 @@
 /*
- * Copyright 2025, Polytechnique Montreal and contributors
+ * Copyright Polytechnique Montreal and contributors
  *
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
@@ -18,8 +18,8 @@ import { SurveyObjectsRegistry } from 'evolution-common/lib/services/baseObjects
 export class SurveyObjectsUnserializer {
     /**
      * Unserialize surveyObjectsAndAudits from the backend
-     * @param serializedData - The serialized SurveyObjectsWithAudits data
-     * @returns Unserialized SurveyObjectsWithAudits with proper object instances
+     * @param serializedData - The serialized survey objects payload from the backend
+     * @returns Unserialized survey objects with proper object instances
      */
     static unserialize(serializedData: unknown): SurveyObjectsWithAudits | undefined {
         if (!serializedData) {
