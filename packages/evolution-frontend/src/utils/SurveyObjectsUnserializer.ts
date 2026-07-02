@@ -1,27 +1,85 @@
 /*
- * Copyright 2025, Polytechnique Montreal and contributors
+ * Copyright Polytechnique Montreal and contributors
  *
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
 
 import { SurveyObjectsWithAudits, AuditForObject, AuditsByObject } from 'evolution-common/lib/services/audits/types';
+import {
+    ReviewDecision,
+    ReviewDecisionsByObject,
+    ReviewDecisionStatusByObject,
+    SurveyObjectsWithAuditsAndReviewDecisions
+} from 'evolution-common/lib/services/reviews/types';
 import { Home } from 'evolution-common/lib/services/baseObjects/Home';
 import { Household } from 'evolution-common/lib/services/baseObjects/Household';
 import { Interview } from 'evolution-common/lib/services/baseObjects/interview/Interview';
 import { SurveyObjectsRegistry } from 'evolution-common/lib/services/baseObjects/SurveyObjectsRegistry';
 
+/** Shared empty uuid-keyed buckets for grouped review maps. */
+const emptyUuidKeyedGroupedReviewBuckets = () => ({
+    persons: {},
+    journeys: {},
+    visitedPlaces: {},
+    trips: {},
+    segments: {},
+    organizations: {},
+    vehicles: {},
+    tripChains: {},
+    junctions: {},
+    workPlaces: {},
+    schoolPlaces: {}
+});
+
+const emptyReviewDecisionsByObject = (): ReviewDecisionsByObject => ({
+    interview: [],
+    household: [],
+    home: [],
+    ...emptyUuidKeyedGroupedReviewBuckets()
+});
+
+const emptyReviewDecisionStatusByObject = (): ReviewDecisionStatusByObject => emptyUuidKeyedGroupedReviewBuckets();
+
+const mergeWithDefaultGroupedReviewBuckets = <T extends Record<string, unknown>>(
+    createDefaults: () => T,
+    incoming: Partial<T> | undefined
+): T => {
+    const defaults = createDefaults();
+    if (!incoming) {
+        return defaults;
+    }
+
+    const merged = { ...defaults, ...incoming } as T;
+    for (const key of Object.keys(defaults)) {
+        const defaultValue = defaults[key];
+        const incomingValue = incoming[key];
+        if (
+            defaultValue &&
+            typeof defaultValue === 'object' &&
+            !Array.isArray(defaultValue) &&
+            incomingValue &&
+            typeof incomingValue === 'object' &&
+            !Array.isArray(incomingValue)
+        ) {
+            (merged as Record<string, unknown>)[key] = { ...defaultValue, ...incomingValue };
+        }
+    }
+
+    return merged;
+};
+
 /**
  * Utility class to unserialize survey objects from their serialized form
- * This is used when receiving surveyObjectsAndAudits from the backend
+ * This is used when receiving surveyObjectsAndAuditsAndReviewDecisions from the backend
  */
 export class SurveyObjectsUnserializer {
     /**
-     * Unserialize surveyObjectsAndAudits from the backend
-     * @param serializedData - The serialized SurveyObjectsWithAudits data
-     * @returns Unserialized SurveyObjectsWithAudits with proper object instances
+     * Unserialize surveyObjectsAndAuditsAndReviewDecisions from the backend
+     * @param serializedData - The serialized survey objects payload from the backend
+     * @returns Unserialized survey objects with proper object instances
      */
-    static unserialize(serializedData: unknown): SurveyObjectsWithAudits | undefined {
+    static unserialize(serializedData: unknown): SurveyObjectsWithAuditsAndReviewDecisions | undefined {
         if (!serializedData) {
             return undefined;
         }
@@ -32,7 +90,7 @@ export class SurveyObjectsUnserializer {
 
         try {
             const data = serializedData as Record<string, unknown>;
-            const result: SurveyObjectsWithAudits = {
+            const result: SurveyObjectsWithAuditsAndReviewDecisions = {
                 audits: (data.audits as AuditForObject[]) || [],
                 auditsByObject: (data.auditsByObject as AuditsByObject) || {
                     interview: [],
@@ -44,6 +102,15 @@ export class SurveyObjectsUnserializer {
                     trips: {},
                     segments: {}
                 },
+                reviewDecisions: (data.reviewDecisions as ReviewDecision[]) || [],
+                reviewDecisionsByObject: mergeWithDefaultGroupedReviewBuckets(
+                    emptyReviewDecisionsByObject,
+                    data.reviewDecisionsByObject as ReviewDecisionsByObject | undefined
+                ),
+                reviewDecisionStatusByObject: mergeWithDefaultGroupedReviewBuckets(
+                    emptyReviewDecisionStatusByObject,
+                    data.reviewDecisionStatusByObject as ReviewDecisionStatusByObject | undefined
+                ),
                 interview: undefined,
                 household: undefined,
                 home: undefined
@@ -81,13 +148,13 @@ export class SurveyObjectsUnserializer {
 
             return result;
         } catch (error) {
-            console.error('Failed to unserialize surveyObjectsAndAudits:', error);
+            console.error('Failed to unserialize surveyObjectsAndAuditsAndReviewDecisions:', error);
             return undefined;
         }
     }
 
     /**
-     * Check if surveyObjectsAndAudits data is present and valid
+     * Check if surveyObjectsAndAuditsAndReviewDecisions data is present and valid
      * @param data - The data to check
      * @returns boolean indicating if data is present
      */
@@ -96,7 +163,13 @@ export class SurveyObjectsUnserializer {
             return false;
         }
         const obj = data as Record<string, unknown>;
-        return !!(obj.interview || obj.household || obj.home || (Array.isArray(obj.audits) && obj.audits.length > 0));
+        return !!(
+            obj.interview ||
+            obj.household ||
+            obj.home ||
+            (Array.isArray(obj.audits) && obj.audits.length > 0) ||
+            (Array.isArray(obj.reviewDecisions) && obj.reviewDecisions.length > 0)
+        );
     }
 
     /**

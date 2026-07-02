@@ -1,5 +1,5 @@
 /*
- * Copyright 2022, Polytechnique Montreal and contributors
+ * Copyright Polytechnique Montreal and contributors
  *
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
@@ -32,14 +32,23 @@ import {
     StartUpdateInterview,
     UserRuntimeInterviewAttributes
 } from 'evolution-common/lib/services/questionnaire/types';
-import { SurveyObjectsWithAudits } from 'evolution-common/lib/services/audits/types';
+import type {
+    ReviewDecision,
+    ReviewDecisionValue,
+    ReviewDecisionsByObject,
+    ReviewDecisionStatusByObject,
+    SurveyObjectsWithAuditsAndReviewDecisions
+} from 'evolution-common/lib/services/reviews/types';
+import type { SurveyObjectName } from 'evolution-common/lib/services/baseObjects/types';
 
-// Extended type for admin interviews that includes surveyObjectsAndAudits
+// Extended type for admin interviews that includes surveyObjectsAndAuditsAndReviewDecisions
 type AdminInterviewAttributes = UserRuntimeInterviewAttributes & {
-    surveyObjectsAndAudits?: SurveyObjectsWithAudits;
+    surveyObjectsAndAuditsAndReviewDecisions?: SurveyObjectsWithAuditsAndReviewDecisions;
 };
 import { incrementLoadingState, decrementLoadingState } from './LoadingState';
 import { handleHttpOtherResponseCode } from '../services/errorManagement/errorHandling';
+import i18n from '../config/i18n.config';
+import { toast } from 'sonner';
 import {
     validateAndPrepareSection,
     updateInterviewState,
@@ -54,24 +63,42 @@ import { LoadingStateAction } from '../store/loadingState';
 import { AuthAction } from 'chaire-lib-frontend/lib/store/auth';
 
 /**
- * Helper function to unserialize surveyObjectsAndAudits from an interview.
- * Mutates the interview object in place if unserialization is successful.
+ * Helper function to unserialize surveyObjectsAndAuditsAndReviewDecisions from an interview.
+ * Mutates the interview object in place when unserialization succeeds; drops the auxiliary
+ * payload when it cannot be loaded so the core interview remains usable.
  *
- * @param interview - The interview containing surveyObjectsAndAudits to unserialize
+ * @param interview - The interview containing surveyObjectsAndAuditsAndReviewDecisions to unserialize
  * @param errorContext - Optional context string to include in error message (e.g., 'for reset')
  */
-const unserializeSurveyObjectsAndAudits = (interview: AdminInterviewAttributes, errorContext: string = ''): boolean => {
-    if (interview.surveyObjectsAndAudits && SurveyObjectsUnserializer.hasValidData(interview.surveyObjectsAndAudits)) {
-        try {
-            interview.surveyObjectsAndAudits = SurveyObjectsUnserializer.unserialize(interview.surveyObjectsAndAudits);
-            return true;
-        } catch (error) {
-            const contextSuffix = errorContext ? ` ${errorContext}` : '';
-            console.error(`Failed to unserialize surveyObjectsAndAudits${contextSuffix}:`, error);
-            return false;
-        }
+const unserializeSurveyObjectsAndAudits = (interview: AdminInterviewAttributes, errorContext: string = ''): void => {
+    if (!interview.surveyObjectsAndAuditsAndReviewDecisions) {
+        return;
     }
-    return true; // No data to unserialize is considered success
+
+    const contextSuffix = errorContext ? ` ${errorContext}` : '';
+    const dropAuxiliaryPayload = () => {
+        delete interview.surveyObjectsAndAuditsAndReviewDecisions;
+    };
+
+    if (!SurveyObjectsUnserializer.hasValidData(interview.surveyObjectsAndAuditsAndReviewDecisions)) {
+        dropAuxiliaryPayload();
+        return;
+    }
+
+    try {
+        const unserialized = SurveyObjectsUnserializer.unserialize(interview.surveyObjectsAndAuditsAndReviewDecisions);
+        if (!unserialized || !SurveyObjectsUnserializer.hasValidData(unserialized)) {
+            console.error(
+                `Failed to unserialize surveyObjectsAndAuditsAndReviewDecisions${contextSuffix}: invalid or empty result`
+            );
+            dropAuxiliaryPayload();
+            return;
+        }
+        interview.surveyObjectsAndAuditsAndReviewDecisions = unserialized;
+    } catch (error) {
+        console.error(`Failed to unserialize surveyObjectsAndAuditsAndReviewDecisions${contextSuffix}:`, error);
+        dropAuxiliaryPayload();
+    }
 };
 
 // dispatch callback to do the interview state update and call to server. To be
@@ -132,8 +159,6 @@ const updateSurveyCorrectedInterview = async (
                 affectedPaths,
                 valuesByPath as { [path: string]: unknown }
             );
-            // Preserve surveyObjectsAndAudits after validation
-            updatedInterview = { ...updatedInterview, surveyObjectsAndAudits: interview.surveyObjectsAndAudits };
         }
 
         if (!updatedInterview.sectionLoaded || updatedInterview.sectionLoaded !== sectionShortname) {
@@ -360,10 +385,8 @@ export const startFetchCorrectedInterviewAndAudits = (
                 if (body.interview) {
                     const interview = body.interview;
 
-                    // Unserialize surveyObjectsAndAudits if present
+                    // Unserialize surveyObjectsAndAuditsAndReviewDecisions if present
                     unserializeSurveyObjectsAndAudits(interview);
-
-                    // Set the interview in the state first
                     dispatch(updateInterviewState(interview));
                 }
             }
@@ -401,10 +424,8 @@ export const startResetCorrectedInterview = (
                 if (body.interview) {
                     const interview = body.interview;
 
-                    // Unserialize surveyObjectsAndAudits if present
+                    // Unserialize surveyObjectsAndAuditsAndReviewDecisions if present
                     unserializeSurveyObjectsAndAudits(interview, 'for reset');
-
-                    // Set the interview in the state and initialize navigation
                     dispatch(updateInterviewState(interview));
 
                     // Initialize navigation for the reset interview
@@ -414,5 +435,344 @@ export const startResetCorrectedInterview = (
         } catch (err) {
             surveyHelper.devLog('Error fetching interview to reset.', err);
         }
+    };
+};
+
+/**
+ * Overwrites flat review decisions in Redux with the authoritative server snapshot.
+ * @param _existing - Previous flat review decisions in Redux (unused)
+ * @param incoming - Full review decisions from the API
+ * @returns Review decisions to store in Redux
+ */
+const replaceReviewDecisionsFromServer = (
+    _existing: ReviewDecision[] | undefined,
+    incoming: ReviewDecision[]
+): ReviewDecision[] => incoming;
+
+/**
+ * Overwrites grouped review maps in Redux with the authoritative server snapshot.
+ * Omitted UUID keys in the payload are pruned from Redux.
+ * @param _existing - Previous grouped review data in Redux (unused)
+ * @param incoming - Grouped review data from the API
+ * @returns Review decisions by object
+ */
+const replaceReviewDecisionsByObjectFromServer = (
+    _existing: ReviewDecisionsByObject | undefined,
+    incoming: ReviewDecisionsByObject
+): ReviewDecisionsByObject => incoming;
+
+/**
+ * Overwrites grouped review status maps in Redux with the authoritative server snapshot.
+ * Omitted UUID keys in the payload are pruned from Redux.
+ * @param _existing - Previous grouped review status in Redux (unused)
+ * @param incoming - Grouped review status from the API
+ * @returns Review status by object
+ */
+const replaceReviewDecisionStatusByObjectFromServer = (
+    _existing: ReviewDecisionStatusByObject | undefined,
+    incoming: ReviewDecisionStatusByObject
+): ReviewDecisionStatusByObject => incoming;
+
+const emptySurveyObjectsAndAuditsAndReviewDecisions = (): SurveyObjectsWithAuditsAndReviewDecisions => ({
+    audits: [],
+    interview: undefined,
+    household: undefined,
+    home: undefined,
+    reviewDecisions: [],
+    reviewDecisionsByObject: {
+        interview: [],
+        household: [],
+        home: [],
+        persons: {},
+        journeys: {},
+        visitedPlaces: {},
+        trips: {},
+        segments: {},
+        organizations: {},
+        vehicles: {},
+        tripChains: {},
+        junctions: {},
+        workPlaces: {},
+        schoolPlaces: {}
+    },
+    reviewDecisionStatusByObject: {
+        persons: {},
+        journeys: {},
+        visitedPlaces: {},
+        trips: {},
+        segments: {},
+        organizations: {},
+        vehicles: {},
+        tripChains: {},
+        junctions: {},
+        workPlaces: {},
+        schoolPlaces: {}
+    }
+});
+
+const mergeReviewDecisionsPayloadIntoInterview = (
+    interview: AdminInterviewAttributes,
+    reviewPayload: Partial<SurveyObjectsWithAuditsAndReviewDecisions>
+): AdminInterviewAttributes => {
+    const existingReviewData = interview.surveyObjectsAndAuditsAndReviewDecisions;
+    const baseData = existingReviewData ?? emptySurveyObjectsAndAuditsAndReviewDecisions();
+
+    const mergedSurveyObjectsAndAuditsAndReviewDecisions: SurveyObjectsWithAuditsAndReviewDecisions = {
+        ...baseData,
+        ...(reviewPayload.audits !== undefined ? { audits: reviewPayload.audits } : {}),
+        ...(reviewPayload.auditsByObject !== undefined ? { auditsByObject: reviewPayload.auditsByObject } : {}),
+        ...(reviewPayload.interview !== undefined ? { interview: reviewPayload.interview } : {}),
+        ...(reviewPayload.household !== undefined ? { household: reviewPayload.household } : {}),
+        ...(reviewPayload.home !== undefined ? { home: reviewPayload.home } : {}),
+        ...(reviewPayload.reviewDecisions !== undefined
+            ? {
+                reviewDecisions: replaceReviewDecisionsFromServer(
+                    baseData.reviewDecisions,
+                    reviewPayload.reviewDecisions
+                )
+            }
+            : {}),
+        ...(reviewPayload.reviewDecisionsByObject !== undefined
+            ? {
+                reviewDecisionsByObject: replaceReviewDecisionsByObjectFromServer(
+                    baseData.reviewDecisionsByObject,
+                    reviewPayload.reviewDecisionsByObject
+                )
+            }
+            : {}),
+        ...(reviewPayload.reviewDecisionStatusByObject !== undefined
+            ? {
+                reviewDecisionStatusByObject: replaceReviewDecisionStatusByObjectFromServer(
+                    baseData.reviewDecisionStatusByObject,
+                    reviewPayload.reviewDecisionStatusByObject
+                )
+            }
+            : {})
+    };
+
+    const mergedInterview: AdminInterviewAttributes = {
+        ...interview,
+        surveyObjectsAndAuditsAndReviewDecisions: mergedSurveyObjectsAndAuditsAndReviewDecisions
+    };
+    unserializeSurveyObjectsAndAudits(mergedInterview);
+    return mergedInterview;
+};
+
+/** Serializes review-action API calls per interview so responses apply in send order. */
+const reviewActionQueueByInterviewUuid = new Map<string, Promise<void>>();
+
+/**
+ * Queues review-action work behind prior in-flight actions for the same interview.
+ * @param interviewUuid - Interview uuid
+ * @param action - Async work to run when the queue reaches this action
+ * @returns The action result
+ */
+const runSerializedReviewAction = <T>(interviewUuid: string, action: () => Promise<T>): Promise<T> => {
+    const previous = reviewActionQueueByInterviewUuid.get(interviewUuid) ?? Promise.resolve();
+    const next = previous.catch(() => undefined).then(action);
+    const tail = next.then(
+        () => undefined,
+        () => undefined
+    );
+    reviewActionQueueByInterviewUuid.set(interviewUuid, tail);
+    tail.finally(() => {
+        if (reviewActionQueueByInterviewUuid.get(interviewUuid) === tail) {
+            reviewActionQueueByInterviewUuid.delete(interviewUuid);
+        }
+    });
+    return next;
+};
+
+/**
+ * Applies a review-decisions API payload to Redux for the open interview.
+ * @param dispatch - Redux dispatch
+ * @param getState - Redux state accessor
+ * @param interviewUuid - Interview uuid the request was sent for
+ * @param reviewPayload - Review decisions payload from the API
+ */
+const dispatchReviewDecisionsPayload = (
+    dispatch: ThunkDispatch<RootState, unknown, SurveyAction | AuthAction | LoadingStateAction>,
+    getState: () => RootState,
+    interviewUuid: string,
+    reviewPayload: Partial<SurveyObjectsWithAuditsAndReviewDecisions>
+): void => {
+    const currentInterview = getState().survey.interview as AdminInterviewAttributes | undefined;
+    if (!currentInterview?.uuid || currentInterview.uuid !== interviewUuid) {
+        return;
+    }
+    const mergedInterview = mergeReviewDecisionsPayloadIntoInterview(currentInterview, reviewPayload);
+    dispatch(updateInterviewState(mergedInterview));
+};
+
+/**
+ * Applies a review-mutation success body to Redux, or surfaces a malformed 200 response.
+ * @param dispatch - Redux dispatch
+ * @param getState - Redux state accessor
+ * @param interviewUuid - Interview uuid the request was sent for
+ * @param body - Parsed JSON body from the review mutation route
+ * @param actionLabel - Label used in error logs
+ */
+const applyReviewMutationResponse = (
+    dispatch: ThunkDispatch<RootState, unknown, SurveyAction | AuthAction | LoadingStateAction>,
+    getState: () => RootState,
+    interviewUuid: string,
+    body: { surveyObjectsAndAuditsAndReviewDecisions?: SurveyObjectsWithAuditsAndReviewDecisions },
+    actionLabel: string
+): void => {
+    if (body.surveyObjectsAndAuditsAndReviewDecisions) {
+        dispatchReviewDecisionsPayload(
+            dispatch,
+            getState,
+            interviewUuid,
+            body.surveyObjectsAndAuditsAndReviewDecisions
+        );
+        return;
+    }
+    console.error(`${actionLabel}: success response missing surveyObjectsAndAuditsAndReviewDecisions`, {
+        interviewUuid
+    });
+    toast.error(i18n.t('admin:interviewStats.errors.surveyObjectsNotAvailable'));
+};
+
+/** Notifies the admin when a review mutation request fails before a response is handled. */
+const notifyReviewActionFetchFailed = (): void => {
+    toast.error(i18n.t('admin:interviewStats.errors.reviewActionFailed'));
+};
+
+type ReviewMutationRequestOptions = {
+    path: 'reviewDecision' | 'requestReReview' | 'forceApprove';
+    body: Record<string, unknown>;
+    actionLabel: string;
+    onNonSuccessStatus?: (
+        response: Response,
+        dispatch: ThunkDispatch<RootState, unknown, SurveyAction | AuthAction | LoadingStateAction>
+    ) => boolean;
+};
+
+/**
+ * POSTs a review mutation route and applies the server payload to Redux when successful.
+ * @param dispatch - Redux dispatch
+ * @param getState - Redux state accessor
+ * @param interviewUuid - Interview uuid the request was sent for
+ * @param options - Route path, body, labels, and optional non-success handling
+ */
+const submitReviewMutationRequest = async (
+    dispatch: ThunkDispatch<RootState, unknown, SurveyAction | AuthAction | LoadingStateAction>,
+    getState: () => RootState,
+    interviewUuid: string,
+    options: ReviewMutationRequestOptions
+): Promise<void> => {
+    try {
+        const response = await fetch(`/api/validation/${options.path}/${interviewUuid}`, {
+            method: 'POST',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(options.body)
+        });
+        if (response.status === 200) {
+            const body = await response.json();
+            applyReviewMutationResponse(dispatch, getState, interviewUuid, body, options.actionLabel);
+            return;
+        }
+        if (options.onNonSuccessStatus?.(response, dispatch)) {
+            return;
+        }
+        console.error(`${options.actionLabel}:`, response.status);
+        handleHttpOtherResponseCode(response.status, dispatch);
+    } catch (error) {
+        console.error(`${options.actionLabel}:`, error);
+        notifyReviewActionFetchFailed();
+    }
+};
+
+/**
+ * Runs a review mutation serialized per interview when the admin interview is loaded.
+ * @param getState - Redux getter for the current survey state
+ * @param action - Mutation to run with the interview uuid
+ */
+const withSerializedInterviewReviewAction = async (
+    getState: () => RootState,
+    action: (interviewUuid: string) => Promise<void>
+): Promise<void> => {
+    const interview = getState().survey.interview as AdminInterviewAttributes | undefined;
+    if (!interview?.uuid) {
+        return;
+    }
+    await runSerializedReviewAction(interview.uuid, () => action(interview.uuid));
+};
+
+/**
+ * Submit an approve/reject decision for one survey object during admin review.
+ * @param objectType - Survey object type key
+ * @param objectUuid - Survey object uuid
+ * @param decision - Reviewer decision
+ * @returns Thunk that persists the decision and refreshes review state in Redux
+ */
+export const startSubmitObjectReview = (
+    objectType: SurveyObjectName,
+    objectUuid: string,
+    decision: ReviewDecisionValue
+) => {
+    return async (
+        dispatch: ThunkDispatch<RootState, unknown, SurveyAction | AuthAction | LoadingStateAction>,
+        getState: () => RootState
+    ) => {
+        await withSerializedInterviewReviewAction(getState, async (interviewUuid) => {
+            await submitReviewMutationRequest(dispatch, getState, interviewUuid, {
+                path: 'reviewDecision',
+                body: { objectType, objectUuid, decision },
+                actionLabel: 'Error submitting object review'
+            });
+        });
+    };
+};
+
+/**
+ * Ask every other reviewer who decided on a survey object to review it again,
+ * after corrections were made (GitHub-style re-request review).
+ * @param objectType - Survey object type key
+ * @param objectUuid - Survey object uuid
+ * @returns Thunk that persists the re-review request and refreshes review state in Redux
+ */
+export const startRequestReReview = (objectType: SurveyObjectName, objectUuid: string) => {
+    return async (
+        dispatch: ThunkDispatch<RootState, unknown, SurveyAction | AuthAction | LoadingStateAction>,
+        getState: () => RootState
+    ) => {
+        await withSerializedInterviewReviewAction(getState, async (interviewUuid) => {
+            await submitReviewMutationRequest(dispatch, getState, interviewUuid, {
+                path: 'requestReReview',
+                body: { objectType, objectUuid },
+                actionLabel: 'Error requesting re-review'
+            });
+        });
+    };
+};
+
+/**
+ * Admin force-approve on a survey object, overriding reviewer disagreements.
+ * @param objectType - Survey object type key
+ * @param objectUuid - Survey object uuid
+ * @returns Thunk that persists the force-approve and refreshes review state in Redux
+ */
+export const startForceApproveObject = (objectType: SurveyObjectName, objectUuid: string) => {
+    return async (
+        dispatch: ThunkDispatch<RootState, unknown, SurveyAction | AuthAction | LoadingStateAction>,
+        getState: () => RootState
+    ) => {
+        await withSerializedInterviewReviewAction(getState, async (interviewUuid) => {
+            await submitReviewMutationRequest(dispatch, getState, interviewUuid, {
+                path: 'forceApprove',
+                body: { objectType, objectUuid },
+                actionLabel: 'Error force-approving object',
+                onNonSuccessStatus: (response) => {
+                    if (response.status === 409) {
+                        toast.error(i18n.t('admin:interviewMember.forceApproveRequiresConflict'));
+                        return true;
+                    }
+                    return false;
+                }
+            });
+        });
     };
 };

@@ -1,17 +1,22 @@
 /*
- * Copyright 2023, Polytechnique Montreal and contributors
+ * Copyright Polytechnique Montreal and contributors
  *
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Preferences from 'chaire-lib-common/lib/config/Preferences';
 
 import appConfig from '../../../config/application.config';
 import config from 'evolution-common/lib/config/project.config';
 import LoadingPage from 'chaire-lib-frontend/lib/components/pages/LoadingPage';
-import { startUpdateSurveyCorrectedInterview } from '../../../actions/SurveyAdmin';
+import {
+    startUpdateSurveyCorrectedInterview,
+    startSubmitObjectReview,
+    startForceApproveObject,
+    startRequestReReview
+} from '../../../actions/SurveyAdmin';
 import ValidationCommentForm from './ValidationCommentForm';
 import AdminErrorBoundary from '../hoc/AdminErrorBoundary';
 import { generateMapFeatureFromInterview } from '../../../services/admin/odSurveyAdminHelper';
@@ -21,6 +26,8 @@ import { SurveyAction } from '../../../store/survey';
 import { InterviewMapProps } from './InterviewMap';
 import { InterviewStatsProps } from './InterviewStats';
 import { StartUpdateInterview } from 'evolution-common/lib/services/questionnaire/types';
+import type { SurveyObjectName } from 'evolution-common/lib/services/baseObjects/types';
+import type { ReviewDecisionValue } from 'evolution-common/lib/services/reviews/types';
 
 const ValidationOnePageSummary = () => {
     // We need two separate place paths because of deduplication:
@@ -54,6 +61,27 @@ const ValidationOnePageSummary = () => {
     const dispatch = useDispatch<ThunkDispatch<RootState, unknown, SurveyAction>>();
     const startUpdateInterview: StartUpdateInterview = (data, callback) =>
         dispatch(startUpdateSurveyCorrectedInterview(data, callback));
+
+    const handleObjectReview = useCallback(
+        (objectType: SurveyObjectName, objectUuid: string, decision: ReviewDecisionValue) => {
+            dispatch(startSubmitObjectReview(objectType, objectUuid, decision));
+        },
+        [dispatch]
+    );
+
+    const handleObjectForceApprove = useCallback(
+        (objectType: SurveyObjectName, objectUuid: string) => {
+            dispatch(startForceApproveObject(objectType, objectUuid));
+        },
+        [dispatch]
+    );
+
+    const handleObjectRequestReReview = useCallback(
+        (objectType: SurveyObjectName, objectUuid: string) => {
+            dispatch(startRequestReReview(objectType, objectUuid));
+        },
+        [dispatch]
+    );
 
     useEffect(() => {
         const loadComponents = async () => {
@@ -119,16 +147,20 @@ const ValidationOnePageSummary = () => {
                 pathToUniqueKeyMap: new Map()
             };
 
-        if (appConfig.generateMapFeatures && interview?.surveyObjectsAndAudits) {
-            const result = appConfig.generateMapFeatures(interview.surveyObjectsAndAudits);
-            return { ...result, pathToUniqueKeyMap: new Map() }; // Custom generators don't have mapping yet
-        } else {
-            const result = generateMapFeatureFromInterview(interview, {
-                activePlacePath: activeMapPlacePath,
-                activeTripUuid
-            });
-            return result;
+        if (appConfig.generateMapFeatures) {
+            // Custom map generators require surveyObjectsAndAuditsAndReviewDecisions (sync admin deploy).
+            // Falls back to generateMapFeatureFromInterview when the payload is not loaded yet.
+            const surveyObjects = interview.surveyObjectsAndAuditsAndReviewDecisions;
+            if (surveyObjects) {
+                const result = appConfig.generateMapFeatures(surveyObjects);
+                return { ...result, pathToUniqueKeyMap: new Map() }; // Custom generators don't have mapping yet
+            }
         }
+        const result = generateMapFeatureFromInterview(interview, {
+            activePlacePath: activeMapPlacePath,
+            activeTripUuid
+        });
+        return result;
     }, [interview, activeMapPlacePath, activeTripUuid, interview?.updateCount]);
 
     // Smart place selection function that maps visited place paths to unique icons
@@ -252,7 +284,7 @@ const ValidationOnePageSummary = () => {
         [startUpdateInterview, placesCollection]
     );
 
-    if (!InterviewStats || !InterviewMap || !user) {
+    if (!InterviewStats || !InterviewMap || !user || !interview?.surveyObjectsAndAuditsAndReviewDecisions) {
         return <LoadingPage />;
     }
 
@@ -289,13 +321,18 @@ const ValidationOnePageSummary = () => {
                                     selectTrip={toggleActiveTripUuid}
                                     activeTripUuid={activeTripUuid}
                                     interview={interview}
-                                    surveyObjectsAndAudits={interview?.surveyObjectsAndAudits}
+                                    surveyObjectsAndAuditsAndReviewDecisions={
+                                        interview.surveyObjectsAndAuditsAndReviewDecisions
+                                    }
                                     activePlacePath={activeStatsPlacePath}
                                     user={user}
                                     startUpdateInterview={startUpdateInterview}
                                     prefs={{ showAuditErrorCode }}
                                     toggleAuditErrorCode={toggleAuditErrorCode}
                                     validationDataDirty={validationDataDirty}
+                                    onObjectReview={handleObjectReview}
+                                    onObjectForceApprove={handleObjectForceApprove}
+                                    onObjectRequestReReview={handleObjectRequestReReview}
                                 />
                             </AdminErrorBoundary>
                         }

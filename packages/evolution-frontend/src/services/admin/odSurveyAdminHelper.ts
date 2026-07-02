@@ -1,5 +1,5 @@
 /*
- * Copyright 2024, Polytechnique Montreal and contributors
+ * Copyright Polytechnique Montreal and contributors
  *
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
@@ -9,6 +9,7 @@
  * to be used with sufficient defaults in evolution */
 import _get from 'lodash/get';
 import { InterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
+import { Person } from 'evolution-common/lib/services/baseObjects/Person';
 import * as odSurveyHelper from 'evolution-common/lib/services/odSurvey/helpers';
 import { pointsToBezierCurve } from 'evolution-common/lib/services/geodata/SurveyGeographyUtils';
 
@@ -60,12 +61,13 @@ export const generateMapFeatureFromInterview = (
     // Use raw response data for trip generation (as it was working before)
     const persons = odSurveyHelper.getPersonsArray({ interview });
 
-    // But get person colors from deserialized survey objects
-    const deserializedPersons = (interview as any)?.surveyObjectsAndAudits?.household?.members || [];
+    // Person colors from deserialized survey objects. No fallback to surveyObjectsAndAudits:
+    // admin backend and frontend deploy together via correctInterview.
+    const deserializedPersons = interview.surveyObjectsAndAuditsAndReviewDecisions?.household?.members ?? [];
     const personColorMap = new Map<string, string>();
 
     // Build a map of person UUID to color from deserialized objects
-    deserializedPersons.forEach((person: any) => {
+    deserializedPersons.forEach((person: Person) => {
         if (person._uuid && person._color) {
             personColorMap.set(person._uuid, person._color);
         }

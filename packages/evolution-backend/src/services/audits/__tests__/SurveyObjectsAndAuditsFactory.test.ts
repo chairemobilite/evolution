@@ -6,10 +6,12 @@
  */
 
 import { v4 as uuidV4 } from 'uuid';
+import TrError from 'chaire-lib-common/lib/utils/TrError';
 import { SurveyObjectsAndAuditsFactory } from '../SurveyObjectsAndAuditsFactory';
 import { AuditService } from '../AuditService';
 import auditsDbQueries from '../../../models/audits.db.queries';
 import { InterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
+import { CORRECTED_RESPONSE_REQUIRED_ERROR_CODE } from '../../reviews/reviewDecisionErrors';
 
 // Mock the dependencies
 jest.mock('../AuditService');
@@ -87,14 +89,56 @@ describe('SurveyObjectsAndAuditsFactory', () => {
         ]);
     });
 
+    describe('createSurveyObjectsAndAudits', () => {
+        it('should throw error when corrected_response is missing', async () => {
+            const interview = createMockInterview();
+            interview.corrected_response = undefined as any;
+
+            const thrownError = await SurveyObjectsAndAuditsFactory.createSurveyObjectsAndAudits(interview).catch(
+                (error) => error
+            );
+            expect(TrError.isTrError(thrownError)).toBe(true);
+            expect(thrownError.message).toBe('Corrected response is required to create survey objects and audits');
+            expect(thrownError.getCode()).toBe(CORRECTED_RESPONSE_REQUIRED_ERROR_CODE);
+
+            expect(AuditService.auditInterview).not.toHaveBeenCalled();
+            expect(auditsDbQueries.setAuditsForInterview).not.toHaveBeenCalled();
+        });
+
+        it('should throw error when corrected_response is blank', async () => {
+            const interview = createMockInterview();
+            interview.corrected_response = {} as any;
+
+            const thrownError = await SurveyObjectsAndAuditsFactory.createSurveyObjectsAndAudits(interview).catch(
+                (error) => error
+            );
+            expect(TrError.isTrError(thrownError)).toBe(true);
+            expect(thrownError.getCode()).toBe(CORRECTED_RESPONSE_REQUIRED_ERROR_CODE);
+
+            expect(AuditService.auditInterview).not.toHaveBeenCalled();
+        });
+
+        it('should create survey objects and audits without saving to database', async () => {
+            const interview = createMockInterview();
+
+            const result = await SurveyObjectsAndAuditsFactory.createSurveyObjectsAndAudits(interview, false);
+
+            expect(AuditService.auditInterview).toHaveBeenCalledWith(interview, false);
+            expect(auditsDbQueries.setAuditsForInterview).not.toHaveBeenCalled();
+            expect(result.audits).toHaveLength(1);
+        });
+    });
+
     describe('createSurveyObjectsAndSaveAuditsToDb', () => {
         it('should throw error when corrected_response is missing', async () => {
             const interview = createMockInterview();
             interview.corrected_response = undefined as any;
 
-            await expect(
-                SurveyObjectsAndAuditsFactory.createSurveyObjectsAndSaveAuditsToDb(interview)
-            ).rejects.toThrow('Corrected response is required to create survey objects and audits');
+            const thrownError = await SurveyObjectsAndAuditsFactory.createSurveyObjectsAndSaveAuditsToDb(
+                interview
+            ).catch((error) => error);
+            expect(TrError.isTrError(thrownError)).toBe(true);
+            expect(thrownError.getCode()).toBe(CORRECTED_RESPONSE_REQUIRED_ERROR_CODE);
 
             expect(AuditService.auditInterview).not.toHaveBeenCalled();
         });

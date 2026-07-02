@@ -28,21 +28,24 @@ export type ParentSurveyObjects = {
  *
  * This is the list of names of survey objects.
  */
-export type SurveyObjectNames =
-    | 'interview'
-    | 'household'
-    | 'home'
-    | 'organization'
-    | 'vehicle'
-    | 'person'
-    | 'journey'
-    | 'tripChain'
-    | 'visitedPlace'
-    | 'trip'
-    | 'segment'
-    | 'junction'
-    | 'workPlace'
-    | 'schoolPlace';
+export const surveyObjectNames = [
+    'interview',
+    'household',
+    'home',
+    'organization',
+    'vehicle',
+    'person',
+    'journey',
+    'tripChain',
+    'visitedPlace',
+    'trip',
+    'segment',
+    'junction',
+    'workPlace',
+    'schoolPlace'
+] as const;
+
+export type SurveyObjectName = (typeof surveyObjectNames)[number];
 
 /**
  * Errors by survey object type

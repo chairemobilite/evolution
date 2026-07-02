@@ -592,6 +592,60 @@ describe('SurveyObjectsUnserializer', () => {
             expect(SurveyObjectsUnserializer.hasValidData({ audits: [] })).toBe(false);
         });
 
+        it('should return true when reviewDecisions array has items', () => {
+            expect(
+                SurveyObjectsUnserializer.hasValidData({
+                    reviewDecisions: [{ objectType: 'person', objectUuid: 'person-uuid', userId: 1, decision: 'approve' }]
+                })
+            ).toBe(true);
+        });
+
+        it('should return false when reviewDecisions array is empty', () => {
+            expect(SurveyObjectsUnserializer.hasValidData({ reviewDecisions: [] })).toBe(false);
+        });
+
+        it('should deep-merge partial grouped review buckets with defaults', () => {
+            const personUuid = 'person-uuid';
+            const result = SurveyObjectsUnserializer.unserialize({
+                reviewDecisions: [{ objectType: 'person', objectUuid: personUuid, userId: 1, decision: 'approve' }],
+                reviewDecisionsByObject: {
+                    persons: { [personUuid]: [{ objectType: 'person', objectUuid: personUuid, userId: 1, decision: 'approve' }] }
+                },
+                reviewDecisionStatusByObject: {
+                    persons: {
+                        [personUuid]: {
+                            objectType: 'person',
+                            objectUuid: personUuid,
+                            approvalCount: 1,
+                            rejectionCount: 0,
+                            hasConflict: false,
+                            isForceApproved: false,
+                            effectiveStatus: 'approved',
+                            reReviewRequestedUserIds: [],
+                            isReviewed: true
+                        }
+                    }
+                }
+            });
+
+            expect(result?.reviewDecisionsByObject.organizations).toEqual({});
+            expect(result?.reviewDecisionsByObject.vehicles).toEqual({});
+            expect(result?.reviewDecisionStatusByObject.organizations).toEqual({});
+            expect(result?.reviewDecisionStatusByObject.vehicles).toEqual({});
+            expect(result?.reviewDecisionsByObject.persons[personUuid]).toHaveLength(1);
+        });
+
+        it('should return true for review-only payloads', () => {
+            expect(
+                SurveyObjectsUnserializer.hasValidData({
+                    audits: [],
+                    reviewDecisions: [{ objectType: 'trip', objectUuid: 'trip-uuid', userId: 2, decision: 'reject' }],
+                    reviewDecisionsByObject: { interview: [], household: [], home: [], persons: {}, journeys: {}, visitedPlaces: {}, trips: {}, segments: {}, organizations: {}, vehicles: {}, tripChains: {}, junctions: {}, workPlaces: {}, schoolPlaces: {} },
+                    reviewDecisionStatusByObject: { persons: {}, journeys: {}, visitedPlaces: {}, trips: {}, segments: {}, organizations: {}, vehicles: {}, tripChains: {}, junctions: {}, workPlaces: {}, schoolPlaces: {} }
+                })
+            ).toBe(true);
+        });
+
         it('should return true when any valid data is present', () => {
             expect(
                 SurveyObjectsUnserializer.hasValidData({

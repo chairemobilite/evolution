@@ -126,8 +126,13 @@
         "error": "Une erreur s'est produite en rafraîchissant la cache"
     },
     "interviewMember": {
-        "Keep": "Garder",
-        "Discard": "Écarter"
+        "approveObject": "Approuver cet objet",
+        "rejectObject": "Rejeter cet objet",
+        "forceApproveObject": "Forcer l'approbation (outrepasser les désaccords)",
+        "reviewConflict": "Les réviseurs ne sont pas d'accord sur cet objet",
+        "forceApproveRequiresConflict": "L'approbation forcée n'est disponible que lorsque les réviseurs ne sont pas d'accord sur cet objet",
+        "requestReReview": "Demander aux autres réviseurs de revoir cet objet",
+        "reReviewRequested": "On vous demande de revoir cet objet"
     },
     "AllAudits": "Tous les audits",
     "auditLevels": {
@@ -139,6 +144,7 @@
         "errors": {
             "error": "Erreur",
             "surveyObjectsNotAvailable": "Objets d'enquête non disponibles. Veuillez vous assurer que l'entrevue a été correctement traitée.",
+            "reviewActionFailed": "L'action de révision n'a pas pu être complétée. Veuillez réessayer.",
             "interviewNotAvailable": "Entrevue non disponible. Veuillez vous assurer que l'entrevue a été correctement traitée.",
             "householdNotAvailable": "Ménage non disponible. Veuillez vous assurer que l'entrevue a été correctement traitée.",
             "homeNotAvailable": "Domicile non disponible. Veuillez vous assurer que l'entrevue a été correctement traitée."

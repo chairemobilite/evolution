@@ -94,10 +94,16 @@ describe('createSurveyObjectsAndSaveAuditsToDb', () => {
         uuid: '123e4567-e89b-12d3-a456-426614174000',
         participant_id: 1,
         is_valid: true,
-        response: {},
+        response: {
+            _uuid: '123e4567-e89b-12d3-a456-426614174000',
+            household: { _uuid: 'household-uuid-123', size: 2 }
+        },
         validations: {},
         is_completed: false,
-        corrected_response: {}
+        corrected_response: {
+            _uuid: '123e4567-e89b-12d3-a456-426614174000',
+            household: { _uuid: 'household-uuid-123', size: 2 }
+        }
     };
 
     // Mock audits returned by AuditService
@@ -132,6 +138,16 @@ describe('createSurveyObjectsAndSaveAuditsToDb', () => {
     test('corrected_response not set in interview', async () => {
         await expect(SurveyObjectsAndAuditsFactory.createSurveyObjectsAndSaveAuditsToDb(_omit(interviewAttributes, 'corrected_response')))
             .rejects.toThrow('Corrected response is required to create survey objects and audits');
+        expect(mockAuditInterview).not.toHaveBeenCalled();
+    });
+
+    test('blank corrected_response rejects before auditing', async () => {
+        await expect(
+            SurveyObjectsAndAuditsFactory.createSurveyObjectsAndSaveAuditsToDb({
+                ...interviewAttributes,
+                corrected_response: {}
+            })
+        ).rejects.toThrow('Corrected response is required to create survey objects and audits');
         expect(mockAuditInterview).not.toHaveBeenCalled();
     });
 
