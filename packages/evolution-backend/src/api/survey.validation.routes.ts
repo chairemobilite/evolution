@@ -29,8 +29,6 @@ import { hasErrors } from 'evolution-common/lib/types/Result.type';
 
 const router = express.Router();
 
-router.use(interviewUserIsAuthorized(['validate', 'read']));
-
 /**
  * Type for the filter parameter accepted by getValidationAuditStats
  */
@@ -66,7 +64,8 @@ function sanitizeFilters(filters: Record<string, unknown>): { [key: string]: Fil
 // This route fetches the interview for correction. It runs the audit and
 // returns serialized objects for the interview summary page.
 router.get(
-    '/survey/correctInterview/:interviewUuid',
+    '/survey/correctInterview/:interviewId',
+    interviewUserIsAuthorized(['validate', 'read']),
     validateUuidMiddleware,
     logUserAccessesMiddleware.openingInterview(true),
     async (req: Request, res: Response) => {
@@ -80,13 +79,13 @@ router.get(
             const userId = req.user ? (req.user as UserAttributes).id : undefined;
             console.info(
                 'Extended audit checks enabled: interviewUuid=%s userId=%s',
-                req.params.interviewUuid,
+                req.params.interviewId,
                 userId ?? 'undefined'
             );
         }
-        if (req.params.interviewUuid) {
+        if (req.params.interviewId) {
             try {
-                const interview = await Interviews.getInterviewByUuid(req.params.interviewUuid);
+                const interview = await Interviews.getInterviewByUuid(req.params.interviewId);
                 if (interview) {
                     const forceCopy = _booleish(req.query.reset) === true;
                     // Copy the response in the corrected_response
@@ -131,13 +130,14 @@ router.get(
 
 // This route fetches the interview for correction in "edit" mode. It returns the corrected response only
 router.get(
-    '/survey/activeCorrectedInterview/:interviewUuid',
+    '/survey/activeCorrectedInterview/:interviewId',
+    interviewUserIsAuthorized(['validate', 'read']),
     validateUuidMiddleware,
     logUserAccessesMiddleware.openingInterview(true),
     async (req: Request, res: Response) => {
-        if (req.params.interviewUuid) {
+        if (req.params.interviewId) {
             try {
-                const interview = await Interviews.getInterviewByUuid(req.params.interviewUuid);
+                const interview = await Interviews.getInterviewByUuid(req.params.interviewId);
                 if (interview) {
                     // FIXME Check if interview is frozen, if so, do not allow
                     // access. When
@@ -181,7 +181,8 @@ router.get(
 );
 
 router.post(
-    '/survey/updateCorrectedInterview/:interviewUuid',
+    '/survey/updateCorrectedInterview/:interviewId',
+    interviewUserIsAuthorized(['validate', 'read']),
     validateUuidMiddleware,
     logUserAccessesMiddleware.updatingInterview(true),
     async (req: Request, res: Response) => {
@@ -189,7 +190,7 @@ router.post(
             const timestamp = moment().unix();
 
             const content = req.body;
-            if ((!content.valuesByPath && !content.userAction) || !req.params.interviewUuid) {
+            if ((!content.valuesByPath && !content.userAction) || !req.params.interviewId) {
                 if (!content.valuesByPath && !content.userAction) {
                     console.log('updateCorrectedInterview route: Missing valuesByPath or userAction');
                 } else {
@@ -201,10 +202,10 @@ router.post(
             const origUnsetPaths = content.unsetPaths || [];
 
             if (origUnsetPaths.length === 0 && Object.keys(valuesByPath).length === 0 && !content.userAction) {
-                return res.status(200).json({ status: 'success', interviewId: req.params.interviewUuid });
+                return res.status(200).json({ status: 'success', interviewId: req.params.interviewId });
             }
 
-            const interview = await Interviews.getInterviewByUuid(req.params.interviewUuid);
+            const interview = await Interviews.getInterviewByUuid(req.params.interviewId);
             if (interview) {
                 if (content.userAction) {
                     handleUserActionSideEffect(interview, valuesByPath, content.userAction);
@@ -259,7 +260,7 @@ router.post(
     }
 );
 
-router.post('/validationList', async (req, res) => {
+router.post('/validationList', interviewUserIsAuthorized(['validate', 'read']), async (req, res) => {
     try {
         const { pageIndex, pageSize, updatedAt, sortBy, ...filters } = req.body;
         const page =
@@ -290,73 +291,85 @@ router.post('/validationList', async (req, res) => {
     }
 });
 
-router.post('/validation/auditStats', async (req: Request, res: Response) => {
-    try {
-        const { ...filters } = req.body;
-        const actualFilters = sanitizeFilters(filters);
-        // Type assertion needed because getValidationAuditStats expects a more restrictive type
-        // than FilterType, but the runtime behavior is correct (sanitizeFilters only includes
-        // valid filter structures)
-        const response = await Interviews.getValidationAuditStats({
-            filter: actualFilters as ValidationAuditStatsFilter
-        });
-        return res.status(200).json({
-            status: 'success',
-            auditStats: response.auditStats
-        });
-    } catch (error) {
-        console.log('error getting interview list:', error);
-        return res.status(500).json({ status: 'Error' });
-    }
-});
-
-router.post('/validation/updateAudits/:uuid', async (req, res, _next) => {
-    try {
-        const audits = req.body.audits;
-        const interview = await Interviews.getInterviewByUuid(req.params.uuid);
-        if (!interview) {
-            throw 'Interview does not exist';
+router.post(
+    '/validation/auditStats',
+    interviewUserIsAuthorized(['validate', 'read']),
+    async (req: Request, res: Response) => {
+        try {
+            const { ...filters } = req.body;
+            const actualFilters = sanitizeFilters(filters);
+            // Type assertion needed because getValidationAuditStats expects a more restrictive type
+            // than FilterType, but the runtime behavior is correct (sanitizeFilters only includes
+            // valid filter structures)
+            const response = await Interviews.getValidationAuditStats({
+                filter: actualFilters as ValidationAuditStatsFilter
+            });
+            return res.status(200).json({
+                status: 'success',
+                auditStats: response.auditStats
+            });
+        } catch (error) {
+            console.log('error getting interview list:', error);
+            return res.status(500).json({ status: 'Error' });
         }
-        await SurveyObjectsAndAuditsFactory.updateAudits(interview.id, audits);
-
-        return res.status(200).json({
-            status: 'ok'
-        });
-    } catch (error) {
-        console.log('error updating audits for interview:', error);
-        return res.status(500).json({ status: 'Error' });
     }
-});
+);
+
+router.post(
+    '/validation/updateAudits/:uuid',
+    interviewUserIsAuthorized(['validate', 'read']),
+    async (req, res, _next) => {
+        try {
+            const audits = req.body.audits;
+            const interview = await Interviews.getInterviewByUuid(req.params.uuid);
+            if (!interview) {
+                throw 'Interview does not exist';
+            }
+            await SurveyObjectsAndAuditsFactory.updateAudits(interview.id, audits);
+
+            return res.status(200).json({
+                status: 'ok'
+            });
+        } catch (error) {
+            console.log('error updating audits for interview:', error);
+            return res.status(500).json({ status: 'Error' });
+        }
+    }
+);
 
 /**
  * Batch run audits on interviews matching the provided filters
  */
-router.post('/validation/batchAudits', async (req: Request, res: Response) => {
-    try {
-        const { extended, ...filters } = req.body;
-        const userId = req.user ? (req.user as UserAttributes).id : undefined;
+router.post(
+    '/validation/batchAudits',
+    interviewUserIsAuthorized(['validate', 'read']),
+    async (req: Request, res: Response) => {
+        try {
+            const { extended, ...filters } = req.body;
+            const userId = req.user ? (req.user as UserAttributes).id : undefined;
 
-        // Validate extended parameter
-        const runExtendedAuditChecks = _booleish(extended) ?? false;
+            // Validate extended parameter
+            const runExtendedAuditChecks = _booleish(extended) ?? false;
 
-        // Validate filters structure
-        const actualFilters = sanitizeFilters(filters);
+            // Validate filters structure
+            const actualFilters = sanitizeFilters(filters);
 
-        const result = await BatchAuditService.runBatchAudits(actualFilters, runExtendedAuditChecks, userId);
+            const result = await BatchAuditService.runBatchAudits(actualFilters, runExtendedAuditChecks, userId);
 
-        if (hasErrors(result)) {
-            const errorMessage = result.errors.map((e) => (e instanceof Error ? e.message : String(e))).join('; ');
-            return res.status(500).json({ status: 'error', error: errorMessage });
+            if (hasErrors(result)) {
+                const errorMessage = result.errors.map((e) => (e instanceof Error ? e.message : String(e))).join('; ');
+                return res.status(500).json({ status: 'error', error: errorMessage });
+            }
+
+            return res.status(200).json({
+                status: 'success',
+                ...result.result
+            });
+        } catch (error) {
+            console.error('Error running batch audits:', error);
+            return res.status(500).json({ status: 'error', error: 'Failed to run batch audits' });
         }
-
-        return res.status(200).json({
-            status: 'success',
-            ...result.result
-        });
-    } catch (error) {
-        console.error('Error running batch audits:', error);
-        return res.status(500).json({ status: 'error', error: 'Failed to run batch audits' });
     }
-});
+);
 
 export default router;
