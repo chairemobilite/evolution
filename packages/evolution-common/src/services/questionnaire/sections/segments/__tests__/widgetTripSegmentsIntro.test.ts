@@ -23,7 +23,9 @@ describe('getTripSegmentsIntro', () => {
 
         expect(widgetConfig).toEqual({
             type: 'text',
-            text: expect.any(Function)
+            text: expect.any(Function),
+            containsHtml: true,
+            path: 'segmentIntro'
         });
     });
 });

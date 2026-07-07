@@ -12,6 +12,8 @@ import { WidgetFactoryOptions } from '../types';
 
 export const getTripSegmentsIntro = (_options: WidgetFactoryOptions): TextWidgetConfig => ({
     type: 'text',
+    path: 'segmentIntro',
+    containsHtml: true,
     text: (t: TFunction, interview) => {
         const person = odHelpers.getPerson({ interview });
         const journey = odHelpers.getActiveJourney({ interview, person });
