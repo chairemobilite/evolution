@@ -84,6 +84,20 @@ export class SurveyObjectDetector {
         return newString;
     }
 
+    // Replace ${otherPerson[n]} with the actual person ID of another household member.
+    private replaceWithOtherPersonId(str: string): string {
+        let newString = str;
+        const otherPersonRegex = /\$\{otherPerson\[(\d+)\]\}/g;
+        const otherPersonIds = this.personIds.filter((personId) => personId !== this.activePersonId);
+
+        newString = str.replace(otherPersonRegex, (match, indexStr) => {
+            const index = Number(indexStr);
+            return otherPersonIds[index] ?? match;
+        });
+
+        return newString;
+    }
+
     // Replace ${tripDiary[n]} with the actual trip diary ID, or optional fields like ${tripDiary[n].personId}, ${tripDiary[n].journeyId}, ${tripDiary[n].visitedPlace[index]}
     private replaceWithTripDiaryData(str: string): string {
         let newString = str;
@@ -140,6 +154,7 @@ export class SurveyObjectDetector {
     public replaceWithIds(str: string): string {
         let newString = this.replaceWithPersonId(str);
         newString = this.replaceWithVehicleId(newString);
+        newString = this.replaceWithOtherPersonId(newString);
         newString = this.replaceWithActiveObjectId(newString, this.activePersonStr, this.activePersonId);
         newString = this.replaceWithActiveObjectId(newString, this.activeVehicleStr, this.activeVehicleId);
         newString = this.replaceWithActiveObjectId(newString, this.activeJourneyStr, this.activeJourneyId);
