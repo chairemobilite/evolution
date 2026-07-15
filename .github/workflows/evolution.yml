@@ -26,7 +26,7 @@ jobs:
     - name: copy env file
       run: cp .env.example .env
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v6
+      uses: actions/setup-node@v7
       with:
         node-version: ${{ matrix.node-version }}
     - name: Install
@@ -47,7 +47,7 @@ jobs:
       with:
         submodules: true
     - name: Use latest Node.js
-      uses: actions/setup-node@v6
+      uses: actions/setup-node@v7
       with:
         node-version: latest
     - name: Install
@@ -64,7 +64,7 @@ jobs:
       with:
         submodules: true
     - name: Use latest Node.js
-      uses: actions/setup-node@v6
+      uses: actions/setup-node@v7
       with:
         node-version: 24.x
     - name: Install
@@ -109,7 +109,7 @@ jobs:
     - name: copy env file
       run: cp .env.example .env
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v6
+      uses: actions/setup-node@v7
       with:
         node-version: ${{ matrix.node-version }}
     - name: Install
