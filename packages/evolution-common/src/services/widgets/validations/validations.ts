@@ -64,11 +64,13 @@ export const inputRangeValidation: ValidationFunction = (value) => {
 /**
  * Verify if the value is a valid household size.
  *
- * The household size must be an integer between 1 and 18.
+ * The household size must be an integer between 1 and `projectConfig.householdSizeMax`.
  *
  * @see {@link ValidationFunction}
  */
 export const householdSizeValidation: ValidationFunction = (value) => {
+    const householdSizeMax = projectConfig.householdSizeMax;
+
     return [
         {
             validation: isNaN(Number(value)) || !Number.isInteger(Number(value)),
@@ -85,10 +87,10 @@ export const householdSizeValidation: ValidationFunction = (value) => {
             }
         },
         {
-            validation: Number(value) > 18,
+            validation: Number(value) > householdSizeMax,
             errorMessage: {
-                fr: 'La taille du ménage doit être au maximum 18.',
-                en: 'Household size must be at most 18.'
+                fr: `La taille du ménage doit être au maximum ${householdSizeMax}.`,
+                en: `Household size must be at most ${householdSizeMax}.`
             }
         },
         {
@@ -104,8 +106,9 @@ export const householdSizeValidation: ValidationFunction = (value) => {
 /**
  * Verify if the value is a valid number of cars.
  *
- * The number of cars must be an integer between 0 and 13.
- * The number of cars should not be more than 3 times the number of people in the household.
+ * The number of cars must be an integer between 0 and `projectConfig.carNumberMax`.
+ * The number of cars should not be more than `projectConfig.carNumberMaxPerPerson`
+ * times the number of people in the household.
  *
  * Required interview.response fields: 'household.size'
  *
@@ -113,7 +116,7 @@ export const householdSizeValidation: ValidationFunction = (value) => {
  */
 export const carNumberValidation: ValidationFunction = (value, _customValue, interview, _path, _customPath) => {
     const householdSize = surveyHelperNew.getResponse(interview, 'household.size', null);
-    const maxCarsPerPerson = 3;
+    const maxCarsPerPerson = projectConfig.carNumberMaxPerPerson;
 
     return [
         {
@@ -137,7 +140,7 @@ export const carNumberValidation: ValidationFunction = (value, _customValue, int
                 en: 'The number of vehicles must be at least 0.'
             }
         },
-        // The number of vehicles should not be 3 times greater than the number of people in the household
+        // The number of vehicles should not be maxCarsPerPerson times greater than the number of people in the household
         {
             validation:
                 !_isBlank(householdSize) &&
@@ -148,12 +151,58 @@ export const carNumberValidation: ValidationFunction = (value, _customValue, int
                 fr: `Le nombre de véhicules doit être au maximum ${Number(householdSize) * maxCarsPerPerson} pour le nombre de personnes dans le ménage. Ne pas inclure les véhicules de collection ou les véhicules qui ne sont pas utilisés régulièrement.`,
                 en: `The number of vehicles must be at most ${Number(householdSize) * maxCarsPerPerson} for the number of people in the household. Do not include collection vehicles or vehicles that are not used on a regular basis.`
             }
+        }
+    ];
+};
+
+/**
+ * Verify if the value is a valid number of two-wheeled motorized vehicles (motorcycles, scooters, mopeds).
+ *
+ * The number of two-wheeled motorized vehicles must be an integer between 0 and
+ * `projectConfig.twoWheelNumberMax`. The number of two-wheeled motorized vehicles
+ * should not be more than `projectConfig.twoWheelNumberMaxPerPerson` times the
+ * number of people in the household.
+ *
+ * Required interview.response fields: 'household.size'
+ *
+ * @see {@link ValidationFunction}
+ */
+export const twoWheelNumberValidation: ValidationFunction = (value, _customValue, interview, _path, _customPath) => {
+    const householdSize = surveyHelperNew.getResponse(interview, 'household.size', null);
+    const maxTwoWheelPerPerson = projectConfig.twoWheelNumberMaxPerPerson;
+
+    return [
+        {
+            validation: isNaN(Number(value)) || !Number.isInteger(Number(value)),
+            errorMessage: {
+                fr: 'Le nombre de motocyclettes ou scooters est invalide.',
+                en: 'The number of motorcycles or scooters is invalid.'
+            }
         },
         {
-            validation: Number(value) > 13,
+            validation: _isBlank(value),
             errorMessage: {
-                fr: 'Le nombre de véhicules doit être au maximum 13.',
-                en: 'The number of vehicles must be at most 13.'
+                fr: 'Le nombre de motocyclettes ou scooters est requis.',
+                en: 'The number of motorcycles or scooters is required.'
+            }
+        },
+        {
+            validation: Number(value) < 0,
+            errorMessage: {
+                fr: 'Le nombre de motocyclettes ou scooters doit être au moins de 0.',
+                en: 'The number of motorcycles or scooters must be at least 0.'
+            }
+        },
+        // The number of two-wheeled motorized vehicles should not be maxTwoWheelPerPerson times greater than the number of people in the household
+        {
+            validation:
+                !_isBlank(householdSize) &&
+                !isNaN(Number(householdSize)) &&
+                typeof householdSize === 'number' &&
+                Number(value) / householdSize > maxTwoWheelPerPerson,
+            errorMessage: {
+                fr: `Le nombre de motocyclettes ou scooters doit être au maximum ${Number(householdSize) * maxTwoWheelPerPerson} pour le nombre de personnes dans le ménage. Ne pas inclure les véhicules de collection ou les véhicules qui ne sont pas utilisés régulièrement.`,
+                en: `The number of motorcycles or scooters must be at most ${Number(householdSize) * maxTwoWheelPerPerson} for the number of people in the household. Do not include collection vehicles or vehicles that are not used on a regular basis.`
             }
         }
     ];
@@ -162,8 +211,9 @@ export const carNumberValidation: ValidationFunction = (value, _customValue, int
 /**
  * Verify if the value is a valid number of bicycles.
  *
- * The number of bicycles must be an integer between 0 and 20.
- * The number of bicycles should not be more than 5 times the number of people in the household.
+ * The number of bicycles must be an integer between 0 and `projectConfig.bicycleNumberMax`.
+ * The number of bicycles should not be more than `projectConfig.bicycleNumberMaxPerPerson`
+ * times the number of people in the household.
  *
  * Required interview.response fields: 'household.size'
  *
@@ -171,7 +221,7 @@ export const carNumberValidation: ValidationFunction = (value, _customValue, int
  */
 export const bicycleNumberValidation: ValidationFunction = (value, _customValue, interview, _path, _customPath) => {
     const householdSize = surveyHelperNew.getResponse(interview, 'household.size', null);
-    const maxBicyclesPerPerson = 5;
+    const maxBicyclesPerPerson = projectConfig.bicycleNumberMaxPerPerson;
 
     return [
         {
@@ -195,7 +245,7 @@ export const bicycleNumberValidation: ValidationFunction = (value, _customValue,
                 en: 'The number of bicycles must be at least 0.'
             }
         },
-        // The number of bicycles should not be 5 times greater than the number of people in the household
+        // The number of bicycles should not be maxBicyclesPerPerson times greater than the number of people in the household
         {
             validation:
                 !_isBlank(householdSize) &&
@@ -205,13 +255,6 @@ export const bicycleNumberValidation: ValidationFunction = (value, _customValue,
             errorMessage: {
                 fr: `Le nombre de vélos doit être au maximum ${Number(householdSize) * maxBicyclesPerPerson} pour le nombre de personnes dans le ménage. Ne pas inclure les vélos de collection ou les vélos qui ne sont pas utilisés régulièrement.`,
                 en: `The number of bicycles must be at most ${Number(householdSize) * maxBicyclesPerPerson} for the number of people in the household. Do not include collection bicycles or bicycles that are not used on a regular basis.`
-            }
-        },
-        {
-            validation: Number(value) > 20,
-            errorMessage: {
-                fr: 'Le nombre de vélos doit être au maximum 20.',
-                en: 'The number of bicycles must be at most to 20.'
             }
         }
     ];

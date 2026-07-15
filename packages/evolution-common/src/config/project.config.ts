@@ -232,6 +232,31 @@ export type EvolutionProjectConfiguration = {
      */
     surveyAreaGeojsonPath?: string;
 
+    /**
+     * Maximum valid household size. Used by `householdSizeValidation`. Defaults to 18.
+     */
+    householdSizeMax: number;
+
+    /**
+     * Maximum valid number of cars per person in the household, above which the
+     * number of cars is considered suspicious. Used by `carNumberValidation`. Defaults to 3.
+     */
+    carNumberMaxPerPerson: number;
+
+    /**
+     * Maximum valid number of two-wheeled motorized vehicles per person in the
+     * household, above which the number is considered suspicious. Used by
+     * `twoWheelNumberValidation`. Defaults to 3.
+     */
+    twoWheelNumberMaxPerPerson: number;
+
+    /**
+     * Maximum valid number of bicycles per person in the household, above which
+     * the number of bicycles is considered suspicious. Used by
+     * `bicycleNumberValidation`. Defaults to 3.
+     */
+    bicycleNumberMaxPerPerson: number;
+
     // TODO Add more project configuration types
 };
 
@@ -297,6 +322,10 @@ const defaultConfig = {
         '#9F41B5',
         '#B5417B'
     ],
+    householdSizeMax: 18,
+    carNumberMaxPerPerson: 3,
+    twoWheelNumberMaxPerPerson: 3,
+    bicycleNumberMaxPerPerson: 3,
     requiredFieldsBySurveyObject: {
         interview: [],
         household: [],
