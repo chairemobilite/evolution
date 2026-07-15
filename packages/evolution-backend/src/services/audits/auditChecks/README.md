@@ -289,20 +289,10 @@ That's it. Run `yarn workspace evolution-backend test` and open the PR. No `CHAN
 
 ## 7. Inventory of current checks (read before adding)
 
-Grep before adding to avoid duplicates. Current standard checks, grouped by object:
-
-- **Interview** (`InterviewAuditChecks.ts`): `I_M_Languages`, `I_M_StartedAt`, `I_I_StartedAtBeforeSurveyStartDate`, `I_I_StartedAtAfterSurveyEndDate`, `I_M_AccessCode`, `I_I_InvalidAccessCodeFormat`, `I_I_ContactEmail`, `I_M_ContactEmailButWouldLikeToParticipateInOtherSurveys`, `I_I_HelpContactEmail`.
-- **Household**: `HH_M_Size`, `HH_I_Size`, `HH_M_Home`, `HH_L_SizeMembersCountMismatch`, `HH_M_CarNumber`, `HH_I_CarNumber`, `HH_L_CarNumberVehiclesCountMismatch`.
-- **Home**: `HM_M_Geography`, `HM_I_Geography`, `HM_I_preGeographyAndHomeGeographyTooFarApartError`, `HM_I_preGeographyAndHomeGeographyTooFarApartWarning`, `HM_I_geographyNotInSurveyTerritory`.
-- **Person**: `P_M_Age`.
-- **Journey**: `J_M_StartDate`.
-- **VisitedPlace**: `VP_M_Geography`, `VP_I_Geography`.
-- **Trip**: `T_M_Segments`.
-- **Segment**: `S_M_Mode`.
-
-Extended maps are all currently empty.
-
-This inventory ages fast — regenerate it from the source files if in doubt:
+Grep before adding to avoid duplicates. Checks live in `<Object>AuditChecks.ts`
+and `<Object>ExtendedAuditChecks.ts` under
+[`./checks/`](./checks/), one file per survey object type (see the table in
+§3.1). To list all current checks:
 
 ```bash
 rg -n "^\s+[IHMPJVTS]{1,2}_[MIL]_[A-Za-z]+:" \
