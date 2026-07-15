@@ -26,6 +26,8 @@ An audit check must validate the data it is given regardless of whether that dat
 
 Because the server can never trust that stored data went through real-time validation, most checks in `evolution-common/src/services/widgets/validations` (frontend/real-time) have a corresponding audit check here that re-validates the same rule against the data as it actually sits in the database. When adding a real-time validation, check whether it needs an audit-check counterpart too, and vice versa.
 
+> **TODO**: Once survey objects are unified between frontend and backend and persisted in the database as separate columns per attribute (rather than as a single JSON response blob), most audit checks could be reused directly as real-time validations too, removing the current duplication between the two systems.
+
 **Rule of thumb**:
 
 
