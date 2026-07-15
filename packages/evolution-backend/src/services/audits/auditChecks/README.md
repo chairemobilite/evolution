@@ -140,7 +140,7 @@ Put it in **standard** otherwise. All current extended maps are empty (`{}`) —
 
 ---
 
-## 4. The 6-step checklist
+## 4. The 5-step checklist
 
 Follow these in order. Every step is mandatory unless marked optional.
 
@@ -154,8 +154,7 @@ Follow these in order. Every step is mandatory unless marked optional.
    yarn lint && yarn format
    ```
 
-5. **Add a CHANGELOG entry** under `Added` in the `Unreleased` section of `CHANGELOG.md`, listing the new `errorCode`.
-6. **Open a small PR**. One check per commit when practical. If you add several related checks, split by object type.
+5. **Open a small PR**. One check per commit when practical. If you add several related checks, split by object type. No `CHANGELOG.md` entry — individual audit checks are not tracked there, there are too many of them.
 
 Optional but encouraged:
 
@@ -284,14 +283,7 @@ describe('P_I_AgeOutOfRange', () => {
 
 Parametric tests are preferred here — all cases share a table. If a case needs more setup, drop it out of `it.each` into its own `it(...)`.
 
-### 6.4 CHANGELOG
-
-```md
-### Added
-- Audit check `P_I_AgeOutOfRange`: flags persons with age outside 0–120.
-```
-
-That's it. Run `yarn workspace evolution-backend test` and open the PR.
+That's it. Run `yarn workspace evolution-backend test` and open the PR. No `CHANGELOG.md` entry needed (see §4).
 
 ---
 
