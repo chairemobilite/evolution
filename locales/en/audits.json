@@ -6,6 +6,7 @@
     "I_M_AccessCode": "Access code is missing",
     "I_I_InvalidAccessCodeFormat": "Access code format is invalid",
     "I_I_ContactEmail": "Contact email is invalid",
+    "I_M_ContactEmailButWouldLikeToParticipateInOtherSurveys": "Contact email is missing but respondent would like to participate in other surveys",
     "I_I_HelpContactEmail": "Help contact email is invalid",
 
     "HH_I_Size": "Household size is out of range (should be an integer between 1 and 18)",
