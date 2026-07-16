@@ -299,7 +299,7 @@ That's it. Run `yarn workspace evolution-backend test` and open the PR.
 
 Grep before adding to avoid duplicates. Current standard checks, grouped by object:
 
-- **Interview** (`InterviewAuditChecks.ts`): `I_M_Languages`, `I_M_StartedAt`, `I_I_StartedAtBeforeSurveyStartDate`, `I_I_StartedAtAfterSurveyEndDate`, `I_M_AccessCode`, `I_I_InvalidAccessCodeFormat`, `I_I_ContactEmail`, `I_I_HelpContactEmail`.
+- **Interview** (`InterviewAuditChecks.ts`): `I_M_Languages`, `I_M_StartedAt`, `I_I_StartedAtBeforeSurveyStartDate`, `I_I_StartedAtAfterSurveyEndDate`, `I_M_AccessCode`, `I_I_InvalidAccessCodeFormat`, `I_I_ContactEmail`, `I_M_ContactEmailButWouldLikeToParticipateInOtherSurveys`, `I_I_HelpContactEmail`.
 - **Household**: `HH_M_Size`, `HH_I_Size`, `HH_M_Home`, `HH_L_SizeMembersCountMismatch`, `HH_M_CarNumber`, `HH_I_CarNumber`, `HH_L_CarNumberVehiclesCountMismatch`.
 - **Home**: `HM_M_Geography`, `HM_I_Geography`, `HM_I_preGeographyAndHomeGeographyTooFarApartError`, `HM_I_preGeographyAndHomeGeographyTooFarApartWarning`, `HM_I_geographyNotInSurveyTerritory`.
 - **Person**: `P_M_Age`.

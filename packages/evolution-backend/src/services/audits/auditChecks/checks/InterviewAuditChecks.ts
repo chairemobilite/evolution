@@ -207,6 +207,29 @@ export const interviewAuditChecks: { [errorCode: string]: InterviewAuditCheckFun
     },
 
     /**
+     * Check if contact email is missing while the respondent would like to participate in other surveys
+     * @param context - InterviewAuditCheckContext
+     * @returns {AuditForObject | undefined}
+     */
+    I_M_ContactEmailButWouldLikeToParticipateInOtherSurveys: (
+        context: InterviewAuditCheckContext
+    ): AuditForObject | undefined => {
+        const { interview } = context;
+        if (interview.wouldLikeToParticipateInOtherSurveys === true && _isBlank(interview.contactEmail)) {
+            return {
+                objectType: 'interview',
+                objectUuid: interview.uuid!,
+                errorCode: 'I_M_ContactEmailButWouldLikeToParticipateInOtherSurveys',
+                version: 1,
+                level: 'error',
+                message: 'Contact email is missing but respondent would like to participate in other surveys',
+                ignore: false
+            };
+        }
+        return undefined;
+    },
+
+    /**
      * Check if interview help contact email is invalid
      * @param context - InterviewAuditCheckContext
      * @returns {AuditForObject | undefined}

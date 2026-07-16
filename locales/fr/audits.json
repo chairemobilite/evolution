@@ -6,6 +6,7 @@
     "I_M_AccessCode": "Le code d'accès est manquant",
     "I_I_InvalidAccessCodeFormat": "Le format du code d'accès est invalide",
     "I_I_ContactEmail": "Le courriel de contact est invalide",
+    "I_M_ContactEmailButWouldLikeToParticipateInOtherSurveys": "Le courriel de contact est manquant, mais la personne répondante aimerait participer à d'autres enquêtes",
     "I_I_HelpContactEmail": "Le courriel de contact d'aide est invalide",
 
     "HH_I_Size": "La taille du ménage est en dehors de la plage autorisée (devrait être un entier entre 1 et 18)",
