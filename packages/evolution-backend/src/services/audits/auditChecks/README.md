@@ -140,7 +140,7 @@ Put it in **standard** otherwise. All current extended maps are empty (`{}`) —
 
 ---
 
-## 4. The 5-step checklist
+## 4. The checklist
 
 Follow these in order. Every step is mandatory unless marked optional.
 
@@ -283,19 +283,17 @@ describe('P_I_AgeOutOfRange', () => {
 
 Parametric tests are preferred here — all cases share a table. If a case needs more setup, drop it out of `it.each` into its own `it(...)`.
 
-That's it. Run `yarn workspace evolution-backend test` and open the PR. No `CHANGELOG.md` entry needed (see §4).
+That's it. Run `yarn workspace evolution-backend test` and open the PR.
 
 ---
 
 ## 7. Inventory of current checks (read before adding)
 
 Grep before adding to avoid duplicates. Checks live in `<Object>AuditChecks.ts`
-and `<Object>ExtendedAuditChecks.ts` under
-[`./checks/`](./checks/), one file per survey object type (see the table in
-§3.1). To list all current checks:
+and `<Object>ExtendedAuditChecks.ts` under [`./checks/`](./checks/), one file per survey object type (see the table in §3.1). To list all current checks:
 
 ```bash
-rg -n "^\s+[IHMPJVTS]{1,2}_[MIL]_[A-Za-z]+:" \
+grep -rEn "^[[:space:]]+[IHMPJVTS]{1,2}_[MIL]_[A-Za-z]+:" \
   packages/evolution-backend/src/services/audits/auditChecks/checks
 ```
 
