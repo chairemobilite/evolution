@@ -125,7 +125,13 @@ export class SurveyObjectsFactory {
 
         // Only try to create home if we have home attributes
         if (homeAttributes) {
-            const homeResult = Home.create(homeAttributes as { [key: string]: unknown }, surveyObjectsRegistry);
+            // Home is a singleton per interview and its corrected_response never stores an
+            // explicit _uuid. Default it to the interview uuid so it stays stable across
+            // reconstructions (matches the review API's existence check for singleton objects).
+            const homeResult = Home.create(
+                { _uuid: interviewAttributes.uuid, ...homeAttributes } as { [key: string]: unknown },
+                surveyObjectsRegistry
+            );
             if (isOk(homeResult)) {
                 surveyObjectsWithErrors.home = homeResult.result;
             } else {
@@ -145,8 +151,13 @@ export class SurveyObjectsFactory {
 
         // Only try to create household if we have household attributes
         if (householdAttributes) {
+            // Household is a singleton per interview and its corrected_response never stores
+            // an explicit _uuid. Default it to the interview uuid so it stays stable across
+            // reconstructions (matches the review API's existence check for singleton objects).
             const householdResult = Household.create(
-                _omit(householdAttributes, ['persons']) as { [key: string]: unknown },
+                { _uuid: interviewAttributes.uuid, ..._omit(householdAttributes, ['persons']) } as {
+                    [key: string]: unknown;
+                },
                 surveyObjectsRegistry
             );
             if (isOk(householdResult)) {
