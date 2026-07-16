@@ -47,18 +47,25 @@ describe('HH_F_AtLeastOneTransitSegmentInHousehold audit check', () => {
         return person;
     };
 
-    const runCheck = (members: Person[] | undefined) => {
+    /**
+     * Builds a household audit context for the given members and runs the
+     * HH_F_AtLeastOneTransitSegmentInHousehold check against it.
+     */
+    const runAtLeastOneTransitSegmentCheck = (members: Person[] | undefined) => {
         const context = createContextWithHouseholdAndHome({ members }, undefined, validHouseholdUuid, validHomeUuid);
         return householdAuditChecks.HH_F_AtLeastOneTransitSegmentInHousehold(context);
     };
 
     it('flags a household with a transit segment', () => {
-        const result = runCheck([makePersonWithSegmentMode('transitBus')]);
+        const result = runAtLeastOneTransitSegmentCheck([makePersonWithSegmentMode('transitBus')]);
         expect(result).toMatchObject(expectedInfoAudit);
     });
 
     it('does not flag a household with only non-transit segments', () => {
-        const result = runCheck([makePersonWithSegmentMode('walk'), makePersonWithSegmentMode('carDriver')]);
+        const result = runAtLeastOneTransitSegmentCheck([
+            makePersonWithSegmentMode('walk'),
+            makePersonWithSegmentMode('carDriver')
+        ]);
         expect(result).toBeUndefined();
     });
 
@@ -66,24 +73,24 @@ describe('HH_F_AtLeastOneTransitSegmentInHousehold audit check', () => {
         ['members is undefined', undefined],
         ['members is empty', []]
     ] as [string, Person[] | undefined][])('does not flag when %s', (_title, members) => {
-        expect(runCheck(members)).toBeUndefined();
+        expect(runAtLeastOneTransitSegmentCheck(members)).toBeUndefined();
     });
 
     it('does not flag when a member has no journeys', () => {
         const person = makePersonWithSegmentMode('transitBus');
         person.journeys = undefined;
-        expect(runCheck([person])).toBeUndefined();
+        expect(runAtLeastOneTransitSegmentCheck([person])).toBeUndefined();
     });
 
     it('does not flag when a journey has no trips', () => {
         const person = makePersonWithSegmentMode('transitBus');
         (person.journeys as Journey[])[0].trips = undefined;
-        expect(runCheck([person])).toBeUndefined();
+        expect(runAtLeastOneTransitSegmentCheck([person])).toBeUndefined();
     });
 
     it('does not flag when a trip has no segments', () => {
         const person = makePersonWithSegmentMode('transitBus');
         (person.journeys as Journey[])[0].trips![0].segments = undefined;
-        expect(runCheck([person])).toBeUndefined();
+        expect(runAtLeastOneTransitSegmentCheck([person])).toBeUndefined();
     });
 });
