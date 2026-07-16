@@ -194,6 +194,66 @@ describe('SurveyObjectsFactory', () => {
             expect(mockedPopulateJourneysForPerson).not.toHaveBeenCalled();
         });
 
+        it('should default home _uuid to the interview uuid when not explicitly set', async () => {
+            interviewAttributes.corrected_response!.home = {
+                geography: { type: 'Point', coordinates: [-73.5, 45.5] }
+            } as any;
+
+            mockedCreateInterviewObject.mockReturnValue(createOk({} as any));
+            (MockedHome.create as jest.Mock).mockReturnValue(createOk({} as any));
+            (MockedHousehold.create as jest.Mock).mockReturnValue(createOk({ members: [] } as any));
+
+            await factory.createAllObjectsWithErrors(interviewAttributes);
+
+            expect(MockedHome.create).toHaveBeenCalledWith(
+                expect.objectContaining({ _uuid: 'interview-uuid' }),
+                expect.any(SurveyObjectsRegistry)
+            );
+        });
+
+        it('should keep an explicit home _uuid over the interview uuid default', async () => {
+            mockedCreateInterviewObject.mockReturnValue(createOk({} as any));
+            (MockedHome.create as jest.Mock).mockReturnValue(createOk({} as any));
+            (MockedHousehold.create as jest.Mock).mockReturnValue(createOk({ members: [] } as any));
+
+            await factory.createAllObjectsWithErrors(interviewAttributes);
+
+            // Fixture's home already has an explicit `_uuid: 'home-uuid'`, which must win.
+            expect(MockedHome.create).toHaveBeenCalledWith(
+                expect.objectContaining({ _uuid: 'home-uuid' }),
+                expect.any(SurveyObjectsRegistry)
+            );
+        });
+
+        it('should default household _uuid to the interview uuid when not explicitly set', async () => {
+            interviewAttributes.corrected_response!.household = { size: 2 } as any;
+
+            mockedCreateInterviewObject.mockReturnValue(createOk({} as any));
+            (MockedHome.create as jest.Mock).mockReturnValue(createOk({} as any));
+            (MockedHousehold.create as jest.Mock).mockReturnValue(createOk({ members: [] } as any));
+
+            await factory.createAllObjectsWithErrors(interviewAttributes);
+
+            expect(MockedHousehold.create).toHaveBeenCalledWith(
+                expect.objectContaining({ _uuid: 'interview-uuid' }),
+                expect.any(SurveyObjectsRegistry)
+            );
+        });
+
+        it('should keep an explicit household _uuid over the interview uuid default', async () => {
+            mockedCreateInterviewObject.mockReturnValue(createOk({} as any));
+            (MockedHome.create as jest.Mock).mockReturnValue(createOk({} as any));
+            (MockedHousehold.create as jest.Mock).mockReturnValue(createOk({ members: [] } as any));
+
+            await factory.createAllObjectsWithErrors(interviewAttributes);
+
+            // Fixture's household already has an explicit `_uuid: 'household-uuid'`, which must win.
+            expect(MockedHousehold.create).toHaveBeenCalledWith(
+                expect.objectContaining({ _uuid: 'household-uuid' }),
+                expect.any(SurveyObjectsRegistry)
+            );
+        });
+
         it('should handle missing home attributes', async () => {
             interviewAttributes.corrected_response!.home = undefined;
 
