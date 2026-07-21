@@ -70,6 +70,16 @@ export type EvolutionProjectConfiguration = {
      * */
     drivingLicenseAge: number;
     /**
+     * Maximum plausible person age accepted by audits and age widgets.
+     * Defaults to 125.
+     */
+    maxPersonAge: number;
+    /**
+     * Age from which a person age triggers a reviewer warning audit (inclusive).
+     * Applies up to {@link maxPersonAge}. When undefined, no age warning audit is raised.
+     */
+    addAuditWarningVeryOldAge?: number;
+    /**
      * Whether to show the support form on all pages of the participant app. If
      * set to `true`, a button will be displayed in the bottom right corner of
      * the page, which opens a form to send a support request.  Defaults to
@@ -200,6 +210,8 @@ const defaultConfig = {
     interviewableAge: 5,
     adultAge: 18,
     drivingLicenseAge: 16,
+    maxPersonAge: 125,
+    addAuditWarningVeryOldAge: undefined,
     surveySupportForm: false,
     mapDefaultCenter: {
         lat: 45.5,
