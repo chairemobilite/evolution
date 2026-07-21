@@ -249,7 +249,29 @@ export const interviewAuditChecks: { [errorCode: string]: InterviewAuditCheckFun
             };
         }
         return undefined;
-    }
+    },
 
     // TODO: validate phone number formats and normalize. The format should be defined in the survey config (by country).
+
+    /**
+     * Check if interview assigned date is missing (if required)
+     * @param context - InterviewAuditCheckContext
+     * @returns {AuditForObject | undefined}
+     */
+    I_M_AssignedDate: (context: InterviewAuditCheckContext): AuditForObject | undefined => {
+        const { interview } = context;
+        const assignedDate = interview.assignedDate;
+        if (fieldIsRequired('interview', 'assignedDate') && _isBlank(assignedDate)) {
+            return {
+                objectType: 'interview',
+                objectUuid: interview.uuid!,
+                errorCode: 'I_M_AssignedDate',
+                version: 1,
+                level: 'error',
+                message: 'Assigned date is missing',
+                ignore: false
+            };
+        }
+        return undefined;
+    }
 };

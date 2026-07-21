@@ -4,6 +4,7 @@
     "I_I_StartedAtBeforeSurveyStartDate": "Interview start time is before survey start date",
     "I_I_StartedAtAfterSurveyEndDate": "Interview start time is after survey end date",
     "I_M_AccessCode": "Access code is missing",
+    "I_M_AssignedDate": "Assigned date is missing",
     "I_I_InvalidAccessCodeFormat": "Access code format is invalid",
     "I_I_ContactEmail": "Contact email is invalid",
     "I_M_ContactEmailButWouldLikeToParticipateInOtherSurveys": "Contact email is missing but respondent would like to participate in other surveys",
