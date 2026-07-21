@@ -4,6 +4,7 @@
     "I_I_StartedAtBeforeSurveyStartDate": "Le début de l'entrevue est avant la date de début de l'enquête",
     "I_I_StartedAtAfterSurveyEndDate": "Le début de l'entrevue est après la date de fin de l'enquête",
     "I_M_AccessCode": "Le code d'accès est manquant",
+    "I_M_AssignedDate": "La date assignée est manquante",
     "I_I_InvalidAccessCodeFormat": "Le format du code d'accès est invalide",
     "I_I_ContactEmail": "Le courriel de contact est invalide",
     "I_M_ContactEmailButWouldLikeToParticipateInOtherSurveys": "Le courriel de contact est manquant, mais la personne répondante aimerait participer à d'autres enquêtes",
