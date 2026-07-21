@@ -31,6 +31,8 @@
     "P_M_Age": "L'âge de la personne est manquant",
     "P_L_InvalidJourneySequences": "Le numéro de séquence d'au moins un séjour est invalide ou en double",
     "P_W_JourneySequenceGaps": "Les numéros de séquence des séjours ne sont pas consécutifs",
+    "P_I_AgeTooHigh": "L'âge de la personne est trop élevé",
+    "P_W_VeryOldAge": "L'âge de la personne est très élevé, veuillez valider",
 
     "J_M_StartDate": "La date de début du séjour est manquante",
     "J_L_InvalidVisitedPlaceSequences": "Le numéro de séquence d'au moins un lieu visité est invalide ou en double",
