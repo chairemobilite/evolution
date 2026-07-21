@@ -220,7 +220,7 @@ export const bicycleNumberValidation: ValidationFunction = (value, _customValue,
 /**
  * Verify if the value is a valid age.
  *
- * The age must be an integer between 0 and 115.
+ * The age must be an integer between 0 and {@link projectConfig.maxPersonAge}.
  *
  * @see {@link ValidationFunction}
  */
@@ -248,7 +248,7 @@ export const ageValidation: ValidationFunction = (value) => {
             }
         },
         {
-            validation: Number(value) > 115,
+            validation: Number(value) > projectConfig.maxPersonAge,
             errorMessage: {
                 fr: 'L\'âge est trop élevé, veuillez vérifier.',
                 en: 'Age is too high, please validate.'

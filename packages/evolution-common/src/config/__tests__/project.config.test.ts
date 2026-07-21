@@ -15,6 +15,8 @@ test('Expected default', () => {
         drivingLicenseAge: 16,
         workingAge: 15,
         schoolMandatoryAge: 15,
+        maxPersonAge: 125,
+        addAuditWarningVeryOldAge: undefined,
         logDatabaseUpdates: false,
         startDateTimeWithTimezoneOffset: undefined,
         endDateTimeWithTimezoneOffset: undefined,
