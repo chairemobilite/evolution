@@ -31,6 +31,8 @@
     "P_M_Age": "Person age is missing",
     "P_L_InvalidJourneySequences": "At least one journey sequence is invalid or duplicated",
     "P_W_JourneySequenceGaps": "Journey sequences are not contiguous",
+    "P_I_AgeTooHigh": "Person age is too high",
+    "P_W_VeryOldAge": "Person is very old, please validate",
 
     "J_M_StartDate": "Journey start date is missing",
     "J_L_InvalidVisitedPlaceSequences": "At least one visited place sequence is invalid or duplicated",

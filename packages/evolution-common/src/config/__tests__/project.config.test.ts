@@ -13,6 +13,8 @@ test('Expected default', () => {
         region: 'CA',
         selfResponseMinimumAge: 14,
         drivingLicenseAge: 16,
+        maxPersonAge: 125,
+        addAuditWarningVeryOldAge: undefined,
         logDatabaseUpdates: false,
         startDateTimeWithTimezoneOffset: undefined,
         endDateTimeWithTimezoneOffset: undefined,
