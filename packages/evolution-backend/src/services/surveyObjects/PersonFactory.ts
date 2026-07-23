@@ -5,20 +5,27 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
+import _omit from 'lodash/omit';
+
 import { SurveyObjectsWithErrors } from 'evolution-common/lib/services/baseObjects/types';
 import { CorrectedResponse } from 'evolution-common/lib/services/questionnaire/types';
 import { Person } from 'evolution-common/lib/services/baseObjects/Person';
 import { isOk } from 'evolution-common/lib/types/Result.type';
 import { Household } from 'evolution-common/lib/services/baseObjects/Household';
+import { Home } from 'evolution-common/lib/services/baseObjects/Home';
+import { Optional } from 'evolution-common/lib/types/Optional.type';
 import projectConfig from '../../config/projectConfig';
 import { SurveyObjectsRegistry } from 'evolution-common/lib/services/baseObjects/SurveyObjectsRegistry';
 import { compareSequenceThenUuid } from 'evolution-common/lib/services/baseObjects/sequenceUtils';
+import { populateJourneysForPerson } from './JourneyFactory';
+import { ExtendedPersonAttributes } from 'evolution-common/lib/services/baseObjects/Person';
 
 /**
  * Generate persons
  * Populate members for a household from the household's persons attributes
  * @param {SurveyObjectsWithErrors} surveyObjectsWithErrors - Container for created objects with errors
  * @param {Household} household - The household to add the members to
+ * @param {Home} home - The home object for geography assignment, needed by nested journeys
  * @param {CorrectedResponse} correctedResponse - corrected response
  * @param {SurveyObjectsRegistry} surveyObjectsRegistry - SurveyObjectsRegistry
  * @returns {Promise<void>}
@@ -26,6 +33,7 @@ import { compareSequenceThenUuid } from 'evolution-common/lib/services/baseObjec
 export async function populatePersonsForHousehold(
     surveyObjectsWithErrors: SurveyObjectsWithErrors,
     household: Household,
+    home: Optional<Home>,
     correctedResponse: CorrectedResponse,
     surveyObjectsRegistry: SurveyObjectsRegistry
 ): Promise<void> {
@@ -56,13 +64,30 @@ export async function populatePersonsForHousehold(
             ? projectConfig.surveyObjectParsers.person(originalCorrectedPersonAttributes, correctedResponse)
             : originalCorrectedPersonAttributes;
 
-        const personResult = Person.create(personAttributes as { [key: string]: unknown }, surveyObjectsRegistry);
+        // Omit journeys as they will be populated separately in the next step (populateJourneysForPerson)
+        const personResult = Person.create(
+            _omit(personAttributes as { [key: string]: unknown }, ['journeys']) as ExtendedPersonAttributes,
+            surveyObjectsRegistry
+        );
 
         if (isOk(personResult)) {
             // Assign color to person
             personResult.result.assignColor(personIndex);
             household.members.push(personResult.result);
             personIndex++;
+
+            // Create journeys for this person (includes visited places, trips, and segments)
+            await populateJourneysForPerson(
+                surveyObjectsWithErrors,
+                personResult.result,
+                personAttributes as ExtendedPersonAttributes,
+                home,
+                correctedResponse,
+                surveyObjectsRegistry
+            );
+
+            // Setup work and school places after all visited places are created
+            personResult.result.setupWorkAndSchoolPlaces();
         } else {
             console.log(
                 `      ==== Person ${personUuid} creation failed with errors count: ${personResult.errors?.length || 0} ====`

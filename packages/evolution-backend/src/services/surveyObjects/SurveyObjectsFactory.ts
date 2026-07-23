@@ -13,8 +13,6 @@ import { isOk } from 'evolution-common/lib/types/Result.type';
 import { SurveyObjectsWithErrors } from 'evolution-common/lib/services/baseObjects/types';
 import { CorrectedResponse } from 'evolution-common/lib/services/questionnaire/types';
 import { populatePersonsForHousehold } from './PersonFactory';
-import { populateJourneysForPerson } from './JourneyFactory';
-import { ExtendedPersonAttributes } from 'evolution-common/lib/services/baseObjects/Person';
 import projectConfig from '../../config/projectConfig';
 import { Home } from 'evolution-common/lib/services/baseObjects/Home';
 import { ExtendedHouseholdAttributes, Household } from 'evolution-common/lib/services/baseObjects/Household';
@@ -177,37 +175,15 @@ export class SurveyObjectsFactory {
 
         // Continue with persons, journeys, etc. if household and home were created
         if (household && householdAttributes) {
-            // For now, we'll keep the existing factory functions for persons/journeys
-            // These can be refactored later in the same way
+            // populatePersonsForHousehold also creates journeys (and their visited places,
+            // trips, and segments) for each successfully created person
             await populatePersonsForHousehold(
                 surveyObjectsWithErrors,
                 household,
+                home,
                 correctedResponse,
                 surveyObjectsRegistry
             );
-
-            const personsAttributes = householdAttributes.persons || {};
-            const persons = household.members || [];
-
-            // Loop through each person
-            for (let i = 0, count = persons.length; i < count; i++) {
-                const person = persons[i];
-                const personUuid = person._uuid!;
-                const personAttributes = personsAttributes[personUuid] as ExtendedPersonAttributes;
-
-                // Generate all journeys for this person (includes visited places, trips, and segments)
-                await populateJourneysForPerson(
-                    surveyObjectsWithErrors,
-                    person,
-                    personAttributes,
-                    home,
-                    correctedResponse,
-                    surveyObjectsRegistry
-                );
-
-                // Setup work and school places after all visited places are created
-                person.setupWorkAndSchoolPlaces();
-            }
         }
 
         return surveyObjectsWithErrors;
