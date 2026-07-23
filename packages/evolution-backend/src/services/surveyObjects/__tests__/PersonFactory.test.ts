@@ -7,6 +7,7 @@
 
 import { v4 as uuidV4 } from 'uuid';
 import { populatePersonsForHousehold } from '../PersonFactory';
+import { populateJourneysForPerson } from '../JourneyFactory';
 import { SurveyObjectsWithErrors } from 'evolution-common/lib/services/baseObjects/types';
 import { Household } from 'evolution-common/lib/services/baseObjects/Household';
 import { Person } from 'evolution-common/lib/services/baseObjects/Person';
@@ -20,7 +21,11 @@ jest.mock('evolution-common/lib/services/baseObjects/Person', () => ({
         create: jest.fn()
     }
 }));
+jest.mock('../JourneyFactory');
 const MockedPerson = Person as jest.MockedClass<typeof Person>;
+const mockedPopulateJourneysForPerson = populateJourneysForPerson as jest.MockedFunction<
+    typeof populateJourneysForPerson
+>;
 
 describe('PersonFactory', () => {
     let surveyObjectsRegistry: SurveyObjectsRegistry;
@@ -78,6 +83,7 @@ describe('PersonFactory', () => {
 
         // Clear all mocks
         jest.clearAllMocks();
+        mockedPopulateJourneysForPerson.mockResolvedValue();
     });
 
     describe('populatePersonsForHousehold', () => {
@@ -86,20 +92,22 @@ describe('PersonFactory', () => {
             const mockPerson1 = {
                 _uuid: 'person-1',
                 age: 30,
-                assignColor: jest.fn()
+                assignColor: jest.fn(),
+                setupWorkAndSchoolPlaces: jest.fn()
             } as unknown as Person;
 
             const mockPerson2 = {
                 _uuid: 'person-2',
                 age: 25,
-                assignColor: jest.fn()
+                assignColor: jest.fn(),
+                setupWorkAndSchoolPlaces: jest.fn()
             } as unknown as Person;
 
             (MockedPerson.create as jest.Mock)
                 .mockReturnValueOnce(createOk(mockPerson1))
                 .mockReturnValueOnce(createOk(mockPerson2));
 
-            await populatePersonsForHousehold(surveyObjectsWithErrors, household, correctedResponse, surveyObjectsRegistry);
+            await populatePersonsForHousehold(surveyObjectsWithErrors, household, undefined, correctedResponse, surveyObjectsRegistry);
 
             // Verify Person.create was called with correct attributes
             expect(MockedPerson.create).toHaveBeenCalledTimes(2);
@@ -135,6 +143,112 @@ describe('PersonFactory', () => {
             expect(surveyObjectsWithErrors.errorsByObject.personsByUuid).toEqual({});
         });
 
+        it('should omit journeys from Person.create attributes', async () => {
+            correctedResponse.household!.persons = {
+                'person-1': {
+                    _uuid: 'person-1',
+                    _sequence: 1,
+                    age: 30,
+                    journeys: {
+                        'journey-1': { _uuid: 'journey-1', _sequence: 1 }
+                    }
+                }
+            };
+
+            (MockedPerson.create as jest.Mock).mockReturnValue(createOk({
+                _uuid: 'person-1',
+                assignColor: jest.fn(),
+                setupWorkAndSchoolPlaces: jest.fn()
+            } as unknown as Person));
+
+            await populatePersonsForHousehold(surveyObjectsWithErrors, household, undefined, correctedResponse, surveyObjectsRegistry);
+
+            expect(MockedPerson.create).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    _uuid: 'person-1',
+                    _sequence: 1,
+                    age: 30
+                }),
+                surveyObjectsRegistry
+            );
+            expect(MockedPerson.create).toHaveBeenCalledWith(
+                expect.not.objectContaining({
+                    journeys: expect.anything()
+                }),
+                surveyObjectsRegistry
+            );
+            expect(household.members).toHaveLength(1);
+        });
+
+        it('should populate journeys and setup work/school places for each successfully created person', async () => {
+            const home = { _uuid: 'home-uuid' } as any;
+            const mockPerson1 = {
+                _uuid: 'person-1',
+                assignColor: jest.fn(),
+                setupWorkAndSchoolPlaces: jest.fn()
+            } as unknown as Person;
+            const mockPerson2 = {
+                _uuid: 'person-2',
+                assignColor: jest.fn(),
+                setupWorkAndSchoolPlaces: jest.fn()
+            } as unknown as Person;
+
+            (MockedPerson.create as jest.Mock)
+                .mockReturnValueOnce(createOk(mockPerson1))
+                .mockReturnValueOnce(createOk(mockPerson2));
+
+            await populatePersonsForHousehold(surveyObjectsWithErrors, household, home, correctedResponse, surveyObjectsRegistry);
+
+            expect(mockedPopulateJourneysForPerson).toHaveBeenCalledTimes(2);
+            expect(mockedPopulateJourneysForPerson).toHaveBeenNthCalledWith(
+                1,
+                surveyObjectsWithErrors,
+                mockPerson1,
+                expect.objectContaining({ _uuid: 'person-1' }),
+                home,
+                correctedResponse,
+                surveyObjectsRegistry
+            );
+            expect(mockedPopulateJourneysForPerson).toHaveBeenNthCalledWith(
+                2,
+                surveyObjectsWithErrors,
+                mockPerson2,
+                expect.objectContaining({ _uuid: 'person-2' }),
+                home,
+                correctedResponse,
+                surveyObjectsRegistry
+            );
+
+            expect(mockPerson1.setupWorkAndSchoolPlaces).toHaveBeenCalledTimes(1);
+            expect(mockPerson2.setupWorkAndSchoolPlaces).toHaveBeenCalledTimes(1);
+        });
+
+        it('should not populate journeys or setup work/school places for persons that failed to be created', async () => {
+            const errors = [new Error('Invalid age')];
+            const mockPerson2 = {
+                _uuid: 'person-2',
+                assignColor: jest.fn(),
+                setupWorkAndSchoolPlaces: jest.fn()
+            } as unknown as Person;
+
+            (MockedPerson.create as jest.Mock)
+                .mockReturnValueOnce(createErrors(errors))
+                .mockReturnValueOnce(createOk(mockPerson2));
+
+            await populatePersonsForHousehold(surveyObjectsWithErrors, household, undefined, correctedResponse, surveyObjectsRegistry);
+
+            expect(mockedPopulateJourneysForPerson).toHaveBeenCalledTimes(1);
+            expect(mockedPopulateJourneysForPerson).toHaveBeenCalledWith(
+                surveyObjectsWithErrors,
+                mockPerson2,
+                expect.objectContaining({ _uuid: 'person-2' }),
+                undefined,
+                correctedResponse,
+                surveyObjectsRegistry
+            );
+            expect(mockPerson2.setupWorkAndSchoolPlaces).toHaveBeenCalledTimes(1);
+        });
+
         it('should handle person creation errors', async () => {
             const errors = [new Error('Invalid age')];
 
@@ -142,10 +256,11 @@ describe('PersonFactory', () => {
                 .mockReturnValueOnce(createErrors(errors))
                 .mockReturnValueOnce(createOk({
                     _uuid: 'person-2',
-                    assignColor: jest.fn()
+                    assignColor: jest.fn(),
+                    setupWorkAndSchoolPlaces: jest.fn()
                 } as unknown as Person));
 
-            await populatePersonsForHousehold(surveyObjectsWithErrors, household, correctedResponse, surveyObjectsRegistry);
+            await populatePersonsForHousehold(surveyObjectsWithErrors, household, undefined, correctedResponse, surveyObjectsRegistry);
 
             // Verify error was stored
             expect(surveyObjectsWithErrors.errorsByObject.personsByUuid['person-1']).toEqual(errors);
@@ -171,10 +286,11 @@ describe('PersonFactory', () => {
 
             (MockedPerson.create as jest.Mock).mockReturnValue(createOk({
                 _uuid: 'person-1',
-                assignColor: jest.fn()
+                assignColor: jest.fn(),
+                setupWorkAndSchoolPlaces: jest.fn()
             } as unknown as Person));
 
-            await populatePersonsForHousehold(surveyObjectsWithErrors, household, correctedResponse, surveyObjectsRegistry);
+            await populatePersonsForHousehold(surveyObjectsWithErrors, household, undefined, correctedResponse, surveyObjectsRegistry);
 
             // Should only create one person (skip undefined)
             expect(MockedPerson.create).toHaveBeenCalledTimes(1);
@@ -184,7 +300,7 @@ describe('PersonFactory', () => {
         it('should handle missing household', async () => {
             surveyObjectsWithErrors.household = undefined;
 
-            await populatePersonsForHousehold(surveyObjectsWithErrors, household, correctedResponse, surveyObjectsRegistry);
+            await populatePersonsForHousehold(surveyObjectsWithErrors, household, undefined, correctedResponse, surveyObjectsRegistry);
 
             expect(MockedPerson.create).not.toHaveBeenCalled();
         });
@@ -192,7 +308,7 @@ describe('PersonFactory', () => {
         it('should handle missing persons attributes', async () => {
             correctedResponse.household!.persons = undefined;
 
-            await populatePersonsForHousehold(surveyObjectsWithErrors, household, correctedResponse, surveyObjectsRegistry);
+            await populatePersonsForHousehold(surveyObjectsWithErrors, household, undefined, correctedResponse, surveyObjectsRegistry);
 
             expect(MockedPerson.create).not.toHaveBeenCalled();
             expect(household.members).toHaveLength(0);
@@ -219,11 +335,11 @@ describe('PersonFactory', () => {
             };
 
             (MockedPerson.create as jest.Mock)
-                .mockReturnValueOnce(createOk({ _uuid: 'person-1', assignColor: jest.fn() } as unknown as Person))
-                .mockReturnValueOnce(createOk({ _uuid: 'person-2', assignColor: jest.fn() } as unknown as Person))
-                .mockReturnValueOnce(createOk({ _uuid: 'person-3', assignColor: jest.fn() } as unknown as Person));
+                .mockReturnValueOnce(createOk({ _uuid: 'person-1', assignColor: jest.fn(), setupWorkAndSchoolPlaces: jest.fn() } as unknown as Person))
+                .mockReturnValueOnce(createOk({ _uuid: 'person-2', assignColor: jest.fn(), setupWorkAndSchoolPlaces: jest.fn() } as unknown as Person))
+                .mockReturnValueOnce(createOk({ _uuid: 'person-3', assignColor: jest.fn(), setupWorkAndSchoolPlaces: jest.fn() } as unknown as Person));
 
-            await populatePersonsForHousehold(surveyObjectsWithErrors, household, correctedResponse, surveyObjectsRegistry);
+            await populatePersonsForHousehold(surveyObjectsWithErrors, household, undefined, correctedResponse, surveyObjectsRegistry);
 
             // Verify persons were created in sequence order (1, 2, 3)
             expect(MockedPerson.create).toHaveBeenNthCalledWith(1, expect.objectContaining({ _sequence: 1 }), surveyObjectsRegistry);
