@@ -7,7 +7,6 @@
 
 import { SurveyObjectsFactory } from '../SurveyObjectsFactory';
 import { populatePersonsForHousehold } from '../PersonFactory';
-import { populateJourneysForPerson } from '../JourneyFactory';
 import { InterviewAttributes, CorrectedResponse } from 'evolution-common/lib/services/questionnaire/types';
 import { create as createInterviewObject } from 'evolution-common/lib/services/baseObjects/interview/InterviewUnserializer';
 import { Home } from 'evolution-common/lib/services/baseObjects/Home';
@@ -17,7 +16,6 @@ import { SurveyObjectsRegistry } from 'evolution-common/lib/services/baseObjects
 
 // Mock dependencies
 jest.mock('../PersonFactory');
-jest.mock('../JourneyFactory');
 jest.mock('evolution-common/lib/services/baseObjects/interview/InterviewUnserializer');
 jest.mock('evolution-common/lib/services/baseObjects/Home', () => ({
     Home: {
@@ -31,7 +29,6 @@ jest.mock('evolution-common/lib/services/baseObjects/Household', () => ({
 }));
 
 const mockedpopulatePersonsForHousehold = populatePersonsForHousehold as jest.MockedFunction<typeof populatePersonsForHousehold>;
-const mockedPopulateJourneysForPerson = populateJourneysForPerson as jest.MockedFunction<typeof populateJourneysForPerson>;
 const mockedCreateInterviewObject = createInterviewObject as jest.MockedFunction<typeof createInterviewObject>;
 const MockedHome = Home as jest.MockedClass<typeof Home>;
 const MockedHousehold = Household as jest.MockedClass<typeof Household>;
@@ -86,7 +83,6 @@ describe('SurveyObjectsFactory', () => {
             (MockedHome.create as jest.Mock).mockReturnValue(createOk(mockHome as any));
             (MockedHousehold.create as jest.Mock).mockReturnValue(createOk(mockHousehold as any));
             mockedpopulatePersonsForHousehold.mockResolvedValue();
-            mockedPopulateJourneysForPerson.mockResolvedValue();
 
             const result = await factory.createAllObjectsWithErrors(interviewAttributes);
 
@@ -114,24 +110,14 @@ describe('SurveyObjectsFactory', () => {
             expect(result.home).toBe(mockHome);
             expect(result.household).toBe(mockHousehold);
 
-            // Verify person and journey factories were called
+            // Verify person factory was called
             expect(mockedpopulatePersonsForHousehold).toHaveBeenCalledWith(
                 result,
                 mockHousehold,
-                interviewAttributes.corrected_response,
-                expect.any(SurveyObjectsRegistry)
-            );
-            expect(mockedPopulateJourneysForPerson).toHaveBeenCalledWith(
-                result,
-                mockHousehold.members[0],
-                interviewAttributes.corrected_response!.household!.persons!['person-1'],
                 mockHome,
                 interviewAttributes.corrected_response,
                 expect.any(SurveyObjectsRegistry)
             );
-
-            // Verify setupWorkAndSchoolPlaces was called
-            expect(mockHousehold.members[0].setupWorkAndSchoolPlaces).toHaveBeenCalled();
 
             // Verify no errors
             expect(result.errorsByObject.interview).toEqual([]);
@@ -189,9 +175,8 @@ describe('SurveyObjectsFactory', () => {
             expect(result.household).toBeUndefined();
             expect(result.errorsByObject.household).toBe(errors);
 
-            // Should not call person/journey factories if household creation fails
+            // Should not call the person factory if household creation fails
             expect(mockedpopulatePersonsForHousehold).not.toHaveBeenCalled();
-            expect(mockedPopulateJourneysForPerson).not.toHaveBeenCalled();
         });
 
         it('should default home _uuid to the interview uuid when not explicitly set', async () => {
@@ -279,12 +264,13 @@ describe('SurveyObjectsFactory', () => {
             expect(MockedHousehold.create).not.toHaveBeenCalled();
         });
 
-        it('should process multiple persons', async () => {
+        it('should call populatePersonsForHousehold with the created home and household', async () => {
+            const mockHome = { _uuid: 'home-uuid' };
             const mockHousehold = {
                 _uuid: 'household-uuid',
                 members: [
-                    { _uuid: 'person-1', _sequence: 1, setupWorkAndSchoolPlaces: jest.fn() },
-                    { _uuid: 'person-2', _sequence: 2, setupWorkAndSchoolPlaces: jest.fn() }
+                    { _uuid: 'person-1', _sequence: 1 },
+                    { _uuid: 'person-2', _sequence: 2 }
                 ]
             };
 
@@ -294,35 +280,22 @@ describe('SurveyObjectsFactory', () => {
             } as any;
 
             mockedCreateInterviewObject.mockReturnValue(createOk({} as any));
-            (MockedHome.create as jest.Mock).mockReturnValue(createOk({} as any));
+            (MockedHome.create as jest.Mock).mockReturnValue(createOk(mockHome as any));
             (MockedHousehold.create as jest.Mock).mockReturnValue(createOk(mockHousehold as any));
             mockedpopulatePersonsForHousehold.mockResolvedValue();
-            mockedPopulateJourneysForPerson.mockResolvedValue();
 
             const result = await factory.createAllObjectsWithErrors(interviewAttributes);
 
-            // Should call journey factory for each person
-            expect(mockedPopulateJourneysForPerson).toHaveBeenCalledTimes(2);
-            expect(mockedPopulateJourneysForPerson).toHaveBeenCalledWith(
+            // populatePersonsForHousehold (mocked) is responsible for creating journeys and
+            // calling setupWorkAndSchoolPlaces per person; this is covered by PersonFactory.test.ts
+            expect(mockedpopulatePersonsForHousehold).toHaveBeenCalledTimes(1);
+            expect(mockedpopulatePersonsForHousehold).toHaveBeenCalledWith(
                 result,
-                mockHousehold.members[0],
-                interviewAttributes.corrected_response!.household!.persons!['person-1'],
-                result.home,
+                mockHousehold,
+                mockHome,
                 interviewAttributes.corrected_response,
                 expect.any(SurveyObjectsRegistry)
             );
-            expect(mockedPopulateJourneysForPerson).toHaveBeenCalledWith(
-                result,
-                mockHousehold.members[1],
-                interviewAttributes.corrected_response!.household!.persons!['person-2'],
-                result.home,
-                interviewAttributes.corrected_response,
-                expect.any(SurveyObjectsRegistry)
-            );
-
-            // Should call setupWorkAndSchoolPlaces for each person
-            expect(mockHousehold.members[0].setupWorkAndSchoolPlaces).toHaveBeenCalled();
-            expect(mockHousehold.members[1].setupWorkAndSchoolPlaces).toHaveBeenCalled();
         });
 
         it('should handle empty persons object', async () => {
@@ -338,10 +311,10 @@ describe('SurveyObjectsFactory', () => {
             (MockedHousehold.create as jest.Mock).mockReturnValue(createOk(mockHousehold as any));
             mockedpopulatePersonsForHousehold.mockResolvedValue();
 
-            await factory.createAllObjectsWithErrors(interviewAttributes);
+            const result = await factory.createAllObjectsWithErrors(interviewAttributes);
 
-            // Should not call journey factory if no persons
-            expect(mockedPopulateJourneysForPerson).not.toHaveBeenCalled();
+            expect(mockedpopulatePersonsForHousehold).toHaveBeenCalledTimes(1);
+            expect(result.household).toBe(mockHousehold);
         });
 
         it('should initialize with correct factory options', () => {
