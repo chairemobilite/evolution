@@ -186,6 +186,7 @@ describe('SurveyObjectParsers Integration', () => {
             await populatePersonsForHousehold(
                 surveyObjectsWithErrors,
                 surveyObjectsWithErrors.household!,
+                undefined,
                 correctedResponse,
                 surveyObjectsRegistry
             );
