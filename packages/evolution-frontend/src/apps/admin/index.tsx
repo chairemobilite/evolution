@@ -25,6 +25,8 @@ import VisitedPlacesSection from '../../components/survey/sectionTemplates/Visit
 import { UserPermissions } from 'chaire-lib-common/lib/services/user/userType';
 import { Toaster } from 'sonner';
 
+import { replaceBrowserPathnameIfNeeded } from '../../utils/normalizeBrowserLocationPathname';
+
 // TODO This is a workaround to get the links to the user, until some more complete solution is implemented (see https://github.com/chairemobilite/transition/issues/1516)
 const pages: { path: string; permissions: UserPermissions; title: string }[] = [
     { path: '/admin/validation', permissions: { Interviews: ['validate'] }, title: 'admin:validationPageTitle' },
@@ -39,6 +41,7 @@ setApplicationConfiguration({
 
 export default () => {
     document.title = config.title[i18n.language];
+    replaceBrowserPathnameIfNeeded();
 
     const store = configureStore();
     const Jsx = () => {

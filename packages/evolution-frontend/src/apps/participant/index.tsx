@@ -23,6 +23,7 @@ import '../../styles/survey/styles-participant-survey.scss';
 import verifyAuthentication from 'chaire-lib-frontend/lib/services/auth/verifyAuthentication';
 import SegmentsSection from '../../components/survey/sectionTemplates/TripsAndSegmentsSection';
 import VisitedPlacesSection from '../../components/survey/sectionTemplates/VisitedPlacesSection';
+import { replaceBrowserPathnameIfNeeded } from '../../utils/normalizeBrowserLocationPathname';
 
 setApplicationConfiguration({
     homePage: '/survey',
@@ -36,6 +37,7 @@ type AppSettings = {
 
 const App = (settings?: AppSettings) => {
     document.title = config.title[i18n.language];
+    replaceBrowserPathnameIfNeeded();
 
     const store = configureStore();
     const Jsx: React.FC = () => {
