@@ -12,7 +12,7 @@ import { householdAuditChecks, MAX_CAR_NUMBER_PER_POTENTIAL_DRIVING_LICENSE } fr
 import { createContextWithHouseholdAndHome } from './testHelper';
 import { SurveyObjectsRegistry } from 'evolution-common/lib/services/baseObjects/SurveyObjectsRegistry';
 
-describe('HH_L_CarNumberPerPotentialDrivingLicenseTooHigh audit check', () => {
+describe('HH_W_CarNumberPerPotentialDrivingLicenseTooHigh audit check', () => {
     const validHouseholdUuid = uuidV4();
     const validHomeUuid = uuidV4();
     const surveyObjectsRegistry = new SurveyObjectsRegistry();
@@ -74,13 +74,13 @@ describe('HH_L_CarNumberPerPotentialDrivingLicenseTooHigh audit check', () => {
             validHomeUuid
         );
 
-        const result = householdAuditChecks.HH_L_CarNumberPerPotentialDrivingLicenseTooHigh(context);
+        const result = householdAuditChecks.HH_W_CarNumberPerPotentialDrivingLicenseTooHigh(context);
 
         if (shouldWarn) {
             expect(result).toMatchObject({
                 objectType: 'household',
                 objectUuid: validHouseholdUuid,
-                errorCode: 'HH_L_CarNumberPerPotentialDrivingLicenseTooHigh',
+                errorCode: 'HH_W_CarNumberPerPotentialDrivingLicenseTooHigh',
                 version: 1,
                 level: 'warning',
                 message: 'Car number per potential driving license holder > 3',

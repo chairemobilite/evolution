@@ -15,7 +15,7 @@ jest.mock('@turf/distance', () => ({
 
 import { distance as turfDistance } from '@turf/distance';
 
-describe('HM_I_preGeographyAndHomeGeographyTooFarApartWarning audit check', () => {
+describe('HM_W_preGeographyAndHomeGeographyTooFarApart audit check', () => {
     const validUuid = uuidV4();
 
     beforeEach(() => {
@@ -56,7 +56,7 @@ describe('HM_I_preGeographyAndHomeGeographyTooFarApartWarning audit check', () =
                 validUuid
             );
 
-            const result = homeAuditChecks.HM_I_preGeographyAndHomeGeographyTooFarApartWarning(context);
+            const result = homeAuditChecks.HM_W_preGeographyAndHomeGeographyTooFarApart(context);
 
             expect(result).toBeUndefined();
         });
@@ -91,7 +91,7 @@ describe('HM_I_preGeographyAndHomeGeographyTooFarApartWarning audit check', () =
                 validUuid
             );
 
-            const result = homeAuditChecks.HM_I_preGeographyAndHomeGeographyTooFarApartWarning(context);
+            const result = homeAuditChecks.HM_W_preGeographyAndHomeGeographyTooFarApart(context);
 
             expect(result).toBeUndefined();
         });
@@ -126,12 +126,12 @@ describe('HM_I_preGeographyAndHomeGeographyTooFarApartWarning audit check', () =
                 validUuid
             );
 
-            const result = homeAuditChecks.HM_I_preGeographyAndHomeGeographyTooFarApartWarning(context);
+            const result = homeAuditChecks.HM_W_preGeographyAndHomeGeographyTooFarApart(context);
 
             expect(result).toMatchObject({
                 objectType: 'home',
                 objectUuid: validUuid,
-                errorCode: 'HM_I_preGeographyAndHomeGeographyTooFarApartWarning',
+                errorCode: 'HM_W_preGeographyAndHomeGeographyTooFarApart',
                 level: 'warning',
                 message: 'Pre-filled and declared home geography are a bit far apart',
                 ignore: false

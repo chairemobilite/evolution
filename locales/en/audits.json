@@ -13,7 +13,7 @@
     "HH_M_Size": "Household size is missing",
     "HH_M_CarNumber": "Car number is missing",
     "HH_I_CarNumber": "Car number is out of range (should be an integer between 0 and 13)",
-    "HH_L_CarNumberPerPotentialDrivingLicenseTooHigh": "Car number per potential driving license holder > 3",
+    "HH_W_CarNumberPerPotentialDrivingLicenseTooHigh": "Car number per potential driving license holder > 3",
     "HH_L_SizeMembersCountMismatch": "Size and members count mismatch",
     "HH_L_InvalidPersonSequences": "At least one person sequence is invalid or duplicated",
     "HH_W_PersonSequenceGaps": "Person sequences are not contiguous",
@@ -23,7 +23,7 @@
     "HH_M_AtLeastOnePersonWithDisability": "At least one person with disability is missing",
 
     "HM_I_preGeographyAndHomeGeographyTooFarApartError": "Pre-filled and declared home geographies are far apart",
-    "HM_I_preGeographyAndHomeGeographyTooFarApartWarning": "Pre-filled and declared home geographies are a bit far apart",
+    "HM_W_preGeographyAndHomeGeographyTooFarApart": "Pre-filled and declared home geographies are a bit far apart",
     "HM_M_Geography": "Home geography is missing",
     "HM_I_Geography": "Home geography is invalid",
     "HM_I_geographyNotInSurveyTerritory": "Home geography is outside the survey territory",

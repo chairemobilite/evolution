@@ -106,22 +106,29 @@ All contexts are defined in [`./AuditCheckContexts.ts`](./AuditCheckContexts.ts)
 
 ### 3.2 What kind of problem is it?
 
+> **TODO:** The prefixes below mix audit *type* (missing, invalid, logical) with *severity* (info, warning). This is historical (`M`/`I`/`L` from 2023; `W` and `F` were added later). A cleaner split is tracked in [#1771](https://github.com/chairemobilite/evolution/issues/1771).
+
 Follow the existing prefix convention (see the checks folder README):
 
 - `_M_` — **Missing** required data (`HH_M_Size`).
 - `_I_` — **Invalid** data (`HH_I_Size` — out of range, malformed, wrong type).
 - `_L_` — **Logical** inconsistency between fields or objects (`HH_L_SizeMembersCountMismatch`).
+- `_F_` — **Info** — informational flag, not an error or warning (`HH_F_AtLeastOneTransitSegmentInHousehold`).
+- `_W_` — **Warning** — suspicious data that may be fine but needs reviewer attention (`HH_W_CarNumberPerPotentialDrivingLicenseTooHigh`, `HM_W_preGeographyAndHomeGeographyTooFarApart`).
 
 Pick `_M_` only if the field should always be present. If "required" depends on survey configuration, use `fieldIsRequired(...)` (see §5.1) and still prefix with `_M_`.
 
+The type prefix should match the audit `level`: use `_W_` with `level: 'warning'`, `_F_` with `level: 'info'`, and `_M_` / `_I_` / `_L_` with `level: 'error'`.
+
 ### 3.3 Which severity?
 
+> **TODO:** Same conflation as §3.2 — this table maps severity to prefixes, but `error` still spans three type letters (`M`, `I`, `L`) instead of one. See [#1771](https://github.com/chairemobilite/evolution/issues/1771).
 
-| Level     | Meaning                                                                    | Reviewer behavior expected             |
-| --------- | -------------------------------------------------------------------------- | -------------------------------------- |
-| `error`   | The data is wrong or unusable and must be corrected or explicitly ignored. | Must look at it.                       |
-| `warning` | Something suspicious that often turns out fine.                            | Should look at it when they have time. |
-| `info`    | Informational only, typically for stats or routing.                        | Can ignore.                            |
+| Level     | Prefix | Meaning                                                                    | Reviewer behavior expected             |
+| --------- | ------ | -------------------------------------------------------------------------- | -------------------------------------- |
+| `error`   | `M`, `I`, or `L` | The data is wrong or unusable and must be corrected or explicitly ignored. | Must look at it.                       |
+| `warning` | `W`    | Something suspicious that often turns out fine.                            | Should look at it when they have time. |
+| `info`    | `F`    | Informational only, typically for stats or routing.                        | Can ignore.                            |
 
 
 When in doubt, start at `warning`. Escalating later is cheap; downgrading creates review backlog.
@@ -293,7 +300,7 @@ Grep before adding to avoid duplicates. Checks live in `<Object>AuditChecks.ts`
 and `<Object>ExtendedAuditChecks.ts` under [`./checks/`](./checks/), one file per survey object type (see the table in §3.1). To list all current checks:
 
 ```bash
-grep -rEn "^[[:space:]]+[IHMPJVTS]{1,2}_[MIL]_[A-Za-z]+:" \
+grep -rEn "^[[:space:]]+[IHMPJVTS]{1,2}_[MILFW]_[A-Za-z]+:" \
   packages/evolution-backend/src/services/audits/auditChecks/checks
 ```
 
