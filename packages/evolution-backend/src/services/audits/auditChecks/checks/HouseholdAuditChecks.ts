@@ -7,7 +7,10 @@
 
 import type { AuditForObject } from 'evolution-common/lib/services/audits/types';
 import type { HouseholdAuditCheckContext, HouseholdAuditCheckFunction } from '../AuditCheckContexts';
-import { hasInvalidOrDuplicateSequences } from 'evolution-common/lib/services/baseObjects/sequenceUtils';
+import {
+    hasInvalidOrDuplicateSequences,
+    hasSequenceGaps
+} from 'evolution-common/lib/services/baseObjects/sequenceUtils';
 
 // Above this number of cars per potential driving license holder, the car number
 // is considered suspiciously high and flagged for validation (warning only, not an error).
@@ -186,6 +189,31 @@ export const householdAuditChecks: { [errorCode: string]: HouseholdAuditCheckFun
                 version: 1,
                 level: 'error',
                 message: 'At least one person sequence is invalid or duplicated',
+                ignore: false
+            };
+        }
+
+        return undefined; // No audit needed
+    },
+
+    /**
+     * Check for holes in the household member sequences (e.g. 1,2,3,5,6). The questionnaire
+     * keeps them contiguous when a person is added or deleted, so a hole points at a survey
+     * bug worth investigating rather than at unusable data.
+     * @param context - HouseholdAuditCheckContext
+     * @returns AuditForObject
+     */
+    HH_W_PersonSequenceGaps: (context: HouseholdAuditCheckContext): AuditForObject | undefined => {
+        const { household } = context;
+
+        if (hasSequenceGaps(household.members)) {
+            return {
+                objectType: 'household',
+                objectUuid: household._uuid!,
+                errorCode: 'HH_W_PersonSequenceGaps',
+                version: 1,
+                level: 'warning',
+                message: 'Person sequences are not contiguous',
                 ignore: false
             };
         }

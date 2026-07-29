@@ -60,4 +60,35 @@ describe('household person sequence audit checks', () => {
             }
         });
     });
+
+    describe('HH_W_PersonSequenceGaps', () => {
+        it.each([
+            ['contiguous sequences 1..3', [1, 2, 3], false],
+            ['single person with sequence 1', [1], false],
+            ['unsorted but contiguous', [3, 1, 2], false],
+            ['gap in sequences', [1, 3], true],
+            ['sequences not starting at 1', [2, 3], true],
+            // Invalid and duplicate sequences are reported by HH_L_InvalidPersonSequences
+            ['duplicate sequences', [1, 1], false],
+            ['missing sequence', [1, undefined], false],
+            ['no members', undefined, false],
+            ['empty members', [], false]
+        ])('%s: %p -> %p', (_title, sequences, shouldWarn) => {
+            const result = householdAuditChecks.HH_W_PersonSequenceGaps(makeContext(sequences));
+
+            if (shouldWarn) {
+                expect(result).toMatchObject({
+                    objectType: 'household',
+                    objectUuid: validHouseholdUuid,
+                    errorCode: 'HH_W_PersonSequenceGaps',
+                    version: 1,
+                    level: 'warning',
+                    message: 'Person sequences are not contiguous',
+                    ignore: false
+                });
+            } else {
+                expect(result).toBeUndefined();
+            }
+        });
+    });
 });
