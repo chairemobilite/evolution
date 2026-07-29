@@ -237,6 +237,12 @@ export type VisitedPlace = QuestionnaireObjectWithUuidAndSequence &
          */
         _previousDepartureTime?: number;
         /**
+         * Temporary field to store the name and geography of the previous usual
+         * work place for on the road activities with departure at work place
+         * and usual places inlined and not set.
+         */
+        _previousWorkPlace?: NamedPlace;
+        /**
          * The category of the next place. The 'wentToUsualWorkPlace' category is
          * used for workOnTheRoad trips. It is imputed by values entered by
          * participant
