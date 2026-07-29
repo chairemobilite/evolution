@@ -7,6 +7,7 @@
 
 import type { AuditForObject } from 'evolution-common/lib/services/audits/types';
 import type { HouseholdAuditCheckContext, HouseholdAuditCheckFunction } from '../AuditCheckContexts';
+import { hasInvalidOrDuplicateSequences } from 'evolution-common/lib/services/baseObjects/sequenceUtils';
 
 // Above this number of cars per potential driving license holder, the car number
 // is considered suspiciously high and flagged for validation (warning only, not an error).
@@ -169,32 +170,24 @@ export const householdAuditChecks: { [errorCode: string]: HouseholdAuditCheckFun
     },
 
     /**
-     * Check that each household member _sequence matches its index (1..n).
-     * PersonFactory already sorts members by _sequence; this verifies the
-     * resulting order and that sequences form a contiguous 1..n range.
+     * Check for person sequences that cannot be ordered: missing, non-positive integer,
+     * or shared by two household members.
      * @param context - HouseholdAuditCheckContext
      * @returns AuditForObject
      */
     HH_L_InvalidPersonSequences: (context: HouseholdAuditCheckContext): AuditForObject | undefined => {
         const { household } = context;
-        const members = household.members;
 
-        if (!members || members.length === 0) {
-            return undefined;
-        }
-
-        for (let i = 0; i < members.length; i++) {
-            if (members[i].attributes._sequence !== i + 1) {
-                return {
-                    objectType: 'household',
-                    objectUuid: household._uuid!,
-                    errorCode: 'HH_L_InvalidPersonSequences',
-                    version: 1,
-                    level: 'error',
-                    message: 'At least one person sequence is invalid',
-                    ignore: false
-                };
-            }
+        if (hasInvalidOrDuplicateSequences(household.members)) {
+            return {
+                objectType: 'household',
+                objectUuid: household._uuid!,
+                errorCode: 'HH_L_InvalidPersonSequences',
+                version: 1,
+                level: 'error',
+                message: 'At least one person sequence is invalid or duplicated',
+                ignore: false
+            };
         }
 
         return undefined; // No audit needed
