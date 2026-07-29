@@ -17,6 +17,7 @@ import projectConfig from '../../config/projectConfig';
 import { CorrectedResponse } from 'evolution-common/lib/services/questionnaire/types';
 import { SurveyObjectsRegistry } from 'evolution-common/lib/services/baseObjects/SurveyObjectsRegistry';
 import { AuditLog } from '../audits/auditLog';
+import { compareSequenceThenUuid } from 'evolution-common/lib/services/baseObjects/sequenceUtils';
 
 /**
  * Create all visited places for a journey
@@ -41,11 +42,7 @@ export async function populateVisitedPlacesForJourney(
     const visitedPlacesAttributes = journeyAttributes?.visitedPlaces || {};
 
     // Sort visited places by _sequence before processing
-    const sortedVisitedPlaceEntries = Object.entries(visitedPlacesAttributes).sort(([, a], [, b]) => {
-        const sequenceA = (a as ExtendedVisitedPlaceAttributes)?._sequence || 0;
-        const sequenceB = (b as ExtendedVisitedPlaceAttributes)?._sequence || 0;
-        return sequenceA - sequenceB;
-    });
+    const sortedVisitedPlaceEntries = Object.entries(visitedPlacesAttributes).sort(compareSequenceThenUuid);
 
     for (const [visitedPlaceUuid, originalCorrectedVisitedPlaceAttributes] of sortedVisitedPlaceEntries) {
         if (visitedPlaceUuid === 'undefined') {

@@ -15,7 +15,7 @@
     "HH_I_CarNumber": "Car number is out of range (should be an integer between 0 and 13)",
     "HH_L_CarNumberPerPotentialDrivingLicenseTooHigh": "Car number per potential driving license holder > 3",
     "HH_L_SizeMembersCountMismatch": "Size and members count mismatch",
-    "HH_L_InvalidPersonSequences": "At least one person sequence is invalid",
+    "HH_L_InvalidPersonSequences": "At least one person sequence is invalid or duplicated",
     "HH_L_CarNumberVehiclesCountMismatch": "Car number and vehicles count mismatch",
     "HH_F_AtLeastOneTransitSegmentInHousehold": "At least one transit trip in household",
     "HH_M_Home": "Home is missing",
@@ -28,13 +28,17 @@
     "HM_I_geographyNotInSurveyTerritory": "Home geography is outside the survey territory",
 
     "P_M_Age": "Person age is missing",
+    "P_L_InvalidJourneySequences": "At least one journey sequence is invalid or duplicated",
 
     "J_M_StartDate": "Journey start date is missing",
+    "J_L_InvalidVisitedPlaceSequences": "At least one visited place sequence is invalid or duplicated",
+    "J_L_InvalidTripSequences": "At least one trip sequence is invalid or duplicated",
 
     "VP_M_Geography": "Visited place geography is missing",
     "VP_I_Geography": "Visited place geography is invalid",
 
     "T_M_Segments": "Trip segments are missing",
+    "T_L_InvalidSegmentSequences": "At least one segment sequence is invalid or duplicated",
 
     "S_M_Mode": "Segment mode is missing"
 }
