@@ -19,6 +19,7 @@ import { Optional } from 'evolution-common/lib/types/Optional.type';
 import projectConfig from '../../config/projectConfig';
 import { CorrectedResponse } from 'evolution-common/lib/services/questionnaire/types';
 import { SurveyObjectsRegistry } from 'evolution-common/lib/services/baseObjects/SurveyObjectsRegistry';
+import { compareSequenceThenUuid } from 'evolution-common/lib/services/baseObjects/sequenceUtils';
 
 /**
  * Generate all journeys for a person
@@ -42,11 +43,7 @@ export async function populateJourneysForPerson(
     const journeysAttributes = personAttributes.journeys || {};
 
     // Sort journeys by _sequence before processing
-    const sortedJourneyEntries = Object.entries(journeysAttributes).sort(([, a], [, b]) => {
-        const sequenceA = (a as unknown as ExtendedJourneyAttributes)?._sequence || 0;
-        const sequenceB = (b as unknown as ExtendedJourneyAttributes)?._sequence || 0;
-        return sequenceA - sequenceB;
-    });
+    const sortedJourneyEntries = Object.entries(journeysAttributes).sort(compareSequenceThenUuid);
 
     for (const [journeyUuid, originalCorrectedJourneyAttributes] of sortedJourneyEntries) {
         if (journeyUuid === 'undefined') {

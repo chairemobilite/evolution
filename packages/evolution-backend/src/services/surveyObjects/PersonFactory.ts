@@ -7,11 +7,12 @@
 
 import { SurveyObjectsWithErrors } from 'evolution-common/lib/services/baseObjects/types';
 import { CorrectedResponse } from 'evolution-common/lib/services/questionnaire/types';
-import { Person, ExtendedPersonAttributes } from 'evolution-common/lib/services/baseObjects/Person';
+import { Person } from 'evolution-common/lib/services/baseObjects/Person';
 import { isOk } from 'evolution-common/lib/types/Result.type';
 import { Household } from 'evolution-common/lib/services/baseObjects/Household';
 import projectConfig from '../../config/projectConfig';
 import { SurveyObjectsRegistry } from 'evolution-common/lib/services/baseObjects/SurveyObjectsRegistry';
+import { compareSequenceThenUuid } from 'evolution-common/lib/services/baseObjects/sequenceUtils';
 
 /**
  * Generate persons
@@ -41,11 +42,7 @@ export async function populatePersonsForHousehold(
     const personsAttributes = householdAttributes.persons || {};
 
     // Sort persons by _sequence before processing
-    const sortedPersonEntries = Object.entries(personsAttributes).sort(([, a], [, b]) => {
-        const sequenceA = (a as unknown as ExtendedPersonAttributes)?._sequence || 0;
-        const sequenceB = (b as unknown as ExtendedPersonAttributes)?._sequence || 0;
-        return sequenceA - sequenceB;
-    });
+    const sortedPersonEntries = Object.entries(personsAttributes).sort(compareSequenceThenUuid);
 
     // Track person index for color assignment
     let personIndex = 0;

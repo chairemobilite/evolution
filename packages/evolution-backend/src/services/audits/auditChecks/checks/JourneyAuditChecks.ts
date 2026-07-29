@@ -7,6 +7,7 @@
 
 import type { AuditForObject } from 'evolution-common/lib/services/audits/types';
 import type { JourneyAuditCheckContext, JourneyAuditCheckFunction } from '../AuditCheckContexts';
+import { hasInvalidOrDuplicateSequences } from 'evolution-common/lib/services/baseObjects/sequenceUtils';
 
 export const journeyAuditChecks: { [errorCode: string]: JourneyAuditCheckFunction } = {
     /**
@@ -26,6 +27,54 @@ export const journeyAuditChecks: { [errorCode: string]: JourneyAuditCheckFunctio
                 version: 1,
                 level: 'error',
                 message: 'Journey start date is missing',
+                ignore: false
+            };
+        }
+
+        return undefined; // No audit needed
+    },
+
+    /**
+     * Check for visited place sequences that cannot be ordered: missing, non-positive
+     * integer, or shared by two visited places.
+     * @param context - JourneyAuditCheckContext
+     * @returns AuditForObject
+     */
+    J_L_InvalidVisitedPlaceSequences: (context: JourneyAuditCheckContext): AuditForObject | undefined => {
+        const { journey } = context;
+
+        if (hasInvalidOrDuplicateSequences(journey.visitedPlaces)) {
+            return {
+                objectType: 'journey',
+                objectUuid: journey._uuid!,
+                errorCode: 'J_L_InvalidVisitedPlaceSequences',
+                version: 1,
+                level: 'error',
+                message: 'At least one visited place sequence is invalid or duplicated',
+                ignore: false
+            };
+        }
+
+        return undefined; // No audit needed
+    },
+
+    /**
+     * Check for trip sequences that cannot be ordered: missing, non-positive integer,
+     * or shared by two trips.
+     * @param context - JourneyAuditCheckContext
+     * @returns AuditForObject
+     */
+    J_L_InvalidTripSequences: (context: JourneyAuditCheckContext): AuditForObject | undefined => {
+        const { journey } = context;
+
+        if (hasInvalidOrDuplicateSequences(journey.trips)) {
+            return {
+                objectType: 'journey',
+                objectUuid: journey._uuid!,
+                errorCode: 'J_L_InvalidTripSequences',
+                version: 1,
+                level: 'error',
+                message: 'At least one trip sequence is invalid or duplicated',
                 ignore: false
             };
         }

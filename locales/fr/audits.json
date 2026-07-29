@@ -15,7 +15,7 @@
     "HH_I_CarNumber": "Le nombre de véhicules automobiles est en dehors de la plage autorisée (devrait être un entier entre 0 et 13)",
     "HH_L_CarNumberPerPotentialDrivingLicenseTooHigh": "Le nombre de véhicules automobiles par titulaire potentiel d'un permis de conduire > 3",
     "HH_L_SizeMembersCountMismatch": "La taille du ménage et le nombre de personnes ne correspondent pas",
-    "HH_L_InvalidPersonSequences": "Le numéro de séquence d'au moins une personne est invalide",
+    "HH_L_InvalidPersonSequences": "Le numéro de séquence d'au moins une personne est invalide ou en double",
     "HH_L_CarNumberVehiclesCountMismatch": "Le nombre de véhicules automobiles et le nombre de véhicules déclarés ne correspondent pas",
     "HH_F_AtLeastOneTransitSegmentInHousehold": "Au moins un déplacement transport collectif dans le ménage",
     "HH_M_Home": "Le domicile est manquant",
@@ -28,13 +28,17 @@
     "HM_I_geographyNotInSurveyTerritory": "La géographie du domicile est en dehors du territoire d'enquête",
 
     "P_M_Age": "L'âge de la personne est manquant",
+    "P_L_InvalidJourneySequences": "Le numéro de séquence d'au moins un séjour est invalide ou en double",
 
     "J_M_StartDate": "La date de début du séjour est manquante",
+    "J_L_InvalidVisitedPlaceSequences": "Le numéro de séquence d'au moins un lieu visité est invalide ou en double",
+    "J_L_InvalidTripSequences": "Le numéro de séquence d'au moins un déplacement est invalide ou en double",
 
     "VP_M_Geography": "La géographie du lieu visité est manquante",
     "VP_I_Geography": "La géographie du lieu visité est invalide",
 
     "T_M_Segments": "Les segments du déplacement sont manquants",
+    "T_L_InvalidSegmentSequences": "Le numéro de séquence d'au moins un segment est invalide ou en double",
 
     "S_M_Mode": "Le mode du segment est manquant"
 }

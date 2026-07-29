@@ -210,26 +210,44 @@ describe('TripFactory', () => {
             expect(journey.addTrip).toHaveBeenCalledWith(mockTrip);
         });
 
-        it('should call getSegmentsWithoutWalkingInMultimode', async () => {
-            const mockTrip = {
-                _uuid: 'trip-1',
-                origin: null,
-                destination: null,
-                segments: ['original-segment'],
-                getSegmentsWithoutWalkingInMultimode: jest.fn().mockReturnValue(['filtered-segment']),
-                setupStartAndEndTimes: jest.fn()
-            } as unknown as Trip;
+        describe('walking segment filtering', () => {
+            const makeSegments = (sequences: (number | undefined)[]) =>
+                sequences.map((sequence) => ({ attributes: { _sequence: sequence } }));
 
-            (MockedTrip.create as jest.Mock).mockReturnValue(createOk(mockTrip));
-            mockedpopulateSegmentsForTrip.mockResolvedValue();
+            const filteredSegments = makeSegments([1]);
 
-            await populateTripsForJourney(surveyObjectsWithErrors, person, journey, journeyAttributes, { uuid: 'test' } as any, surveyObjectsRegistry);
+            // Filtering drops segments, which would hide a duplicate or invalid raw sequence
+            // from T_L_InvalidSegmentSequences, so it is skipped when sequences are unsound.
+            it.each([
+                ['contiguous sequences', [1, 2], true],
+                ['gap left by a previous filtering', [2], true],
+                ['duplicate sequences', [1, 1], false],
+                ['missing sequence', [1, undefined], false],
+                ['invalid zero sequence', [0], false]
+            ])('%s -> filtered: %p', async (_title, sequences, shouldFilter) => {
+                const rawSegments = makeSegments(sequences);
+                const mockTrip = {
+                    _uuid: 'trip-1',
+                    origin: null,
+                    destination: null,
+                    segments: rawSegments,
+                    getSegmentsWithoutWalkingInMultimode: jest.fn().mockReturnValue(filteredSegments),
+                    setupStartAndEndTimes: jest.fn()
+                } as unknown as Trip;
 
-            // Verify the method was called
-            expect(mockTrip.getSegmentsWithoutWalkingInMultimode).toHaveBeenCalled();
+                (MockedTrip.create as jest.Mock).mockReturnValue(createOk(mockTrip));
+                mockedpopulateSegmentsForTrip.mockResolvedValue();
 
-            // Verify segments were updated
-            expect(mockTrip.segments).toEqual(['filtered-segment']);
+                await populateTripsForJourney(surveyObjectsWithErrors, person, journey, journeyAttributes, { uuid: 'test' } as any, surveyObjectsRegistry);
+
+                if (shouldFilter) {
+                    expect(mockTrip.getSegmentsWithoutWalkingInMultimode).toHaveBeenCalled();
+                    expect(mockTrip.segments).toBe(filteredSegments);
+                } else {
+                    expect(mockTrip.getSegmentsWithoutWalkingInMultimode).not.toHaveBeenCalled();
+                    expect(mockTrip.segments).toBe(rawSegments);
+                }
+            });
         });
 
         it('should handle trip creation errors', async () => {

@@ -503,6 +503,14 @@ export class Trip extends SurveyObject {
     /**
      * Get segments without walking segments in multimodal trips
      * Walking segments are implicit and excluded unless the entire trip is on foot
+     *
+     * Why: in a multimodal trip, walking is always implied — you walk to reach the car,
+     * the bus stop, the train platform, the motorcycle or the bicycle. OD surveys have
+     * always removed or ignored those walking segments, and most respondents would not
+     * declare them manually anyway, so keeping them would make trips inconsistent
+     * depending on how thorough the respondent was. This is a survey-wide convention
+     * rather than an export option; making it configurable would need its own issue.
+     *
      * @returns Array of segments with walking segments filtered out if other modes exist
      */
     getSegmentsWithoutWalkingInMultimode(): Segment[] {
