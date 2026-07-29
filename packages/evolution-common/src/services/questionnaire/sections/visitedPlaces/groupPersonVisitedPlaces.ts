@@ -18,6 +18,7 @@ import { VisitedPlaceShortcutWidgetFactory } from './widgetsVisitedPlaceShortcut
 import { ButtonsVisitedPlaceConfigFactory } from './buttonsVisitedPlace';
 import { VisitedPlaceTimeWidgetFactory } from './widgetsTime';
 import { VisitedPlaceOnTheRoadWidgetFactory } from './widgetsOnTheRoadSpecifics';
+import { PreviousWorkPlaceGeographyWidgetFactory } from './widgetsPreviousWorkplaceGeography';
 
 /**
  * Widget config factory for the person visited places group. It represents the
@@ -39,6 +40,11 @@ export class PersonVisitedPlacesGroupConfigFactory implements WidgetConfigFactor
         // could be listed in the additional widgets to control their order, but
         // if not there, we should add them at the right place.
         const allWidgetNames = [...additionalWidgetNames];
+        // Add the previous work place name and geography to the group if inlineUsualPlacesEntry is true
+        const onTheRoadPreviousWorkPlaceNames =
+            this.sectionConfig.inlineUsualPlacesEntry === true
+                ? ['visitedPlacePreviousWorkPlaceGeography', 'visitedPlacePreviousWorkPlaceName']
+                : [];
         // Add the geography, shortcuts and activity widgets at the beginning of the groups, listed in reverse order of appearance to unshift them in the right order
         // FIXME Allow to fine-tune where to put the additional widgets if a survey needs a question to be asked between the builtin ones
         const widgetsAtTheBeginning = [
@@ -50,6 +56,8 @@ export class PersonVisitedPlacesGroupConfigFactory implements WidgetConfigFactor
             'visitedPlaceName',
             'visitedPlaceShortcut',
             'visitedPlaceAlreadyVisited',
+            // Add previous work place location if usual places are inlined
+            ...onTheRoadPreviousWorkPlaceNames,
             'visitedPlaceOnTheRoadPreviousPlaceActivity',
             'visitedPlaceActivity',
             'visitedPlaceActivityCategory'
@@ -130,6 +138,10 @@ export class PersonVisitedPlacesGroupConfigFactory implements WidgetConfigFactor
         const buttonsWidgetFactory = new ButtonsVisitedPlaceConfigFactory(this.sectionConfig, this.options);
         const visitedPlaceTimeWidgetFactory = new VisitedPlaceTimeWidgetFactory(this.sectionConfig, this.options);
         const onTheRoadWidgetFactory = new VisitedPlaceOnTheRoadWidgetFactory(this.sectionConfig, this.options);
+        const onTheRoadPreviousWorkPlaceWidgets =
+            this.sectionConfig.inlineUsualPlacesEntry === true
+                ? new PreviousWorkPlaceGeographyWidgetFactory(this.sectionConfig, this.options).getWidgetConfigs()
+                : {};
         return {
             personVisitedPlaces: this.getVisitedPlacesGroupConfig(),
             visitedPlaceActivityCategory: getActivityCategoryWidgetConfig(this.sectionConfig, this.options),
@@ -139,6 +151,7 @@ export class PersonVisitedPlacesGroupConfigFactory implements WidgetConfigFactor
             visitedPlaceNextPlaceCategory: getNextPlaceCategoryWidgetConfig(this.sectionConfig, this.options),
             ...visitedPlaceTimeWidgetFactory.getWidgetConfigs(),
             ...onTheRoadWidgetFactory.getWidgetConfigs(),
+            ...onTheRoadPreviousWorkPlaceWidgets,
             ...buttonsWidgetFactory.getWidgetConfigs()
         };
     };

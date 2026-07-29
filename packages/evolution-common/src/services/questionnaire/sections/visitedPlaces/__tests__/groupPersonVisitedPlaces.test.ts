@@ -18,6 +18,7 @@ import { VisitedPlaceShortcutWidgetFactory } from '../widgetsVisitedPlaceShortcu
 import { ButtonsVisitedPlaceConfigFactory } from '../buttonsVisitedPlace';
 import { VisitedPlaceTimeWidgetFactory } from '../widgetsTime';
 import { VisitedPlaceOnTheRoadWidgetFactory } from '../widgetsOnTheRoadSpecifics';
+import { PreviousWorkPlaceGeographyWidgetFactory } from '../widgetsPreviousWorkplaceGeography';
 
 const visitedPlacesSectionConfig: VisitedPlacesSectionConfiguration = {
     type: 'visitedPlaces',
@@ -25,6 +26,8 @@ const visitedPlacesSectionConfig: VisitedPlacesSectionConfiguration = {
     tripDiaryMinTimeOfDay: 4 * 60 * 60, // 4h in seconds
     tripDiaryMaxTimeOfDay: 28 * 60 * 60
 };
+
+const expectedWidgetCount = 18;
 
 describe('PersonVisitedPlacesGroupConfigFactory widgets', () => {
     test.each([
@@ -60,7 +63,7 @@ describe('PersonVisitedPlacesGroupConfigFactory widgets', () => {
             visitedPlacesSectionConfig,
             widgetFactoryOptions
         ).getWidgetConfigs();
-        expect(Object.keys(widgetConfigs)).toHaveLength(18);
+        expect(Object.keys(widgetConfigs)).toHaveLength(expectedWidgetCount);
     });
 
     test.each([
@@ -396,4 +399,83 @@ describe('PersonVisitedPlacesGroupConfigFactory personVisitedPlaces GroupConfig 
             ]
         });
     });
+});
+
+describe('PersonVisitedPlacesGroupConfigFactory widgets, with inlining usual places', () => {
+    const visitedPlacesWithInlineSectionConfig: VisitedPlacesSectionConfiguration = {
+        type: 'visitedPlaces',
+        enabled: true,
+        inlineUsualPlacesEntry: true,
+        tripDiaryMinTimeOfDay: 4 * 60 * 60, // 4h in seconds
+        tripDiaryMaxTimeOfDay: 28 * 60 * 60
+    };
+
+    test.each([
+        'personVisitedPlaces',
+        'visitedPlaceActivityCategory',
+        'visitedPlaceActivity',
+        'visitedPlaceOnTheRoadPreviousPlaceActivity',
+        'visitedPlacePreviousWorkPlaceName',
+        'visitedPlacePreviousWorkPlaceGeography',
+        'visitedPlaceAlreadyVisited',
+        'visitedPlaceShortcut',
+        'visitedPlaceName',
+        'visitedPlaceGeography',
+        'visitedPlaceOnTheRoadNextPlaceCategory',
+        'visitedPlaceNextPlaceCategory',
+        'buttonSaveVisitedPlace',
+        'buttonCancelVisitedPlace',
+        'buttonDeleteVisitedPlace',
+        'visitedPlaceArrivalTime',
+        'visitedPlacePreviousDepartureTime',
+        'visitedPlacePreviousArrivalTime',
+        'visitedPlacePreviousPreviousDepartureTime',
+        'visitedPlaceDepartureTime'
+    ])('should have a widget named %s', (widgetName) => {
+        const widgetConfigs = new PersonVisitedPlacesGroupConfigFactory(
+            visitedPlacesWithInlineSectionConfig,
+            widgetFactoryOptions
+        ).getWidgetConfigs();
+        const widgetNames = Object.keys(widgetConfigs);
+        expect(widgetNames).toContain(widgetName);
+    });
+
+    test('should not return extra widgets', () => {
+        const widgetConfigs = new PersonVisitedPlacesGroupConfigFactory(
+            visitedPlacesWithInlineSectionConfig,
+            widgetFactoryOptions
+        ).getWidgetConfigs();
+        expect(Object.keys(widgetConfigs)).toHaveLength(expectedWidgetCount + 2);
+    });
+
+    test.each([
+        {
+            widgetName: 'visitedPlacePreviousWorkPlaceName',
+            expected: (config: VisitedPlacesSectionConfiguration) =>
+                new PreviousWorkPlaceGeographyWidgetFactory(config, widgetFactoryOptions).getWidgetConfigs().visitedPlacePreviousWorkPlaceName
+        },
+        {
+            widgetName: 'visitedPlacePreviousWorkPlaceGeography',
+            expected: (config: VisitedPlacesSectionConfiguration) =>
+                new PreviousWorkPlaceGeographyWidgetFactory(config, widgetFactoryOptions).getWidgetConfigs()
+                    .visitedPlacePreviousWorkPlaceGeography
+        }
+    ])(
+        'should return the correct widget config for $widgetName',
+        ({
+            widgetName,
+            expected
+        }: {
+            widgetName: string;
+            expected: (config: VisitedPlacesSectionConfiguration) => WidgetConfig;
+        }) => {
+            const widgetConfigs = new PersonVisitedPlacesGroupConfigFactory(
+                visitedPlacesWithInlineSectionConfig,
+                widgetFactoryOptions
+            ).getWidgetConfigs();
+            const widgetConfig = widgetConfigs[widgetName];
+            const expectedWidgetConfig = expected(visitedPlacesWithInlineSectionConfig);
+            expect(maskFunctions(widgetConfig)).toEqual(maskFunctions(expectedWidgetConfig));
+        }
+    );
 });
