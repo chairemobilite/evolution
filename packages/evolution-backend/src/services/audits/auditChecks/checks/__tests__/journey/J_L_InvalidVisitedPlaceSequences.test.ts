@@ -55,4 +55,35 @@ describe('journey visited place sequence audit checks', () => {
             }
         });
     });
+
+    describe('J_W_VisitedPlaceSequenceGaps', () => {
+        it.each([
+            ['contiguous sequences 1..3', [1, 2, 3], false],
+            ['single visited place with sequence 1', [1], false],
+            ['unsorted but contiguous', [3, 1, 2], false],
+            ['gap in sequences', [1, 3], true],
+            ['sequences not starting at 1', [2, 3], true],
+            // Invalid and duplicate sequences are reported by J_L_InvalidVisitedPlaceSequences
+            ['duplicate sequences', [1, 1], false],
+            ['missing sequence', [1, undefined], false],
+            ['no visited places', undefined, false],
+            ['empty visited places', [], false]
+        ])('%s: %p -> %p', (_title, sequences, shouldWarn) => {
+            const result = journeyAuditChecks.J_W_VisitedPlaceSequenceGaps(makeContext(sequences));
+
+            if (shouldWarn) {
+                expect(result).toMatchObject({
+                    objectType: 'journey',
+                    objectUuid: validJourneyUuid,
+                    errorCode: 'J_W_VisitedPlaceSequenceGaps',
+                    version: 1,
+                    level: 'warning',
+                    message: 'Visited place sequences are not contiguous',
+                    ignore: false
+                });
+            } else {
+                expect(result).toBeUndefined();
+            }
+        });
+    });
 });
