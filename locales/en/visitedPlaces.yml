@@ -83,6 +83,7 @@ visitedPlaceNameExample_worship: >-
     Sholem
 visitedPlaceNameExample_secondaryHome: Secondary home or cottage address
 visitedPlaceNameExample_schoolNotStudent: language centre, Tecnic driving school
+visitedPlacePreviousWorkPlaceName: Name or address of the usual work place
 activityNameIsRequiredError: Description is required.
 visitedPlaceGeography: >-
     Please locate this place on the map<br /><span class="_pale _oblique">Pan,
@@ -94,6 +95,12 @@ locationIsRequiredError: Location is required.
 locationIsNotPreciseError: >-
     Location is not precise enough. Please use the + zoom and drag the icon
     marker to confirm the precise location.
+visitedPlacePreviousWorkPlaceGeography: >-
+    Please locate on the map the usual work place<br /><span class="_pale _oblique">Pan,
+    zoom and click on map. Once a pin icon has been dropped, you will be able to
+    drag the icon to specify a more precise location. You can also search for a
+    place using its name or address with the button below.</span>
+workPlaceLocationIsRequiredError: Usual work place location is required.
 ConfirmDeleteVisitedPlace: Do you confirm that you want to remove this location?
 dayScheduleFor: Day schedule for <strong>{{nickname}}</strong>
 dayScheduleFor_one: Your day schedule

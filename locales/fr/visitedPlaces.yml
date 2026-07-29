@@ -81,6 +81,7 @@ visitedPlaceNameExample_service: Coiffure Dans le Vent, Caisse Desjardins de Lim
 visitedPlaceNameExample_worship: Église Saint-Nicéphore, Mosquée de la Capitale, Synagogue Maison Chabad
 visitedPlaceNameExample_secondaryHome: Adresse de la résidence secondaire ou du chalet
 visitedPlaceNameExample_schoolNotStudent: Institut Linguistique, École de conduite Tecnic
+visitedPlacePreviousWorkPlaceName: Nom ou adresse du lieu habituel de travail
 activityNameIsRequiredError: La description est requise.
 visitedPlaceGeography: >-
     Veuillez positionner le lieu sur la carte<br /><span class="_pale
@@ -94,6 +95,13 @@ locationIsNotPreciseError: >-
     Le positionnement du lieu n'est pas assez précis. Utilisez le zoom + pour
     vous rapprocher davantage, puis précisez la localisation en déplaçant
     l'icône.
+visitedPlacePreviousWorkPlaceGeography: >-
+    Veuillez positionner sur la carte le lieu habituel de travail<br /><span class="_pale
+    _oblique">Naviguez, zoomez, et cliquez sur la carte pour localiser le lieu.
+    Une fois localisé, vous pourrez déplacer le point pour davantage de
+    précision. Vous pouvez également chercher le lieu en utilisant le nom ou
+    l'adresse avec le bouton ci-dessous.</span>
+workPlaceLocationIsRequiredError: Le positionnement du lieu de travail habituel est requis.
 ConfirmDeleteVisitedPlace: Confirmez-vous que vous voulez retirer ce lieu?
 dayScheduleFor: Horaire de la journée de <strong>{{nickname}}</strong>
 dayScheduleFor_one: Votre horaire de la journée
