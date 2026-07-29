@@ -22,7 +22,8 @@ All audit check functions follow the pattern: `[OBJECTPREFIX]_[AUDITCHECKTYPE]_[
 - `M` - **Missing** data (e.g., `HH_M_Size` - household size is missing)
 - `I` - **Invalid** data (e.g., `HH_I_Size` - household size is out of valid range)
 - `L` - **Logical** error (e.g., `J_L_EndBeforeStart` - journey end time before start time)
-- `W` - **Warning**: suspicious data that is still usable, worth a reviewer's attention (e.g., `HH_W_PersonSequenceGaps`). Use with `level: 'warning'`.
+- `F` - **Info** — informational check, not an error or warning (e.g., `HH_F_AtLeastOneTransitSegmentInHousehold`). Use with `level: 'info'`.
+- `W` - **Warning** — suspicious data that may indicate a possible error; needs review. Use with `level: 'warning'`.
 
 ### Examples
 ```typescript

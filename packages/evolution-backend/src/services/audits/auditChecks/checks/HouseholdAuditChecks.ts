@@ -257,7 +257,7 @@ export const householdAuditChecks: { [errorCode: string]: HouseholdAuditCheckFun
      * @param context - HouseholdAuditCheckContext
      * @returns AuditForObject
      */
-    HH_L_CarNumberPerPotentialDrivingLicenseTooHigh: (
+    HH_W_CarNumberPerPotentialDrivingLicenseTooHigh: (
         context: HouseholdAuditCheckContext
     ): AuditForObject | undefined => {
         const { household } = context;
@@ -280,7 +280,7 @@ export const householdAuditChecks: { [errorCode: string]: HouseholdAuditCheckFun
             return {
                 objectType: 'household',
                 objectUuid: household._uuid!,
-                errorCode: 'HH_L_CarNumberPerPotentialDrivingLicenseTooHigh',
+                errorCode: 'HH_W_CarNumberPerPotentialDrivingLicenseTooHigh',
                 version: 1,
                 level: 'warning',
                 message: 'Car number per potential driving license holder > 3',
