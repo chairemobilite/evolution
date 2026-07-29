@@ -75,3 +75,28 @@ export const hasInvalidOrDuplicateSequences = (items: SequencedSurveyObject[] | 
     }
     return false;
 };
+
+/**
+ * Detect holes in an otherwise valid sequence, i.e. valid unique values that do not
+ * form a contiguous 1..n range (`1,2,3,5,6`, or `2,3` which does not start at 1).
+ *
+ * `add/removeGroupedObjects` should prevent this, so a hole points at a questionnaire
+ * bug rather than at bad reviewer input. Audited as a warning: the data is still usable
+ * and ordered, but the interview is worth a look.
+ *
+ * Returns `false` when sequences are invalid or duplicated — that is reported by
+ * `hasInvalidOrDuplicateSequences`, and we do not want to raise both for the same data.
+ *
+ * @param items - Sibling child objects, as built by the survey object factories
+ * @returns `true` when valid unique sequences do not form a contiguous 1..n range
+ */
+export const hasSequenceGaps = (items: SequencedSurveyObject[] | undefined): boolean => {
+    if (!items || items.length === 0 || hasInvalidOrDuplicateSequences(items)) {
+        return false;
+    }
+
+    const maxSequence = Math.max(...items.map((item) => item.attributes._sequence as number));
+    // Sequences are valid and unique here, so 1..n is contiguous exactly when the
+    // highest value matches the number of items.
+    return maxSequence !== items.length;
+};

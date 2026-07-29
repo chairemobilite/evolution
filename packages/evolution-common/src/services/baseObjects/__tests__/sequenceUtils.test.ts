@@ -5,7 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import { compareSequenceThenUuid, hasInvalidOrDuplicateSequences } from '../sequenceUtils';
+import { compareSequenceThenUuid, hasInvalidOrDuplicateSequences, hasSequenceGaps } from '../sequenceUtils';
 
 describe('sequenceUtils', () => {
     const makeItems = (sequences: (number | undefined)[]) =>
@@ -65,6 +65,32 @@ describe('sequenceUtils', () => {
             ['empty items', []]
         ])('%s -> false', (_title, items) => {
             expect(hasInvalidOrDuplicateSequences(items)).toBe(false);
+        });
+    });
+
+    describe('hasSequenceGaps', () => {
+        it.each([
+            ['contiguous sequences', [1, 2, 3], false],
+            ['single sequence', [1], false],
+            ['unsorted but contiguous', [3, 1, 2], false],
+            ['gap in sequences', [1, 2, 3, 5, 6], true],
+            ['single gap', [1, 3], true],
+            ['not starting at 1', [2, 3], true],
+            ['single sequence not starting at 1', [2], true],
+            // Invalid and duplicate values are reported by hasInvalidOrDuplicateSequences,
+            // so they must not also raise a gap warning
+            ['duplicate sequences', [1, 1], false],
+            ['missing sequence', [1, undefined], false],
+            ['zero sequence', [0, 1], false]
+        ])('%s: %p -> %p', (_title, sequences, expected) => {
+            expect(hasSequenceGaps(makeItems(sequences))).toBe(expected);
+        });
+
+        it.each([
+            ['undefined items', undefined],
+            ['empty items', []]
+        ])('%s -> false', (_title, items) => {
+            expect(hasSequenceGaps(items)).toBe(false);
         });
     });
 });

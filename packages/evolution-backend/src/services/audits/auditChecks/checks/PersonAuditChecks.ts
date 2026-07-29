@@ -7,7 +7,10 @@
 
 import type { AuditForObject } from 'evolution-common/lib/services/audits/types';
 import type { PersonAuditCheckContext, PersonAuditCheckFunction } from '../AuditCheckContexts';
-import { hasInvalidOrDuplicateSequences } from 'evolution-common/lib/services/baseObjects/sequenceUtils';
+import {
+    hasInvalidOrDuplicateSequences,
+    hasSequenceGaps
+} from 'evolution-common/lib/services/baseObjects/sequenceUtils';
 
 export const personAuditChecks: { [errorCode: string]: PersonAuditCheckFunction } = {
     /**
@@ -51,6 +54,31 @@ export const personAuditChecks: { [errorCode: string]: PersonAuditCheckFunction 
                 version: 1,
                 level: 'error',
                 message: 'At least one journey sequence is invalid or duplicated',
+                ignore: false
+            };
+        }
+
+        return undefined; // No audit needed
+    },
+
+    /**
+     * Check for holes in the journey sequences (e.g. 1,2,3,5,6). The questionnaire keeps
+     * them contiguous when a journey is added or deleted, so a hole points at a survey bug
+     * worth investigating rather than at unusable data.
+     * @param context - PersonAuditCheckContext
+     * @returns AuditForObject
+     */
+    P_W_JourneySequenceGaps: (context: PersonAuditCheckContext): AuditForObject | undefined => {
+        const { person } = context;
+
+        if (hasSequenceGaps(person.journeys)) {
+            return {
+                objectType: 'person',
+                objectUuid: person._uuid!,
+                errorCode: 'P_W_JourneySequenceGaps',
+                version: 1,
+                level: 'warning',
+                message: 'Journey sequences are not contiguous',
                 ignore: false
             };
         }

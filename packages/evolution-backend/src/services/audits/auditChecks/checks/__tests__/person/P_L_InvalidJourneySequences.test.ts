@@ -55,4 +55,35 @@ describe('person journey sequence audit checks', () => {
             }
         });
     });
+
+    describe('P_W_JourneySequenceGaps', () => {
+        it.each([
+            ['contiguous sequences 1..3', [1, 2, 3], false],
+            ['single journey with sequence 1', [1], false],
+            ['unsorted but contiguous', [3, 1, 2], false],
+            ['gap in sequences', [1, 3], true],
+            ['sequences not starting at 1', [2, 3], true],
+            // Invalid and duplicate sequences are reported by P_L_InvalidJourneySequences
+            ['duplicate sequences', [1, 1], false],
+            ['missing sequence', [1, undefined], false],
+            ['no journeys', undefined, false],
+            ['empty journeys', [], false]
+        ])('%s: %p -> %p', (_title, sequences, shouldWarn) => {
+            const result = personAuditChecks.P_W_JourneySequenceGaps(makeContext(sequences));
+
+            if (shouldWarn) {
+                expect(result).toMatchObject({
+                    objectType: 'person',
+                    objectUuid: validPersonUuid,
+                    errorCode: 'P_W_JourneySequenceGaps',
+                    version: 1,
+                    level: 'warning',
+                    message: 'Journey sequences are not contiguous',
+                    ignore: false
+                });
+            } else {
+                expect(result).toBeUndefined();
+            }
+        });
+    });
 });

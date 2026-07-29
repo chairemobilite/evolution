@@ -16,6 +16,7 @@
     "HH_L_CarNumberPerPotentialDrivingLicenseTooHigh": "Le nombre de véhicules automobiles par titulaire potentiel d'un permis de conduire > 3",
     "HH_L_SizeMembersCountMismatch": "La taille du ménage et le nombre de personnes ne correspondent pas",
     "HH_L_InvalidPersonSequences": "Le numéro de séquence d'au moins une personne est invalide ou en double",
+    "HH_W_PersonSequenceGaps": "Les numéros de séquence des personnes ne sont pas consécutifs",
     "HH_L_CarNumberVehiclesCountMismatch": "Le nombre de véhicules automobiles et le nombre de véhicules déclarés ne correspondent pas",
     "HH_F_AtLeastOneTransitSegmentInHousehold": "Au moins un déplacement transport collectif dans le ménage",
     "HH_M_Home": "Le domicile est manquant",
@@ -29,10 +30,13 @@
 
     "P_M_Age": "L'âge de la personne est manquant",
     "P_L_InvalidJourneySequences": "Le numéro de séquence d'au moins un séjour est invalide ou en double",
+    "P_W_JourneySequenceGaps": "Les numéros de séquence des séjours ne sont pas consécutifs",
 
     "J_M_StartDate": "La date de début du séjour est manquante",
     "J_L_InvalidVisitedPlaceSequences": "Le numéro de séquence d'au moins un lieu visité est invalide ou en double",
+    "J_W_VisitedPlaceSequenceGaps": "Les numéros de séquence des lieux visités ne sont pas consécutifs",
     "J_L_InvalidTripSequences": "Le numéro de séquence d'au moins un déplacement est invalide ou en double",
+    "J_W_TripSequenceGaps": "Les numéros de séquence des déplacements ne sont pas consécutifs",
 
     "VP_M_Geography": "La géographie du lieu visité est manquante",
     "VP_I_Geography": "La géographie du lieu visité est invalide",
