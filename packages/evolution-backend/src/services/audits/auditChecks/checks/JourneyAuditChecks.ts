@@ -7,7 +7,10 @@
 
 import type { AuditForObject } from 'evolution-common/lib/services/audits/types';
 import type { JourneyAuditCheckContext, JourneyAuditCheckFunction } from '../AuditCheckContexts';
-import { hasInvalidOrDuplicateSequences } from 'evolution-common/lib/services/baseObjects/sequenceUtils';
+import {
+    hasInvalidOrDuplicateSequences,
+    hasSequenceGaps
+} from 'evolution-common/lib/services/baseObjects/sequenceUtils';
 
 export const journeyAuditChecks: { [errorCode: string]: JourneyAuditCheckFunction } = {
     /**
@@ -59,6 +62,31 @@ export const journeyAuditChecks: { [errorCode: string]: JourneyAuditCheckFunctio
     },
 
     /**
+     * Check for holes in the visited place sequences (e.g. 1,2,3,5,6). The questionnaire
+     * keeps them contiguous when a visited place is added or deleted, so a hole points at
+     * a survey bug worth investigating rather than at unusable data.
+     * @param context - JourneyAuditCheckContext
+     * @returns AuditForObject
+     */
+    J_W_VisitedPlaceSequenceGaps: (context: JourneyAuditCheckContext): AuditForObject | undefined => {
+        const { journey } = context;
+
+        if (hasSequenceGaps(journey.visitedPlaces)) {
+            return {
+                objectType: 'journey',
+                objectUuid: journey._uuid!,
+                errorCode: 'J_W_VisitedPlaceSequenceGaps',
+                version: 1,
+                level: 'warning',
+                message: 'Visited place sequences are not contiguous',
+                ignore: false
+            };
+        }
+
+        return undefined; // No audit needed
+    },
+
+    /**
      * Check for trip sequences that cannot be ordered: missing, non-positive integer,
      * or shared by two trips.
      * @param context - JourneyAuditCheckContext
@@ -75,6 +103,30 @@ export const journeyAuditChecks: { [errorCode: string]: JourneyAuditCheckFunctio
                 version: 1,
                 level: 'error',
                 message: 'At least one trip sequence is invalid or duplicated',
+                ignore: false
+            };
+        }
+
+        return undefined; // No audit needed
+    },
+
+    /**
+     * Check for holes in the trip sequences (e.g. 1,2,3,5,6). Trips are generated from
+     * consecutive visited places, so a hole points at a survey bug worth investigating.
+     * @param context - JourneyAuditCheckContext
+     * @returns AuditForObject
+     */
+    J_W_TripSequenceGaps: (context: JourneyAuditCheckContext): AuditForObject | undefined => {
+        const { journey } = context;
+
+        if (hasSequenceGaps(journey.trips)) {
+            return {
+                objectType: 'journey',
+                objectUuid: journey._uuid!,
+                errorCode: 'J_W_TripSequenceGaps',
+                version: 1,
+                level: 'warning',
+                message: 'Trip sequences are not contiguous',
                 ignore: false
             };
         }

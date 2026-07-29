@@ -16,6 +16,7 @@
     "HH_L_CarNumberPerPotentialDrivingLicenseTooHigh": "Car number per potential driving license holder > 3",
     "HH_L_SizeMembersCountMismatch": "Size and members count mismatch",
     "HH_L_InvalidPersonSequences": "At least one person sequence is invalid or duplicated",
+    "HH_W_PersonSequenceGaps": "Person sequences are not contiguous",
     "HH_L_CarNumberVehiclesCountMismatch": "Car number and vehicles count mismatch",
     "HH_F_AtLeastOneTransitSegmentInHousehold": "At least one transit trip in household",
     "HH_M_Home": "Home is missing",
@@ -29,10 +30,13 @@
 
     "P_M_Age": "Person age is missing",
     "P_L_InvalidJourneySequences": "At least one journey sequence is invalid or duplicated",
+    "P_W_JourneySequenceGaps": "Journey sequences are not contiguous",
 
     "J_M_StartDate": "Journey start date is missing",
     "J_L_InvalidVisitedPlaceSequences": "At least one visited place sequence is invalid or duplicated",
+    "J_W_VisitedPlaceSequenceGaps": "Visited place sequences are not contiguous",
     "J_L_InvalidTripSequences": "At least one trip sequence is invalid or duplicated",
+    "J_W_TripSequenceGaps": "Trip sequences are not contiguous",
 
     "VP_M_Geography": "Visited place geography is missing",
     "VP_I_Geography": "Visited place geography is invalid",
