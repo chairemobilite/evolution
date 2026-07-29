@@ -13,7 +13,7 @@
     "HH_M_Size": "La taille du ménage est manquante",
     "HH_M_CarNumber": "Le nombre de véhicules automobiles est manquant",
     "HH_I_CarNumber": "Le nombre de véhicules automobiles est en dehors de la plage autorisée (devrait être un entier entre 0 et 13)",
-    "HH_L_CarNumberPerPotentialDrivingLicenseTooHigh": "Le nombre de véhicules automobiles par titulaire potentiel d'un permis de conduire > 3",
+    "HH_W_CarNumberPerPotentialDrivingLicenseTooHigh": "Le nombre de véhicules automobiles par titulaire potentiel d'un permis de conduire > 3",
     "HH_L_SizeMembersCountMismatch": "La taille du ménage et le nombre de personnes ne correspondent pas",
     "HH_L_InvalidPersonSequences": "Le numéro de séquence d'au moins une personne est invalide ou en double",
     "HH_W_PersonSequenceGaps": "Les numéros de séquence des personnes ne sont pas consécutifs",
@@ -23,7 +23,7 @@
     "HH_M_AtLeastOnePersonWithDisability": "La présence d'au moins une personne avec un handicap est manquante",
 
     "HM_I_preGeographyAndHomeGeographyTooFarApartError": "Les géographies pré-remplie et déclarée du domicile sont éloignées",
-    "HM_I_preGeographyAndHomeGeographyTooFarApartWarning": "Les géographies pré-remplie et déclarée du domicile sont un peu éloignées",
+    "HM_W_preGeographyAndHomeGeographyTooFarApart": "Les géographies pré-remplie et déclarée du domicile sont un peu éloignées",
     "HM_M_Geography": "La géographie du domicile est manquante",
     "HM_I_Geography": "La géographie du domicile est invalide",
     "HM_I_geographyNotInSurveyTerritory": "La géographie du domicile est en dehors du territoire d'enquête",
