@@ -17,6 +17,10 @@ import projectConfig from '../../config/projectConfig';
 import { CorrectedResponse } from 'evolution-common/lib/services/questionnaire/types';
 import { SurveyObjectsRegistry } from 'evolution-common/lib/services/baseObjects/SurveyObjectsRegistry';
 import { AuditLog } from '../audits/auditLog';
+import {
+    compareSequenceThenUuid,
+    hasInvalidOrDuplicateSequences
+} from 'evolution-common/lib/services/baseObjects/sequenceUtils';
 
 /**
  * Generate all trips for a journey
@@ -40,11 +44,7 @@ export async function populateTripsForJourney(
     const tripsAttributes = journeyAttributes?.trips || {};
 
     // Sort trips by _sequence before processing
-    const sortedTripEntries = Object.entries(tripsAttributes).sort(([, a], [, b]) => {
-        const sequenceA = (a as ExtendedTripAttributes)?._sequence || 0;
-        const sequenceB = (b as ExtendedTripAttributes)?._sequence || 0;
-        return sequenceA - sequenceB;
-    });
+    const sortedTripEntries = Object.entries(tripsAttributes).sort(compareSequenceThenUuid);
 
     for (const [tripUuid, originalCorrectedTripAttributes] of sortedTripEntries) {
         if (tripUuid === 'undefined') {
@@ -86,8 +86,13 @@ export async function populateTripsForJourney(
                 surveyObjectsRegistry
             );
 
-            // Remove walking from multimode and update sequences
-            trip.result.segments = trip.result.getSegmentsWithoutWalkingInMultimode();
+            // Remove walking segments from multimode trips, but only when the raw
+            // sequences are sound. Filtering drops segments, which would hide a
+            // duplicate or invalid sequence from T_L_InvalidSegmentSequences: keeping
+            // the raw segments lets the audit report the problem to the reviewer.
+            if (!hasInvalidOrDuplicateSequences(trip.result.segments)) {
+                trip.result.segments = trip.result.getSegmentsWithoutWalkingInMultimode();
+            }
         } else {
             AuditLog.debug(`Trip ${tripUuid} creation failed with errors count: ${trip.errors?.length || 0}`);
             surveyObjectsWithErrors.errorsByObject.tripsByUuid[tripUuid] = trip.errors;

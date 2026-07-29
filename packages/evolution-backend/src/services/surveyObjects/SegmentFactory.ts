@@ -13,6 +13,7 @@ import projectConfig from '../../config/projectConfig';
 import { CorrectedResponse } from 'evolution-common/lib/services/questionnaire/types';
 import { SurveyObjectsRegistry } from 'evolution-common/lib/services/baseObjects/SurveyObjectsRegistry';
 import { AuditLog } from '../audits/auditLog';
+import { compareSequenceThenUuid } from 'evolution-common/lib/services/baseObjects/sequenceUtils';
 
 /**
  * Generate segments for a trip
@@ -34,11 +35,7 @@ export async function populateSegmentsForTrip(
     const segmentsAttributes = tripAttributes?.segments || {};
 
     // Sort segments by _sequence before processing
-    const sortedSegmentEntries = Object.entries(segmentsAttributes).sort(([, a], [, b]) => {
-        const sequenceA = (a as ExtendedSegmentAttributes)?._sequence || 0;
-        const sequenceB = (b as ExtendedSegmentAttributes)?._sequence || 0;
-        return sequenceA - sequenceB;
-    });
+    const sortedSegmentEntries = Object.entries(segmentsAttributes).sort(compareSequenceThenUuid);
 
     for (const [segmentUuid, originalCorrectedSegmentAttributes] of sortedSegmentEntries) {
         if (segmentUuid === 'undefined') {
