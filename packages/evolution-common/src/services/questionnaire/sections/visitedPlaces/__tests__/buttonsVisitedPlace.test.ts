@@ -216,6 +216,134 @@ describe('buttonSaveVisitedPlace widget', () => {
                 },
                 expectedActiveVisitedPlaceId: null
             }, {
+                title: 'inserts two places for workOnTheRoad with workUsual departure and workUsual arrival, inlining usual places',
+                path: 'household.persons.personId1.journeys.journeyId1.visitedPlaces.otherPlace2P1',
+                activeVisitedPlaceId: 'otherPlace2P1',
+                setup: (interview: typeof interviewAttributesForTestCases) => {
+                    const journey = getJourney(interview);
+                    const visitedPlace = journey.visitedPlaces!.otherPlace2P1;
+                    visitedPlace.activity = 'workOnTheRoad';
+                    visitedPlace.activityCategory = 'work';
+                    visitedPlace.onTheRoadPreviousPlaceActivity = 'workUsual';
+                    visitedPlace.onTheRoadNextPlaceCategory = 'wentToUsualWorkPlace';
+                    visitedPlace._previousWorkPlace = {
+                        name: 'Previous on the road work place',
+                        geography: { type: 'Feature', geometry: { type: 'Point', coordinates: [73, 45] }, properties: { lastAction: 'findPlace' } }
+                    };
+                    visitedPlace.arrivalTime = 9 * 60 * 60;
+                    visitedPlace.departureTime = 17 * 60 * 60;
+                    visitedPlace._previousArrivalTime = 8 * 60 * 60;
+                },
+                expectedInsertedPlaces: [
+                    {
+                        insertSequence: 5,
+                        newVisitedPlace: {
+                            activity: 'workUsual',
+                            activityCategory: 'work',
+                            nextPlaceCategory: 'visitedAnotherPlace',
+                            arrivalTime: 8 * 60 * 60,
+                            departureTime: 9 * 60 * 60,
+                            name: 'Previous on the road work place',
+                            geography: { type: 'Feature', geometry: { type: 'Point', coordinates: [73, 45] }, properties: { lastAction: 'findPlace' } }
+                        }
+                    },
+                    {
+                        insertSequence: 7,
+                        newVisitedPlace: {
+                            activity: 'workUsual',
+                            activityCategory: 'work',
+                            arrivalTime: 17 * 60 * 60
+                        }
+                    }
+                ],
+                expectedFirstUpdateValuesByPath: {
+                    'response.household.persons.personId1.journeys.journeyId1.visitedPlaces.otherPlace2P1._isNew': false
+                },
+                expectedActiveVisitedPlaceId: null,
+                widgetConfig: new ButtonsVisitedPlaceConfigFactory(
+                    { ...visitedPlacesSectionConfig, inlineUsualPlacesEntry: true },
+                    widgetFactoryOptions
+                ).getWidgetConfigs().buttonSaveVisitedPlace as ButtonWidgetConfig
+            }, {
+                title: 'inserts two places for workOnTheRoad with workUsual departure and workUsual arrival',
+                path: 'household.persons.personId1.journeys.journeyId1.visitedPlaces.otherPlace2P1',
+                activeVisitedPlaceId: 'otherPlace2P1',
+                setup: (interview: typeof interviewAttributesForTestCases) => {
+                    const journey = getJourney(interview);
+                    const visitedPlace = journey.visitedPlaces!.otherPlace2P1;
+                    visitedPlace.activity = 'workOnTheRoad';
+                    visitedPlace.activityCategory = 'work';
+                    visitedPlace.onTheRoadPreviousPlaceActivity = 'workUsual';
+                    visitedPlace.onTheRoadNextPlaceCategory = 'wentToUsualWorkPlace';
+                    visitedPlace.arrivalTime = 9 * 60 * 60;
+                    visitedPlace.departureTime = 17 * 60 * 60;
+                    visitedPlace._previousArrivalTime = 8 * 60 * 60;
+                },
+                expectedInsertedPlaces: [
+                    {
+                        insertSequence: 5,
+                        newVisitedPlace: {
+                            activity: 'workUsual',
+                            activityCategory: 'work',
+                            nextPlaceCategory: 'visitedAnotherPlace',
+                            arrivalTime: 8 * 60 * 60,
+                            departureTime: 9 * 60 * 60
+                        }
+                    },
+                    {
+                        insertSequence: 7,
+                        newVisitedPlace: {
+                            activity: 'workUsual',
+                            activityCategory: 'work',
+                            arrivalTime: 17 * 60 * 60
+                        }
+                    }
+                ],
+                expectedFirstUpdateValuesByPath: {
+                    'response.household.persons.personId1.journeys.journeyId1.visitedPlaces.otherPlace2P1._isNew': false
+                },
+                expectedActiveVisitedPlaceId: null
+            }, {
+                title: 'do not change previous place for workOnTheRoad with workUsual if previous place is already workUsual, with inline',
+                path: 'household.persons.personId1.journeys.journeyId1.visitedPlaces.otherPlace2P1',
+                activeVisitedPlaceId: 'otherPlace2P1',
+                setup: (interview: typeof interviewAttributesForTestCases) => {
+                    const journey = getJourney(interview);
+                    // Ensure the previous place is a workUsual, its geography and name should be used for previous work place of current place
+                    const previousPlace = journey.visitedPlaces!.otherPlaceP1;
+                    previousPlace.activity = 'workUsual';
+                    previousPlace.activityCategory = 'work';
+                    const visitedPlace = journey.visitedPlaces!.otherPlace2P1;
+                    visitedPlace.activity = 'workOnTheRoad';
+                    visitedPlace.activityCategory = 'work';
+                    visitedPlace.onTheRoadPreviousPlaceActivity = 'workUsual';
+                    visitedPlace.onTheRoadNextPlaceCategory = 'wentToUsualWorkPlace';
+                    visitedPlace._previousWorkPlace = {
+                        name: previousPlace.name,
+                        geography: previousPlace.geography
+                    },
+                    visitedPlace.arrivalTime = 9 * 60 * 60;
+                    visitedPlace.departureTime = 17 * 60 * 60;
+                },
+                expectedInsertedPlaces: [
+                    {
+                        insertSequence: 6,
+                        newVisitedPlace: {
+                            activity: 'workUsual',
+                            activityCategory: 'work',
+                            arrivalTime: 17 * 60 * 60
+                        }
+                    }
+                ],
+                expectedFirstUpdateValuesByPath: {
+                    'response.household.persons.personId1.journeys.journeyId1.visitedPlaces.otherPlace2P1._isNew': false
+                },
+                expectedActiveVisitedPlaceId: null,
+                widgetConfig: new ButtonsVisitedPlaceConfigFactory(
+                    { ...visitedPlacesSectionConfig, inlineUsualPlacesEntry: true },
+                    widgetFactoryOptions
+                ).getWidgetConfigs().buttonSaveVisitedPlace as ButtonWidgetConfig
+            }, {
                 title: 'set previous departure time when editing the second place of the day, and stay until next day',
                 path: 'household.persons.personId1.journeys.journeyId1.visitedPlaces.workPlace1P1',
                 activeVisitedPlaceId: 'workPlace1P1',
@@ -295,7 +423,8 @@ describe('buttonSaveVisitedPlace widget', () => {
                 }
             });
 
-            await widgetConfig.saveCallback?.(
+            const effectiveWidgetConfig = testCase.widgetConfig ?? widgetConfig;
+            await effectiveWidgetConfig.saveCallback?.(
                 {
                     startAddGroupedObjects,
                     startUpdateInterview

@@ -147,16 +147,25 @@ export class ButtonsVisitedPlaceConfigFactory implements WidgetConfigFactory {
             currentVisitedPlace.onTheRoadPreviousPlaceActivity === 'workUsual' &&
             (!previousVisitedPlace || previousVisitedPlace.activity !== 'workUsual')
         ) {
-            return {
-                activity: 'workUsual',
-                activityCategory: 'work',
-                nextPlaceCategory: 'visitedAnotherPlace',
+            const usualWorkPlace = {
+                activity: 'workUsual' as const,
+                activityCategory: 'work' as const,
+                nextPlaceCategory: 'visitedAnotherPlace' as const,
                 arrivalTime: currentVisitedPlace._previousArrivalTime
                     ? currentVisitedPlace._previousArrivalTime
                     : undefined,
                 departureTime:
                     currentVisitedPlace.activity === 'workOnTheRoad' ? currentVisitedPlace.arrivalTime : undefined
-            };
+            } as VisitedPlace;
+            // If usual places are inlined, see if we need to add the name and geography too
+            if (
+                this.sectionConfig.inlineUsualPlacesEntry === true &&
+                currentVisitedPlace._previousWorkPlace !== undefined
+            ) {
+                usualWorkPlace.name = currentVisitedPlace._previousWorkPlace.name;
+                usualWorkPlace.geography = currentVisitedPlace._previousWorkPlace.geography;
+            }
+            return usualWorkPlace;
         }
         return undefined;
     };
