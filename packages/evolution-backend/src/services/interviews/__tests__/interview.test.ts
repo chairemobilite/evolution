@@ -7,7 +7,7 @@
 import _cloneDeep from 'lodash/cloneDeep';
 import moment from 'moment';
 import { v4 as uuidV4 } from 'uuid';
-import { updateInterview, setInterviewFields, copyResponseToCorrectedResponse } from '../interview';
+import { updateInterview, copyResponseToCorrectedResponse } from '../interview';
 import { InterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import interviewsQueries from '../../../models/interviews.db.queries';
 import serverValidate from '../../validations/serverValidation';
@@ -60,112 +60,6 @@ const interviewAttributes: InterviewAttributes = {
 
 beforeEach(() => {
     jest.clearAllMocks();
-});
-
-describe('Set interview fields', () => {
-
-    test('Test with valuesByPath with deep string path', () => {
-        const testAttributes = _cloneDeep(interviewAttributes);
-        const valuesByPath = {
-            'response.accessCode': '2222',
-            'validations.accessCode': { is_valid: false },
-            'response.newField.foo': 'bar'
-        };
-        setInterviewFields(testAttributes, { valuesByPath });
-        expect(testAttributes).toEqual({
-            uuid: interviewAttributes.uuid,
-            id: interviewAttributes.id,
-            participant_id: interviewAttributes.participant_id,
-            is_valid: interviewAttributes.is_valid,
-            is_active: interviewAttributes.is_active,
-            is_completed: interviewAttributes.is_completed,
-            response: {
-                accessCode: '2222',
-                testFields: {
-                    fieldA: 'a',
-                    fieldB: 'b'
-                },
-                newField: { foo: 'bar' }
-            },
-            validations: {
-                accessCode: { is_valid: false }
-            },
-            survey_id: 1
-        });
-    });
-
-    test('Test with objects', () => {
-        const testAttributes = _cloneDeep(interviewAttributes);
-        const valuesByPath = {
-            response: { accessCode: '2222', newField: { foo: 'bar' } },
-            validations: { accessCode: { is_valid: false } }
-        };
-        setInterviewFields(testAttributes, { valuesByPath });
-        expect(testAttributes).toEqual({
-            uuid: interviewAttributes.uuid,
-            id: interviewAttributes.id,
-            participant_id: interviewAttributes.participant_id,
-            is_valid: interviewAttributes.is_valid,
-            is_active: interviewAttributes.is_active,
-            is_completed: interviewAttributes.is_completed,
-            response: {
-                accessCode: '2222',
-                newField: { foo: 'bar' }
-            },
-            validations: {
-                accessCode: { is_valid: false }
-            },
-            survey_id: 1
-        });
-    });
-
-    test('Test with valuesByPath and unsetPaths', () => {
-        const testAttributes = _cloneDeep(interviewAttributes);
-        const valuesByPath = {
-            'response.accessCode': '2222',
-            'response.newField.foo': 'bar'
-        };
-        const unsetPaths = [ 'response.testFields.fieldA' ];
-        setInterviewFields(testAttributes, { valuesByPath, unsetPaths });
-        expect(testAttributes).toEqual({
-            uuid: interviewAttributes.uuid,
-            id: interviewAttributes.id,
-            participant_id: interviewAttributes.participant_id,
-            is_valid: interviewAttributes.is_valid,
-            is_active: interviewAttributes.is_active,
-            is_completed: interviewAttributes.is_completed,
-            response: {
-                accessCode: '2222',
-                testFields: {
-                    fieldB: 'b'
-                },
-                newField: { foo: 'bar' }
-            },
-            validations: {},
-            survey_id: 1
-        });
-    });
-
-    test('Test with root values', () => {
-        const testAttributes = _cloneDeep(interviewAttributes);
-        const valuesByPath = {
-            'is_valid': !interviewAttributes.is_valid,
-            is_active: !interviewAttributes.is_active
-        };
-        const unsetPaths = [ 'response' ];
-        setInterviewFields(testAttributes, { valuesByPath, unsetPaths });
-        expect(testAttributes).toEqual({
-            uuid: interviewAttributes.uuid,
-            id: interviewAttributes.id,
-            participant_id: interviewAttributes.participant_id,
-            is_valid: !interviewAttributes.is_valid,
-            is_active: !interviewAttributes.is_active,
-            is_completed: interviewAttributes.is_completed,
-            validations: {},
-            survey_id: 1
-        });
-    });
-
 });
 
 describe('Update Interview', () => {
@@ -681,8 +575,8 @@ describe('Update Interview', () => {
         const testAttributes = _cloneDeep(interviewAttributes);
         const scriptInjectionString = '<div onmouseover="(function(){alert(\'XSS vulnerability detected\')})()">Hover over me</div>';
         const sanitizedValue = 'Hover over me';
-        const arrayResponse = [scriptInjectionString, { name: scriptInjectionString}, 42];
-        const sanitizedArray = [sanitizedValue, { name: sanitizedValue}, 42];
+        const arrayResponse = [scriptInjectionString, { name: scriptInjectionString }, 42];
+        const sanitizedArray = [sanitizedValue, { name: sanitizedValue }, 42];
 
         // Execute interview update
         const { interviewId, serverValuesByPath, serverValidations } = await updateInterview(testAttributes, { valuesByPath: { 'response.foo': arrayResponse } });
