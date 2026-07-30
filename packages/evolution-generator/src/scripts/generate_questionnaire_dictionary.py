@@ -234,7 +234,7 @@ def process_choices(choices_rows, choices_headers, language, conditionals_map):
         choice_conditional = row[choices_conditional_index].value
 
         # Add choice to choices_map if it has a value and text
-        if choice_text and choice_value:
+        if choice_text and choice_value is not None:
 
             # Format the choice entry based on whether it is conditional
             if isinstance(choice_conditional, str):
