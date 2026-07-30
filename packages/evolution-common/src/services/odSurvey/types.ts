@@ -19,10 +19,18 @@ export const loopActivities: Activity[] = ['workOnTheRoad', 'leisureStroll'];
 export const usualActivities: Activity[] = ['workUsual', 'schoolUsual'];
 
 /**
- * Simple modes, ie individual modes that involve no or private vehicles and are
- * often used multiple times in a journey
+ * Simple modes for return-trip chaining: modes that often involve a single
+ * segment on a round trip and are eligible for the "same mode as reverse trip"
+ * question.
  */
-export const simpleModes: Mode[] = ['carDriver', 'walk', 'bicycle', 'bicycleElectric', 'kickScooterElectric'];
+export const simpleModes: Mode[] = [
+    'carDriver',
+    'walk',
+    'bicycle',
+    'bicycleElectric',
+    'kickScooterElectric',
+    'schoolBus'
+];
 
 /**
  * Modes of transportation. The elements in this array can identify are meant to
