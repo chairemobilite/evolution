@@ -79,13 +79,25 @@ export class PreviousWorkPlaceGeographyWidgetFactory implements WidgetConfigFact
 
     private getNameWidgetConfiguration = (): LocationWithNameWidgetOptions['nameWidget'] => ({
         containsHtml: true,
-        label: (t: TFunction) => {
+        label: (t: TFunction, interview, path) => {
+            const person = odHelpers.getPerson({ interview, path });
+            if (person === null) {
+                throw new Error('PreviousWorkPlaceGeographyWidgetFactory: Person not found in interview response');
+            }
             const key = 'visitedPlaces:visitedPlaceNameExample';
 
             const helpText = i18n.exists(key)
                 ? `<span class="_pale _oblique">(${t('survey:forExampleAbbreviation')}: ${t(key, { context: 'workUsual_onTheRoadOften' })})</span>`
                 : '';
-            return t('visitedPlaces:visitedPlacePreviousWorkPlaceName') + ' ' + helpText;
+            return (
+                t('visitedPlaces:visitedPlacePreviousWorkPlaceName', {
+                    context: odHelpers.getPersonGenderContext({ person }),
+                    nickname: odHelpers.getPersonIdentificationString({ person, t }),
+                    count: odHelpers.getCountOrSelfDeclared({ interview, person })
+                }) +
+                ' ' +
+                helpText
+            );
         },
         conditional: this.previousWorkPlaceConditional('name'),
         validations: requiredValidation
@@ -93,7 +105,17 @@ export class PreviousWorkPlaceGeographyWidgetFactory implements WidgetConfigFact
 
     private getGeographyWidgetConfiguration = (): LocationWithNameWidgetOptions['geographyWidget'] => ({
         containsHtml: true,
-        label: (t: TFunction) => t('visitedPlaces:visitedPlacePreviousWorkPlaceGeography'),
+        label: (t: TFunction, interview, path) => {
+            const person = odHelpers.getPerson({ interview, path });
+            if (person === null) {
+                throw new Error('PreviousWorkPlaceGeographyWidgetFactory: Person not found in interview response');
+            }
+            return t('visitedPlaces:visitedPlacePreviousWorkPlaceGeography', {
+                context: odHelpers.getPersonGenderContext({ person }),
+                nickname: odHelpers.getPersonIdentificationString({ person, t }),
+                count: odHelpers.getCountOrSelfDeclared({ interview, person })
+            });
+        },
         refreshGeocodingLabel: (t: TFunction) => t('visitedPlaces:refreshGeocodingButton'),
         icon: {
             url: getActivityMarkerIcon('workUsual'),
