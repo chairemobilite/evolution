@@ -9,7 +9,6 @@ import _set from 'lodash/set';
 import _get from 'lodash/get';
 import _cloneDeep from 'lodash/cloneDeep';
 import isEqual from 'lodash/isEqual';
-import _unset from 'lodash/unset';
 import bowser from 'bowser';
 import { ThunkDispatch } from 'redux-thunk';
 import PQueue from 'p-queue';
@@ -31,6 +30,7 @@ const fetch = async (url, opts) => {
 import i18n from '../config/i18n.config';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
+import { applyInterviewValuesByPath } from 'evolution-common/lib/services/interviews/applyInterviewValuesByPath';
 import { prepareSectionWidgets } from './utils';
 import { incrementLoadingState, decrementLoadingState } from './LoadingState';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
@@ -211,13 +211,11 @@ export const updateInterviewData = (
     interview: UserRuntimeInterviewAttributes,
     updatedData: Pick<Parameters<StartUpdateInterview>[0], 'valuesByPath' | 'unsetPaths' | 'userAction'>
 ): { [key: string]: boolean } => {
-    const affectedPaths = {};
+    const affectedPaths: { [path: string]: boolean } = {};
+
     if (Array.isArray(updatedData.unsetPaths)) {
-        // unsetPaths if array (each path in array has to be deleted)
-        for (let i = 0, count = updatedData.unsetPaths.length; i < count; i++) {
-            const path = updatedData.unsetPaths[i];
+        for (const path of updatedData.unsetPaths) {
             affectedPaths[path] = true;
-            _unset(interview, path);
         }
     }
 
@@ -228,14 +226,17 @@ export const updateInterviewData = (
         for (const path in updatedData.valuesByPath) {
             if (path !== '_all') {
                 affectedPaths[path] = true;
-                if (updatedData.valuesByPath[path] === undefined) {
-                    _unset(interview, path);
-                } else {
-                    _set(interview, path, updatedData.valuesByPath[path]);
-                }
             }
         }
     }
+
+    const valuesByPathWithoutAll = updatedData.valuesByPath
+        ? Object.fromEntries(Object.entries(updatedData.valuesByPath).filter(([path]) => path !== '_all'))
+        : undefined;
+    applyInterviewValuesByPath(interview, {
+        valuesByPath: valuesByPathWithoutAll,
+        unsetPaths: updatedData.unsetPaths
+    });
 
     if (updatedData.userAction && updatedData.userAction.type === 'widgetInteraction') {
         const path = updatedData.userAction.path;

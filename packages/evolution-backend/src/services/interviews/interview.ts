@@ -5,7 +5,6 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import _set from 'lodash/set';
-import _unset from 'lodash/unset';
 import _cloneDeep from 'lodash/cloneDeep';
 import _isEqual from 'lodash/isEqual';
 import moment from 'moment';
@@ -23,6 +22,7 @@ import {
     UserInterviewAttributes
 } from 'evolution-common/lib/services/questionnaire/types';
 import { ParadataLoggingFunction } from '../logging/paradataLogging';
+import { applyInterviewValuesByPath } from 'evolution-common/lib/services/interviews/applyInterviewValuesByPath';
 
 // Create a DOMPurify instance with a virtual DOM
 const window = new JSDOM('').window;
@@ -38,26 +38,6 @@ export const addRolesToInterview = (interview: UserInterviewAttributes, user: Us
     // Add the userRoles in the interview object
     const permissions = user.permissions;
     interview.userRoles = permissions ? Object.keys(permissions).filter((perm) => permissions[perm] === true) : [];
-};
-
-export const setInterviewFields = (
-    interview: InterviewAttributes,
-    options: {
-        valuesByPath: { [key: string]: unknown };
-        unsetPaths?: string[];
-    }
-) => {
-    // Set the interview's values by path received from client
-    for (const path in options.valuesByPath) {
-        const value = options.valuesByPath[path];
-        _set(interview, path, value);
-    }
-    // Unset any interview path defined by client
-    if (Array.isArray(options.unsetPaths)) {
-        for (let i = 0, count = options.unsetPaths.length; i < count; i++) {
-            _unset(interview, options.unsetPaths[i]);
-        }
-    }
 };
 
 // Augment the valuesByPath with the user action data, to fit with the current
@@ -149,7 +129,7 @@ export const updateInterview = async (
     serverValuesByPath: { [key: string]: unknown };
     redirectUrl: string | undefined;
 }> => {
-    // FIXME: When validations and side effects are managed server-side, we won't have custom code for server validations and updates and we can send the user action to the `setInterviewFields` directly (issue #858)
+    // FIXME: When validations and side effects are managed server-side, we won't have custom code for server validations and updates and we can send the user action directly (issue #858)
     const allValuesByPath = options.userAction
         ? updateValuesByPathWithUserAction(options.valuesByPath, options.userAction)
         : options.valuesByPath;
@@ -183,7 +163,7 @@ export const updateInterview = async (
         options.deferredUpdateCallback!(serverValuesByPath);
     };
     // Update values by path with caller provided values
-    setInterviewFields(interview, { valuesByPath: sanitizedValuesByPath, unsetPaths: options.unsetPaths });
+    applyInterviewValuesByPath(interview, { valuesByPath: sanitizedValuesByPath, unsetPaths: options.unsetPaths });
     const [serverValuesByPath, redirectUrl] = await serverUpdateField(
         interview,
         projectConfig.serverUpdateCallbacks,
@@ -193,7 +173,7 @@ export const updateInterview = async (
     );
     // Update values with server updated values
     if (Object.keys(serverValuesByPath).length > 0) {
-        setInterviewFields(interview, { valuesByPath: serverValuesByPath, unsetPaths: options.unsetPaths });
+        applyInterviewValuesByPath(interview, { valuesByPath: serverValuesByPath, unsetPaths: options.unsetPaths });
     }
     // Update the sanitized fields by path and send back to the client
     Object.keys(sanitizedValuesByPath).forEach((path) => {
