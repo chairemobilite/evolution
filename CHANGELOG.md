@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added the `WidgetConfigFactory` and `SectionConfigFactory` interfaces that can be implemented to provide builtin widgets and features. These interfaces are expected to return the complete section and widget configurations necessary for the builtin feature. (commit [f2ade4d](https://github.com/chairemobilite/evolution/commit/f2ade4d1e3e69b13e30e851d034b751e1955efc9))
 - Segment section configuration accepts additional widget names as an array of strings in the `additionalSegmentWidgetNames` property. The widgets need to be defined in the survey and will be added after the mode questions (#1345). It also includes the option to ask who was driving a vehicle, with the `askSegmentDriver` boolean option (fixes [#1434](https://github.com/chairemobilite/evolution/issues/1434)).
 - Segment section configuration can set an array of fields representing geolocalization by setting the `fieldsWithGeojsonPoint` property. (fixes [#1603](https://github.com/chairemobilite/evolution/issues/1603)).
+- Segment section configuration supports a category/mode mapping to fine-tune surveys (fixes [#1658](https://github.com/chairemobilite/evolution/issues/1658)).
 - Added various builtin audit checks: home in survey area, survey contactEmail and helpContactEmail validation, missing home, mismatched household members and declared count, missing or invalid vehicle count
 - Added `platform`, `os`, `browser` and `language` fields to each record of the exported paradata (fixes [#1395](https://github.com/chairemobilite/evolution/issues/1395))
 - Config: Added the `workingAge` (default to 15) and `schoolMandatoryAge` (default to 15) configuration options, used to show various questions about work or school in the household sections (commit [0014238](https://github.com/chairemobilite/evolution/commit/0014238cf7a111fccac067b7fe50ba50291b2ce7)).
@@ -83,6 +84,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix the type of the `defaultValue` field of the `WidgetConfig#InputMapType` to be or return a geojson point feature as this is what the code really expects. (commit [a5b5534](https://github.com/chairemobilite/evolution/commit/a5b55342f79784ea3fa863bc4c462a1d6ab07cb5))
 - Fix UI visibility tests for radio/checkbox widgets. (fixes [#1622](https://github.com/chairemobilite/evolution/issues/1622))
 - Fix wrong interview passed to update callback when server updates the interview (fixes [#1700](https://github.com/chairemobilite/evolution/issues/1700))
+- Fix UI tests by getting the objects IDs that come from the server too (fixes [#1711](https://github.com/chairemobilite/evolution/issues/1711))
+- Fix widget preparation to not reset newly set values when the widget becomes visible (fixes [#1361](https://github.com/chairemobilite/evolution/issues/1361))
 
 ### Security
 
@@ -101,6 +104,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - @turf/turf: 7.3.1 => 7.3.5
 - @casl/ability: 6.7.3 => 6.8.1
 - @playwright/test 1.56.1 => 1.61.1
+- pyjwt 2.12.0 => 2.13.0
+- dompurify 3.4.11 => 3.4.12
+- morgan 1.10.0 => 1.11.0
+- multer 2.1.1 => 2.2.0
 - In the root `package.json` add a resolution of `kdbush` to 3.0.0 to avoid compilation errors with some packages depending on a more recent version. This requirement comes from Transition, who does the same (see https://github.com/chairemobilite/transition/issues/921 to track issue to upgrade/remove `kdbush`).
 - Added dependency to `i18next-intervalplural-postprocessor` 3.0.0 to support i18next [interval pluralization](https://www.i18next.com/translation-function/plurals#interval-plurals)
 
