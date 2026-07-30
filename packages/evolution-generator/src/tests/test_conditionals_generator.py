@@ -8,7 +8,7 @@ import datetime
 from collections import defaultdict
 import pytest  # pyright: ignore[reportMissingImports]
 
-from scripts.conditionals_generator import ConditionalsGenerator
+from scripts.conditionals_generator import ConditionalsGenerator, split_parentheses_cell
 from scripts.generate_survey import check_excel_integrity
 from helpers.generator_helpers import create_mocked_excel_data, delete_file_if_exists
 
@@ -738,12 +738,47 @@ class TestValidateConditionalsRow:
         ]
 
     def test_invalid_parentheses_raises(self):
-        """parentheses must be '(', ')', or empty."""
+        """parentheses must contain only valid opening/closing characters in order."""
         assert self.checker._validate_conditionals_row(
-            self._row(parentheses="(("), self.ROW_NUMBER
+            self._row(parentheses="(x"), self.ROW_NUMBER
         ) == [
-            "Error in Conditionals sheet - Invalid parentheses in row 2: "
-            "must be one of ['(', ')'] or empty, got '(('"
+            (
+                "Error in Conditionals sheet - Invalid parentheses in row 2: "
+                "must contain only '(' and ')' characters with openings before closings, "
+                "or be empty, got '(x'"
+            )
+        ]
+
+    def test_invalid_parentheses_order_raises(self):
+        """A closing parenthesis cannot appear before a later opening in the same cell."""
+        assert self.checker._validate_conditionals_row(
+            self._row(parentheses=")("), self.ROW_NUMBER
+        ) == [
+            (
+                "Error in Conditionals sheet - Invalid parentheses in row 2: "
+                "must contain only '(' and ')' characters with openings before closings, "
+                "or be empty, got ')('"
+            )
+        ]
+
+    def test_multi_parentheses_are_valid(self):
+        """Multiple parentheses in one cell are allowed when balanced across the conditional."""
+        assert (
+            self.checker._validate_conditionals_row(
+                self._row(parentheses="))"), self.ROW_NUMBER
+            )
+            == []
+        )
+
+    def test_non_string_parentheses_reports_type_error_only(self):
+        """Non-string parentheses values use the generic type validation message."""
+        assert self.checker._validate_conditionals_row(
+            self._row(parentheses=1), self.ROW_NUMBER
+        ) == [
+            (
+                "Error in Conditionals sheet - Invalid parentheses in row 2: "
+                "must be one of types (str), got int with value 1"
+            )
         ]
 
     def test_invalid_value_type_raises(self):
@@ -758,12 +793,19 @@ class TestValidateConditionalsRow:
     def test_same_row_can_report_two_validation_issues(self):
         """When all required cells are present, every invalid optional/column is reported."""
         issues = self.checker._collect_row_validation_issues(
-            self._row(logical_operator="OR", parentheses="(("),
+            self._row(logical_operator="OR", parentheses="(x"),
             self.ROW_NUMBER,
         )
         assert len(issues) == 2
         assert any("logical_operator" in msg for msg in issues)
         assert any("parentheses" in msg for msg in issues)
+
+
+class TestSplitParenthesesCell:
+    def test_splits_openings_then_closings_in_order(self):
+        assert split_parentheses_cell("()") == ("(", ")")
+        assert split_parentheses_cell("))") == ("", "))")
+        assert split_parentheses_cell("((") == ("((", "")
 
 
 class TestValidateConditionalsParenthesesBalance:
@@ -797,6 +839,30 @@ class TestValidateConditionalsParenthesesBalance:
         ]
         self.checker._validate_conditionals_parentheses_balance(row_data)
         assert self.checker._validation_errors == []
+
+    def test_balanced_with_multiple_closing_parentheses_on_one_row(self):
+        """Nested groups may close with multiple ')' in the same cell."""
+        row_data = [
+            (2, self._row("cond1", "(")),
+            (3, self._row("cond1", "(")),
+            (4, self._row("cond1", "))")),
+        ]
+        self.checker._validate_conditionals_parentheses_balance(row_data)
+        assert self.checker._validation_errors == []
+
+    def test_invalid_parentheses_order_in_balance_check(self):
+        """Per-cell order is validated even when group balance could mask the rewrite."""
+        row_data = [
+            (2, self._row("cond1", "(")),
+            (3, self._row("cond1", ")(")),
+        ]
+        self.checker._validate_conditionals_parentheses_balance(row_data)
+        assert self.checker._validation_errors == [
+            (
+                "Error in Conditionals sheet - Invalid parentheses for conditional_name 'cond1' in row 3: "
+                "closing parenthesis must not appear before an opening parenthesis in the same cell."
+            )
+        ]
 
     def test_unbalanced_too_many_closing_raises(self):
         """')' without matching '(' appends the expected message."""

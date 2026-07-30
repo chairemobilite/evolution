@@ -23,6 +23,21 @@ from helpers.generator_helpers import (
 )
 
 
+def split_parentheses_cell(value: str | None) -> tuple[str, str]:
+    """
+    Split a parentheses cell into opening and closing prefix/suffix strings.
+
+    @param value Parentheses cell from the Conditionals sheet
+    @returns Tuple of opening parentheses followed by closing parentheses
+    """
+    if not value:
+        return "", ""
+    split_index = 0
+    while split_index < len(value) and value[split_index] == "(":
+        split_index += 1
+    return value[:split_index], value[split_index:]
+
+
 @dataclass(frozen=True)
 class _ColumnSpec:
     """Spec for one column: controls expected headers, required fields, and value constraints."""
@@ -70,7 +85,7 @@ class ConditionalsGenerator:
         _ColumnSpec(
             name="parentheses",
             required=False,
-            allowed_values=frozenset({"(", ")", None}),
+            allowed_types=(str,),
         ),
         _ColumnSpec(
             name="value_when_hidden",
@@ -270,6 +285,16 @@ class ConditionalsGenerator:
                         f"must be one of {sorted(spec.allowed_values - {None})!r} or empty, got {repr(cell_value)}"
                     )
 
+        parentheses_value = self._empty_to_none(row_dict.get("parentheses"))
+        if isinstance(parentheses_value, str) and not self._is_valid_parentheses_cell(
+            parentheses_value
+        ):
+            issues.append(
+                f"{prefix}Invalid parentheses in row {row_number}: "
+                "must contain only '(' and ')' characters with openings before closings, "
+                f"or be empty, got {parentheses_value!r}"
+            )
+
         # Validate that the path contains only one expansion token
         raw_path = row_dict.get("path")
         if (
@@ -367,17 +392,29 @@ class ConditionalsGenerator:
             start_row_number = group_rows[0][0] if group_rows else 0
             bad_negative = False
             for rn, paren in group:
-                if paren == "(":
-                    balance += 1
-                elif paren == ")":
-                    balance -= 1
-                    if balance < 0:
-                        self._validation_errors.append(
-                            f"{prefix}Unbalanced parentheses for conditional_name '{name}' in row {rn}: "
-                            "too many ')' (closing parenthesis without matching opening)."
-                        )
-                        bad_negative = True
-                        break
+                if isinstance(paren, str) and not self._is_valid_parentheses_cell(
+                    paren
+                ):
+                    self._validation_errors.append(
+                        f"{prefix}Invalid parentheses for conditional_name '{name}' in row {rn}: "
+                        "closing parenthesis must not appear before an opening parenthesis in the same cell."
+                    )
+                    bad_negative = True
+                    break
+                for char in paren or "":
+                    if char == "(":
+                        balance += 1
+                    elif char == ")":
+                        balance -= 1
+                        if balance < 0:
+                            self._validation_errors.append(
+                                f"{prefix}Unbalanced parentheses for conditional_name '{name}' in row {rn}: "
+                                "too many ')' (closing parenthesis without matching opening)."
+                            )
+                            bad_negative = True
+                            break
+                if bad_negative:
+                    break
             if bad_negative:
                 continue
             if balance != 0:
@@ -436,6 +473,19 @@ class ConditionalsGenerator:
     def _empty_to_none(value) -> str | None:
         """Treat empty string as None for optional Excel cells (e.g. logical_operator, parentheses)."""
         return None if value == "" else value
+
+    @staticmethod
+    def _is_valid_parentheses_cell(value: str) -> bool:
+        """Return whether a cell uses only parentheses with openings before closings."""
+        if not all(char in ("(", ")") for char in value):
+            return False
+        seen_closing = False
+        for char in value:
+            if char == ")":
+                seen_closing = True
+            elif seen_closing:
+                return False
+        return True
 
     @staticmethod
     def _path_expansion_tokens_found(

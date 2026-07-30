@@ -8,6 +8,7 @@ import os
 import csv
 from typing import Literal
 from helpers.generator_helpers import get_data_from_excel, clean_text
+from scripts.conditionals_generator import split_parentheses_cell
 
 
 # Function to generate questionnaire_test for each section
@@ -368,10 +369,10 @@ def process_conditionals(conditionals_rows, conditionals_headers, sections):
         conditional_string = f"{transformed_path} {comparison_operator} {value}"
 
         # Add parentheses if they exist, and place them around the conditional string depending on the parentheses
-        if parentheses == "(":
-            conditional_string = f"{parentheses}{conditional_string}"
-        elif parentheses == ")":
-            conditional_string = f"{conditional_string}{parentheses}"
+        opening_parentheses, closing_parentheses = split_parentheses_cell(parentheses)
+        conditional_string = (
+            f"{opening_parentheses}{conditional_string}{closing_parentheses}"
+        )
 
         # Add logical operator if it exists
         if logical_operator:
