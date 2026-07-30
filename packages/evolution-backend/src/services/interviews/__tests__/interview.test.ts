@@ -681,8 +681,8 @@ describe('Update Interview', () => {
         const testAttributes = _cloneDeep(interviewAttributes);
         const scriptInjectionString = '<div onmouseover="(function(){alert(\'XSS vulnerability detected\')})()">Hover over me</div>';
         const sanitizedValue = 'Hover over me';
-        const arrayResponse = [scriptInjectionString, { name: scriptInjectionString}, 42];
-        const sanitizedArray = [sanitizedValue, { name: sanitizedValue}, 42];
+        const arrayResponse = [scriptInjectionString, { name: scriptInjectionString }, 42];
+        const sanitizedArray = [sanitizedValue, { name: sanitizedValue }, 42];
 
         // Execute interview update
         const { interviewId, serverValuesByPath, serverValidations } = await updateInterview(testAttributes, { valuesByPath: { 'response.foo': arrayResponse } });

@@ -15,12 +15,14 @@ import { hideBin } from 'yargs/helpers';
 import { registerTranslationDir } from 'chaire-lib-backend/lib/config/i18next';
 import express, { Express } from 'express';
 import { setupServerApp } from './serverApp';
+import { initializeBackendBuildId } from '../../config/buildId';
 
 const argv = yargs(hideBin(process.argv)).parseSync();
 
 const useSSL = typeof argv.ssl === 'boolean' ? argv.ssl : false;
 const port = argv.port ? parseInt(argv.port as string) : useSSL ? 8443 : 8080;
 
+initializeBackendBuildId();
 console.log(`starting server for project ${config.projectShortname} with port ${port}`);
 
 process.on('uncaughtException', (err: Error) => {

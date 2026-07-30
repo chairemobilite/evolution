@@ -52,6 +52,7 @@ import { AuthAction } from 'chaire-lib-frontend/lib/store/auth';
 import { LoadingStateAction } from '../store/loadingState';
 import { RootState } from '../store/configureStore';
 import { createNavigationService } from 'evolution-common/lib/services/questionnaire/sections/NavigationService';
+import { appendBuildIdIfChanged } from 'evolution-common/lib/services/paradata/appendBuildIdIfChanged';
 
 /**
  * Class used to manage a queue of asynchronous update functions, to ensure they
@@ -799,6 +800,16 @@ export const startSetInterview = (
                     if (_isBlank(previousLanguage) || previousLanguage !== currentLanguage) {
                         valuesByPath['response._language'] = currentLanguage;
                     }
+
+                    const buildId = process.env.BUILD_ID;
+                    const updatedFrontendBuildIds = appendBuildIdIfChanged(
+                        _get(interview, 'response._frontendBuildIds', undefined),
+                        buildId && buildId !== '' ? buildId : undefined
+                    );
+                    if (updatedFrontendBuildIds) {
+                        valuesByPath['response._frontendBuildIds'] = updatedFrontendBuildIds;
+                    }
+
                     // Set the interview in the state first
                     dispatch(setInterviewState(interview));
 

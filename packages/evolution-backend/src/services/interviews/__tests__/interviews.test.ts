@@ -15,6 +15,15 @@ import { updateInterview } from '../interview';
 import moment from 'moment';
 import { getParadataLoggingFunction } from '../../logging/paradataLogging';
 
+jest.mock('../../../config/buildId', () => ({
+    getBackendBuildId: jest.fn(() => 'backend-test-build-id')
+}));
+
+const withBackendBuildId = (response: Record<string, unknown>) => ({
+    ...response,
+    _backendBuildIds: [{ buildId: 'backend-test-build-id', startTimestamp: expect.any(Number) }]
+});
+
 jest.mock('../../../models/interviews.db.queries', () => ({
     findByResponse: jest.fn(),
     getInterviewByUuid: jest.fn(),
@@ -207,7 +216,7 @@ describe('Create interviews', () => {
         expect(mockDbCreate).toHaveBeenCalledTimes(1);
         expect(mockDbCreate).toHaveBeenCalledWith({
             participant_id: participantId,
-            response: { _startedAt: expect.anything() },
+            response: withBackendBuildId({ _startedAt: expect.anything() }),
             is_active: true,
             validations: {}
         }, 'uuid');
@@ -228,7 +237,7 @@ describe('Create interviews', () => {
         expect(mockDbCreate).toHaveBeenCalledTimes(1);
         expect(mockDbCreate).toHaveBeenCalledWith({
             participant_id: participantId,
-            response: { ...response, _startedAt: expect.anything() },
+            response: withBackendBuildId({ ...response, _startedAt: expect.anything() }),
             is_active: true,
             validations: {}
         }, 'uuid');
@@ -236,7 +245,36 @@ describe('Create interviews', () => {
         expect(mockDbGetByUuid).toHaveBeenCalledTimes(1);
         expect(mockDbGetByUuid).toHaveBeenCalledWith(newInterview.uuid);
         expect(mockInterviewUpdate).toHaveBeenCalledWith(createdInterview, {
-            valuesByPath: { 'response.foo': response.foo, 'response.fooObj': response.fooObj },
+            valuesByPath: {
+                'response.foo': response.foo,
+                'response.fooObj': response.fooObj,
+                'response._startedAt': expect.anything(),
+                'response._backendBuildIds': [{ buildId: 'backend-test-build-id', startTimestamp: expect.any(Number) }]
+            },
+            fieldsToUpdate: ['response']
+        });
+    });
+
+    test('should persist appended backend build id history in follow-up update', async () => {
+        mockDbGetByUuid.mockImplementationOnce(async () => createdInterview);
+        const priorBackendBuildIds = [{ buildId: 'old-backend-sha', startTimestamp: 1632929461 }];
+        const response = {
+            foo: 'bar',
+            _backendBuildIds: priorBackendBuildIds
+        };
+
+        const newInterview = await Interviews.createInterviewForUser(participantId, response);
+
+        expect(newInterview).toEqual({ uuid: expect.anything() });
+        expect(mockInterviewUpdate).toHaveBeenCalledWith(createdInterview, {
+            valuesByPath: {
+                'response.foo': 'bar',
+                'response._startedAt': expect.anything(),
+                'response._backendBuildIds': [
+                    { buildId: 'old-backend-sha', startTimestamp: 1632929461, endTimestamp: expect.any(Number) },
+                    { buildId: 'backend-test-build-id', startTimestamp: expect.any(Number) }
+                ]
+            },
             fieldsToUpdate: ['response']
         });
     });
@@ -247,7 +285,7 @@ describe('Create interviews', () => {
         expect(mockDbCreate).toHaveBeenCalledTimes(1);
         expect(mockDbCreate).toHaveBeenCalledWith({
             participant_id: participantId,
-            response: { _startedAt: expect.anything() },
+            response: withBackendBuildId({ _startedAt: expect.anything() }),
             is_active: true,
             validations: {}
         }, 'participant_id');
@@ -263,11 +301,15 @@ describe('Create interviews', () => {
         expect(mockDbCreate).toHaveBeenCalledTimes(1);
         expect(mockDbCreate).toHaveBeenCalledWith({
             participant_id: participantId,
-            response: { _startedAt: expect.anything() },
+            response: withBackendBuildId({ _startedAt: expect.anything() }),
             is_active: true,
             validations: {}
         }, returningFields);
-        expect(newInterview).toEqual({ participant_id: participantId, uuid: expect.anything(), response: { _startedAt: expect.anything() } });
+        expect(newInterview).toEqual({
+            participant_id: participantId,
+            uuid: expect.anything(),
+            response: withBackendBuildId({ _startedAt: expect.anything() })
+        });
         expect(mockDbGetByUuid).not.toHaveBeenCalled();
         expect(mockInterviewUpdate).not.toHaveBeenCalled();
 
@@ -286,7 +328,7 @@ describe('Create interviews', () => {
         expect(mockDbCreate).toHaveBeenCalledTimes(1);
         expect(mockDbCreate).toHaveBeenCalledWith({
             participant_id: participantId,
-            response: { _startedAt: expect.anything(), initial: 'value' },
+            response: withBackendBuildId({ _startedAt: expect.anything(), initial: 'value' }),
             is_active: true,
             validations: {}
         }, 'uuid');
@@ -297,7 +339,11 @@ describe('Create interviews', () => {
         expect(mockGetParadataLogFunction).toHaveBeenCalledWith({ interviewId: createdInterview!.id, userId });
         expect(mockInterviewUpdate).toHaveBeenCalledWith(createdInterview, {
             logUpdate: logFunction,
-            valuesByPath: { 'response.initial': 'value' },
+            valuesByPath: {
+                'response.initial': 'value',
+                'response._startedAt': expect.anything(),
+                'response._backendBuildIds': [{ buildId: 'backend-test-build-id', startTimestamp: expect.any(Number) }]
+            },
             fieldsToUpdate: ['response']
         });
     });

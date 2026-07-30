@@ -1482,6 +1482,7 @@ describe('startSetInterview', () => {
     const initialAppConfigSections = _cloneDeep(applicationConfiguration.sections);
     let startNavigateSpy;
     const startNavigateMock = jest.fn();
+    const originalBuildId = process.env.BUILD_ID;
 
     beforeAll(() => {
         startNavigateSpy = jest.spyOn(SurveyActions, 'startNavigate').mockReturnValue(startNavigateMock);
@@ -1494,11 +1495,20 @@ describe('startSetInterview', () => {
         applicationConfiguration.sections = initialAppConfigSections;
     });
 
+    afterEach(() => {
+        if (originalBuildId === undefined) {
+            delete process.env.BUILD_ID;
+        } else {
+            process.env.BUILD_ID = originalBuildId;
+        }
+    });
+
     test('No prefilled response', async () => {
 
         // Prepare mock and test data
         const returnedInterview = _cloneDeep(interviewAttributes);
         jsonFetchResolve.mockResolvedValue({ status: 'success', interview: returnedInterview });
+        process.env.BUILD_ID = 'frontend-build-id';
 
         // Do the actual test
         const dispatchFct = SurveyActions.startSetInterview();
@@ -1519,7 +1529,13 @@ describe('startSetInterview', () => {
         expect(SurveyActions.startNavigate).toHaveBeenCalledWith({
             requestedSection: undefined,
             valuesByPath: {
-                'response._browser': expect.anything()
+                'response._browser': expect.anything(),
+                'response._frontendBuildIds': [
+                    expect.objectContaining({
+                        buildId: 'frontend-build-id',
+                        startTimestamp: expect.any(Number)
+                    })
+                ]
             }
         });
     });
