@@ -248,26 +248,33 @@ export const createCommonWebpackConfig = (params: WebpackGenerationConfigParams)
             }),
             // FIXME: Confirm what copilot says:Only include moment locales for the languages used in the project to reduce bundle size
             new webpack.ContextReplacementPlugin(/moment[/\\]locale$/, new RegExp(momentLanguagesFilter)),
-            // Copy static assets from the project and from evolution-frontend and chaire-lib-frontend to the output directory
+            // Copy static assets from the project and from evolution-frontend and chaire-lib-frontend to the output directory.
+            // On path conflicts, higher priority (with force) wins: project assets override evolution-frontend's,
+            // which override chaire-lib-frontend's (e.g. evolution's colored icons replace chaire-lib's black ones).
             new CopyWebpackPlugin({
                 patterns: [
                     {
                         context: path.join(chaireLibFrontendRoot, 'lib', 'assets'),
                         from: '**/*',
                         to: '',
-                        noErrorOnMissing: true
+                        noErrorOnMissing: true,
+                        priority: 0
                     },
                     {
                         context: path.join(evolutionFrontendRoot, 'lib', 'assets'),
                         from: '**/*',
                         to: '',
-                        noErrorOnMissing: true
+                        noErrorOnMissing: true,
+                        priority: 1,
+                        force: true
                     },
                     {
                         context: path.join(params.projectSrcDir, 'assets'),
                         from: '**/*',
                         to: '',
-                        noErrorOnMissing: true
+                        noErrorOnMissing: true,
+                        priority: 2,
+                        force: true
                     }
                 ]
             })
