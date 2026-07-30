@@ -70,13 +70,16 @@ describe('visitedPlacePreviousWorkPlaceName widget', () => {
                 widgetConfig.label,
                 { t: mockedT } as any,
                 interview,
-                'household.persons.personId1.journeys.journeyId1.visitedPlaces.workPlace1P1.name'
+                'household.persons.personId1.journeys.journeyId1.visitedPlaces.workPlace1P1._previousWorkPlace.name'
             );
 
             expect(result).toContain('visitedPlaces:visitedPlacePreviousWorkPlaceName');
             expect(result).toContain('survey:forExampleAbbreviation');
             expect(result).toContain('visitedPlaces:visitedPlaceNameExample');
-            expect(mockedT).toHaveBeenCalledWith('visitedPlaces:visitedPlacePreviousWorkPlaceName');
+            expect(mockedT).toHaveBeenCalledWith(
+                'visitedPlaces:visitedPlacePreviousWorkPlaceName',
+                expect.objectContaining({ count: 3 })
+            );
             expect(mockedT).toHaveBeenCalledWith('survey:forExampleAbbreviation');
             expect(mockedT).toHaveBeenCalledWith('visitedPlaces:visitedPlaceNameExample', {
                 context: 'workUsual_onTheRoadOften'
@@ -183,11 +186,19 @@ describe('visitedPlacePreviousWorkPlaceGeography widget', () => {
 
     describe('label', () => {
         test('should use the right translation key for the label', () => {
-            const mockedT = jest.fn();
+            const mockedT = jest.fn().mockImplementation((key: string) => key);
             const interview = _cloneDeep(interviewAttributesForTestCases);
 
-            translateString(widgetConfig.label, { t: mockedT } as any, interview, 'path');
-            expect(mockedT).toHaveBeenCalledWith('visitedPlaces:visitedPlacePreviousWorkPlaceGeography');
+            translateString(
+                widgetConfig.label,
+                { t: mockedT } as any,
+                interview,
+                'household.persons.personId1.journeys.journeyId1.visitedPlaces.workPlace1P1._previousWorkPlace.geography'
+            );
+            expect(mockedT).toHaveBeenCalledWith(
+                'visitedPlaces:visitedPlacePreviousWorkPlaceGeography',
+                expect.objectContaining({ count: 3 })
+            );
         });
 
         test('should use the right translation key for geocoding refresh', () => {
