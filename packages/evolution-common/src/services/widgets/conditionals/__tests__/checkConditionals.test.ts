@@ -562,6 +562,33 @@ const testCases: Array<{
         expected: [true, null]
     },
     {
+        testTitle: '_isNumber1 === 1 && (_isNumber1 === 0 || (_isNumber1 === 1 && _isNumber1 === 1)), should return true.',
+        conditionals: [
+            {
+                path: '_isNumber1',
+                comparisonOperator: '===',
+                value: 1
+            },
+            { path: '_isNumber1', comparisonOperator: '===', value: 0, logicalOperator: '&&', parentheses: '(' },
+            { path: '_isNumber1', comparisonOperator: '===', value: 1, logicalOperator: '||', parentheses: '(' },
+            { path: '_isNumber1', comparisonOperator: '===', value: 1, logicalOperator: '&&', parentheses: '))' }
+        ],
+        expected: [true, null]
+    },
+    {
+        testTitle: '_isNumber1 === 1 && ((_isNumber1 === 0 || _isNumber1 === 1)), should return true.',
+        conditionals: [
+            {
+                path: '_isNumber1',
+                comparisonOperator: '===',
+                value: 1
+            },
+            { path: '_isNumber1', comparisonOperator: '===', value: 0, logicalOperator: '&&', parentheses: '((' },
+            { path: '_isNumber1', comparisonOperator: '===', value: 1, logicalOperator: '||', parentheses: '))' }
+        ],
+        expected: [true, null]
+    },
+    {
         testTitle: '_isNumber1 === 1 || (_isNumber1 === 0 && _isNumber1 === 1), should return true.',
         conditionals: [
             {
@@ -679,6 +706,34 @@ const testCases: Array<{
         ],
         expectedErrorMessage:
             'checkConditionals: Unbalanced parentheses (closing without opening) in conditionals',
+        expected: null
+    },
+    {
+        testTitle: 'invalid parentheses characters throw before evaluation',
+        conditionals: [
+            {
+                path: '_isNumber1',
+                comparisonOperator: '===',
+                value: 1,
+                parentheses: '(x'
+            }
+        ],
+        expectedErrorMessage:
+            "checkConditionals: Invalid parentheses in conditionals (index=0): must contain only '(' and ')' characters",
+        expected: null
+    },
+    {
+        testTitle: 'invalid parentheses order throws instead of reordering',
+        conditionals: [
+            {
+                path: '_isNumber1',
+                comparisonOperator: '===',
+                value: 1,
+                parentheses: ')('
+            }
+        ],
+        expectedErrorMessage:
+            'checkConditionals: Invalid parentheses in conditionals (index=0): closing parenthesis must not appear before an opening parenthesis in the same value',
         expected: null
     }
 ];

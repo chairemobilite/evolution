@@ -11,7 +11,7 @@ type PathType = string;
 type ComparisonOperatorsType = '===' | '!==' | '>' | '<' | '>=' | '<=';
 type ValueType = string | number | boolean | null;
 type logicalOperatorsType = '&&' | '||';
-type ParenthesesType = '(' | ')';
+type ParenthesesType = string;
 type SingleConditionalsType = {
     logicalOperator?: logicalOperatorsType;
     path: PathType;
@@ -20,6 +20,41 @@ type SingleConditionalsType = {
     parentheses?: ParenthesesType;
 };
 type ConditionalsType = SingleConditionalsType[];
+
+const validateParenthesesCell = (parentheses: string | undefined, index: number): void => {
+    if (parentheses === undefined || parentheses === '') {
+        return;
+    }
+    if (!/^[()]*$/.test(parentheses)) {
+        throw new Error(
+            `checkConditionals: Invalid parentheses in conditionals (index=${index}): must contain only '(' and ')' characters`
+        );
+    }
+    let seenClosing = false;
+    for (const char of parentheses) {
+        if (char === ')') {
+            seenClosing = true;
+        } else if (seenClosing) {
+            throw new Error(
+                `checkConditionals: Invalid parentheses in conditionals (index=${index}): closing parenthesis must not appear before an opening parenthesis in the same value`
+            );
+        }
+    }
+};
+
+const splitParentheses = (parentheses?: string): { opening: string; closing: string } => {
+    if (!parentheses) {
+        return { opening: '', closing: '' };
+    }
+    let splitIndex = 0;
+    while (splitIndex < parentheses.length && parentheses[splitIndex] === '(') {
+        splitIndex += 1;
+    }
+    return {
+        opening: parentheses.slice(0, splitIndex),
+        closing: parentheses.slice(splitIndex)
+    };
+};
 
 /**
  * Evaluates a list of conditionals against an interview response.
@@ -54,16 +89,20 @@ export const checkConditionals = ({
         // Extract components of the conditional
         const { logicalOperator, path, comparisonOperator, value, parentheses } = conditional;
 
+        validateParenthesesCell(parentheses, index);
+
         // Parentheses must be well-formed: you can't close before opening, and all opened '(' must be closed.
-        if (parentheses === '(') {
-            parenthesesBalance += 1;
-        } else if (parentheses === ')') {
-            parenthesesBalance -= 1;
-            if (parenthesesBalance < 0) {
-                parenthesesInvalid = true;
-                throw new Error(
-                    `checkConditionals: Unbalanced parentheses (closing without opening) in conditionals (index=${index})`
-                );
+        for (const char of parentheses ?? '') {
+            if (char === '(') {
+                parenthesesBalance += 1;
+            } else if (char === ')') {
+                parenthesesBalance -= 1;
+                if (parenthesesBalance < 0) {
+                    parenthesesInvalid = true;
+                    throw new Error(
+                        `checkConditionals: Unbalanced parentheses (closing without opening) in conditionals (index=${index})`
+                    );
+                }
             }
         }
 
@@ -165,8 +204,7 @@ export const checkConditionals = ({
             conditionMet = false;
         }
 
-        const parenthesesStart = parentheses === '(' ? '(' : ''; // Add an opening parentheses if necessary
-        const parenthesesEnd = parentheses === ')' ? ')' : ''; // Add a closing parentheses if necessary
+        const { opening: parenthesesStart, closing: parenthesesEnd } = splitParentheses(parentheses);
 
         if (index === 0) {
             // For the first condition, initialize the result
