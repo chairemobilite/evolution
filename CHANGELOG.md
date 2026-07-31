@@ -86,6 +86,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix wrong interview passed to update callback when server updates the interview (fixes [#1700](https://github.com/chairemobilite/evolution/issues/1700))
 - Fix UI tests by getting the objects IDs that come from the server too (fixes [#1711](https://github.com/chairemobilite/evolution/issues/1711))
 - Fix widget preparation to not reset newly set values when the widget becomes visible (fixes [#1361](https://github.com/chairemobilite/evolution/issues/1361))
+- Fix race condition with stale interview updates while a new interview is being fetched (fixes [#1772](https://github.com/chairemobilite/evolution/issues/1772))
 
 ### Security
 

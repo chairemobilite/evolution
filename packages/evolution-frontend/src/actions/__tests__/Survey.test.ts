@@ -1509,7 +1509,13 @@ describe('startSetInterview', () => {
         expect(fetchRetryMock).toHaveBeenCalledWith('/api/survey/activeInterview', expect.objectContaining({
             credentials: 'include'
         }));
-        expect(mockDispatch).toHaveBeenCalledTimes(2);
+        expect(mockDispatch).toHaveBeenCalledTimes(3);
+        // First called to reset the interview
+        expect(mockDispatch).toHaveBeenNthCalledWith(1, {
+            type: SurveyActionTypes.SET_INTERVIEW,
+            interview: undefined,
+            interviewLoaded: false
+        });
         expect(mockDispatch).toHaveBeenCalledWith({
             type: SurveyActionTypes.SET_INTERVIEW,
             interview: returnedInterview,
@@ -1540,7 +1546,13 @@ describe('startSetInterview', () => {
         expect(fetchRetryMock).toHaveBeenCalledWith('/api/survey/activeInterview', expect.objectContaining({
             credentials: 'include'
         }));
-        expect(mockDispatch).toHaveBeenCalledTimes(2);
+        expect(mockDispatch).toHaveBeenCalledTimes(3);
+        // First called to reset the interview
+        expect(mockDispatch).toHaveBeenNthCalledWith(1, {
+            type: SurveyActionTypes.SET_INTERVIEW,
+            interview: undefined,
+            interviewLoaded: false
+        });
         expect(mockDispatch).toHaveBeenCalledWith({
             type: SurveyActionTypes.SET_INTERVIEW,
             interview: returnedInterview,
@@ -1573,7 +1585,13 @@ describe('startSetInterview', () => {
         expect(fetchRetryMock).toHaveBeenCalledWith('/api/survey/activeInterview', expect.objectContaining({
             credentials: 'include'
         }));
-        expect(mockDispatch).not.toHaveBeenCalled();
+        expect(mockDispatch).toHaveBeenCalledTimes(1);
+        // Interview should be reset in any case
+        expect(mockDispatch).toHaveBeenNthCalledWith(1, {
+            type: SurveyActionTypes.SET_INTERVIEW,
+            interview: undefined,
+            interviewLoaded: false
+        });
         expect(consoleErrorSpy).toHaveBeenCalledWith('Error: Get active interview: no interview was returned, it\'s not supposed to happen');
         expect(SurveyActions.startNavigate).not.toHaveBeenCalled();
     });
@@ -1595,7 +1613,13 @@ describe('startSetInterview', () => {
         expect(fetchRetryMock).toHaveBeenCalledWith(`/api/survey/activeInterview/${uuid}`, expect.objectContaining({
             credentials: 'include'
         }));
-        expect(mockDispatch).toHaveBeenCalledTimes(2);
+        expect(mockDispatch).toHaveBeenCalledTimes(3);
+        // First called to reset the interview
+        expect(mockDispatch).toHaveBeenNthCalledWith(1, {
+            type: SurveyActionTypes.SET_INTERVIEW,
+            interview: undefined,
+            interviewLoaded: false
+        });
         expect(mockDispatch).toHaveBeenCalledWith({
             type: SurveyActionTypes.SET_INTERVIEW,
             interview: returnedInterview,
@@ -1609,6 +1633,65 @@ describe('startSetInterview', () => {
             }
         });
 
+    });
+
+    test('Only the last requested interview should be applied when responses resolve out of order', async () => {
+        // Create the 2 interview to return
+        const firstInterview = _cloneDeep(interviewAttributes);
+        firstInterview.response.section1.q1 = 'first';
+        firstInterview.uuid = uuidV4();
+        const secondInterview = _cloneDeep(interviewAttributes);
+        secondInterview.response.section1.q1 = 'second';
+        secondInterview.uuid = uuidV4();
+
+        // Create promises to use in the fetch, so they can be resolved out of order when the test chooses
+        let resolveFirstFetch!: (value: { status: number; json: () => Promise<{ status: string; interview: UserRuntimeInterviewAttributes }> }) => void;
+        let resolveSecondFetch!: (value: { status: number; json: () => Promise<{ status: string; interview: UserRuntimeInterviewAttributes }> }) => void;
+        const firstFetch = new Promise<{ status: number; json: () => Promise<{ status: string; interview: UserRuntimeInterviewAttributes }> }>((resolve) => {
+            resolveFirstFetch = resolve;
+        });
+        const secondFetch = new Promise<{ status: number; json: () => Promise<{ status: string; interview: UserRuntimeInterviewAttributes }> }>((resolve) => {
+            resolveSecondFetch = resolve;
+        });
+
+        fetchRetryMock.mockImplementationOnce(() => firstFetch).mockImplementationOnce(() => secondFetch);
+
+        // Call the set function twice
+        const firstCall = SurveyActions.startSetInterview('sectionFirst', firstInterview.uuid)(mockDispatch, mockGetState);
+        const secondCall = SurveyActions.startSetInterview('sectionSecond', secondInterview.uuid)(mockDispatch, mockGetState);
+
+        // Resolve second fetch first (should be the one to set the interview)
+        resolveSecondFetch({
+            status: 200,
+            json: async () => ({ status: 'success', interview: secondInterview })
+        });
+        await Promise.resolve();
+        // Resolve first fetch (should be ignored)
+        resolveFirstFetch({
+            status: 200,
+            json: async () => ({ status: 'success', interview: firstInterview })
+        });
+
+        // make sure we wait for the actions to be completed
+        await Promise.all([firstCall, secondCall]);
+
+        expect(SurveyActions.startNavigate).toHaveBeenCalledTimes(1);
+        expect(SurveyActions.startNavigate).toHaveBeenCalledWith({
+            requestedSection: { sectionShortname: 'sectionSecond' },
+            valuesByPath: {
+                'response._browser': expect.anything()
+            }
+        });
+        expect(mockDispatch).toHaveBeenCalledWith({
+            type: SurveyActionTypes.SET_INTERVIEW,
+            interview: secondInterview,
+            interviewLoaded: true
+        });
+        expect(mockDispatch).not.toHaveBeenCalledWith({
+            type: SurveyActionTypes.SET_INTERVIEW,
+            interview: firstInterview,
+            interviewLoaded: true
+        });
     });
 
     test('Invalid response from server', async () => {
@@ -1626,7 +1709,13 @@ describe('startSetInterview', () => {
         expect(fetchRetryMock).toHaveBeenCalledWith('/api/survey/activeInterview', expect.objectContaining({
             credentials: 'include'
         }));
-        expect(mockDispatch).not.toHaveBeenCalled();
+        expect(mockDispatch).toHaveBeenCalledTimes(1);
+        // Interview should be reset in any case
+        expect(mockDispatch).toHaveBeenNthCalledWith(1, {
+            type: SurveyActionTypes.SET_INTERVIEW,
+            interview: undefined,
+            interviewLoaded: false
+        });
         expect(SurveyActions.startNavigate).not.toHaveBeenCalled();
 
     });

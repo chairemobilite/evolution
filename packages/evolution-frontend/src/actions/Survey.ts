@@ -88,6 +88,10 @@ class AsyncDispatchQueue {
 // Exported for the SurveyAdmin action and in case we need to monitor the queue
 export const asyncDispatchQueue = new AsyncDispatchQueue();
 
+// Keep an identifier for the latest interview activation request to avoid race
+// conditions and make sure only the most recent sets the interview
+let latestInterviewSetRequestId = 0;
+
 /**
  * Called whenever an update occurs in interview response or when section is
  * switched to. It will run the validations and side effects for the requested
@@ -764,7 +768,14 @@ export const startSetInterview = (
         dispatch: ThunkDispatch<RootState, unknown, SurveyAction | AuthAction | LoadingStateAction>,
         _getState: () => RootState
     ) => {
+        const requestId = ++latestInterviewSetRequestId;
+
         try {
+            // Make sure to set the interview to `undefined` first, to override
+            // any previous interview and avoid side effects if previous state
+            // remain.
+            dispatch(setInterviewState(undefined));
+
             const browserTechData = bowser.getParser(window.navigator.userAgent).parse();
             // get the interview from the server for the current user (or create one), or with a specific survey uuid
             const response = await fetch(
@@ -773,6 +784,14 @@ export const startSetInterview = (
                     credentials: 'include'
                 }
             );
+
+            // Only the most recent request may commit the result. This prevents
+            // out-of-order responses from overwriting the interview with stale
+            // data.
+            if (requestId !== latestInterviewSetRequestId) {
+                return;
+            }
+
             if (response.status === 200) {
                 const body = await response.json();
                 // Get the interview from the response
