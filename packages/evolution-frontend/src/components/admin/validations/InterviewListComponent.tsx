@@ -23,6 +23,7 @@ import { handleHttpOtherResponseCode } from '../../../services/errorManagement/e
 import { Dispatch } from 'redux';
 import { InterviewStatusAttributesBase } from 'evolution-common/lib/services/questionnaire/types';
 import config from 'evolution-common/lib/config/project.config';
+import { dateToIsoWithTimezone } from 'evolution-common/lib/utils/DateTimeUtils';
 import * as Status from 'chaire-lib-common/lib/utils/Status';
 
 interface InterviewListComponentProps {
@@ -242,7 +243,8 @@ const InterviewListComponent: React.FunctionComponent<InterviewListComponentProp
                 accessor: 'created_at',
                 label: t('admin:interviewByDateFilter:title'),
                 Cell: ({ value }: CellArgs) =>
-                    !_isBlank(value) ? new Date(value).toISOString().split('T')[0].replace('/', '-') : '?', // Converts to YYYY-MM-DD format
+                    // Display the date (YYYY-MM-DD) in the survey's timezone instead of UTC
+                    !_isBlank(value) ? dateToIsoWithTimezone(new Date(value), config.timezone) : '?',
                 Filter: InterviewByDateFilter,
                 enableSortBy: true
             },

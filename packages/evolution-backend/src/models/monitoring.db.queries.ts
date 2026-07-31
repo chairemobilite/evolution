@@ -6,6 +6,8 @@
  */
 import knex from 'chaire-lib-backend/lib/config/shared/db.config';
 import TrError from 'chaire-lib-common/lib/utils/TrError';
+import config from 'evolution-common/lib/config/project.config';
+import { parseISODateToTimestamp } from 'evolution-common/lib/utils/DateTimeUtils';
 
 const interviewsTable = 'sv_interviews';
 
@@ -49,6 +51,51 @@ export const getInterviewsCompletionRate = async (): Promise<number> => {
     } catch (error) {
         console.error('Error fetching interviews completion rate:', error);
         throw new TrError(`cannot get interviews completion rate (knex error: ${error})`, 'MON0003');
+    }
+};
+
+/**
+ * Get the counts of started and completed interviews, grouped by the calendar
+ * day (in the survey's configured timezone) on which the interview started.
+ * Interviews started outside the survey period (`startDateTimeWithTimezoneOffset` /
+ * `endDateTimeWithTimezoneOffset` config options, when set) are ignored.
+ * @returns Array of `{ date: 'YYYY-MM-DD', started, completed }`, ordered by date
+ */
+export const getStartedAndCompletedInterviewsByDay = async (): Promise<
+    Array<{ date: string; started: number; completed: number }>
+> => {
+    try {
+        // created_at is a timestamptz; convert it to the survey's timezone (UTC when not
+        // configured) so the calendar day does not depend on the DB session timezone
+        const subquery = knex(interviewsTable).select(
+            'id',
+            knex.raw('to_char(created_at at time zone ?, \'YYYY-MM-DD\') as started_at_date', [config.timezone ?? 'UTC']),
+            knex.raw('case when response->>\'_completedAt\' is null then 0 else 1 end as is_completed')
+        );
+        // Ignore interviews started outside the survey period, if configured
+        const surveyStartTimestamp = parseISODateToTimestamp(config.startDateTimeWithTimezoneOffset);
+        const surveyEndTimestamp = parseISODateToTimestamp(config.endDateTimeWithTimezoneOffset);
+        if (surveyStartTimestamp !== undefined) {
+            subquery.where('created_at', '>=', new Date(surveyStartTimestamp));
+        }
+        if (surveyEndTimestamp !== undefined) {
+            subquery.where('created_at', '<=', new Date(surveyEndTimestamp));
+        }
+        const rows = await knex(subquery.as('resp_data'))
+            .select('started_at_date')
+            .count({ started_at: 'id' })
+            .sum({ is_completed: 'is_completed' })
+            .whereNotNull('started_at_date')
+            .groupBy('started_at_date')
+            .orderBy('started_at_date');
+        return rows.map((row) => ({
+            date: row['started_at_date'],
+            started: Number(row['started_at']),
+            completed: Number(row['is_completed'])
+        }));
+    } catch (error) {
+        console.error('Error fetching started and completed interviews by day:', error);
+        throw new TrError(`cannot get started and completed interviews by day (knex error: ${error})`, 'MON0005');
     }
 };
 
