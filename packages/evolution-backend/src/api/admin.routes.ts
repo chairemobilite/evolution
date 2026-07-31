@@ -12,7 +12,6 @@ import path from 'path';
 import { Response, Request } from 'express';
 import { execFile } from 'child_process';
 import { promisify } from 'util';
-import knex from 'chaire-lib-backend/lib/config/shared/db.config';
 import router from 'chaire-lib-backend/lib/api/admin.routes';
 import { addExportRoutes } from './admin/exports.routes';
 import { RespondentBehaviorService } from '../services/paradata/respondentBehavior';
@@ -21,6 +20,7 @@ import {
     getStartedInterviewsCount,
     getCompletedInterviewsCount,
     getInterviewsCompletionRate,
+    getStartedAndCompletedInterviewsByDay,
     getSurveyDifficultyDistribution
 } from '../models/monitoring.db.queries';
 
@@ -267,22 +267,10 @@ router.post('/generator/verify', (req: Request, res: Response) => {
 });
 
 // TODO: add CSV export for this widget.
-// TODO: Move this logic to monitoring.db.queries.ts
 const handleStartedAndCompletedInterviewsByDay = async (res: Response) => {
-    // Get the sum directly from the DB, using the started_at date for grouping
-    const subquery = knex('sv_interviews').select(
-        'id',
-        knex.raw('to_char(created_at, \'YYYY-MM-DD\') as started_at_date'),
-        knex.raw('case when response->>\'_completedAt\' is null then 0 else 1 end as is_completed')
-    );
-    const responses = await knex(subquery.as('resp_data'))
-        .select('started_at_date')
-        .count({ started_at: 'id' })
-        .sum({ is_completed: 'is_completed' })
-        .whereNotNull('started_at_date')
-        .groupBy('started_at_date')
-        .orderBy('started_at_date');
-    if (responses.length <= 0) {
+    // Get the counts by local calendar day directly from the DB
+    const byDay = await getStartedAndCompletedInterviewsByDay();
+    if (byDay.length === 0) {
         return respondOk({
             res,
             result: { dates: [], started: [], completed: [], startedCount: 0, completedCount: 0 }
@@ -290,19 +278,17 @@ const handleStartedAndCompletedInterviewsByDay = async (res: Response) => {
     }
     // Create an array of dates with all dates in range
     const dates: string[] = [];
-    const firstDate = moment(responses[0]['started_at_date']);
-    const lastDate = moment(responses[responses.length - 1]['started_at_date']);
+    const firstDate = moment(byDay[0].date);
+    const lastDate = moment(byDay[byDay.length - 1].date);
     for (let date = firstDate; date.diff(lastDate, 'days') <= 0; date.add(1, 'days')) {
         const dateStr = date.format('YYYY-MM-DD');
         dates.push(dateStr);
     }
     // Process database data into response field
     const dataByDate = {};
-    responses.forEach((dateCount) => (dataByDate[dateCount['started_at_date']] = dateCount));
-    const started = dates.map((date) => (dataByDate[date] !== undefined ? Number(dataByDate[date]['started_at']) : 0));
-    const completed = dates.map((date) =>
-        dataByDate[date] !== undefined ? Number(dataByDate[date]['is_completed']) : 0
-    );
+    byDay.forEach((dayCounts) => (dataByDate[dayCounts.date] = dayCounts));
+    const started = dates.map((date) => (dataByDate[date] !== undefined ? dataByDate[date].started : 0));
+    const completed = dates.map((date) => (dataByDate[date] !== undefined ? dataByDate[date].completed : 0));
     const startedCount = started.reduce((cnt, startedCnt) => cnt + startedCnt, 0);
     const completedCount = completed.reduce((cnt, startedCnt) => cnt + startedCnt, 0);
     return respondOk({ res, result: { dates, started, completed, startedCount, completedCount } });

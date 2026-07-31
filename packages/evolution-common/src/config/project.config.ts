@@ -8,7 +8,7 @@ import projectConfig, {
     ProjectConfiguration,
     setProjectConfiguration
 } from 'chaire-lib-common/lib/config/shared/project.config';
-import { ISODateTimeStringWithTimezoneOffset } from '../utils/DateTimeUtils';
+import { ISODateTimeStringWithTimezoneOffset, Timezone } from '../utils/DateTimeUtils';
 import { AuditChecksGroup, SurveyBase, AuditRequiredFieldsBySurveyObject } from '../services/audits/types';
 import type { SurveyObjectName } from '../services/baseObjects/types';
 import { AccessCodeFormatName } from '../services/accessCode/accessCodeFormats';
@@ -47,6 +47,13 @@ export type EvolutionProjectConfiguration = {
      * Provide the timezone offset so we can calculate the correct unix epoch.
      * */
     endDateTimeWithTimezoneOffset?: ISODateTimeStringWithTimezoneOffset;
+    /**
+     * IANA timezone of the survey area (e.g. 'America/Toronto'). Used to
+     * display interview timestamps (e.g. start dates in admin dashboards and
+     * exports) as local calendar dates. When not set, dates are displayed in
+     * UTC (no runtime-dependent default, so servers and browsers always agree).
+     */
+    timezone?: Timezone;
     /** Whether to log database updates. FIXME This should be server-side only
      * */
     logDatabaseUpdates: boolean;
@@ -265,6 +272,7 @@ const defaultConfig = {
     countryCode: 'CA',
     startDateTimeWithTimezoneOffset: undefined,
     endDateTimeWithTimezoneOffset: undefined,
+    timezone: undefined,
     surveyAreaGeojsonPath: undefined,
     hideStartButtonOnHomePage: false,
     introductionTwoParagraph: false,
