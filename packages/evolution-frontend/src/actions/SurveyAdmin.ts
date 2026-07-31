@@ -44,7 +44,8 @@ import {
     updateInterviewState,
     updateInterviewData,
     startNavigateWithUpdateCallback,
-    asyncDispatchQueue
+    asyncDispatchQueue,
+    setInterviewState
 } from './Survey';
 import { ThunkDispatch } from 'redux-thunk';
 import { RootState } from '../store/configureStore';
@@ -236,6 +237,10 @@ export const startNavigateCorrectedInterview = (
     callback?: Parameters<StartNavigate>[1]
 ) => startNavigateWithUpdateCallback(startUpdateSurveyCorrectedInterview, options, callback);
 
+// Keep an identifier for the latest interview activation request to avoid race
+// conditions and make sure only the most recent sets the interview
+let latestInterviewSetRequestId = 0;
+
 /**
  * Fetch an interview from server and set it for edition in correction mode.
  *
@@ -254,17 +259,31 @@ export const startSetSurveyCorrectedInterview = (
         dispatch: ThunkDispatch<RootState, unknown, SurveyAction | AuthAction | LoadingStateAction>,
         _getState: () => RootState
     ) => {
+        const requestId = ++latestInterviewSetRequestId;
         try {
+            // Make sure to set the interview to `undefined` first, to override
+            // any previous interview and avoid side effects if previous state
+            // remain.
+            dispatch(setInterviewState(undefined));
+
             const response = await fetch(`/api/survey/activeCorrectedInterview/${interviewUuid}`, {
                 credentials: 'include'
             });
+
+            // Only the most recent request may commit the result. This prevents
+            // out-of-order responses from overwriting the interview with stale
+            // data.
+            if (requestId !== latestInterviewSetRequestId) {
+                return;
+            }
+
             if (response.status === 200) {
                 const body = await response.json();
                 if (body.interview) {
                     const interview = body.interview;
 
                     // Set the interview in the state first
-                    dispatch(updateInterviewState(interview));
+                    dispatch(setInterviewState(interview));
 
                     // Then, initialize navigation for the current interview
                     // This will handle all necessary updates internally
