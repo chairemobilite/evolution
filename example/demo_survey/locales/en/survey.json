@@ -55,5 +55,6 @@
     "gender": {
         "Custom": "{{nickname}} identifies themselves as",
         "Custom_one": "I identify myself as"
-    }
+    },
+    "Interviewers": "Interviewers"
 }
