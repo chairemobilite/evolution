@@ -19,11 +19,13 @@ import {
 } from '../frontendHelper';
 import { interviewAttributesForTestCases } from 'evolution-common/lib/tests/surveys';
 
+const defaultLocale = "en";
 jest.mock('../../../config/i18n.config', () => ({
     t: jest.fn(
         (key, options) =>
             `${key}${options && options.context ? `_${options.context}` : ''}${options && options.count !== undefined ? `_${options.count}` : ''}`
-    )
+    ),
+    language: "en" // Should match current locale, but cannot set before initialization
 }));
 const mockedT = i18n.t as jest.MockedFunction<TFunction>;
 
@@ -76,10 +78,18 @@ describe('getGenderedSuffixes', () => {
 });
 
 describe('getFormattedi18nDate', () => {
-    it('should return formatted date with default locale and without day of week or relative', () => {
+    afterEach(() => {
+        // Reset the default locale
+        i18n.language = defaultLocale
+    });
+
+    it('should return formatted date with current locale and without day of week or relative', () => {
         const date = '2023-10-01';
+        // Change the current locale
+        const newCurrentLocale = 'de';
+        i18n.language = newCurrentLocale;
         const result = getFormattedDate(date);
-        expect(result).toBe(moment(date).format('LL'));
+        expect(result).toBe(moment(date).locale(newCurrentLocale).format('LL'));
     });
 
     it('should return formatted date with specified locale and without day of week', () => {
@@ -92,7 +102,7 @@ describe('getFormattedi18nDate', () => {
     it('should return formatted date with day of week', () => {
         const date = '2023-10-01';
         const result = getFormattedDate(date, { withDayOfWeek: true });
-        expect(result).toBe(moment(date).format('dddd LL'));
+        expect(result).toBe(moment(date).locale(defaultLocale).format('dddd LL'));
     });
 
     it('should return formatted date with relative date (yesterday)', () => {

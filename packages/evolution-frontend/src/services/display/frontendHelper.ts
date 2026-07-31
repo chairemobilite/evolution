@@ -71,7 +71,7 @@ export const getGenderedStrings = (person: Person | undefined | null, t: TFuncti
  * @param date The date string, formatted YYYY-MM-DD
  * @param options The options
  * @param {boolean} [options.withRelative=false] Whether to add a relative date (eg. yesterday, day before yesterday)
- * @param {string} [options.locale=undefined] The locale to use or undefined to use the default locale
+ * @param {string} [options.locale=undefined] The locale to use or undefined to use the current locale
  * @param {boolean} [options.withDayOfWeek=false] Whether to add the day of the week
  * @returns
  */
@@ -85,7 +85,8 @@ export const getFormattedDate = (
 ) => {
     const tripsDate = moment(date);
     const format = withDayOfWeek ? 'dddd LL' : 'LL';
-    let formattedTripsDate = locale ? tripsDate.locale(locale).format(format) : tripsDate.format(format);
+    const effectiveLocale = locale !== undefined ? locale : i18n.language;
+    let formattedTripsDate = tripsDate.locale(effectiveLocale).format(format);
     if (withRelative) {
         const today = moment(0, 'HH'); // today
         const numberOfDaysDiff = today.diff(tripsDate, 'days');
