@@ -20,6 +20,7 @@ import HtmlWebpackPlugin from 'html-webpack-plugin';
 import { CleanWebpackPlugin } from 'clean-webpack-plugin';
 // eslint-disable-next-line n/no-unpublished-import
 import CompressionPlugin from 'compression-webpack-plugin';
+import { resolveAppBuildId } from '../../config/resolveBuildId';
 
 export type ParticipantWebpackConfigParams = CommonWebpackConfigParams & {
     /** The path to the participant app's entry file */
@@ -73,6 +74,13 @@ const stringifyEnvValues = (envs: Record<string, unknown>) => {
     return Object.fromEntries(Object.entries(envs).map(([key, value]) => [key, JSON.stringify(value)]));
 };
 
+const getDefaultBuildEnvs = (): Record<string, string> => {
+    return {
+        // Git commit hash baked into the frontend bundle (github.sha in CI)
+        BUILD_ID: resolveAppBuildId(process.env)
+    };
+};
+
 export const createCommonWebpackConfig = (params: WebpackGenerationConfigParams): Configuration => {
     const currentNodeEnv = params.env.NODE_ENV || process.env.NODE_ENV;
     const isProduction = currentNodeEnv === 'production';
@@ -111,7 +119,7 @@ export const createCommonWebpackConfig = (params: WebpackGenerationConfigParams)
             IS_TESTING: JSON.stringify(currentNodeEnv === 'test'),
             GOOGLE_API_KEY: JSON.stringify(process.env.GOOGLE_API_KEY),
             GOOGLE_MAP_ID: JSON.stringify(process.env.GOOGLE_MAP_ID),
-            ...stringifyEnvValues(params.extraEnvs)
+            ...stringifyEnvValues({ ...params.extraEnvs, ...getDefaultBuildEnvs() })
         },
         __CONFIG__: JSON.stringify({
             ...params.config

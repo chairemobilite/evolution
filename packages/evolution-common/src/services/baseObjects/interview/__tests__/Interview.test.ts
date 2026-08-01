@@ -426,6 +426,30 @@ describe('Interview', () => {
             expect(result.source).toBeUndefined();
             expect(result.personsRandomSequence).toBeUndefined();
             expect(result.sections).toBeUndefined();
+            expect(result.frontendBuildIds).toBeUndefined();
+            expect(result.backendBuildIds).toBeUndefined();
+        });
+
+        it('should extract frontend and backend build ids from dirty params', () => {
+            const dirtyParams = {
+                _frontendBuildIds: [{ buildId: 'frontend-sha', startTimestamp: 1632929461 }],
+                _backendBuildIds: [{ buildId: 'backend-sha', startTimestamp: 1632929462 }]
+            };
+
+            const result = Interview.extractDirtyParadataParams(dirtyParams);
+
+            expect(result.frontendBuildIds).toEqual(dirtyParams._frontendBuildIds);
+            expect(result.backendBuildIds).toEqual(dirtyParams._backendBuildIds);
+        });
+
+        it('should extract review backend build ids from dirty params', () => {
+            const dirtyParams = {
+                _reviewBackendBuildIds: [{ buildId: 'review-backend-sha', startTimestamp: 1632929463 }]
+            };
+
+            const result = Interview.extractDirtyParadataParams(dirtyParams);
+
+            expect(result.reviewBackendBuildIds).toEqual(dirtyParams._reviewBackendBuildIds);
         });
     });
 
@@ -494,6 +518,29 @@ describe('Interview', () => {
                 expect(interview.paradata?.browsers?.[0].browser?.name).toBe('Firefox');
                 expect(interview.paradata?.personsRandomSequence).toEqual(['uuid1', 'uuid2']);
                 expect(interview.paradata?.sections?.home).toBeDefined();
+            }
+        });
+
+        it('should map build ids to paradata only, not custom attributes', () => {
+            const validParams = {
+                _uuid: uuidV4(),
+                accessCode: 'ABC123',
+                assignedDate: '2023-09-30',
+                _frontendBuildIds: [{ buildId: 'frontend-sha', startTimestamp: 1632929461 }],
+                _backendBuildIds: [{ buildId: 'backend-sha', startTimestamp: 1632929462 }],
+                _reviewBackendBuildIds: [{ buildId: 'review-backend-sha', startTimestamp: 1632929463 }]
+            };
+
+            const result = create(validParams, { id: 123, participant_id: 456 } as RawInterviewAttributes, registry);
+            expect(isOk(result)).toBe(true);
+            if (isOk(result)) {
+                const interview = unwrap(result) as Interview;
+                expect(interview.paradata?.frontendBuildIds).toEqual(validParams._frontendBuildIds);
+                expect(interview.paradata?.backendBuildIds).toEqual(validParams._backendBuildIds);
+                expect(interview.paradata?.reviewBackendBuildIds).toEqual(validParams._reviewBackendBuildIds);
+                expect(interview.customAttributes._frontendBuildIds).toBeUndefined();
+                expect(interview.customAttributes._backendBuildIds).toBeUndefined();
+                expect(interview.customAttributes._reviewBackendBuildIds).toBeUndefined();
             }
         });
 

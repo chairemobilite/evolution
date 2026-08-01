@@ -62,6 +62,8 @@ jobs:
         with:
           context: .
           push: true
+          build-args: |
+            BUILD_ID=${{ github.sha }}
           tags: ${{ steps.branch-meta.outputs.tags }}
           labels: ${{ steps.branch-meta.outputs.labels }}
           cache-from: type=gha

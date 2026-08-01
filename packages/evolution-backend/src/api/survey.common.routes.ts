@@ -19,6 +19,7 @@ import { logClientSide } from '../services/logging/messageLogging';
 import { updateInterview } from '../services/interviews/interview';
 import { getParadataLoggingFunction } from '../services/logging/paradataLogging';
 import { handleUserActionSideEffect } from '../services/interviews/interviewUtils';
+import { getParticipantBackendBuildIdsValuesByPath } from '../services/paradata/backendBuildIds';
 
 /**
  * Add the common survey routes to the router
@@ -75,6 +76,13 @@ export default (router: Router, authorizationMiddleware, loggingMiddleware: Inte
                     if (userAction) {
                         handleUserActionSideEffect(interview, valuesByPath, userAction);
                     }
+                    // Stamp participant response build id here (not in updateInterview).
+                    // Admin corrected_response updates use REVIEW_BACKEND_BUILD_IDS_PATH instead
+                    // and never touch response._backendBuildIds.
+                    Object.assign(
+                        valuesByPath,
+                        getParticipantBackendBuildIdsValuesByPath(interview.response?._backendBuildIds)
+                    );
                     const retInterview = await updateInterview(interview, {
                         logUpdate: getParadataLoggingFunction({
                             interviewId: interview.id,

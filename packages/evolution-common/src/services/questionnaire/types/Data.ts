@@ -13,6 +13,7 @@ import { TripAttributes } from '../../baseObjects/Trip';
 import { Optional } from '../../../types/Optional.type';
 import { SegmentAttributes } from '../../baseObjects/Segment';
 import { HouseholdAttributes } from '../../baseObjects/Household';
+import type { BuildId } from '../../baseObjects/attributeTypes/InterviewParadataAttributes';
 import { NavigationSection } from './NavigationTypes';
 import type { Activity, ActivityCategory, Mode } from '../../odSurvey/types';
 import { YesNoDontKnow } from '../../baseObjects/attributeTypes/GenericAttributes';
@@ -321,6 +322,10 @@ export type InterviewResponse = {
     _startedAt?: number;
     _updatedAt?: number;
     _language?: string;
+    /** Git commit hashes of frontend bundles that touched this interview. */
+    _frontendBuildIds?: BuildId[];
+    /** Git commit hashes of backend builds that touched this interview. */
+    _backendBuildIds?: BuildId[];
     _isCompleted?: boolean;
     _completedAt?: number;
 
@@ -349,6 +354,8 @@ export type InterviewResponse = {
 export type CorrectedResponse = InterviewResponse & {
     _correctedResponseCopiedAt?: number;
     _validationComment?: string;
+    /** Git commit hashes of admin backend builds that touched this review. */
+    _reviewBackendBuildIds?: BuildId[];
 };
 
 export interface InterviewAudits {

@@ -184,6 +184,14 @@ const updateSurveyCorrectedInterview = async (
         if (response.status === 200) {
             const body = await response.json();
             if (body.status === 'success' && body.interviewId === updatedInterview.uuid) {
+                if (body.updatedValuesByPath && Object.keys(body.updatedValuesByPath).length > 0) {
+                    // Server-assigned values (e.g. _reviewBackendBuildIds paradata or server
+                    // update callback results) are applied in place without re-running section
+                    // preparation. Widget state referencing these values, if any, is refreshed by
+                    // the next interaction, which is sufficient for the admin correction UI.
+                    updateInterviewData(updatedInterview, { valuesByPath: body.updatedValuesByPath });
+                }
+
                 dispatch(updateInterviewState(_cloneDeep(updatedInterview), {}, updatedValuesByPath['_all'] === true));
                 if (typeof callback === 'function') {
                     callback(updatedInterview);
