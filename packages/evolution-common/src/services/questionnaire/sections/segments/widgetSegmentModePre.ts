@@ -33,7 +33,7 @@ const canPersonDriveCar: WidgetConditional = (interview) => {
         person && person.drivingLicenseOwnership !== undefined ? person.drivingLicenseOwnership : 'dontKnow';
     if (
         drivingLicenseOwnership === 'dontKnow' &&
-        ((person.age && person.age > config.ages.drivingLicenseAge) || !person.age)
+        ((person.age && person.age >= config.ages.drivingLicenseAge) || !person.age)
     ) {
         // Check the person's age to not offer the carDriver option if the person is too young
         return true;

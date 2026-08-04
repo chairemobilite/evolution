@@ -229,34 +229,33 @@ describe('Mode choices conditionals', () => {
         expect(carDriverResult).toEqual(false);
     });
 
-    test('carDriver conditional should return true if no driving license information is available', () => {
-        // Prepare test data with active person/journey/trip
-        const interview = _cloneDeep(interviewAttributesForTestCases);
-        interview.response._activePersonId = 'personId3';
-        interview.response._activeJourneyId = 'journeyId3';
-        interview.response._activeTripId = 'tripId1P3';
+    test.each([
+        ['person age is unknown', undefined, true],
+        ['person is too young', 15, false],
+        ['person is at driving license age', 16, true],
+        ['person is older than driving license age', 25, true]
+    ])(
+        'carDriver conditional should return expected result when license ownership is unknown and %s',
+        (_title, age, expected) => {
+            const interview = _cloneDeep(interviewAttributesForTestCases);
+            interview.response._activePersonId = 'personId3';
+            interview.response._activeJourneyId = 'journeyId3';
+            interview.response._activeTripId = 'tripId1P3';
+            if (age === undefined) {
+                delete interview.response.household!.persons!.personId3!.age;
+            } else {
+                interview.response.household!.persons!.personId3!.age = age;
+            }
 
-        // Find the carDriver choice
-        const carDriverChoice = choices.find((choice) => choice.value === 'carDriver');
-        expect(carDriverChoice).toBeDefined();
-        const carDriverResult = carDriverChoice?.conditional?.(interview, 'household.persons.personId3.journeys.journeyId3.trips.tripId1P2.segments.segmentId1P3T1.modePre');
-        expect(carDriverResult).toEqual(true);
-    });
-
-    test('carDriver conditional should return false if no driving license information is available, but person is too young', () => {
-        // Prepare test data with active person/journey/trip
-        const interview = _cloneDeep(interviewAttributesForTestCases);
-        interview.response._activePersonId = 'personId3';
-        interview.response._activeJourneyId = 'journeyId3';
-        interview.response._activeTripId = 'tripId1P3';
-        interview.response.household!.persons!.personId3!.age = 15;
-
-        // Find the carDriver choice
-        const carDriverChoice = choices.find((choice) => choice.value === 'carDriver');
-        expect(carDriverChoice).toBeDefined();
-        const carDriverResult = carDriverChoice?.conditional?.(interview, 'household.persons.personId3.journeys.journeyId3.trips.tripId1P2.segments.segmentId1P3T1.modePre');
-        expect(carDriverResult).toEqual(false);
-    });
+            const carDriverChoice = choices.find((choice) => choice.value === 'carDriver');
+            expect(carDriverChoice).toBeDefined();
+            const carDriverResult = carDriverChoice?.conditional?.(
+                interview,
+                'household.persons.personId3.journeys.journeyId3.trips.tripId1P2.segments.segmentId1P3T1.modePre'
+            );
+            expect(carDriverResult).toEqual(expected);
+        }
+    );
 
     test('carDriver conditional should return result for first person if no active person', () => {
         // Prepare test data with no active person/journey/trip
