@@ -24,9 +24,9 @@ SaveAndContinue: Save and continue
 
 # Gendered strings
 # FIXME These may not be required anymore with the expanded labels gender from the generator. The generator's approach adds a context to the label, but it avoids having to explicitly list all possible gendered suffixes.
-suffixE: 
-suffixEurRice: 
-suffixErEre: 
+suffixE:
+suffixEurRice:
+suffixErEre:
 isHeShe: is he/she
 isHeShe_male: is he
 isHeShe_female: is she
@@ -151,3 +151,28 @@ errors:
   phoneNumberInvalid: "Phone number is invalid (e.g.: 514-123-1234 or +44 20 7946 0958)."
   accessCodeRequired: "Please specify your access code."
   accessCodeInvalid: "Access code is invalid."
+  householdSizeInvalid: "Household size is invalid."
+  householdSizeRequired: "Household size is required."
+  householdSizeOverMax: "Household size must be at most {{max}}."
+  householdSizeMinOne: "Household size must be at least 1 (you need to include yourself)."
+  carNumberInvalid: "The number of vehicles is invalid."
+  carNumberRequired: "The number of vehicles is required."
+  carNumberMinZero: "The number of vehicles must be at least 0."
+  carNumberOverMax: >-
+    The number of vehicles must be at most {{maxPerPerson}} per person in the
+    household. Do not include collection vehicles or vehicles that are not used
+    on a regular basis.
+  bicycleNumberInvalid: "The number of bicycles is invalid."
+  bicycleNumberRequired: "The number of bicycles is required."
+  bicycleNumberMinZero: "The number of bicycles must be at least 0."
+  bicycleNumberOverMax: >-
+    The number of bicycles must be at most {{maxPerPerson}} per person in the
+    household. Do not include collection bicycles or bicycles that are not used
+    on a regular basis.
+  twoWheelNumberInvalid: "The number of motorcycles or scooters is invalid."
+  twoWheelNumberRequired: "The number of motorcycles or scooters is required."
+  twoWheelNumberMinZero: "The number of motorcycles or scooters must be at least 0."
+  twoWheelNumberOverMax: >-
+    The number of motorcycles or scooters must be at most {{maxPerPerson}} per
+    person in the household. Do not include collection motorcycles or scooters or
+    motorcycles or scooters that are not used on a regular basis.

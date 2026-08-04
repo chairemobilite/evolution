@@ -8,6 +8,12 @@ import { setProjectConfiguration } from 'chaire-lib-common/lib/config/shared/pro
 import projectConfig, { EvolutionProjectConfiguration } from '../project.config';
 import { ISODateTimeStringWithTimezoneOffset } from '../../utils/DateTimeUtils';
 
+const defaultVehicles = {
+    maxCarsPerHouseholdMember: 3,
+    maxBicyclesPerHouseholdMember: 3,
+    maxTwoWheelsPerHouseholdMember: 3
+};
+
 test('Expected default', () => {
     expect(projectConfig).toEqual(expect.objectContaining({
         region: 'CA',
@@ -15,6 +21,8 @@ test('Expected default', () => {
         drivingLicenseAge: 16,
         maxPersonAge: 125,
         addAuditWarningVeryOldAge: undefined,
+        maxHouseholdSize: 18,
+        vehicles: defaultVehicles,
         logDatabaseUpdates: false,
         startDateTimeWithTimezoneOffset: undefined,
         endDateTimeWithTimezoneOffset: undefined,
@@ -33,8 +41,12 @@ test('Expected default', () => {
 test('set project configuration', () => {
     const configToSet = {
         region: 'FR',
-        selfResponseMinimumAge: 18,
-        drivingLicenseAge: 16,
+        maxHouseholdSize: 18,
+        vehicles: {
+            maxCarsPerHouseholdMember: 3,
+            maxBicyclesPerHouseholdMember: 3,
+            maxTwoWheelsPerHouseholdMember: 3
+        },
         logDatabaseUpdates: true,
         startDateTimeWithTimezoneOffset: '2025-01-01T00:00:00-05:00' as ISODateTimeStringWithTimezoneOffset,
         endDateTimeWithTimezoneOffset: '2025-12-31T23:59:59-05:00' as ISODateTimeStringWithTimezoneOffset,
@@ -50,4 +62,18 @@ test('set project configuration', () => {
     };
     setProjectConfiguration<EvolutionProjectConfiguration>(configToSet);
     expect(projectConfig).toEqual(expect.objectContaining(configToSet));
+});
+
+test('partial vehicles override keeps defaults for omitted limits', () => {
+    setProjectConfiguration<EvolutionProjectConfiguration>({
+        vehicles: {
+            maxCarsPerHouseholdMember: 5
+        } as EvolutionProjectConfiguration['vehicles']
+    });
+
+    expect(projectConfig.vehicles).toEqual({
+        maxCarsPerHouseholdMember: 5,
+        maxBicyclesPerHouseholdMember: defaultVehicles.maxBicyclesPerHouseholdMember,
+        maxTwoWheelsPerHouseholdMember: defaultVehicles.maxTwoWheelsPerHouseholdMember
+    });
 });

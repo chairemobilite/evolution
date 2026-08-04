@@ -11,6 +11,16 @@ import projectConfig, {
 import { ISODateTimeStringWithTimezoneOffset } from '../utils/DateTimeUtils';
 import { AuditChecksGroup, SurveyBase, AuditRequiredFieldsBySurveyObject } from '../services/audits/types';
 
+/** Household vehicle count validation configuration. */
+export type EvolutionVehiclesConfiguration = {
+    /** Maximum cars per household member. Defaults to 3. */
+    maxCarsPerHouseholdMember: number;
+    /** Maximum bicycles per household member. Defaults to 3. */
+    maxBicyclesPerHouseholdMember: number;
+    /** Maximum motorcycles or scooters per household member. Defaults to 3. */
+    maxTwoWheelsPerHouseholdMember: number;
+};
+
 /**
  * Specific configuration for the Evolution project
  */
@@ -79,6 +89,9 @@ export type EvolutionProjectConfiguration = {
      * Applies up to {@link maxPersonAge}. When undefined, no age warning audit is raised.
      */
     addAuditWarningVeryOldAge?: number;
+    /** Maximum household size for widgets and validations. Defaults to 18. */
+    maxHouseholdSize: number;
+    vehicles: EvolutionVehiclesConfiguration;
     /**
      * Whether to show the support form on all pages of the participant app. If
      * set to `true`, a button will be displayed in the bottom right corner of
@@ -202,16 +215,25 @@ export type EvolutionProjectConfiguration = {
     // TODO Add more project configuration types
 };
 
+const defaultVehiclesConfig: EvolutionVehiclesConfiguration = {
+    maxCarsPerHouseholdMember: 3,
+    maxBicyclesPerHouseholdMember: 3,
+    maxTwoWheelsPerHouseholdMember: 3
+};
+
 // Make sure default values are set
 const defaultConfig = {
     region: 'CA',
     logDatabaseUpdates: false,
+
     selfResponseMinimumAge: 14,
     interviewableAge: 5,
     adultAge: 18,
     drivingLicenseAge: 16,
     maxPersonAge: 125,
     addAuditWarningVeryOldAge: undefined,
+    maxHouseholdSize: 18,
+    vehicles: defaultVehiclesConfig,
     surveySupportForm: false,
     mapDefaultCenter: {
         lat: 45.5,
@@ -284,7 +306,11 @@ const defaultConfig = {
 };
 
 // Validate and set the configuration
-const mergedConfig = Object.assign({}, defaultConfig, projectConfig);
+const mergedConfig = {
+    ...defaultConfig,
+    ...projectConfig,
+    vehicles: { ...defaultVehiclesConfig, ...projectConfig.vehicles }
+};
 
 setProjectConfiguration<EvolutionProjectConfiguration>(mergedConfig);
 
