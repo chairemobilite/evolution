@@ -15,9 +15,13 @@ import { sendSupportRequestEmail } from '../../services/logging/supportRequest';
 jest.mock('../../services/interviews/interviews');
 jest.mock('../../services/logging/queryLoggingMiddleware');
 jest.mock('../../services/logging/supportRequest');
-jest.mock('evolution-common/lib/config/project.config', () => ({
-    surveySupportForm: true
-}));
+jest.mock('evolution-common/lib/config/project.config', () => {
+    const actual = jest.requireActual('evolution-common/lib/config/project.config');
+    return {
+        ...actual.default,
+        surveySupportForm: true
+    };
+});
 
 const mockUserId = 3;
 const mockAuthorizationMiddleware = jest.fn(() => (req, res, next) => next());
@@ -272,9 +276,13 @@ describe('POST /supportRequest', () => {
     test('should not register route when supportForm is disabled', async () => {
         // Override the project config mock to disable support form
         jest.resetModules();
-        jest.mock('evolution-common/lib/config/project.config', () => ({
-            surveySupportForm: false
-        }));
+        jest.mock('evolution-common/lib/config/project.config', () => {
+            const actual = jest.requireActual('evolution-common/lib/config/project.config');
+            return {
+                ...actual.default,
+                surveySupportForm: false
+            };
+        });
 
         // Re-import to get updated config, otherwise it still uses the previous config mock and the result is a 500 error
         const { getPublicParticipantRoutes: getUpdatedRoutes } = require('../survey.participant.routes');
