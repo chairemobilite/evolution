@@ -14,6 +14,12 @@ jest.mock('../../../../config/project.config', () => ({
     accessCodeFormat: '0000-0000', // Default 8-digits format for tests
     ages: {
         maxPersonAge: 125
+    },
+    maxHouseholdSize: 18,
+    vehicles: {
+        maxCarsPerHouseholdMember: 3,
+        maxBicyclesPerHouseholdMember: 3,
+        maxTwoWheelsPerHouseholdMember: 3
     }
 }));
 
@@ -30,22 +36,22 @@ describe('postalCodeValidation', () => {
             expect((result[0].errorMessage as any)(mockTranslation)).toEqual('survey:errors:postalCodeRequired');
         });
     });
-    
+
     describe('Canadian postal code validation', () => {
         beforeEach(() => {
             projectConfig.postalCodeRegion = 'canada';
         });
-        
+
         test.each([
-            'A1A 1A1', 
+            'A1A 1A1',
             'A1A1A1',
-            'H3Z 2Y7', 
+            'H3Z 2Y7',
             'V8C 1A5'
         ])('should accept valid Canadian postal code: %s', (postalCode) => {
             const result = validations.postalCodeValidation(postalCode, undefined, {} as any, 'postalCode');
             expect(result[1].validation).toBe(false); // Should be valid
         });
-        
+
         test.each([
             ['D1A 1A1', 'D is not used in Canadian postal codes'],
             ['F1A 1A1', 'F is not used in Canadian postal codes'],
@@ -69,12 +75,12 @@ describe('postalCodeValidation', () => {
             expect(mockTranslation).toHaveBeenLastCalledWith('survey:errors:postalCodeInvalid', { context: 'canada' });
         });
     });
-    
+
     describe('Quebec postal code validation', () => {
         beforeEach(() => {
             projectConfig.postalCodeRegion = 'quebec';
         });
-        
+
         test.each([
             'G1A 1A1',
             'H3Z 2Y7',
@@ -84,7 +90,7 @@ describe('postalCodeValidation', () => {
             const result = validations.postalCodeValidation(postalCode, undefined, {} as any, 'postalCode');
             expect(result[1].validation).toBe(false); // Should be valid
         });
-        
+
         test.each([
             ['D1A 1A1', 'D is not used in Canadian postal codes'],
             ['F1A 1A1', 'F is not used in Canadian postal codes'],
@@ -112,12 +118,12 @@ describe('postalCodeValidation', () => {
             expect(mockTranslation).toHaveBeenLastCalledWith('survey:errors:postalCodeInvalid', { context: 'quebec' });
         });
     });
-    
+
     describe('Other postal code validation', () => {
         beforeEach(() => {
             projectConfig.postalCodeRegion = 'other';
         });
-        
+
         test.each([
             ['A1A 1A1', 'Canadian'],
             ['H3Z 2Y7', 'Quebec'],
@@ -143,7 +149,7 @@ describe('getPostalCodeRegex', () => {
         const regex = validations.getPostalCodeRegex();
         expect(regex.test(postalCode)).toBe(expected);
     });
-    
+
     test.each([
         ['H2X 1A1', true, 'Valid Quebec postal code'],
         ['A1A 1A1', false, 'Not a Quebec postal code']
@@ -152,7 +158,7 @@ describe('getPostalCodeRegex', () => {
         const regex = validations.getPostalCodeRegex();
         expect(regex.test(postalCode)).toBe(expected);
     });
-    
+
     test.each([
         ['12345', true, 'US-style postal code'],
         ['ABC-123', true, 'Made up postal code'],
@@ -200,7 +206,7 @@ describe('phoneValidation', () => {
         expect(result[0].validation).toBe(false);
     });
 
-    // Test cases for valid international phone numbers 
+    // Test cases for valid international phone numbers
     test.each([
         // International phone numbers
         '+44 20 7946 0958', // UK number
@@ -279,14 +285,14 @@ describe('accessCodeValidation', () => {
             expect((result[0].errorMessage as any)(mockTranslation)).toEqual('survey:errors:accessCodeRequired');
         });
     });
-    
+
     describe('eight digits access code validation', () => {
         beforeEach(() => {
             projectConfig.accessCodeFormat = '0000-0000';
         });
 
         test.each([
-            '2345-2345', 
+            '2345-2345',
             '1234 1234',
             '12341234'
         ])('should accept valid 8-digits access codes: %s', (accessCode) => {
@@ -294,7 +300,7 @@ describe('accessCodeValidation', () => {
             expect(result[0].validation).toBe(false); // Empty validation passes
             expect(result[1].validation).toBe(false); // Should be valid
         });
-        
+
         test.each([
             ['2345-abcd', 'Contains letters'],
             ['2345 45', 'Too short'],

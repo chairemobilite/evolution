@@ -6,7 +6,9 @@
  */
 
 import type { AuditForObject } from 'evolution-common/lib/services/audits/types';
+import projectConfig from 'evolution-common/lib/config/project.config';
 import type { HouseholdAuditCheckContext, HouseholdAuditCheckFunction } from '../AuditCheckContexts';
+import { isCarNumberInvalid } from 'evolution-common/lib/services/widgets/validations/householdAssetCountValidation';
 import {
     hasInvalidOrDuplicateSequences,
     hasSequenceGaps
@@ -14,8 +16,9 @@ import {
 
 // Above this number of cars per potential driving license holder, the car number
 // is considered suspiciously high and flagged for validation (warning only, not an error).
-// TODO: make this threshold configurable per survey with a default from project config.
-export const MAX_CAR_NUMBER_PER_POTENTIAL_DRIVING_LICENSE = 3;
+// Stricter than the participant form bound (household.size × maxCarsPerHouseholdMember)
+// because driving license counts are not known when carNumber is asked.
+export const MAX_CAR_NUMBER_PER_POTENTIAL_DRIVING_LICENSE = projectConfig.vehicles.maxCarsPerHouseholdMember;
 
 export const householdAuditChecks: { [errorCode: string]: HouseholdAuditCheckFunction } = {
     /**
@@ -44,7 +47,7 @@ export const householdAuditChecks: { [errorCode: string]: HouseholdAuditCheckFun
 
     /**
      * Check if household size is invalid.
-     * Validates an integer in [1, 18], consistent with the participant form rule.
+     * Validates an integer in [1, maxHouseholdSize], consistent with the participant form rule.
      *
      * @see {@link import('evolution-common/lib/services/widgets/validations/validations').householdSizeValidation}
      * @param context - HouseholdAuditCheckContext
@@ -54,15 +57,15 @@ export const householdAuditChecks: { [errorCode: string]: HouseholdAuditCheckFun
         const { household } = context;
         const size = household.size;
 
-        // Upper bound 18 must stay in sync with householdSizeValidation (same module as @see above).
-        if (size !== undefined && (!Number.isInteger(size) || size < 1 || size > 18)) {
+        // Upper bound must stay in sync with householdSizeValidation (same module as @see above).
+        if (size !== undefined && (!Number.isInteger(size) || size < 1 || size > projectConfig.maxHouseholdSize)) {
             return {
                 objectType: 'household',
                 objectUuid: household._uuid!,
                 errorCode: 'HH_I_Size',
                 version: 1,
                 level: 'error',
-                message: 'Household size is out of range (should be an integer between 1 and 18)',
+                message: 'Household size is out of range',
                 ignore: false
             };
         }
@@ -145,8 +148,7 @@ export const householdAuditChecks: { [errorCode: string]: HouseholdAuditCheckFun
 
     /**
      * Check if car number is invalid.
-     * Validates an integer in [0, 13] so audits stay consistent with the participant form rule.
-     * TODO: make max/min values configurable per survey with default values from project config.
+     * Validates a non-negative integer up to household.size × maxCarsPerHouseholdMember.
      *
      * @see {@link import('evolution-common/lib/services/widgets/validations/validations').carNumberValidation}
      * @param context - HouseholdAuditCheckContext
@@ -156,15 +158,14 @@ export const householdAuditChecks: { [errorCode: string]: HouseholdAuditCheckFun
         const { household } = context;
         const carNumber = household.carNumber;
 
-        // Upper bound 13 must stay in sync with carNumberValidation (same module as @see above).
-        if (carNumber !== undefined && (!Number.isInteger(carNumber) || carNumber < 0 || carNumber > 13)) {
+        if (isCarNumberInvalid(carNumber, household.size)) {
             return {
                 objectType: 'household',
                 objectUuid: household._uuid!,
                 errorCode: 'HH_I_CarNumber',
                 version: 1,
                 level: 'error',
-                message: 'Car number is out of range (should be an integer between 0 and 13)',
+                message: 'Car number is out of range',
                 ignore: false
             };
         }
@@ -283,7 +284,7 @@ export const householdAuditChecks: { [errorCode: string]: HouseholdAuditCheckFun
                 errorCode: 'HH_W_CarNumberPerPotentialDrivingLicenseTooHigh',
                 version: 1,
                 level: 'warning',
-                message: 'Car number per potential driving license holder > 3',
+                message: 'Car number per potential driving license holder is very high, please validate',
                 ignore: false
             };
         }

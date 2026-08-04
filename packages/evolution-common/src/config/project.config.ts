@@ -36,6 +36,16 @@ export type EvolutionAgesConfiguration = {
     addAuditWarningVeryOldAge?: number;
 };
 
+/** Household vehicle count validation configuration. */
+export type EvolutionVehiclesConfiguration = {
+    /** Maximum cars per household member. Defaults to 3. */
+    maxCarsPerHouseholdMember: number;
+    /** Maximum bicycles per household member. Defaults to 3. */
+    maxBicyclesPerHouseholdMember: number;
+    /** Maximum motorcycles or scooters per household member. Defaults to 3. */
+    maxTwoWheelsPerHouseholdMember: number;
+};
+
 /**
  * Specific configuration for the Evolution project
  */
@@ -80,8 +90,11 @@ export type EvolutionProjectConfiguration = {
     /** Whether to log database updates. FIXME This should be server-side only
      * */
     logDatabaseUpdates: boolean;
+    /** Maximum household size for widgets and validations. Defaults to 18. */
+    maxHouseholdSize: number;
     /** Age thresholds used by widgets, validations, and audits. */
     ages: EvolutionAgesConfiguration;
+    vehicles: EvolutionVehiclesConfiguration;
     /**
      * Whether to show the support form on all pages of the participant app. If
      * set to `true`, a button will be displayed in the bottom right corner of
@@ -246,10 +259,18 @@ const defaultAgesConfig: EvolutionAgesConfiguration = {
     addAuditWarningVeryOldAge: undefined
 };
 
+const defaultVehiclesConfig: EvolutionVehiclesConfiguration = {
+    maxCarsPerHouseholdMember: 3,
+    maxBicyclesPerHouseholdMember: 3,
+    maxTwoWheelsPerHouseholdMember: 3
+};
+
 const defaultConfig = {
     region: 'CA',
     logDatabaseUpdates: false,
+    maxHouseholdSize: 18,
     ages: defaultAgesConfig,
+    vehicles: defaultVehiclesConfig,
     surveySupportForm: false,
     mapDefaultCenter: {
         lat: 45.5,
@@ -328,7 +349,8 @@ const defaultConfig = {
 const mergedConfig = {
     ...defaultConfig,
     ...projectConfig,
-    ages: { ...defaultAgesConfig, ...projectConfig.ages }
+    ages: { ...defaultAgesConfig, ...projectConfig.ages },
+    vehicles: { ...defaultVehiclesConfig, ...projectConfig.vehicles }
 };
 
 setProjectConfiguration<EvolutionProjectConfiguration>(mergedConfig);
