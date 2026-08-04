@@ -13,6 +13,29 @@ import { AuditChecksGroup, SurveyBase, AuditRequiredFieldsBySurveyObject } from 
 import type { SurveyObjectName } from '../services/baseObjects/types';
 import { AccessCodeFormatName } from '../services/accessCode/accessCodeFormats';
 
+/** Age-related survey configuration thresholds. */
+export type EvolutionAgesConfiguration = {
+    /** Age from which respondents complete their own trips in household surveys. Defaults to 14. */
+    selfResponseMinimumAge: number;
+    /** Minimum age to interview a household member. Defaults to 5. */
+    interviewableAge: number;
+    /** Age at which a person is considered an adult. Defaults to 18. */
+    adultAge: number;
+    /** Minimum age to possibly hold a driving license. Defaults to 16. */
+    drivingLicenseAge: number;
+    /** Working age threshold, inclusive. Defaults to 15. */
+    workingAge: number;
+    /** School mandatory age threshold, inclusive. Defaults to 15. */
+    schoolMandatoryAge: number;
+    /** Maximum plausible person age for widgets and audits. Defaults to 125. */
+    maxPersonAge: number;
+    /**
+     * Age from which a person triggers a reviewer warning audit (inclusive).
+     * Applies up to {@link maxPersonAge}. When undefined, no warning audit is raised.
+     */
+    addAuditWarningVeryOldAge?: number;
+};
+
 /**
  * Specific configuration for the Evolution project
  */
@@ -57,49 +80,8 @@ export type EvolutionProjectConfiguration = {
     /** Whether to log database updates. FIXME This should be server-side only
      * */
     logDatabaseUpdates: boolean;
-    /** Age for self response. For household surveys, it is the age from which
-     * respondents will be invited to complete their own trips. Defaults to 14
-     * */
-    selfResponseMinimumAge: number;
-    /**
-     * Age from which a person can be interviewed. Applies to household surveys
-     * only. Below that age, the survey questions will not be asked for this
-     * person. Defaults to 0, which means all persons are interviewable.
-     */
-    interviewableAge: number;
-    /**
-     * Age at which a person is considered an adult in the survey area. This is
-     * used to determine whether a person can be considered an adult for the
-     * purposes of the survey. Defaults to 18.
-     */
-    adultAge: number;
-    /**
-     * Age at which a person could possibly own a driving license in the survey
-     * area. Defaults to 16
-     * */
-    drivingLicenseAge: number;
-    /**
-     * Age at which a person is considered to be of working age in the survey
-     * area, inclusive of this value. Defaults to 15
-     */
-    workingAge: number;
-    /**
-     * Age until which attending school is mandatory in the survey area,
-     * inclusive of this value. This is used to determine if school related
-     * question should be shown by default for household members below that age.
-     * Defaults to 15.
-     */
-    schoolMandatoryAge: number;
-    /**
-     * Maximum plausible person age accepted by audits and age widgets.
-     * Defaults to 125.
-     */
-    maxPersonAge: number;
-    /**
-     * Age from which a person age triggers a reviewer warning audit (inclusive).
-     * Applies up to {@link maxPersonAge}. When undefined, no age warning audit is raised.
-     */
-    addAuditWarningVeryOldAge?: number;
+    /** Age thresholds used by widgets, validations, and audits. */
+    ages: EvolutionAgesConfiguration;
     /**
      * Whether to show the support form on all pages of the participant app. If
      * set to `true`, a button will be displayed in the bottom right corner of
@@ -253,9 +235,7 @@ export type EvolutionProjectConfiguration = {
 };
 
 // Make sure default values are set
-const defaultConfig = {
-    region: 'CA',
-    logDatabaseUpdates: false,
+const defaultAgesConfig: EvolutionAgesConfiguration = {
     selfResponseMinimumAge: 14,
     interviewableAge: 5,
     adultAge: 18,
@@ -263,7 +243,13 @@ const defaultConfig = {
     workingAge: 15,
     schoolMandatoryAge: 15,
     maxPersonAge: 125,
-    addAuditWarningVeryOldAge: undefined,
+    addAuditWarningVeryOldAge: undefined
+};
+
+const defaultConfig = {
+    region: 'CA',
+    logDatabaseUpdates: false,
+    ages: defaultAgesConfig,
     surveySupportForm: false,
     mapDefaultCenter: {
         lat: 45.5,
@@ -339,7 +325,11 @@ const defaultConfig = {
 };
 
 // Validate and set the configuration
-const mergedConfig = Object.assign({}, defaultConfig, projectConfig);
+const mergedConfig = {
+    ...defaultConfig,
+    ...projectConfig,
+    ages: { ...defaultAgesConfig, ...projectConfig.ages }
+};
 
 setProjectConfiguration<EvolutionProjectConfiguration>(mergedConfig);
 

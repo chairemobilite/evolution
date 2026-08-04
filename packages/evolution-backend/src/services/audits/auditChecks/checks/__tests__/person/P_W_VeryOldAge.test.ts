@@ -13,22 +13,22 @@ import { createContextWithPerson } from './testHelper';
 describe('P_W_VeryOldAge audit check', () => {
     const validUuid = uuidV4();
     const warningAge = 100;
-    const originalWarningAge = projectConfig.addAuditWarningVeryOldAge;
+    const originalWarningAge = projectConfig.ages.addAuditWarningVeryOldAge;
 
     beforeEach(() => {
-        projectConfig.addAuditWarningVeryOldAge = warningAge;
+        projectConfig.ages.addAuditWarningVeryOldAge = warningAge;
     });
 
     afterEach(() => {
-        projectConfig.addAuditWarningVeryOldAge = originalWarningAge;
+        projectConfig.ages.addAuditWarningVeryOldAge = originalWarningAge;
     });
 
     // [title, age, shouldWarn]
     const cases: [string, number | undefined | null, boolean][] = [
         ['age below the warning threshold does not warn', warningAge - 1, false],
         ['age at the warning threshold warns', warningAge, true],
-        ['age at the maximum warns', projectConfig.maxPersonAge, true],
-        ['age above the maximum does not warn', projectConfig.maxPersonAge + 1, false],
+        ['age at the maximum warns', projectConfig.ages.maxPersonAge, true],
+        ['age above the maximum does not warn', projectConfig.ages.maxPersonAge + 1, false],
         ['typical age does not warn', 30, false],
         ['undefined age does not warn', undefined, false],
         ['null age does not warn', null, false]
@@ -55,7 +55,7 @@ describe('P_W_VeryOldAge audit check', () => {
     });
 
     it('does not warn when addAuditWarningVeryOldAge is not configured', () => {
-        projectConfig.addAuditWarningVeryOldAge = undefined;
+        projectConfig.ages.addAuditWarningVeryOldAge = undefined;
 
         const context = createContextWithPerson({ age: warningAge }, validUuid);
 

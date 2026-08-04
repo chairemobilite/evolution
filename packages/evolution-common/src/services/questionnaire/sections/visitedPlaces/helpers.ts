@@ -453,7 +453,7 @@ class VisitedPlaceHelpersBaseClass {
     protected mayHaveUsualSchoolPlace = (person: Person) =>
         (person.occupation === undefined ||
             ['fullTimeStudent', 'partTimeStudent', 'workerAndStudent'].includes(person.occupation) ||
-            (!_isBlank(person.age) && person.age! <= config.schoolMandatoryAge)) &&
+            (!_isBlank(person.age) && person.age! <= config.ages.schoolMandatoryAge)) &&
         (person.schoolPlaceType === undefined || ['onLocation', 'hybrid'].includes(person.schoolPlaceType));
 
     protected getPersonUsualPlace: ({

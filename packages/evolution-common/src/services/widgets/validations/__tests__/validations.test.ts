@@ -11,7 +11,10 @@ import projectConfig from '../../../../config/project.config';
 // Mock the project config to be able to change the postalCodeRegion and accessCodeFormat
 jest.mock('../../../../config/project.config', () => ({
     postalCodeRegion: 'canada', // Default for tests
-    accessCodeFormat: '0000-0000' // Default 8-digits format for tests
+    accessCodeFormat: '0000-0000', // Default 8-digits format for tests
+    ages: {
+        maxPersonAge: 125
+    }
 }));
 
 describe('postalCodeValidation', () => {

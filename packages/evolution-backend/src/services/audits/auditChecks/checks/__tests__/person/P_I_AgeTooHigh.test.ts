@@ -15,8 +15,8 @@ describe('P_I_AgeTooHigh audit check', () => {
 
     // [title, age, shouldError]
     const cases: [string, number | undefined | null, boolean][] = [
-        ['age at the maximum does not error', projectConfig.maxPersonAge, false],
-        ['age above the maximum errors', projectConfig.maxPersonAge + 1, true],
+        ['age at the maximum does not error', projectConfig.ages.maxPersonAge, false],
+        ['age above the maximum errors', projectConfig.ages.maxPersonAge + 1, true],
         ['typical age does not error', 30, false],
         ['undefined age does not error', undefined, false],
         ['null age does not error', null, false]

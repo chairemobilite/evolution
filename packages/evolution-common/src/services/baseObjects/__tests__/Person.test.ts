@@ -958,13 +958,13 @@ describe('Person', () => {
             ['undefined ownership and age', {}, 18, false],
             ['custom threshold is respected', { age: 20, drivingLicenseOwnership: 'dontKnow' }, 21, false]
         ] as const)('%s', (_title, attrs, drivingLicenseAge, expected) => {
-            const originalDrivingLicenseAge = projectConfig.drivingLicenseAge;
-            projectConfig.drivingLicenseAge = drivingLicenseAge;
+            const originalDrivingLicenseAge = projectConfig.ages.drivingLicenseAge;
+            projectConfig.ages.drivingLicenseAge = drivingLicenseAge;
             try {
                 const person = new Person({ _uuid: uuidV4(), ...attrs }, registry);
                 expect(person.hasOrUnknownDrivingLicense()).toEqual(expected);
             } finally {
-                projectConfig.drivingLicenseAge = originalDrivingLicenseAge;
+                projectConfig.ages.drivingLicenseAge = originalDrivingLicenseAge;
             }
         });
     });

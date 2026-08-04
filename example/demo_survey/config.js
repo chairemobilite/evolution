@@ -62,7 +62,9 @@ module.exports = {
     accessCodeFormat: '0000-0000',
     surveySupportForm: true,
     captchaComponentType: 'capjs',
-    interviewableAge: 5,
+    ages: {
+        interviewableAge: 5
+    },
     isPartTwo: false,
     mapDefaultCenter: {
         lat: 45.503205,
