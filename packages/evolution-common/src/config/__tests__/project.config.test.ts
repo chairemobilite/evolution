@@ -19,10 +19,18 @@ const defaultAges = {
     addAuditWarningVeryOldAge: undefined
 };
 
+const defaultVehicles = {
+    maxCarsPerHouseholdMember: 3,
+    maxBicyclesPerHouseholdMember: 3,
+    maxTwoWheelsPerHouseholdMember: 3
+};
+
 test('Expected default', () => {
     expect(projectConfig.ages).toEqual(defaultAges);
     expect(projectConfig).toEqual(expect.objectContaining({
         region: 'CA',
+        maxHouseholdSize: 18,
+        vehicles: defaultVehicles,
         logDatabaseUpdates: false,
         startDateTimeWithTimezoneOffset: undefined,
         endDateTimeWithTimezoneOffset: undefined,
@@ -50,6 +58,12 @@ test('set project configuration', () => {
             schoolMandatoryAge: 17,
             maxPersonAge: 125
         },
+        maxHouseholdSize: 18,
+        vehicles: {
+            maxCarsPerHouseholdMember: 3,
+            maxBicyclesPerHouseholdMember: 3,
+            maxTwoWheelsPerHouseholdMember: 3
+        },
         logDatabaseUpdates: true,
         startDateTimeWithTimezoneOffset: '2025-01-01T00:00:00-05:00' as ISODateTimeStringWithTimezoneOffset,
         endDateTimeWithTimezoneOffset: '2025-12-31T23:59:59-05:00' as ISODateTimeStringWithTimezoneOffset,
@@ -70,4 +84,18 @@ test('set project configuration', () => {
         addAuditWarningVeryOldAge: undefined
     });
     expect(projectConfig).toEqual(expect.objectContaining(configWithoutAges));
+});
+
+test('partial vehicles override keeps defaults for omitted limits', () => {
+    setProjectConfiguration<EvolutionProjectConfiguration>({
+        vehicles: {
+            maxCarsPerHouseholdMember: 5
+        } as EvolutionProjectConfiguration['vehicles']
+    });
+
+    expect(projectConfig.vehicles).toEqual({
+        maxCarsPerHouseholdMember: 5,
+        maxBicyclesPerHouseholdMember: defaultVehicles.maxBicyclesPerHouseholdMember,
+        maxTwoWheelsPerHouseholdMember: defaultVehicles.maxTwoWheelsPerHouseholdMember
+    });
 });

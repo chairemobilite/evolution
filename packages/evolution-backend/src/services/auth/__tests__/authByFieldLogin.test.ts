@@ -26,17 +26,17 @@ jest.mock('../../accessCode', () => ({
 // Mock the ParticipantModel class
 jest.mock('../participantAuthModel', () => {
     const originalModule = jest.requireActual('../participantAuthModel');
-    
+
     // Create a mock ParticipantModel class
     class MockParticipantModel {
         public attributes: any;
-        
+
         constructor(attributes: any) {
             this.attributes = attributes;
         }
-        
+
         recordLogin = mockRecordLogin;
-        
+
         sanitize() {
             return {
                 id: this.attributes.id,
@@ -48,13 +48,13 @@ jest.mock('../participantAuthModel', () => {
                 serializedPermissions: []
             };
         }
-        
+
         async verifyPassword(password: string) {
             // Simple mock implementation
             return password.toUpperCase() === validPostalCode;
         }
     }
-    
+
     return {
         ...originalModule,
         participantAuthModel: {
@@ -71,9 +71,13 @@ jest.mock('../../../models/interviewsPreFill.db.queries', () => ({
 }));
 
 // Mock the project config to set the postalCodeRegion
-jest.mock('evolution-common/lib/config/project.config', () => ({
-    postalCodeRegion: 'canada'  // Default for tests
-}));
+jest.mock('evolution-common/lib/config/project.config', () => {
+    const actual = jest.requireActual('evolution-common/lib/config/project.config');
+    return {
+        ...actual.default,
+        postalCodeRegion: 'canada'
+    };
+});
 
 const mockFind = participantAuthModel.find as jest.MockedFunction<typeof participantAuthModel.find>;
 const mockCreateAndSave = participantAuthModel.createAndSave as jest.MockedFunction<typeof participantAuthModel.createAndSave>;
@@ -133,25 +137,25 @@ describe('Auth by Field Login Strategy Tests', () => {
     test('Login with valid existing user', async () => {
         mockFind.mockResolvedValueOnce(mockValidUser);
         const req = {
-            logIn: logInFct, 
+            logIn: logInFct,
             body: {
-                accessCode: validAccessCode, 
+                accessCode: validAccessCode,
                 postalCode: validPostalCode
             }
         };
-        
+
         const authPromise = new Promise((resolve, reject) => {
-            passport.authenticate('auth-by-field')(req, {end: jest.fn()}, (err, result) => {
+            passport.authenticate('auth-by-field')(req, { end: jest.fn() }, (err, result) => {
                 resolve({ result, err });
             });
         });
-        
+
         const authResult: any = await authPromise;
         expect(authResult.err).toBeUndefined();
         expect(logInFct).toHaveBeenCalledTimes(1);
         expect(logInFct).toHaveBeenCalledWith(
-            { id: mockValidUser.attributes.id, username: mockValidUser.attributes.username, email: undefined, firstName: undefined, lastName: undefined, preferences: {}, serializedPermissions: [] }, 
-            expect.anything(), 
+            { id: mockValidUser.attributes.id, username: mockValidUser.attributes.username, email: undefined, firstName: undefined, lastName: undefined, preferences: {}, serializedPermissions: [] },
+            expect.anything(),
             expect.anything()
         );
         expect(mockFind).toHaveBeenCalledTimes(1);
@@ -161,23 +165,23 @@ describe('Auth by Field Login Strategy Tests', () => {
 
     test('Login with prefilled data match', async () => {
         mockGetByReferenceValue.mockResolvedValueOnce(preFilledResponse);
-        
+
         const authPromise = new Promise((resolve, reject) => {
             passport.authenticate('auth-by-field')(
                 {
-                    logIn: logInFct, 
+                    logIn: logInFct,
                     body: {
-                        accessCode: preFillAccessCode, 
+                        accessCode: preFillAccessCode,
                         postalCode: preFillPostalCode
                     }
-                }, 
-                {end: jest.fn()}, 
+                },
+                { end: jest.fn() },
                 (err, result) => {
                     resolve({ result, err });
                 }
             );
         });
-        
+
         const authResult: any = await authPromise;
         expect(authResult.err).toBeUndefined();
         expect(logInFct).toHaveBeenCalledTimes(1);
@@ -197,20 +201,20 @@ describe('Auth by Field Login Strategy Tests', () => {
         const authPromise = new Promise((resolve, reject) => {
             passport.authenticate('auth-by-field')(
                 {
-                    logIn: logInFct, 
+                    logIn: logInFct,
                     body: {
-                        accessCode: '5555-5555', 
-                        postalCode: 'j4r5t6', 
+                        accessCode: '5555-5555',
+                        postalCode: 'j4r5t6',
                         confirmCredentials: true
                     }
-                }, 
-                {end: jest.fn()}, 
+                },
+                { end: jest.fn() },
                 (err, result) => {
                     resolve({ result, err });
                 }
             );
         });
-        
+
         const authResult: any = await authPromise;
         expect(authResult.err).toBeUndefined();
         expect(logInFct).toHaveBeenCalledTimes(1);
@@ -228,19 +232,19 @@ describe('Auth by Field Login Strategy Tests', () => {
         const authPromise = new Promise((resolve, reject) => {
             passport.authenticate('auth-by-field')(
                 {
-                    logIn: logInFct, 
+                    logIn: logInFct,
                     body: {
-                        accessCode: '4444-4444', 
+                        accessCode: '4444-4444',
                         postalCode: 'h2e 2e2'
                     }
-                }, 
-                {end: jest.fn()}, 
+                },
+                { end: jest.fn() },
                 (err, result) => {
                     resolve({ result, err });
                 }
             );
         });
-        
+
         const authResult: any = await authPromise;
         expect(authResult.err).toEqual('FieldCombinationNotFound');
         expect(authResult.result).toBeFalsy();
@@ -256,19 +260,19 @@ describe('Auth by Field Login Strategy Tests', () => {
         const authPromise = new Promise((resolve, reject) => {
             passport.authenticate('auth-by-field')(
                 {
-                    logIn: logInFct, 
+                    logIn: logInFct,
                     body: {
-                        accessCode: 'invalid', 
+                        accessCode: 'invalid',
                         postalCode: 'h2e 2e2'
                     }
-                }, 
-                {end: jest.fn()}, 
+                },
+                { end: jest.fn() },
                 (err, result) => {
                     resolve({ result, err });
                 }
             );
         });
-        
+
         const authResult: any = await authPromise;
         expect(authResult.err).toEqual('InvalidData');
         expect(authResult.result).toBeFalsy();
@@ -284,19 +288,19 @@ describe('Auth by Field Login Strategy Tests', () => {
         const authPromise = new Promise((resolve, reject) => {
             passport.authenticate('auth-by-field')(
                 {
-                    logIn: logInFct, 
+                    logIn: logInFct,
                     body: {
-                        accessCode: '1111-1111', 
+                        accessCode: '1111-1111',
                         postalCode: 'h2e 222'
                     }
-                }, 
-                {end: jest.fn()}, 
+                },
+                { end: jest.fn() },
                 (err, result) => {
                     resolve({ result, err });
                 }
             );
         });
-        
+
         const authResult: any = await authPromise;
         expect(authResult.err).toEqual('InvalidData');
         expect(authResult.result).toBeFalsy();
@@ -309,23 +313,23 @@ describe('Auth by Field Login Strategy Tests', () => {
 
     test('Login with database error in authModel find', async () => {
         mockFind.mockRejectedValueOnce(new Error('Database connection error'));
-        
+
         const authPromise = new Promise((resolve, reject) => {
             passport.authenticate('auth-by-field')(
                 {
-                    logIn: logInFct, 
+                    logIn: logInFct,
                     body: {
-                        accessCode: validAccessCode, 
+                        accessCode: validAccessCode,
                         postalCode: validPostalCode
                     }
-                }, 
-                {end: jest.fn()}, 
+                },
+                { end: jest.fn() },
                 (err, result) => {
                     resolve({ result, err });
                 }
             );
         });
-        
+
         const authResult: any = await authPromise;
         expect(authResult.err).toEqual('FailedToCreateUser');
         expect(authResult.result).toBeFalsy();
@@ -338,23 +342,23 @@ describe('Auth by Field Login Strategy Tests', () => {
 
     test('Login with database error in prefill lookup', async () => {
         mockGetByReferenceValue.mockRejectedValueOnce(new Error('Database connection error'));
-        
+
         const authPromise = new Promise((resolve, reject) => {
             passport.authenticate('auth-by-field')(
                 {
-                    logIn: logInFct, 
+                    logIn: logInFct,
                     body: {
-                        accessCode: validAccessCode, 
+                        accessCode: validAccessCode,
                         postalCode: validPostalCode
                     }
-                }, 
-                {end: jest.fn()}, 
+                },
+                { end: jest.fn() },
                 (err, result) => {
                     resolve({ result, err });
                 }
             );
         });
-        
+
         const authResult: any = await authPromise;
         expect(authResult.err).toEqual('FailedToCreateUser');
         expect(authResult.result).toBeFalsy();
@@ -368,23 +372,23 @@ describe('Auth by Field Login Strategy Tests', () => {
     test('Login with failed user creation', async () => {
         mockGetByReferenceValue.mockResolvedValueOnce(preFilledResponse);
         mockCreateAndSave.mockRejectedValue('Error creating user');
-        
+
         const authPromise = new Promise((resolve, reject) => {
             passport.authenticate('auth-by-field')(
                 {
-                    logIn: logInFct, 
+                    logIn: logInFct,
                     body: {
-                        accessCode: preFillAccessCode, 
+                        accessCode: preFillAccessCode,
                         postalCode: preFillPostalCode
                     }
-                }, 
-                {end: jest.fn()}, 
+                },
+                { end: jest.fn() },
                 (err, result) => {
                     resolve({ result, err });
                 }
             );
         });
-        
+
         const authResult: any = await authPromise;
         expect(authResult.err).toEqual('FailedToCreateUser');
         expect(authResult.result).toBeFalsy();
@@ -397,23 +401,23 @@ describe('Auth by Field Login Strategy Tests', () => {
 
     test('Login with case-insensitive matching', async () => {
         mockFind.mockResolvedValueOnce(mockValidUser);
-        
+
         const authPromise = new Promise((resolve, reject) => {
             passport.authenticate('auth-by-field')(
                 {
-                    logIn: logInFct, 
+                    logIn: logInFct,
                     body: {
-                        accessCode: validAccessCode.toLowerCase(), 
+                        accessCode: validAccessCode.toLowerCase(),
                         postalCode: validPostalCode.toLowerCase()
                     }
-                }, 
-                {end: jest.fn()}, 
+                },
+                { end: jest.fn() },
                 (err, result) => {
                     resolve({ result, err });
                 }
             );
         });
-        
+
         const authResult: any = await authPromise;
         expect(authResult.err).toBeUndefined();
         expect(logInFct).toHaveBeenCalledTimes(1);

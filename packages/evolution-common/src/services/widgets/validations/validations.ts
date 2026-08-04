@@ -6,7 +6,6 @@
  */
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { type ValidationFunction } from '../../questionnaire/types';
-import * as surveyHelperNew from '../../../utils/helpers';
 import projectConfig from '../../../config/project.config';
 import { getAccessCodeFormat, matchesAccessCodeFormat } from '../../accessCode/accessCodeFormats';
 
@@ -72,150 +71,28 @@ export const householdSizeValidation: ValidationFunction = (value) => {
     return [
         {
             validation: isNaN(Number(value)) || !Number.isInteger(Number(value)),
-            errorMessage: {
-                fr: 'La taille du ménage est invalide.',
-                en: 'Household size is invalid.'
-            }
+            errorMessage: (t) => t('survey:errors:householdSizeInvalid')
         },
         {
             validation: _isBlank(value),
-            errorMessage: {
-                fr: 'La taille du ménage est requise.',
-                en: 'Household size is required.'
-            }
+            errorMessage: (t) => t('survey:errors:householdSizeRequired')
         },
         {
-            validation: Number(value) > 18,
-            errorMessage: {
-                fr: 'La taille du ménage doit être au maximum 18.',
-                en: 'Household size must be at most 18.'
-            }
+            validation: Number(value) > projectConfig.maxHouseholdSize,
+            errorMessage: (t) => t('survey:errors:householdSizeOverMax', { max: projectConfig.maxHouseholdSize })
         },
         {
             validation: Number(value) <= 0,
-            errorMessage: {
-                fr: 'La taille du ménage doit être au moins de 1 (vous devez vous inclure).',
-                en: 'Household size must be at least 1 (you need to include yourself).'
-            }
+            errorMessage: (t) => t('survey:errors:householdSizeMinOne')
         }
     ];
 };
 
-/**
- * Verify if the value is a valid number of cars.
- *
- * The number of cars must be an integer between 0 and 13.
- * The number of cars should not be more than 3 times the number of people in the household.
- *
- * Required interview.response fields: 'household.size'
- *
- * @see {@link ValidationFunction}
- */
-export const carNumberValidation: ValidationFunction = (value, _customValue, interview, _path, _customPath) => {
-    const householdSize = surveyHelperNew.getResponse(interview, 'household.size', null);
-    const maxCarsPerPerson = 3;
-
-    return [
-        {
-            validation: isNaN(Number(value)) || !Number.isInteger(Number(value)),
-            errorMessage: {
-                fr: 'Le nombre de véhicules est invalide.',
-                en: 'The number of vehicles is invalid.'
-            }
-        },
-        {
-            validation: _isBlank(value),
-            errorMessage: {
-                fr: 'Le nombre de véhicules est requis.',
-                en: 'The number of vehicles is required.'
-            }
-        },
-        {
-            validation: Number(value) < 0,
-            errorMessage: {
-                fr: 'Le nombre de véhicules doit être au moins de 0.',
-                en: 'The number of vehicles must be at least 0.'
-            }
-        },
-        // The number of vehicles should not be 3 times greater than the number of people in the household
-        {
-            validation:
-                !_isBlank(householdSize) &&
-                !isNaN(Number(householdSize)) &&
-                typeof householdSize === 'number' &&
-                Number(value) / householdSize > maxCarsPerPerson,
-            errorMessage: {
-                fr: `Le nombre de véhicules doit être au maximum ${Number(householdSize) * maxCarsPerPerson} pour le nombre de personnes dans le ménage. Ne pas inclure les véhicules de collection ou les véhicules qui ne sont pas utilisés régulièrement.`,
-                en: `The number of vehicles must be at most ${Number(householdSize) * maxCarsPerPerson} for the number of people in the household. Do not include collection vehicles or vehicles that are not used on a regular basis.`
-            }
-        },
-        {
-            validation: Number(value) > 13,
-            errorMessage: {
-                fr: 'Le nombre de véhicules doit être au maximum 13.',
-                en: 'The number of vehicles must be at most 13.'
-            }
-        }
-    ];
-};
-
-/**
- * Verify if the value is a valid number of bicycles.
- *
- * The number of bicycles must be an integer between 0 and 20.
- * The number of bicycles should not be more than 5 times the number of people in the household.
- *
- * Required interview.response fields: 'household.size'
- *
- * @see {@link ValidationFunction}
- */
-export const bicycleNumberValidation: ValidationFunction = (value, _customValue, interview, _path, _customPath) => {
-    const householdSize = surveyHelperNew.getResponse(interview, 'household.size', null);
-    const maxBicyclesPerPerson = 5;
-
-    return [
-        {
-            validation: isNaN(Number(value)) || !Number.isInteger(Number(value)),
-            errorMessage: {
-                fr: 'Le nombre de vélos est invalide.',
-                en: 'The number of bicycles is invalid.'
-            }
-        },
-        {
-            validation: _isBlank(value),
-            errorMessage: {
-                fr: 'Le nombre de vélos est requis.',
-                en: 'The number of bicycles is required.'
-            }
-        },
-        {
-            validation: Number(value) < 0,
-            errorMessage: {
-                fr: 'Le nombre de vélos doit être au moins de 0.',
-                en: 'The number of bicycles must be at least 0.'
-            }
-        },
-        // The number of bicycles should not be 5 times greater than the number of people in the household
-        {
-            validation:
-                !_isBlank(householdSize) &&
-                !isNaN(Number(householdSize)) &&
-                typeof householdSize === 'number' &&
-                Number(value) / householdSize > maxBicyclesPerPerson,
-            errorMessage: {
-                fr: `Le nombre de vélos doit être au maximum ${Number(householdSize) * maxBicyclesPerPerson} pour le nombre de personnes dans le ménage. Ne pas inclure les vélos de collection ou les vélos qui ne sont pas utilisés régulièrement.`,
-                en: `The number of bicycles must be at most ${Number(householdSize) * maxBicyclesPerPerson} for the number of people in the household. Do not include collection bicycles or bicycles that are not used on a regular basis.`
-            }
-        },
-        {
-            validation: Number(value) > 20,
-            errorMessage: {
-                fr: 'Le nombre de vélos doit être au maximum 20.',
-                en: 'The number of bicycles must be at most to 20.'
-            }
-        }
-    ];
-};
+export {
+    carNumberValidation,
+    bicycleNumberValidation,
+    twoWheelNumberValidation
+} from './householdAssetCountValidation';
 
 /**
  * Verify if the value is a valid age.

@@ -83,7 +83,7 @@ describe('HH_W_CarNumberPerPotentialDrivingLicenseTooHigh audit check', () => {
                 errorCode: 'HH_W_CarNumberPerPotentialDrivingLicenseTooHigh',
                 version: 1,
                 level: 'warning',
-                message: 'Car number per potential driving license holder > 3',
+                message: 'Car number per potential driving license holder is very high, please validate',
                 ignore: false
             });
         } else {

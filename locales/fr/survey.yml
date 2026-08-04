@@ -152,6 +152,32 @@ errors:
   phoneNumberInvalid: "Le numéro de téléphone est invalide. (ex.: 514-123-1234 ou +33 1 23 45 67 89)."
   accessCodeRequired: "Veuillez spécifier votre code d'accès."
   accessCodeInvalid: "Le code d'accès est invalide."
+  householdSizeInvalid: "La taille du ménage est invalide."
+  householdSizeRequired: "La taille du ménage est requise."
+  householdSizeOverMax: "La taille du ménage doit être au maximum {{max}}."
+  householdSizeMinOne: "La taille du ménage doit être au moins de 1 (vous devez vous inclure)."
+  carNumberInvalid: "Le nombre de véhicules est invalide."
+  carNumberRequired: "Le nombre de véhicules est requis."
+  carNumberMinZero: "Le nombre de véhicules doit être au moins de 0."
+  carNumberOverMax: >-
+    Le nombre de véhicules doit être au maximum de {{maxPerPerson}} par personne
+    dans le ménage. Ne pas inclure les véhicules de collection ou les véhicules
+    qui ne sont pas utilisés régulièrement.
+  bicycleNumberInvalid: "Le nombre de vélos est invalide."
+  bicycleNumberRequired: "Le nombre de vélos est requis."
+  bicycleNumberMinZero: "Le nombre de vélos doit être au moins de 0."
+  bicycleNumberOverMax: >-
+    Le nombre de vélos doit être au maximum de {{maxPerPerson}} par personne
+    dans le ménage. Ne pas inclure les vélos de collection ou les vélos qui ne
+    sont pas utilisés régulièrement.
+  twoWheelNumberInvalid: "Le nombre de motocyclettes ou de scooters est invalide."
+  twoWheelNumberRequired: "Le nombre de motocyclettes ou de scooters est requis."
+  twoWheelNumberMinZero: "Le nombre de motocyclettes ou de scooters doit être au moins de 0."
+  twoWheelNumberOverMax: >-
+    Le nombre de motocyclettes ou de scooters doit être au maximum de
+    {{maxPerPerson}} par personne dans le ménage. Ne pas inclure les
+    motocyclettes ou les scooters de collection ou les motocyclettes ou les
+    scooters qui ne sont pas utilisés régulièrement.
 forExampleAbbreviation: ex
 geography:
     geocodingStringImpreciseError: >-
