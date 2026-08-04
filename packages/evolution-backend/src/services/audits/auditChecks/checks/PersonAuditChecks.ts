@@ -71,7 +71,7 @@ export const personAuditChecks: { [errorCode: string]: PersonAuditCheckFunction 
         const { person } = context;
         const age = person.age;
 
-        if (typeof age === 'number' && age > projectConfig.maxPersonAge) {
+        if (typeof age === 'number' && age > projectConfig.ages.maxPersonAge) {
             return {
                 objectType: 'person',
                 objectUuid: person._uuid!,
@@ -120,13 +120,13 @@ export const personAuditChecks: { [errorCode: string]: PersonAuditCheckFunction 
     P_W_VeryOldAge: (context: PersonAuditCheckContext): AuditForObject | undefined => {
         const { person } = context;
         const age = person.age;
-        const warningAge = projectConfig.addAuditWarningVeryOldAge;
+        const warningAge = projectConfig.ages.addAuditWarningVeryOldAge;
 
         if (
             typeof age === 'number' &&
             warningAge !== undefined &&
             age >= warningAge &&
-            age <= projectConfig.maxPersonAge
+            age <= projectConfig.ages.maxPersonAge
         ) {
             return {
                 objectType: 'person',

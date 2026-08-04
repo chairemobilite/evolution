@@ -651,9 +651,9 @@ each([
 ]).test('countAdults: %s', (_title, response, adultAge, expected) => {
     const interview = _cloneDeep(interviewAttributesWithHh);
     interview.response = response;
-    // Mock config.adultAge if provided, else use default
+    // Mock config.ages.adultAge if provided, else use default
     if (adultAge !== undefined) {
-        projectConfig.adultAge = adultAge;
+        projectConfig.ages.adultAge = adultAge;
     }
     expect(Helpers.countAdults({ interview })).toEqual(expected);
 });
@@ -692,7 +692,7 @@ describe('getInterviewablePersonsArray', () => {
         ],
         ['No persons', {}, []]
     ]).test('getInterviewablePersonsArray with persons: %s', (_title, persons, expectedPersonIds: string[]) => {
-        projectConfig.interviewableAge = 5;
+        projectConfig.ages.interviewableAge = 5;
         const interview = _cloneDeep(interviewAttributesWithHh);
         interview.response.household!.persons = persons;
         expect(Helpers.getInterviewablePersonsArray({ interview })).toEqual(expectedPersonIds.map((id) => persons[id]));
@@ -1091,7 +1091,7 @@ each([
         false
     ]
 ]).test('hasOrUnknownDrivingLicense: %s', (_title, person, drivingLicenseAge, expected) => {
-    projectConfig.drivingLicenseAge = drivingLicenseAge;
+    projectConfig.ages.drivingLicenseAge = drivingLicenseAge;
     expect(Helpers.hasOrUnknownDrivingLicense({ person: person as Person })).toEqual(expected);
 });
 
@@ -1145,7 +1145,7 @@ each([
 ]).test('getPotentialDrivers: %s', (_title, response, drivingLicenseAge, expectedDriverIds) => {
     const interview = _cloneDeep(interviewAttributesWithHh);
     interview.response = response;
-    projectConfig.drivingLicenseAge = drivingLicenseAge;
+    projectConfig.ages.drivingLicenseAge = drivingLicenseAge;
     expect(Helpers.getPotentialDrivers({ interview }).map((person) => person._uuid)).toEqual(expectedDriverIds);
 });
 

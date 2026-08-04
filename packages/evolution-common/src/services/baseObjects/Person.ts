@@ -316,7 +316,7 @@ export class Person extends SurveyObject {
         return (
             drivingLicenseOwnership === 'yes' ||
             (this.age !== undefined &&
-                this.age >= projectConfig.drivingLicenseAge &&
+                this.age >= projectConfig.ages.drivingLicenseAge &&
                 drivingLicenseOwnership === 'dontKnow')
         );
     }

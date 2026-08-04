@@ -9,12 +9,13 @@ import projectConfig from '../project.config';
 // Mock the project config from evolution-common, which might already have been
 // loaded before the first import to the evolution project config. The
 // configuration should not be overwritten
-jest.mock('chaire-lib-common/lib/config/shared/project.config', () => ({
-    ...jest.requireActual('chaire-lib-common/lib/config/shared/project.config'),
-    __esModule: true,
-    default: {
+jest.mock('chaire-lib-common/lib/config/shared/project.config', () => {
+    const actual = jest.requireActual('chaire-lib-common/lib/config/shared/project.config');
+    Object.assign(actual.default, {
         region: 'FR',
-        selfResponseMinimumAge: 18,
+        ages: {
+            selfResponseMinimumAge: 18
+        },
         logDatabaseUpdates: true,
         startDateTimeWithTimezoneOffset: '2025-03-01T08:00:00-05:00',
         endDateTimeWithTimezoneOffset: '2025-11-30T23:59:59-05:00',
@@ -22,17 +23,27 @@ jest.mock('chaire-lib-common/lib/config/shared/project.config', () => ({
         hideStartButtonOnHomePage: true,
         introductionTwoParagraph: true,
         introBanner: true,
-        bannerPaths: { 'en': 'banner-en.png', 'fr': 'banner-fr.png' },
+        bannerPaths: { en: 'banner-en.png', fr: 'banner-fr.png' },
         introLogoAfterStartButton: true,
-        logoPaths: { 'en': 'logo-en.png', 'fr': 'logo-fr.png' },
-        languageNames: { 'en': 'English', 'fr': 'Français' }
-    }
-}));
+        logoPaths: { en: 'logo-en.png', fr: 'logo-fr.png' },
+        languageNames: { en: 'English', fr: 'Français' }
+    });
+    return actual;
+});
 
 test('test initialized values', () => {
+    expect(projectConfig.ages).toEqual({
+        selfResponseMinimumAge: 18,
+        interviewableAge: 5,
+        adultAge: 18,
+        drivingLicenseAge: 16,
+        workingAge: 15,
+        schoolMandatoryAge: 15,
+        maxPersonAge: 125,
+        addAuditWarningVeryOldAge: undefined
+    });
     expect(projectConfig).toEqual(expect.objectContaining({
         region: 'FR',
-        selfResponseMinimumAge: 18,
         logDatabaseUpdates: true,
         startDateTimeWithTimezoneOffset: '2025-03-01T08:00:00-05:00',
         endDateTimeWithTimezoneOffset: '2025-11-30T23:59:59-05:00',
@@ -40,9 +51,9 @@ test('test initialized values', () => {
         hideStartButtonOnHomePage: true,
         introductionTwoParagraph: true,
         introBanner: true,
-        bannerPaths: { 'en': 'banner-en.png', 'fr': 'banner-fr.png' },
+        bannerPaths: { en: 'banner-en.png', fr: 'banner-fr.png' },
         introLogoAfterStartButton: true,
-        logoPaths: { 'en': 'logo-en.png', 'fr': 'logo-fr.png' },
-        languageNames: { 'en': 'English', 'fr': 'Français' }
+        logoPaths: { en: 'logo-en.png', fr: 'logo-fr.png' },
+        languageNames: { en: 'English', fr: 'Français' }
     }));
 });

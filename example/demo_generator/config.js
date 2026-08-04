@@ -83,7 +83,9 @@ module.exports = {
         fr: 'Enquête sur les déplacements des ménages',
         en: 'Household Travel Survey'
     },
-    adultAge: 18, // Age at which a person is considered an adult
+    ages: {
+        adultAge: 18 // Age at which a person is considered an adult
+    },
     defaultLocale: 'fr',
     timezone: 'America/Montreal',
     region: 'CA', // Used for Google Maps localization. See https://developers.google.com/maps/coverage for possible region codes

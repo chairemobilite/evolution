@@ -303,7 +303,9 @@ export const getInterviewablePersonsArray = ({ interview }: { interview: UserInt
     const personsArray = Object.values(persons).sort((personA, personB) => {
         return personA._sequence - personB._sequence;
     });
-    return personsArray.filter((person) => typeof person.age !== 'number' || person.age >= config.interviewableAge);
+    return personsArray.filter(
+        (person) => typeof person.age !== 'number' || person.age >= config.ages.interviewableAge
+    );
 };
 
 /**
@@ -335,7 +337,7 @@ export const countAdults = ({ interview }: { interview: UserInterviewAttributes 
     // Count persons with age adultAge or more
     let count: number = 0;
     persons.forEach((person) => {
-        if (person?.age && person.age >= config.adultAge) {
+        if (person?.age && person.age >= config.ages.adultAge) {
             count++;
         }
     });
@@ -360,7 +362,7 @@ export const isSelfDeclared = ({
     person: Person;
 }): boolean => {
     const persons: any = getPersonsArray({ interview });
-    const personsCanSelfRespond = persons.filter((p: Person) => p.age && p.age >= config.selfResponseMinimumAge);
+    const personsCanSelfRespond = persons.filter((p: Person) => p.age && p.age >= config.ages.selfResponseMinimumAge);
     return (
         (personsCanSelfRespond.length === 1 && person._uuid === personsCanSelfRespond[0]._uuid) ||
         (!_isBlank(person.whoWillAnswerForThisPerson) ? person.whoWillAnswerForThisPerson === person._uuid : false)
@@ -557,7 +559,9 @@ export const hasOrUnknownDrivingLicense = ({ person }: { person: Person }): bool
     const drivingLicenseOwnership = person.drivingLicenseOwnership ?? 'dontKnow';
     return (
         drivingLicenseOwnership === 'yes' ||
-        (!_isBlank(person.age) && person.age! >= config.drivingLicenseAge && drivingLicenseOwnership === 'dontKnow')
+        (!_isBlank(person.age) &&
+            person.age! >= config.ages.drivingLicenseAge &&
+            drivingLicenseOwnership === 'dontKnow')
     );
 };
 

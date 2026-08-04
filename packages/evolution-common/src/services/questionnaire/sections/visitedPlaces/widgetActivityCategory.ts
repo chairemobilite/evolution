@@ -79,7 +79,7 @@ const perActivityCategoryConditionals: Partial<{ [category in ActivityCategory]:
         }
         // Return true if age is undefined, as we don't want to hide the work
         // activity category for people with undefined age
-        return _isBlank(person.age) || person.age! >= config.workingAge;
+        return _isBlank(person.age) || person.age! >= config.ages.workingAge;
     },
     school: function (interview) {
         const person = odHelpers.getPerson({ interview });
@@ -118,7 +118,7 @@ const perActivityCategoryConditionals: Partial<{ [category in ActivityCategory]:
         });
         return (
             !_isBlank(person.age) &&
-            person.age! < config.adultAge &&
+            person.age! < config.ages.adultAge &&
             (!previousVisitedPlace || previousVisitedPlace.activityCategory !== 'otherParentHome') &&
             (!nextVisitedPlace || nextVisitedPlace.activityCategory !== 'otherParentHome')
         );
