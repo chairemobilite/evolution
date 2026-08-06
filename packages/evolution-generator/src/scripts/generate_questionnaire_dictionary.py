@@ -10,6 +10,19 @@ from typing import Literal
 from helpers.generator_helpers import get_data_from_excel, clean_text
 
 
+def parse_int_cell_value(value):
+    """Parse an Excel cell value as an integer (handles numeric strings)."""
+    if value is None or value == "":
+        return None
+    if isinstance(value, bool):
+        raise TypeError(f"Expected a numeric cell value, got boolean: {value}")
+    if isinstance(value, int):
+        return value
+    if isinstance(value, float):
+        return int(value)
+    return int(float(str(value).strip()))
+
+
 # Function to generate questionnaire_test for each section
 def generate_questionnaire_dictionary(
     excel_file_path: str,
@@ -311,9 +324,12 @@ def process_range(ranges_rows, ranges_headers, language):
     ranges_map = {}
     for row in ranges_rows[1:]:
         input_range_name = row[input_range_name_index].value
-        # Ensure min_value is not negative
-        min_value = max(0, row[min_value_index].value)
-        max_value = row[max_value_index].value
+        parsed_min_value = parse_int_cell_value(row[min_value_index].value)
+        # Ensure min_value is not negative, but keep None for incomplete rows
+        min_value = (
+            max(0, parsed_min_value) if parsed_min_value is not None else None
+        )
+        max_value = parse_int_cell_value(row[max_value_index].value)
         label_min = clean_text(row[label_min_index].value)
         label_middle = (
             clean_text(row[label_middle_index].value)
