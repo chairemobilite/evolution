@@ -27,6 +27,7 @@ import config from '../../config/project.config';
 import { loopActivities, usualActivities } from './types';
 import { SchoolType } from '../baseObjects/attributeTypes/PersonAttributes';
 import { secondsSinceMidnightToTimeStr } from 'chaire-lib-common/lib/utils/DateTimeUtils';
+import { WidgetFactoryOptions } from '../questionnaire/sections/types';
 
 // This file contains helper function that retrieves various data from the
 // response field of the interview
@@ -703,6 +704,44 @@ export const getJourneyContextFromPath = ({
         }
     }
     return null;
+};
+
+/**
+ * Format the journey dates as requested
+ *
+ * TODO For now, the formatter only format the start date, so multi-day journeys
+ * will not display a range. It has to be implemented, once fully supported.
+ *
+ * @param {Object} options - The options object.
+ * @param {Journey} options.journey - The journey for which to format the date
+ * @param {string} options.getFormattedDate - The `getFormattedDate` function to
+ * use
+ * @param {boolean} [options.withRelative] Whether to add a relative date (eg.
+ * yesterday, day before yesterday)
+ * @param {string} [options.locale] The locale to use or undefined to use the
+ * default locale
+ * @param {boolean} [options.withDayOfWeek] Whether to add the day of the week
+ * @returns {string} The formatted journey date, or `null` if the journey is
+ * undated.
+ */
+export const formatJourneyDates = ({
+    journey,
+    getFormattedDate,
+    withRelative,
+    locale,
+    withDayOfWeek
+}: {
+    journey: Journey;
+    getFormattedDate: WidgetFactoryOptions['getFormattedDate'];
+    withRelative?: boolean;
+    locale?: string;
+    withDayOfWeek?: boolean;
+}): string | null => {
+    // TODO Support journeys with an end date different than start date
+    const journeyDates = journey.startDate
+        ? getFormattedDate(journey.startDate, { withDayOfWeek, locale, withRelative })
+        : null;
+    return journeyDates;
 };
 
 /**

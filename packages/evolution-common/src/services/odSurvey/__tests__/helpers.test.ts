@@ -1595,6 +1595,60 @@ describe('getJourneys', () => {
     });
 });
 
+describe('formatJourneyDates', () => {
+    const mockGetFormattedDate = jest.fn((date: string, options?: any) => `formatted:${date}`);
+    const mockedJourney: Journey = { _uuid: 'uuid', _sequence: 1 };
+
+    beforeEach(() => {
+        mockGetFormattedDate.mockClear();
+    });
+
+    test('returns null when journey has no startDate', () => {
+        const result = Helpers.formatJourneyDates({
+            journey: mockedJourney,
+            getFormattedDate: mockGetFormattedDate
+        });
+
+        expect(result).toBe(null);
+        expect(mockGetFormattedDate).not.toHaveBeenCalled();
+    });
+
+    test('calls getFormattedDate with journey.startDate and returns the formatted value with undefined parameters', () => {
+        const journey = { ...mockedJourney, startDate: '2026-08-06' } as any;
+
+        const result = Helpers.formatJourneyDates({
+            journey,
+            getFormattedDate: mockGetFormattedDate
+        });
+
+        expect(result).toBe('formatted:2026-08-06');
+        expect(mockGetFormattedDate).toHaveBeenCalledTimes(1);
+        expect(mockGetFormattedDate).toHaveBeenCalledWith('2026-08-06', {
+            withDayOfWeek: undefined,
+            locale: undefined,
+            withRelative: undefined
+        });
+    });
+
+    test('passes through withDayOfWeek, locale and withRelative options', () => {
+        const journey = { startDate: '2026-08-06' } as any;
+
+        Helpers.formatJourneyDates({
+            journey,
+            getFormattedDate: mockGetFormattedDate,
+            withDayOfWeek: true,
+            locale: 'fr',
+            withRelative: true
+        });
+
+        expect(mockGetFormattedDate).toHaveBeenCalledWith('2026-08-06', {
+            withDayOfWeek: true,
+            locale: 'fr',
+            withRelative: true
+        });
+    });
+});
+
 describe('shouldShowTripsAndPlacesSections', () => {
     const baseJourney: Journey = {
         _uuid: 'arbitraryJourney',
