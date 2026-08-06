@@ -47,8 +47,8 @@ describe('personsTripsTitleWidgetConfig text', () => {
     const widgetText = getPersonVisitedPlacesTitleWidgetConfig(visitedPlacesSectionConfig, widgetFactoryOptions).text as any;
     // Mock the translation function to just return the key for easier testing of parameters
     const mockedT = jest.fn().mockImplementation((str: any) => str);
-    // Extract the journey date for use in expected parameters in tests
-    const journeyDate = interviewAttributesForTestCases.response.household!.persons!.personId1.journeys!.journeyId1.startDate;
+    // Extract the journey date(s) for use in expected parameters in tests
+    const journeyDates = interviewAttributesForTestCases.response.household!.persons!.personId1.journeys!.journeyId1.startDate;
    
     test('should throw an error if no active person', () => {
         const testInterview = _cloneDeep(interviewAttributesForTestCases);
@@ -77,10 +77,10 @@ describe('personsTripsTitleWidgetConfig text', () => {
             context: undefined,
             count: 1,
             nickname: 'survey:personWithSequenceAndAge', // Default nickname for person without one
-            journeyDate
+            journeyDates
         });
         expect(widgetFactoryOptions.getFormattedDate).toHaveBeenCalledWith(
-            journeyDate,
+            journeyDates,
             { withDayOfWeek: true, withRelative: true }
         );
     });
@@ -96,10 +96,10 @@ describe('personsTripsTitleWidgetConfig text', () => {
             context: undefined,
             count: 3,
             nickname: 'Jane',
-            journeyDate
+            journeyDates
         });
         expect(widgetFactoryOptions.getFormattedDate).toHaveBeenCalledWith(
-            journeyDate,
+            journeyDates,
             { withDayOfWeek: true, withRelative: true }
         );
     });

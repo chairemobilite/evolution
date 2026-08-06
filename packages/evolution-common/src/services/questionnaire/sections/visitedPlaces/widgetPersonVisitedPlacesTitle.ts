@@ -31,17 +31,16 @@ export const getPersonVisitedPlacesTitleWidgetConfig = (
                 throw new Error('Active journey for person not found in interview response');
             }
 
-            // Format the journey start date for context in the title
-            // FIXME Update to support multiple days journeys when we support them in builtin questionnaire
+            // Format the journey date(s) for context in the title
             const assignedDay = journey.startDate;
-            const journeyDate = !_isBlank(assignedDay)
+            const journeyDates = !_isBlank(assignedDay)
                 ? options.getFormattedDate(assignedDay!, { withDayOfWeek: true, withRelative: true })
                 : undefined;
 
             return t('visitedPlaces:personVisitedPlacesTitle', {
                 nickname: odHelpers.getPersonIdentificationString({ person, t }),
                 context: odHelpers.getPersonGenderContext({ person }),
-                journeyDate,
+                journeyDates,
                 count: odHelpers.getCountOrSelfDeclared({ interview, person })
             });
         }
