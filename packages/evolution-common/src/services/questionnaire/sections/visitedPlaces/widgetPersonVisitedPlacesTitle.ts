@@ -31,18 +31,25 @@ export const getPersonVisitedPlacesTitleWidgetConfig = (
                 throw new Error('Active journey for person not found in interview response');
             }
 
-            // Format the journey date(s) for context in the title
-            const assignedDay = journey.startDate;
-            const journeyDates = !_isBlank(assignedDay)
-                ? options.getFormattedDate(assignedDay!, { withDayOfWeek: true, withRelative: true })
-                : undefined;
-
-            return t('visitedPlaces:personVisitedPlacesTitle', {
-                nickname: odHelpers.getPersonIdentificationString({ person, t }),
-                context: odHelpers.getPersonGenderContext({ person }),
-                journeyDates,
-                count: odHelpers.getCountOrSelfDeclared({ interview, person })
+            // Format journey dates with relative and day of week, for the title
+            const journeyDates = odHelpers.formatJourneyDates({
+                journey: journey,
+                getFormattedDate: options.getFormattedDate,
+                withDayOfWeek: true,
+                withRelative: true
             });
+
+            return t(
+                journeyDates === null
+                    ? 'visitedPlaces:personVisitedPlacesTitle_undated'
+                    : 'visitedPlaces:personVisitedPlacesTitle',
+                {
+                    nickname: odHelpers.getPersonIdentificationString({ person, t }),
+                    context: odHelpers.getPersonGenderContext({ person }),
+                    journeyDates,
+                    count: odHelpers.getCountOrSelfDeclared({ interview, person })
+                }
+            );
         }
     };
 };

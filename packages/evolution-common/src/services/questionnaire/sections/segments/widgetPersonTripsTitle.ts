@@ -12,7 +12,6 @@ import { UserInterviewAttributes } from '../../types';
 import { WidgetFactoryOptions } from '../types';
 
 export const getPersonsTripsTitleWidgetConfig = (options: WidgetFactoryOptions): TextWidgetConfig => {
-    const getContext = options.context || ((str) => str);
     return {
         type: 'text',
         align: 'left',
@@ -22,11 +21,15 @@ export const getPersonsTripsTitleWidgetConfig = (options: WidgetFactoryOptions):
             if (!person || !journey) {
                 throw new Error('personTripsTitle: Person or Journey not found');
             }
-            // FIXME Write a function somewhere to get the journey's or dateToString function, once we move to objects
-            // FIXME2 Plan for a translation string that has a period (undated, dated, period)
-            const journeyDates = journey.startDate ? options.getFormattedDate(journey.startDate) : null;
-            return t('segments:personTripsTitle', {
-                context: getContext(journeyDates === null ? 'undated' : undefined),
+            // Format journey dates with relative and day of week, for the title
+            const journeyDates = odHelpers.formatJourneyDates({
+                journey: journey,
+                getFormattedDate: options.getFormattedDate,
+                withDayOfWeek: true,
+                withRelative: true
+            });
+            return t(journeyDates === null ? 'segments:personTripsTitle_undated' : 'segments:personTripsTitle', {
+                context: odHelpers.getPersonGenderContext({ person }),
                 nickname: person.nickname ? person.nickname : '',
                 journeyDates,
                 count: odHelpers.getCountOrSelfDeclared({ interview, person })

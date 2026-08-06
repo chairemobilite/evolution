@@ -29,17 +29,22 @@ export const getPersonVisitedPlacesMapConfig = (options: WidgetFactoryOptions): 
                 console.error('Journey context not found for path', path);
                 return '';
             }
-            // FIXME Write a function somewhere to get the journey's or dateToString function, once we move to objects
-            // FIXME2 Plan for a translation string that has a period (undated, dated, period)
-            const journeyDates = journeyContext.journey.startDate
-                ? options.getFormattedDate(journeyContext.journey.startDate)
-                : null;
-            return t('visitedPlaces:personVisitedPlacesMap', {
-                context: journeyDates === null ? 'undated' : undefined,
-                nickname: odHelpers.getPersonIdentificationString({ person: journeyContext.person, t }),
-                journeyDates,
-                count: odHelpers.getCountOrSelfDeclared({ interview, person: journeyContext.person })
+
+            const journeyDates = odHelpers.formatJourneyDates({
+                journey: journeyContext.journey,
+                getFormattedDate: options.getFormattedDate
             });
+            return t(
+                journeyDates === null
+                    ? 'visitedPlaces:personVisitedPlacesMap_undated'
+                    : 'visitedPlaces:personVisitedPlacesMap',
+                {
+                    context: odHelpers.getPersonGenderContext({ person: journeyContext.person }),
+                    nickname: odHelpers.getPersonIdentificationString({ person: journeyContext.person, t }),
+                    journeyDates,
+                    count: odHelpers.getCountOrSelfDeclared({ interview, person: journeyContext.person })
+                }
+            );
         },
         linestringColor: '#0000ff',
         geojsons: (interview, path) => {
