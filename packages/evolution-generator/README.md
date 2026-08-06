@@ -251,7 +251,7 @@ Widgets are the building blocks of your survey. They define the structure and in
 
 > <span id="choices">**Note:**</span> The `choices` field is optional, but relevant for `Radio` and `Checkbox` inputs and allows you to specify the available choices for the question.
 
-> <span id="help">**Note:**</span> The `help_popup` field is optional and allows you to specify the name of the help popup for the question. This is useful for providing additional information or context to respondents.
+> <span id="help">**Note:**</span> The `help_popup` field is optional and allows you to specify the name of the help popup for the question. This is useful for providing additional information or context to respondents. It applies to question input types only (not `InfoText` or `NextButton`).
 
 > <span id="range">**Note:**</span> The `inputRange` field is optional and allows you to define the valid range of values for `Range` input.
 

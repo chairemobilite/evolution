@@ -234,6 +234,32 @@ def generate_widgets(excel_file_path: str, widgets_output_folder: str):
         raise e
 
 
+# Input types that emit helpPopup or confirmPopup in generated widget code.
+_HELP_POPUP_INPUT_TYPES = frozenset(
+    {
+        "Radio",
+        "RadioNumber",
+        "Select",
+        "String",
+        "Number",
+        "Range",
+        "Checkbox",
+        "Text",
+    }
+)
+_CONFIRM_POPUP_INPUT_TYPES = frozenset({"NextButton"})
+
+
+def _row_uses_custom_help_popup_import(row) -> bool:
+    """Return True when generated widget output will reference customHelpPopup."""
+    input_type = row.get("inputType", "")
+    if row.get("help_popup") and input_type in _HELP_POPUP_INPUT_TYPES:
+        return True
+    if row.get("confirm_popup") and input_type in _CONFIRM_POPUP_INPUT_TYPES:
+        return True
+    return False
+
+
 # Generate widget statement for a row
 def generate_widget_statement(row, gender_fields: GenderFields = None) -> WidgetResult:
     # Initialize gender_fields to a default class if none is provided
@@ -247,6 +273,11 @@ def generate_widget_statement(row, gender_fields: GenderFields = None) -> Widget
     validation = row["validation"]
     input_range = row["inputRange"]
     help_popup = row["help_popup"]
+    if help_popup and input_type not in _HELP_POPUP_INPUT_TYPES:
+        print(
+            f"Warning: help_popup is not supported for {input_type} widget '{question_name}'. Ignoring."
+        )
+        help_popup = ""
     choices = row["choices"]
     confirm_popup = row.get("confirm_popup", None)  # Optional column
     comments = row.get("comments", None)  # Optional column
@@ -298,6 +329,7 @@ def generate_widget_statement(row, gender_fields: GenderFields = None) -> Widget
             question_name,
             path,
             choices,
+            help_popup,
             conditional,
             validation,
             widget_label,
@@ -336,6 +368,7 @@ def generate_widget_statement(row, gender_fields: GenderFields = None) -> Widget
             question_name,
             path,
             input_range,
+            help_popup,
             conditional,
             validation,
             widget_label,
@@ -358,7 +391,7 @@ def generate_widget_statement(row, gender_fields: GenderFields = None) -> Widget
         )
     elif input_type == "Text":
         result["statement"] = generate_text_widget(
-            question_name, path, conditional, validation, widget_label, row
+            question_name, path, help_popup, conditional, validation, widget_label, row
         )
     else:
         result["statement"] = f"// {question_name}"
@@ -924,7 +957,7 @@ def generate_radio_number_widget(
 
 # Generate Select widget
 def generate_select_widget(
-    question_name, path, choices, conditional, validation, widget_label, row
+    question_name, path, choices, help_popup, conditional, validation, widget_label, row
 ):
     return (
         f"{generate_constExport(question_name, 'InputSelectType')}\n"
@@ -932,6 +965,7 @@ def generate_select_widget(
         f"{generate_path(path)},\n"
         f"{generate_common_properties(row)}"
         f"{widget_label},\n"
+        f"{generate_help_popup(help_popup)}"
         f"{generate_choices(choices)},\n"
         f"{generate_conditional(conditional)},\n"
         f"{generate_validation(validation)}\n"
@@ -1025,6 +1059,7 @@ def generate_range_widget(
     question_name,
     path,
     input_range,
+    help_popup,
     conditional,
     validation,
     widget_label,
@@ -1042,6 +1077,7 @@ def generate_range_widget(
         f"{generate_common_properties(row)}"
         f"{widget_label},\n"
         f"{notApplicableConfig}"
+        f"{generate_help_popup(help_popup)}"
         f"{generate_conditional(conditional)},\n"
         f"{generate_validation(validation)}\n"
         f"}};"
@@ -1090,7 +1126,7 @@ def generate_next_button_widget(
 
 # Generate Text textarea widget
 def generate_text_widget(
-    question_name, path, conditional, validation, widget_label, row
+    question_name, path, help_popup, conditional, validation, widget_label, row
 ):
     return (
         f"{generate_constExport(question_name, 'InputTextType')}\n"
@@ -1098,6 +1134,7 @@ def generate_text_widget(
         f"{generate_path(path)},\n"
         f"{generate_common_properties(row)}"
         f"{widget_label},\n"
+        f"{generate_help_popup(help_popup)}"
         f"{generate_conditional(conditional)},\n"
         f"{generate_validation(validation)}\n"
         f"}};"
@@ -1280,7 +1317,7 @@ def get_widgets_file_import_flags(section_rows) -> ImportFlags:
             import_flags.has_custom_widgets_import = True
         if row["inputType"] == "BuiltIn":
             import_flags.has_built_in_widgets_import = True
-        if row.get("help_popup") or row.get("confirm_popup"):
+        if _row_uses_custom_help_popup_import(row):
             import_flags.has_help_popup_import = True
 
         # Check all rows for label context

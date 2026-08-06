@@ -2,14 +2,22 @@
 # This file is licensed under the MIT License.
 # License text available at https://opensource.org/licenses/MIT
 
+import os
+import shutil
+import tempfile
+
+import pytest
 from scripts.generate_widgets import (
     ImportFlags,
     generate_choices,
     generate_join_with,
     generate_common_properties,
     generate_info_text_widget,
+    generate_range_widget,
+    generate_text_widget,
     generate_radio_widget,
     generate_radio_number_widget,
+    generate_select_widget,
     generate_next_button_widget,
     generate_string_widget,
     generate_widget_name,
@@ -24,6 +32,7 @@ from scripts.generate_widgets import (
     generate_import_statements,
     get_widgets_file_import_flags,
     GenderFields,
+    generate_widgets,
 )
 
 # TODO: Test generate_widgets
@@ -471,7 +480,7 @@ def test_generate_common_properties_no_join_with_when_not_allowed():
 def test_generate_info_text_widget_no_join_with():
     """Test generate_info_text_widget never includes joinWith even if appearance has join_with"""
     row = {"appearance": "join_with=${foo}"}
-    widget_code = generate_info_text_widget("Q1", "section", "path", "", row)
+    widget_code = generate_info_text_widget("Q1", "path", "", "", row)
     assert "joinWith:" not in widget_code
 
 
@@ -1278,10 +1287,179 @@ class TestGenerateWidgetName:
         assert result is None
 
 
-# TODO: Test generate_select_widget
-# TODO: Test generate_number_widget
-# TODO: Test generate_range_widget
-# TODO: Test generate_text_widget
+@pytest.mark.parametrize(
+    ("generator", "args", "help_popup_name"),
+    [
+        (
+            generate_select_widget,
+            (
+                "householdLanguage",
+                "household.language",
+                "languages",
+                "householdLanguageHelpPopup",
+                "",
+                "requiredValidation",
+                "    label: (t: TFunction) => t('household:householdLanguage'),\n",
+                {},
+            ),
+            "householdLanguageHelpPopup",
+        ),
+        (
+            generate_range_widget,
+            (
+                "tripDistance",
+                "trip.distance",
+                "distanceRange",
+                "distanceHelpPopup",
+                "",
+                "",
+                "    label: (t: TFunction) => t('trips:tripDistance'),\n",
+                {},
+            ),
+            "distanceHelpPopup",
+        ),
+        (
+            generate_text_widget,
+            (
+                "tripComment",
+                "trip.comment",
+                "commentHelpPopup",
+                "",
+                "",
+                "    label: (t: TFunction) => t('trips:tripComment'),\n",
+                {},
+            ),
+            "commentHelpPopup",
+        ),
+    ],
+)
+def test_widget_generators_include_help_popup(generator, args, help_popup_name):
+    """Test widget generators emit helpPopup when help_popup is set"""
+    code = generator(*args)
+    assert f"helpPopup: customHelpPopup.{help_popup_name}" in code
+
+
+@pytest.mark.parametrize(
+    ("generator", "args"),
+    [
+        (
+            generate_select_widget,
+            (
+                "householdLanguage",
+                "household.language",
+                "languages",
+                "",
+                "",
+                "requiredValidation",
+                "    label: (t: TFunction) => t('household:householdLanguage'),\n",
+                {},
+            ),
+        ),
+        (
+            generate_range_widget,
+            (
+                "tripDistance",
+                "trip.distance",
+                "distanceRange",
+                "",
+                "",
+                "",
+                "    label: (t: TFunction) => t('trips:tripDistance'),\n",
+                {},
+            ),
+        ),
+        (
+            generate_text_widget,
+            (
+                "tripComment",
+                "trip.comment",
+                "",
+                "",
+                "",
+                "    label: (t: TFunction) => t('trips:tripComment'),\n",
+                {},
+            ),
+        ),
+        (
+            generate_info_text_widget,
+            (
+                "introText",
+                "intro.text",
+                "",
+                "    text: (t: TFunction) => t('home:introText'),\n",
+                {},
+            ),
+        ),
+        (
+            generate_next_button_widget,
+            (
+                "home_save",
+                "home.save",
+                "",
+                "",
+                "    label: (t: TFunction) => t('home:home_save'),\n",
+                {},
+            ),
+        ),
+    ],
+)
+def test_widget_generators_omit_help_popup_when_empty(generator, args):
+    """Test widget generators omit helpPopup when help_popup is empty"""
+    code = generator(*args)
+    assert "helpPopup" not in code
+
+
+@pytest.mark.parametrize(
+    ("input_type", "extra_row_fields", "export_type_name"),
+    [
+        (
+            "InfoText",
+            {
+                "text::fr": "Texte intro",
+                "text::en": "Intro text",
+            },
+            "TextWidgetConfig",
+        ),
+        (
+            "NextButton",
+            {
+                "label::fr": "Continuer",
+                "label::en": "Continue",
+                "confirm_popup": "",
+            },
+            "ButtonWidgetConfig",
+        ),
+    ],
+)
+def test_generate_widget_statement_ignores_help_popup_for_unsupported_types(
+    capsys, input_type, extra_row_fields, export_type_name
+):
+    """Test generate_widget_statement ignores help_popup for InfoText and NextButton"""
+    row = {
+        "questionName": "unsupportedHelpPopupWidget",
+        "active": True,
+        "inputType": input_type,
+        "section": "home",
+        "path": "unsupported.intro",
+        "conditional": "",
+        "validation": "",
+        "inputRange": "",
+        "help_popup": "someHelpPopup",
+        "choices": "",
+        **extra_row_fields,
+    }
+
+    result = generate_widget_statement(row, GenderFields())
+
+    assert (
+        f"export const unsupportedHelpPopupWidget: WidgetConfig.{export_type_name}"
+        in (result["statement"])
+    )
+    assert "helpPopup:" not in result["statement"]
+    captured = capsys.readouterr()
+    assert "not supported" in captured.out
+    assert input_type in captured.out
+    assert "unsupportedHelpPopupWidget" in captured.out
 
 
 class TestRadioNumberParameters:
@@ -1663,10 +1841,10 @@ class TestGetWidgetsFileImportFlags:
         import_flags = get_widgets_file_import_flags(section_rows)
         assert import_flags.has_help_popup_import is True
 
-        # Confirm popup
+        # Confirm popup on NextButton
         section_rows = [
             {
-                "inputType": "Radio",
+                "inputType": "NextButton",
                 "choices": "",
                 "validation": "",
                 "conditional": "",
@@ -1675,6 +1853,28 @@ class TestGetWidgetsFileImportFlags:
         ]
         import_flags = get_widgets_file_import_flags(section_rows)
         assert import_flags.has_help_popup_import is True
+
+    @pytest.mark.parametrize(
+        ("input_type", "popup_field"),
+        [
+            ("InfoText", "help_popup"),
+            ("NextButton", "help_popup"),
+            ("Radio", "confirm_popup"),
+        ],
+    )
+    def test_help_popup_imports_ignore_unsupported_types(self, input_type, popup_field):
+        """Unsupported popup columns must not trigger customHelpPopup import."""
+        section_rows = [
+            {
+                "inputType": input_type,
+                "choices": "",
+                "validation": "",
+                "conditional": "",
+                popup_field: "somePopup",
+            }
+        ]
+        import_flags = get_widgets_file_import_flags(section_rows)
+        assert import_flags.has_help_popup_import is False
 
     def test_label_context_imports(self):
         """Test that label context imports are correctly detected"""
@@ -1745,3 +1945,50 @@ class TestGetWidgetsFileImportFlags:
         ]
         import_flags = get_widgets_file_import_flags(section_rows)
         assert import_flags.has_custom_labels_import is True
+
+
+DEMO_GENERATOR_EXCEL = os.path.normpath(
+    os.path.join(
+        os.path.dirname(__file__),
+        "../../../../example/demo_generator/references/Household_Travel_Generate_Survey.xlsx",
+    )
+)
+
+DEMO_HELP_POPUP_WIDGETS = [
+    ("home", "home_city", "cityHelpPopup"),
+    ("home", "household_size", "householdSizeHelpPopup"),
+    ("home", "household_carNumber", "householdCarNumberHelpPopup"),
+]
+
+
+@pytest.fixture(scope="module")
+def demo_generator_widgets_output():
+    if not os.path.isfile(DEMO_GENERATOR_EXCEL):
+        pytest.skip(f"Demo generator excel not found: {DEMO_GENERATOR_EXCEL}")
+    temp_dir = tempfile.mkdtemp()
+    for section in ("home", "household", "completed"):
+        os.makedirs(os.path.join(temp_dir, section), exist_ok=True)
+    try:
+        generate_widgets(DEMO_GENERATOR_EXCEL, temp_dir)
+        yield temp_dir
+    finally:
+        shutil.rmtree(temp_dir)
+
+
+@pytest.mark.parametrize(
+    ("section", "widget_name", "help_popup_name"), DEMO_HELP_POPUP_WIDGETS
+)
+def test_demo_generator_help_popup_from_excel(
+    demo_generator_widgets_output, section, widget_name, help_popup_name
+):
+    """Test demo_generator Excel rows emit helpPopup for every supported input type."""
+    widgets_path = os.path.join(demo_generator_widgets_output, section, "widgets.tsx")
+    with open(widgets_path, encoding="utf-8") as widgets_file:
+        content = widgets_file.read()
+
+    widget_export = f"export const {widget_name}"
+    assert widget_export in content
+    start = content.index(widget_export)
+    next_export = content.find("\nexport const ", start + 1)
+    widget_block = content[start:] if next_export == -1 else content[start:next_export]
+    assert f"helpPopup: customHelpPopup.{help_popup_name}" in widget_block
