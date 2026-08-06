@@ -30,12 +30,7 @@ describe('getPersonsTripsTitleWidgetConfig', () => {
 
 describe('personsTripsTitleWidgetConfig text', () => {
 
-    const options = {
-        ...widgetFactoryOptions,
-        context: jest.fn().mockImplementation((context: string) => context)
-    };
-
-    const widgetText = getPersonsTripsTitleWidgetConfig(options).text as any;
+    const widgetText = getPersonsTripsTitleWidgetConfig(widgetFactoryOptions).text as any;
     const mockedT = jest.fn().mockReturnValue('translatedString');
    
     test('should call translation with correct parameters if no person/journey context', () => {
@@ -58,13 +53,12 @@ describe('personsTripsTitleWidgetConfig text', () => {
         }
         delete testInterview.response.household!.persons!.personId1.journeys!.journeyId1.startDate;
         expect(widgetText(mockedT, testInterview)).toEqual('translatedString');
-        expect(mockedT).toHaveBeenCalledWith('segments:personTripsTitle', {
-            context: 'undated',
+        expect(mockedT).toHaveBeenCalledWith('segments:personTripsTitle_undated', {
+            context: undefined,
             count: 1,
             nickname: '',
             journeyDates: null
         });
-        expect(options.context).toHaveBeenCalledWith('undated');
     });
 
     test('should call translation with correct parameters if multiple person household and journey with start date', () => {
@@ -82,7 +76,6 @@ describe('personsTripsTitleWidgetConfig text', () => {
             nickname,
             journeyDates: 'formattedDate'
         });
-        expect(options.context).toHaveBeenCalledWith(undefined);
     });
 
 });

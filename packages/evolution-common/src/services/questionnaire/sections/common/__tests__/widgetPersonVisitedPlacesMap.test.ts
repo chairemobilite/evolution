@@ -77,8 +77,8 @@ describe('personVisitedPlacesMapConfig title', () => {
     test('should call translation with correct parameters if one person household and no journey dates', () => {
         mockedGetJourneyContextFromPath.mockReturnValueOnce({ person: { _uuid: 'person1', _sequence: 1 }, journey: { _uuid: 'journey1', _sequence: 1 } });
         expect(widgetTitle(mockedT, interviewAttributesForTestCases, 'path')).toEqual('translatedString');
-        expect(mockedT).toHaveBeenCalledWith('visitedPlaces:personVisitedPlacesMap', {
-            context: 'undated',
+        expect(mockedT).toHaveBeenCalledWith('visitedPlaces:personVisitedPlacesMap_undated', {
+            context: undefined,
             count: 1,
             nickname: 'translatedString', // Should have called the getPersonIdentificationString function and translated the name
             journeyDates: null

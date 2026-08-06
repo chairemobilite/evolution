@@ -110,6 +110,12 @@ workPlaceLocationIsRequiredError: Usual work place location is required.
 ConfirmDeleteVisitedPlace: Do you confirm that you want to remove this location?
 dayScheduleFor: Day schedule for <strong>{{nickname}}</strong>
 dayScheduleFor_one: Your day schedule
+personVisitedPlacesTitle_undated: >-
+    Places {{nickname}} went:<br />Chronological order must
+    be respected (i.e. sequence matters).
+personVisitedPlacesTitle_undated_one: >-
+    Places you went:<br />Chronological order must be respected
+    (i.e. sequence matters).
 personVisitedPlacesTitle: >-
     Places {{nickname}} went on {{journeyDates}}:<br />Chronological order must
     be respected (i.e. sequence matters).
