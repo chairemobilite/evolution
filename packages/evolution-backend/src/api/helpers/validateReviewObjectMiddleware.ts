@@ -71,7 +71,7 @@ const validateReviewObjectMiddleware = async (req: Request, res: Response, next:
             return sendError(res, 400, 'Invalid object uuid');
         }
 
-        const interview = await Interviews.getInterviewByUuid(req.params.interviewId);
+        const interview = await Interviews.getInterviewByUuid(req.params.interviewUuid);
         if (!interview) {
             return sendError(res, 404, 'Interview does not exist');
         }

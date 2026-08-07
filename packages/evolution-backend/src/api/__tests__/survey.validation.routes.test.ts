@@ -27,12 +27,12 @@ jest.mock('../../services/auth/userAuthorization', () => {
             if (!req.user?.id) {
                 return res.status(401).json({ status: 'Unauthorized' });
             }
-            const interviewId = req.params?.interviewId || req.body?.interviewId;
-            if (!interviewId) {
+            const interviewUuid = req.params?.interviewUuid || req.body?.interviewUuid;
+            if (!interviewUuid) {
                 return next();
             }
             const interview = await require('../../services/interviews/interviews').default.getInterviewByUuid(
-                interviewId
+                interviewUuid
             );
             if (!interview) {
                 return res.status(404).json({ status: 'NotFound' });
