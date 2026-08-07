@@ -53,45 +53,95 @@ const testFeatureCollection = {
     ]
 };
 
-test('Render InputSelect with normal option type, no sorting', async () => {
-    // Return null for ref geography, features should not be sorted
-    const refGeographyFct = jest.fn().mockReturnValue(null);
+describe('Render InputSelectFeature with various options', () => {
+    test('with normal option type, no sorting', async () => {
+        // Return null for ref geography, features should not be sorted
+        const refGeographyFct = jest.fn().mockReturnValue(null);
 
-    const widgetConfig = {
-        type: 'question' as const,
-        twoColumns: true,
-        path: 'test.foo',
-        inputType: 'selectFeature' as const,
-        featureCollection: testFeatureCollection,
-        labelProperty: 'label',
-        referenceGeography: refGeographyFct,
-        size: 'medium',
-        containsHtml: true,
-        label: {
-            fr: `Texte en français`,
-            en: `English text`
-        }
-    };
+        const widgetConfig = {
+            type: 'question' as const,
+            twoColumns: true,
+            path: 'test.foo',
+            inputType: 'selectFeature' as const,
+            featureCollection: testFeatureCollection,
+            labelProperty: 'label',
+            referenceGeography: refGeographyFct,
+            size: 'medium',
+            containsHtml: true,
+            label: {
+                fr: `Texte en français`,
+                en: `English text`
+            }
+        };
 
-    const user = userEvent.setup();
-    const { container } = render(
-        <InputSelectFeature
-            id={'test'}
-            onValueChange={() => {
-                /* nothing to do */
-            }}
-            widgetConfig={widgetConfig}
-            value="value"
-            inputRef={React.createRef()}
-            interview={interviewAttributes}
-            user={userAttributes}
-            path="foo.test"
-        />
-    );
-    // Open the menu so the options (in collection order) appear in the snapshot
-    await user.click(screen.getByRole('combobox'));
-    expect(container).toMatchSnapshot();
-    expect(refGeographyFct).toHaveBeenCalledWith(interviewAttributes, 'foo.test', userAttributes);
+        const user = userEvent.setup();
+        const { container } = render(
+            <InputSelectFeature
+                id={'test'}
+                onValueChange={() => {
+                    /* nothing to do */
+                }}
+                widgetConfig={widgetConfig}
+                value="value"
+                inputRef={React.createRef()}
+                interview={interviewAttributes}
+                user={userAttributes}
+                path="foo.test"
+            />
+        );
+        // Open the menu so the options (in collection order) appear in the snapshot
+        await user.click(screen.getByRole('combobox'));
+        expect(container).toMatchSnapshot();
+        expect(refGeographyFct).toHaveBeenCalledWith(interviewAttributes, 'foo.test', userAttributes);
+    });
+
+    test('with normal option type, proximity sorting', async () => {
+        // Return geography, sorting should be features 4, 2, 1, 3
+        const refGeographyFct = jest
+            .fn()
+            .mockReturnValue({
+                type: 'Feature' as const,
+                geometry: { type: 'Point', coordinates: [2.5, 0] },
+                properties: {}
+            });
+
+        const widgetConfig = {
+            type: 'question' as const,
+            twoColumns: true,
+            path: 'test.foo',
+            inputType: 'selectFeature' as const,
+            featureCollection: testFeatureCollection,
+            labelProperty: 'label',
+            referenceGeography: refGeographyFct,
+            size: 'medium',
+            containsHtml: true,
+            label: {
+                fr: `Texte en français`,
+                en: `English text`
+            }
+        };
+
+        const user = userEvent.setup();
+        const { container } = render(
+            <InputSelectFeature
+                id={'test'}
+                onValueChange={() => {
+                    /* nothing to do */
+                }}
+                widgetConfig={widgetConfig}
+                value="value"
+                inputRef={React.createRef()}
+                interview={interviewAttributes}
+                user={userAttributes}
+                path="foo.test"
+            />
+        );
+        // Open the menu so the proximity-sorted options (features 4, 2, 1, 3) appear in the snapshot
+        await user.click(screen.getByRole('combobox'));
+        expect(container).toMatchSnapshot();
+        expect(refGeographyFct).toHaveBeenCalledWith(interviewAttributes, 'foo.test', userAttributes);
+    });
+
 });
 
 const widgetConfigWithRef = (refGeographyFct) => ({
@@ -205,51 +255,4 @@ describe('InputSelectFeature searchable behavior', () => {
 
         expect(onValueChange).toHaveBeenCalledWith({ target: { value: null } });
     });
-});
-
-test('Render InputSelect with normal option type, proximity sorting', async () => {
-    // Return geography, sorting should be features 4, 2, 1, 3
-    const refGeographyFct = jest
-        .fn()
-        .mockReturnValue({
-            type: 'Feature' as const,
-            geometry: { type: 'Point', coordinates: [2.5, 0] },
-            properties: {}
-        });
-
-    const widgetConfig = {
-        type: 'question' as const,
-        twoColumns: true,
-        path: 'test.foo',
-        inputType: 'selectFeature' as const,
-        featureCollection: testFeatureCollection,
-        labelProperty: 'label',
-        referenceGeography: refGeographyFct,
-        size: 'medium',
-        containsHtml: true,
-        label: {
-            fr: `Texte en français`,
-            en: `English text`
-        }
-    };
-
-    const user = userEvent.setup();
-    const { container } = render(
-        <InputSelectFeature
-            id={'test'}
-            onValueChange={() => {
-                /* nothing to do */
-            }}
-            widgetConfig={widgetConfig}
-            value="value"
-            inputRef={React.createRef()}
-            interview={interviewAttributes}
-            user={userAttributes}
-            path="foo.test"
-        />
-    );
-    // Open the menu so the proximity-sorted options (features 4, 2, 1, 3) appear in the snapshot
-    await user.click(screen.getByRole('combobox'));
-    expect(container).toMatchSnapshot();
-    expect(refGeographyFct).toHaveBeenCalledWith(interviewAttributes, 'foo.test', userAttributes);
 });
