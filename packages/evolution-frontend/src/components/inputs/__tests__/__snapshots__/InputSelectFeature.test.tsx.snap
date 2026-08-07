@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
 
-exports[`Render InputSelect with normal option type, no sorting 1`] = `
+exports[`Render InputSelectFeature with various options with normal option type, no sorting 1`] = `
 <div>
   <div
     class="survey-question__input-select-container"
@@ -158,7 +158,7 @@ exports[`Render InputSelect with normal option type, no sorting 1`] = `
 </div>
 `;
 
-exports[`Render InputSelect with normal option type, proximity sorting 1`] = `
+exports[`Render InputSelectFeature with various options with normal option type, proximity sorting 1`] = `
 <div>
   <div
     class="survey-question__input-select-container"
@@ -168,7 +168,7 @@ exports[`Render InputSelect with normal option type, proximity sorting 1`] = `
     >
       <span
         class="css-1f43avz-a11yText-A11yText"
-        id="react-select-7-live-region"
+        id="react-select-3-live-region"
       />
       <span
         aria-atomic="false"
@@ -202,17 +202,17 @@ exports[`Render InputSelect with normal option type, proximity sorting 1`] = `
         >
           <div
             class="react-select__placeholder css-1jqq78o-placeholder"
-            id="react-select-7-placeholder"
+            id="react-select-3-placeholder"
           />
           <div
             class="react-select__input-container css-qbdosj-Input"
             data-value=""
           >
             <input
-              aria-activedescendant="react-select-7-option-0"
+              aria-activedescendant="react-select-3-option-0"
               aria-autocomplete="list"
-              aria-controls="react-select-7-listbox"
-              aria-describedby="react-select-7-placeholder"
+              aria-controls="react-select-3-listbox"
+              aria-describedby="react-select-3-placeholder"
               aria-expanded="true"
               aria-haspopup="true"
               aria-labelledby="test_label"
@@ -261,14 +261,14 @@ exports[`Render InputSelect with normal option type, proximity sorting 1`] = `
         <div
           aria-multiselectable="false"
           class="react-select__menu-list css-1n6sfyn-MenuList"
-          id="react-select-7-listbox"
+          id="react-select-3-listbox"
           role="listbox"
         >
           <div
             aria-disabled="false"
             aria-selected="false"
             class="react-select__option react-select__option--is-focused css-d7l1ni-option"
-            id="react-select-7-option-0"
+            id="react-select-3-option-0"
             role="option"
             tabindex="-1"
           >
@@ -278,7 +278,7 @@ exports[`Render InputSelect with normal option type, proximity sorting 1`] = `
             aria-disabled="false"
             aria-selected="false"
             class="react-select__option css-10wo9uf-option"
-            id="react-select-7-option-1"
+            id="react-select-3-option-1"
             role="option"
             tabindex="-1"
           >
@@ -288,7 +288,7 @@ exports[`Render InputSelect with normal option type, proximity sorting 1`] = `
             aria-disabled="false"
             aria-selected="false"
             class="react-select__option css-10wo9uf-option"
-            id="react-select-7-option-2"
+            id="react-select-3-option-2"
             role="option"
             tabindex="-1"
           >
@@ -298,7 +298,7 @@ exports[`Render InputSelect with normal option type, proximity sorting 1`] = `
             aria-disabled="false"
             aria-selected="false"
             class="react-select__option css-10wo9uf-option"
-            id="react-select-7-option-3"
+            id="react-select-3-option-3"
             role="option"
             tabindex="-1"
           >
