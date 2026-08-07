@@ -21,7 +21,7 @@ const mockAdmin = { id: 4, username: 'admin', is_admin: true };
 
 const mockGetInterviewByUuid = Interviews.getInterviewByUuid = jest.fn();
 
-const interviewId = uuidV4();
+const interviewUuid = uuidV4();
 
 beforeEach(() => {
     mockRequest = {};
@@ -35,8 +35,8 @@ beforeEach(() => {
 
 describe('User interview access', () => {
     const defaultPermissions = ['update', 'read'];
-    const defaultGetParams = { params: { interviewId } };
-    const defaultPostParams = { body: { interviewId } };
+    const defaultGetParams = { params: { interviewUuid } };
+    const defaultPostParams = { body: { interviewUuid } };
 
     each([
         ['No authenticated user', undefined, defaultGetParams, defaultPermissions, undefined, 401],
@@ -52,7 +52,7 @@ describe('User interview access', () => {
         ['Get params, Admin user, interview exists', mockAdmin, defaultPostParams, defaultPermissions, true, true],
         ['Get params, Admin user, interview with extra permissions', mockAdmin, defaultPostParams, [...defaultPermissions, 'validate'], true, true],
         ['Post and get params, identical, ok', mockAdmin, { ...defaultPostParams, ...defaultGetParams }, defaultPermissions, true, true],
-        ['Post and get params, not identical, not ok', mockAdmin, { ...defaultGetParams, body: { interviewId: uuidV4() } }, defaultPermissions, true, 400]
+        ['Post and get params, not identical, not ok', mockAdmin, { ...defaultGetParams, body: { interviewUuid: uuidV4() } }, defaultPermissions, true, 400]
     ]).test('%s', async (_title, user, reqParams, requestedPermissions, retUndefined, expectedNextOrCode, is_active = true) => {
         mockRequest.user = user;
         const request = { ...mockRequest, ...reqParams };

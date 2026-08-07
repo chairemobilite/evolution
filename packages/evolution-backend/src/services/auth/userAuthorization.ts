@@ -15,7 +15,8 @@ import { InterviewAttributes } from 'evolution-common/lib/services/questionnaire
 export type permissionType = 'read' | 'update' | 'validate' | 'confirm' | 'delete' | 'create';
 
 /**
- * Authorization middleware to authorize a user on an interview
+ * Authorization middleware to authorize a user on an interview, given the
+ * interview UUID
  *
  * @param {{ [key: string ]: string}} permissions An object with the permissions
  * to verify
@@ -29,13 +30,17 @@ const interviewUserIsAuthorized = (permissions: permissionType[]) => {
             return;
         }
         // Get the interview
-        const interviewId = req.params?.interviewId || req.body?.interviewId;
+        const interviewUuid = req.params?.interviewUuid || req.body?.interviewUuid;
         // No interview specified, let the request do what must be done
-        if (!interviewId) {
+        if (!interviewUuid) {
             next();
             return;
         }
-        if (req.params?.interviewId && req.body?.interviewId && req.params.interviewId !== req.body.interviewId) {
+        if (
+            req.params?.interviewUuid &&
+            req.body?.interviewUuid &&
+            req.params.interviewUuid !== req.body.interviewUuid
+        ) {
             // Ambiguous query, 3 interview IDs are specified
             console.error(
                 'Ambiguous query: 2 different interviews have been specified in query string and body. Bailing out'
@@ -45,7 +50,7 @@ const interviewUserIsAuthorized = (permissions: permissionType[]) => {
         }
 
         try {
-            const interview = await Interviews.getInterviewByUuid(interviewId);
+            const interview = await Interviews.getInterviewByUuid(interviewUuid);
             // The interview is not found
             if (!interview) {
                 res.status(404).json({ status: 'NotFound' });

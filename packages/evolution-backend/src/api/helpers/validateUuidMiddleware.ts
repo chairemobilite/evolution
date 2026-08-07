@@ -16,6 +16,13 @@ const validateUuidMiddleware = (req: Request, res: Response, next: NextFunction)
         console.warn(`Received an invalid interview ID from client: ${interviewUuid}`);
         return res.status(400).json({ status: 'failed', error: 'Invalid interview ID' });
     }
+    if (req.params.interviewId) {
+        // We are using an interview UUID, it should be in the interviewUUID paramemeter. Just log an error if it is not the case, so we notice and fix
+        console.error(
+            'interviewUuid set in the interviewId parameter of the route, the parameter name should be updated to interviewUuid ',
+            req.route.path
+        );
+    }
     next();
 };
 

@@ -422,12 +422,12 @@ router.post('/validation/updateAudits/:uuid', async (req, res, _next) => {
 // This route fetches the review decisions for an interview, separately from
 // the interview and its audits, so each can be requested/refreshed independently.
 router.get(
-    '/review/decisions/:interviewId',
+    '/review/decisions/:interviewUuid',
     validateUuidMiddleware,
     interviewUserIsAuthorized(['read']),
     async (req: Request, res: Response) => {
         try {
-            const interview = await Interviews.getInterviewByUuid(req.params.interviewId);
+            const interview = await Interviews.getInterviewByUuid(req.params.interviewUuid);
             if (!interview) {
                 return sendError(res, 404, 'Interview does not exist');
             }
@@ -447,7 +447,7 @@ router.get(
 );
 
 router.post(
-    '/review/decision/:interviewId',
+    '/review/decision/:interviewUuid',
     validateUuidMiddleware,
     interviewUserIsAuthorized(['validate']),
     validateReviewObjectMiddleware,
@@ -474,7 +474,7 @@ router.post(
 );
 
 router.post(
-    '/review/reReview/:interviewId',
+    '/review/reReview/:interviewUuid',
     validateUuidMiddleware,
     interviewUserIsAuthorized(['validate']),
     validateReviewObjectMiddleware,
@@ -497,7 +497,7 @@ router.post(
 );
 
 router.post(
-    '/review/clearDecision/:interviewId',
+    '/review/clearDecision/:interviewUuid',
     validateUuidMiddleware,
     interviewUserIsAuthorized(['validate']),
     validateReviewObjectMiddleware,
@@ -514,7 +514,7 @@ router.post(
 );
 
 router.post(
-    '/review/clearForceApprove/:interviewId',
+    '/review/clearForceApprove/:interviewUuid',
     validateUuidMiddleware,
     interviewUserIsAuthorized(['confirm']),
     validateReviewObjectMiddleware,
@@ -531,7 +531,7 @@ router.post(
 );
 
 router.post(
-    '/review/forceApprove/:interviewId',
+    '/review/forceApprove/:interviewUuid',
     validateUuidMiddleware,
     interviewUserIsAuthorized(['confirm']),
     validateReviewObjectMiddleware,
