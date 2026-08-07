@@ -16,6 +16,7 @@ import { surveyObjectExistsInInterview } from '../../services/surveyObjects/surv
 import { ReviewDecisionService } from '../../services/reviews/ReviewDecisionService';
 import { SurveyObjectsAndAuditsFactory } from '../../services/audits/SurveyObjectsAndAuditsFactory';
 import { CANNOT_FORCE_APPROVE_WITHOUT_CONFLICT_ERROR_CODE } from '../../services/reviews/reviewDecisionErrors';
+import { UserAttributes } from 'chaire-lib-backend/lib/services/users/user';
 
 // Mirrors the real interviewUserIsAuthorized behavior (services/auth/userAuthorization.ts),
 // using the mocked Interviews and the shared isUserAllowed mock so tests can drive
@@ -124,7 +125,8 @@ const mockCreateSurveyObjectsAndSaveAuditsToDb = SurveyObjectsAndAuditsFactory.c
     typeof SurveyObjectsAndAuditsFactory.createSurveyObjectsAndSaveAuditsToDb
 >;
 
-let mockAuthUser: { id: number } | undefined = { id: 3 };
+const defaultUser = { id: 3, is_admin: true, uuid: 'someuuid' };
+let mockAuthUser: UserAttributes | undefined = defaultUser;
 
 const app = express();
 app.use(express.json());
@@ -183,7 +185,7 @@ const runValidationReviewContextFailureTests = ({ path, body }: ValidationReview
 
     beforeEach(() => {
         jest.clearAllMocks();
-        mockAuthUser = { id: 3 };
+        mockAuthUser = { id: 3, uuid: 'someUuid', is_admin: true };
         mockGetInterviewByUuid.mockResolvedValue({
             id: 10,
             uuid: interviewUuid,
@@ -295,7 +297,7 @@ const setupValidationReviewMutationMocks = ({
 }: SetupValidationReviewMutationMocksOptions) => {
     beforeEach(() => {
         jest.clearAllMocks();
-        mockAuthUser = { id: 3 };
+        mockAuthUser = defaultUser;
         mockGetInterviewByUuid.mockResolvedValue({
             id: 10,
             uuid: interviewUuid,
@@ -319,7 +321,7 @@ describe('GET /review/decisions/:interviewId', () => {
 
     beforeEach(() => {
         jest.clearAllMocks();
-        mockAuthUser = { id: 3 };
+        mockAuthUser = defaultUser;
         mockIsUserAllowed.mockReturnValue(true);
         mockGetInterviewByUuid.mockResolvedValue({ id: 10, uuid: interviewUuid } as any);
         mockGetReviewDecisions.mockResolvedValue(reviewDecisionsPayload);
