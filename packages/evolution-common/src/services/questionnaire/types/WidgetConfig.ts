@@ -213,6 +213,14 @@ export type InputSelectFeatureType = BaseQuestionType & {
     featureCollection: GeoJSON.FeatureCollection<GeoJSON.Point>;
     labelProperty: string;
     referenceGeography: ParsingFunction<GeoJSON.Feature<GeoJSON.Point> | null>;
+    /**
+     * Additional choices to add to the select list, that does not map to a feature
+     */
+    additionalChoices?: ChoiceType[];
+    /**
+     * Choices to add as shortcuts buttons below the select box, to automatically select a given choice.
+     */
+    shortcuts?: ChoiceType[];
 };
 
 export type InputMultiselectType = BaseQuestionType & {

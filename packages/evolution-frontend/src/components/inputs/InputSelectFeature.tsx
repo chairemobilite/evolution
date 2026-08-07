@@ -4,13 +4,16 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import React from 'react';
+import React, { JSX } from 'react';
 import Select, { SelectInstance } from 'react-select';
 import { distance as turfDistance } from '@turf/turf';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { InputSelectFeatureType } from 'evolution-common/lib/services/questionnaire/types';
 import { CommonInputProps } from './CommonInputProps';
+import { useTranslation } from 'react-i18next';
+import { parseBoolean, translateString } from 'evolution-common/lib/utils/helpers';
 
 export type InputSelectFeatureProps = CommonInputProps & {
     value?: string;
@@ -29,15 +32,17 @@ type OptionType = { label: string; value: string };
  * @returns The options to feed to the searchable select, in display order
  */
 const useFeatureOptions = (
-    widgetConfig: InputSelectFeatureType,
+    props: InputSelectFeatureProps,
     referenceGeography: GeoJSON.Feature<GeoJSON.Point> | null
 ): OptionType[] => {
     const referenceGeographyKey = referenceGeography
         ? `${referenceGeography.geometry.type}:${referenceGeography.geometry.coordinates.join(',')}`
         : null;
+    const { i18n } = useTranslation();
 
+    const widgetConfig = props.widgetConfig;
     // Memoized sorted options, to avoid recalculating distances on every render
-    return React.useMemo(() => {
+    const featureOptions = React.useMemo(() => {
         const features = widgetConfig.featureCollection.features as GeoJSON.Feature<GeoJSON.Point>[];
         const sortedFeatures =
             referenceGeography === null
@@ -52,6 +57,64 @@ const useFeatureOptions = (
             label: feature.properties?.[widgetConfig.labelProperty]
         }));
     }, [widgetConfig, referenceGeographyKey]);
+
+    // Add additional options to the list, if any
+    if (widgetConfig.additionalChoices) {
+        const additionalOptions = widgetConfig.additionalChoices
+            .filter(
+                (choice) =>
+                    choice.hidden !== true && parseBoolean(choice.conditional, props.interview, props.path, props.user)
+            )
+            .map((choice) => ({
+                label: translateString(choice.label, i18n, props.interview, props.path, props.user) as string,
+                color: choice.color,
+                value: choice.value
+            }));
+
+        return [...featureOptions, ...additionalOptions];
+    }
+    return featureOptions;
+};
+
+const ShortcutButtons = (
+    props: InputSelectFeatureProps & {
+        availableOptions: OptionType[];
+        onChange: (option: { value: string } | null) => void;
+    }
+) => {
+    const { i18n } = useTranslation();
+    const shortcuts = props.widgetConfig.shortcuts;
+    if (shortcuts === undefined || shortcuts.length === 0) {
+        return null;
+    }
+
+    const selectShortcut = (value: string, e: React.MouseEvent) => {
+        if (e) {
+            e.preventDefault();
+        }
+        props.onChange({ value });
+    };
+
+    const shortcutButtons: JSX.Element[] = [];
+    for (let i = 0, count = shortcuts.length; i < count; i++) {
+        const shortcut = shortcuts[i];
+        // Make sure the corresponding option is available, otherwise don't add the shortcut
+        if (props.availableOptions.findIndex((visiblechoice) => visiblechoice.value === shortcut.value) === -1) {
+            continue;
+        }
+        shortcutButtons.push(
+            <button
+                key={'shortcut' + i}
+                type="button"
+                className={`button shortcut-button${shortcut.color ? ` ${shortcut.color}` : 'blue'}`}
+                onClick={(e) => selectShortcut(shortcut.value, e)}
+            >
+                {shortcut.icon && <FontAwesomeIcon icon={shortcut.icon} className="faIconLeft" />}
+                {translateString(shortcut.label, i18n, props.interview, props.path, props.user)}
+            </button>
+        );
+    }
+    return shortcutButtons;
 };
 
 export const InputSelectFeature = (props: InputSelectFeatureProps) => {
@@ -60,11 +123,11 @@ export const InputSelectFeature = (props: InputSelectFeatureProps) => {
             ? props.widgetConfig.referenceGeography(props.interview, props.path, props.user)
             : null;
 
-    const options = useFeatureOptions(props.widgetConfig, referenceGeography ?? null);
+    const options = useFeatureOptions(props, referenceGeography ?? null);
 
     // react-select returns the selected option (or null when cleared); adapt it to
     // the event-like shape ({ target: { value } }) expected by the survey layer.
-    const onChange = (option: OptionType | null) => {
+    const onChange = (option: { value: string } | null) => {
         props.onValueChange({ target: { value: option ? option.value : null } });
     };
 
@@ -94,6 +157,7 @@ export const InputSelectFeature = (props: InputSelectFeatureProps) => {
                 className="react-select-container"
                 classNamePrefix="react-select"
             />
+            <ShortcutButtons {...props} availableOptions={options} onChange={onChange} />
         </div>
     );
 };
