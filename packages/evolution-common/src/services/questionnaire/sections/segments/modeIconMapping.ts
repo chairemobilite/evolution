@@ -22,9 +22,9 @@ export const modeToIconMapping: Record<Mode, string> = {
     // FIXME Confirm this icon
     bicyclePassenger: '/dist/icons/modes/bicycle/bicycle_with_rider.svg',
     bicycleElectric: '/dist/icons/modes/bicycle/bicycle_without_rider_electric.svg',
-    // FIXME Add bicycle bike sharing icons
-    bicycleBikesharing: '/dist/icons/modes/bicycle/bicycle_bikesharing.svg',
-    bicycleBikesharingElectric: '/dist/icons/modes/bicycle/bicycle_bikesharing_electric.svg',
+    // FIXME Add official bicycle bike sharing icons, using bicycle variants for now (see https://github.com/chairemobilite/transition/issues/1692)
+    bicycleBikesharing: '/dist/icons/modes/bicycle/bicycle_without_rider.svg',
+    bicycleBikesharingElectric: '/dist/icons/modes/bicycle/bicycle_without_rider_electric.svg',
     kickScooterElectric: '/dist/icons/modes/kick_scooter/kick_scooter_electric.svg',
     // FIXME Confirm this icon
     otherActiveMode: '/dist/icons/modes/kick_scooter/kick_scooter.svg',
