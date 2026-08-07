@@ -34,6 +34,8 @@ import { CANNOT_FORCE_APPROVE_WITHOUT_CONFLICT_ERROR_CODE } from '../services/re
 import type { ReviewDecisionValue, ReviewDecisions } from 'evolution-common/lib/services/reviews/types';
 import { hasErrors } from 'evolution-common/lib/types/Result.type';
 import TrError from 'chaire-lib-common/lib/utils/TrError';
+import isAuthorized from 'chaire-lib-backend/lib/services/auth/authorization';
+import { InterviewsSubject } from '../services/auth/roleDefinition';
 
 const router = express.Router();
 
@@ -93,7 +95,7 @@ const respondWithReviewMutationResult = async (
     }
 };
 
-router.use(interviewUserIsAuthorized(['validate', 'read']));
+router.use(isAuthorized({ [InterviewsSubject]: ['read', 'validate'] }));
 
 /**
  * Type for the filter parameter accepted by getValidationAuditStats
@@ -159,6 +161,7 @@ const parseOptionalStringBodyField = (
 router.get(
     '/survey/correctInterview/:interviewUuid',
     validateUuidMiddleware,
+    interviewUserIsAuthorized(['validate', 'read']),
     logUserAccessesMiddleware.openingInterview(true),
     async (req: Request, res: Response) => {
         // Extended audit checks: When enabled (extended=true), runs additional audit checks that may
@@ -224,6 +227,7 @@ router.get(
 router.get(
     '/survey/activeCorrectedInterview/:interviewUuid',
     validateUuidMiddleware,
+    interviewUserIsAuthorized(['validate', 'read']),
     logUserAccessesMiddleware.openingInterview(true),
     async (req: Request, res: Response) => {
         if (req.params.interviewUuid) {
@@ -274,6 +278,7 @@ router.get(
 router.post(
     '/survey/updateCorrectedInterview/:interviewUuid',
     validateUuidMiddleware,
+    interviewUserIsAuthorized(['validate', 'read']),
     logUserAccessesMiddleware.updatingInterview(true),
     async (req: Request, res: Response) => {
         try {
@@ -401,23 +406,31 @@ router.post('/validation/auditStats', async (req: Request, res: Response) => {
     }
 });
 
-router.post('/validation/updateAudits/:uuid', async (req, res, _next) => {
-    try {
-        const audits = req.body.audits;
-        const interview = await Interviews.getInterviewByUuid(req.params.uuid);
-        if (!interview) {
-            throw 'Interview does not exist';
-        }
-        await SurveyObjectsAndAuditsFactory.updateAudits(interview.id, audits);
+// FIXME This route is never called. See if it's required. The commit that added
+// it (a45c7b9acf5) states that it was meant to update audits from clients to
+// set the ignore status. Is that right?
+router.post(
+    '/validation/updateAudits/:interviewUuid',
+    validateUuidMiddleware,
+    interviewUserIsAuthorized(['validate']),
+    async (req, res, _next) => {
+        try {
+            const audits = req.body.audits;
+            const interview = await Interviews.getInterviewByUuid(req.params.interviewUuid);
+            if (!interview) {
+                throw 'Interview does not exist';
+            }
+            await SurveyObjectsAndAuditsFactory.updateAudits(interview.id, audits);
 
-        return res.status(200).json({
-            status: 'ok'
-        });
-    } catch (error) {
-        console.error('error updating audits for interview:', error);
-        return res.status(500).json({ status: 'error' });
+            return res.status(200).json({
+                status: 'ok'
+            });
+        } catch (error) {
+            console.error('error updating audits for interview:', error);
+            return res.status(500).json({ status: 'error' });
+        }
     }
-});
+);
 
 // This route fetches the review decisions for an interview, separately from
 // the interview and its audits, so each can be requested/refreshed independently.
