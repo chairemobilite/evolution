@@ -248,7 +248,7 @@ describe('NextPlaceCategory validations', () => {
         expect(validations!(undefined, null, interview, 'household.persons.personId1.journeys.journeyId1.visitedPlaces.workPlace1P1.nextPlaceCategory')).toEqual([
             {
                 validation: true,
-                errorMessage: expect.any(Object)
+                errorMessage: expect.any(Function)
             }
         ]);
     });
@@ -258,7 +258,7 @@ describe('NextPlaceCategory validations', () => {
         expect(validation).toEqual([
             {
                 validation: false,
-                errorMessage: expect.any(Object)
+                errorMessage: expect.any(Function)
             }
         ]);
     });
