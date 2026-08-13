@@ -18,7 +18,7 @@ exports[`Render InputMapPoint with various parameters Test with all parameters 1
       <button
         class="button refresh-geocode green large"
         id="test_refresh"
-        style="display: none;"
+        style="display: inline;"
         type="button"
       >
         <svg
@@ -48,13 +48,8 @@ exports[`Render InputMapPoint with various parameters Test with all parameters 1
       class="survey-question__input-map-container"
     >
       <div
-        class="loader"
-      >
-        <p>
-          Loading
-          ...
-        </p>
-      </div>
+        data-testid="mock-input-map"
+      />
     </div>
   </div>
 </div>
@@ -79,13 +74,8 @@ exports[`Render InputMapPoint with various parameters Test with minimal paramete
       class="survey-question__input-map-container"
     >
       <div
-        class="loader"
-      >
-        <p>
-          Loading
-          ...
-        </p>
-      </div>
+        data-testid="mock-input-map"
+      />
     </div>
   </div>
 </div>
