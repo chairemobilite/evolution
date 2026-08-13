@@ -15,6 +15,8 @@ import helper from '../helper';
 import subwayStations from '../subwayStations.json';
 import trainStations from '../trainStations.json';
 import busRoutes from '../busRoutes.json';
+import { defaultLocationInvalidGeocodingResultTypes } from 'evolution-common/lib/services/questionnaire/sections/common/widgetsLocation';
+import { getImpreciseGeocodingValidation } from '../common/geographyValidations';
 
 export const segmentVehicleOccupancy = {
     type: 'question',
@@ -1762,7 +1764,10 @@ export const segmentBusLines = {
 
 export const tripJunctionGeography = {
     type: 'question',
-    inputType: 'mapPoint',
+    // TODO: demo_survey segments widgets are obsolete (to be replaced by od_nationale_quebec).
+    // mapFindPlace without geocodingQueryString/refreshGeocodingLabel has no place search;
+    // keep click/drag only. Do not invent a query string here — fix in the active survey if needed.
+    inputType: 'mapFindPlace',
     path: 'junctionGeography',
     datatype: 'geojson',
     canBeCollapsed: false,
@@ -2064,7 +2069,9 @@ export const tripJunctionGeography = {
         }
         return config.mapDefaultCenter;
     },
+    invalidGeocodingResultTypes: defaultLocationInvalidGeocodingResultTypes,
     validations: function (value, customValue, interview, path, customPath) {
+        const geography: any = surveyHelperNew.getResponse(interview, path, null);
         return [
             {
                 validation: _isBlank(value),
@@ -2072,7 +2079,8 @@ export const tripJunctionGeography = {
                     fr: 'Le positionnement du lieu de transfert est requis.',
                     en: 'Transfer location is required.'
                 }
-            }
+            },
+            getImpreciseGeocodingValidation(geography)
         ];
     },
     conditional: function (interview, path) {

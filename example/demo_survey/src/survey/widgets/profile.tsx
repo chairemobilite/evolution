@@ -14,6 +14,8 @@ import { getHousehold, getActivePerson } from 'evolution-common/lib/services/odS
 import helper from '../helper';
 import waterBoundaries from '../waterBoundaries.json';
 import { getFormattedDate } from 'evolution-frontend/lib/services/display/frontendHelper';
+import { defaultLocationInvalidGeocodingResultTypes } from 'evolution-common/lib/services/questionnaire/sections/common/widgetsLocation';
+import { getImpreciseGeocodingValidation } from '../common/geographyValidations';
 
 export const personWorkOnTheRoad = {
     type: 'question',
@@ -371,7 +373,7 @@ export const personUsualWorkPlaceName = {
 
 export const personUsualWorkPlaceGeography = {
     type: 'question',
-    inputType: 'mapPoint',
+    inputType: 'mapFindPlace',
     path: 'household.persons.{_activePersonId}.usualWorkPlace',
     datatype: 'geojson',
     canBeCollapsed: true,
@@ -412,6 +414,7 @@ export const personUsualWorkPlaceGeography = {
         const homeCoordinates = surveyHelperNew.getResponse(interview, 'home.geography.geometry.coordinates', null);
         return homeCoordinates ? { lat: homeCoordinates[1], lon: homeCoordinates[0] } : config.mapDefaultCenter;
     },
+    invalidGeocodingResultTypes: defaultLocationInvalidGeocodingResultTypes,
     refreshGeocodingLabel: {
         fr: 'Chercher la localisation à partir du nom',
         en: 'Search location using the place name'
@@ -447,6 +450,7 @@ export const personUsualWorkPlaceGeography = {
                     en: 'Location is not precise enough. Please use the + zoom and drag the icon marker to confirm the precise location.'
                 }
             },
+            getImpreciseGeocodingValidation(geography),
             {
                 validation: geography && turfBooleanPointInPolygon(geography, (waterBoundaries as any).features[0]),
                 errorMessage: {
@@ -507,7 +511,7 @@ export const personUsualSchoolPlaceName = {
 
 export const personUsualSchoolPlaceGeography = {
     type: 'question',
-    inputType: 'mapPoint',
+    inputType: 'mapFindPlace',
     path: 'household.persons.{_activePersonId}.usualSchoolPlace',
     datatype: 'geojson',
     canBeCollapsed: true,
@@ -546,6 +550,7 @@ export const personUsualSchoolPlaceGeography = {
         const homeCoordinates = surveyHelperNew.getResponse(interview, 'home.geography.geometry.coordinates', null);
         return homeCoordinates ? { lat: homeCoordinates[1], lon: homeCoordinates[0] } : config.mapDefaultCenter;
     },
+    invalidGeocodingResultTypes: defaultLocationInvalidGeocodingResultTypes,
     refreshGeocodingLabel: {
         fr: 'Chercher la localisation à partir du nom',
         en: 'Search location using the place name'
@@ -582,6 +587,7 @@ export const personUsualSchoolPlaceGeography = {
                     en: 'Location is not precise enough. Please use the + zoom and drag the icon marker to confirm the precise location.'
                 }
             },
+            getImpreciseGeocodingValidation(geography),
             {
                 validation: geography && turfBooleanPointInPolygon(geography, (waterBoundaries as any).features[0]),
                 errorMessage: {
