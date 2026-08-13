@@ -18,10 +18,7 @@ export const requiredValidation: ValidationFunction = (value) => {
     return [
         {
             validation: _isBlank(value),
-            errorMessage: {
-                fr: 'Cette réponse est requise.',
-                en: 'This answer is required.'
-            }
+            errorMessage: (t) => t('survey:errors:answerRequired')
         }
     ];
 };
@@ -45,17 +42,11 @@ export const inputRangeValidation: ValidationFunction = (value) => {
         {
             // Check if the value is less than 0 and not 'na'
             validation: !(Number(value) >= 0) && value !== 'na',
-            errorMessage: {
-                fr: 'Cette réponse doit être d\'une valeur minimum de 0.',
-                en: 'This answer must be a minimum value of 0.'
-            }
+            errorMessage: (t) => t('survey:errors:inputRangeMinZero')
         },
         {
             validation: _isBlank(value),
-            errorMessage: {
-                fr: 'Cette réponse est requise.',
-                en: 'This answer is required.'
-            }
+            errorMessage: (t) => t('survey:errors:answerRequired')
         }
     ];
 };
@@ -105,31 +96,19 @@ export const ageValidation: ValidationFunction = (value) => {
     return [
         {
             validation: _isBlank(value),
-            errorMessage: {
-                fr: 'L\'âge est requis.',
-                en: 'Age is required.'
-            }
+            errorMessage: (t) => t('survey:errors:ageRequired')
         },
         {
             validation: isNaN(Number(value)) || !Number.isInteger(Number(value)),
-            errorMessage: {
-                fr: 'L\'âge est invalide.',
-                en: 'Age is invalid.'
-            }
+            errorMessage: (t) => t('survey:errors:ageInvalid')
         },
         {
             validation: Number(value) < 0,
-            errorMessage: {
-                fr: 'L\'âge doit être au moins de 0.',
-                en: 'Age must be at least 0.'
-            }
+            errorMessage: (t) => t('survey:errors:ageMinZero')
         },
         {
             validation: Number(value) > projectConfig.ages.maxPersonAge,
-            errorMessage: {
-                fr: 'L\'âge est trop élevé, veuillez vérifier.',
-                en: 'Age is too high, please validate.'
-            }
+            errorMessage: (t) => t('survey:errors:ageTooHigh')
         }
     ];
 };
@@ -145,10 +124,7 @@ export const emailValidation: ValidationFunction = (value) => {
     return [
         {
             validation: _isBlank(value),
-            errorMessage: {
-                fr: 'Le courriel est requis.',
-                en: 'Email is required.'
-            }
+            errorMessage: (t) => t('survey:errors:emailRequired')
         },
         {
             validation:
@@ -156,10 +132,7 @@ export const emailValidation: ValidationFunction = (value) => {
                 !/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
                     String(value)
                 ),
-            errorMessage: {
-                fr: 'Le courriel est invalide.',
-                en: 'Email is invalid'
-            }
+            errorMessage: (t) => t('survey:errors:emailInvalid')
         }
     ];
 };

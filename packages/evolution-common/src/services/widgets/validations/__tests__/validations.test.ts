@@ -23,6 +23,94 @@ jest.mock('../../../../config/project.config', () => ({
     }
 }));
 
+const mockTranslation = jest.fn().mockImplementation((key: string, _params) => key);
+const unusedInterview = {} as any;
+const translationKey = (errorMessage: unknown): string => {
+    expect(typeof errorMessage).toEqual('function');
+    return (errorMessage as (t: typeof mockTranslation) => string)(mockTranslation);
+};
+
+describe('requiredValidation', () => {
+    test.each([
+        [undefined, true],
+        ['', true],
+        ['ok', false]
+    ])('value %p should fail=%s with survey:errors:answerRequired', (value, shouldFail) => {
+        const result = validations.requiredValidation(value, undefined, unusedInterview, 'path');
+        expect(result).toHaveLength(1);
+        expect(result[0].validation).toBe(shouldFail);
+        expect(translationKey(result[0].errorMessage)).toEqual('survey:errors:answerRequired');
+    });
+});
+
+describe('inputRangeValidation', () => {
+    test.each([
+        [-1, true, false],
+        ['na', false, false],
+        [0, false, false],
+        [5, false, false],
+        ['', false, true]
+    ])('value %p: minZero=%s required=%s', (value, minZeroFails, requiredFails) => {
+        const result = validations.inputRangeValidation(value, undefined, unusedInterview, 'path');
+        expect(result).toHaveLength(2);
+        expect(result[0].validation).toBe(minZeroFails);
+        expect(result[1].validation).toBe(requiredFails);
+        expect(translationKey(result[0].errorMessage)).toEqual('survey:errors:inputRangeMinZero');
+        expect(translationKey(result[1].errorMessage)).toEqual('survey:errors:answerRequired');
+    });
+});
+
+describe('ageValidation', () => {
+    test.each([
+        ['', true, false, false, false, 'survey:errors:ageRequired'],
+        ['abc', false, true, false, false, 'survey:errors:ageInvalid'],
+        [1.5, false, true, false, false, 'survey:errors:ageInvalid'],
+        [-1, false, false, true, false, 'survey:errors:ageMinZero'],
+        [126, false, false, false, true, 'survey:errors:ageTooHigh'],
+        [0, false, false, false, false, undefined],
+        [125, false, false, false, false, undefined]
+    ])(
+        'value %p: required=%s invalid=%s minZero=%s tooHigh=%s',
+        (value, requiredFails, invalidFails, minZeroFails, tooHighFails, expectedFailingKey) => {
+            const result = validations.ageValidation(value, undefined, unusedInterview, 'path');
+            expect(result).toHaveLength(4);
+            expect(result.map((entry) => entry.validation)).toEqual([
+                requiredFails,
+                invalidFails,
+                minZeroFails,
+                tooHighFails
+            ]);
+            expect(translationKey(result[0].errorMessage)).toEqual('survey:errors:ageRequired');
+            expect(translationKey(result[1].errorMessage)).toEqual('survey:errors:ageInvalid');
+            expect(translationKey(result[2].errorMessage)).toEqual('survey:errors:ageMinZero');
+            expect(translationKey(result[3].errorMessage)).toEqual('survey:errors:ageTooHigh');
+            if (expectedFailingKey !== undefined) {
+                const failingIndex = result.findIndex((entry) => entry.validation);
+                expect(translationKey(result[failingIndex].errorMessage)).toEqual(expectedFailingKey);
+            }
+        }
+    );
+});
+
+describe('emailValidation', () => {
+    test.each([
+        ['', true, false, 'survey:errors:emailRequired'],
+        ['not-an-email', false, true, 'survey:errors:emailInvalid'],
+        ['user@example.com', false, false, undefined]
+    ])('value %p: required=%s invalid=%s', (value, requiredFails, invalidFails, expectedFailingKey) => {
+        const result = validations.emailValidation(value, undefined, unusedInterview, 'path');
+        expect(result).toHaveLength(2);
+        expect(result[0].validation).toBe(requiredFails);
+        expect(result[1].validation).toBe(invalidFails);
+        expect(translationKey(result[0].errorMessage)).toEqual('survey:errors:emailRequired');
+        expect(translationKey(result[1].errorMessage)).toEqual('survey:errors:emailInvalid');
+        if (expectedFailingKey !== undefined) {
+            const failingIndex = result.findIndex((entry) => entry.validation);
+            expect(translationKey(result[failingIndex].errorMessage)).toEqual(expectedFailingKey);
+        }
+    });
+});
+
 describe('postalCodeValidation', () => {
     // Mock the translation function for errors
     const mockTranslation = jest.fn().mockImplementation((key: string, _params) => key);
