@@ -82,7 +82,7 @@ const createHouseholdAssetCountValidation = (
 
         return [
             {
-                validation: isNaN(Number(value)) || !Number.isInteger(Number(value)),
+                validation: !_isBlank(value) && (isNaN(Number(value)) || !Number.isInteger(Number(value))),
                 errorMessage: (t) => t(messageKeys.invalid)
             },
             {

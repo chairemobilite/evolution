@@ -58,6 +58,7 @@ describe('household asset count validation', () => {
 
         test.each([
             ['', 4, 1],
+            [undefined, 4, 1],
             [-1, 4, 2],
             [1.5, 4, 0],
             [maxForSize4 + 1, 4, 3],
