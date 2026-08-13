@@ -406,32 +406,6 @@ router.post('/validation/auditStats', async (req: Request, res: Response) => {
     }
 });
 
-// FIXME This route is never called. See if it's required. The commit that added
-// it (a45c7b9acf5) states that it was meant to update audits from clients to
-// set the ignore status. Is that right?
-router.post(
-    '/validation/updateAudits/:interviewUuid',
-    validateUuidMiddleware,
-    interviewUserIsAuthorized(['validate']),
-    async (req, res, _next) => {
-        try {
-            const audits = req.body.audits;
-            const interview = await Interviews.getInterviewByUuid(req.params.interviewUuid);
-            if (!interview) {
-                throw 'Interview does not exist';
-            }
-            await SurveyObjectsAndAuditsFactory.updateAudits(interview.id, audits);
-
-            return res.status(200).json({
-                status: 'ok'
-            });
-        } catch (error) {
-            console.error('error updating audits for interview:', error);
-            return res.status(500).json({ status: 'error' });
-        }
-    }
-);
-
 // This route fetches the review decisions for an interview, separately from
 // the interview and its audits, so each can be requested/refreshed independently.
 router.get(
