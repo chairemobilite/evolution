@@ -190,7 +190,7 @@ if (fieldIsRequired('interview', 'accessCode') && !interview.accessCode) {
 ### 5.2 Survey area / territorial check
 
 ```ts
-import { getSurveyArea } from '../../AuditCheckUtils';
+import { getSurveyArea } from '../../../../utils/surveyArea';
 import * as turf from '@turf/turf';
 
 const surveyArea = getSurveyArea(); // cached, reads projectConfig.surveyAreaGeojsonPath
@@ -354,7 +354,7 @@ For any of these, open a design issue before writing code.
 - Contexts: [`./AuditCheckContexts.ts`](./AuditCheckContexts.ts)
 - Runners: [`./AuditCheckRunners.ts`](./AuditCheckRunners.ts)
 - Orchestration: [`../AuditService.ts`](../AuditService.ts), [`../SurveyObjectAuditor.ts`](../SurveyObjectAuditor.ts)
-- Helpers: [`../AuditUtils.ts`](../AuditUtils.ts), [`./AuditCheckUtils.ts`](./AuditCheckUtils.ts)
+- Helpers: [`../AuditUtils.ts`](../AuditUtils.ts), [`../../../utils/surveyArea.ts`](../../../utils/surveyArea.ts)
 - Storage: [`../../../models/audits.db.queries.ts`](../../../models/audits.db.queries.ts)
 - Nomenclature: [`docs/nomenclature.md`](../../../../../../docs/nomenclature.md)
 - Survey end date: [`docs/SURVEY_END_DATE.md`](../../../../../../docs/SURVEY_END_DATE.md)
