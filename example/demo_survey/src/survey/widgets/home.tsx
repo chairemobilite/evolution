@@ -15,6 +15,8 @@ import { getHousehold } from 'evolution-common/lib/services/odSurvey/helpers';
 import waterBoundaries from '../waterBoundaries.json';
 import { canadianPostalCodeFormatter, eightDigitsAccessCodeFormatter } from 'evolution-common/lib/utils/formatters';
 import { postalCodeValidation } from 'evolution-common/lib/services/widgets/validations/validations';
+import { defaultLocationInvalidGeocodingResultTypes } from 'evolution-common/lib/services/questionnaire/sections/common/widgetsLocation';
+import { getImpreciseGeocodingValidation } from '../common/geographyValidations';
 
 export const homeIntro = {
     type: 'text',
@@ -472,7 +474,7 @@ export const homePostalCode = {
 
 export const homeGeography = {
     type: 'question',
-    inputType: 'mapPoint',
+    inputType: 'mapFindPlace',
     path: 'home.geography',
     datatype: 'geojson',
     canBeCollapsed: true,
@@ -496,6 +498,7 @@ export const homeGeography = {
         size: [80, 80]
     },
     defaultCenter: config.mapDefaultCenter,
+    invalidGeocodingResultTypes: defaultLocationInvalidGeocodingResultTypes,
     refreshGeocodingLabel: {
         fr: 'Chercher la localisation à partir de l\'adresse',
         en: 'Search location using provided address'
@@ -535,6 +538,7 @@ export const homeGeography = {
                     en: 'Location of your home is not precise enough. Please use the + zoom and drag the icon marker to confirm the precise location.'
                 }
             },
+            getImpreciseGeocodingValidation(geography),
             {
                 validation: geography && turfBooleanPointInPolygon(geography, (waterBoundaries as any).features[0]),
                 errorMessage: {
