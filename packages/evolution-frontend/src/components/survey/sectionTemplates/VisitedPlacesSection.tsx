@@ -139,11 +139,11 @@ export const VisitedPlacesSection: React.FC<SectionProps> = (props: SectionProps
             });
             let departureTime = i === count - 1 ? 28 * 3600 : null;
             let arrivalTime = i === 0 ? 0 : null;
-            if (visitedPlace.departureTime) {
-                departureTime = visitedPlace.departureTime;
+            if (!_isBlank(visitedPlace.departureTime)) {
+                departureTime = visitedPlace.departureTime!;
             }
-            if (visitedPlace.arrivalTime) {
-                arrivalTime = visitedPlace.arrivalTime;
+            if (!_isBlank(visitedPlace.arrivalTime)) {
+                arrivalTime = visitedPlace.arrivalTime!;
             }
             if (visitedPlace.activity && !_isBlank(departureTime) && !_isBlank(arrivalTime)) {
                 atLeastOneCompletedVisitedPlace = true;
@@ -296,16 +296,16 @@ export const VisitedPlacesSection: React.FC<SectionProps> = (props: SectionProps
                 {
                     <span className="survey-visited-place-item-element survey-visited-place-item-buttons">
                         <FontAwesomeIcon icon={faClock} style={{ marginRight: '0.3rem', marginLeft: '0.6rem' }} />
-                        {visitedPlace.arrivalTime &&
-                            secondsSinceMidnightToTimeStrWithSuffix(visitedPlace.arrivalTime, t('main:theNextDay'))}
-                        {visitedPlace.departureTime && (
+                        {!_isBlank(visitedPlace.arrivalTime) &&
+                            secondsSinceMidnightToTimeStrWithSuffix(visitedPlace.arrivalTime!, t('main:theNextDay'))}
+                        {!_isBlank(visitedPlace.departureTime) && (
                             <FontAwesomeIcon
                                 icon={faArrowRight}
                                 style={{ marginRight: '0.3rem', marginLeft: '0.3rem' }}
                             />
                         )}
-                        {visitedPlace.departureTime &&
-                            secondsSinceMidnightToTimeStrWithSuffix(visitedPlace.departureTime, t('main:theNextDay'))}
+                        {!_isBlank(visitedPlace.departureTime) &&
+                            secondsSinceMidnightToTimeStrWithSuffix(visitedPlace.departureTime!, t('main:theNextDay'))}
                         {!selectedVisitedPlaceId /*state.editActivated*/ && props.loadingState === 0 && (
                             <button
                                 type="button"

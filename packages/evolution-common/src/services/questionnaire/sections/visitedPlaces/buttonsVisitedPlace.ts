@@ -134,7 +134,7 @@ export class ButtonsVisitedPlaceConfigFactory implements WidgetConfigFactory {
                 activity: 'home',
                 activityCategory: 'home',
                 nextPlaceCategory: 'visitedAnotherPlace',
-                arrivalTime: currentVisitedPlace._previousArrivalTime
+                arrivalTime: !_isBlank(currentVisitedPlace._previousArrivalTime)
                     ? currentVisitedPlace._previousArrivalTime
                     : undefined,
                 departureTime: odHelpers.isLoopActivity({ visitedPlace: currentVisitedPlace })
@@ -151,7 +151,7 @@ export class ButtonsVisitedPlaceConfigFactory implements WidgetConfigFactory {
                 activity: 'workUsual' as const,
                 activityCategory: 'work' as const,
                 nextPlaceCategory: 'visitedAnotherPlace' as const,
-                arrivalTime: currentVisitedPlace._previousArrivalTime
+                arrivalTime: !_isBlank(currentVisitedPlace._previousArrivalTime)
                     ? currentVisitedPlace._previousArrivalTime
                     : undefined,
                 departureTime:

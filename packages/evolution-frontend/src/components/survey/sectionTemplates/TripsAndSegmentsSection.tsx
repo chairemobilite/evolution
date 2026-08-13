@@ -171,7 +171,9 @@ export const SegmentsSection: React.FC<SectionProps> = (props: SectionProps) => 
                 </span>
                 <span className="survey-trip-item-element survey-trip-item-buttons">
                     <FontAwesomeIcon icon={faClock} style={{ marginRight: '0.3rem', marginLeft: '0.6rem' }} />
-                    {origin && origin.departureTime && secondsSinceMidnightToTimeStrWithSuffix(origin.departureTime)}
+                    {origin &&
+                        !_isBlank(origin.departureTime) &&
+                        secondsSinceMidnightToTimeStrWithSuffix(origin.departureTime!)}
                     <FontAwesomeIcon icon={faArrowRight} style={{ marginRight: '0.3rem', marginLeft: '0.3rem' }} />
                     {tripEndPlace &&
                         !_isBlank(tripEndPlace.arrivalTime) &&

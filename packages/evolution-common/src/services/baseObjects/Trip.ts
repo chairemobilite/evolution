@@ -268,10 +268,10 @@ export class Trip extends SurveyObject {
      * Setup the start and end times if they are not set
      */
     setupStartAndEndTimes(): void {
-        if (this.startTime === undefined && this.startPlace?.endTime) {
+        if (this.startTime === undefined && this.startPlace?.endTime !== undefined) {
             this.startTime = this.startPlace.endTime;
         }
-        if (this.endTime === undefined && this.endPlace?.startTime) {
+        if (this.endTime === undefined && this.endPlace?.startTime !== undefined) {
             this.endTime = this.endPlace.startTime;
         }
     }
