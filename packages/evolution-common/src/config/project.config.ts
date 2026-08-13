@@ -244,6 +244,32 @@ export type EvolutionProjectConfiguration = {
      */
     surveyAreaGeojsonPath?: string;
 
+    /**
+     * Groups of consecutive widgets to show in a random order that is fixed
+     * for the interview.
+     *
+     * The key is a random-order group name. It is not an Evolution `group`
+     * widget (such as `householdMembers` or `visitedPlaces`); those are a
+     * different concept. The value is the widget shortnames of that
+     * random-order group.
+     *
+     * The order is drawn once at interview creation. Those widgets must form a
+     * consecutive block in the section's widget list, or in a grouped-object
+     * widget list (no other widget in between). Their relative order in the
+     * config may differ from this array. If a list does not contain all
+     * widgets of a group as a consecutive block, the drawn order is ignored for
+     * that list.
+     *
+     * The same widget shortname may appear in more than one group, for example
+     * when that widget is reused in different sections. Groups are applied in
+     * the order of this configuration: if 2 groups share a widget in the same
+     * list, the first one is applied and the following ones are ignored, since
+     * they are not a consecutive block anymore.
+     *
+     * May later move to QuestionnaireConfiguration.
+     */
+    randomOrderQuestions: { [groupShortname: string]: string[] };
+
     // TODO Add more project configuration types
 };
 
@@ -342,7 +368,8 @@ const defaultConfig = {
     },
     reviewableSurveyObjects: ['interview', 'home', 'household', 'person'],
     auditChecksGroup: 'custom', // custom by default so older surveys works.
-    surveyBase: 'householdBased'
+    surveyBase: 'householdBased',
+    randomOrderQuestions: {}
 };
 
 // Validate and set the configuration

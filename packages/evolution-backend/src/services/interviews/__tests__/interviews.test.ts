@@ -8,6 +8,8 @@ import { v4 as uuidV4 } from 'uuid';
 
 import Interviews from '../interviews';
 import { InterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
+import projectConfig from 'evolution-common/lib/config/project.config';
+import { RandomOrderQuestions } from 'evolution-common/lib/services/questionnaire/randomOrderQuestions';
 import interviewsQueries from '../../../models/interviews.db.queries';
 import interviewsAccessesQueries from '../../../models/interviewsAccesses.db.queries';
 import { registerAccessCodeValidationFunction } from '../../accessCode';
@@ -214,6 +216,45 @@ describe('Create interviews', () => {
         expect(newInterview).toEqual({ uuid: expect.anything() });
         expect(mockDbGetByUuid).not.toHaveBeenCalled();
         expect(mockInterviewUpdate).not.toHaveBeenCalled();
+    });
+
+    describe('Create with randomOrderQuestions config', () => {
+
+        const configuredGroup = ['q1', 'q2', 'q3'];
+        let previousConfig: { [groupShortname: string]: string[] };
+
+        beforeEach(() => {
+            mockDbGetByUuid.mockImplementationOnce(async () => createdInterview);
+            previousConfig = projectConfig.randomOrderQuestions;
+            projectConfig.randomOrderQuestions = { attitudes: configuredGroup };
+        });
+
+        afterEach(() => {
+            projectConfig.randomOrderQuestions = previousConfig;
+        });
+
+        // The order drawn in the response of the created interview
+        const createdOrder = (): string[] =>
+            (mockDbCreate.mock.calls[0][0].response as { _randomOrderQuestions: RandomOrderQuestions })
+                ._randomOrderQuestions.attitudes;
+
+        test.each([
+            ['no order in the initial response', {}],
+            ['a blank order in the initial response', { _randomOrderQuestions: null }]
+        ])('Draws an order when there is %s', async (_title, initialResponse) => {
+            await Interviews.createInterviewForUser(participantId, initialResponse);
+            expect([...createdOrder()].sort()).toEqual(configuredGroup);
+            // The drawn order must not be overwritten by the initial response
+            expect(mockInterviewUpdate).not.toHaveBeenCalledWith(expect.anything(), expect.objectContaining({
+                valuesByPath: expect.objectContaining({ 'response._randomOrderQuestions': expect.anything() })
+            }));
+        });
+
+        test('Keeps the order set by the project', async () => {
+            const projectOrder = ['q3', 'q1', 'q2'];
+            await Interviews.createInterviewForUser(participantId, { _randomOrderQuestions: { attitudes: projectOrder } });
+            expect(createdOrder()).toEqual(projectOrder);
+        });
     });
 
     test('Create with default response', async() => {
