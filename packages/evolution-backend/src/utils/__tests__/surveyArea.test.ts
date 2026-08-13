@@ -1,5 +1,5 @@
 /*
- * Copyright 2026, Polytechnique Montreal and contributors
+ * Copyright Polytechnique Montreal and contributors
  *
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
@@ -21,10 +21,10 @@ jest.mock('chaire-lib-backend/lib/utils/filesystem/fileManager', () => ({
     }
 }));
 
-describe('AuditCheckUtils', () => {
+describe('getSurveyArea', () => {
     test('should return undefined if surveyAreaGeojsonPath is not set', async () => {
         await jest.isolateModulesAsync(async () => {
-            const { getSurveyArea } = await import('../AuditCheckUtils');
+            const { getSurveyArea } = await import('../surveyArea');
             const { fileManager } = await import('chaire-lib-backend/lib/utils/filesystem/fileManager');
             const mockFileManager = fileManager as jest.Mocked<typeof fileManager>;
 
@@ -39,7 +39,7 @@ describe('AuditCheckUtils', () => {
 
         test('should load and return the feature if file exists', async () => {
             await jest.isolateModulesAsync(async () => {
-                const { getSurveyArea } = await import('../AuditCheckUtils');
+                const { getSurveyArea } = await import('../surveyArea');
                 const projectConfig = (await import('evolution-common/lib/config/project.config')).default;
                 const { fileManager } = await import('chaire-lib-backend/lib/utils/filesystem/fileManager');
                 const mockFileManager = fileManager as jest.Mocked<typeof fileManager>;
@@ -51,10 +51,12 @@ describe('AuditCheckUtils', () => {
                     properties: { name: 'Test' }
                 };
                 mockFileManager.fileExists.mockReturnValue(true);
-                mockFileManager.readFile.mockReturnValue(JSON.stringify({
-                    type: 'FeatureCollection',
-                    features: [mockFeature]
-                }));
+                mockFileManager.readFile.mockReturnValue(
+                    JSON.stringify({
+                        type: 'FeatureCollection',
+                        features: [mockFeature]
+                    })
+                );
 
                 const result = getSurveyArea();
                 expect(result).toEqual(mockFeature);
@@ -64,7 +66,7 @@ describe('AuditCheckUtils', () => {
 
         test('should return undefined if file does not exist', async () => {
             await jest.isolateModulesAsync(async () => {
-                const { getSurveyArea } = await import('../AuditCheckUtils');
+                const { getSurveyArea } = await import('../surveyArea');
                 const projectConfig = (await import('evolution-common/lib/config/project.config')).default;
                 const { fileManager } = await import('chaire-lib-backend/lib/utils/filesystem/fileManager');
                 const mockFileManager = fileManager as jest.Mocked<typeof fileManager>;
@@ -79,7 +81,7 @@ describe('AuditCheckUtils', () => {
 
         test('should return undefined if file contains invalid JSON', async () => {
             await jest.isolateModulesAsync(async () => {
-                const { getSurveyArea } = await import('../AuditCheckUtils');
+                const { getSurveyArea } = await import('../surveyArea');
                 const projectConfig = (await import('evolution-common/lib/config/project.config')).default;
                 const { fileManager } = await import('chaire-lib-backend/lib/utils/filesystem/fileManager');
                 const mockFileManager = fileManager as jest.Mocked<typeof fileManager>;
@@ -94,21 +96,25 @@ describe('AuditCheckUtils', () => {
 
         test('should use cached value on subsequent calls', async () => {
             await jest.isolateModulesAsync(async () => {
-                const { getSurveyArea } = await import('../AuditCheckUtils');
+                const { getSurveyArea } = await import('../surveyArea');
                 const projectConfig = (await import('evolution-common/lib/config/project.config')).default;
                 const { fileManager } = await import('chaire-lib-backend/lib/utils/filesystem/fileManager');
                 const mockFileManager = fileManager as jest.Mocked<typeof fileManager>;
 
                 (projectConfig as any).surveyAreaGeojsonPath = testPath;
                 mockFileManager.fileExists.mockReturnValue(true);
-                mockFileManager.readFile.mockReturnValue(JSON.stringify({
-                    type: 'FeatureCollection',
-                    features: [{
-                        type: 'Feature',
-                        geometry: { type: 'Polygon', coordinates: [] },
-                        properties: {}
-                    }]
-                }));
+                mockFileManager.readFile.mockReturnValue(
+                    JSON.stringify({
+                        type: 'FeatureCollection',
+                        features: [
+                            {
+                                type: 'Feature',
+                                geometry: { type: 'Polygon', coordinates: [] },
+                                properties: {}
+                            }
+                        ]
+                    })
+                );
 
                 const result1 = getSurveyArea();
                 const result2 = getSurveyArea();

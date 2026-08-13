@@ -10,7 +10,7 @@ import { distance as turfDistance, booleanPointInPolygon as turfBooleanPointInPo
 
 import type { AuditForObject } from 'evolution-common/lib/services/audits/types';
 import type { HomeAuditCheckContext, HomeAuditCheckFunction } from '../AuditCheckContexts';
-import { getSurveyArea } from '../AuditCheckUtils';
+import { getSurveyArea } from '../../../../utils/surveyArea';
 
 // Distances are arbitrary. This should only detect distances that could cause
 // change in travel behaviour.
