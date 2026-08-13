@@ -83,26 +83,42 @@ describe('SET_INTERVIEW action', () => {
     });
 })
 
-test('Test updating an interview', () => {
-    const action = {
+describe('UPDATE_INTERVIEW action', () => {
+    const updateAction = {
         type: SurveyActionTypes.UPDATE_INTERVIEW as const,
         interview: testInterview,
         interviewLoaded: true,
         submitted: true,
-        errors: {field: { 'en': 'something' }}
+        errors: { field: { en: 'something' } }
     };
 
-    const result =  {
-        interview: testInterview,
-        interviewLoaded: true,
-        submitted: true,
-        errors: {field: { 'en': 'something' }}
-    };
+    test('updates the interview when ids match', () => {
+        const currentInterview = { ...testInterview, is_completed: true };
+        expect(
+            surveyReducer(
+                {
+                    interview: currentInterview,
+                    interviewLoaded: false
+                },
+                updateAction
+            )
+        ).toEqual({
+            interview: updateAction.interview,
+            interviewLoaded: true,
+            submitted: true,
+            errors: { field: { en: 'something' } }
+        });
+    });
 
-    expect(surveyReducer({
-        interview: testInterview,
-        interviewLoaded: false
-    }, action)).toEqual(result);
+    test.each([
+        ['no interview is set', {}],
+        ['interview id differs', { interview: { ...testInterview, id: 2 }, interviewLoaded: true }]
+    ])('ignores the update when %s', (_title, initialState) => {
+        const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+        expect(surveyReducer(initialState, updateAction)).toEqual(initialState);
+        expect(warnSpy).toHaveBeenCalledTimes(1);
+        warnSpy.mockRestore();
+    });
 });
 
 describe('Navigate action', () => {
