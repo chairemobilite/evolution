@@ -15,6 +15,8 @@ import * as segmentHelpers from './helpers';
 import type { ModeCategoryConfiguration, Person } from '../../types';
 import { getModeIcon, getModePreIcon } from './modeIconMapping';
 import { WidgetFactoryOptions } from '../types';
+import { isModePreOfferedForBirdDistance } from '../../../odSurvey/speedAndDistanceRangesByMode';
+import { Mode } from '../../../odSurvey/types';
 
 const perModePreLabels: Partial<{ [modePre: string]: I18nData }> = {
     walk: (t: TFunction, interview) => {
@@ -75,16 +77,44 @@ const getModePreChoiceFromConfig = (modeCategory: string, categoryConfiguration:
     iconPath: getModeIcon(categoryConfiguration.icon ?? (modeCategory as any))
 });
 
+// FIXME Once mode and modePre share a widget factory (see FIXME on
+// getModePreChoiceFromConfig), modePre visibility can follow whether any of
+// its modes are offered. The per-mode bird-distance conditionals can then be
+// computed once and reused, instead of wrapping each modePre here (they are
+// currently recomputed on every render).
+const withBirdDistanceConditional = (
+    modePre: string,
+    previousConditional: WidgetConditional | undefined,
+    modePreToModeMap: { [modePre: string]: Mode[] }
+): WidgetConditional => {
+    const modesInCategory = modePreToModeMap[modePre] ?? [];
+    return (interview, path) => {
+        // Questionnaire filter: hide the category if no mode meets its min
+        // bird distance. Distance maxima and all speed ranges are audits only.
+        const birdDistanceMeters = segmentHelpers.getTripBirdDistanceMetersFromPath(interview, path);
+        if (!isModePreOfferedForBirdDistance(modesInCategory, birdDistanceMeters)) {
+            return false;
+        }
+        return previousConditional ? previousConditional(interview, path) : true;
+    };
+};
+
 /** TODO Get a segment config in parameter to set the sort order and choices */
 const getModePreChoices = (
     filteredModesPre: string[],
-    modeCategoryToModeMap: SegmentSectionConfiguration['modeCategoryToModeMap']
+    modeCategoryToModeMap: SegmentSectionConfiguration['modeCategoryToModeMap'],
+    modePreToModeMap: { [modePre: string]: Mode[] }
 ) => {
-    return filteredModesPre.map((modePre) =>
-        modeCategoryToModeMap?.[modePre] !== undefined
-            ? getModePreChoiceFromConfig(modePre, modeCategoryToModeMap[modePre])
-            : getDefaultModePreChoice(modePre)
-    );
+    return filteredModesPre.map((modePre) => {
+        const choice =
+            modeCategoryToModeMap?.[modePre] !== undefined
+                ? getModePreChoiceFromConfig(modePre, modeCategoryToModeMap[modePre])
+                : getDefaultModePreChoice(modePre);
+        return {
+            ...choice,
+            conditional: withBirdDistanceConditional(modePre, choice.conditional, modePreToModeMap)
+        };
+    });
 };
 
 export const getModePreWidgetConfig = (
@@ -98,7 +128,8 @@ export const getModePreWidgetConfig = (
         throw new Error('No available modes to create modePre widget configuration');
     }
     const filteredModesPre = segmentHelpers.getFilteredModesPre(sectionConfig, filteredModes);
-    const choices = getModePreChoices(filteredModesPre, sectionConfig.modeCategoryToModeMap);
+    const modePreToModeMap = segmentHelpers.getModePreToModeMap(sectionConfig);
+    const choices = getModePreChoices(filteredModesPre, sectionConfig.modeCategoryToModeMap, modePreToModeMap);
 
     return {
         type: 'question',

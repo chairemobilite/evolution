@@ -159,19 +159,19 @@ describe('getModePreWidgetConfig', () => {
                 expect.objectContaining({
                     value: 'walking',
                     label: expect.any(Function),
-                    conditional: undefined,
+                    conditional: expect.any(Function),
                     iconPath: '/dist/icons/modes/other/air_balloon.svg'
                 }),
                 expect.objectContaining({
                     value: 'bicycle',
                     label: expect.any(Function),
-                    conditional: bicycleConditional,
+                    conditional: expect.any(Function),
                     iconPath: '/dist/icons/modes/bicycle/bicycle_with_rider.svg'
                 }),
                 expect.objectContaining({
                     value: 'transit',
                     label: expect.any(Function),
-                    conditional: undefined,
+                    conditional: expect.any(Function),
                     iconPath: '/dist/icons/modes/bus/bus_city.svg'
                 }),
                 expect.objectContaining({
@@ -183,7 +183,7 @@ describe('getModePreWidgetConfig', () => {
                 expect.objectContaining({
                     value: 'dontKnow',
                     label: expect.any(Function),
-                    conditional: undefined,
+                    conditional: expect.any(Function),
                     iconPath: '/dist/icons/modes/other/question_mark.svg'
                 })
             ]),
@@ -294,6 +294,43 @@ describe('Mode choices conditionals', () => {
         expect(mockedHhMayHaveDisability).toHaveBeenLastCalledWith({ interview });
     });
 
+    // tripId1P1 origin is home at [-73.5932, 45.5016] (homeGeographyCoordinates).
+    // Dest [-73.5932, 45.502] ≈ 40 m (below transitFerry min 100 m).
+    // Dest [-73.61, 45.53] ≈ 3.4 km (ferry offered).
+    test.each([
+        ['ferry', [-73.5932, 45.502], false],
+        ['ferry', [-73.61, 45.53], true],
+        ['ferry', undefined, true],
+        ['other', [-73.5932, 45.502], true],
+        ['dontKnow', [-73.5932, 45.502], true],
+        ['preferNotToAnswer', [-73.5932, 45.502], true],
+        ['walk', [-73.5932, 45.502], true]
+    ] as [string, [number, number] | undefined, boolean][])(
+        'modePre %s with dest %p is offered: %s',
+        (modePre, destinationCoordinates, expectedOffered) => {
+            const interview = _cloneDeep(interviewAttributesForTestCases);
+            interview.response._activePersonId = 'personId1';
+            interview.response._activeJourneyId = 'journeyId1';
+            interview.response._activeTripId = 'tripId1P1';
+            const modePrePath =
+                'household.persons.personId1.journeys.journeyId1.trips.tripId1P1.segments.segmentId1P1T1.modePre';
+            setResponse(
+                interview,
+                'household.persons.personId1.journeys.journeyId1.visitedPlaces.workPlace1P1.geography',
+                destinationCoordinates === undefined
+                    ? undefined
+                    : {
+                        type: 'Feature',
+                        geometry: { type: 'Point', coordinates: destinationCoordinates },
+                        properties: { lastAction: 'mapClicked' }
+                    }
+            );
+            const modePreChoice = choices.find((choice) => choice.value === modePre);
+            expect(modePreChoice).toBeDefined();
+            expect(modePreChoice?.conditional?.(interview, modePrePath)).toEqual(expectedOffered);
+        }
+    );
+
 });
 
 describe('Mode choices conditionals, from configurable map', () => {
@@ -333,7 +370,7 @@ describe('Mode choices conditionals, from configurable map', () => {
         expect(carDriverResult).toEqual(true);
     });
 
-    test('configured mode transit should not have a conditional', () => {
+    test('configured mode transit should still be offered when distance is valid', () => {
         // Prepare test data with active person/journey/trip
         const interview = _cloneDeep(interviewAttributesForTestCases);
         interview.response._activePersonId = 'personId2';
@@ -343,7 +380,12 @@ describe('Mode choices conditionals, from configurable map', () => {
         // Find the transit choice
         const transitChoice = choices.find((choice) => choice.value === 'transit');
         expect(transitChoice).toBeDefined();
-        expect(transitChoice?.conditional).toBeUndefined();
+        expect(transitChoice?.conditional).toEqual(expect.any(Function));
+        const transitResult = transitChoice?.conditional?.(
+            interview,
+            'household.persons.personId2.journeys.journeyId2.trips.tripId1P2.segments.segmentId1P2T1.modePre'
+        );
+        expect(transitResult).toEqual(true);
     });
 
     test('configured mode other should use provided conditional', () => {
@@ -361,6 +403,26 @@ describe('Mode choices conditionals, from configurable map', () => {
         const otherResult = otherChoice?.conditional?.(interview, 'household.persons.personId3.journeys.journeyId3.trips.tripId1P2.segments.segmentId1P3T1.modePre');
         expect(otherResult).toEqual(true);
         expect(otherConditional).toHaveBeenCalledWith(interview, 'household.persons.personId3.journeys.journeyId3.trips.tripId1P2.segments.segmentId1P3T1.modePre')
+    });
+
+    // Dest ≈ 40 m from home [-73.5932, 45.5016]; plane min is 100 km.
+    test('configured other with only plane is hidden on a short trip', () => {
+        const interview = _cloneDeep(interviewAttributesForTestCases);
+        interview.response._activePersonId = 'personId1';
+        interview.response._activeJourneyId = 'journeyId1';
+        interview.response._activeTripId = 'tripId1P1';
+        const modePrePath =
+            'household.persons.personId1.journeys.journeyId1.trips.tripId1P1.segments.segmentId1P1T1.modePre';
+        setResponse(interview, 'household.persons.personId1.journeys.journeyId1.visitedPlaces.workPlace1P1.geography', {
+            type: 'Feature',
+            geometry: { type: 'Point', coordinates: [-73.5932, 45.502] },
+            properties: { lastAction: 'mapClicked' }
+        });
+        otherConditional.mockClear();
+        otherConditional.mockReturnValue(true);
+        const otherChoice = choices.find((choice) => choice.value === 'other');
+        expect(otherChoice?.conditional?.(interview, modePrePath)).toEqual(false);
+        expect(otherConditional).not.toHaveBeenCalled();
     });
 });
 

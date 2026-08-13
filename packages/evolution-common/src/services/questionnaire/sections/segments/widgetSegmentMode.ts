@@ -12,6 +12,7 @@ import { TFunction } from 'i18next';
 import * as odHelpers from '../../../odSurvey/helpers';
 import * as segmentHelpers from './helpers';
 import { Mode } from '../../../odSurvey/types';
+import { isModeOfferedForBirdDistance } from '../../../odSurvey/speedAndDistanceRangesByMode';
 import type { Segment } from '../../types';
 import { getModeIcon } from './modeIconMapping';
 import { WidgetFactoryOptions } from '../types';
@@ -33,6 +34,12 @@ const getModeChoices = (filteredModes: Mode[], modePreToModeMap: { [modePre: str
                 if (!modePreToModeMap[segment.modePre].includes(mode)) {
                     return false;
                 }
+            }
+            // Questionnaire filter: hide modes below their min bird distance.
+            // Distance maxima and all speed ranges are audits only.
+            const birdDistanceMeters = segmentHelpers.getTripBirdDistanceMetersFromPath(interview, path);
+            if (!isModeOfferedForBirdDistance(mode, birdDistanceMeters)) {
+                return false;
             }
             // See if there's any additional conditional for the mode
             const conditional = perModeConditionals[mode];
