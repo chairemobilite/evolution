@@ -135,6 +135,9 @@ export const SegmentsSection: React.FC<SectionProps> = (props: SectionProps) => 
                 journey: currentJourney
             })
             : undefined;
+        // Loop destinations have arrivalTime equal to origin departure; the trip
+        // ends when arriving at the next place after the loop.
+        const tripEndPlace = isDestinationLoopActivity && nextDestination ? nextDestination : destination;
 
         const modeIcons: JSX.Element[] = [];
 
@@ -170,9 +173,9 @@ export const SegmentsSection: React.FC<SectionProps> = (props: SectionProps) => 
                     <FontAwesomeIcon icon={faClock} style={{ marginRight: '0.3rem', marginLeft: '0.6rem' }} />
                     {origin && origin.departureTime && secondsSinceMidnightToTimeStrWithSuffix(origin.departureTime)}
                     <FontAwesomeIcon icon={faArrowRight} style={{ marginRight: '0.3rem', marginLeft: '0.3rem' }} />
-                    {destination &&
-                        destination.arrivalTime &&
-                        secondsSinceMidnightToTimeStrWithSuffix(destination.arrivalTime)}
+                    {tripEndPlace &&
+                        !_isBlank(tripEndPlace.arrivalTime) &&
+                        secondsSinceMidnightToTimeStrWithSuffix(tripEndPlace.arrivalTime!)}
                     {!selectedTripId && props.loadingState === 0 && (
                         <button
                             type="button"

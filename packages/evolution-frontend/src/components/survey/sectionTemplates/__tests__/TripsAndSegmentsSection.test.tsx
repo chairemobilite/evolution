@@ -239,6 +239,59 @@ describe('SegmentsSection UI display', () => {
             expect(container).toMatchSnapshot();
         });
 
+        test('should display trip end time from next place when destination is a loop activity', () => {
+            const { secondsSinceMidnightToTimeStrWithSuffix } = jest.requireMock(
+                '../../../../services/display/frontendHelper'
+            ) as { secondsSinceMidnightToTimeStrWithSuffix: jest.Mock };
+            secondsSinceMidnightToTimeStrWithSuffix.mockClear();
+
+            // Restaurant (7:50) → leisureStroll (7:50→8:05) → Home (8:05)
+            const testVisitedPlaces = _cloneDeep(visitedPlaces);
+            testVisitedPlaces.place1.departureTime = 7 * 3600 + 50 * 60;
+            testVisitedPlaces.place2.activity = 'leisureStroll';
+            testVisitedPlaces.place2.arrivalTime = 7 * 3600 + 50 * 60;
+            testVisitedPlaces.place2.departureTime = 8 * 3600 + 5 * 60;
+            testVisitedPlaces.place3.activity = 'home';
+            testVisitedPlaces.place3.arrivalTime = 8 * 3600 + 5 * 60;
+
+            mockedGetJourneysArray.mockReturnValueOnce([{ ...journey, visitedPlaces: testVisitedPlaces }]);
+            mockedGetNextVisitedPlace.mockReturnValueOnce(testVisitedPlaces.place3);
+
+            render(
+                <TestContextProvider>
+                    <SegmentsSection {...props} />
+                </TestContextProvider>
+            );
+
+            expect(secondsSinceMidnightToTimeStrWithSuffix).toHaveBeenCalledWith(7 * 3600 + 50 * 60);
+            expect(secondsSinceMidnightToTimeStrWithSuffix).toHaveBeenCalledWith(8 * 3600 + 5 * 60);
+            // End time must be next place arrival (8:05), not loop arrival (= origin departure 7:50)
+            const timeCalls = secondsSinceMidnightToTimeStrWithSuffix.mock.calls.map((call) => call[0]);
+            expect(timeCalls.filter((t) => t === 7 * 3600 + 50 * 60)).toHaveLength(1);
+            expect(timeCalls.filter((t) => t === 8 * 3600 + 5 * 60)).toHaveLength(1);
+        });
+
+        test('should display trip end arrivalTime of 0 (midnight)', () => {
+            const { secondsSinceMidnightToTimeStrWithSuffix } = jest.requireMock(
+                '../../../../services/display/frontendHelper'
+            ) as { secondsSinceMidnightToTimeStrWithSuffix: jest.Mock };
+            secondsSinceMidnightToTimeStrWithSuffix.mockClear();
+
+            const testVisitedPlaces = _cloneDeep(visitedPlaces);
+            testVisitedPlaces.place1.departureTime = 23 * 3600;
+            testVisitedPlaces.place2.arrivalTime = 0;
+
+            mockedGetJourneysArray.mockReturnValueOnce([{ ...journey, visitedPlaces: testVisitedPlaces }]);
+
+            render(
+                <TestContextProvider>
+                    <SegmentsSection {...props} />
+                </TestContextProvider>
+            );
+
+            expect(secondsSinceMidnightToTimeStrWithSuffix).toHaveBeenCalledWith(0);
+        });
+
         test('should render list of trips when loop activity is the first visited place, no trip selected', () => {
             const testVisitedPlaces = _cloneDeep(visitedPlaces);
             testVisitedPlaces.place1.activity = 'workOnTheRoad';
