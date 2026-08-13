@@ -1144,6 +1144,42 @@ describe('visitedPlaceArrivalTime widget', () => {
                 expected: [false, 8 * 60 * 60]
             },
             {
+                title: 'returns [true, null] when workOnTheRoad inserts workUsual before and _previousArrivalTime is set',
+                visitedPlaceId: 'workPlace1P1',
+                setup: (interview: typeof interviewAttributesForTestCases) => {
+                    interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.homePlace1P1.activity = 'home';
+                    interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.homePlace1P1.departureTime = 8 * 60 * 60;
+                    interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.workPlace1P1.activity = 'workOnTheRoad';
+                    interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.workPlace1P1.onTheRoadPreviousPlaceActivity = 'workUsual';
+                    interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.workPlace1P1._previousArrivalTime = 8 * 60 * 60 + 30 * 60;
+                },
+                expected: [true, null]
+            },
+            {
+                title: 'returns [true, null] when workOnTheRoad inserts home before and _previousArrivalTime is set',
+                visitedPlaceId: 'workPlace1P1',
+                setup: (interview: typeof interviewAttributesForTestCases) => {
+                    interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.homePlace1P1.activity = 'shopping';
+                    interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.homePlace1P1.departureTime = 8 * 60 * 60;
+                    interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.workPlace1P1.activity = 'workOnTheRoad';
+                    interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.workPlace1P1.onTheRoadPreviousPlaceActivity = 'home';
+                    interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.workPlace1P1._previousArrivalTime = 8 * 60 * 60 + 30 * 60;
+                },
+                expected: [true, null]
+            },
+            {
+                title: 'returns [false, null] when workOnTheRoad inserts a place before but _previousArrivalTime is blank',
+                visitedPlaceId: 'workPlace1P1',
+                setup: (interview: typeof interviewAttributesForTestCases) => {
+                    interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.homePlace1P1.activity = 'home';
+                    interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.homePlace1P1.departureTime = 8 * 60 * 60;
+                    interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.workPlace1P1.activity = 'workOnTheRoad';
+                    interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.workPlace1P1.onTheRoadPreviousPlaceActivity = 'workUsual';
+                    delete interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.workPlace1P1._previousArrivalTime;
+                },
+                expected: [false, null]
+            },
+            {
                 title: 'returns [true, null] when place is not first and activity is set',
                 visitedPlaceId: 'workPlace1P1',
                 setup: (interview: typeof interviewAttributesForTestCases) => {

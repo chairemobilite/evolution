@@ -549,13 +549,16 @@ export class VisitedPlaceTimeWidgetFactory implements WidgetConfigFactory {
             ) {
                 return [false, null];
             }
-            // Use to previous departure time if either the current or previous
-            // activity is a loop activity and the departure time is set
+            // Use previous departure time if either the current or previous
+            // activity is a loop activity and the departure time is set, unless a
+            // place will be inserted before (on-the-road start is not the previous
+            // place's departure).
             if (
                 previousVisitedPlace &&
                 (odHelpers.isLoopActivity({ visitedPlace }) ||
                     odHelpers.isLoopActivity({ visitedPlace: previousVisitedPlace })) &&
-                !_isBlank(previousVisitedPlace.departureTime)
+                !_isBlank(previousVisitedPlace.departureTime) &&
+                !previousArrivalTimeIsVisible
             ) {
                 return [false, previousVisitedPlace.departureTime];
             }
