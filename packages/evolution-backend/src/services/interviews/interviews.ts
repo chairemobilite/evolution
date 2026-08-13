@@ -26,6 +26,9 @@ import {
     UserInterviewAttributes
 } from 'evolution-common/lib/services/questionnaire/types';
 import { getParadataLoggingFunction } from '../logging/paradataLogging';
+import projectConfig from 'evolution-common/lib/config/project.config';
+import { randomOrderQuestionsResponsePath } from 'evolution-common/lib/services/questionnaire/randomOrderQuestions';
+import { generateRandomOrderQuestions } from './generateRandomOrderQuestions';
 
 export type FilterType = string | string[] | ValueFilterType;
 
@@ -109,6 +112,16 @@ export default class Interviews {
         if (response._startedAt === undefined) {
             response._startedAt = moment().unix();
         }
+        // Draw the random order of the configured question groups once at
+        // creation, so the frontend applies the same order throughout the
+        // interview (sections and grouped objects). A project may have set its
+        // own order in the initial response, then it is kept as is.
+        if (_isBlank(response[randomOrderQuestionsResponsePath])) {
+            const randomOrderQuestions = generateRandomOrderQuestions(projectConfig.randomOrderQuestions ?? {});
+            if (Object.keys(randomOrderQuestions).length > 0) {
+                response[randomOrderQuestionsResponsePath] = randomOrderQuestions;
+            }
+        }
         const interview = await interviewsDbQueries.create(
             { participant_id: participantId, response, is_active: true, validations: {} },
             returning
@@ -122,9 +135,13 @@ export default class Interviews {
             throw 'Interview just created was not found!';
         }
         const valuesByPath = {};
-        Object.keys(initialResponse).forEach((key) => {
-            valuesByPath[`response.${key}`] = initialResponse[key];
-        });
+        // The random order was already saved with the created interview, don't
+        // overwrite it with a blank initial value
+        Object.keys(initialResponse)
+            .filter((key) => key !== randomOrderQuestionsResponsePath)
+            .forEach((key) => {
+                valuesByPath[`response.${key}`] = initialResponse[key];
+            });
         await updateInterview(userInterview, {
             logUpdate: getParadataLoggingFunction({ interviewId: userInterview.id, userId: creatingUserId }),
             valuesByPath,

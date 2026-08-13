@@ -416,4 +416,32 @@ describe('Grouped Object', () => {
         });
     });
 
+    test('applies the random order stored in the interview to the widgets of the object', () => {
+        const interviewWithOrder = _cloneDeep(interview);
+        // Reverse the widgets of the group config, which is [widgetText, widgetQuestion]
+        interviewWithOrder.response._randomOrderQuestions = { memberQs: ['widgetQuestion', 'widgetText'] };
+        const { container } = render(
+            <TestContextProvider>
+                <GroupedObject
+                    path={`${path}.${groupedObjectIds[0]}`}
+                    widgetConfig={commonWidgetConfig}
+                    interview={interviewWithOrder}
+                    user={userAttributes}
+                    shortname={'myGroup'}
+                    section={''}
+                    startUpdateInterview={startUpdateInterviewMock}
+                    startAddGroupedObjects={startAddGroupedObjectsMock}
+                    startRemoveGroupedObjects={startRemoveGroupedObjectsMock}
+                    startNavigate={startNavigateMock}
+                    loadingState={0}
+                    parentObjectIds={{}}
+                    objectId={groupedObjectIds[0]}
+                    sequence={0}
+                />
+            </TestContextProvider>
+        );
+        const html = container.innerHTML;
+        expect(html.indexOf('Test Question Label')).toBeLessThan(html.indexOf('This is a text widget'));
+    });
+
 });

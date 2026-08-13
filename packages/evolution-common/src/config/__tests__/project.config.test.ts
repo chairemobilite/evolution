@@ -42,7 +42,8 @@ test('Expected default', () => {
         introLogoAfterStartButton: false,
         logoPaths: {},
         languageNames: { en: 'English', fr: 'Français' },
-        title: { en: 'Survey', fr: 'Enquête' }
+        title: { en: 'Survey', fr: 'Enquête' },
+        randomOrderQuestions: {}
     }));
 });
 
@@ -75,7 +76,11 @@ test('set project configuration', () => {
         introLogoAfterStartButton: true,
         logoPaths: { en: 'logo-en.png', fr: 'logo-fr.png' },
         languageNames: { en: 'English', fr: 'Français' },
-        title: { en: 'Survey title', fr: 'Titre de l\'enquête' }
+        title: { en: 'Survey title', fr: 'Titre de l\'enquête' },
+        randomOrderQuestions: {
+            attitudes: ['q1', 'q2'],
+            values: ['v1', 'v2']
+        }
     };
     setProjectConfiguration<EvolutionProjectConfiguration>(configToSet);
     const { ages: agesToSet, ...configWithoutAges } = configToSet;

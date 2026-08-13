@@ -15,6 +15,7 @@ import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
 import { devLog, parseBoolean, translateString } from 'evolution-common/lib/utils/helpers';
+import { getRandomOrderedWidgets } from 'evolution-common/lib/services/questionnaire/randomOrderQuestions';
 import { checkConditional } from '../../actions/utils/Conditional';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { UserRuntimeInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
@@ -53,11 +54,17 @@ export const GroupedObject: React.FC<GroupedObjectProps> = (props) => {
     const groupedObjectId = props.objectId;
     const parentObjectIds = props.parentObjectIds;
     parentObjectIds[groupedObjectShortname] = groupedObjectId;
-    const widgetsComponents = props.widgetConfig.widgets.map((widgetShortname, idx) => (
+    // The random order is drawn once at interview creation, so it only changes
+    // with the interview itself. It is the same for every object of the group.
+    const widgetShortnames = React.useMemo(
+        () => getRandomOrderedWidgets(props.interview, props.widgetConfig.widgets),
+        [props.widgetConfig.widgets, props.interview.id]
+    );
+    const widgetsComponents = widgetShortnames.map((widgetShortname, idx) => (
         <InGroupWidget
             key={widgetShortname}
             currentWidgetShortname={widgetShortname}
-            nextWidgetShortname={props.widgetConfig.widgets[idx + 1]}
+            nextWidgetShortname={widgetShortnames[idx + 1]}
             sectionName={props.section}
             interview={props.interview}
             errors={props.errors}
