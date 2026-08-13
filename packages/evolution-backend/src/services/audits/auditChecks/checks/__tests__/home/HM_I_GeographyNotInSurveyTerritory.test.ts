@@ -7,14 +7,14 @@
 import { v4 as uuidV4 } from 'uuid';
 import { homeAuditChecks } from '../../HomeAuditChecks';
 import { createContextWithHome } from './testHelper';
-import * as auditCheckUtils from '../../../AuditCheckUtils';
+import * as surveyArea from '../../../../../../utils/surveyArea';
 
-// Mock the AuditCheckUtils to provide a controlled survey area
-jest.mock('../../../AuditCheckUtils', () => ({
+// Mock getSurveyArea to provide a controlled survey area
+jest.mock('../../../../../../utils/surveyArea', () => ({
     getSurveyArea: jest.fn()
 }));
 
-const mockGetSurveyArea = auditCheckUtils.getSurveyArea as jest.Mock;
+const mockGetSurveyArea = surveyArea.getSurveyArea as jest.Mock;
 
 describe('HM_I_geographyNotInSurveyTerritory audit check', () => {
     const validUuid = uuidV4();
