@@ -1098,3 +1098,43 @@ describe('getSegmentPreviousLocation and getSegmentNextLocation', () => {
     });
 
 });
+
+describe('getTripBirdDistanceMetersFromPath', () => {
+    const modePath = 'household.persons.personId1.journeys.journeyId1.trips.tripId1P1.segments.segmentId1P1T1.mode';
+
+    test('returns a positive distance when origin and destination have geography', () => {
+        const interview = _cloneDeep(interviewAttributesForTestCases);
+        setResponse(interview, 'household.persons.personId1.journeys.journeyId1.trips.tripId1P1.segments', {
+            segmentId1P1T1: { _uuid: 'segmentId1P1T1', _sequence: 1 }
+        });
+        const distance = helpers.getTripBirdDistanceMetersFromPath(interview, modePath);
+        expect(distance).toBeGreaterThan(0);
+    });
+
+    test('returns undefined when the path is not under a trip', () => {
+        const interview = _cloneDeep(interviewAttributesForTestCases);
+        expect(helpers.getTripBirdDistanceMetersFromPath(interview, 'household.size')).toBeUndefined();
+    });
+
+    test('returns undefined when origin geography is missing', () => {
+        const interview = _cloneDeep(interviewAttributesForTestCases);
+        setResponse(interview, 'household.persons.personId1.journeys.journeyId1.trips.tripId1P1.segments', {
+            segmentId1P1T1: { _uuid: 'segmentId1P1T1', _sequence: 1 }
+        });
+        setResponse(interview, 'home.geography', undefined);
+        expect(helpers.getTripBirdDistanceMetersFromPath(interview, modePath)).toBeUndefined();
+    });
+
+    test('returns undefined when destination geography is missing', () => {
+        const interview = _cloneDeep(interviewAttributesForTestCases);
+        setResponse(interview, 'household.persons.personId1.journeys.journeyId1.trips.tripId1P1.segments', {
+            segmentId1P1T1: { _uuid: 'segmentId1P1T1', _sequence: 1 }
+        });
+        setResponse(
+            interview,
+            'household.persons.personId1.journeys.journeyId1.visitedPlaces.workPlace1P1.geography',
+            undefined
+        );
+        expect(helpers.getTripBirdDistanceMetersFromPath(interview, modePath)).toBeUndefined();
+    });
+});

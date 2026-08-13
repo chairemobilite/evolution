@@ -27,6 +27,7 @@ import type {
     WidgetConditional
 } from '../../types';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
+import { getBirdDistanceMeters } from '../../../../utils/PhysicsUtils';
 
 /**
  * Get the mode used in the single segment of the previous trip of the current
@@ -276,15 +277,15 @@ interface SegmentSectionHelpersImplementation {
 }
 
 /**
- * Get the origin of a segment, as the origin of the trip it is part of. This
- * function can be used if we do not know of any other possible location during
- * segment entry.
+ * Get the origin geography of a trip (the GeoJSON point of the origin
+ * visited place). This can be used if we do not know of any other possible
+ * location during segment entry.
  * @param options the argument
  * @param options.trip The trip the segment is part of
  * @param options.journey The journey the trip is part of
- * @returns
+ * @returns The origin point, or null if the visited place has no geography
  */
-const getTripOrigin = ({
+const getTripOriginGeography = ({
     trip,
     journey,
     interview,
@@ -301,15 +302,15 @@ const getTripOrigin = ({
 };
 
 /**
- * Get the destination of a segment, as the destination of the trip it is part of.
- * This function can be used if we do not know of any other possible location during
- * segment entry.
+ * Get the destination geography of a trip (the GeoJSON point of the destination
+ * visited place). This can be used if we do not know of any other possible
+ * location during segment entry.
  * @param options the argument
  * @param options.trip The trip the segment is part of
  * @param options.journey The journey the trip is part of
- * @returns
+ * @returns The destination point, or null if the visited place has no geography
  */
-const getTripDestination = ({
+const getTripDestinationGeography = ({
     trip,
     journey,
     interview,
@@ -325,6 +326,26 @@ const getTripDestination = ({
     return destination !== null
         ? odHelpers.getVisitedPlaceGeography({ visitedPlace: destination, interview, person })
         : null;
+};
+
+/**
+ * Bird distance in meters between the trip origin and destination for a
+ * segment widget path. Returns undefined when origin or destination geography
+ * is missing.
+ * @param interview current interview
+ * @param path widget path under the trip (e.g. a segment mode path)
+ */
+export const getTripBirdDistanceMetersFromPath = (
+    interview: UserInterviewAttributes,
+    path: string
+): number | undefined => {
+    const tripContext = odHelpers.getTripContextFromPath({ interview, path });
+    if (tripContext === null) {
+        return undefined;
+    }
+    const origin = getTripOriginGeography({ ...tripContext, interview });
+    const destination = getTripDestinationGeography({ ...tripContext, interview });
+    return getBirdDistanceMeters(origin ?? undefined, destination ?? undefined);
 };
 
 class SegmentSectionHelpersWithFields implements SegmentSectionHelpersImplementation {
@@ -388,7 +409,7 @@ class SegmentSectionHelpersWithFields implements SegmentSectionHelpersImplementa
                 return location;
             }
         }
-        return getTripOrigin({ trip, journey, interview, person });
+        return getTripOriginGeography({ trip, journey, interview, person });
     }
 
     public getSegmentNextLocation({
@@ -416,7 +437,7 @@ class SegmentSectionHelpersWithFields implements SegmentSectionHelpersImplementa
                 return location;
             }
         }
-        return getTripDestination({ trip, journey, person, interview });
+        return getTripDestinationGeography({ trip, journey, person, interview });
     }
 
     public getCurrentSegmentOriginLocation({ segment }: { segment: Segment }): GeoJSON.Feature<GeoJSON.Point> | null {
@@ -459,7 +480,7 @@ class DefaultSegmentSectionHelpers implements SegmentSectionHelpersImplementatio
         person: Person;
         interview: UserInterviewAttributes;
     }): GeoJSON.Feature<GeoJSON.Point> | null {
-        return getTripOrigin({ trip, journey, person, interview });
+        return getTripOriginGeography({ trip, journey, person, interview });
     }
 
     public getSegmentNextLocation({
@@ -474,7 +495,7 @@ class DefaultSegmentSectionHelpers implements SegmentSectionHelpersImplementatio
         person: Person;
         interview: UserInterviewAttributes;
     }): GeoJSON.Feature<GeoJSON.Point> | null {
-        return getTripDestination({ trip, journey, person, interview });
+        return getTripDestinationGeography({ trip, journey, person, interview });
     }
 
     public getCurrentSegmentOriginLocation(): GeoJSON.Feature<GeoJSON.Point> | null {

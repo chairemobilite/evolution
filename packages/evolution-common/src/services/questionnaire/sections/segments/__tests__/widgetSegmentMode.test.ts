@@ -13,8 +13,9 @@ import { interviewAttributesForTestCases, widgetFactoryOptions } from '../../../
 import { setResponse, translateString } from '../../../../../utils/helpers';
 import * as surveyHelper from '../../../../odSurvey/helpers';
 import { Mode, defaultModePreToModeMap, defaultModeToModePreMap, modeValues } from '../../../../odSurvey/types';
-import { shouldShowSameAsReverseTripQuestion, getPreviousTripSingleSegment } from '../helpers';
+import { shouldShowSameAsReverseTripQuestion, getPreviousTripSingleSegment, getTripBirdDistanceMetersFromPath } from '../helpers';
 import { modeToIconMapping } from '../modeIconMapping';
+import { isModeOfferedForBirdDistance } from '../../../../odSurvey/speedAndDistanceRangesByMode';
 
 const segmentSectionConfig = {
     type: 'segments' as const,
@@ -84,8 +85,10 @@ describe('Mode choices conditionals', () => {
     // Test that modes appear when the right modePre is selected, use the
     // modePreToModeMap to get the values, but filter out the modes that have
     // specific conditionals and that will be tested separately
+    const modePath = 'household.persons.personId1.journeys.journeyId1.trips.tripId1P1.segments.segmentId1P1T1.mode';
+    const birdDistanceMeters = getTripBirdDistanceMetersFromPath(interview, modePath);
     each(
-        modeValues.filter((mode) => !['wheelchair', 'mobilityScooter', 'paratransit'].includes(mode)).flatMap((mode) => Object.keys(defaultModePreToModeMap).map((modePre) => [mode, modePre, defaultModeToModePreMap[mode].includes(modePre as any)]))
+        modeValues.filter((mode) => !['wheelchair', 'mobilityScooter', 'paratransit'].includes(mode)).flatMap((mode) => Object.keys(defaultModePreToModeMap).map((modePre) => [mode, modePre, defaultModeToModePreMap[mode].includes(modePre as any) && isModeOfferedForBirdDistance(mode, birdDistanceMeters)]))
     ).test('Test modePre conditional for mode %s with modePre %s: %s', (choiceValue, modePreValue, expected) => {
         // Find the right choice choice
         const modeChoice = choices.find((choice) => choice.value === choiceValue);
@@ -148,7 +151,7 @@ describe('Mode choices conditionals', () => {
             modeCategoryToModeMap: {
                 walking: { // Will use the fallback icon
                     modes: ['walk'] as Mode[],
-                    label: `segments:mode:Walk`
+                    label: 'segments:mode:Walk'
                 },
                 bicycle: {
                     modes: ['bicycle'] as Mode[]
@@ -164,14 +167,14 @@ describe('Mode choices conditionals', () => {
                     modes: ['dontKnow'] as Mode[]
                 }
             }
-        }
+        };
         const widgetConfig = getModeWidgetConfig(configuration, widgetFactoryOptions) as QuestionWidgetConfig & InputRadioType;
         const choices = widgetConfig.choices as RadioChoiceType[];
 
         const modePres = ['walking', 'bicycle', 'transit', 'carDriver', 'dontKnow'];
 
         each(
-            modePres.flatMap((modePre) => configuration.modesIncludeOnly!.map((mode) => [mode, modePre, (configuration.modeCategoryToModeMap as any)[modePre].modes.includes(mode as any)]))
+            modePres.flatMap((modePre) => configuration.modesIncludeOnly!.map((mode) => [mode, modePre, (configuration.modeCategoryToModeMap as any)[modePre].modes.includes(mode as any) && isModeOfferedForBirdDistance(mode, birdDistanceMeters)]))
         ).test('Test modePre conditional for mode %s with modePre %s: %s', (choiceValue, modePreValue, expected) => {
             // Find the right choice choice
             const modeChoice = choices.find((choice) => choice.value === choiceValue);
@@ -180,7 +183,55 @@ describe('Mode choices conditionals', () => {
             const modeResult = modeChoice?.conditional?.(interview, 'household.persons.personId1.journeys.journeyId1.trips.tripId1P1.segments.segmentId1P1T1.mode');
             expect(modeResult).toEqual(expected);
         });
-    })
+    });
+
+    // tripId1P1 origin is home at [-73.5932, 45.5016] (homeGeographyCoordinates).
+    // Dest [-73.5932, 45.05] ≈ 50 km (below plane min 100 km).
+    // Dest [-73.5932, 44.4] ≈ 122 km (plane offered).
+    // Dest [-73.61, 45.53] ≈ 3.4 km (below intercity min 5 km).
+    // Dest [-73.5, 45.4] ≈ 13 km (intercity offered).
+    test.each([
+        ['plane', 'other', [-73.5932, 45.05], false],
+        ['plane', 'other', [-73.5932, 44.4], true],
+        ['plane', 'other', undefined, true],
+        ['intercityBus', 'transit', [-73.61, 45.53], false],
+        ['intercityBus', 'transit', [-73.5, 45.4], true],
+        ['intercityTrain', 'transit', [-73.61, 45.53], false],
+        ['walk', 'walk', [-73.5, 45.4], true],
+        ['other', 'other', [-73.5932, 45.05], true],
+        ['dontKnow', 'dontKnow', [-73.5932, 44.4], true],
+        ['preferNotToAnswer', 'preferNotToAnswer', [-73.5932, 44.4], true]
+    ] as [Mode, string, [number, number] | undefined, boolean][])(
+        'mode %s with modePre %s and dest %p is offered: %s',
+        (mode, modePre, destinationCoordinates, expectedOffered) => {
+            const testInterview = _cloneDeep(interview);
+            const modePath =
+                'household.persons.personId1.journeys.journeyId1.trips.tripId1P1.segments.segmentId1P1T1.mode';
+            setResponse(
+                testInterview,
+                'household.persons.personId1.journeys.journeyId1.visitedPlaces.workPlace1P1.geography',
+                destinationCoordinates === undefined
+                    ? undefined
+                    : {
+                        type: 'Feature',
+                        geometry: { type: 'Point', coordinates: destinationCoordinates },
+                        properties: { lastAction: 'mapClicked' }
+                    }
+            );
+            const modeChoice = choices.find((choice) => choice.value === mode);
+            expect(modeChoice).toBeDefined();
+            setResponse(
+                testInterview,
+                'household.persons.personId1.journeys.journeyId1.trips.tripId1P1.segments.segmentId1P1T1.modePre',
+                modePre
+            );
+            const modeResult = modeChoice?.conditional?.(testInterview, modePath);
+            expect(modeResult).toEqual(expectedOffered);
+            if (destinationCoordinates === undefined) {
+                expect(getTripBirdDistanceMetersFromPath(testInterview, modePath)).toBeUndefined();
+            }
+        }
+    );
 
 });
 
@@ -318,9 +369,9 @@ describe('Mode conditional', () => {
         const result = conditional!(interview, `${segmentPath}.mode`);
         expect(result).toEqual([false, mode]);
         expect(mockedShouldShowSameAsReverseTripQuestion).toHaveBeenCalledWith({ interview, path: `${segmentPath}.mode` });
-        expect(mockedGetPreviousTripSingleSegment).toHaveBeenCalledWith({ 
+        expect(mockedGetPreviousTripSingleSegment).toHaveBeenCalledWith({
             journey: interview.response.household!.persons!.personId2.journeys!.journeyId2,
-            trip: interview.response.household!.persons!.personId2.journeys!.journeyId2.trips!.tripId1P2, 
+            trip: interview.response.household!.persons!.personId2.journeys!.journeyId2.trips!.tripId1P2,
         });
     });
 
