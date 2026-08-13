@@ -90,6 +90,27 @@ beforeEach(() => {
     mockGetReviewDecisionStatusForObject.mockReturnValue(undefined);
 });
 
+describe('PersonPanel visited place times', () => {
+    test('displays duration when visited place starts at midnight (0)', () => {
+        const journeyWithMidnightPlace = {
+            ...journey,
+            visitedPlaces: [{ _uuid: 'place-midnight', startTime: 0, endTime: 3600 }]
+        } as unknown as Journey;
+
+        const { getByText } = render(
+            <PersonPanel
+                person={person}
+                journey={journeyWithMidnightPlace}
+                personId={personUuid}
+                selectPlace={jest.fn()}
+                selectTrip={jest.fn()}
+            />
+        );
+
+        expect(getByText(/\(1h\)/)).toBeTruthy();
+    });
+});
+
 describe('PersonPanel rejection inheritance', () => {
     test('journey rejection propagates to trip and segment boxes', () => {
         mockGetReviewDecisionStatusForObject.mockImplementation((_map, objectType, objectUuid) => {

@@ -1063,6 +1063,22 @@ describe('Trip', () => {
             });
         });
 
+        describe('setupStartAndEndTimes', () => {
+            test.each([
+                ['copies midnight (0) from origin endTime and destination startTime', 0, 0],
+                ['copies non-zero times from origin and destination', 3600, 7200]
+            ])('%s', (_title, originEndTime, destinationStartTime) => {
+                const trip = new Trip({ _uuid: uuidV4() }, registry);
+                trip.origin = new VisitedPlace({ _uuid: uuidV4(), endTime: originEndTime }, registry);
+                trip.destination = new VisitedPlace({ _uuid: uuidV4(), startTime: destinationStartTime }, registry);
+
+                trip.setupStartAndEndTimes();
+
+                expect(trip.startTime).toBe(originEndTime);
+                expect(trip.endTime).toBe(destinationStartTime);
+            });
+        });
+
         describe('getBirdSpeedKph', () => {
             test('should return the bird speed in km/h', () => {
                 trip.origin = new VisitedPlace({ _place: { geography: { type: 'Feature', geometry: { type: 'Point', coordinates: [45.5, -75.5] }, properties: {} }, _isValid: true } }, registry);

@@ -95,8 +95,8 @@ export const PersonPanel = ({
         const visitedPlaceLabel = (
             <>
                 {i + 1}. {visitedPlaceDecorator.getDescription(true)}{' '}
-                {visitedPlace.startTime && visitedPlace.endTime
-                    ? '(' + Math.round((10 * (visitedPlace.endTime - visitedPlace.startTime)) / 3600) / 10 + 'h)'
+                {!_isBlank(visitedPlace.startTime) && !_isBlank(visitedPlace.endTime)
+                    ? '(' + Math.round((10 * (visitedPlace.endTime! - visitedPlace.startTime!)) / 3600) / 10 + 'h)'
                     : ''}
             </>
         );

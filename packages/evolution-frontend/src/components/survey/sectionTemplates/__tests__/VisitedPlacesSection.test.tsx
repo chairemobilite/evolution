@@ -183,6 +183,24 @@ describe('VisitedPlacesSection UI display', () => {
         expect(container).toMatchSnapshot();
     });
 
+    test('should display midnight (0) arrival and departure times', () => {
+        const props = getDefaultProps();
+        const visitedPlaces =
+            props.interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!;
+        visitedPlaces.workPlace1P1.arrivalTime = 0;
+        visitedPlaces.workPlace1P1.departureTime = 0;
+
+        const { container } = render(
+            <TestContextProvider>
+                <VisitedPlacesSection {...props} />
+            </TestContextProvider>
+        );
+
+        const listTimes = container.querySelectorAll('.survey-visited-place-item-buttons');
+        expect(listTimes[1].textContent?.match(/time-0/g)).toHaveLength(2);
+        expect(container.querySelectorAll('.survey-visited-places-schedule-visited-place')).toHaveLength(5);
+    });
+
     test('should throw error if no active person or journey', () => {
         const props = getDefaultProps();
         delete props.interview.response._activePersonId;

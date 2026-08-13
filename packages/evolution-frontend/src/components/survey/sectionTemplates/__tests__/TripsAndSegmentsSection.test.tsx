@@ -226,6 +226,38 @@ describe('SegmentsSection UI display', () => {
             expect(results).toHaveNoViolations();
         });
 
+        test.each([
+            {
+                title: 'origin departureTime of 0 (midnight)',
+                originDepartureTime: 0,
+                destinationArrivalTime: 7200
+            },
+            {
+                title: 'destination arrivalTime of 0 (midnight)',
+                originDepartureTime: 23 * 3600,
+                destinationArrivalTime: 0
+            }
+        ])('should display $title', ({ originDepartureTime, destinationArrivalTime }) => {
+            const { secondsSinceMidnightToTimeStrWithSuffix } = jest.requireMock(
+                '../../../../services/display/frontendHelper'
+            ) as { secondsSinceMidnightToTimeStrWithSuffix: jest.Mock };
+            secondsSinceMidnightToTimeStrWithSuffix.mockClear();
+
+            const testVisitedPlaces = _cloneDeep(visitedPlaces);
+            testVisitedPlaces.place1.departureTime = originDepartureTime;
+            testVisitedPlaces.place2.arrivalTime = destinationArrivalTime;
+            mockedGetJourneysArray.mockReturnValueOnce([{ ...journey, visitedPlaces: testVisitedPlaces }]);
+
+            render(
+                <TestContextProvider>
+                    <SegmentsSection {...props} />
+                </TestContextProvider>
+            );
+
+            expect(secondsSinceMidnightToTimeStrWithSuffix).toHaveBeenCalledWith(originDepartureTime);
+            expect(secondsSinceMidnightToTimeStrWithSuffix).toHaveBeenCalledWith(destinationArrivalTime);
+        });
+
         test('should render list of trips when loop activity in one trip, no trip selected', () => {
             const testVisitedPlaces = _cloneDeep(visitedPlaces);
             testVisitedPlaces.place2.activity = 'workOnTheRoad';

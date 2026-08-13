@@ -216,6 +216,45 @@ describe('buttonSaveVisitedPlace widget', () => {
                 },
                 expectedActiveVisitedPlaceId: null
             }, {
+                title: 'inserts previous home with midnight _previousArrivalTime (0)',
+                path: 'household.persons.personId1.journeys.journeyId1.visitedPlaces.otherPlace2P1',
+                activeVisitedPlaceId: 'otherPlace2P1',
+                setup: (interview: typeof interviewAttributesForTestCases) => {
+                    const journey = getJourney(interview);
+                    const visitedPlace = journey.visitedPlaces!.otherPlace2P1;
+                    visitedPlace.activity = 'workOnTheRoad';
+                    visitedPlace.activityCategory = 'work';
+                    visitedPlace.onTheRoadPreviousPlaceActivity = 'home';
+                    visitedPlace.onTheRoadNextPlaceCategory = 'wentBackHome';
+                    visitedPlace.arrivalTime = 9 * 60 * 60;
+                    visitedPlace.departureTime = 17 * 60 * 60;
+                    visitedPlace._previousArrivalTime = 0;
+                },
+                expectedInsertedPlaces: [
+                    {
+                        insertSequence: 5,
+                        newVisitedPlace: {
+                            activity: 'home',
+                            activityCategory: 'home',
+                            nextPlaceCategory: 'visitedAnotherPlace',
+                            arrivalTime: 0,
+                            departureTime: 9 * 60 * 60
+                        }
+                    },
+                    {
+                        insertSequence: 7,
+                        newVisitedPlace: {
+                            activity: 'home',
+                            activityCategory: 'home',
+                            arrivalTime: 17 * 60 * 60
+                        }
+                    }
+                ],
+                expectedFirstUpdateValuesByPath: {
+                    'response.household.persons.personId1.journeys.journeyId1.visitedPlaces.otherPlace2P1._isNew': false
+                },
+                expectedActiveVisitedPlaceId: null
+            }, {
                 title: 'inserts two places for workOnTheRoad with workUsual departure and workUsual arrival, inlining usual places',
                 path: 'household.persons.personId1.journeys.journeyId1.visitedPlaces.otherPlace2P1',
                 activeVisitedPlaceId: 'otherPlace2P1',
