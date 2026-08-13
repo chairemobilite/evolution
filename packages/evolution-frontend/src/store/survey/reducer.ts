@@ -22,7 +22,17 @@ const reducer: Reducer<SurveyState, SurveyAction> = (state = initialState, actio
             submitted: undefined,
             reviewDecisions: undefined
         };
-    case SurveyActionTypes.UPDATE_INTERVIEW:
+    case SurveyActionTypes.UPDATE_INTERVIEW: {
+        const currentInterviewId = state.interview?.id;
+        const updatedInterviewId = action.interview.id;
+        // Ignore stale updates from a previous interview (e.g. after switching
+        // or resetting the interview before an in-flight update returns).
+        if (currentInterviewId === undefined || currentInterviewId !== updatedInterviewId) {
+            console.warn(
+                `Ignoring interview update: current interview id is ${currentInterviewId}, updated interview id is ${updatedInterviewId}`
+            );
+            return state;
+        }
         return {
             ...state,
             interview: action.interview,
@@ -30,6 +40,7 @@ const reducer: Reducer<SurveyState, SurveyAction> = (state = initialState, actio
             errors: action.errors,
             submitted: action.submitted
         };
+    }
     case SurveyActionTypes.ADD_CONSENT:
         return {
             ...state,

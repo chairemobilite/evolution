@@ -68,19 +68,27 @@ describe('configureStore', () => {
     });
 
     it('should reset state on logout', () => {
+        store.dispatch({
+            type: SurveyActionTypes.SET_INTERVIEW as const,
+            interview: testInterview,
+            interviewLoaded: true
+        });
         // Set interview, with an update interview action
+        const updatedInterview = { ...testInterview, is_completed: true };
         const action = {
             type: SurveyActionTypes.UPDATE_INTERVIEW as const,
-            interview: testInterview,
+            interview: updatedInterview,
             interviewLoaded:true,
             submitted: true,
-            errors: {field: { 'en': 'something' }}
+            errors: { field: { 'en': 'something' } }
         };
         const result =  {
-            interview: testInterview,
+            interview: updatedInterview,
             interviewLoaded:true,
             submitted: true,
-            errors: {field: { 'en': 'something' }}
+            errors: { field: { 'en': 'something' } },
+            navigation: undefined,
+            reviewDecisions: undefined
         };
         store.dispatch(action);
         const stateAfterUpdate = store.getState();
