@@ -10,18 +10,22 @@ import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 
 import { interviewAttributes } from './interviewData';
+import mockGoogleMapAdapter, { mockGeocodeMultiplePlaces } from './mockGoogleMapAdapter';
 import InputMapFindPlace from '../InputMapFindPlace';
-import { geocodeMultiplePlaces } from '../maps/google/GoogleGeocoder';
 
 // Mock react-markdown and remark-gfm as they use syntax not supported by jest
 jest.mock('react-markdown', () => 'Markdown');
 jest.mock('remark-gfm', () => 'remark-gfm');
 
-// Mock db queries
-jest.mock('../maps/google/GoogleGeocoder', () => ({
-    geocodeMultiplePlaces: jest.fn()
+// ESM-friendly mock: getter defers access until after mockGoogleMapAdapter is initialized (no require).
+jest.mock('../maps/google/GoogleMapAdapter', () => ({
+    __esModule: true,
+    get default() {
+        return mockGoogleMapAdapter;
+    }
 }));
-const mockedGeocode = geocodeMultiplePlaces as jest.MockedFunction<typeof geocodeMultiplePlaces>;
+
+const mockedGeocode = mockGeocodeMultiplePlaces;
 
 const userAttributes = {
     id: 1,
@@ -214,10 +218,12 @@ describe('Test geocoding requests', () => {
 
         // Pick the second result (place_id '2') in the selection list
         await user.selectOptions(select, placeFeature2.properties.placeData.place_id);
-        expect(screen.getByText('ConfirmLocation')).toBeInTheDocument();
+        // Bottom confirm + InfoWindow confirm are both available
+        expect(screen.getAllByText('ConfirmLocation')).toHaveLength(2);
+        expect(screen.getByTestId('mock-info-window-confirm')).toBeInTheDocument();
 
-        // Click on the confirm button and make sure the update function has been called
-        await user.click(screen.getByText('ConfirmLocation'));
+        // Click on the bottom confirm button and make sure the update function has been called
+        await user.click(document.getElementById(`${testId}_confirm`) as HTMLButtonElement);
         // The saved value must reference the SECOND place's place_id, not the first
         expect(mockOnValueChange).toHaveBeenCalledWith({
             target: {
@@ -246,8 +252,8 @@ describe('Test geocoding requests', () => {
         expect(selectionList.children.length).toEqual(2);
         expect(selectionList.children[1].textContent).toEqual('Foo extra good restaurant (123 test street)');
 
-        // Click on the confirm button and make sure the update function has been called
-        await user.click(screen.getByText('ConfirmLocation'));
+        // Click on the bottom confirm button and make sure the update function has been called
+        await user.click(document.getElementById(`${testId}_confirm`) as HTMLButtonElement);
         expect(mockOnValueChange).toHaveBeenCalledWith({
             target: {
                 value: {
@@ -270,6 +276,33 @@ describe('Test geocoding requests', () => {
         expect(screen.queryByText('ConfirmLocation')).not.toBeInTheDocument();
     });
 
+    test('InfoWindow confirm button also saves the selected place', async () => {
+        const { container } = renderWidget();
+        const user = userEvent.setup();
+
+        mockedGeocode.mockResolvedValueOnce([placeFeature1, placeFeature2]);
+        await user.click(screen.getByText('Geocode'));
+        const select = container.querySelector('select') as HTMLSelectElement;
+        await user.selectOptions(select, placeFeature1.properties.placeData.place_id);
+
+        expect(screen.getByTestId('mock-info-window-confirm')).toBeInTheDocument();
+        await user.click(screen.getByTestId('mock-info-window-confirm'));
+
+        expect(mockOnValueChange).toHaveBeenCalledWith({
+            target: {
+                value: expect.objectContaining({
+                    properties: expect.objectContaining({
+                        geocodingResultsData: expect.objectContaining({
+                            place_id: placeFeature1.properties.placeData.place_id,
+                            formatted_address: placeFeature1.properties.placeData.formatted_address
+                        })
+                    })
+                })
+            }
+        });
+        expect(screen.queryByText('ConfirmLocation')).not.toBeInTheDocument();
+    });
+
     // Re-querying after a single result clears the selection list and confirm button,
     // both when the new query yields no result and when it rejects.
     test.each([
@@ -283,7 +316,8 @@ describe('Test geocoding requests', () => {
         mockedGeocode.mockResolvedValueOnce([placeFeature1]);
         await user.click(screen.getByText('Geocode'));
         expect(container.querySelector('select')).toBeInTheDocument();
-        expect(screen.getByText('ConfirmLocation')).toBeInTheDocument();
+        // Bottom + InfoWindow confirms
+        expect(screen.getAllByText('ConfirmLocation')).toHaveLength(2);
 
         // Click the geocode button again, but get undefined results or a rejection
         const newGeocodingString = 'other string';

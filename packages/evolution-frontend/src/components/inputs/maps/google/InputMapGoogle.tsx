@@ -18,6 +18,7 @@ import {
 } from '@vis.gl/react-google-maps';
 import GeoJSON from 'geojson';
 import bowser from 'bowser';
+import DOMPurify from 'dompurify';
 
 import { getCurrentGoogleMapConfig, getGoogleMapId } from '../../../../config/googleMaps.config';
 import InputLoading from '../../InputLoading';
@@ -236,14 +237,38 @@ const InputMapGoogleInner: React.FunctionComponent<InputGoogleMapPointProps> = (
     React.useEffect(() => {
         if (!placesInfoWindow) return;
         placesInfoWindow.close();
-        if (props.infoWindow && map) {
-            placesInfoWindow.setContent(props.infoWindow.content);
-            placesInfoWindow.setPosition({
-                lat: props.infoWindow.position.geometry.coordinates[1],
-                lng: props.infoWindow.position.geometry.coordinates[0]
-            });
-            placesInfoWindow.open(map);
+        if (!props.infoWindow || !map) {
+            return;
         }
+
+        const container = document.createElement('div');
+        // Place name/address/photo HTML comes from geocoder data — sanitize before insert.
+        container.innerHTML = DOMPurify.sanitize(props.infoWindow.content);
+
+        let confirmButton: HTMLButtonElement | undefined;
+        const onConfirm = props.infoWindow.onConfirm;
+        if (props.infoWindow.confirmLabel && onConfirm) {
+            confirmButton = document.createElement('button');
+            confirmButton.type = 'button';
+            confirmButton.className = 'button green';
+            confirmButton.style.marginTop = '0.5rem';
+            confirmButton.textContent = props.infoWindow.confirmLabel;
+            confirmButton.addEventListener('click', onConfirm);
+            container.appendChild(confirmButton);
+        }
+
+        placesInfoWindow.setContent(container);
+        placesInfoWindow.setPosition({
+            lat: props.infoWindow.position.geometry.coordinates[1],
+            lng: props.infoWindow.position.geometry.coordinates[0]
+        });
+        placesInfoWindow.open(map);
+
+        return () => {
+            if (confirmButton && onConfirm) {
+                confirmButton.removeEventListener('click', onConfirm);
+            }
+        };
     }, [props.infoWindow, placesInfoWindow, map]);
 
     if (!isLoaded) {

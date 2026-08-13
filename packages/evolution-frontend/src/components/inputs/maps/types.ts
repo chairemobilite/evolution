@@ -52,6 +52,9 @@ export type geocodeSingleFct = (
 export type InfoWindow = {
     position: GeoJSON.Feature<GeoJSON.Point>;
     content: string;
+    /** When set, InputMap renders a confirm button inside the info window. */
+    confirmLabel?: string;
+    onConfirm?: () => void;
 };
 
 /**

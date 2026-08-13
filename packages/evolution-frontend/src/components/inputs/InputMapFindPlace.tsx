@@ -450,7 +450,11 @@ export class InputMapFindPlace extends React.Component<
         const infoWindow = this.state.selectedPlace
             ? {
                 position: this.state.selectedPlace,
-                content: this.getInfoWindowContent(this.state.selectedPlace, this.props.widgetConfig.showPhoto)
+                content: this.getInfoWindowContent(this.state.selectedPlace, this.props.widgetConfig.showPhoto),
+                confirmLabel: this.props.widgetConfig.refreshGeocodingLabel
+                    ? this.props.t('main:ConfirmLocation')
+                    : undefined,
+                onConfirm: () => this.onConfirmPlace(undefined)
             }
             : undefined;
 
