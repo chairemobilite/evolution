@@ -408,50 +408,6 @@ router.post(
     }
 );
 
-router.post(
-    '/validation/updateAudits/:uuid',
-    interviewUserIsAuthorized(['validate', 'read']),
-    async (req, res, _next) => {
-        try {
-            const audits = req.body.audits;
-            const interview = await Interviews.getInterviewByUuid(req.params.uuid);
-            if (!interview) {
-                throw 'Interview does not exist';
-            }
-            await SurveyObjectsAndAuditsFactory.updateAudits(interview.id, audits);
-
-            return res.status(200).json({
-                status: 'ok'
-            });
-        } catch (error) {
-            console.error('error updating audits for interview:', error);
-            return res.status(500).json({ status: 'error' });
-        }
-    }
-);
-
-router.post(
-    '/validation/updateAudits/:uuid',
-    interviewUserIsAuthorized(['validate', 'read']),
-    async (req, res, _next) => {
-        try {
-            const audits = req.body.audits;
-            const interview = await Interviews.getInterviewByUuid(req.params.uuid);
-            if (!interview) {
-                throw 'Interview does not exist';
-            }
-            await SurveyObjectsAndAuditsFactory.updateAudits(interview.id, audits);
-
-            return res.status(200).json({
-                status: 'ok'
-            });
-        } catch (error) {
-            console.log('error updating audits for interview:', error);
-            return res.status(500).json({ status: 'Error' });
-        }
-    }
-);
-
 // This route fetches the review decisions for an interview, separately from
 // the interview and its audits, so each can be requested/refreshed independently.
 router.get(
