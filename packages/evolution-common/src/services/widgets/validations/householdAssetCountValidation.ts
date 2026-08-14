@@ -82,19 +82,19 @@ const createHouseholdAssetCountValidation = (
 
         return [
             {
-                validation: !_isBlank(value) && (isNaN(Number(value)) || !Number.isInteger(Number(value))),
-                errorMessage: (t) => t(messageKeys.invalid)
-            },
-            {
                 validation: _isBlank(value),
                 errorMessage: (t) => t(messageKeys.required)
             },
             {
-                validation: Number(value) < 0,
+                validation: !_isBlank(value) && (isNaN(Number(value)) || !Number.isInteger(Number(value))),
+                errorMessage: (t) => t(messageKeys.invalid)
+            },
+            {
+                validation: !_isBlank(value) && !isNaN(Number(value)) && Number(value) < 0,
                 errorMessage: (t) => t(messageKeys.minZero)
             },
             {
-                validation: Number(value) > maxTotal,
+                validation: !_isBlank(value) && !isNaN(Number(value)) && Number(value) > maxTotal,
                 errorMessage: (t) => t(messageKeys.overMax, { maxPerPerson })
             }
         ];
