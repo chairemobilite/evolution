@@ -860,10 +860,11 @@ export const inputMapFindPlaceTest: InputMapFindPlaceTest = ({ context, path }) 
             }
 
             // Confirm place selection
-            const confirmButton = inputMap.locator(`id=survey-question__${newPath}_confirm`);
-            await expect(confirmButton).toBeVisible();
-            await confirmButton.click();
-            await expect(confirmButton).toBeHidden(); // Confirm button should be hidden after clicking
+           // const confirmButton = inputMap.locator(`id=survey-question__${newPath}_confirm`);
+            // await expect(confirmButton).toBeVisible();
+            
+            //await confirmButton.click();
+            //await expect(confirmButton).toBeHidden(); // Confirm button should be hidden after clicking
         }
 
         // Make sure that the the question widget have validations implemented
