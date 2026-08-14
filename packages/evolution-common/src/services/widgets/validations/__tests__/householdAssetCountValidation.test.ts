@@ -19,11 +19,11 @@ const interviewWithSize = (size: number) =>
 
 const interviewWithoutSize = { response: { household: {} } } as any;
 
-const failingRuleIndex = (
+const ruleFlags = (
     validationFn: typeof carNumberValidation,
     value: unknown,
     interview: any
-) => validationFn(value, undefined, interview, 'household.carNumber').findIndex((rule) => rule.validation);
+): boolean[] => validationFn(value, undefined, interview, 'household.carNumber').map((rule) => rule.validation);
 
 const getEffectiveHouseholdSize = (householdSize: number | undefined): number => {
     if (householdSize !== undefined && Number.isInteger(householdSize) && householdSize > 0) {
@@ -46,36 +46,44 @@ describe('household asset count validation', () => {
             [0, 4],
             [maxForSize4, 4]
         ])('accepts value %p with household size %p', (value, householdSize) => {
-            expect(failingRuleIndex(validationFn, value, interviewWithSize(householdSize))).toBe(-1);
+            expect(ruleFlags(validationFn, value, interviewWithSize(householdSize))).toEqual([
+                false,
+                false,
+                false,
+                false
+            ]);
         });
 
         test.each([
             [0, interviewWithoutSize],
             [maxForUnknownSize, interviewWithoutSize]
         ])('accepts value %p when household size is unknown', (value, interview) => {
-            expect(failingRuleIndex(validationFn, value, interview)).toBe(-1);
+            expect(ruleFlags(validationFn, value, interview)).toEqual([false, false, false, false]);
         });
 
         test.each([
-            ['', 4, 1],
-            [undefined, 4, 1],
-            [-1, 4, 2],
-            [1.5, 4, 0],
-            [maxForSize4 + 1, 4, 3],
-            [maxForUnknownSize + 1, interviewWithoutSize, 3]
-        ])('rejects value %p with household size %p at rule index %p', (value, householdSizeOrInterview, expectedFailingIndex) => {
+            ['', 4, [true, false, false, false]],
+            [undefined, 4, [true, false, false, false]],
+            ['abc', 4, [false, true, false, false]],
+            [NaN, 4, [false, true, false, false]],
+            [-1, 4, [false, false, true, false]],
+            [1.5, 4, [false, true, false, false]],
+            [maxForSize4 + 1, 4, [false, false, false, true]],
+            [maxForUnknownSize + 1, interviewWithoutSize, [false, false, false, true]]
+        ])('rejects value %p with household size %p as %p', (value, householdSizeOrInterview, expectedFlags) => {
             const interview =
                 typeof householdSizeOrInterview === 'number'
                     ? interviewWithSize(householdSizeOrInterview)
                     : householdSizeOrInterview;
-            expect(failingRuleIndex(validationFn, value, interview)).toBe(expectedFailingIndex);
+            expect(ruleFlags(validationFn, value, interview)).toEqual(expectedFlags);
         });
 
         test.each([0, -2])('uses maxHouseholdSize fallback when household size is %p', (invalidHouseholdSize) => {
             const maxAllowed = getEffectiveHouseholdSize(invalidHouseholdSize) * maxPerPerson;
+            const interview = interviewWithSize(invalidHouseholdSize);
 
-            expect(failingRuleIndex(validationFn, maxAllowed, interviewWithSize(invalidHouseholdSize))).toBe(-1);
-            expect(failingRuleIndex(validationFn, maxAllowed + 1, interviewWithSize(invalidHouseholdSize))).toBe(3);
+            expect(ruleFlags(validationFn, maxAllowed, interview)).toEqual([false, false, false, false]);
+            expect(ruleFlags(validationFn, maxAllowed + 1, interview)).toEqual([false, false, false, true]);
         });
     });
 });
