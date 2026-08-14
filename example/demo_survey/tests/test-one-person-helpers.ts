@@ -12,9 +12,8 @@ export function completeHomePage(context) {
     testHelpers.inputStringTest({ context, path: 'home.region', value: 'Quebec' });
     testHelpers.inputStringTest({ context, path: 'home.country', value: 'Canada' });
     testHelpers.inputStringTest({ context, path: 'home.postalCode', value: 'H1S1V7', expectedValue: 'H1S 1V7' });
-    //testHelpers.inputMapFindPlaceTest({ context, path: 'home.geography' });
     testHelpers.inputSelectTest({ context, path: 'home.dwellingType', value: 'tenantSingleDetachedHouse' });
-    testHelpers.waitForMapToBeLoaded({ context });
+    testHelpers.inputMapFindPlaceTest({ context, path: 'home.geography' });
     testHelpers.inputNextButtonTest({ context, text: 'Save and continue', nextPageUrl: '/survey/householdMembers' });
 }
 

@@ -250,7 +250,7 @@ const InputMapGoogleInner: React.FunctionComponent<InputGoogleMapPointProps> = (
         if (props.infoWindow.confirmLabel && onConfirm) {
             confirmButton = document.createElement('button');
             confirmButton.type = 'button';
-            confirmButton.className = 'button green';
+            confirmButton.className = 'button green map-find-place-info-window-confirm';
             confirmButton.style.marginTop = '0.5rem';
             confirmButton.textContent = props.infoWindow.confirmLabel;
             confirmButton.addEventListener('click', onConfirm);
