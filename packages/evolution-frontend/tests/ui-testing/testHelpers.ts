@@ -800,13 +800,8 @@ export const inputMapFindPlaceTest: InputMapFindPlaceTest = ({ context, path }) 
         // Fetch the Google Maps API response
         const { resultsNumber } = await fetchGoogleMapsApiResponse({ context, refreshButton });
 
-        // Get the main map widget, 4 above the button
-        const inputMap = refreshButton.locator('..').locator('..').locator('..').locator('..');
-        await inputMap.scrollIntoViewIfNeeded(); // So we can see the map correctly in the screenshot when the test fails
-
-        // Check if the no result alert is visible
-        // const noResultAlertElement = inputMap.getByText('The search did not return any result');
-        // const checkIfNoResult = await noResultAlertElement.isVisible();
+        const questionContainer = context.page.locator('div.apptr__form-container').filter({ has: refreshButton });
+        await questionContainer.scrollIntoViewIfNeeded();
 
         // If no result, click again
         if (resultsNumber === 0) {
@@ -816,7 +811,7 @@ export const inputMapFindPlaceTest: InputMapFindPlaceTest = ({ context, path }) 
 
         // If there is at least one result and the select input exists, select the first option and confirm.
         // Note: This is necessary because sometimes the select input appears with only one available option.
-        const select = inputMap.locator(`id=survey-question__${newPath}_mapFindPlace`);
+        const select = context.page.locator(`id=survey-question__${newPath}_mapFindPlace`);
         if (resultsNumber >= 1 && (await select.count()) > 0) {
             // Focus on the select element to prepare for keyboard interaction
             await select.focus();
@@ -859,16 +854,19 @@ export const inputMapFindPlaceTest: InputMapFindPlaceTest = ({ context, path }) 
                 }
             }
 
-            // Confirm place selection
-            const confirmButton = inputMap.locator(`id=survey-question__${newPath}_confirm`);
+            // Confirm is in the Google InfoWindow (and still below the map). The
+            // popup covers #_confirm, so Playwright's click is intercepted.
+            // The map wrapper is aria-hidden, so getByRole cannot see the
+            // InfoWindow button either.
+            const infoWindowConfirm = context.page.locator('button.map-find-place-info-window-confirm');
+            const belowMapConfirm = context.page.locator(`[id="survey-question__${newPath}_confirm"]`);
+            const confirmButton = infoWindowConfirm.or(belowMapConfirm);
             await expect(confirmButton).toBeVisible();
             await confirmButton.click();
-            await expect(confirmButton).toBeHidden(); // Confirm button should be hidden after clicking
+            await expect(confirmButton).toBeHidden();
         }
 
-        // Make sure that the the question widget have validations implemented
-        // Check if the input has the question-valid class
-        await expect(inputMap).toHaveClass(/question-valid/);
+        await expect(questionContainer).toHaveClass(/question-valid/);
     });
 };
 
@@ -880,7 +878,9 @@ export const inputMapFindPlaceTest: InputMapFindPlaceTest = ({ context, path }) 
  */
 export const waitForMapToBeLoaded: WaitForMapLoadedTest = ({ context }) => {
     test('Wait for map to be loaded', async () => {
-        const mapContainer = context.page.locator('//div[contains(@class, \'question-type-mapPoint\')]');
+        const mapContainer = context.page.locator(
+            'div.apptr__form-container.question-type-mapFindPlace, div.apptr__form-container.question-type-mapPoint'
+        );
         await expect(mapContainer).toBeVisible();
         await mapContainer.scrollIntoViewIfNeeded();
         await expect(mapContainer).toHaveClass(/question-filled question-valid/);
