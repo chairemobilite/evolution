@@ -57,6 +57,43 @@ export const geocodeSinglePoint = (
     });
 };
 
+/**
+ * Geocode a query with Google Places Text Search (legacy).
+ *
+ * Uses `PlacesService.textSearch` so MapFindPlace candidates stay those of
+ * existing surveys. `Place.searchByText` (Places API New) is a different
+ * product: Google does not guarantee the same places or the same order.
+ * Do not switch search backends without a side-by-side comparison on the
+ * queries this widget actually sends.
+ *
+ * How the two search APIs differ:
+ * - Cloud product: Places API (legacy) vs Places API (New). This flow
+ *   requires the relevant Places API products to be enabled and included
+ *   in the key's restrictions. New keys often lack the legacy API.
+ * - Ranking / area: `textSearch` takes `location` + `radius` as a soft bias
+ *   (results can fall outside). `searchByText` uses `locationBias` or
+ *   `locationRestriction`, plus optional `rankPreference` (RELEVANCE vs
+ *   DISTANCE). Same query and viewport can yield a different set and order.
+ * - Fields: `textSearch` returns a fixed `PlaceResult` (`name`,
+ *   `formatted_address`, `types`, `photos`, …). `searchByText` requires a
+ *   field mask; omitted fields are absent.
+ * - Photos: `textSearch` may include `PlacePhoto` (`getUrl`). `searchByText`
+ *   returns `Photo` (`getURI`) only if `photos` is requested. Loading the
+ *   image is a separate Place Photos SKU in both cases.
+ * - Runtime: `textSearch` needs a `Map`. `searchByText` does not.
+ *
+ * Place Details (`Place.fetchFields`) is not a search API. It loads extra
+ * fields (e.g. photos) for a `place_id` already returned by `textSearch`.
+ *
+ * @param geocodingQueryString Text query sent to Places (address, name, …).
+ * @param options.bbox Viewport used to compute the search-radius bias.
+ * @param options.map Google map instance required by `PlacesService`.
+ * @param options.language Optional language for result names/addresses.
+ * @returns Matching point features, `[]` if none, `undefined` if Google or
+ * the bbox is missing. Rejects if `map` is missing or the request fails.
+ * @see https://developers.google.com/maps/documentation/javascript/places-migration-overview
+ * @see https://developers.google.com/maps/documentation/javascript/place-search
+ */
 export const geocodeMultiplePlaces = (
     geocodingQueryString: string,
     options: { bbox?: [number, number, number, number]; map?: google.maps.Map; language?: string }

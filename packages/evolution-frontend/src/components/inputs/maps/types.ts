@@ -12,6 +12,7 @@ import type {
     UserInterviewAttributes,
     WidgetStatus
 } from 'evolution-common/lib/services/questionnaire/types';
+import type { PlacePhotoAttribution } from './placePhoto';
 
 export type FeatureGeocodedProperties = {
     lastAction?: string;
@@ -52,6 +53,13 @@ export type geocodeSingleFct = (
 export type InfoWindow = {
     position: GeoJSON.Feature<GeoJSON.Point>;
     content: string;
+    /** Structured place fields. Prefer these over parsing `content` HTML. */
+    placeName?: string;
+    placeAddress?: string;
+    photoUrl?: string;
+    photoAttributionPrefix?: string;
+    photoAttributions?: PlacePhotoAttribution[];
+    photoAttribution?: string;
     /** When set, InputMap renders a confirm button inside the info window. */
     confirmLabel?: string;
     onConfirm?: () => void;

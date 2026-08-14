@@ -296,6 +296,7 @@ def generate_widget_statement(row, gender_fields: GenderFields = None) -> Widget
         return result
 
     # Generate the widgets statement based on the input type
+    # TODO: Support mapFindPlace from Excel, including the showPhoto column.
     if input_type == "Custom":
         result["statement"] = generate_custom_widget(question_name)
     elif input_type == "BuiltIn":

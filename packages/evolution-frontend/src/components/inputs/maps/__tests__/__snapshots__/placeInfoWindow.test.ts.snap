@@ -1,0 +1,11 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`createPlaceInfoWindowElement mixed linked and plain attributions 1`] = `"<div class="map-find-place-info-window"><div class="map-find-place-info-window-text"><div>Tim Hortons</div><div class="_pale">123 Main</div></div><div class="map-find-place-info-window-body"><div class="map-find-place-info-window-photo"><img src="https://example.com/p.jpg" height="180"><div class="map-find-place-info-window-photo-attribution">Photo: <a href="https://example.com/jane" target="_blank" rel="noopener noreferrer">Jane</a>, John</div></div></div></div>"`;
+
+exports[`createPlaceInfoWindowElement photo and attribution 1`] = `"<div class="map-find-place-info-window"><div class="map-find-place-info-window-text"><div>Tim Hortons</div><div class="_pale">123 Main</div></div><div class="map-find-place-info-window-body"><div class="map-find-place-info-window-photo"><img src="https://example.com/p.jpg" height="180"><div class="map-find-place-info-window-photo-attribution">Photo: <a href="https://example.com/jane" target="_blank" rel="noopener noreferrer">Jane</a></div></div></div></div>"`;
+
+exports[`createPlaceInfoWindowElement photo without attribution 1`] = `"<div class="map-find-place-info-window"><div class="map-find-place-info-window-text"><div>Tim Hortons</div><div class="_pale">123 Main</div></div><div class="map-find-place-info-window-body"><div class="map-find-place-info-window-photo"><img src="https://example.com/p.jpg" height="180"></div></div></div>"`;
+
+exports[`createPlaceInfoWindowElement plain-text attribution fallback 1`] = `"<div class="map-find-place-info-window"><div class="map-find-place-info-window-text"><div>Tim Hortons</div><div class="_pale">123 Main</div></div><div class="map-find-place-info-window-body"><div class="map-find-place-info-window-photo"><img src="https://example.com/p.jpg" height="180"><div class="map-find-place-info-window-photo-attribution">Photo: Jane</div></div></div></div>"`;
+
+exports[`createPlaceInfoWindowElement text only 1`] = `"<div class="map-find-place-info-window"><div class="map-find-place-info-window-text"><div>Tim Hortons</div><div class="_pale">123 Main</div></div><div class="map-find-place-info-window-body"></div></div>"`;

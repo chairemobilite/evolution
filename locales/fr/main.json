@@ -28,6 +28,7 @@
     "SelectPlaceText": "Veuillez sélectionner le lieu parmi les résultats sur la carte ou dans le menu suivant et confirmez ou cliquez ailleurs sur la carte au bon endroit si les résultats ne comprennent pas le lieu exact.",
     "SelectPlaceTextSingleResult": "Veuillez confirmer si le lieu est bien placé ou cliquez ailleurs sur la carte au bon endroit pour corriger la localisation.",
     "SelectPlaceResultsLabel": "Résultats de la recherche",
+    "PhotoAttributionPrefix": "Photo :",
     "validatorLvl1": "Valideur de base",
     "validatorLvl2": "Super-valideur",
     "ClickToSelectDate": "Cliquer pour sélectionner une date",

@@ -622,3 +622,52 @@ label strong,
 .react-datepicker__current-month {
     font-size: 1.6rem !important;
 }
+
+.survey-question__input-map-container {
+    .gm-style-iw-c {
+        padding: 0.5rem !important;
+    }
+
+    .gm-style-iw-ch,
+    .gm-style-iw-chr {
+        position: absolute;
+        right: 0;
+        top: 0;
+        padding: 0;
+    }
+
+    .gm-style-iw-d {
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    .map-find-place-info-window-text {
+        box-sizing: border-box;
+        width: 100%;
+        margin: 0;
+        padding: 0 2rem 0 0;
+    }
+
+    .map-find-place-info-window-body {
+        margin: 0;
+        padding: 0;
+    }
+
+    .map-find-place-info-window-photo img {
+        margin-top: 0.4rem;
+        display: block;
+        height: 10rem;
+    }
+
+    .map-find-place-info-window-photo-attribution {
+        font-style: italic;
+        font-size: 75%;
+        margin-top: 0.10rem;
+    }
+
+    .map-find-place-info-window-confirm {
+        display: block;
+        margin: 0.15rem auto 0 !important;
+        padding: 0.5rem 1.2rem !important;
+    }
+}

@@ -12,11 +12,13 @@ import { faCheckCircle } from '@fortawesome/free-solid-svg-icons/faCheckCircle';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 
-import projectConfig from 'chaire-lib-common/lib/config/shared/project.config';
+import projectConfig from 'evolution-common/lib/config/project.config';
 import { InputMapFindPlaceType } from 'evolution-common/lib/services/questionnaire/types';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import { WithTranslation, withTranslation } from 'react-i18next';
 import { FeatureGeocodedProperties, MarkerData, defaultIconSize, PlaceGeocodedProperties } from './maps/types';
+import { fetchPlacePhotos, getPlacePhotoAttribution, getPlacePhotoUrl, PlacePhotoLike } from './maps/placePhoto';
+import { createPlaceInfoWindowElement } from './maps/placeInfoWindow';
 import InputSelect from 'chaire-lib-frontend/lib/components/input/InputSelect';
 import { CommonInputProps } from './CommonInputProps';
 import Loader from 'react-spinners/HashLoader';
@@ -76,6 +78,8 @@ export class InputMapFindPlace extends React.Component<
     private autoConfirmIfSingleResult: boolean;
     private shouldFitBoundsIdx = 0;
     private currentBounds: [number, number, number, number] | undefined = undefined;
+    /** Ignores stale Place Details photo responses after a later selection. */
+    private photoFetchGeneration = 0;
 
     constructor(props: InputMapFindPlaceProps & WithTranslation) {
         super(props);
@@ -267,6 +271,9 @@ export class InputMapFindPlace extends React.Component<
                             // Therefore, by clearing the value here, we get rid of any existing warning labels shown on the widget.
                             this.props.onValueChange({ target: { value: null } });
                         }
+                        if (isSingleResult && !this.autoConfirmIfSingleResult && !isSingleResultAndImpreciseGeocoding) {
+                            void this.refreshSelectedPlacePhotos(features[0]);
+                        }
                     }
                 );
                 if ((!this.autoConfirmIfSingleResult || !isSingleResult) && !isSingleResultAndImpreciseGeocoding) {
@@ -285,13 +292,66 @@ export class InputMapFindPlace extends React.Component<
         const placeId = e && e.target ? e.target.value : null;
         if (placeId) {
             const selectedPlace = this.state.places.find((place) => place.properties.placeData.place_id === placeId);
-            this.setState({ selectedPlace });
+            this.setState({ selectedPlace }, () => {
+                if (selectedPlace) {
+                    void this.refreshSelectedPlacePhotos(selectedPlace);
+                }
+            });
         }
     };
 
     onMarkerSelect = (feature) => {
         this.onValueChange(feature);
-        this.setState({ selectedPlace: feature });
+        this.setState({ selectedPlace: feature }, () => {
+            void this.refreshSelectedPlacePhotos(feature);
+        });
+    };
+
+    /** Widget `showPhoto === true` only. Unset or false: no photo, no billed fetch. */
+    private shouldShowPlacePhoto = (): boolean => this.props.widgetConfig.showPhoto === true;
+
+    /**
+     * Load photos for a place already chosen from textSearch results. No-op
+     * unless this widget sets `showPhoto: true`. Does not change the candidate
+     * list or ranking. If Place Details is unavailable, photos returned by
+     * textSearch (if any) stay in place.
+     */
+    private refreshSelectedPlacePhotos = async (
+        feature: GeoJSON.Feature<GeoJSON.Point, PlaceGeocodedProperties>
+    ): Promise<void> => {
+        if (!this.shouldShowPlacePhoto()) {
+            return;
+        }
+        const generation = ++this.photoFetchGeneration;
+        const photos = await fetchPlacePhotos(feature.properties.placeData.place_id);
+        if (generation !== this.photoFetchGeneration || !photos || photos.length === 0) {
+            return;
+        }
+        this.setState((state) => {
+            const selectedPlace = state.selectedPlace;
+            if (
+                selectedPlace === undefined ||
+                selectedPlace.properties.placeData.place_id !== feature.properties.placeData.place_id
+            ) {
+                return null;
+            }
+            const updatedPlace = {
+                ...selectedPlace,
+                properties: {
+                    ...selectedPlace.properties,
+                    placeData: { ...selectedPlace.properties.placeData, photos }
+                }
+            };
+            // Same object in `places` so marker icon comparison (`===`) still matches.
+            return {
+                selectedPlace: updatedPlace,
+                places: state.places.map((place) =>
+                    place.properties.placeData.place_id === updatedPlace.properties.placeData.place_id
+                        ? updatedPlace
+                        : place
+                )
+            };
+        });
     };
 
     onConfirmPlace = (e: React.MouseEvent | undefined) => {
@@ -324,24 +384,26 @@ export class InputMapFindPlace extends React.Component<
         }
     };
 
+    private getPhotoInfoWindowFields = (photo: PlacePhotoLike | undefined) => {
+        const photoAttributions = getPlacePhotoAttribution(photo);
+        return {
+            photoUrl: getPlacePhotoUrl(photo),
+            photoAttributionPrefix:
+                photoAttributions.length > 0 ? this.props.t('main:PhotoAttributionPrefix') : undefined,
+            photoAttributions: photoAttributions.length > 0 ? photoAttributions : undefined
+        };
+    };
+
     private getInfoWindowContent = (
         place: GeoJSON.Feature<GeoJSON.Point, PlaceGeocodedProperties>,
         showPhoto = false
-    ) => {
-        return `
-            <div>
-              <div>
-                ${place.properties.placeData.name}
-              </div>
-              <div class="_pale">${place.properties.placeData.formatted_address}</div>
-              ${
-    showPhoto && place.properties.placeData.photos && (place.properties.placeData.photos as any[])[0]
-        ? `<div><img src="${(
-                            place.properties.placeData.photos as any[]
-        )[0].getUrl()}" height="100" /></div>`
-        : ''
-}
-            </div>`;
+    ): string => {
+        const photo = showPhoto ? place.properties.placeData.photos?.[0] : undefined;
+        return createPlaceInfoWindowElement({
+            name: place.properties.placeData.name,
+            address: place.properties.placeData.formatted_address,
+            ...this.getPhotoInfoWindowFields(photo)
+        }).outerHTML;
     };
 
     render() {
@@ -447,10 +509,16 @@ export class InputMapFindPlace extends React.Component<
             }
         }
 
+        const showPlacePhoto = this.shouldShowPlacePhoto();
+        const selectedPlaceData = this.state.selectedPlace?.properties.placeData;
+        const selectedPhoto = showPlacePhoto ? selectedPlaceData?.photos?.[0] : undefined;
         const infoWindow = this.state.selectedPlace
             ? {
                 position: this.state.selectedPlace,
-                content: this.getInfoWindowContent(this.state.selectedPlace, this.props.widgetConfig.showPhoto),
+                content: this.getInfoWindowContent(this.state.selectedPlace, showPlacePhoto),
+                placeName: selectedPlaceData?.name,
+                placeAddress: selectedPlaceData?.formatted_address,
+                ...this.getPhotoInfoWindowFields(selectedPhoto),
                 confirmLabel: this.props.widgetConfig.refreshGeocodingLabel
                     ? this.props.t('main:ConfirmLocation')
                     : undefined,
