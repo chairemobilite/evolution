@@ -826,8 +826,16 @@ export const inputMapFindPlaceTest: InputMapFindPlaceTest = ({ context, path }) 
             const valueAfterKeyboard = await select.inputValue();
 
             if (valueAfterKeyboard !== initialValue) {
-                // Success: Keyboard navigation worked, confirm the selection with Enter
-                await context.page.keyboard.press('Enter');
+                // Success: Keyboard navigation changed selection and may have
+                // opened the info window. In some browser, the focus may change
+                // to go to this info window instead. If the select box is still
+                // in focus, press enter to confirm the choice, otherwise, the
+                // current selection has already been updated, so ignore.
+                const isSelectFocused = await select.evaluate((el) => el === document.activeElement);
+                if (isSelectFocused) {
+                    // Safe to confirm with Enter when the select still has focus
+                    await context.page.keyboard.press('Enter');
+                }
             } else {
                 // Fallback: Keyboard navigation failed (Mac/Safari issue), use direct option selection
                 const options = await select.locator('option').all();
@@ -860,10 +868,11 @@ export const inputMapFindPlaceTest: InputMapFindPlaceTest = ({ context, path }) 
             // InfoWindow button either.
             const infoWindowConfirm = context.page.locator('button.map-find-place-info-window-confirm');
             const belowMapConfirm = context.page.locator(`[id="survey-question__${newPath}_confirm"]`);
-            const confirmButton = infoWindowConfirm.or(belowMapConfirm);
-            await expect(confirmButton).toBeVisible();
-            await confirmButton.click();
-            await expect(confirmButton).toBeHidden();
+            await expect(infoWindowConfirm).toBeVisible();
+            await expect(belowMapConfirm).toBeVisible();
+            await infoWindowConfirm.click();
+            await expect(infoWindowConfirm).toBeHidden();
+            await expect(belowMapConfirm).toBeHidden();
         }
 
         await expect(questionContainer).toHaveClass(/question-valid/);
