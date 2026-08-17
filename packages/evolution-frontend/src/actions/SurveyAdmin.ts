@@ -379,6 +379,11 @@ export const startFetchCorrectedInterviewAndAudits = (
                 urlParams.append('extended', 'true');
             }
             const queryString = urlParams.toString();
+            // Make sure to set the interview to `undefined` first, to override
+            // any previous interview and avoid side effects if previous state
+            // remain.
+            dispatch(setInterviewState(undefined));
+
             const response = await fetch(
                 `/api/survey/correctInterview/${interviewUuid}${queryString ? `?${queryString}` : ''}`,
                 {
@@ -394,7 +399,7 @@ export const startFetchCorrectedInterviewAndAudits = (
                     unserializeSurveyObjectsAndAudits(interview);
 
                     // Set the interview in the state first
-                    dispatch(updateInterviewState(interview));
+                    dispatch(setInterviewState(interview));
 
                     // Review decisions are fetched separately from the interview and audits;
                     // no need to await, the UI updates whenever they arrive.
