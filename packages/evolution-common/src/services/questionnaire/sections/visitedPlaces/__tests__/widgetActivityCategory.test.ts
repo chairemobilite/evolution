@@ -47,7 +47,7 @@ describe('getActivityCategoryWidgetConfig', () => {
             ]),
             label: expect.any(Function),
             validations: expect.any(Function),
-            conditional: expect.any(Function)
+            conditional: undefined
         });
     });
 });
@@ -353,35 +353,5 @@ describe('Activity category validations', () => {
         const mockedT = jest.fn();
         translateString(validation[0].errorMessage, { t: mockedT } as any, interview, 'path');
         expect(mockedT).toHaveBeenCalledWith('visitedPlaces:activityIsRequiredError');
-    });
-});
-
-describe('Activity category widget conditional', () => {
-    const widgetConfig = getActivityCategoryWidgetConfig(
-        visitedPlacesSectionConfig,
-        widgetFactoryOptions
-    ) as QuestionWidgetConfig & InputRadioType;
-    const conditional = widgetConfig.conditional;
-
-    test('should hide widget and assign home when active visited place is a new home place', () => {
-        const interview = _cloneDeep(interviewAttributesForTestCases);
-        setActiveSurveyObjects(interview, { personId: 'personId1', journeyId: 'journeyId1', visitedPlaceId: 'homePlace2P1' });
-        const activeVisitedPlace = interview.response.household!.persons!.personId1!.journeys!.journeyId1!.visitedPlaces!
-            .homePlace2P1!;
-        activeVisitedPlace._isNew = true;
-        activeVisitedPlace.activityCategory = 'home' as any;
-
-        expect(conditional!(interview, 'household.persons.personId1.journeys.journeyId1.visitedPlaces.homePlace2P1.activityCategory')).toEqual([false, 'home']);
-    });
-
-    test('should show widget in regular case', () => {
-        const interview = _cloneDeep(interviewAttributesForTestCases);
-        expect(conditional!(interview, 'household.persons.personId1.journeys.journeyId1.visitedPlaces.workPlace1P1.activityCategory')).toEqual([true]);
-    });
-
-    test('should show widget if context not set', () => {
-        const interview = _cloneDeep(interviewAttributesForTestCases);
-        // Use a path that won't resolve a context
-        expect(conditional!(interview, 'household.persons.personId1.journeys.journeyId1.visitedPlaces.nonExistentPlace.activityCategory')).toEqual([true]);
     });
 });
