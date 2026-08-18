@@ -343,10 +343,14 @@ export class ButtonsVisitedPlaceConfigFactory implements WidgetConfigFactory {
             if (addedGroupedObjectAfter) {
                 // The sequence would be 2+ because if a place place added before, otherwise, it is the current sequence + 1 only.
                 const nextSequence = addedGroupedObjectBefore ? visitedPlace._sequence + 2 : visitedPlace._sequence + 1;
+                // Make this place new
                 await odHelpers.insertVisitedPlace({
                     person,
                     journey,
-                    newVisitedPlace: addedGroupedObjectAfter,
+                    newVisitedPlace:
+                        addedGroupedObjectAfter !== undefined
+                            ? { _isNew: true, ...addedGroupedObjectAfter }
+                            : undefined,
                     insertSequence: nextSequence,
                     startAddGroupedObjects: callbacks.startAddGroupedObjects
                 });

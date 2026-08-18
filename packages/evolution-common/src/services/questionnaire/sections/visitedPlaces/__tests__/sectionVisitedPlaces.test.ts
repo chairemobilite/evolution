@@ -297,6 +297,7 @@ describe('VisitedPlacesSectionFactory section config functionality', () => {
                 'response.household.persons.personId1.journeys.journeyId1.visitedPlaces.placeId1': {
                     _sequence: 1,
                     _uuid: 'placeId1',
+                    _isNew: true,
                     activity: 'home',
                     activityCategory: 'home',
                     nextPlaceCategory: 'visitedAnotherPlace'
@@ -304,7 +305,8 @@ describe('VisitedPlacesSectionFactory section config functionality', () => {
                 'validations.household.persons.personId1.journeys.journeyId1.visitedPlaces.placeId1': {},
                 'response.household.persons.personId1.journeys.journeyId1.visitedPlaces.placeId2': {
                     _sequence: 2,
-                    _uuid: 'placeId2'
+                    _uuid: 'placeId2',
+                    _isNew: true,
                 },
                 'validations.household.persons.personId1.journeys.journeyId1.visitedPlaces.placeId2': {},
                 'response._activeVisitedPlaceId': 'placeId2'
@@ -363,6 +365,7 @@ describe('VisitedPlacesSectionFactory section config functionality', () => {
                     'response.household.persons.personId1.journeys.journeyId1.visitedPlaces.placeId1': {
                         _sequence: 1,
                         _uuid: 'placeId1',
+                        _isNew: true,
                         ...expected
                     },
                     'validations.household.persons.personId1.journeys.journeyId1.visitedPlaces.placeId1': {},

@@ -149,7 +149,8 @@ describe('buttonSaveVisitedPlace widget', () => {
                         insertSequence: 6,
                         newVisitedPlace: {
                             activity: 'home',
-                            activityCategory: 'home'
+                            activityCategory: 'home',
+                            _isNew: true
                         }
                     }
                 ],
@@ -169,7 +170,7 @@ describe('buttonSaveVisitedPlace widget', () => {
                 expectedInsertedPlaces: [
                     {
                         insertSequence: 3,
-                        newVisitedPlace: {}
+                        newVisitedPlace: { _isNew: true }
                     }
                 ],
                 expectedFirstUpdateValuesByPath: {
@@ -207,7 +208,8 @@ describe('buttonSaveVisitedPlace widget', () => {
                         newVisitedPlace: {
                             activity: 'home',
                             activityCategory: 'home',
-                            arrivalTime: 17 * 60 * 60
+                            arrivalTime: 17 * 60 * 60,
+                            _isNew: true
                         }
                     }
                 ],
@@ -246,7 +248,8 @@ describe('buttonSaveVisitedPlace widget', () => {
                         newVisitedPlace: {
                             activity: 'home',
                             activityCategory: 'home',
-                            arrivalTime: 17 * 60 * 60
+                            arrivalTime: 17 * 60 * 60,
+                            _isNew: true
                         }
                     }
                 ],
@@ -291,7 +294,8 @@ describe('buttonSaveVisitedPlace widget', () => {
                         newVisitedPlace: {
                             activity: 'workUsual',
                             activityCategory: 'work',
-                            arrivalTime: 17 * 60 * 60
+                            arrivalTime: 17 * 60 * 60,
+                            _isNew: true
                         }
                     }
                 ],
@@ -334,7 +338,8 @@ describe('buttonSaveVisitedPlace widget', () => {
                         newVisitedPlace: {
                             activity: 'workUsual',
                             activityCategory: 'work',
-                            arrivalTime: 17 * 60 * 60
+                            arrivalTime: 17 * 60 * 60,
+                            _isNew: true
                         }
                     }
                 ],
@@ -370,7 +375,8 @@ describe('buttonSaveVisitedPlace widget', () => {
                         newVisitedPlace: {
                             activity: 'workUsual',
                             activityCategory: 'work',
-                            arrivalTime: 17 * 60 * 60
+                            arrivalTime: 17 * 60 * 60,
+                            _isNew: true
                         }
                     }
                 ],

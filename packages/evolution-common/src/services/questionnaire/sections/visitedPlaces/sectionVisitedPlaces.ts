@@ -50,7 +50,7 @@ export class VisitedPlacesSectionFactory implements SectionConfigFactory {
     ): Record<string, unknown> | undefined => {
         // Add home as first visited place and add a second one
         if (journey.departurePlaceIsHome === 'yes') {
-            // Add 2 places: home and the next one
+            // Add 2 places: home and the next one, both set as new
             const { valuesByPath, newObjects } = addGroupedObjects(
                 interview,
                 2,
@@ -60,9 +60,12 @@ export class VisitedPlacesSectionFactory implements SectionConfigFactory {
                     {
                         activity: 'home',
                         activityCategory: 'home',
-                        nextPlaceCategory: 'visitedAnotherPlace'
+                        nextPlaceCategory: 'visitedAnotherPlace',
+                        _isNew: true
                     },
-                    {}
+                    {
+                        _isNew: true
+                    }
                 ]
             );
             // Select the second place as active place
@@ -114,7 +117,8 @@ export class VisitedPlacesSectionFactory implements SectionConfigFactory {
             [
                 {
                     activity: firstActivity,
-                    activityCategory: firstActivityCategory
+                    activityCategory: firstActivityCategory,
+                    _isNew: true
                 }
             ]
         );
