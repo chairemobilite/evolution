@@ -268,14 +268,6 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
           <li
             class="no-bullet survey-trip-item survey-trip-item-mode-icons"
           />
-          <li
-            class="no-bullet"
-          >
-            <div>
-              Widget 
-              buttonConfirmNextSection
-            </div>
-          </li>
         </ul>
         <div
           class="survey-trips-map"
@@ -285,6 +277,10 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
             personVisitedPlacesMap
           </div>
         </div>
+      </div>
+      <div>
+        Widget 
+        buttonConfirmNextSection
       </div>
     </div>
   </section>
@@ -476,14 +472,6 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
               style="height: 1.5em; margin-left: 0.3em;"
             />
           </li>
-          <li
-            class="no-bullet"
-          >
-            <div>
-              Widget 
-              buttonConfirmNextSection
-            </div>
-          </li>
         </ul>
         <div
           class="survey-trips-map"
@@ -493,6 +481,10 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
             personVisitedPlacesMap
           </div>
         </div>
+      </div>
+      <div>
+        Widget 
+        buttonConfirmNextSection
       </div>
     </div>
   </section>
@@ -767,14 +759,6 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
           <li
             class="no-bullet survey-trip-item survey-trip-item-mode-icons"
           />
-          <li
-            class="no-bullet"
-          >
-            <div>
-              Widget 
-              buttonConfirmNextSection
-            </div>
-          </li>
         </ul>
         <div
           class="survey-trips-map"
@@ -784,6 +768,10 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
             personVisitedPlacesMap
           </div>
         </div>
+      </div>
+      <div>
+        Widget 
+        buttonConfirmNextSection
       </div>
     </div>
   </section>
@@ -1025,9 +1013,6 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
           </li>
           <li
             class="no-bullet survey-trip-item survey-trip-item-mode-icons"
-          />
-          <li
-            class="no-bullet"
           />
         </ul>
       </div>

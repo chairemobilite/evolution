@@ -322,9 +322,6 @@ export const SegmentsSection: React.FC<SectionProps> = (props: SectionProps) => 
                             {widgetsComponentsByShortname['personTripsTitle']}
                         </li>
                         {tripsList}
-                        <li className="no-bullet" key="survey-trips-list-confirm-button">
-                            {!selectedTripId && widgetsComponentsByShortname['buttonConfirmNextSection']}
-                        </li>
                     </ul>
                     {!selectedTripId && (
                         <div className={'survey-trips-map'}>
@@ -332,6 +329,8 @@ export const SegmentsSection: React.FC<SectionProps> = (props: SectionProps) => 
                         </div>
                     )}
                 </div>
+                {/* This confirm button is placed here to ensure it is visible on mobile devices after the map */}
+                {!selectedTripId && widgetsComponentsByShortname['buttonConfirmNextSection']}
             </div>
         </section>
     );
