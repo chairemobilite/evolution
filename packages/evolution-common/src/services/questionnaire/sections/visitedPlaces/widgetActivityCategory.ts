@@ -213,18 +213,7 @@ export const getActivityCategoryWidgetConfig = (
                     errorMessage: (t: TFunction) => t('visitedPlaces:activityIsRequiredError')
                 }
             ];
-        },
-        conditional: function (interview, path) {
-            const visitedPlaceContext = odHelpers.getVisitedPlaceContextFromPath({ interview, path });
-            if (!visitedPlaceContext) {
-                return [true];
-            }
-            const { visitedPlace: activeVisitedPlace } = visitedPlaceContext;
-            // Do not show for the a new place that is home
-            // FIXME This is copy pasted from od_nationale_quebec. Is this right? Do we want to hide the activity category question for a new visited place that is home? What if the user wants to change the activity category of a new visited place that is home?
-            return activeVisitedPlace._isNew === true && activeVisitedPlace.activityCategory === 'home'
-                ? [false, activeVisitedPlace.activityCategory]
-                : [true];
         }
+        // No conditional, always display
     };
 };
