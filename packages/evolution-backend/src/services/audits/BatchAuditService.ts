@@ -13,6 +13,7 @@ import { Result, createOk, createErrors } from 'evolution-common/lib/types/Resul
 import { execJob } from '../../tasks/serverWorkerPool';
 import { ValueFilterType, VALID_OPERATORS } from '../../models/interviews.db.queries';
 import { isFeature } from 'geojson-validation';
+import { AuditLog } from './auditLog';
 
 /**
  * Result for a single interview audit operation
@@ -161,7 +162,7 @@ const processInterviewAudit = async (
             status: 'success'
         };
     } catch (error) {
-        console.error(`Error processing interview ${interviewUuid}: ${error}`);
+        AuditLog.error(`Error processing interview ${interviewUuid}: ${error}`);
         return {
             uuid: interviewUuid,
             status: 'failed',
@@ -208,11 +209,11 @@ export const runBatchAuditsTask = async function (params: BatchAuditTaskParams):
     // Enforce maximum limit to prevent memory issues and long-running tasks
     if (totalCount > MAX_INTERVIEWS_PER_BATCH) {
         const errorMessage = `Batch audit request exceeds maximum limit of ${MAX_INTERVIEWS_PER_BATCH} interviews. Found ${totalCount} matching interviews. Please refine your filters.`;
-        console.error(errorMessage);
+        AuditLog.error(errorMessage);
         throw new Error(errorMessage);
     }
 
-    console.info(
+    AuditLog.info(
         `Batch audit started: totalCount=${totalCount} extended=${runExtendedAuditChecks} userId=${userId ?? 'undefined'} batchSize=${BATCH_SIZE} maxLimit=${MAX_INTERVIEWS_PER_BATCH}`
     );
 
@@ -242,7 +243,7 @@ export const runBatchAuditsTask = async function (params: BatchAuditTaskParams):
         });
 
         // Log progress
-        console.info(
+        AuditLog.info(
             `Batch audit progress: ${processed}/${totalCount} processed (${succeeded} succeeded, ${failed} failed)`
         );
     };
@@ -266,7 +267,7 @@ export const runBatchAuditsTask = async function (params: BatchAuditTaskParams):
         await processPage(pageResponse.interviews);
     }
 
-    console.info(
+    AuditLog.info(
         `Batch audit completed: totalCount=${totalCount} succeeded=${succeeded} failed=${failed} extended=${runExtendedAuditChecks}`
     );
 
@@ -338,7 +339,7 @@ export class BatchAuditService {
 
             return createOk(result as BatchAuditResult);
         } catch (error) {
-            console.error('Error running batch audits:', error);
+            AuditLog.error('Error running batch audits:', error);
             const errorObj = error instanceof Error ? error : new Error(String(error));
             return createErrors([errorObj]);
         }
