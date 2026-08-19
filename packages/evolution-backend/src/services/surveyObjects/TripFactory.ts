@@ -20,6 +20,7 @@ import {
     compareSequenceThenUuid,
     hasInvalidOrDuplicateSequences
 } from 'evolution-common/lib/services/baseObjects/sequenceUtils';
+import { AuditLog } from '../audits/auditLog';
 
 /**
  * Generate all trips for a journey
@@ -93,9 +94,7 @@ export async function populateTripsForJourney(
                 trip.result.segments = trip.result.getSegmentsWithoutWalkingInMultimode();
             }
         } else {
-            console.log(
-                `        ==== Trip ${tripUuid} creation failed with errors count: ${trip.errors?.length || 0} ====`
-            );
+            AuditLog.debug(`Trip ${tripUuid} creation failed with errors count: ${trip.errors?.length || 0}`);
             surveyObjectsWithErrors.errorsByObject.tripsByUuid[tripUuid] = trip.errors;
         }
     }

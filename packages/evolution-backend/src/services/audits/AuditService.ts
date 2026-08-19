@@ -13,6 +13,7 @@ import { ErrorsBySurveyObject } from 'evolution-common/lib/services/baseObjects/
 import { convertParamsErrorsToAudits } from './AuditUtils';
 import { AuditsByObject } from 'evolution-common/lib/services/audits/types';
 import { auditsArrayToAuditsByObject } from 'evolution-common/lib/services/audits/AuditUtils';
+import { AuditLog } from './auditLog';
 
 /**
  * Service that handles the complete audit workflow:
@@ -38,7 +39,7 @@ export class AuditService {
         interviewAttributes: InterviewAttributes,
         runExtendedAuditChecks: boolean = false
     ): Promise<SurveyObjectsWithAudits> {
-        console.log(`Starting audit workflow for interview ${interviewAttributes.uuid}`);
+        AuditLog.debug(`Starting audit workflow for interview ${interviewAttributes.uuid}`);
 
         // If the interview has no response or corrected response, return an empty survey objects with audits
         if (!interviewAttributes.response || !interviewAttributes.corrected_response) {
@@ -51,12 +52,12 @@ export class AuditService {
         }
 
         // Step 1: Create survey objects (this may produce parameter errors)
-        console.log('Step 1: Creating survey objects...');
+        AuditLog.debug('Step 1: Creating survey objects...');
         const factory = new SurveyObjectsFactory();
         const surveyObjectsWithErrors = await factory.createAllObjectsWithErrors(interviewAttributes);
 
         // Step 2: Convert parameter errors to audits (currently empty arrays in evolution-common)
-        console.log('Step 2: Converting parameter errors to audits if present...');
+        AuditLog.debug('Step 2: Converting parameter errors to audits if present...');
         // Note: This step is currently handled during object creation in evolution-common
         // but the actual conversion happens here in the backend
         const parameterAudits = this.convertCreationErrorsToAudits(surveyObjectsWithErrors.errorsByObject);
@@ -78,7 +79,7 @@ export class AuditService {
         };
 
         // Step 3: Run object audits
-        console.log('Step 3: Running object audits...');
+        AuditLog.debug('Step 3: Running object audits...');
         const objectAudits = await SurveyObjectAuditor.auditSurveyObjects(
             surveyObjectsWithAudits,
             runExtendedAuditChecks
@@ -86,7 +87,7 @@ export class AuditService {
         surveyObjectsWithAudits.audits.push(...objectAudits);
         surveyObjectsWithAudits.auditsByObject = auditsArrayToAuditsByObject(surveyObjectsWithAudits.audits);
 
-        console.log(`Auditing completed. Total audits: ${surveyObjectsWithAudits.audits.length}`);
+        AuditLog.debug(`Auditing completed. Total audits: ${surveyObjectsWithAudits.audits.length}`);
 
         return surveyObjectsWithAudits;
     }

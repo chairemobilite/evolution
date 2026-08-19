@@ -18,6 +18,7 @@ import projectConfig from '../../config/projectConfig';
 import { SurveyObjectsRegistry } from 'evolution-common/lib/services/baseObjects/SurveyObjectsRegistry';
 import { compareSequenceThenUuid } from 'evolution-common/lib/services/baseObjects/sequenceUtils';
 import { populateJourneysForPerson } from './JourneyFactory';
+import { AuditLog } from '../audits/auditLog';
 import { ExtendedPersonAttributes } from 'evolution-common/lib/services/baseObjects/Person';
 
 /**
@@ -41,7 +42,7 @@ export async function populatePersonsForHousehold(
 
     // If no household, return
     if (!surveyObjectsWithErrors.household) {
-        console.log('    ==== No household - skipping persons creation ====');
+        AuditLog.debug('No household - skipping persons creation');
         return;
     }
 
@@ -89,8 +90,8 @@ export async function populatePersonsForHousehold(
             // Setup work and school places after all visited places are created
             personResult.result.setupWorkAndSchoolPlaces();
         } else {
-            console.log(
-                `      ==== Person ${personUuid} creation failed with errors count: ${personResult.errors?.length || 0} ====`
+            AuditLog.debug(
+                `Person ${personUuid} creation failed with errors count: ${personResult.errors?.length || 0}`
             );
             surveyObjectsWithErrors.errorsByObject.personsByUuid[personUuid] = personResult.errors;
         }

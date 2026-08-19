@@ -7,6 +7,7 @@
 
 import { AuditForObject, SurveyObjectsWithAudits } from 'evolution-common/lib/services/audits/types';
 import * as auditChecks from './auditChecks';
+import { AuditLog } from './auditLog';
 
 /**
  * The auditor can audit all survey objects in a single run.
@@ -40,7 +41,7 @@ export class SurveyObjectAuditor {
             );
             allAudits.push(...interviewAudits);
         } else {
-            console.warn('Interview not found or invalid, skipping survey objects audit checks');
+            AuditLog.warn('Interview not found or invalid, skipping survey objects audit checks');
             return allAudits;
         }
 

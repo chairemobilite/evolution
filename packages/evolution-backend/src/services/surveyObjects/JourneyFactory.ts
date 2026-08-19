@@ -18,6 +18,7 @@ import { SurveyObjectsWithErrors } from 'evolution-common/lib/services/baseObjec
 import { Optional } from 'evolution-common/lib/types/Optional.type';
 import projectConfig from '../../config/projectConfig';
 import { CorrectedResponse } from 'evolution-common/lib/services/questionnaire/types';
+import { AuditLog } from '../audits/auditLog';
 import { SurveyObjectsRegistry } from 'evolution-common/lib/services/baseObjects/SurveyObjectsRegistry';
 import { compareSequenceThenUuid } from 'evolution-common/lib/services/baseObjects/sequenceUtils';
 
@@ -86,9 +87,7 @@ export async function populateJourneysForPerson(
                 surveyObjectsRegistry
             );
         } else {
-            console.log(
-                `      ==== Journey ${journeyUuid} creation failed with errors count: ${journey.errors?.length || 0} ====`
-            );
+            AuditLog.debug(`Journey ${journeyUuid} creation failed with errors count: ${journey.errors?.length || 0}`);
             surveyObjectsWithErrors.errorsByObject.journeysByUuid[journeyUuid] = journey.errors;
         }
     }
