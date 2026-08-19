@@ -1227,4 +1227,133 @@ describe('isLastVisitedPlaceConditional', () => {
             )
         ).toEqual(expected);
     });
-})
+});
+
+describe("Visited places helpers - getSameVisitedPlacesFromOthers", () => {
+    /**
+     * Test data overview:
+     *
+     * - personId1 / journeyId1:
+     *   - homePlace1P1 (home)
+     *   - workPlace1P1 (workUsual)
+     *   - homePlace2P1 (home)
+     *   - otherPlaceP1 (shopping)
+     *   - otherPlace2P1 (shopping)
+     *
+     * - personId2 / journeyId2:
+     *   - homePlace1P2 (home)
+     *   - shoppingPlace1P2 (shopping, shortcut from person1, should be same geography as otherPlace2P1)
+     *   - otherWorkPlace1P2 (other)
+     *   - homePlace2P2 (home)
+     *
+     * - personId3 / journeyId3:
+     *   - homePlace1P3 (home)
+     *   - schoolPlace1P3 (schoolUsual)
+     *   - homePlace2P3 (home)
+     *
+     * home activity always resolves to homeGeographyCoordinates
+     * [-73.5932,45.5016] via getVisitedPlaceGeography, so all homes should be returned
+     *
+     * Otherwise, shoppingPlace1P2 should have same geography as otherPlace2P1
+     */
+    test.each([
+        {
+            title: 'should return all `home` places from other household members',
+            setupTest: (_interview: UserRuntimeInterviewAttributes) => ({
+                personId: 'personId1',
+                journeyId: 'journeyId1',
+                currentVisitedPlaceId: 'homePlace1P1'
+            }),
+            expectedVisitedPlaceIds: [
+                { personId: 'personId2', visitedPlaceId: 'homePlace1P2' },
+                { personId: 'personId2', visitedPlaceId: 'homePlace2P2' },
+                { personId: 'personId3', visitedPlaceId: 'homePlace1P3' },
+                { personId: 'personId3', visitedPlaceId: 'homePlace2P3' }
+            ]
+        },
+        {
+            title: 'should return other places used as shortcuts from other household members',
+            setupTest: (interview: UserRuntimeInterviewAttributes) => ({
+                personId: 'personId1',
+                journeyId: 'journeyId1',
+                currentVisitedPlaceId: 'otherPlace2P1'
+            }),
+            expectedVisitedPlaceIds: [
+                { personId: 'personId2', visitedPlaceId: 'shoppingPlace1P2' }
+            ]
+        },
+        {
+            title: 'should return other places used as shortcuts from other household members, reverse',
+            // Same as previous test case, but with reverse place
+            setupTest: (interview: UserRuntimeInterviewAttributes) => ({
+                personId: 'personId2',
+                journeyId: 'journeyId2',
+                currentVisitedPlaceId: 'shoppingPlace1P2'
+            }),
+            expectedVisitedPlaceIds: [
+                { personId: 'personId1', visitedPlaceId: 'otherPlace2P1' }
+            ]
+        },
+        {
+            title: 'should return other places that have slightly different geographies, but below distance threshold',
+            setupTest: (interview: UserRuntimeInterviewAttributes) => {
+                // Get base coordinates for current otherPlaceP1
+                const baseCoordinates = interview.response.household!.persons!.personId1!.journeys!.journeyId1!.visitedPlaces!.otherPlaceP1!.geography!.geometry.coordinates
+                // Change geographies for otherWorkPlace1P2 of personId2 and schoolPlace1P3 of personId3, so they are close and below threshold distance
+                // 4 decimal places is about 10 meters
+                interview.response.household!.persons!.personId2!.journeys!.journeyId2!.visitedPlaces!.otherWorkPlace1P2!.geography!.geometry.coordinates = [baseCoordinates[0] + 0.0001, baseCoordinates[1] + 0.0001];
+                interview.response.household!.persons!.personId3!.journeys!.journeyId3!.visitedPlaces!.schoolPlace1P3!.geography!.geometry.coordinates = [baseCoordinates[0] - 0.0001, baseCoordinates[1] - 0.0001];
+                return { personId: 'personId1', journeyId: 'journeyId1', currentVisitedPlaceId: 'otherPlaceP1' };
+            },
+            expectedVisitedPlaceIds: [
+                { personId: 'personId2', visitedPlaceId: 'otherWorkPlace1P2' },
+                { personId: 'personId3', visitedPlaceId: 'schoolPlace1P3' }
+            ]
+        },
+        {
+            title: 'should not return other places if they are above distance threshold',
+            setupTest: (interview: UserRuntimeInterviewAttributes) => {
+                // Get base coordinates for current otherPlaceP1
+                const baseCoordinates = interview.response.household!.persons!.personId1!.journeys!.journeyId1!.visitedPlaces!.otherPlaceP1!.geography!.geometry.coordinates
+                // Change geographies for otherWorkPlace1P2 of personId2 and schoolPlace1P3 of personId3, so they are close, but above threshold distance
+                // 3 decimals is more than 100 meters
+                interview.response.household!.persons!.personId2!.journeys!.journeyId2!.visitedPlaces!.otherWorkPlace1P2!.geography!.geometry.coordinates = [baseCoordinates[0] + 0.001, baseCoordinates[1] + 0.001];
+                interview.response.household!.persons!.personId3!.journeys!.journeyId3!.visitedPlaces!.schoolPlace1P3!.geography!.geometry.coordinates = [baseCoordinates[0] - 0.001, baseCoordinates[1] - 0.001];
+                return { personId: 'personId1', journeyId: 'journeyId1', currentVisitedPlaceId: 'otherPlaceP1' };
+            },
+            expectedVisitedPlaceIds: []
+        },
+        {
+            title: 'ignore current places without geographies',
+            setupTest: (interview: UserRuntimeInterviewAttributes) => {
+                // Remove geography from otherPlace2P1
+                delete interview.response.household!.persons!.personId1!.journeys!.journeyId1!.visitedPlaces!.otherPlace2P1!.geography;
+                return { personId: 'personId1', journeyId: 'journeyId1', currentVisitedPlaceId: 'otherPlace2P1' };
+            },
+            // No place
+            expectedVisitedPlaceIds: []
+        },
+        {
+            title: 'do not return places if there are no other members',
+            setupTest: (interview: UserRuntimeInterviewAttributes) => {
+                delete interview.response.household!.persons!.personId2;
+                delete interview.response.household!.persons!.personId3;
+                return { personId: 'personId1', journeyId: 'journeyId1', currentVisitedPlaceId: 'homePlace1P1' };
+            },
+            // No place returned
+            expectedVisitedPlaceIds: []
+        },
+    ])(
+        'getShortcutVisitedPlaces: $title',
+        ({ setupTest, expectedVisitedPlaceIds }) => {
+            const interview = _cloneDeep(interviewAttributesForTestCases);
+            const { personId, journeyId, currentVisitedPlaceId } = setupTest(interview);
+            const path = `household.persons.${personId}.journeys.${journeyId}.visitedPlaces.${currentVisitedPlaceId}.arrivalTime`;
+
+            const visitedPlaces = helpers.getSameVisitedPlacesFromOtherHouseholdMembers(interview, path);
+            const visitedPlaceIds = visitedPlaces.map(({ visitedPlace, person }) => ({ personId: person._uuid, visitedPlaceId: visitedPlace._uuid }));
+
+            expect(visitedPlaceIds).toEqual(expectedVisitedPlaceIds);
+        }
+    );
+});

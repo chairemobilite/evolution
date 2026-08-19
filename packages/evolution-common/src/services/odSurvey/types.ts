@@ -8,6 +8,13 @@
 // Origin-Destination questionnaire context, ie with journey, trips and segments
 
 /**
+ * The distance, in meters, under which 2 places should be to be considered the
+ * same place geographically.
+ * FIXME See if this should be configurable. For now, defaults to 50 meters.
+ */
+export const sameLocationDistanceBufferMeters = 50;
+
+/**
  * Activities that do not involve a destination
  */
 export const loopActivities: Activity[] = ['workOnTheRoad', 'leisureStroll'];
