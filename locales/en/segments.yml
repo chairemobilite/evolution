@@ -111,6 +111,7 @@ segmentModePre_first: Which mode of transport was used first?
 segmentModePre_then: Which mode of transport was used after?
 segmentModePre: Which mode of transport was used?
 segmentMode: 'Please specify:'
+segmentModeOtherSpecify: 'Please describe this other mode:'
 segmentSameModeAsReverseTrip_home: >-
     Was it the same mode of transport used for the return home trip
     ({{previousMode}})?
