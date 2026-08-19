@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Segments: show a specify text field when the respondent selects mode `other` (fixes [#1835](https://github.com/chairemobilite/evolution/issues/1835)).
 - Config: Support several access code formats. Set the `accessCodeFormat` config option to one of the predefined formats (e.g. `'0000-0000'` (default), `'000-000-000'`, `'ABCD-ABCD'`, `'ABC-000-000'`) to choose your survey's format (fixes [#1668](https://github.com/chairemobilite/evolution/issues/1668)).
 - Validation list: filter by several access codes at once, typed or imported from a CSV file (fixes [#1660](https://github.com/chairemobilite/evolution/issues/1660)).
 - **Generator Excel to CSV copy**: Generator can now write one CSV file per Excel sheet in a `<Name_Excel_File>_csv` folder next to the Excel file, making Excel changes easier to review in git diffs. To enable it, add `copy_excel_to_csv: true` under `enabled_scripts` in your `generatorConfig.yaml` (fixes [#1580](https://github.com/chairemobilite/evolution/issues/1580)).

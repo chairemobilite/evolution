@@ -72,6 +72,7 @@ describe('QuestionnaireFactory', () => {
             'segmentSameModeAsReverseTrip',
             'segmentModePre',
             'segmentMode',
+            'segmentModeOtherSpecify',
             'segmentHasNextMode',
             'personVisitedPlacesMap',
             'buttonConfirmNextSection'

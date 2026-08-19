@@ -13,9 +13,12 @@ import { GroupConfig, SegmentSectionConfiguration, WidgetConfig } from '../../..
 import { getModePreWidgetConfig } from '../widgetSegmentModePre';
 import { getSameAsReverseTripWidgetConfig } from '../widgetSameAsReverseTrip';
 import { getModeWidgetConfig } from '../widgetSegmentMode';
+import { getModeOtherSpecifyWidgetConfig } from '../widgetSegmentModeOtherSpecify';
 import { getSegmentHasNextModeWidgetConfig } from '../widgetSegmentHasNextMode';
 import { getSegmentDriverWidgetConfig } from '../widgetDriver';
 import { Mode } from '../../../../odSurvey/types';
+
+const EXPECTED_DEFAULT_NUMBER_OF_WIDGETS = 6;
 
 // Basic configuration
 const segmentSectionConfig = {
@@ -37,6 +40,7 @@ describe('SegmentsGroupConfigFactory widgets', () => {
         'segmentSameModeAsReverseTrip',
         'segmentModePre',
         'segmentMode',
+        'segmentModeOtherSpecify',
         'segmentHasNextMode'
     ])('should have a widget named %s', (widgetName) => {
         const widgetConfigs = new SegmentsGroupConfigFactory(segmentSectionConfig, widgetFactoryOptions).getWidgetConfigs();
@@ -47,13 +51,14 @@ describe('SegmentsGroupConfigFactory widgets', () => {
     test('should not return extra widgets', () => {
         const widgetConfigs = new SegmentsGroupConfigFactory(segmentSectionConfig, widgetFactoryOptions).getWidgetConfigs();
         const widgetNames = Object.keys(widgetConfigs);
-        expect(widgetNames.length).toBe(5);
+        expect(widgetNames.length).toBe(EXPECTED_DEFAULT_NUMBER_OF_WIDGETS);
     });
 
     test.each([
         { widgetName: 'segmentSameModeAsReverseTrip', segmentSectionConfig, expected: (config: SegmentSectionConfiguration) => getSameAsReverseTripWidgetConfig(widgetFactoryOptions) },
         { widgetName: 'segmentModePre', segmentSectionConfig: { ...segmentSectionConfig, modesIncludeOnly: ['walking', 'bicycle'] as Mode[]}, expected: (config: SegmentSectionConfiguration) => getModePreWidgetConfig(config, widgetFactoryOptions) },
         { widgetName: 'segmentMode', segmentSectionConfig: { ...segmentSectionConfig, modesIncludeOnly: ['walking', 'bicycle'] as Mode[]}, expected: (config: SegmentSectionConfiguration) => getModeWidgetConfig(config, widgetFactoryOptions) },
+        { widgetName: 'segmentModeOtherSpecify', segmentSectionConfig, expected: (_config: SegmentSectionConfiguration) => getModeOtherSpecifyWidgetConfig(widgetFactoryOptions) },
         { widgetName: 'segmentHasNextMode', segmentSectionConfig, expected: (config: SegmentSectionConfiguration) => getSegmentHasNextModeWidgetConfig(widgetFactoryOptions) }
     ])('should return the correct widget config for $widgetName', ({ widgetName, segmentSectionConfig, expected }: { widgetName: string, segmentSectionConfig: SegmentSectionConfiguration, expected: (config: SegmentSectionConfiguration) => WidgetConfig }) => {
         const widgetConfigs = new SegmentsGroupConfigFactory(segmentSectionConfig, widgetFactoryOptions).getWidgetConfigs();
@@ -76,7 +81,7 @@ describe('SegmentsGroupConfigFactory widgets optional widgets', () => {
     test('should not return extra widgets', () => {
         const widgetConfigs = new SegmentsGroupConfigFactory(segmentConfigWithOptionalWidgets, widgetFactoryOptions).getWidgetConfigs();
         const widgetNames = Object.keys(widgetConfigs);
-        expect(widgetNames.length).toBe(5 + 1); // 5 default widgets + 1 optional widget
+        expect(widgetNames.length).toBe(EXPECTED_DEFAULT_NUMBER_OF_WIDGETS + 1);
     });
 
     test.each([
@@ -108,6 +113,7 @@ describe('SegmentsGroupConfigFactory segments GroupConfig widget', () => {
                 'segmentSameModeAsReverseTrip',
                 'segmentModePre',
                 'segmentMode',
+                'segmentModeOtherSpecify',
                 'segmentHasNextMode'
             ]
         });
@@ -251,6 +257,7 @@ describe('SegmentsGroupConfigFactory segments GroupConfig widget with additional
                 'segmentSameModeAsReverseTrip',
                 'segmentModePre',
                 'segmentMode',
+                'segmentModeOtherSpecify',
                 'segmentDriver',
                 'customWidget1',
                 'customWidget2',
@@ -277,6 +284,7 @@ describe('SegmentsGroupConfigFactory segments GroupConfig widget with additional
                 'segmentSameModeAsReverseTrip',
                 'segmentModePre',
                 'segmentMode',
+                'segmentModeOtherSpecify',
                 'segmentDriver',
                 'customWidget1',
                 'customWidget2',

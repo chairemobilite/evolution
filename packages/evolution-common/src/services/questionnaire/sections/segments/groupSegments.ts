@@ -13,6 +13,7 @@ import type { WidgetConfigFactory, WidgetFactoryOptions } from '../types';
 import { getSameAsReverseTripWidgetConfig } from './widgetSameAsReverseTrip';
 import { getModePreWidgetConfig } from './widgetSegmentModePre';
 import { getModeWidgetConfig } from './widgetSegmentMode';
+import { getModeOtherSpecifyWidgetConfig } from './widgetSegmentModeOtherSpecify';
 import { getSegmentHasNextModeWidgetConfig } from './widgetSegmentHasNextMode';
 import { getSegmentDriverWidgetConfig } from './widgetDriver';
 
@@ -32,6 +33,7 @@ export class SegmentsGroupConfigFactory implements WidgetConfigFactory {
             'segmentSameModeAsReverseTrip',
             'segmentModePre',
             'segmentMode',
+            'segmentModeOtherSpecify',
             // Optional questions based on configuration
             ...optionalWidgetNames,
             // Additional custom widgets are added here
@@ -76,6 +78,7 @@ export class SegmentsGroupConfigFactory implements WidgetConfigFactory {
         segmentSameModeAsReverseTrip: getSameAsReverseTripWidgetConfig(this.options),
         segmentModePre: getModePreWidgetConfig(this.sectionConfig, this.options),
         segmentMode: getModeWidgetConfig(this.sectionConfig, this.options),
+        segmentModeOtherSpecify: getModeOtherSpecifyWidgetConfig(this.options),
         segmentHasNextMode: getSegmentHasNextModeWidgetConfig(this.options)
     });
 
