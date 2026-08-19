@@ -20,6 +20,7 @@ import { Home } from 'evolution-common/lib/services/baseObjects/Home';
 import { ExtendedHouseholdAttributes, Household } from 'evolution-common/lib/services/baseObjects/Household';
 import { SurveyObjectsRegistry } from 'evolution-common/lib/services/baseObjects/SurveyObjectsRegistry';
 import { ExtendedPlaceAttributes } from 'evolution-common/lib/services/baseObjects/Place';
+import { AuditLog } from '../audits/auditLog';
 
 /**
  * Configuration options for object creation
@@ -111,9 +112,7 @@ export class SurveyObjectsFactory {
             surveyObjectsWithErrors.interview = interviewResult.result;
         } else {
             surveyObjectsWithErrors.errorsByObject.interview = interviewResult.errors;
-            console.log(
-                `==== Interview creation failed with errors count: ${interviewResult.errors?.length || 0} ====`
-            );
+            AuditLog.debug(`Interview creation failed with errors count: ${interviewResult.errors?.length || 0}`);
         }
 
         const homeAttributes = projectConfig.surveyObjectParsers?.home
@@ -130,10 +129,10 @@ export class SurveyObjectsFactory {
                 surveyObjectsWithErrors.home = homeResult.result;
             } else {
                 surveyObjectsWithErrors.errorsByObject.home = homeResult.errors;
-                console.log(`  ==== Home creation failed with errors count: ${homeResult.errors?.length || 0} ====`);
+                AuditLog.debug(`Home creation failed with errors count: ${homeResult.errors?.length || 0}`);
             }
         } else {
-            console.log('  ==== Home creation skipped (no home attributes) ====');
+            AuditLog.debug('Home creation skipped (no home attributes)');
         }
 
         const householdAttributes = projectConfig.surveyObjectParsers?.household
@@ -153,12 +152,10 @@ export class SurveyObjectsFactory {
                 surveyObjectsWithErrors.household = householdResult.result;
             } else {
                 surveyObjectsWithErrors.errorsByObject.household = householdResult.errors;
-                console.log(
-                    `  ==== Household creation failed with errors count: ${householdResult.errors?.length || 0} ====`
-                );
+                AuditLog.debug(`Household creation failed with errors count: ${householdResult.errors?.length || 0}`);
             }
         } else {
-            console.log('  ==== Household creation skipped (no household attributes) ====');
+            AuditLog.debug('Household creation skipped (no household attributes)');
         }
 
         const home = surveyObjectsWithErrors.home;

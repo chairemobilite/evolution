@@ -12,6 +12,7 @@ import { isOk } from 'evolution-common/lib/types/Result.type';
 import projectConfig from '../../config/projectConfig';
 import { CorrectedResponse } from 'evolution-common/lib/services/questionnaire/types';
 import { SurveyObjectsRegistry } from 'evolution-common/lib/services/baseObjects/SurveyObjectsRegistry';
+import { AuditLog } from '../audits/auditLog';
 
 /**
  * Generate segments for a trip
@@ -54,9 +55,7 @@ export async function populateSegmentsForTrip(
             // Associate segment with trip
             trip.addSegment(segment.result);
         } else {
-            console.log(
-                `          ==== Segment ${segmentUuid} creation failed with errors count: ${segment.errors?.length || 0} ====`
-            );
+            AuditLog.error(`Segment ${segmentUuid} creation failed with errors count: ${segment.errors?.length || 0}`);
             surveyObjectsWithErrors.errorsByObject.segmentsByUuid[segmentUuid] = segment.errors;
         }
     }
