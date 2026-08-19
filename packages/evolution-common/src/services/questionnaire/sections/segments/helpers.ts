@@ -27,7 +27,54 @@ import type {
     WidgetConditional
 } from '../../types';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
+import { addGroupedObjects } from '../../../../utils/helpers';
 import { getBirdDistanceMeters } from '../../../../utils/PhysicsUtils';
+
+/**
+ * Values to set to make a trip the active one of the segments section: the
+ * active trip ID and, when the trip has no segment yet, an empty first segment,
+ * so that its mode is asked directly instead of behind an add button.
+ *
+ * @param {Object} options - The options object.
+ * @param {UserInterviewAttributes} options.interview The interview
+ * @param {Person} options.person The person the trip belongs to
+ * @param {Journey} options.journey The journey the trip is part of
+ * @param {Trip} options.trip The trip to activate
+ * @param {boolean} [options.segmentsAreCleared] `true` when the same update
+ * deletes the trip's segments, because its origin or destination changed. The
+ * segments still on the interview are then to be considered absent.
+ * @returns Values to merge into the interview update. The returned segment
+ * paths must come after the caller's own deletions, as values are applied in
+ * insertion order.
+ */
+export const getValuesByPathForActiveTrip = ({
+    interview,
+    person,
+    journey,
+    trip,
+    segmentsAreCleared = false
+}: {
+    interview: UserInterviewAttributes;
+    person: Person;
+    journey: Journey;
+    trip: Trip;
+    segmentsAreCleared?: boolean;
+}): { [path: string]: unknown } => {
+    const valuesByPath: { [path: string]: unknown } = { 'response._activeTripId': trip._uuid };
+    if (!segmentsAreCleared && odHelpers.getSegmentsArray({ trip }).length > 0) {
+        return valuesByPath;
+    }
+    const segmentsPath = `household.persons.${person._uuid}.journeys.${journey._uuid}.trips.${trip._uuid}.segments`;
+    const { valuesByPath: addedValuesByPath, newObjects } = addGroupedObjects(interview, 1, 1, segmentsPath, [
+        { _isNew: true }
+    ]);
+    // Keep only the new segment: the other paths resequence the segments that
+    // the caller deletes in the same update.
+    const newSegmentPath = `${segmentsPath}.${newObjects[0]._uuid}`;
+    valuesByPath[`response.${newSegmentPath}`] = addedValuesByPath[`response.${newSegmentPath}`];
+    valuesByPath[`validations.${newSegmentPath}`] = addedValuesByPath[`validations.${newSegmentPath}`];
+    return valuesByPath;
+};
 
 /**
  * Get the mode used in the single segment of the previous trip of the current
@@ -52,9 +99,8 @@ export const getPreviousTripSingleSegment = ({
     const previousTrip = odHelpers.getPreviousTrip({ currentTrip: trip, journey });
     if (previousTrip) {
         const previousSegments = odHelpers.getSegmentsArray({ trip: previousTrip });
-        if (previousSegments.length === 1) {
-            const previousSegment = previousSegments[0];
-            return previousSegment;
+        if (previousSegments.length === 1 && odHelpers.tripHasDefinedSegments({ trip: previousTrip })) {
+            return previousSegments[0];
         }
     }
     return undefined;

@@ -82,6 +82,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Segments: create the first segment automatically when a trip becomes active, so its mode is asked directly instead of behind a "choose first mode" button. Added `tripHasDefinedSegments`, true when a trip has at least one segment with a non blank `mode` or `modePre`, to tell a trip the respondent started from one that only has that empty first segment (fixes [#1825](https://github.com/chairemobilite/evolution/issues/1825)).
 - Fix HTML markup showing up in templates, by using the `stripHtml` function from `frontendHelpers` (fixes [#1584](https://github.com/chairemobilite/evolution/issues/1584))
 - Fix confirm button placements in `TripsAndSegmentsSection` template to go below the map on small screens (fixes [#1837](https://github.com/chairemobilite/evolution/issues/1837))
 - InfoMap titles can be HTML (`containsHtml`), so generator tags (`<span class="_pale _oblique">`, `style="..."`) render instead of showing as text. The visited places map widget sets this flag.

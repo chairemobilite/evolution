@@ -4,7 +4,6 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import _isEmpty from 'lodash/isEmpty';
 import { TFunction } from 'i18next';
 
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
@@ -12,7 +11,7 @@ import { removeGroupedObjects, addGroupedObjects } from '../../../../utils/helpe
 import * as odHelpers from '../../../odSurvey/helpers';
 import { SectionConfig, SegmentSectionConfiguration, Trip, WidgetConfig } from '../../types';
 import { applySectionAdditionalLabelOptions } from '../common/applyAdditionalLabelOptions';
-import { initializeSegmentSectionHelpers } from './helpers';
+import { getValuesByPathForActiveTrip, initializeSegmentSectionHelpers } from './helpers';
 import { SectionConfigFactory, WidgetFactoryOptions } from '../types';
 import { getPersonsTripsTitleWidgetConfig } from './widgetPersonTripsTitle';
 import { SwitchPersonWidgetsFactory } from '../common/widgetsSwitchPerson';
@@ -51,9 +50,13 @@ export class SegmentsSectionFactory implements SectionConfigFactory {
                 }
 
                 const currentJourney = odHelpers.getActiveJourney({ interview, person });
+                if (currentJourney === null) {
+                    // The section is not visible without an active journey, so this is unexpected
+                    throw new Error(`segments section.isSectionComplete: No active journey for person ${person._uuid}`);
+                }
 
                 // Section is complete if there is no next trip to complete
-                const nextTrip: Trip | null = odHelpers.selectNextIncompleteTrip({ journey: currentJourney! });
+                const nextTrip: Trip | null = odHelpers.selectNextIncompleteTrip({ journey: currentJourney });
                 return nextTrip === null;
             },
             onSectionEntry: function (interview, iterationContext) {
@@ -66,14 +69,18 @@ export class SegmentsSectionFactory implements SectionConfigFactory {
                     );
                     return undefined;
                 }
-                const responseContent = {};
-
                 const currentJourney = odHelpers.getActiveJourney({ interview, person });
+                if (currentJourney === null) {
+                    // The section is not visible without an active journey, so this is unexpected
+                    throw new Error(`segments section.onSectionEntry: No active journey for person ${person._uuid}`);
+                }
+                const responseContent = {};
+                const tripsWithClearedSegments = new Set<string>();
 
-                const tripsPath = `household.persons.${person._uuid}.journeys.${currentJourney!._uuid}.trips`;
-                const visitedPlaces = odHelpers.getVisitedPlacesArray({ journey: currentJourney! });
-                const trips = odHelpers.getTripsArray({ journey: currentJourney! });
-                let nextTripToSelect: Trip | null = odHelpers.selectNextIncompleteTrip({ journey: currentJourney! });
+                const tripsPath = `household.persons.${person._uuid}.journeys.${currentJourney._uuid}.trips`;
+                const visitedPlaces = odHelpers.getVisitedPlacesArray({ journey: currentJourney });
+                const trips = odHelpers.getTripsArray({ journey: currentJourney });
+                let nextTripToSelect: Trip | null = odHelpers.selectNextIncompleteTrip({ journey: currentJourney });
                 let foundFirstInvalidTrip = false;
 
                 // Create the missing trips objects and initialize those that may have changed
@@ -98,6 +105,7 @@ export class SegmentsSectionFactory implements SectionConfigFactory {
                             destination._uuid;
                         // also delete existing segments:
                         responseContent[`response.${tripsPath}.${trip._uuid}.segments`] = undefined;
+                        tripsWithClearedSegments.add(trip._uuid);
                         if (nextTripToSelect === null || !foundFirstInvalidTrip) {
                             // If the first invalid trip is not set, set it to this trip
                             nextTripToSelect = trip;
@@ -151,9 +159,19 @@ export class SegmentsSectionFactory implements SectionConfigFactory {
                     }
                 }
 
+                // The active trip values come last: they may recreate a segment
+                // in the segments group that was just deleted above.
                 return {
                     ...responseContent,
-                    'response._activeTripId': nextTripToSelect !== null ? nextTripToSelect._uuid : null
+                    ...(nextTripToSelect !== null
+                        ? getValuesByPathForActiveTrip({
+                            interview,
+                            person,
+                            journey: currentJourney,
+                            trip: nextTripToSelect,
+                            segmentsAreCleared: tripsWithClearedSegments.has(nextTripToSelect._uuid)
+                        })
+                        : { 'response._activeTripId': null })
                 };
             },
 

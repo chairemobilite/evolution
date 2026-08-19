@@ -13,6 +13,54 @@ import * as helpers from '../helpers';
 import type { Journey, Person, Segment, UserInterviewAttributes } from '../../../types';
 import { modeValues, Mode, defaultModePreToModeMap, simpleModes } from '../../../../odSurvey/types';
 
+describe('getValuesByPathForActiveTrip', () => {
+    // Trip 1 of person 1 has no segment, trip 1 of person 2 has one with a mode
+    each([
+        ['trip without segment: add the first one', 'personId1', 'journeyId1', 'tripId1P1', false, true],
+        ['trip with one segment: only select it', 'personId2', 'journeyId2', 'tripId1P2', false, false],
+        ['trip with many segments: only select it', 'personId2', 'journeyId2', 'tripId2P2', false, false],
+        ['one segment cleared by the same update: add the first one', 'personId2', 'journeyId2', 'tripId1P2', true, true],
+        // The cleared segments must not be resequenced, only the new one is expected
+        ['many segments cleared by the same update: add the first one', 'personId2', 'journeyId2', 'tripId2P2', true, true]
+    ]).test(
+        '%s',
+        (
+            _title: string,
+            personId: string,
+            journeyId: string,
+            tripId: string,
+            segmentsAreCleared: boolean,
+            expectNewSegment: boolean
+        ) => {
+            const interview = _cloneDeep(interviewAttributesForTestCases);
+            const person = interview.response.household!.persons![personId];
+            const journey = person.journeys![journeyId];
+            const segmentsPath = `household.persons.${personId}.journeys.${journeyId}.trips.${tripId}.segments`;
+
+            const result = helpers.getValuesByPathForActiveTrip({
+                interview,
+                person,
+                journey,
+                trip: journey.trips![tripId],
+                segmentsAreCleared
+            });
+
+            if (!expectNewSegment) {
+                expect(result).toEqual({ 'response._activeTripId': tripId });
+                return;
+            }
+            // The segment uuid is generated, get it from the returned path
+            const segmentPath = Object.keys(result).find((path) => path.startsWith(`response.${segmentsPath}.`));
+            const segmentId = segmentPath!.split('.').pop();
+            expect(result).toEqual({
+                'response._activeTripId': tripId,
+                [`response.${segmentsPath}.${segmentId}`]: { _uuid: segmentId, _sequence: 1, _isNew: true },
+                [`validations.${segmentsPath}.${segmentId}`]: {}
+            });
+        }
+    );
+});
+
 describe('getPreviousTripSingleSegment', () => {
 
     test('No previous trips', () => {
@@ -26,12 +74,21 @@ describe('getPreviousTripSingleSegment', () => {
     });
 
     test('Previous trip, but no segments', () => {
-        // Prepare test data
         const interview = _cloneDeep(interviewAttributesForTestCases);
         const journey = interview.response.household!.persons!.personId1.journeys!.journeyId1;
         const trip = journey.trips!.tripId2P1;
 
-        // Test the function
+        expect(helpers.getPreviousTripSingleSegment({ journey, trip })).toBeUndefined();
+    });
+
+    test('Previous trip, only empty first segment', () => {
+        const interview = _cloneDeep(interviewAttributesForTestCases);
+        const journey = interview.response.household!.persons!.personId1.journeys!.journeyId1;
+        journey.trips!.tripId1P1.segments = {
+            segmentId1P1T1: { _uuid: 'segmentId1P1T1', _sequence: 1, _isNew: true }
+        };
+        const trip = journey.trips!.tripId2P1;
+
         expect(helpers.getPreviousTripSingleSegment({ journey, trip })).toBeUndefined();
     });
 

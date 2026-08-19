@@ -903,7 +903,7 @@ export const selectNextIncompleteTrip = ({ journey }: { journey: Journey }): Tri
         // segment section configuration. Now we suppose there should be
         // segments and only the mode is mandatory
         const segments = getSegmentsArray({ trip });
-        if (segments.length === 0) {
+        if (!tripHasDefinedSegments({ trip })) {
             return trip;
         } else {
             // Return the trip if one of the segments does not have a mode
@@ -1780,6 +1780,20 @@ export const getSegments = ({ trip }: { trip: Trip }): { [segmentId: string]: Se
 export const getSegmentsArray = ({ trip }: { trip: Trip }): Segment[] => {
     const segments = getSegments({ trip });
     return Object.values(segments).sort((segmentA, segmentB) => segmentA._sequence - segmentB._sequence);
+};
+
+/**
+ * Whether the trip has at least one segment that the respondent has started
+ * (mode or modePre set). An auto-created first segment with no mode data is
+ * not defined: `_isNew` is not enough, because it becomes `false` after save
+ * and a half-edited segment can still be `_isNew` after a refresh.
+ *
+ * @param {Object} options - The options object.
+ * @param {Trip} options.trip The trip to inspect
+ * @returns {boolean} `true` if at least one segment has `mode` or `modePre`
+ */
+export const tripHasDefinedSegments = ({ trip }: { trip: Trip }): boolean => {
+    return getSegmentsArray({ trip }).some((segment) => !_isBlank(segment.modePre) || !_isBlank(segment.mode));
 };
 
 /**
