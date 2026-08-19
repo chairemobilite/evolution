@@ -10,7 +10,8 @@ import {
     type ActivityCategory,
     activityCategoryValues,
     activityValues,
-    activityToDisplayCategory
+    activityToDisplayCategory,
+    sameLocationDistanceBufferMeters
 } from '../../../odSurvey/types';
 import type {
     Journey,
@@ -27,6 +28,7 @@ import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { toXXhrYYminZZsec } from 'chaire-lib-common/lib/utils/DateTimeUtils';
 import { TFunction } from 'i18next';
 import config from '../../../../config/project.config';
+import { getBirdDistanceMeters } from '../../../../utils/PhysicsUtils';
 
 /**
  * Validate that the activity of the previous and next places are not in the
@@ -576,3 +578,63 @@ export const getPersonUsualSchoolPlace: ParsingFunction<{
     mayHaveUsualPlace: boolean;
     usualPlace: NamedPlace | null;
 }> = (interview, path) => visitedPlaceSectionHelpers.getPersonUsualSchoolPlace(interview, path);
+
+/**
+ * Get the visited places from other household members whose geography is within
+ * a certain buffer of the current place's geography.
+ * @param interview The interview
+ * @param path The path of the widget, containing the context of the current
+ * place
+ * @returns An array of visited places from other household members that are
+ * within a certain distance of the current place's geography.
+ */
+export const getSameVisitedPlacesFromOtherHouseholdMembers = (
+    interview,
+    path
+): { person: Person; visitedPlace: VisitedPlace }[] => {
+    const currentPlaceContext = odSurveyHelpers.getVisitedPlaceContextFromPath({ interview, path });
+    if (currentPlaceContext === null) {
+        throw new Error(`getSameVisitedPlacesFromOthers: cannot get visited place context from path ${path}`);
+    }
+    const { person, visitedPlace: currentVisitedPlace } = currentPlaceContext;
+    const currentPlaceGeography = odSurveyHelpers.getVisitedPlaceGeography({
+        visitedPlace: currentVisitedPlace,
+        interview,
+        person
+    });
+    if (currentPlaceGeography === null) {
+        return [];
+    }
+    const otherVisitedPlacesGeographies = odSurveyHelpers
+        .getPersonsArray({ interview })
+        // Get other persons
+        .filter((p) => p._uuid !== person._uuid)
+        // Get visited places and geography for other persons
+        .flatMap((otherPerson) => {
+            return odSurveyHelpers
+                .getJourneysArray({ person: otherPerson })
+                .flatMap((otherJourney) => odSurveyHelpers.getVisitedPlacesArray({ journey: otherJourney }))
+                .map((vp) => ({
+                    visitedPlace: vp,
+                    geography: odSurveyHelpers.getVisitedPlaceGeography({
+                        visitedPlace: vp,
+                        interview,
+                        person: otherPerson
+                    }),
+                    person: otherPerson
+                }));
+        })
+        // Ignore places with null geographies
+        .filter(({ geography }) => geography !== null) as {
+        visitedPlace: VisitedPlace;
+        geography: GeoJSON.Feature<GeoJSON.Point>;
+        person: Person;
+    }[];
+    // Calculate the bird distance between current and other geographies and return those within a certain distance
+    return otherVisitedPlacesGeographies
+        .filter(({ geography }) => {
+            const birdDistance = getBirdDistanceMeters(currentPlaceGeography, geography);
+            return birdDistance !== undefined && birdDistance <= sameLocationDistanceBufferMeters;
+        })
+        .map(({ visitedPlace, person }) => ({ person, visitedPlace }));
+};
