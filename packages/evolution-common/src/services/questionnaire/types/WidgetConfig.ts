@@ -529,6 +529,10 @@ export type InfoMapWidgetConfig = {
     type: 'infoMap';
     path?: string;
     conditional?: WidgetConditional;
+    /**
+     * When `true`, the widget title may contain html tags
+     */
+    containsHtml?: ContainsHtml;
     title: I18nData;
     geojsons: ParsingFunction<{
         points?: GeoJSON.FeatureCollection<GeoJSON.Point, SurveyMapObjectProperty>;

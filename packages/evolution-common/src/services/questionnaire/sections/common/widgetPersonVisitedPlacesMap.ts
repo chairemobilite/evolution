@@ -19,6 +19,7 @@ export const getPersonVisitedPlacesMapConfig = (options: WidgetFactoryOptions): 
     return {
         type: 'infoMap',
         path: 'household.persons.{_activePersonId}.journeys.{_activeJourneyId}.visitedPlacesMap',
+        containsHtml: true,
         defaultCenter: projectConfig.mapDefaultCenter,
         title: (t: TFunction, interview: UserInterviewAttributes, path: string) => {
             // FIXME This differs from the widgetPersonTripsTitle text only in
