@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `platform`, `os`, `browser` and `language` fields to each record of the exported paradata (#1395)
 
 ### Changed
+- Audit and survey-object factory console logs are prefixed with `[Audit]` via `AuditLog` so they can be filtered in server error logs (fixes [#1836](https://github.com/chairemobilite/evolution/issues/1836)).
 
 ### Deprecated
 
@@ -79,5 +80,3 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Write from the user's perspective
 - Be concise but descriptive
 - Link to issues/PRs when relevant
-
-

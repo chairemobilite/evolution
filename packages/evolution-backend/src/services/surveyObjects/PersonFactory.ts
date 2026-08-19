@@ -12,6 +12,7 @@ import { isOk } from 'evolution-common/lib/types/Result.type';
 import { Household } from 'evolution-common/lib/services/baseObjects/Household';
 import projectConfig from '../../config/projectConfig';
 import { SurveyObjectsRegistry } from 'evolution-common/lib/services/baseObjects/SurveyObjectsRegistry';
+import { AuditLog } from '../audits/auditLog';
 
 /**
  * Generate persons
@@ -32,7 +33,7 @@ export async function populatePersonsForHousehold(
 
     // If no household, return
     if (!surveyObjectsWithErrors.household) {
-        console.log('    ==== No household - skipping persons creation ====');
+        AuditLog.debug('No household - skipping persons creation');
         return;
     }
 
@@ -67,8 +68,8 @@ export async function populatePersonsForHousehold(
             household.members.push(personResult.result);
             personIndex++;
         } else {
-            console.log(
-                `      ==== Person ${personUuid} creation failed with errors count: ${personResult.errors?.length || 0} ====`
+            AuditLog.debug(
+                `Person ${personUuid} creation failed with errors count: ${personResult.errors?.length || 0}`
             );
             surveyObjectsWithErrors.errorsByObject.personsByUuid[personUuid] = personResult.errors;
         }

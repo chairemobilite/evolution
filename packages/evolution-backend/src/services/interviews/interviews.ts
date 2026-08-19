@@ -18,6 +18,7 @@ import interviewsDbQueries, {
 import interviewsAccessesDbQueries from '../../models/interviewsAccesses.db.queries';
 import { UserInterviewAccesses } from '../logging/loggingTypes';
 import { SurveyObjectsAndAuditsFactory } from '../audits/SurveyObjectsAndAuditsFactory';
+import { AuditLog } from '../audits/auditLog';
 import { AuditStatsByLevelAndObjectType } from 'evolution-common/lib/services/audits/types';
 import {
     InterviewAttributes,
@@ -187,7 +188,7 @@ export default class Interviews {
         return new Promise((resolve, reject) => {
             queryStream
                 .on('error', (error) => {
-                    console.error('queryStream failed', error);
+                    AuditLog.error('queryStream failed', error);
                     if (disableConsoleLog) {
                         console.log = oldConsoleLog;
                     }
@@ -197,7 +198,7 @@ export default class Interviews {
                     queryStream.pause();
                     const interview = row;
                     if (i % 1000 === 0 || i === 1) {
-                        console.info(`Auditing interview ${i}`);
+                        AuditLog.info(`Auditing interview ${i}`);
                     }
                     i++;
                     if (_isBlank(interview.corrected_response)) {
@@ -213,13 +214,13 @@ export default class Interviews {
                                                 res1(true);
                                             })
                                             .catch((error) => {
-                                                console.error('Error running and saving interview audits', error);
+                                                AuditLog.error('Error running and saving interview audits', error);
                                                 res1(false);
                                             });
                                     })
                             )
                             .catch((error) => {
-                                console.error('Error copying response to corrected response', error);
+                                AuditLog.error('Error copying response to corrected response', error);
                             })
                             .finally(() => {
                                 queryStream.resume();
@@ -230,7 +231,7 @@ export default class Interviews {
                             runExtendedAuditChecks
                         )
                             .catch((error) => {
-                                console.error('Error running and saving interview audits', error);
+                                AuditLog.error('Error running and saving interview audits', error);
                             })
                             .finally(() => {
                                 queryStream.resume();
@@ -238,7 +239,7 @@ export default class Interviews {
                     }
                 })
                 .on('end', () => {
-                    console.log('all interviews audited successfully.');
+                    AuditLog.info('all interviews audited successfully.');
                     if (disableConsoleLog) {
                         console.log = oldConsoleLog;
                     }

@@ -16,6 +16,7 @@ import { isOk } from 'evolution-common/lib/types/Result.type';
 import projectConfig from '../../config/projectConfig';
 import { CorrectedResponse } from 'evolution-common/lib/services/questionnaire/types';
 import { SurveyObjectsRegistry } from 'evolution-common/lib/services/baseObjects/SurveyObjectsRegistry';
+import { AuditLog } from '../audits/auditLog';
 
 /**
  * Create all visited places for a journey
@@ -91,8 +92,8 @@ export async function populateVisitedPlacesForJourney(
                     if (isOk(placeResult)) {
                         visitedPlace.place = placeResult.result;
                     } else {
-                        console.error(
-                            `!!! Could not create Place for visited place ${visitedPlaceUuid}:`,
+                        AuditLog.debug(
+                            `Could not create Place for visited place ${visitedPlaceUuid}:`,
                             placeResult.errors
                         );
                     }
@@ -100,8 +101,8 @@ export async function populateVisitedPlacesForJourney(
             }
             journey.addVisitedPlace(visitedPlace);
         } else {
-            console.log(
-                `        ==== VisitedPlace ${visitedPlaceUuid} creation failed with errors count: ${visitedPlaceResult.errors?.length || 0} ====`
+            AuditLog.debug(
+                `VisitedPlace ${visitedPlaceUuid} creation failed with errors count: ${visitedPlaceResult.errors?.length || 0}`
             );
             surveyObjectsWithErrors.errorsByObject.visitedPlacesByUuid[visitedPlaceUuid] = visitedPlaceResult.errors;
         }

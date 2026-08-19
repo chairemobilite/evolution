@@ -16,6 +16,7 @@ import { populateSegmentsForTrip } from './SegmentFactory';
 import projectConfig from '../../config/projectConfig';
 import { CorrectedResponse } from 'evolution-common/lib/services/questionnaire/types';
 import { SurveyObjectsRegistry } from 'evolution-common/lib/services/baseObjects/SurveyObjectsRegistry';
+import { AuditLog } from '../audits/auditLog';
 
 /**
  * Generate all trips for a journey
@@ -88,9 +89,7 @@ export async function populateTripsForJourney(
             // Remove walking from multimode and update sequences
             trip.result.segments = trip.result.getSegmentsWithoutWalkingInMultimode();
         } else {
-            console.log(
-                `        ==== Trip ${tripUuid} creation failed with errors count: ${trip.errors?.length || 0} ====`
-            );
+            AuditLog.debug(`Trip ${tripUuid} creation failed with errors count: ${trip.errors?.length || 0}`);
             surveyObjectsWithErrors.errorsByObject.tripsByUuid[tripUuid] = trip.errors;
         }
     }
