@@ -168,11 +168,11 @@ describe('SegmentsGroupConfigFactory segments GroupConfig widget', () => {
             jest.clearAllMocks();
         });
 
-        test('should show the add button if no segments yet', () => {
+        test('should not show the add button if no segments yet', () => {
             mockedGetResponse.mockReturnValue({});
             const showAddButton = widgetConfig.showGroupedObjectAddButton;
             expect(showAddButton).toBeDefined();
-            expect((showAddButton as any)(interviewAttributesForTestCases, 'path')).toBe(true);
+            expect((showAddButton as any)(interviewAttributesForTestCases, 'path')).toBe(false);
             expect(mockedGetResponse).toHaveBeenCalledWith(interviewAttributesForTestCases, 'path', {});
         });
 

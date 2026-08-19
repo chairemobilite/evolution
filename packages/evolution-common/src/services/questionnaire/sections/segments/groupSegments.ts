@@ -59,9 +59,10 @@ export class SegmentsGroupConfigFactory implements WidgetConfigFactory {
                 const segmentsArray = Object.values(segments).sort((segmentA, segmentB) => {
                     return segmentA['_sequence'] - segmentB['_sequence'];
                 });
-                const segmentsCount = segmentsArray.length;
-                const lastSegment = segmentsArray[segmentsCount - 1];
-                return segmentsCount === 0 || (lastSegment && lastSegment.hasNextMode === true);
+                const lastSegment = segmentsArray[segmentsArray.length - 1];
+                // First segment is created on section entry; the button is only
+                // for an additional mode after the respondent said there is one.
+                return lastSegment !== undefined && lastSegment.hasNextMode === true;
             },
             groupedObjectAddButtonLabel: (t: TFunction, interview, path) => {
                 const segments = getResponse(interview, path, {}) as { [segmentId: string]: Segment };

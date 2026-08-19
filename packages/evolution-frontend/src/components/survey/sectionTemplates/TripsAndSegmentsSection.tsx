@@ -18,9 +18,10 @@ import LoadingPage from 'chaire-lib-frontend/lib/components/pages/LoadingPage';
 import { getResponse } from 'evolution-common/lib/utils/helpers';
 import { SectionProps, useSectionTemplate } from '../../hooks/useSectionTemplate';
 import * as odSurveyHelper from 'evolution-common/lib/services/odSurvey/helpers';
+import { getValuesByPathForActiveTrip } from 'evolution-common/lib/services/questionnaire/sections/segments/helpers';
 import * as helpers from 'evolution-common/lib/utils/helpers';
 import { secondsSinceMidnightToTimeStrWithSuffix } from '../../../services/display/frontendHelper';
-import { VisitedPlace } from 'evolution-common/lib/services/questionnaire/types';
+import { Trip, VisitedPlace } from 'evolution-common/lib/services/questionnaire/types';
 import { getActivityMarkerIcon } from 'evolution-common/lib/services/questionnaire/sections/visitedPlaces/activityIconMapping';
 import { SurveyContext } from '../../../contexts/SurveyContext';
 
@@ -38,16 +39,6 @@ export const SegmentsSection: React.FC<SectionProps> = (props: SectionProps) => 
         }
         return iconPathsByMode;
     }, []);
-
-    const selectTrip = (tripUuid: string, e) => {
-        if (e) {
-            e.preventDefault();
-        }
-        props.startUpdateInterview({
-            sectionShortname: 'segments',
-            valuesByPath: { ['response._activeTripId']: tripUuid }
-        });
-    };
 
     if (!preloaded) {
         return <LoadingPage />;
@@ -68,6 +59,21 @@ export const SegmentsSection: React.FC<SectionProps> = (props: SectionProps) => 
         throw new Error('SegmentsSection: there are no journeys');
     }
     const currentJourney = journeys[0];
+
+    const selectTrip = (trip: Trip, e) => {
+        if (e) {
+            e.preventDefault();
+        }
+        props.startUpdateInterview({
+            sectionShortname: 'segments',
+            valuesByPath: getValuesByPathForActiveTrip({
+                interview: props.interview,
+                person,
+                journey: currentJourney,
+                trip
+            })
+        });
+    };
 
     const trips = currentJourney.trips || {};
     const tripsList: JSX.Element[] = [];
@@ -182,7 +188,7 @@ export const SegmentsSection: React.FC<SectionProps> = (props: SectionProps) => 
                         <button
                             type="button"
                             className={'survey-section__button button blue small'}
-                            onClick={(e) => selectTrip(trip._uuid!, e)}
+                            onClick={(e) => selectTrip(trip, e)}
                             style={{ marginLeft: '0.5rem' }}
                             title={t('survey:trip:editTrip')}
                         >

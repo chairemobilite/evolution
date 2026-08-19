@@ -144,7 +144,7 @@ describe('getButtonSaveTripSegmentsConfig save callback', () => {
             activeTripId: 'tripId2P2'
         });
         // Mock function response for incomplete trip
-        const incompleteTrip = { _uuid: 'trip1', _sequence: 1 };
+        const incompleteTrip = testInterview.response.household!.persons!.personId2!.journeys!.journeyId2.trips!.tripId1P2;
         mockedSelectNextIncompleteTrip.mockReturnValueOnce(incompleteTrip);
 
         // Call the save callback
@@ -157,7 +157,7 @@ describe('getButtonSaveTripSegmentsConfig save callback', () => {
             valuesByPath: {
                 'response.household.persons.personId2.journeys.journeyId2.trips.tripId2P2.segments.segmentId1P2T2._isNew': false,
                 'response.household.persons.personId2.journeys.journeyId2.trips.tripId2P2.segments.segmentId2P2T2._isNew': false,
-                'response._activeTripId': 'trip1'
+                'response._activeTripId': 'tripId1P2'
             }
         });
     });
@@ -212,30 +212,36 @@ describe('getButtonSaveTripSegmentsConfig save callback', () => {
         });
     });
 
-    test('should just set next incomplete trip if no segments', () => {
-        // Use a path to a trip with no segments
-        const testButtonPathPrefix = 'household.persons.personId1.journeys.journeyId1.trips.tripId1P1';
-        const testButtonPath = `${testButtonPathPrefix}.buttonSaveTrip`;
-        // Set active trip ID for next incomplete trip selection
+    test('should create the first segment on the next trip when it has none', () => {
         const testInterview = _cloneDeep(interviewAttributesForTestCases);
         setActiveSurveyObjects(testInterview, {
-            personId: 'personId1',
-            journeyId: 'journeyId1',
-            activeTripId: 'tripId1P1'
+            personId: 'personId2',
+            journeyId: 'journeyId2',
+            activeTripId: 'tripId2P2'
         });
-        // Mock function response: 2 segments, active journey and incomplete trip
-        const incompleteTrip = { _uuid: 'trip1', _sequence: 1 };
-        mockedSelectNextIncompleteTrip.mockReturnValueOnce(incompleteTrip);
+        const nextTrip = testInterview.response.household!.persons!.personId2!.journeys!.journeyId2.trips!.tripId3P2;
+        mockedSelectNextIncompleteTrip.mockReturnValueOnce(nextTrip);
 
-        // Call the save callback
-        saveCallback!(updateCallbacks, testInterview, testButtonPath);
+        saveCallback!(updateCallbacks, testInterview, buttonPath);
 
-        // Test function calls
-        expect(mockedSelectNextIncompleteTrip).toHaveBeenCalledWith({ journey: testInterview.response.household!.persons!.personId1!.journeys!.journeyId1 });
-        expect(updateCallbacks.startUpdateInterview).toHaveBeenCalledWith({
-            sectionShortname: 'segments',
-            valuesByPath: { 'response._activeTripId': 'trip1' }
-        });
+        const valuesByPath = updateCallbacks.startUpdateInterview.mock.calls[0][0].valuesByPath;
+        expect(valuesByPath['response._activeTripId']).toEqual('tripId3P2');
+        const newSegmentPath = Object.keys(valuesByPath).find((path) =>
+            path.startsWith('response.household.persons.personId2.journeys.journeyId2.trips.tripId3P2.segments.')
+        );
+        expect(newSegmentPath).toBeDefined();
+        const segmentId = newSegmentPath!.split('.').pop();
+        expect(valuesByPath[newSegmentPath!]).toEqual({ _uuid: segmentId, _sequence: 1, _isNew: true });
+        expect(valuesByPath[`validations.household.persons.personId2.journeys.journeyId2.trips.tripId3P2.segments.${segmentId}`]).toEqual({});
+    });
+
+    test('should throw if the journey context is not found for the path', () => {
+        const testInterview = _cloneDeep(interviewAttributesForTestCases);
+
+        expect(() => saveCallback!(updateCallbacks, testInterview, 'invalid.path')).toThrow(
+            'buttonSaveTripSegments: saveCallback function: journey context not found for path invalid.path'
+        );
+        expect(updateCallbacks.startUpdateInterview).not.toHaveBeenCalled();
     });
 
 });

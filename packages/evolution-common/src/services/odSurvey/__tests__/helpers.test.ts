@@ -3140,6 +3140,14 @@ describe('selectNextIncompleteTrip', () => {
         attributes.trips!.trip2.segments = segments;
         expect(Helpers.selectNextIncompleteTrip({ journey: attributes })).toEqual(null);
     });
+
+    test('should select trip with only an empty first segment (same as add-button object)', () => {
+        const attributes = _cloneDeep(journey);
+        attributes.trips!.trip2.segments = {
+            segmentEmpty: { _uuid: 'segmentEmpty', _sequence: 1, _isNew: true }
+        };
+        expect(Helpers.selectNextIncompleteTrip({ journey: attributes })).toEqual(attributes.trips!.trip2);
+    });
 });
 
 describe('getOrigin/getDestination', () => {
@@ -3588,6 +3596,38 @@ describe('getSegments', () => {
         attributes.segments = segments;
         expect(Helpers.getSegmentsArray({ trip: attributes })).toEqual([segments.segment2, segments.segment1]);
     });
+});
+
+describe('tripHasDefinedSegments', () => {
+    const trip: Trip = { _uuid: 'arbitraryTrip', _sequence: 1 };
+
+    each([
+        ['no segments property', {}, false],
+        ['empty segments object', { segments: {} }, false],
+        ['first segment as created with the trip (no mode yet)', {
+            segments: { segment1: { _uuid: 'segment1', _sequence: 1, _isNew: true } }
+        }, false],
+        ['_isNew false but no mode (saved empty / half-edited after refresh)', {
+            segments: { segment1: { _uuid: 'segment1', _sequence: 1, _isNew: false } }
+        }, false],
+        ['blank modePre', {
+            segments: { segment1: { _uuid: 'segment1', _sequence: 1, _isNew: false, modePre: '' } }
+        }, false],
+        ['_isNew true with mode still counts as defined', {
+            segments: { segment1: { _uuid: 'segment1', _sequence: 1, _isNew: true, modePre: 'walk' } }
+        }, true],
+        ['modePre set', {
+            segments: { segment1: { _uuid: 'segment1', _sequence: 1, _isNew: false, modePre: 'walk' } }
+        }, true],
+        ['mode set', {
+            segments: { segment1: { _uuid: 'segment1', _sequence: 1, _isNew: false, mode: 'walk' as const } }
+        }, true]
+    ]).test('%s', (_title, tripAttributes, expected) => {
+        expect(Helpers.tripHasDefinedSegments({ trip: { ...trip, ...tripAttributes } })).toEqual(expected);
+    });
+});
+
+describe('getSegmentContextFromPath', () => {
 
     each([
         {

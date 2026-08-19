@@ -263,7 +263,7 @@ const tripsForPersonComplete = function (person, interview) {
     for (const tripId in trips) {
         const trip = trips[tripId];
         const segments = odSurveyHelper.getSegments({ trip });
-        if (_isBlank(trip.segments)) {
+        if (!odSurveyHelper.tripHasDefinedSegments({ trip })) {
             return false;
         }
         for (const segmentId in segments) {
