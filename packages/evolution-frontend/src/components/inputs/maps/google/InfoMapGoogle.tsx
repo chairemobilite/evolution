@@ -14,15 +14,13 @@ import {
     useApiIsLoaded,
     useMap
 } from '@vis.gl/react-google-maps';
-import Markdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-
 import projectConfig from 'chaire-lib-common/lib/config/shared/project.config';
 import { getCurrentGoogleMapConfig, getGoogleMapId } from '../../../../config/googleMaps.config';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import InputLoading from '../../InputLoading';
 import { InfoMapProps } from '../types';
 import { MapPolygon, MapPolyline } from './GoogleMapOverlays';
+import { InfoMapTitle } from '../infoMapTitle';
 
 const coordinatesToLatLng = (coordinates: number[]) => ({
     lat: coordinates[1],
@@ -278,9 +276,7 @@ const InfoMapInner: React.FC<InfoMapProps> = (props) => {
 
     return (
         <div className="survey-info-map__map-container">
-            <div className="infoMap-title">
-                <Markdown remarkPlugins={[[remarkGfm, { singleTilde: false }]]}>{title}</Markdown>
-            </div>
+            <InfoMapTitle title={title} containsHtml={props.widgetConfig.containsHtml} />
             <Map
                 style={{
                     boxSizing: 'border-box' as const,

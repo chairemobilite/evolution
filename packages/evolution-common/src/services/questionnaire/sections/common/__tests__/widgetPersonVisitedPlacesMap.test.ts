@@ -49,6 +49,7 @@ describe('personVisitedPlacesMapConfig', () => {
         expect(widgetConfig).toEqual({
             type: 'infoMap',
             path: 'household.persons.{_activePersonId}.journeys.{_activeJourneyId}.visitedPlacesMap',
+            containsHtml: true,
             defaultCenter: projectConfig.mapDefaultCenter,
             title: expect.any(Function),
             linestringColor: '#0000ff',
