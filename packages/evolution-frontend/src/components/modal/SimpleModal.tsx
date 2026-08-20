@@ -9,6 +9,7 @@ import Modal from 'react-modal';
 import { withTranslation, WithTranslation } from 'react-i18next';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import { stripHtml } from '../../services/display/frontendHelper';
 
 export interface SimpleModalProps {
     isOpen: boolean;
@@ -58,7 +59,9 @@ export const SimpleModal: React.FunctionComponent<SimpleModalProps & WithTransla
                     <div dangerouslySetInnerHTML={{ __html: props.text }} />
                 ) : (
                     <div className="help-popup">
-                        <Markdown remarkPlugins={[[remarkGfm, { singleTilde: false }]]}>{props.text}</Markdown>
+                        <Markdown remarkPlugins={[[remarkGfm, { singleTilde: false }]]}>
+                            {stripHtml(props.text)}
+                        </Markdown>
                     </div>
                 )}
                 <div className="center">

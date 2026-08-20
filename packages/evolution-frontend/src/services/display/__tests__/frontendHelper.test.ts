@@ -15,7 +15,8 @@ import {
     secondsSinceMidnightToTimeStrWithSuffix,
     validateButtonAction,
     validateButtonActionWithCompleteSection,
-    getVisitedPlaceDescription
+    getVisitedPlaceDescription,
+    stripHtml
 } from '../frontendHelper';
 import { interviewAttributesForTestCases } from 'evolution-common/lib/tests/surveys';
 
@@ -338,4 +339,18 @@ describe('getVisitedPlaceDescription', () => {
         const description = getVisitedPlaceDescription(visitedPlace, true, true);
         expect(description).toEqual('survey:visitedPlace:activities:workUsual • <em>This is my work</em>');
     });
+});
+
+test.each([
+    { string: '', expected: ''},
+    { string: '<strong>something', expected: 'something'},
+    { string: '<strong>something</strong>', expected: 'something'},
+    { string: '<strong>Important <em>text</em></strong>', expected: 'Important text'},
+    { string: '<a href="link/to/something">something</a>', expected: 'something'},
+    { string: '<a href="link/to/something"></a>', expected: ''},
+    { string: '<a href="javascript:alert(1)">Click here</a>', expected: 'Click here'},
+    { string: '<script>alert(1)</script>Hello', expected: 'Hello'},
+    { string: 'Hello <i>world</i> !', expected: 'Hello world !'}
+])('stripHtml: should strip "$string" to "$expected"', ({ string, expected }) => {
+    expect(stripHtml(string)).toEqual(expected);
 });

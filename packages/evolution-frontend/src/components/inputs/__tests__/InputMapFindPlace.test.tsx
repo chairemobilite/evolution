@@ -24,6 +24,10 @@ jest.mock('../maps/google/GoogleMapAdapter', () => ({
         return mockGoogleMapAdapter;
     }
 }));
+// Mock frontend helper to avoid undefined config error
+jest.mock('../../../services/display/frontendHelper', () => ({
+    stripHtml: jest.fn().mockImplementation(str => str)
+}));
 
 const mockedGeocode = mockGeocodeMultiplePlaces;
 

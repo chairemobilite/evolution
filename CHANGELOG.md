@@ -81,6 +81,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Fix HTML markup showing up in templates, by using the `stripHtml` function from `frontendHelpers` (fixes [#1584](https://github.com/chairemobilite/evolution/issues/1584))
 - Fix confirm button placements in `TripsAndSegmentsSection` template to go below the map on small screens (fixes [#1837](https://github.com/chairemobilite/evolution/issues/1837))
 - InfoMap titles can be HTML (`containsHtml`), so generator tags (`<span class="_pale _oblique">`, `style="..."`) render instead of showing as text. The visited places map widget sets this flag.
 - `joinWith` now works for widgets inside a group: the next widget status is read from the group status path instead of the top-level `widgets`, so grouped widgets are joined as expected, and the dashed separator stays continuous across joined widgets (fixes [#1621](https://github.com/chairemobilite/evolution/issues/1621)).

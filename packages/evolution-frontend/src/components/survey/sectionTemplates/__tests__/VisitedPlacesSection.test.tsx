@@ -51,7 +51,8 @@ jest.mock('react-i18next', () => ({
     })
 }));
 jest.mock('../../../../services/display/frontendHelper', () => ({
-    secondsSinceMidnightToTimeStrWithSuffix: jest.fn((seconds: number) => `time-${seconds}`)
+    secondsSinceMidnightToTimeStrWithSuffix: jest.fn((seconds: number) => `time-${seconds}`),
+    stripHtml: jest.fn((str) => `stripped:${str}`)
 }));
 
 jest.mock('evolution-common/lib/services/odSurvey/helpers', () => {

@@ -5,6 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import React from 'react';
+import { stripHtml } from '../../../services/display/frontendHelper';
 
 interface SurveyErrorMessageProps {
     containsHtml: boolean;
@@ -22,7 +23,7 @@ export const SurveyErrorMessage = (props: SurveyErrorMessageProps) => {
                     }}
                 />
             ) : (
-                props.text
+                stripHtml(props.text)
             )}
         </p>
     );

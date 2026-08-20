@@ -25,7 +25,7 @@ import ConfirmModal from 'chaire-lib-frontend/lib/components/modal/ConfirmModal'
 import LoadingPage from 'chaire-lib-frontend/lib/components/pages/LoadingPage';
 import { type SectionProps, useSectionTemplate } from '../../hooks/useSectionTemplate';
 import { SurveyContext } from '../../../contexts/SurveyContext';
-import { secondsSinceMidnightToTimeStrWithSuffix } from '../../../services/display/frontendHelper';
+import { secondsSinceMidnightToTimeStrWithSuffix, stripHtml } from '../../../services/display/frontendHelper';
 import type { GroupConfig, VisitedPlace } from 'evolution-common/lib/services/questionnaire/types';
 import { getResponse } from 'evolution-common/lib/utils/helpers';
 import { getActivityIcon } from 'evolution-common/lib/services/questionnaire/sections/visitedPlaces/activityIconMapping';
@@ -171,7 +171,11 @@ export const VisitedPlacesSection: React.FC<SectionProps> = (props: SectionProps
                         <img
                             src={getActivityIcon(visitedPlace.activity)}
                             style={{ height: '1.8em', padding: '0.1em' }}
-                            alt={visitedPlace.activity ? t(`visitedPlaces:activities:${visitedPlace.activity}`) : ''}
+                            alt={
+                                visitedPlace.activity
+                                    ? stripHtml(t(`visitedPlaces:activities:${visitedPlace.activity}`))
+                                    : ''
+                            }
                         />
                         <p>
                             <FontAwesomeIcon icon={faClock} style={{ marginRight: '0.3rem', marginLeft: '0.6rem' }} />
@@ -281,15 +285,15 @@ export const VisitedPlacesSection: React.FC<SectionProps> = (props: SectionProps
                             <img
                                 src={getActivityIcon(activity)}
                                 style={{ height: '3rem' }}
-                                alt={activity ? t(`visitedPlaces:activities:${activity}`) : ''}
+                                alt={activity ? stripHtml(t(`visitedPlaces:activities:${activity}`)) : ''}
                             />
                         </div>
                     )}
                 </span>
                 <span className="survey-visited-place-item-element survey-visited-place-item-description text-box-ellipsis">
                     <span className={isPlaceSelected ? '_strong' : ''}>
-                        {activity && t(`visitedPlaces:activities:${activity}`)}
-                        {actualVisitedPlace.name && <em>&nbsp;• {actualVisitedPlace.name}</em>}
+                        {activity && stripHtml(t(`visitedPlaces:activities:${activity}`))}
+                        {actualVisitedPlace.name && <em>&nbsp;• {stripHtml(actualVisitedPlace.name)}</em>}
                     </span>
                 </span>
 
