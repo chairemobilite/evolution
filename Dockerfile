@@ -2,6 +2,11 @@
 FROM node:24-trixie
 WORKDIR /app
 
+# Git commit hash stamped into interview paradata (github.sha in CI). No default: when
+# unset, resolveAppBuildId falls back to the local git revision, then to 'dev'.
+ARG BUILD_ID
+ENV BUILD_ID=$BUILD_ID
+
 # TODO split package.json copy and yarn install to have some intermediary images
 COPY . /app
 RUN yarn install

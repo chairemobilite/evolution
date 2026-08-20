@@ -5,7 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import _cloneDeep from 'lodash/cloneDeep';
-import { mapResponseToCorrectedResponse, handleUserActionSideEffect } from '../interviewUtils';
+import { mapResponseToCorrectedResponse, mapCorrectedResponseToResponse, handleUserActionSideEffect } from '../interviewUtils';
 import moment from 'moment';
 
 // Mock moment.unix to return a consistent value for testing
@@ -58,6 +58,22 @@ describe('mapResponseToCorrectedResponse', () => {
             'response2': 'notToBeModified'
         });
         expect(updatedUnsetPaths).toEqual(['corrected_response.accessCode', 'response2', 'response2.notToBeModified']);
+    });
+});
+
+describe('mapCorrectedResponseToResponse', () => {
+    test('maps corrected_response paths to response paths', () => {
+        const valuesByPath = {
+            'corrected_response._reviewBackendBuildIds': [{ buildId: 'abc', startTimestamp: 1 }],
+            'corrected_response.household.size': 2,
+            'validations.accessCode': false
+        };
+
+        expect(mapCorrectedResponseToResponse(valuesByPath)).toEqual({
+            'response._reviewBackendBuildIds': [{ buildId: 'abc', startTimestamp: 1 }],
+            'response.household.size': 2,
+            'validations.accessCode': false
+        });
     });
 });
 

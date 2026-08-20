@@ -26,6 +26,7 @@ import {
     UserInterviewAttributes
 } from 'evolution-common/lib/services/questionnaire/types';
 import { getParadataLoggingFunction } from '../logging/paradataLogging';
+import { appendCurrentBackendBuildIdIfChanged } from '../paradata/backendBuildIds';
 
 export type FilterType = string | string[] | ValueFilterType;
 
@@ -109,6 +110,10 @@ export default class Interviews {
         if (response._startedAt === undefined) {
             response._startedAt = moment().unix();
         }
+        const updatedBackendBuildIds = appendCurrentBackendBuildIdIfChanged(response._backendBuildIds);
+        if (updatedBackendBuildIds) {
+            response._backendBuildIds = updatedBackendBuildIds;
+        }
         const interview = await interviewsDbQueries.create(
             { participant_id: participantId, response, is_active: true, validations: {} },
             returning
@@ -116,14 +121,14 @@ export default class Interviews {
         if (!interview.uuid || Object.keys(initialResponse).length === 0) {
             return interview as InterviewAttributes;
         }
-        // update interview with initial response so that server updates are run on the initial response
+        // update interview with modified response so that server updates are run on the persisted values
         const userInterview = await Interviews.getInterviewByUuid(interview.uuid);
         if (userInterview === undefined) {
             throw 'Interview just created was not found!';
         }
         const valuesByPath = {};
-        Object.keys(initialResponse).forEach((key) => {
-            valuesByPath[`response.${key}`] = initialResponse[key];
+        Object.keys(response).forEach((key) => {
+            valuesByPath[`response.${key}`] = response[key];
         });
         await updateInterview(userInterview, {
             logUpdate: getParadataLoggingFunction({ interviewId: userInterview.id, userId: creatingUserId }),

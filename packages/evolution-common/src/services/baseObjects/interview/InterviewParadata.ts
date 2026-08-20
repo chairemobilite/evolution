@@ -6,7 +6,7 @@
  */
 
 import { Optional } from '../../../types/Optional.type';
-import { Language, Browser, SectionMetadata } from '../attributeTypes/InterviewParadataAttributes';
+import { Language, Browser, SectionMetadata, BuildId } from '../attributeTypes/InterviewParadataAttributes';
 import { ConstructorUtils } from '../../../utils/ConstructorUtils';
 import { SurveyObjectUnserializer } from '../SurveyObjectUnserializer';
 import { ParamsValidatorUtils } from '../../../utils/ParamsValidatorUtils';
@@ -27,7 +27,10 @@ const interviewParadataAttributes = [
 
     'languages',
     'browsers',
-    'sections'
+    'sections',
+    'frontendBuildIds',
+    'backendBuildIds',
+    'reviewBackendBuildIds'
 ];
 
 const interviewParadataAttributesWithComposedAttributes = [...interviewParadataAttributes];
@@ -52,6 +55,13 @@ export type InterviewParadataAttributes = {
     */
     languages?: Language[]; // two-letter ISO 639-1 code
     browsers?: Browser[];
+
+    // Each time a new frontend build id is detected, we add a new BuildId object with timestamps in response._frontendBuildIds.
+    frontendBuildIds?: BuildId[];
+    // Each time a new backend build id is detected, we add a new BuildId object with timestamps in response._backendBuildIds.
+    backendBuildIds?: BuildId[];
+    // Each time a new admin backend build id is detected during review, we add a new BuildId object with timestamps in corrected_response._reviewBackendBuildIds.
+    reviewBackendBuildIds?: BuildId[];
 
     // each time a section is opened, we add a new SectionMetadata object with timestamps
     // TODO: move this to a Log/Paradata class? and update interview reponse to the new SectionMetadata format
@@ -91,6 +101,9 @@ export class InterviewParadata {
         'personsRandomSequence',
         'languages', // TODO: automatically select the most used language during the interview (longest duration)
         'browsers', // TODO: only some of this metadata should be exported, like the device and/or os and/or browser name
+        'frontendBuildIds',
+        'backendBuildIds',
+        'reviewBackendBuildIds',
         'sections'
     ];
 
@@ -166,6 +179,30 @@ export class InterviewParadata {
 
     set browsers(value: Optional<Browser[]>) {
         this._attributes.browsers = value || [];
+    }
+
+    get frontendBuildIds(): Optional<BuildId[]> {
+        return this._attributes.frontendBuildIds || [];
+    }
+
+    set frontendBuildIds(value: Optional<BuildId[]>) {
+        this._attributes.frontendBuildIds = value || [];
+    }
+
+    get backendBuildIds(): Optional<BuildId[]> {
+        return this._attributes.backendBuildIds || [];
+    }
+
+    set backendBuildIds(value: Optional<BuildId[]>) {
+        this._attributes.backendBuildIds = value || [];
+    }
+
+    get reviewBackendBuildIds(): Optional<BuildId[]> {
+        return this._attributes.reviewBackendBuildIds || [];
+    }
+
+    set reviewBackendBuildIds(value: Optional<BuildId[]>) {
+        this._attributes.reviewBackendBuildIds = value || [];
     }
 
     get sections(): Optional<SectionMetadata> {
@@ -353,6 +390,52 @@ export class InterviewParadata {
 
         errors.push(...ParamsValidatorUtils.isRecord('sections', dirtyParams.sections, displayName));
         // TODO: validate the section metadata object when we will have implemented the format
+
+        const buildIdsAttributes = ['frontendBuildIds', 'backendBuildIds', 'reviewBackendBuildIds'] as const;
+        for (const buildIdsAttribute of buildIdsAttributes) {
+            errors.push(
+                ...ParamsValidatorUtils.isArray(buildIdsAttribute, dirtyParams[buildIdsAttribute], displayName)
+            );
+            const buildIds = dirtyParams[buildIdsAttribute];
+            if (buildIds && Array.isArray(buildIds)) {
+                for (let i = 0; i < buildIds.length; i++) {
+                    const buildId = buildIds[i];
+                    const buildIdPath = `${buildIdsAttribute}.[${i}]`;
+                    errors.push(...ParamsValidatorUtils.isRecord(buildIdPath, buildId, displayName, false));
+                    if (!buildId || typeof buildId !== 'object' || Array.isArray(buildId)) {
+                        continue;
+                    }
+                    errors.push(
+                        ...ParamsValidatorUtils.isRequired(`${buildIdPath}.buildId`, buildId.buildId, displayName)
+                    );
+                    errors.push(
+                        ...ParamsValidatorUtils.isString(`${buildIdPath}.buildId`, buildId.buildId, displayName)
+                    );
+                    errors.push(
+                        ...ParamsValidatorUtils.isRequired(
+                            `${buildIdPath}.startTimestamp`,
+                            buildId.startTimestamp,
+                            displayName
+                        )
+                    );
+                    errors.push(
+                        ...ParamsValidatorUtils.isPositiveInteger(
+                            `${buildIdPath}.startTimestamp`,
+                            buildId.startTimestamp,
+                            displayName
+                        )
+                    );
+                    errors.push(
+                        ...ParamsValidatorUtils.isPositiveInteger(
+                            `${buildIdPath}.endTimestamp`,
+                            buildId.endTimestamp,
+                            displayName
+                        )
+                    );
+                }
+            }
+        }
+
         return errors;
     };
 }

@@ -215,6 +215,9 @@ export class Interview extends Uuidable {
                 '_language', // TODO: remove this once we have migrated all interviews to the new paradata structure
                 '_languages', // TODO: remove this once we have migrated all interviews to the new paradata structure
                 '_browser', // TODO use an array instead of a single browser in survey
+                '_frontendBuildIds',
+                '_backendBuildIds',
+                '_reviewBackendBuildIds',
                 '_startedAt',
                 '_updatedAt',
                 '_completedAt',
@@ -519,7 +522,10 @@ export class Interview extends Uuidable {
             completedAt: dirtyParams._completedAt,
             source: dirtyParams._source,
             personsRandomSequence: dirtyParams._personRandomSequence, // TODO: rename to personsRandomSequence in survey
-            sections: dirtyParams._sections
+            sections: dirtyParams._sections,
+            frontendBuildIds: dirtyParams._frontendBuildIds,
+            backendBuildIds: dirtyParams._backendBuildIds,
+            reviewBackendBuildIds: dirtyParams._reviewBackendBuildIds
         };
     }
 }

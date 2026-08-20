@@ -79,6 +79,11 @@ jest.mock('../../services/audits/SurveyObjectsAndAuditsFactory', () => ({
     }
 }));
 
+jest.mock('../../services/paradata/backendBuildIds', () => ({
+    persistReviewBackendBuildId: jest.fn().mockResolvedValue(undefined),
+    getReviewBackendBuildIdsValuesByPath: jest.fn(() => ({}))
+}));
+
 // survey.validation.routes reads reviewableSurveyObjects from evolution-common project.config
 // (survey config.js), not backend config/projectConfig (server-only overlay without that field).
 jest.mock('evolution-common/lib/config/project.config', () => ({

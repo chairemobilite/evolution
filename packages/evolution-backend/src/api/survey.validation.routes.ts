@@ -15,7 +15,11 @@ import { updateInterview, copyResponseToCorrectedResponse } from '../services/in
 import { VALID_OPERATORS } from '../models/interviews.db.queries';
 import interviewUserIsAuthorized, { isUserAllowed } from '../services/auth/userAuthorization';
 import serverProjectConfig from '../config/projectConfig';
-import { handleUserActionSideEffect, mapResponseToCorrectedResponse } from '../services/interviews/interviewUtils';
+import {
+    handleUserActionSideEffect,
+    mapResponseToCorrectedResponse,
+    mapCorrectedResponseToResponse
+} from '../services/interviews/interviewUtils';
 import { UserAttributes } from 'chaire-lib-backend/lib/services/users/user';
 import { logUserAccessesMiddleware } from '../services/logging/queryLoggingMiddleware';
 import { _booleish, _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
@@ -31,6 +35,10 @@ import { getParadataLoggingFunction } from '../services/logging/paradataLogging'
 import { BatchAuditService } from '../services/audits/BatchAuditService';
 import { ReviewDecisionService } from '../services/reviews/ReviewDecisionService';
 import { CANNOT_FORCE_APPROVE_WITHOUT_CONFLICT_ERROR_CODE } from '../services/reviews/reviewDecisionErrors';
+import {
+    getReviewBackendBuildIdsValuesByPath,
+    persistReviewBackendBuildId
+} from '../services/paradata/backendBuildIds';
 import type { ReviewDecisionValue, ReviewDecisions } from 'evolution-common/lib/services/reviews/types';
 import { hasErrors } from 'evolution-common/lib/types/Result.type';
 import TrError from 'chaire-lib-common/lib/utils/TrError';
@@ -76,19 +84,24 @@ const handleReviewMutationRouteError = (res: Response, error: unknown, logMessag
 };
 
 /**
- * Runs a review mutation and returns the standard success JSON payload.
+ * Runs a review mutation, stamps the admin backend build id on the interview (best-effort, see
+ * persistReviewBackendBuildId), and returns the standard success JSON payload. The build id is
+ * persisted only after a successful mutation, so failed mutations leave the interview untouched.
  * @param res - Express response
  * @param logMessage - Route-specific message prefix for server logs
+ * @param interview - Interview to stamp with the current admin backend build id
  * @param mutate - ReviewDecisionService call for the route
  * @returns HTTP response with review decisions or a mutation error
  */
 const respondWithReviewMutationResult = async (
     res: Response,
     logMessage: string,
+    interview: InterviewAttributes,
     mutate: () => Promise<ReviewDecisions>
 ): Promise<Response> => {
     try {
         const reviewDecisions = await mutate();
+        await persistReviewBackendBuildId(interview);
         return res.status(200).json({ status: 'success', reviewDecisions });
     } catch (error) {
         return handleReviewMutationRouteError(res, error, logMessage);
@@ -193,6 +206,9 @@ router.get(
                             interview,
                             runExtendedAuditChecks
                         );
+                    // Record which admin backend build served this interview for review. Like the
+                    // corrected_response copy above, this persists to the database on a GET route.
+                    await persistReviewBackendBuildId(interview);
 
                     // TODO Here, the response field should not make it to frontend. But make sure there are no side effect in the frontend, where the _response is used or checked.
                     const { response, corrected_response, ...rest } = interview;
@@ -252,6 +268,9 @@ router.get(
                     if (_isBlank(interview.corrected_response)) {
                         await copyResponseToCorrectedResponse(interview);
                     }
+                    // Record which admin backend build served this interview for correction. Like
+                    // the corrected_response copy above, this persists to the database on a GET route.
+                    await persistReviewBackendBuildId(interview);
 
                     // Make sure the original response does not make it to the frontend
                     const { response: _response, corrected_response, ...rest } = interview;
@@ -310,6 +329,10 @@ router.post(
                     unsetPaths,
                     userAction
                 } = mapResponseToCorrectedResponse(valuesByPath, origUnsetPaths, content.userAction);
+                const reviewBackendBuildIdsPatch = getReviewBackendBuildIdsValuesByPath(
+                    interview.corrected_response?._reviewBackendBuildIds
+                );
+                Object.assign(mappedValuesByPath, reviewBackendBuildIdsPatch);
 
                 const canConfirm = isUserAllowed(req.user as UserAttributes, interview, ['confirm']);
                 const fieldsToUpdate: (keyof InterviewAttributes)[] = [
@@ -333,18 +356,22 @@ router.post(
                     fieldsToUpdate: canConfirm ? [...fieldsToUpdate, 'is_validated'] : fieldsToUpdate,
                     logData: { adminValidation: true }
                 });
+                const updatedValuesByPath = mapCorrectedResponseToResponse({
+                    ...retInterview.serverValuesByPath,
+                    ...reviewBackendBuildIdsPatch
+                });
                 if (retInterview.serverValidations === true) {
                     return res.status(200).json({
                         status: 'success',
                         interviewId: retInterview.interviewId,
-                        updatedValuesByPath: retInterview.serverValuesByPath
+                        updatedValuesByPath
                     });
                 }
                 return res.status(200).json({
                     status: 'invalid',
                     interviewId: retInterview.interviewId,
                     messages: retInterview.serverValidations,
-                    updatedValuesByPath: retInterview.serverValuesByPath
+                    updatedValuesByPath
                 });
             }
             return res.status(200).json({ status: 'failed', interviewId: null });
@@ -449,7 +476,7 @@ router.post(
         }
         const { interview, user, objectType, objectUuid } = getReviewObjectContext(res);
 
-        return respondWithReviewMutationResult(res, 'error setting review for interview:', () =>
+        return respondWithReviewMutationResult(res, 'error setting review for interview:', interview, () =>
             ReviewDecisionService.setReviewDecision(interview.id, user.id, {
                 objectType,
                 objectUuid,
@@ -473,7 +500,7 @@ router.post(
         }
         const { interview, user, objectType, objectUuid } = getReviewObjectContext(res);
 
-        return respondWithReviewMutationResult(res, 'error requesting re-review for interview:', () =>
+        return respondWithReviewMutationResult(res, 'error requesting re-review for interview:', interview, () =>
             ReviewDecisionService.requestReReview(interview.id, user.id, {
                 objectType,
                 objectUuid,
@@ -491,7 +518,7 @@ router.post(
     async (req: Request, res: Response) => {
         const { interview, user, objectType, objectUuid } = getReviewObjectContext(res);
 
-        return respondWithReviewMutationResult(res, 'error clearing review for interview:', () =>
+        return respondWithReviewMutationResult(res, 'error clearing review for interview:', interview, () =>
             ReviewDecisionService.clearReviewDecision(interview.id, user.id, {
                 objectType,
                 objectUuid
@@ -508,7 +535,7 @@ router.post(
     async (req: Request, res: Response) => {
         const { interview, user, objectType, objectUuid } = getReviewObjectContext(res);
 
-        return respondWithReviewMutationResult(res, 'error clearing force approve for interview:', () =>
+        return respondWithReviewMutationResult(res, 'error clearing force approve for interview:', interview, () =>
             ReviewDecisionService.clearForceApprove(interview.id, user.id, {
                 objectType,
                 objectUuid
@@ -530,7 +557,7 @@ router.post(
         }
         const { interview, user, objectType, objectUuid } = getReviewObjectContext(res);
 
-        return respondWithReviewMutationResult(res, 'error force-approving object for interview:', () =>
+        return respondWithReviewMutationResult(res, 'error force-approving object for interview:', interview, () =>
             ReviewDecisionService.setForceApprove(interview.id, user.id, {
                 objectType,
                 objectUuid,

@@ -134,10 +134,11 @@ export const updateInterview = async (
         ? updateValuesByPathWithUserAction(options.valuesByPath, options.userAction)
         : options.valuesByPath;
 
+    const fieldsToUpdate = options.fieldsToUpdate || ['response', 'validations'];
+
     // Sanitize all string fields in the valuesByPath, as they may contain javascript injection
     const sanitizedValuesByPath = sanitizeInterviewData(_cloneDeep(allValuesByPath));
 
-    const fieldsToUpdate = options.fieldsToUpdate || ['response', 'validations'];
     const logData = options.logData || {};
     const serverValidations = await serverValidate(
         interview,
@@ -224,7 +225,9 @@ export const updateInterview = async (
         // won't be required anymore.
         serverValuesByPath:
             sanitizedValuesByPath['response._sections._actions'] !== undefined
-                ? Object.assign({}, serverValuesByPath, { 'response._sections': interview.response._sections })
+                ? Object.assign({}, serverValuesByPath, {
+                    'response._sections': interview.response._sections
+                })
                 : serverValuesByPath,
         redirectUrl
     };

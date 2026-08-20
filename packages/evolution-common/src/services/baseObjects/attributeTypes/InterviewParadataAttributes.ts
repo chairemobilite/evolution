@@ -63,3 +63,8 @@ export type SectionMetadata = {
 export type Language = {
     language?: string; // ISO 639-1 two letters language code
 } & StartEndTimestampable;
+
+export type BuildId = {
+    /** Git commit hash of the frontend, backend, or review server build. */
+    buildId: string;
+} & StartEndTimestampable;

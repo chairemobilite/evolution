@@ -246,4 +246,58 @@ describe('InterviewParadata - InterviewParadata.validateParams', () => {
         });
     });
 
+    describe('Build ids validation', () => {
+        it('should validate valid build ids', () => {
+            const params = {
+                frontendBuildIds: [{ buildId: 'abc123', startTimestamp: 1632929461 }],
+                backendBuildIds: [{ buildId: 'def456', startTimestamp: 1632929462, endTimestamp: 1632930461 }],
+                reviewBackendBuildIds: [{ buildId: 'ghi789', startTimestamp: 1632929463 }]
+            };
+            expect(InterviewParadata.validateParams(params)).toHaveLength(0);
+        });
+
+        it('should return errors for null build id entries without throwing', () => {
+            const params = {
+                frontendBuildIds: [null, { buildId: 'abc123', startTimestamp: 1632929461 }]
+            };
+            const errors = InterviewParadata.validateParams(params);
+            expect(errors.some((e) => e.message.includes('frontendBuildIds.[0]'))).toBe(true);
+            expect(errors.some((e) => e.message.includes('frontendBuildIds.[1]'))).toBe(false);
+        });
+
+        it('should return an error for build id entries without a buildId', () => {
+            const params = {
+                frontendBuildIds: [{ startTimestamp: 1632929461 }]
+            };
+            const errors = InterviewParadata.validateParams(params);
+            expect(errors.some((e) => e.message.includes('frontendBuildIds.[0].buildId is required'))).toBe(true);
+        });
+
+        it('should return an error for build id entries without a startTimestamp', () => {
+            const params = {
+                frontendBuildIds: [{ buildId: 'abc123' }]
+            };
+            const errors = InterviewParadata.validateParams(params);
+            expect(errors.some((e) => e.message.includes('frontendBuildIds.[0].startTimestamp is required'))).toBe(
+                true
+            );
+        });
+
+        it('should allow build id entries without an endTimestamp', () => {
+            const params = {
+                frontendBuildIds: [{ buildId: 'abc123', startTimestamp: 1632929461 }]
+            };
+            expect(InterviewParadata.validateParams(params)).toHaveLength(0);
+        });
+
+        it('should return errors for malformed build id entries without throwing', () => {
+            const params = {
+                backendBuildIds: ['not-an-object', { buildId: 123, startTimestamp: 1632929461 }]
+            };
+            const errors = InterviewParadata.validateParams(params);
+            expect(errors.some((e) => e.message.includes('backendBuildIds.[0]'))).toBe(true);
+            expect(errors.some((e) => e.message.includes('backendBuildIds.[1].buildId'))).toBe(true);
+        });
+    });
+
 });

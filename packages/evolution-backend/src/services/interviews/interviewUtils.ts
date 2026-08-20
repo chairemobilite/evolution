@@ -43,6 +43,21 @@ export const mapResponseToCorrectedResponse = (
     return { valuesByPath: updatedValuesByPath, unsetPaths: updatedUnsetPaths, userAction: updatedUserAction };
 };
 
+/** Map corrected_response paths to response paths for admin client responses. */
+export const mapCorrectedResponseToResponse = (valuesByPath: {
+    [key: string]: unknown;
+}): { [key: string]: unknown } => {
+    const updatedValuesByPath: { [key: string]: unknown } = {};
+    Object.keys(valuesByPath).forEach((key) => {
+        const newKey =
+            key.startsWith('corrected_response.') || key === 'corrected_response'
+                ? key.replace('corrected_response', 'response')
+                : key;
+        updatedValuesByPath[newKey] = valuesByPath[key];
+    });
+    return updatedValuesByPath;
+};
+
 /**
  * Augment the valuesByPath with user action specific data, as some user actions
  * may require updating some additional fields in the interview response, like
