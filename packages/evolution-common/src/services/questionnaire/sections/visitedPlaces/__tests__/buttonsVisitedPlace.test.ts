@@ -436,6 +436,55 @@ describe('buttonSaveVisitedPlace widget', () => {
                     'response.household.persons.personId1.journeys.journeyId1.visitedPlaces.otherPlace2P1.arrivalTime': getJourney(interviewAttributesForTestCases).visitedPlaces!.otherPlaceP1.departureTime,
                 },
                 expectedActiveVisitedPlaceId: null
+            }, {
+                title: 'realign the journey departure place answer when the day no longer starts at home',
+                path: 'household.persons.personId1.journeys.journeyId1.visitedPlaces.homePlace1P1',
+                activeVisitedPlaceId: 'homePlace1P1',
+                setup: (interview: typeof interviewAttributesForTestCases) => {
+                    const journey = getJourney(interview);
+                    journey.departurePlaceIsHome = 'yes';
+                    // The first place of the diary is not home anymore
+                    journey.visitedPlaces!.homePlace1P1.activity = 'restaurant';
+                    journey.visitedPlaces!.homePlace1P1.activityCategory = 'shoppingServiceRestaurant';
+                },
+                expectedInsertedPlaces: [],
+                expectedFirstUpdateValuesByPath: {
+                    'response.household.persons.personId1.journeys.journeyId1.visitedPlaces.homePlace1P1._isNew': false
+                },
+                expectedActiveVisitedPlaceId: null,
+                expectedSecondUpdateValuesByPath: {
+                    'response.household.persons.personId1.journeys.journeyId1.departurePlaceIsHome': 'no'
+                }
+            }, {
+                title: 'realign the journey departure place answer when the day now starts at home',
+                path: 'household.persons.personId1.journeys.journeyId1.visitedPlaces.homePlace1P1',
+                activeVisitedPlaceId: 'homePlace1P1',
+                setup: (interview: typeof interviewAttributesForTestCases) => {
+                    const journey = getJourney(interview);
+                    journey.departurePlaceIsHome = 'no';
+                    journey.departurePlaceOther = 'sleptAtFriends';
+                },
+                expectedInsertedPlaces: [],
+                expectedFirstUpdateValuesByPath: {
+                    'response.household.persons.personId1.journeys.journeyId1.visitedPlaces.homePlace1P1._isNew': false
+                },
+                expectedActiveVisitedPlaceId: null,
+                expectedSecondUpdateValuesByPath: {
+                    'response.household.persons.personId1.journeys.journeyId1.departurePlaceIsHome': 'yes',
+                    'response.household.persons.personId1.journeys.journeyId1.departurePlaceOther': null
+                }
+            }, {
+                title: 'keep the journey departure place answer when it already matches the first place',
+                path: 'household.persons.personId1.journeys.journeyId1.visitedPlaces.homePlace1P1',
+                activeVisitedPlaceId: 'homePlace1P1',
+                setup: (interview: typeof interviewAttributesForTestCases) => {
+                    getJourney(interview).departurePlaceIsHome = 'yes';
+                },
+                expectedInsertedPlaces: [],
+                expectedFirstUpdateValuesByPath: {
+                    'response.household.persons.personId1.journeys.journeyId1.visitedPlaces.homePlace1P1._isNew': false
+                },
+                expectedActiveVisitedPlaceId: null
             }
         ])('$title', async (testCase) => {
             // Clone interview and set active visited place
@@ -507,7 +556,8 @@ describe('buttonSaveVisitedPlace widget', () => {
             expect(startUpdateInterview).toHaveBeenNthCalledWith(2, {
                 sectionShortname: 'visitedPlaces',
                 valuesByPath: {
-                    'response._activeVisitedPlaceId': testCase.expectedActiveVisitedPlaceId
+                    'response._activeVisitedPlaceId': testCase.expectedActiveVisitedPlaceId,
+                    ...(testCase.expectedSecondUpdateValuesByPath || {})
                 }
             });
         });

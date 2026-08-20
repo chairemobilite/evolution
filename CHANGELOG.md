@@ -82,7 +82,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
-- `VisitedPlacesSection` template: the respondent can insert a visited place before the first one of the day, for example if they forgot a trip or did not start their day where they said. The arrival time of the place that is not the first anymore is then asked (fixes [#1832](https://github.com/chairemobilite/evolution/issues/1832))
+- `VisitedPlacesSection` template: the respondent can insert a visited place before the first one of the day, for example if they forgot a trip or did not start their day where they said. The arrival time of the place that is not the first anymore is then asked, and the `departurePlaceIsHome` answer of the journey is updated when the first place of the diary contradicts it (fixes [#1832](https://github.com/chairemobilite/evolution/issues/1832))
 - Segments: create the first segment automatically when a trip becomes active, so its mode is asked directly instead of behind a "choose first mode" button. Added `tripHasDefinedSegments`, true when a trip has at least one segment with a non blank `mode` or `modePre`, to tell a trip the respondent started from one that only has that empty first segment (fixes [#1825](https://github.com/chairemobilite/evolution/issues/1825)).
 - Fix HTML markup showing up in templates, by using the `stripHtml` function from `frontendHelpers` (fixes [#1584](https://github.com/chairemobilite/evolution/issues/1584))
 - Fix confirm button placements in `TripsAndSegmentsSection` template to go below the map on small screens (fixes [#1837](https://github.com/chairemobilite/evolution/issues/1837))
