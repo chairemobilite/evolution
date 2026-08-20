@@ -4,7 +4,6 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import _escape from 'lodash/escape';
 import type { GroupConfig, VisitedPlacesSectionConfiguration, WidgetConfig } from '../../../questionnaire/types';
 import * as odHelpers from '../../../odSurvey/helpers';
 import { TFunction } from 'i18next';
@@ -110,7 +109,7 @@ export class PersonVisitedPlacesGroupConfigFactory implements WidgetConfigFactor
             name: (t: TFunction, groupedObject: unknown, sequence: number) => {
                 const groupNameStrings = [t('visitedPlaces:VisitedPlaceSequence', { count: sequence })];
                 const placeString = (groupedObject as any).name
-                    ? `**${_escape((groupedObject as any).name)}**`
+                    ? `**${(groupedObject as any).name}**`
                     : (groupedObject as any).activity
                         ? `**${t(`visitedPlaces:activities:${(groupedObject as any).activity}`)}**`
                         : undefined;

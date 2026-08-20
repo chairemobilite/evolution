@@ -8,10 +8,11 @@ exports[`Text widget: Contains html Render widget 1`] = `
     class="survey-section__text"
   >
     <div>
+      strippedUnsafe:(
       <br />
        bold text
       <br />
-      blabla
+      blabla)
     </div>
   </div>
 </div>

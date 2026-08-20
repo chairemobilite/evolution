@@ -71,6 +71,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **BREAKING**: Builtin widgets now only use the widget name with section as namespace as locale translation key. Any key that was overridden in the `customSurvey` namespace should be moved to the widget's namespace. (fixes [#1441](https://github.com/chairemobilite/evolution/issues/1441))
 - The Google map widgets were migrated from the deprecated `@react-google-maps/api` package to `@vis.gl/react-google-maps`, which renders vector maps and uses `AdvancedMarker` (fixes [#453](https://github.com/chairemobilite/evolution/issues/453)). This uses the new Google Map ID, for which we provide a default style, but a new `GOOGLE_MAP_ID` environment variable was added if someone wants to override the default style. See `.env.example` and the [Get a Map ID](https://developers.google.com/maps/documentation/get-map-id) docs.
 - Audit and survey-object factory console logs are prefixed with `[Audit]` via `AuditLog` so they can be filtered in server error logs (fixes [#1836](https://github.com/chairemobilite/evolution/issues/1836)).
+- **BREAKING**: Participant-strings are not escaped in the helpers anymore, but the strings should be sanitized at render time. Any template trusting html-safe strings should now use sanitation functions like `stripUnsafeHtml` from `frontendHelpers` (fixes [#1838](https://github.com/chairemobilite/evolution/issues/1838))
 
 ### Deprecated
 

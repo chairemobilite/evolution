@@ -6,7 +6,6 @@
  */
 
 import _cloneDeep from 'lodash/cloneDeep';
-import _escape from 'lodash/escape';
 import {
     interviewAttributesForTestCases,
     setActiveSurveyObjects,
@@ -1354,7 +1353,7 @@ describe('visitedPlaceArrivalTime widget', () => {
                 ['visitedPlaces:visitedPlaceArrivalTime_shopping', 'visitedPlaces:visitedPlaceArrivalTime'], 
                 expect.objectContaining({ atPlace: 'visitedPlaces:atPlace' })
             );
-            expect(mockedT).toHaveBeenCalledWith('visitedPlaces:atPlace', { placeName: _escape(currentPlace.name) });
+            expect(mockedT).toHaveBeenCalledWith('visitedPlaces:atPlace', { placeName: currentPlace.name });
         });
 
         test('should not append duration text for loop activities', () => {
