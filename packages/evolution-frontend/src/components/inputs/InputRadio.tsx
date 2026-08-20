@@ -5,7 +5,6 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import React, { JSX } from 'react';
-import DOMPurify from 'dompurify';
 import { WithTranslation, withTranslation } from 'react-i18next';
 import { shuffle } from 'chaire-lib-common/lib/utils/RandomUtils';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -16,6 +15,7 @@ import { UserInterviewAttributes } from 'evolution-common/lib/services/questionn
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { CommonInputProps } from './CommonInputProps';
 import { sortByParameters } from './InputChoiceSorting';
+import { stripUnsafeHtml } from '../../services/display/frontendHelper';
 
 export type InputRadioProps = CommonInputProps & {
     value: string | boolean;
@@ -109,7 +109,7 @@ const InputRadioChoice = (props: InputRadioChoiceProps & WithTranslation) => {
                             />
                         </span>
                     )}
-                    <span dangerouslySetInnerHTML={{ __html: strLabel ? DOMPurify.sanitize(strLabel) : '' }} />
+                    <span dangerouslySetInnerHTML={{ __html: strLabel ? stripUnsafeHtml(strLabel) : '' }} />
                 </label>
             </div>
             {props.children}

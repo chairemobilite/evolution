@@ -17,6 +17,11 @@ import i18next from 'i18next';
 jest.mock('chaire-lib-common/lib/utils/RandomUtils', () => ({
     shuffle: jest.fn()
 }));
+// Mock frontend helper to avoid undefined config error
+jest.mock('../../../services/display/frontendHelper', () => ({
+    stripUnsafeHtml: jest.fn().mockImplementation(str => str)
+}));
+
 
 const shuffleMock = shuffle as jest.MockedFunction<typeof shuffle>;
 

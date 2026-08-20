@@ -215,3 +215,13 @@ export const getVisitedPlaceDescription = function (
 export const stripHtml = (text: string): string => {
     return DOMPurify.sanitize(text, { ALLOWED_TAGS: [] });
 };
+
+/**
+ * Transform a string to remove all unsafe html characters, like javascripts
+ *
+ * @param text A string, possibly containing unsafe html characters
+ * @return a string without unsafe html tags
+ */
+export const stripUnsafeHtml = (text: string): string => {
+    return DOMPurify.sanitize(text);
+};

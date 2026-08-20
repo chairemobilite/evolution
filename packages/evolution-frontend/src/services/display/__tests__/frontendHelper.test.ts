@@ -16,7 +16,8 @@ import {
     validateButtonAction,
     validateButtonActionWithCompleteSection,
     getVisitedPlaceDescription,
-    stripHtml
+    stripHtml,
+    stripUnsafeHtml
 } from '../frontendHelper';
 import { interviewAttributesForTestCases } from 'evolution-common/lib/tests/surveys';
 
@@ -353,4 +354,18 @@ test.each([
     { string: 'Hello <i>world</i> !', expected: 'Hello world !'}
 ])('stripHtml: should strip "$string" to "$expected"', ({ string, expected }) => {
     expect(stripHtml(string)).toEqual(expected);
+});
+
+test.each([
+    { string: '', expected: ''},
+    { string: '<strong>something', expected: '<strong>something</strong>'},
+    { string: '<strong>something</strong>', expected: '<strong>something</strong>'},
+    { string: '<strong>Important <em>text</em></strong>', expected: '<strong>Important <em>text</em></strong>'},
+    { string: '<a href="link/to/something">something</a>', expected: '<a href="link/to/something">something</a>'},
+    { string: '<a href="link/to/something"></a>', expected: '<a href="link/to/something"></a>'},
+    { string: '<a href="javascript:alert(1)">Click here</a>', expected: '<a>Click here</a>'},
+    { string: '<script>alert(1)</script>Hello', expected: 'Hello'},
+    { string: 'Hello <i>world</i> !', expected: 'Hello <i>world</i> !'}
+])('stripUnsafeHtml: should strip "$string" to "$expected"', ({ string, expected }) => {
+    expect(stripUnsafeHtml(string)).toEqual(expected);
 });

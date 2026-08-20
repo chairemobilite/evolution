@@ -18,13 +18,13 @@ import {
 } from '@vis.gl/react-google-maps';
 import GeoJSON from 'geojson';
 import bowser from 'bowser';
-import DOMPurify from 'dompurify';
 
 import { getCurrentGoogleMapConfig, getGoogleMapId } from '../../../../config/googleMaps.config';
 import InputLoading from '../../InputLoading';
 import { FeatureGeocodedProperties, MarkerData, InfoWindow as InfoWindowData } from '../types';
 import { geojson } from './GoogleMapUtils';
 import { logClientSideMessage } from '../../../../services/errorManagement/errorHandling';
+import { stripUnsafeHtml } from '../../../../services/display/frontendHelper';
 
 export interface InputGoogleMapPointProps {
     defaultCenter: { lat: number; lon: number };
@@ -243,7 +243,7 @@ const InputMapGoogleInner: React.FunctionComponent<InputGoogleMapPointProps> = (
 
         const container = document.createElement('div');
         // Place name/address/photo HTML comes from geocoder data — sanitize before insert.
-        container.innerHTML = DOMPurify.sanitize(props.infoWindow.content);
+        container.innerHTML = stripUnsafeHtml(props.infoWindow.content);
 
         let confirmButton: HTMLButtonElement | undefined;
         const onConfirm = props.infoWindow.onConfirm;

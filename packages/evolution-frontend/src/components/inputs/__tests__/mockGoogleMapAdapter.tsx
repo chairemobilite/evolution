@@ -5,9 +5,9 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import React from 'react';
-import DOMPurify from 'dompurify';
 
 import type { MapProviderAdapter, MapWidgetProps } from '../maps/types';
+import { stripUnsafeHtml } from '../../../services/display/frontendHelper';
 
 /** Shared geocode mock used by the adapter double and by InputMapFindPlace tests. */
 export const mockGeocodeMultiplePlaces = jest.fn();
@@ -26,7 +26,7 @@ const MockInputMap: React.FC<MapWidgetProps> = ({ infoWindow, onMapReady }) => {
             {infoWindow ? (
                 <div data-testid="mock-info-window">
                     <div
-                        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(infoWindow.content) }}
+                        dangerouslySetInnerHTML={{ __html: stripUnsafeHtml(infoWindow.content) }}
                     />
                     {infoWindow.confirmLabel && infoWindow.onConfirm ? (
                         <button
