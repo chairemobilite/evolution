@@ -26,7 +26,9 @@ jest.mock('../../GroupWidgets', () => ({
 }));
 // Mock frontend helper to avoid undefined config error
 jest.mock('../../../../services/display/frontendHelper', () => ({
-    secondsSinceMidnightToTimeStrWithSuffix: jest.fn().mockReturnValue('timeStr')
+    secondsSinceMidnightToTimeStrWithSuffix: jest.fn().mockReturnValue('timeStr'),
+    stripHtml: jest.fn((str) => `stripped:(${str})`),
+    stripUnsafeHtml: jest.fn((str) => `strippedUnsafe:(${str})`)
 }));
 
 // Mock the odSurveyHelper
