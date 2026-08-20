@@ -32,13 +32,33 @@ import { getActivityIcon } from 'evolution-common/lib/services/questionnaire/sec
 
 const percentLengthOfOneSecond = 100.0 / (28 * 3600);
 
+/**
+ * List item with the button to insert a new visited place at a given position
+ * of the diary. It is displayed between the places of the list, as well as
+ * before the first one.
+ */
+const InsertVisitedPlaceItem: React.FC<{
+    label: string;
+    onInsert: (e: React.MouseEvent<HTMLButtonElement>) => void;
+}> = ({ label, onInsert }) => (
+    <li
+        className="no-bullet survey-visited-place-insert"
+        style={{ marginTop: '-0.4em', marginLeft: '2rem', padding: 0 }}
+    >
+        <button type="button" className="button blue center small" onClick={onInsert} title={label}>
+            <FontAwesomeIcon icon={faPlusCircle} className="faIconLeft" />
+            {label}
+        </button>
+    </li>
+);
+
 export const VisitedPlacesSection: React.FC<SectionProps> = (props: SectionProps) => {
     const { preloaded } = useSectionTemplate(props);
     const [confirmDeleteVisitedPlace, setConfirmDeleteVisitedPlace] = React.useState<string | null>(null);
     const surveyContext = React.useContext(SurveyContext);
     const { t, i18n } = useTranslation(['main', 'visitedPlaces']);
 
-    const insertVisitedPlace = (sequence: number, path: string, e?: React.MouseEvent<HTMLButtonElement>) => {
+    const insertVisitedPlace = (sequence: number, e?: React.MouseEvent<HTMLButtonElement>) => {
         if (e) {
             e.preventDefault();
         }
@@ -260,6 +280,17 @@ export const VisitedPlacesSection: React.FC<SectionProps> = (props: SectionProps
     const visitedPlaces = odHelpers.getVisitedPlacesArray({ journey: currentJourney });
     const lastVisitedPlace = visitedPlaces.length > 0 ? visitedPlaces[visitedPlaces.length - 1] : null;
     const visitedPlacesList: ReactNode[] = [];
+    // Button to insert a place before the first one, for a respondent who forgot
+    // the beginning of their day or who did not start it where they said
+    if (!selectedVisitedPlaceId && props.loadingState === 0 && visitedPlaces.length > 0) {
+        visitedPlacesList.push(
+            <InsertVisitedPlaceItem
+                key="survey-visited-place-item-insert-before-first"
+                label={t('visitedPlaces:insertVisitedPlace')}
+                onInsert={(e) => insertVisitedPlace(1, e)}
+            />
+        );
+    }
     // For each visited place of the active journey, create a list of items with
     // the place description and times. This is a one-row component for each
     // place, except the selected one which will be expanded with a complete
@@ -417,27 +448,11 @@ export const VisitedPlacesSection: React.FC<SectionProps> = (props: SectionProps
                     visitedPlace.nextPlaceCategory === 'stayedThereUntilTheNextDay'))
         ) {
             visitedPlacesList.push(
-                <li
-                    className="no-bullet survey-visited-place-insert"
+                <InsertVisitedPlaceItem
                     key={`survey-visited-place-item-insert-after__${i}`}
-                    style={{ marginTop: '-0.4em', marginLeft: '2rem', padding: 0 }}
-                >
-                    <button
-                        type="button"
-                        className="button blue center small"
-                        onClick={(e) =>
-                            insertVisitedPlace(
-                                visitedPlace['_sequence'] + 1,
-                                `household.persons.${person._uuid}.journeys.${currentJourney._uuid}.visitedPlaces`,
-                                e
-                            )
-                        }
-                        title={t('visitedPlaces:insertVisitedPlace')}
-                    >
-                        <FontAwesomeIcon icon={faPlusCircle} className="faIconLeft" />
-                        {t('visitedPlaces:insertVisitedPlace')}
-                    </button>
-                </li>
+                    label={t('visitedPlaces:insertVisitedPlace')}
+                    onInsert={(e) => insertVisitedPlace(visitedPlace['_sequence'] + 1, e)}
+                />
             );
         }
     }
@@ -462,13 +477,7 @@ export const VisitedPlacesSection: React.FC<SectionProps> = (props: SectionProps
                                 <button
                                     type="button"
                                     className="button blue center large"
-                                    onClick={(e) =>
-                                        insertVisitedPlace(
-                                            -1,
-                                            `household.persons.${person._uuid}.journeys.${currentJourney._uuid}.visitedPlaces`,
-                                            e
-                                        )
-                                    }
+                                    onClick={(e) => insertVisitedPlace(-1, e)}
                                     title={t('visitedPlaces:addVisitedPlace')}
                                 >
                                     <FontAwesomeIcon icon={faPlusCircle} className="faIconLeft" />
