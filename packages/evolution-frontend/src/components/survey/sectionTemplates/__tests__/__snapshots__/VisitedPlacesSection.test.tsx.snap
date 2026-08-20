@@ -34,7 +34,7 @@ exports[`VisitedPlacesSection UI display should render the default visited place
             class="HTML _orange"
           >
             <span>
-              Schedule for survey:personWithSequenceAndAge
+              strippedUnsafe:(Schedule for survey:personWithSequenceAndAge)
             </span>
           </p>
           <div
@@ -43,13 +43,13 @@ exports[`VisitedPlacesSection UI display should render the default visited place
             <div
               class="survey-visited-places-schedule-visited-place hand-cursor-on-hover"
               style="left: 0%; width: 28.5714%;"
-              title="visitedPlaces:activities:home (-> 8:00)"
+              title="stripped:(visitedPlaces:activities:home (-> 8:00))"
             >
               <div
                 class="survey-visited-places-schedule-visited-place-icon"
               >
                 <img
-                  alt="stripped:visitedPlaces:activities:home"
+                  alt="stripped:(visitedPlaces:activities:home)"
                   src="/dist/icons/activities/home/home.svg"
                   style="height: 1.8em; padding: 0.1em;"
                 />
@@ -89,13 +89,13 @@ exports[`VisitedPlacesSection UI display should render the default visited place
             <div
               class="survey-visited-places-schedule-visited-place hand-cursor-on-hover"
               style="left: 29.1667%; width: 2.9762%;"
-              title="This is my work • visitedPlaces:activities:workUsual (8:10 -> 9:00)"
+              title="stripped:(This is my work • visitedPlaces:activities:workUsual (8:10 -> 9:00))"
             >
               <div
                 class="survey-visited-places-schedule-visited-place-icon"
               >
                 <img
-                  alt="stripped:visitedPlaces:activities:workUsual"
+                  alt="stripped:(visitedPlaces:activities:workUsual)"
                   src="/dist/icons/activities/work/briefcase.svg"
                   style="height: 1.8em; padding: 0.1em;"
                 />
@@ -136,13 +136,13 @@ exports[`VisitedPlacesSection UI display should render the default visited place
             <div
               class="survey-visited-places-schedule-visited-place hand-cursor-on-hover"
               style="left: 32.7381%; width: 17.2619%;"
-              title="visitedPlaces:activities:home (9:10 -> 14:00)"
+              title="stripped:(visitedPlaces:activities:home (9:10 -> 14:00))"
             >
               <div
                 class="survey-visited-places-schedule-visited-place-icon"
               >
                 <img
-                  alt="stripped:visitedPlaces:activities:home"
+                  alt="stripped:(visitedPlaces:activities:home)"
                   src="/dist/icons/activities/home/home.svg"
                   style="height: 1.8em; padding: 0.1em;"
                 />
@@ -183,13 +183,13 @@ exports[`VisitedPlacesSection UI display should render the default visited place
             <div
               class="survey-visited-places-schedule-visited-place hand-cursor-on-hover"
               style="left: 50.8929%; width: 2.6785%;"
-              title="survey:placeWithSequenceGeneric • visitedPlaces:activities:shopping (14:15 -> 15:00)"
+              title="stripped:(survey:placeWithSequenceGeneric • visitedPlaces:activities:shopping (14:15 -> 15:00))"
             >
               <div
                 class="survey-visited-places-schedule-visited-place-icon"
               >
                 <img
-                  alt="stripped:visitedPlaces:activities:shopping"
+                  alt="stripped:(visitedPlaces:activities:shopping)"
                   src="/dist/icons/activities/shopping/shopping_cart.svg"
                   style="height: 1.8em; padding: 0.1em;"
                 />
@@ -230,13 +230,13 @@ exports[`VisitedPlacesSection UI display should render the default visited place
             <div
               class="survey-visited-places-schedule-visited-place hand-cursor-on-hover"
               style="left: 54.4643%; width: 45.5357%;"
-              title="This is a shopping place • visitedPlaces:activities:shopping (15:15 ->)"
+              title="stripped:(This is a shopping place • visitedPlaces:activities:shopping (15:15 ->))"
             >
               <div
                 class="survey-visited-places-schedule-visited-place-icon"
               >
                 <img
-                  alt="stripped:visitedPlaces:activities:shopping"
+                  alt="stripped:(visitedPlaces:activities:shopping)"
                   src="/dist/icons/activities/shopping/shopping_cart.svg"
                   style="height: 1.8em; padding: 0.1em;"
                 />
@@ -289,7 +289,7 @@ exports[`VisitedPlacesSection UI display should render the default visited place
                 class="survey-visited-place-item-icon-container"
               >
                 <img
-                  alt="stripped:visitedPlaces:activities:home"
+                  alt="stripped:(visitedPlaces:activities:home)"
                   src="/dist/icons/activities/home/home.svg"
                   style="height: 3rem;"
                 />
@@ -301,7 +301,7 @@ exports[`VisitedPlacesSection UI display should render the default visited place
               <span
                 class=""
               >
-                stripped:visitedPlaces:activities:home
+                stripped:(visitedPlaces:activities:home)
               </span>
             </span>
             <span
@@ -415,7 +415,7 @@ exports[`VisitedPlacesSection UI display should render the default visited place
                 class="survey-visited-place-item-icon-container"
               >
                 <img
-                  alt="stripped:visitedPlaces:activities:workUsual"
+                  alt="stripped:(visitedPlaces:activities:workUsual)"
                   src="/dist/icons/activities/work/briefcase.svg"
                   style="height: 3rem;"
                 />
@@ -427,10 +427,10 @@ exports[`VisitedPlacesSection UI display should render the default visited place
               <span
                 class=""
               >
-                stripped:visitedPlaces:activities:workUsual
+                stripped:(visitedPlaces:activities:workUsual)
                 <em>
                    • 
-                  stripped:This is my work
+                  stripped:(This is my work)
                 </em>
               </span>
             </span>
@@ -546,7 +546,7 @@ exports[`VisitedPlacesSection UI display should render the default visited place
                 class="survey-visited-place-item-icon-container"
               >
                 <img
-                  alt="stripped:visitedPlaces:activities:home"
+                  alt="stripped:(visitedPlaces:activities:home)"
                   src="/dist/icons/activities/home/home.svg"
                   style="height: 3rem;"
                 />
@@ -558,7 +558,7 @@ exports[`VisitedPlacesSection UI display should render the default visited place
               <span
                 class=""
               >
-                stripped:visitedPlaces:activities:home
+                stripped:(visitedPlaces:activities:home)
               </span>
             </span>
             <span
@@ -673,7 +673,7 @@ exports[`VisitedPlacesSection UI display should render the default visited place
                 class="survey-visited-place-item-icon-container"
               >
                 <img
-                  alt="stripped:visitedPlaces:activities:shopping"
+                  alt="stripped:(visitedPlaces:activities:shopping)"
                   src="/dist/icons/activities/shopping/shopping_cart.svg"
                   style="height: 3rem;"
                 />
@@ -685,7 +685,7 @@ exports[`VisitedPlacesSection UI display should render the default visited place
               <span
                 class=""
               >
-                stripped:visitedPlaces:activities:shopping
+                stripped:(visitedPlaces:activities:shopping)
               </span>
             </span>
             <span
@@ -800,7 +800,7 @@ exports[`VisitedPlacesSection UI display should render the default visited place
                 class="survey-visited-place-item-icon-container"
               >
                 <img
-                  alt="stripped:visitedPlaces:activities:shopping"
+                  alt="stripped:(visitedPlaces:activities:shopping)"
                   src="/dist/icons/activities/shopping/shopping_cart.svg"
                   style="height: 3rem;"
                 />
@@ -812,10 +812,10 @@ exports[`VisitedPlacesSection UI display should render the default visited place
               <span
                 class=""
               >
-                stripped:visitedPlaces:activities:shopping
+                stripped:(visitedPlaces:activities:shopping)
                 <em>
                    • 
-                  stripped:This is a shopping place
+                  stripped:(This is a shopping place)
                 </em>
               </span>
             </span>
@@ -948,7 +948,7 @@ exports[`VisitedPlacesSection UI display should render the selected visited plac
             class="HTML _orange"
           >
             <span>
-              Schedule for survey:personWithSequenceAndAge
+              strippedUnsafe:(Schedule for survey:personWithSequenceAndAge)
             </span>
           </p>
           <div
@@ -957,13 +957,13 @@ exports[`VisitedPlacesSection UI display should render the selected visited plac
             <div
               class="survey-visited-places-schedule-visited-place"
               style="left: 0%; width: 28.5714%;"
-              title="visitedPlaces:activities:home (-> 8:00)"
+              title="stripped:(visitedPlaces:activities:home (-> 8:00))"
             >
               <div
                 class="survey-visited-places-schedule-visited-place-icon"
               >
                 <img
-                  alt="stripped:visitedPlaces:activities:home"
+                  alt="stripped:(visitedPlaces:activities:home)"
                   src="/dist/icons/activities/home/home.svg"
                   style="height: 1.8em; padding: 0.1em;"
                 />
@@ -1003,13 +1003,13 @@ exports[`VisitedPlacesSection UI display should render the selected visited plac
             <div
               class="survey-visited-places-schedule-visited-place"
               style="left: 29.1667%; width: 2.9762%;"
-              title="This is my work • visitedPlaces:activities:workUsual (8:10 -> 9:00)"
+              title="stripped:(This is my work • visitedPlaces:activities:workUsual (8:10 -> 9:00))"
             >
               <div
                 class="survey-visited-places-schedule-visited-place-icon"
               >
                 <img
-                  alt="stripped:visitedPlaces:activities:workUsual"
+                  alt="stripped:(visitedPlaces:activities:workUsual)"
                   src="/dist/icons/activities/work/briefcase.svg"
                   style="height: 1.8em; padding: 0.1em;"
                 />
@@ -1050,13 +1050,13 @@ exports[`VisitedPlacesSection UI display should render the selected visited plac
             <div
               class="survey-visited-places-schedule-visited-place"
               style="left: 32.7381%; width: 17.2619%;"
-              title="visitedPlaces:activities:home (9:10 -> 14:00)"
+              title="stripped:(visitedPlaces:activities:home (9:10 -> 14:00))"
             >
               <div
                 class="survey-visited-places-schedule-visited-place-icon"
               >
                 <img
-                  alt="stripped:visitedPlaces:activities:home"
+                  alt="stripped:(visitedPlaces:activities:home)"
                   src="/dist/icons/activities/home/home.svg"
                   style="height: 1.8em; padding: 0.1em;"
                 />
@@ -1097,13 +1097,13 @@ exports[`VisitedPlacesSection UI display should render the selected visited plac
             <div
               class="survey-visited-places-schedule-visited-place"
               style="left: 50.8929%; width: 2.6785%;"
-              title="survey:placeWithSequenceGeneric • visitedPlaces:activities:shopping (14:15 -> 15:00)"
+              title="stripped:(survey:placeWithSequenceGeneric • visitedPlaces:activities:shopping (14:15 -> 15:00))"
             >
               <div
                 class="survey-visited-places-schedule-visited-place-icon"
               >
                 <img
-                  alt="stripped:visitedPlaces:activities:shopping"
+                  alt="stripped:(visitedPlaces:activities:shopping)"
                   src="/dist/icons/activities/shopping/shopping_cart.svg"
                   style="height: 1.8em; padding: 0.1em;"
                 />
@@ -1144,13 +1144,13 @@ exports[`VisitedPlacesSection UI display should render the selected visited plac
             <div
               class="survey-visited-places-schedule-visited-place"
               style="left: 54.4643%; width: 45.5357%;"
-              title="This is a shopping place • visitedPlaces:activities:shopping (15:15 ->)"
+              title="stripped:(This is a shopping place • visitedPlaces:activities:shopping (15:15 ->))"
             >
               <div
                 class="survey-visited-places-schedule-visited-place-icon"
               >
                 <img
-                  alt="stripped:visitedPlaces:activities:shopping"
+                  alt="stripped:(visitedPlaces:activities:shopping)"
                   src="/dist/icons/activities/shopping/shopping_cart.svg"
                   style="height: 1.8em; padding: 0.1em;"
                 />
@@ -1203,7 +1203,7 @@ exports[`VisitedPlacesSection UI display should render the selected visited plac
                 class="survey-visited-place-item-icon-container"
               >
                 <img
-                  alt="stripped:visitedPlaces:activities:home"
+                  alt="stripped:(visitedPlaces:activities:home)"
                   src="/dist/icons/activities/home/home.svg"
                   style="height: 3rem;"
                 />
@@ -1215,7 +1215,7 @@ exports[`VisitedPlacesSection UI display should render the selected visited plac
               <span
                 class=""
               >
-                stripped:visitedPlaces:activities:home
+                stripped:(visitedPlaces:activities:home)
               </span>
             </span>
             <span
@@ -1265,7 +1265,7 @@ exports[`VisitedPlacesSection UI display should render the selected visited plac
                 class="survey-visited-place-item-icon-container"
               >
                 <img
-                  alt="stripped:visitedPlaces:activities:workUsual"
+                  alt="stripped:(visitedPlaces:activities:workUsual)"
                   src="/dist/icons/activities/work/briefcase.svg"
                   style="height: 3rem;"
                 />
@@ -1277,10 +1277,10 @@ exports[`VisitedPlacesSection UI display should render the selected visited plac
               <span
                 class="_strong"
               >
-                stripped:visitedPlaces:activities:workUsual
+                stripped:(visitedPlaces:activities:workUsual)
                 <em>
                    • 
-                  stripped:This is my work
+                  stripped:(This is my work)
                 </em>
               </span>
             </span>
@@ -1341,7 +1341,7 @@ exports[`VisitedPlacesSection UI display should render the selected visited plac
                 class="survey-visited-place-item-icon-container"
               >
                 <img
-                  alt="stripped:visitedPlaces:activities:home"
+                  alt="stripped:(visitedPlaces:activities:home)"
                   src="/dist/icons/activities/home/home.svg"
                   style="height: 3rem;"
                 />
@@ -1353,7 +1353,7 @@ exports[`VisitedPlacesSection UI display should render the selected visited plac
               <span
                 class=""
               >
-                stripped:visitedPlaces:activities:home
+                stripped:(visitedPlaces:activities:home)
               </span>
             </span>
             <span
@@ -1404,7 +1404,7 @@ exports[`VisitedPlacesSection UI display should render the selected visited plac
                 class="survey-visited-place-item-icon-container"
               >
                 <img
-                  alt="stripped:visitedPlaces:activities:shopping"
+                  alt="stripped:(visitedPlaces:activities:shopping)"
                   src="/dist/icons/activities/shopping/shopping_cart.svg"
                   style="height: 3rem;"
                 />
@@ -1416,7 +1416,7 @@ exports[`VisitedPlacesSection UI display should render the selected visited plac
               <span
                 class=""
               >
-                stripped:visitedPlaces:activities:shopping
+                stripped:(visitedPlaces:activities:shopping)
               </span>
             </span>
             <span
@@ -1467,7 +1467,7 @@ exports[`VisitedPlacesSection UI display should render the selected visited plac
                 class="survey-visited-place-item-icon-container"
               >
                 <img
-                  alt="stripped:visitedPlaces:activities:shopping"
+                  alt="stripped:(visitedPlaces:activities:shopping)"
                   src="/dist/icons/activities/shopping/shopping_cart.svg"
                   style="height: 3rem;"
                 />
@@ -1479,10 +1479,10 @@ exports[`VisitedPlacesSection UI display should render the selected visited plac
               <span
                 class=""
               >
-                stripped:visitedPlaces:activities:shopping
+                stripped:(visitedPlaces:activities:shopping)
                 <em>
                    • 
-                  stripped:This is a shopping place
+                  stripped:(This is a shopping place)
                 </em>
               </span>
             </span>

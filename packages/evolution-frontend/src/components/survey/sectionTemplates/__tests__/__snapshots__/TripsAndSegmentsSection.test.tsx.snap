@@ -102,16 +102,16 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
               class="survey-trip-item-element survey-trip-item-origin-description"
             >
               <img
-                alt="activities.home"
+                alt="stripped:(activities.home)"
                 src="/dist/icons/activities/home/home-marker_round.svg"
                 style="height: 4rem;"
               />
               <span>
-                activities.home
+                stripped:(activities.home)
                 <br />
                 <em>
                    • 
-                  Lieu 1
+                  stripped:(Lieu 1)
                 </em>
               </span>
             </span>
@@ -137,12 +137,12 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
               class="survey-trip-item-element survey-trip-item-destination-description"
             >
               <img
-                alt="activities.restaurant"
+                alt="stripped:(activities.restaurant)"
                 src="/dist/icons/activities/other/restaurant-marker_round.svg"
                 style="height: 4rem;"
               />
               <span>
-                activities.restaurant
+                stripped:(activities.restaurant)
               </span>
             </span>
           </li>
@@ -150,7 +150,7 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
             class="no-bullet survey-trip-item survey-trip-item-mode-icons"
           >
             <img
-              alt="mode.short.walk"
+              alt="stripped:(mode.short.walk)"
               src="/dist/images/modes_icons/walk.png"
               style="height: 1.5em; margin-left: 0.3em;"
             />
@@ -226,12 +226,12 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
               class="survey-trip-item-element survey-trip-item-origin-description"
             >
               <img
-                alt="activities.restaurant"
+                alt="stripped:(activities.restaurant)"
                 src="/dist/icons/activities/other/restaurant-marker_round.svg"
                 style="height: 4rem;"
               />
               <span>
-                activities.restaurant
+                stripped:(activities.restaurant)
               </span>
             </span>
             <span
@@ -256,12 +256,12 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
               class="survey-trip-item-element survey-trip-item-destination-description"
             >
               <img
-                alt="activities.shopping"
+                alt="stripped:(activities.shopping)"
                 src="/dist/icons/activities/shopping/shopping_cart-marker_round.svg"
                 style="height: 4rem;"
               />
               <span>
-                activities.shopping
+                stripped:(activities.shopping)
               </span>
             </span>
           </li>
@@ -389,16 +389,16 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
               class="survey-trip-item-element survey-trip-item-origin-description"
             >
               <img
-                alt="activities.home"
+                alt="stripped:(activities.home)"
                 src="/dist/icons/activities/home/home-marker_round.svg"
                 style="height: 4rem;"
               />
               <span>
-                activities.home
+                stripped:(activities.home)
                 <br />
                 <em>
                    • 
-                  Lieu 1
+                  stripped:(Lieu 1)
                 </em>
               </span>
             </span>
@@ -424,12 +424,12 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
               class="survey-trip-item-element survey-trip-item-destination-description"
             >
               <img
-                alt="activities.workOnTheRoad"
+                alt="stripped:(activities.workOnTheRoad)"
                 src="/dist/icons/activities/work/truck-marker_round.svg"
                 style="height: 4rem;"
               />
               <span>
-                activities.workOnTheRoad
+                stripped:(activities.workOnTheRoad)
               </span>
             </span>
             <span
@@ -454,12 +454,12 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
               class="survey-trip-item-element survey-trip-item-destination-description"
             >
               <img
-                alt="activities.shopping"
+                alt="stripped:(activities.shopping)"
                 src="/dist/icons/activities/shopping/shopping_cart-marker_round.svg"
                 style="height: 4rem;"
               />
               <span>
-                activities.shopping
+                stripped:(activities.shopping)
               </span>
             </span>
           </li>
@@ -467,7 +467,7 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
             class="no-bullet survey-trip-item survey-trip-item-mode-icons"
           >
             <img
-              alt="mode.short.walk"
+              alt="stripped:(mode.short.walk)"
               src="/dist/images/modes_icons/walk.png"
               style="height: 1.5em; margin-left: 0.3em;"
             />
@@ -593,16 +593,16 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
               class="survey-trip-item-element survey-trip-item-origin-description"
             >
               <img
-                alt="activities.workOnTheRoad"
+                alt="stripped:(activities.workOnTheRoad)"
                 src="/dist/icons/activities/work/truck-marker_round.svg"
                 style="height: 4rem;"
               />
               <span>
-                activities.workOnTheRoad
+                stripped:(activities.workOnTheRoad)
                 <br />
                 <em>
                    • 
-                  Lieu 1
+                  stripped:(Lieu 1)
                 </em>
               </span>
             </span>
@@ -628,12 +628,12 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
               class="survey-trip-item-element survey-trip-item-destination-description"
             >
               <img
-                alt="activities.restaurant"
+                alt="stripped:(activities.restaurant)"
                 src="/dist/icons/activities/other/restaurant-marker_round.svg"
                 style="height: 4rem;"
               />
               <span>
-                activities.restaurant
+                stripped:(activities.restaurant)
               </span>
             </span>
           </li>
@@ -641,7 +641,7 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
             class="no-bullet survey-trip-item survey-trip-item-mode-icons"
           >
             <img
-              alt="mode.short.walk"
+              alt="stripped:(mode.short.walk)"
               src="/dist/images/modes_icons/walk.png"
               style="height: 1.5em; margin-left: 0.3em;"
             />
@@ -717,12 +717,12 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
               class="survey-trip-item-element survey-trip-item-origin-description"
             >
               <img
-                alt="activities.restaurant"
+                alt="stripped:(activities.restaurant)"
                 src="/dist/icons/activities/other/restaurant-marker_round.svg"
                 style="height: 4rem;"
               />
               <span>
-                activities.restaurant
+                stripped:(activities.restaurant)
               </span>
             </span>
             <span
@@ -747,12 +747,12 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
               class="survey-trip-item-element survey-trip-item-destination-description"
             >
               <img
-                alt="activities.shopping"
+                alt="stripped:(activities.shopping)"
                 src="/dist/icons/activities/shopping/shopping_cart-marker_round.svg"
                 style="height: 4rem;"
               />
               <span>
-                activities.shopping
+                stripped:(activities.shopping)
               </span>
             </span>
           </li>
@@ -860,16 +860,16 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
               class="survey-trip-item-element survey-trip-item-origin-description"
             >
               <img
-                alt="activities.home"
+                alt="stripped:(activities.home)"
                 src="/dist/icons/activities/home/home-marker_round.svg"
                 style="height: 4rem;"
               />
               <span>
-                activities.home
+                stripped:(activities.home)
                 <br />
                 <em>
                    • 
-                  Lieu 1
+                  stripped:(Lieu 1)
                 </em>
               </span>
             </span>
@@ -895,12 +895,12 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
               class="survey-trip-item-element survey-trip-item-destination-description"
             >
               <img
-                alt="activities.restaurant"
+                alt="stripped:(activities.restaurant)"
                 src="/dist/icons/activities/other/restaurant-marker_round.svg"
                 style="height: 4rem;"
               />
               <span>
-                activities.restaurant
+                stripped:(activities.restaurant)
               </span>
             </span>
           </li>
@@ -908,7 +908,7 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
             class="no-bullet survey-trip-item survey-trip-item-mode-icons survey-trip-item-selected"
           >
             <img
-              alt="mode.short.walk"
+              alt="stripped:(mode.short.walk)"
               src="/dist/images/modes_icons/walk.png"
               style="height: 1.5em; margin-left: 0.3em;"
             />
@@ -972,12 +972,12 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
               class="survey-trip-item-element survey-trip-item-origin-description"
             >
               <img
-                alt="activities.restaurant"
+                alt="stripped:(activities.restaurant)"
                 src="/dist/icons/activities/other/restaurant-marker_round.svg"
                 style="height: 4rem;"
               />
               <span>
-                activities.restaurant
+                stripped:(activities.restaurant)
               </span>
             </span>
             <span
@@ -1002,12 +1002,12 @@ exports[`SegmentsSection UI display SegmentsSection with trips and visited place
               class="survey-trip-item-element survey-trip-item-destination-description"
             >
               <img
-                alt="activities.shopping"
+                alt="stripped:(activities.shopping)"
                 src="/dist/icons/activities/shopping/shopping_cart-marker_round.svg"
                 style="height: 4rem;"
               />
               <span>
-                activities.shopping
+                stripped:(activities.shopping)
               </span>
             </span>
           </li>
