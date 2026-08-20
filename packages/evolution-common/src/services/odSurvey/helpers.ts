@@ -6,7 +6,6 @@
  */
 
 import _get from 'lodash/get';
-import _escape from 'lodash/escape';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { getResponse } from '../../utils/helpers';
 import {
@@ -411,18 +410,18 @@ export const getPersonGenderContext = ({ person }: { person: Person }): string |
     person.gender ?? person.sexAssignedAtBirth ?? undefined;
 
 /**
- * Get a html-safe string that identifies a person, either by their nickname or
- * by their sequence and age.
+ * Get a string that identifies a person, either by their nickname or by their
+ * sequence and age.
  *
  * @param {Object} options - The options object.
  * @param {Person} options.person The person to identify
  * @param {TFunction} options.t The translation function
- * @returns {string} A translated and/or escaped string that identifies the
- * person, either by their nickname or by their sequence and age.
+ * @returns {string} A translated string that identifies the person, either by
+ * their nickname or by their sequence and age.
  */
 export const getPersonIdentificationString = ({ person, t }: { person: Person; t: TFunction }): string => {
     if (typeof person.nickname === 'string' && !_isBlank(person.nickname.trim())) {
-        return _escape(person.nickname);
+        return person.nickname;
     }
     return _isBlank(person.age)
         ? t('survey:personWithSequence', {
@@ -437,8 +436,7 @@ export const getPersonIdentificationString = ({ person, t }: { person: Person; t
 };
 
 /**
- * Return an html-safe address as a one line string, including all the requested
- * parts
+ * Return an address as a one line string, including all the requested parts
  *
  * @param obj The object from which to extract address parts
  * @param options Options for which parts of the address to include
@@ -479,7 +477,7 @@ const getAddressOneLine = (
     if (includePostalCode && typeof obj.postalCode === 'string' && !_isBlank(obj.postalCode.trim())) {
         addressParts.push(obj.postalCode.trim().toUpperCase());
     }
-    return _escape(addressParts.join(', '));
+    return addressParts.join(', ');
 };
 
 /**
@@ -1128,16 +1126,16 @@ export const replaceVisitedPlaceShortcuts = ({
 };
 
 /**
- * Returns the html-safe visited place name string. If no name will return
- * generic name followed by sequence
+ * Returns the visited place name string. If no name will return generic name
+ * followed by sequence
  *
  * @param {Object} options - The options object.
  * @param {TFunction} options.t The translation function
  * @param {VisitedPlace} options.visitedPlace The visited place for which to get
  * the name
  * @param {UserInterviewAttributes} options.interview The interview object
- * @returns {string} The visited place name, html-safe, or a generic name
- * followed by its sequence.
+ * @returns {string} The visited place name or a generic name followed by its
+ * sequence.
  */
 export const getVisitedPlaceName = function ({
     t,
@@ -1158,7 +1156,7 @@ export const getVisitedPlaceName = function ({
             ? getResponse(interview, visitedPlace.shortcut, null)
             : visitedPlace;
     if (actualVisitedPlace && (actualVisitedPlace as VisitedPlace).name) {
-        return _escape((actualVisitedPlace as VisitedPlace).name as string);
+        return (actualVisitedPlace as VisitedPlace).name as string;
     }
 
     return t('survey:placeWithSequenceGeneric', { sequence: visitedPlace._sequence });

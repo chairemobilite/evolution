@@ -957,7 +957,7 @@ describe('getPersonIdentificationString', () => {
 
     it.each([
         [{ nickname: 'Bob', _sequence: 1, age: 30 }, 'Bob'],
-        [{ nickname: '<strong>Bob!!</strong>', _sequence: 1, age: 30 }, '&lt;strong&gt;Bob!!&lt;/strong&gt;'],
+        [{ nickname: '<strong>Bob!!</strong>', _sequence: 1, age: 30 }, '<strong>Bob!!</strong>'],
         [{ nickname: '', _sequence: 2, age: 25 }, 'Person 2, Age 25, Gender undefined'],
         [{ nickname: '  ', _sequence: 2, age: 25 }, 'Person 2, Age 25, Gender undefined'],
         [{ nickname: '  ', _sequence: 2, age: 25, gender: 'female' as const }, 'Person 2, Age 25, Gender female'],
@@ -1029,7 +1029,7 @@ describe('getHomeAddressOneLine', () => {
                 includePostalCode: true
             },
             expected:
-                '123 &lt;strong&gt;main&lt;/strong&gt; st, &lt;b&gt;montreal&lt;/b&gt;, &lt;span&gt;Quebec&lt;/span&gt;, &lt;script injectedScript/&gt;Canada, &lt;STRONG&gt;H2X 1Y4&lt;/STRONG&gt;'
+                '123 <strong>main</strong> st, <b>montreal</b>, <span>Quebec</span>, <script injectedScript/>Canada, <STRONG>H2X 1Y4</STRONG>'
         },
         {
             title: 'returns empty string when home object is missing',
@@ -1044,10 +1044,10 @@ describe('getHomeAddressOneLine', () => {
             expected: ''
         },
         {
-            title: 'returns only the address part when city is missing',
-            home: { address: '123 main st' },
+            title: 'returns only the address part when city is missing, with apostrophes',
+            home: { address: '123 rue de l\'Église' },
             options: undefined,
-            expected: '123 main st'
+            expected: '123 rue de l\'Église'
         },
         {
             title: 'returns only the city part when civic number/street is missing',
@@ -3225,15 +3225,6 @@ describe('getVisitedPlaceNames', () => {
             expected:
                 interviewAttributesForTestCases.response.household!.persons!.personId1.journeys!.journeyId1
                     .visitedPlaces!.workPlace1P1.name
-        },
-        {
-            title: 'Place with a name to escape',
-            interview: testInterviewCopy,
-            visitedPlace:
-                testInterviewCopy.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!
-                    .workPlace1P1,
-            expectedTVal: undefined,
-            expected: 'mocked &lt;b&gt;place&lt;/b&gt;'
         },
         {
             title: 'Place with a shortcut',

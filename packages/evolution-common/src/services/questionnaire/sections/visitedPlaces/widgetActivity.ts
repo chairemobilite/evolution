@@ -6,7 +6,6 @@
  */
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import type { TFunction } from 'i18next';
-import _escape from 'lodash/escape';
 import { getResponse } from '../../../../utils/helpers';
 import type {
     I18nData,
@@ -92,7 +91,7 @@ class ActivityWidgetConfigBuilder {
             const { mayHaveUsualPlace, usualPlace } = helperFct(interview, path);
             if (mayHaveUsualPlace && usualPlace && typeof usualPlace.name === 'string') {
                 return t([`${activityLabel}_withPlace`, activityLabel], {
-                    placeName: _escape(usualPlace.name)
+                    placeName: usualPlace.name
                 });
             }
             return t(activityLabel);

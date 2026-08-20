@@ -26,6 +26,7 @@ import SurveyErrorMessage from '../survey/widgets/SurveyErrorMessage';
 // conditional import driven by the project config (one adapter per survey,
 // not per widget): a survey picks Google OR OSM, never both at runtime.
 import mapProviderAdapter from './maps/google/GoogleMapAdapter';
+import { stripUnsafeHtml } from '../../services/display/frontendHelper';
 
 export type InputMapFindPlaceProps = CommonInputProps & {
     value?: GeoJSON.Feature<GeoJSON.Point, FeatureGeocodedProperties>;
@@ -544,7 +545,7 @@ export class InputMapFindPlace extends React.Component<
                 )}
 
                 {afterRefreshButtonText && this.props.widgetConfig.containsHtml ? (
-                    <div dangerouslySetInnerHTML={{ __html: afterRefreshButtonText }} />
+                    <div dangerouslySetInnerHTML={{ __html: stripUnsafeHtml(afterRefreshButtonText) }} />
                 ) : (
                     <Markdown remarkPlugins={[[remarkGfm, { singleTilde: false }]]}>
                         {afterRefreshButtonText as string}

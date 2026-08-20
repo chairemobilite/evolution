@@ -6,10 +6,10 @@
  */
 import React from 'react';
 import Modal from 'react-modal';
-import { withTranslation, WithTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { stripHtml } from '../../services/display/frontendHelper';
+import { stripHtml, stripUnsafeHtml } from '../../services/display/frontendHelper';
 
 export interface SimpleModalProps {
     isOpen: boolean;
@@ -31,9 +31,8 @@ if (!process.env.IS_TESTING) {
  * @param props Component props
  * @returns The modal component
  */
-export const SimpleModal: React.FunctionComponent<SimpleModalProps & WithTranslation> = (
-    props: SimpleModalProps & WithTranslation
-) => {
+export const SimpleModal: React.FunctionComponent<SimpleModalProps> = (props: SimpleModalProps) => {
+    const { t } = useTranslation();
     const close = (ev: React.MouseEvent) => {
         if (typeof props.action === 'function') {
             props.action(ev);
@@ -56,7 +55,7 @@ export const SimpleModal: React.FunctionComponent<SimpleModalProps & WithTransla
                     </h3>
                 )}
                 {props.containsHtml ? (
-                    <div dangerouslySetInnerHTML={{ __html: props.text }} />
+                    <div dangerouslySetInnerHTML={{ __html: stripUnsafeHtml(props.text) }} />
                 ) : (
                     <div className="help-popup">
                         <Markdown remarkPlugins={[[remarkGfm, { singleTilde: false }]]}>
@@ -66,7 +65,7 @@ export const SimpleModal: React.FunctionComponent<SimpleModalProps & WithTransla
                 )}
                 <div className="center">
                     <button className="button blue" onClick={close}>
-                        {props.t('main:OK')}
+                        {t('main:OK')}
                     </button>
                 </div>
             </div>
@@ -74,4 +73,4 @@ export const SimpleModal: React.FunctionComponent<SimpleModalProps & WithTransla
     );
 };
 
-export default withTranslation()(SimpleModal);
+export default SimpleModal;

@@ -5,7 +5,6 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import _escape from 'lodash/escape';
 import _max from 'lodash/max';
 import _min from 'lodash/min';
 import _truncate from 'lodash/truncate';
@@ -634,7 +633,7 @@ export class VisitedPlaceTimeWidgetFactory implements WidgetConfigFactory {
                 'visitedPlaces:visitedPlaceArrivalTime'
             ];
             const place = !_isBlank(visitedPlaceName)
-                ? t('visitedPlaces:atPlace', { placeName: _escape(visitedPlaceName) })
+                ? t('visitedPlaces:atPlace', { placeName: visitedPlaceName })
                 : t('visitedPlaces:atThisPlace', { context: visitedPlace.activity });
             return (
                 t(keys, {
@@ -734,7 +733,7 @@ export class VisitedPlaceTimeWidgetFactory implements WidgetConfigFactory {
                 visitedPlace.activity === 'home'
                     ? t('visitedPlaces:theHome')
                     : !_isBlank(visitedPlaceName)
-                        ? t('visitedPlaces:place', { placeName: _escape(visitedPlaceName) })
+                        ? t('visitedPlaces:place', { placeName: visitedPlaceName })
                         : t('visitedPlaces:thisPlace', { context: visitedPlace.activity });
             const keys = [
                 `visitedPlaces:visitedPlaceDepartureTime_${visitedPlace.activity}`,

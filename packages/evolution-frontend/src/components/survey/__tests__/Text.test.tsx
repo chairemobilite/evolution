@@ -18,6 +18,10 @@ import { WidgetStatus } from 'evolution-common/lib/services/questionnaire/types'
 // Mock react-markdown and remark-gfm as they use syntax not supported by jest
 jest.mock('react-markdown', () => 'Markdown');
 jest.mock('remark-gfm', () => 'remark-gfm');
+// Mock frontend helper to avoid undefined config error
+jest.mock('../../../services/display/frontendHelper', () => ({
+    stripUnsafeHtml: jest.fn((str) => `strippedUnsafe:(${str})`)
+}));
 
 const userAttributes = {
     id: 1,

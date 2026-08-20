@@ -10,7 +10,7 @@ import Markdown from 'react-markdown';
 import { QuestionWidgetConfig } from 'evolution-common/lib/services/questionnaire/types';
 import SurveyErrorMessage from './SurveyErrorMessage';
 import HelpPopupLink from './HelpPopupLink';
-import { stripHtml } from '../../../services/display/frontendHelper';
+import { stripHtml, stripUnsafeHtml } from '../../../services/display/frontendHelper';
 
 interface InputWidgetWrapperProps {
     /** Text shown on the link and title of the modal */
@@ -40,7 +40,7 @@ const FieldsetWrapper = (props: React.PropsWithChildren<InputWidgetWrapperProps>
                         }
                     >
                         {props.widgetConfig.containsHtml ? (
-                            <div dangerouslySetInnerHTML={{ __html: props.label }} />
+                            <div dangerouslySetInnerHTML={{ __html: stripUnsafeHtml(props.label) }} />
                         ) : (
                             <div className="label">
                                 <Markdown>{stripHtml(props.label)}</Markdown>
@@ -100,7 +100,7 @@ export const LabelOrDivWrapper = (
                     }
                 >
                     {props.widgetConfig.containsHtml ? (
-                        <div dangerouslySetInnerHTML={{ __html: props.label }} />
+                        <div dangerouslySetInnerHTML={{ __html: stripUnsafeHtml(props.label) }} />
                     ) : (
                         <div className="label">
                             <Markdown>{stripHtml(props.label)}</Markdown>
