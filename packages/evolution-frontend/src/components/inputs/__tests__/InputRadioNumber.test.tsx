@@ -9,6 +9,11 @@ import InputRadioNumber from "../InputRadioNumber";
 import {UserPermissions} from "chaire-lib-common/lib/services/user/userType";
 import { render, fireEvent } from '@testing-library/react';
 
+// Mock frontend helper to avoid undefined config error
+jest.mock('../../../services/display/frontendHelper', () => ({
+    stripUnsafeHtml: jest.fn().mockImplementation(str => str)
+}));
+
 const interview = {
     id: 1,
     uuid: "",

@@ -41,7 +41,8 @@ jest.mock('react-input-range/src/js/input-range/default-class-names', () => ({
 jest.mock('react-input-range/lib/css/index.css', () => {});
 // Mock frontend helper to avoid undefined config error
 jest.mock('../../../services/display/frontendHelper', () => ({
-    stripHtml: jest.fn((str) => str)
+    stripHtml: jest.fn((str) => str),
+    stripUnsafeHtml: jest.fn((str) => str)
 }));
 
 // Mock the createPortal function to allow the snapshots with Modal questions to work. With later React and React-modal versions, this won't be necessary anymore. See https://github.com/reactjs/react-modal/issues/553
