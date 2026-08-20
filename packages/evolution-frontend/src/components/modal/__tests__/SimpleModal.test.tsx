@@ -7,6 +7,7 @@
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react';
 import SimpleModal from '../SimpleModal';
+import { stripHtml } from '../../../services/display/frontendHelper';
 
 // Mock react-markdown and remark-gfm as they use syntax not supported by jest
 jest.mock('react-markdown', () => 'Markdown');
@@ -19,6 +20,12 @@ jest.mock('react-i18next', () => ({
         return Component;
     },
 }));
+// Mock frontend helper to avoid undefined config error
+jest.mock('../../../services/display/frontendHelper', () => ({
+    stripHtml: jest.fn().mockImplementation(str => str)
+}));
+const mockStripHtml = stripHtml as jest.MockedFunction<typeof stripHtml>;
+
 
 test('Test simple modal with action on close', () =>{
     const handleClose = jest.fn();
@@ -47,6 +54,26 @@ test('Test simple modal with action on close', () =>{
     fireEvent.click(button as any);
     expect(handleClose).toHaveBeenCalledTimes(1);
     expect(action).toHaveBeenCalledTimes(1);
+});
+
+test('Test simple modal with containsHtml `false`', () =>{
+    const handleClose = jest.fn();
+    const action = jest.fn();
+    const title = 'Simple modal title';
+    const baseText = 'Text in the simple modal';
+    const text = `${baseText} <b>bold</b>`;
+    const { queryByText } = render(
+        <SimpleModal
+            isOpen={true}
+            closeModal={handleClose}
+            text={text}
+            title={title}
+            containsHtml={false}
+            action={action}
+        />
+    );
+    // Make sure the stripHtml function has been called
+    expect(mockStripHtml).toHaveBeenCalledWith(text);
 });
 
 test('Test simple modal with minimal parameters', () =>{

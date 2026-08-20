@@ -37,6 +37,11 @@ jest.mock('react-input-range/src/js/input-range/default-class-names', () => ({
 }));
 
 jest.mock('react-input-range/lib/css/index.css', () => {});
+// Mock frontend helper to avoid undefined config error
+jest.mock('../../../services/display/frontendHelper', () => ({
+    stripHtml: jest.fn().mockImplementation(str => str)
+}));
+
 
 // Add widgets to the survey context
 const widgets = {

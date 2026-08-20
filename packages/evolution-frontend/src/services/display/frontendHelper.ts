@@ -6,6 +6,7 @@
  */
 import { TFunction } from 'i18next';
 import moment from 'moment';
+import DOMPurify from 'dompurify';
 
 import i18n from '../../config/i18n.config';
 import { secondsSinceMidnightToTimeStr } from 'chaire-lib-common/lib/utils/DateTimeUtils';
@@ -203,4 +204,14 @@ export const getVisitedPlaceDescription = function (
     } else {
         return `${i18n.t(`survey:visitedPlace:activities:${visitedPlace.activity}`)}${visitedPlace.name ? ` • ${visitedPlace.name}` : ''}${times}`;
     }
+};
+
+/**
+ * Transform a string to remove all html characters
+ *
+ * @param text A string, possibly containing html characters
+ * @return a string without any html characters
+ */
+export const stripHtml = (text: string): string => {
+    return DOMPurify.sanitize(text, { ALLOWED_TAGS: [] });
 };

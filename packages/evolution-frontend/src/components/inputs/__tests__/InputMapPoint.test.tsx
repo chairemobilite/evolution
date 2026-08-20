@@ -23,6 +23,11 @@ jest.mock('../maps/google/GoogleGeocoder', () => ({
     geocodeSinglePoint: jest.fn()
 }));
 const mockedGeocode = geocodeSinglePoint as jest.MockedFunction<typeof geocodeSinglePoint>;
+// Mock frontend helper to avoid undefined config error
+jest.mock('../../../services/display/frontendHelper', () => ({
+    stripHtml: jest.fn().mockImplementation(str => str)
+}));
+
 
 const userAttributes = {
     id: 1,
