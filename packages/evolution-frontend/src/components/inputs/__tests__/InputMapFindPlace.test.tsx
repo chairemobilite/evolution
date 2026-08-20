@@ -5,13 +5,14 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom';
 
 import { interviewAttributes } from './interviewData';
 import mockGoogleMapAdapter, { mockGeocodeMultiplePlaces } from './mockGoogleMapAdapter';
 import InputMapFindPlace from '../InputMapFindPlace';
+import { fetchPlacePhotos } from '../maps/placePhoto';
 
 // Mock react-markdown and remark-gfm as they use syntax not supported by jest
 jest.mock('react-markdown', () => 'Markdown');
@@ -24,8 +25,13 @@ jest.mock('../maps/google/GoogleMapAdapter', () => ({
         return mockGoogleMapAdapter;
     }
 }));
+jest.mock('../maps/placePhoto', () => ({
+    ...jest.requireActual('../maps/placePhoto'),
+    fetchPlacePhotos: jest.fn().mockResolvedValue(undefined)
+}));
 
 const mockedGeocode = mockGeocodeMultiplePlaces;
+const mockedFetchPlacePhotos = fetchPlacePhotos as jest.MockedFunction<typeof fetchPlacePhotos>;
 
 const userAttributes = {
     id: 1,
@@ -382,5 +388,72 @@ describe('Test geocoding requests', () => {
         // Select list and confirm button should not be present
         expect(container.querySelector('select')).not.toBeInTheDocument();
         expect(screen.queryByText('ConfirmLocation')).not.toBeInTheDocument();
+    });
+});
+
+describe('Place photos in info window', () => {
+    const photoUrl = 'https://example.com/place.jpg';
+    const placeWithPhoto = {
+        type: 'Feature' as const,
+        geometry: { type: 'Point' as const, coordinates: [-73.2, 45.1] },
+        properties: {
+            placeData: {
+                place_id: '1',
+                formatted_address: '123 test street',
+                name: 'Foo extra good restaurant',
+                photos: [{ getUrl: () => photoUrl }]
+            }
+        }
+    };
+
+    const widgetConfig = {
+        ...baseWidgetConfig,
+        showPhoto: undefined as boolean | undefined,
+        geocodingQueryString: jest.fn().mockReturnValue('foo restaurant'),
+        refreshGeocodingLabel: {
+            fr: 'Geocode',
+            en: 'Geocode'
+        }
+    };
+
+    beforeEach(() => {
+        mockedFetchPlacePhotos.mockClear();
+        mockedFetchPlacePhotos.mockResolvedValue(undefined);
+    });
+
+    test.each([
+        ['showPhoto true', true, true],
+        ['showPhoto false', false, false],
+        ['showPhoto unset defaults to false', undefined, false]
+    ])('%s', async (_title, widgetShowPhoto, expectPhoto) => {
+        widgetConfig.showPhoto = widgetShowPhoto;
+        mockedGeocode.mockResolvedValueOnce([placeWithPhoto]);
+
+        render(
+            <InputMapFindPlace
+                id={'test'}
+                onValueChange={() => {
+                    /* nothing to do */
+                }}
+                widgetConfig={widgetConfig}
+                value={undefined}
+                inputRef={React.createRef()}
+                interview={interviewAttributes}
+                user={userAttributes}
+                path="foo.test"
+                loadingState={0}
+            />
+        );
+        await userEvent.click(screen.getByText('Geocode'));
+        await screen.findByText('Foo extra good restaurant');
+
+        const infoWindow = screen.getByTestId('mock-info-window');
+        if (expectPhoto) {
+            expect(infoWindow.querySelector(`img[src="${photoUrl}"]`)).toBeInTheDocument();
+            await waitFor(() => expect(mockedFetchPlacePhotos).toHaveBeenCalledWith('1'));
+        } else {
+            expect(infoWindow.querySelector('img')).not.toBeInTheDocument();
+            expect(mockedFetchPlacePhotos).not.toHaveBeenCalled();
+        }
     });
 });

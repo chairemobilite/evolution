@@ -18,13 +18,13 @@ import {
 } from '@vis.gl/react-google-maps';
 import GeoJSON from 'geojson';
 import bowser from 'bowser';
-import DOMPurify from 'dompurify';
 
 import { getCurrentGoogleMapConfig, getGoogleMapId } from '../../../../config/googleMaps.config';
 import InputLoading from '../../InputLoading';
 import { FeatureGeocodedProperties, MarkerData, InfoWindow as InfoWindowData } from '../types';
 import { geojson } from './GoogleMapUtils';
 import { logClientSideMessage } from '../../../../services/errorManagement/errorHandling';
+import { createPlaceInfoWindowElement, placeInfoWindowContentFromHtml } from '../placeInfoWindow';
 
 export interface InputGoogleMapPointProps {
     defaultCenter: { lat: number; lon: number };
@@ -241,9 +241,15 @@ const InputMapGoogleInner: React.FunctionComponent<InputGoogleMapPointProps> = (
             return;
         }
 
-        const container = document.createElement('div');
-        // Place name/address/photo HTML comes from geocoder data — sanitize before insert.
-        container.innerHTML = DOMPurify.sanitize(props.infoWindow.content);
+        const fromHtml = placeInfoWindowContentFromHtml(props.infoWindow.content);
+        const container = createPlaceInfoWindowElement({
+            name: props.infoWindow.placeName || fromHtml.name,
+            address: props.infoWindow.placeAddress || fromHtml.address,
+            photoUrl: props.infoWindow.photoUrl || fromHtml.photoUrl,
+            photoAttributionPrefix: props.infoWindow.photoAttributionPrefix || fromHtml.photoAttributionPrefix,
+            photoAttributions: props.infoWindow.photoAttributions ?? fromHtml.photoAttributions,
+            photoAttribution: props.infoWindow.photoAttribution || fromHtml.photoAttribution
+        });
 
         let confirmButton: HTMLButtonElement | undefined;
         const onConfirm = props.infoWindow.onConfirm;
@@ -251,10 +257,10 @@ const InputMapGoogleInner: React.FunctionComponent<InputGoogleMapPointProps> = (
             confirmButton = document.createElement('button');
             confirmButton.type = 'button';
             confirmButton.className = 'button green map-find-place-info-window-confirm';
-            confirmButton.style.marginTop = '0.5rem';
             confirmButton.textContent = props.infoWindow.confirmLabel;
             confirmButton.addEventListener('click', onConfirm);
-            container.appendChild(confirmButton);
+            const body = container.querySelector('.map-find-place-info-window-body');
+            (body ?? container).appendChild(confirmButton);
         }
 
         placesInfoWindow.setContent(container);

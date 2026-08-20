@@ -339,7 +339,12 @@ export type InputMapPointType = InputMapType &
  * @param height: The height of the map container in css units: example: 28rem or 550px
  * @param coordinatesPrecision: Number of decimals to keep for latitute longitude coordinates.
  * @param invalidGeocodingResultTypes: Types of geocoding results from google to set as invalid (like 'city' or 'country', which are not precise enough for the address)
- * @param showPhoto: Whether to show a photo of the selected place, when available.
+ * @param showPhoto: Per-widget only. Set to `true` to show a Google Place
+ * photo of the selected place. Unset or `false`: no photo and no Place
+ * Photos request. Default `false`. Photos are billed as the Place Photos
+ * SKU on top of search. See
+ * https://developers.google.com/maps/billing-and-pricing/sku-details
+ * TODO: Expose this as a Widgets Excel column in evolution-generator.
  * @param autoConfirmIfSingleResult: Whether to automatically confirm the selected place if there is only one result
  */
 export type InputMapFindPlaceType = InputMapType &
