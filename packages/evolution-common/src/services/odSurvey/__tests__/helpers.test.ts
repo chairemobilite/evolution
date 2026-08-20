@@ -2650,6 +2650,23 @@ describe('insertVisitedPlace functions', () => {
                         null,
                     'response.household.persons.personId1.journeys.journeyId1.visitedPlaces.workPlace1P1._previousDepartureTime':
                         null,
+                    // The next place is the usual work place, not home
+                    [`response.household.persons.personId1.journeys.journeyId1.visitedPlaces.${insertedVisitedPlaceUuid}.nextPlaceCategory`]:
+                        'visitedAnotherPlace',
+                    'response._activeVisitedPlaceId': insertedVisitedPlaceUuid
+                }
+            }
+        ],
+        [
+            'inserts a visited place before the first one of the day, there is no previous place to update',
+            {
+                insertSequence: 1,
+                expectedValuesByPath: {
+                    'response.household.persons.personId1.journeys.journeyId1.visitedPlaces.homePlace1P1._previousDepartureTime':
+                        null,
+                    // The next place, now second, is home
+                    [`response.household.persons.personId1.journeys.journeyId1.visitedPlaces.${insertedVisitedPlaceUuid}.nextPlaceCategory`]:
+                        'wentBackHome',
                     'response._activeVisitedPlaceId': insertedVisitedPlaceUuid
                 }
             }
@@ -2758,7 +2775,8 @@ describe('insertVisitedPlace functions', () => {
             sectionShortname: 'visitedPlaces',
             valuesByPath: {
                 'response.household.persons.personId1.journeys.journeyId1.visitedPlaces.workPlace1P1.nextPlaceCategory': null,
-                'response.household.persons.personId1.journeys.journeyId1.visitedPlaces.homePlace2P1._previousDepartureTime': null
+                'response.household.persons.personId1.journeys.journeyId1.visitedPlaces.homePlace2P1._previousDepartureTime': null,
+                [`response.household.persons.personId1.journeys.journeyId1.visitedPlaces.${insertedVisitedPlaceUuid}.nextPlaceCategory`]: 'wentBackHome'
             }
         }, expect.any(Function));
     });
