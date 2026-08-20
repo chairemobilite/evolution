@@ -244,7 +244,8 @@ describe('VisitedPlacesSection behavior', () => {
     });
 
     test.each([
-        ['insert button', () => getDefaultProps(), 'visitedPlaces:insertVisitedPlace', 0, 2],
+        ['insert button before the first place', () => getDefaultProps(), 'visitedPlaces:insertVisitedPlace', 0, 1],
+        ['insert button after the first place', () => getDefaultProps(), 'visitedPlaces:insertVisitedPlace', 1, 2],
         [
             'footer add button',
             () => {
