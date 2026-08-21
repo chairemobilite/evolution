@@ -1630,6 +1630,15 @@ export const insertEmptyVisitedPlace = async ({
     if (nextVisitedPlace) {
         const nextVisitedPlacePath = `household.persons.${person._uuid}.journeys.${currentJourney._uuid}.visitedPlaces.${nextVisitedPlace._uuid}`;
         updateValuesByPath[`response.${nextVisitedPlacePath}._previousDepartureTime`] = null;
+        // The place following the inserted one is already known, so is the
+        // category of what the respondent did after the inserted place. It is
+        // not asked, as the question is only for the last place of the journey.
+        // Same rule as in `reconcileVisitedPlaces`.
+        if (!_isBlank(nextVisitedPlace.activity)) {
+            const insertedVisitedPlacePath = `household.persons.${person._uuid}.journeys.${currentJourney._uuid}.visitedPlaces.${insertedVisitedPlace._uuid}`;
+            updateValuesByPath[`response.${insertedVisitedPlacePath}.nextPlaceCategory`] =
+                nextVisitedPlace.activity === 'home' ? 'wentBackHome' : 'visitedAnotherPlace';
+        }
     }
 
     // We set the active visited place to the inserted one, if the currently
