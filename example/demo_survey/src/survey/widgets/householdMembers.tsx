@@ -28,6 +28,7 @@ import { getFormattedDate, validateButtonAction } from 'evolution-frontend/lib/s
 import * as odSurveyHelper from 'evolution-common/lib/services/odSurvey/helpers';
 import { validateButtonActionWithCompleteSection } from 'evolution-frontend/lib/services/display/frontendHelper';
 import { defaultLocationInvalidGeocodingResultTypes } from 'evolution-common/lib/services/questionnaire/sections/common/widgetsLocation';
+import { getHouseholdMinimumAgeConfirmPopup } from 'evolution-common/lib/services/questionnaire/sections/common/householdMinimumAgeConfirmPopup';
 import { getImpreciseGeocodingValidation } from '../common/geographyValidations';
 
 const personsWidgets = [
@@ -1007,58 +1008,6 @@ export const personDidTrips = {
     }
 };
 
-export const householdNoMemberOlderThan16YearsOld = {
-    type: 'question',
-    inputType: 'button',
-    path: 'household.noMemberOlderThan16YearsOld',
-    align: 'center',
-    datatype: 'boolean',
-    twoColumns: false,
-    isModal: true,
-    containsHtml: true,
-    label: {
-        fr: function (interview, path) {
-            const householdSize = odSurveyHelper.countPersons({ interview });
-            if (householdSize === 1) {
-                return 'Vous devez avoir au moins 16 ans pour répondre à ce questionnaire.';
-            }
-            return 'Au moins un membre de votre ménage doit avoir 16 ans ou plus pour répondre à ce questionnaire. Veuillez vérifier les âges.';
-        },
-        en: function (interview, path) {
-            const householdSize = odSurveyHelper.countPersons({ interview });
-            if (householdSize === 1) {
-                return 'You must be at least 16 years old to respond to this survey.';
-            }
-            return 'At least one member of your household must be 16 years old or older to respond to this survey. Please verify ages.';
-        }
-    },
-    choices: [
-        {
-            value: 'seenPopup',
-            label: {
-                fr: 'OK',
-                en: 'OK'
-            },
-            color: 'blue'
-        }
-    ],
-    conditional: function (interview, path) {
-        const persons = odSurveyHelper.getPersons({ interview });
-        let allPersonHaveAge = true;
-        let atLeastOnePerson16OrOlder = false;
-        for (const personId in persons) {
-            const person = persons[personId];
-            if (!(person.age >= 0)) {
-                allPersonHaveAge = false;
-            }
-            if (person.age >= 16) {
-                atLeastOnePerson16OrOlder = true;
-            }
-        }
-        return [allPersonHaveAge && !atLeastOnePerson16OrOlder, null];
-    }
-};
-
 export const buttonSaveNextSectionHouseholdMembers: ButtonWidgetConfig = {
     type: 'button',
     path: 'buttonSaveNextSection',
@@ -1070,45 +1019,7 @@ export const buttonSaveNextSectionHouseholdMembers: ButtonWidgetConfig = {
     hideWhenRefreshing: true,
     icon: faCheckCircle,
     align: 'center',
-    confirmPopup: {
-        content: {
-            fr: function (interview, path) {
-                const householdSize = odSurveyHelper.countPersons({ interview });
-                if (householdSize === 1) {
-                    return 'Vous devez avoir au moins 16 ans pour répondre à ce questionnaire.';
-                }
-                return 'Au moins un membre de votre ménage doit avoir 16 ans ou plus pour répondre à ce questionnaire. Veuillez vérifier les âges.';
-            },
-            en: function (interview, path) {
-                const householdSize = odSurveyHelper.countPersons({ interview });
-                if (householdSize === 1) {
-                    return 'You must be at least 16 years old to respond to this survey.';
-                }
-                return 'At least one member of your household must be 16 years old or older to respond to this survey. Please verify ages.';
-            }
-        },
-        showConfirmButton: false,
-        cancelButtonColor: 'blue',
-        cancelButtonLabel: {
-            fr: 'OK',
-            en: 'OK'
-        },
-        conditional: function (interview) {
-            const persons = odSurveyHelper.getPersons({ interview });
-            let allPersonHaveAge = true;
-            let atLeastOnePersonOlderThan16 = false;
-            for (const personId in persons) {
-                const person = persons[personId];
-                if (!(person.age >= 0)) {
-                    allPersonHaveAge = false;
-                }
-                if (person.age >= 16) {
-                    atLeastOnePersonOlderThan16 = true;
-                }
-            }
-            return allPersonHaveAge && !atLeastOnePersonOlderThan16;
-        }
-    },
+    confirmPopup: getHouseholdMinimumAgeConfirmPopup(),
     saveCallback: function (
         callbacks: InterviewUpdateCallbacks,
         interview: UserInterviewAttributes,
