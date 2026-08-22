@@ -309,6 +309,24 @@ export const getInterviewablePersonsArray = ({ interview }: { interview: UserInt
 };
 
 /**
+ * Whether the household has at least one member old enough to answer the
+ * survey, ie at least
+ * `config.ages.householdMinimumAge` years old. Persons
+ * whose age is not answered do not count, as well as a household without any
+ * person. The age is required in the household section, so an unanswered age
+ * only happens while the respondent is still filling the section.
+ *
+ * @param {Object} options - The options object.
+ * @param {UserInterviewAttributes} options.interview The interview object
+ * @returns {boolean} `true` if at least one member is old enough to answer the
+ * survey
+ */
+export const hasHouseholdMemberOfMinimumAge = ({ interview }: { interview: UserInterviewAttributes }): boolean =>
+    getPersonsArray({ interview }).some(
+        (person) => typeof person.age === 'number' && person.age >= config.ages.householdMinimumAge
+    );
+
+/**
  * Count the number of persons in the household. This function uses the person
  * defined in the household and not the household size specified by the
  * respondent.

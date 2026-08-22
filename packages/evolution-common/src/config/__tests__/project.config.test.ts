@@ -16,6 +16,7 @@ const defaultAges = {
     workingAge: 15,
     schoolMandatoryAge: 15,
     maxPersonAge: 125,
+    householdMinimumAge: 16,
     addAuditWarningVeryOldAge: undefined
 };
 
@@ -57,7 +58,8 @@ test('set project configuration', () => {
             drivingLicenseAge: 16,
             workingAge: 16,
             schoolMandatoryAge: 17,
-            maxPersonAge: 125
+            maxPersonAge: 125,
+            householdMinimumAge: 18
         },
         maxHouseholdSize: 18,
         vehicles: {

@@ -5,9 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased (0.6.1)] - YYYY-MM-DD
+## [Unreleased (0.6.1)]
 
 ### Added
+
+- Household: reusable confirm popup, `getHouseholdMinimumAgeConfirmPopup`, to block the household section when no member reaches the new `ages.householdMinimumAge` config option (defaults to 16). Add it to the section's continue button: `confirmPopup: getHouseholdMinimumAgeConfirmPopup()` (fixes [#1858](https://github.com/chairemobilite/evolution/issues/1858)).
 
 ### Changed
 

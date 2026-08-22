@@ -40,6 +40,7 @@ test('test initialized values', () => {
         workingAge: 15,
         schoolMandatoryAge: 15,
         maxPersonAge: 125,
+        householdMinimumAge: 16,
         addAuditWarningVeryOldAge: undefined
     });
     expect(projectConfig).toEqual(expect.objectContaining({

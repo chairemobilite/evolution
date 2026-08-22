@@ -699,6 +699,69 @@ describe('getInterviewablePersonsArray', () => {
     });
 });
 
+describe('hasHouseholdMemberOfMinimumAge', () => {
+    // The ages of the test cases are relative to this value, so the tests keep
+    // their meaning if the configured default changes
+    const minimumAge = 16;
+
+    each([
+        ['No household', undefined, false],
+        ['No persons', {}, false],
+        [
+            'Single person of exactly the minimum age',
+            { personId1: { _uuid: 'personId1', _sequence: 1, age: minimumAge } },
+            true
+        ],
+        [
+            'Single person under the minimum age',
+            { personId1: { _uuid: 'personId1', _sequence: 1, age: minimumAge - 1 } },
+            false
+        ],
+        [
+            'All persons under the minimum age',
+            {
+                personId1: { _uuid: 'personId1', _sequence: 1, age: minimumAge - 1 },
+                personId2: { _uuid: 'personId2', _sequence: 2, age: 3 }
+            },
+            false
+        ],
+        [
+            'One person over the minimum age',
+            {
+                personId1: { _uuid: 'personId1', _sequence: 1, age: minimumAge - 1 },
+                personId2: { _uuid: 'personId2', _sequence: 2, age: minimumAge + 10 }
+            },
+            true
+        ],
+        // The age is required, an unanswered age does not make the household eligible
+        [
+            'Persons under the minimum age and a person without age',
+            {
+                personId1: { _uuid: 'personId1', _sequence: 1, age: minimumAge - 1 },
+                personId2: { _uuid: 'personId2', _sequence: 2 }
+            },
+            false
+        ],
+        [
+            'A person without age and a person over the minimum age',
+            {
+                personId1: { _uuid: 'personId1', _sequence: 1 },
+                personId2: { _uuid: 'personId2', _sequence: 2, age: minimumAge + 10 }
+            },
+            true
+        ]
+    ]).test('%s', (_title, persons: any, expected: boolean) => {
+        projectConfig.ages.householdMinimumAge = minimumAge;
+        const interview = _cloneDeep(interviewAttributesWithHh);
+        if (persons === undefined) {
+            interview.response.household = undefined;
+        } else {
+            interview.response.household!.persons = persons;
+        }
+        expect(Helpers.hasHouseholdMemberOfMinimumAge({ interview })).toEqual(expected);
+    });
+});
+
 each([
     [
         'One person-only',
