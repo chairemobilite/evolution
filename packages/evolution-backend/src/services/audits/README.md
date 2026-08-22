@@ -2,6 +2,8 @@
 
 An **audit** is a post-submission validation run over an interview. Each failing or matching audit check produces an `AuditForObject` record persisted in `sv_audits` database table and surfaced to reviewers in the admin app. Audits do *not* block the respondent while they fill the questionnaire — that is [real-time validation](../../../../../docs/nomenclature.md), a separate system.
 
+Audits must validate the interview data on its own merits, never assuming it was already validated in real time: a respondent can leave a field invalid after passing through it once, or edit the stored data directly (e.g. via browser dev tools), bypassing the frontend entirely. This is why most real-time validations are intentionally duplicated as audit checks — see [`auditChecks/README.md`](auditChecks/README.md#1-what-is-an-audit-check) for details.
+
 Each check declares a `level` (defaults to `error` if omitted):
 
 - **`error`** — must be reviewed; may lead to correction or rejection of the interview.
