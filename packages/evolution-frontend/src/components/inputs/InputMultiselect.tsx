@@ -180,6 +180,7 @@ export class InputMultiselect extends React.Component<InputMultiselectProps & Wi
         return (
             <div className="survey-question__input-multiselect-container">
                 <Select
+                    inputId={this.props.id}
                     aria-labelledby={`${this.props.id}_label`}
                     formatOptionLabel={formatOptionLabel}
                     //disabled={false}

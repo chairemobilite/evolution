@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Add `inputId` to `InputMultiselect` for UI tests to properly identify the widget (fixes [#1860](https://github.com/chairemobilite/evolution/issues/1860))
+
 ### Security
 
 ### Dependency updates
