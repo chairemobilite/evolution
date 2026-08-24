@@ -856,6 +856,47 @@ describe('Update interview', () => {
         expect(updateCallback).toHaveBeenCalledWith(expectedInterviewAsStateAfterCall2);
     });
 
+    test('Redirects to a relative URL without fetching logout', async () => {
+        jsonFetchResolve.mockResolvedValue({
+            status: 'redirect',
+            redirectUrl: '/survey/completed'
+        });
+
+        const callback = SurveyActions.startUpdateInterview({
+            sectionShortname: 'section',
+            valuesByPath: { 'response.section1.q1': 'foo' },
+            interview: _cloneDeep(interviewAttributes)
+        });
+        await callback(mockDispatch, mockGetState);
+
+        expect(fetchRetryMock).toHaveBeenCalledTimes(1);
+        expect(fetchRetryMock).toHaveBeenCalledWith(
+            '/api/survey/updateInterview',
+            expect.objectContaining({ method: 'POST' })
+        );
+    });
+
+    test('Fetches logout before redirecting to another domain', async () => {
+        jsonFetchResolve.mockResolvedValue({
+            status: 'redirect',
+            redirectUrl: 'https://other.example.com/survey/complete'
+        });
+
+        const callback = SurveyActions.startUpdateInterview({
+            sectionShortname: 'section',
+            valuesByPath: { 'response.section1.q1': 'foo' },
+            interview: _cloneDeep(interviewAttributes)
+        });
+        await callback(mockDispatch, mockGetState);
+
+        expect(fetchRetryMock).toHaveBeenCalledTimes(2);
+        expect(fetchRetryMock).toHaveBeenNthCalledWith(
+            2,
+            '/logout',
+            expect.objectContaining({ credentials: 'include' })
+        );
+    });
+
 });
 
 describe('startNavigate', () => {
