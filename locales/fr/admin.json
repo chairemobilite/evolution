@@ -41,6 +41,7 @@
     "Household": "Ménage",
     "Comments": "Commentaires",
     "StartedAndCompletedInterviewsPerDay": "Entrevues débutées et complétées par jour",
+    "NoInterviewsYetOrOutsidePeriod": "Aucune entrevue débutée, ou période d'enquête non démarrée",
     "StartedAndCompletedInterviewsPerHouseholdSize": "Entrevues débutées et complétées par taille du ménage",
     "NumberOfInterviews": "Nombre d'entrevues",
     "CumulativeNumberOfInterviews": "Nombre d'entrevues cumulées",

@@ -64,8 +64,23 @@ const StartedAndCompletedInterviewsByDay: React.FC = () => {
             });
     }, []);
 
-    if (!(data.started.length > 0)) {
+    // Data not loaded yet
+    if (data.startedCount === undefined) {
         return <Loader size={'30px'} color={'#aaaaaa'} loading={true} />;
+    }
+    // Count of started interviews is 0, display the no interview warning
+    if (data.startedCount === 0) {
+        return (
+            <div
+                className="admin-widget-container"
+                style={{ width: `${Math.min(1600, Math.max(250, data.dates.length * 30 + 150))}px` }}
+            >
+                <strong>{t('admin:StartedAndCompletedInterviewsPerDay')}</strong>
+                <p className="no-bottom-margin">
+                    <span>{t('admin:NoInterviewsYetOrOutsidePeriod')}</span>
+                </p>
+            </div>
+        );
     }
 
     // generate cumulative counts arrays:
@@ -193,20 +208,10 @@ const StartedAndCompletedInterviewsByDay: React.FC = () => {
         >
             <HighchartsReact highcharts={Highcharts} options={chartOptions} ref={reactHighchartsRef} />
             <p className="no-bottom-margin">
-                {data.startedCount && (
-                    <React.Fragment>
-                        <span>{t('admin:StartedFem')} : </span>
-                        <strong>{data.startedCount}</strong>
-                    </React.Fragment>
-                )}
-                {data.completedCount && (
-                    <React.Fragment>
-                        {' '}
-                        • <span>{t('admin:CompletedFem')} : </span>
-                        <strong>{data.completedCount}</strong>
-                        {completionRate ? <span> ({(completionRate * 100).toFixed(1)}%)</span> : ''}
-                    </React.Fragment>
-                )}
+                <span>{t('admin:StartedFem')} : </span>
+                <strong>{data.startedCount}</strong> • <span>{t('admin:CompletedFem')} : </span>
+                <strong>{data.completedCount}</strong>
+                {completionRate !== null ? <span> ({(completionRate * 100).toFixed(1)}%)</span> : ''}
             </p>
         </div>
     );
