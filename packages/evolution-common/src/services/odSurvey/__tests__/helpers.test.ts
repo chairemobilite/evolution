@@ -1783,6 +1783,33 @@ describe('shouldShowTripsAndPlacesSections', () => {
                 personDidTripsConfirm: 'no'
             },
             expected: false
+        },
+        {
+            title: 'personDidTrips, but flag _skipTripDiary flag set to `true`',
+            journey: {
+                ...baseJourney,
+                personDidTrips: 'yes',
+                _skipTripDiary: true
+            },
+            expected: false
+        },
+        {
+            title: 'personDidTrips \'no\', and flag _skipTripDiary flag set to `false`',
+            journey: {
+                ...baseJourney,
+                personDidTrips: 'no',
+                _skipTripDiary: false
+            },
+            expected: false
+        },
+        {
+            title: 'personDidTrips \'yes\', and flag _skipTripDiary flag set to `false`',
+            journey: {
+                ...baseJourney,
+                personDidTrips: 'yes',
+                _skipTripDiary: false
+            },
+            expected: true
         }
     ])('$title', ({ journey, expected }) => {
         expect(Helpers.shouldShowTripsAndPlacesSections({ journey })).toEqual(expected);

@@ -764,7 +764,8 @@ export const formatJourneyDates = ({
  * Determine whether the trips and visited places sections should exist for this
  * journey, based on the journey's data and prior answers.
  *
- * For OD surveys, this is based on the `personDidTrips` question.
+ * For OD surveys, this is based on the `personDidTrips` question and the
+ * `_skipTripDiary` flag.
  *
  * @param {Object} options - The options object.
  * @param {Journey} options.journey The journey for which to check if visited
@@ -776,7 +777,7 @@ export const shouldShowTripsAndPlacesSections = ({ journey }: { journey: Journey
     // FIXME This implies that the journey has the `personDidTrips` question.
     // Support surveys with journeys manually created by participant (see issue
     // #1498)
-    journey.personDidTrips === 'yes' || journey.personDidTripsConfirm === 'yes';
+    (journey.personDidTrips === 'yes' || journey.personDidTripsConfirm === 'yes') && journey._skipTripDiary !== true;
 
 // *** Trip-related functions
 
