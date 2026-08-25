@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Add `inputId` to `InputMultiselect` for UI tests to properly identify the widget (fixes [#1860](https://github.com/chairemobilite/evolution/issues/1860))
 - Fix legacy `interviewId` parameter in `activeInterview` admin route (fixes [#1856](https://github.com/chairemobilite/evolution/issues/1856))
 - Redirect URLs returned by the `updateInterview` call do not log the participant out if it is internal, allowing in-survey redirections. (fixes [#1863](https://github.com/chairemobilite/evolution/issues/1863))
+- Fix spinner in admin's interview count by day graph when the count is 0 (fixes [#1870](https://github.com/chairemobilite/evolution/issues/1870))
 
 ### Security
 
