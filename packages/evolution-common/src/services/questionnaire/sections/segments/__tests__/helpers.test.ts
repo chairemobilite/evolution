@@ -878,14 +878,24 @@ describe('getSegmentPreviousLocation and getSegmentNextLocation', () => {
                 return { trip: tripWithHomeAsOrigin, journey: interview.response.household.persons!.personId2.journeys!.journeyId2 };
             }
         }
-    ]).test('getSegmentPreviousLocation: Uses the trip origin when fieldsWithGeojsonPoint is not configured: $description', ({ currentSegment, expected, setup }) => {
+    ]).describe('Uses the trip origin when fieldsWithGeojsonPoint is not configured: $description:', ({ currentSegment, expected, setup }) => {
+        // Prepare interview for both tests
         const interview = _cloneDeep(interviewAttributesForTestCases);
         const { journey, trip } = setup ? setup(interview) : makeTripWithSegments(interview);
 
-        helpers.initializeSegmentSectionHelpers({ type: 'segments', enabled: true });
+        beforeEach(() => {
+            helpers.initializeSegmentSectionHelpers({ type: 'segments', enabled: true });
+        });
 
-        const result = helpers.getSegmentPreviousLocation({ segment: currentSegment, trip, journey, interview, person: interview.response.household!.persons!.personId2 });
-        expect(result).toEqual(expected);
+        test('getSegmentPreviousLocation', () => {
+            const result = helpers.getSegmentPreviousLocation({ segment: currentSegment, trip, journey, interview, person: interview.response.household!.persons!.personId2 });
+            expect(result).toEqual(expected);
+        });
+
+        test('getSegmentPreviousKnownLocation', () => {
+            const result = helpers.getSegmentPreviousKnownLocation({ segment: currentSegment, trip, journey, interview, person: interview.response.household!.persons!.personId2 });
+            expect(result).toEqual(expected);
+        });
     });
 
     each([
@@ -912,13 +922,24 @@ describe('getSegmentPreviousLocation and getSegmentNextLocation', () => {
                 return { trip: tripWithHomeAsDestination, journey: interview.response.household.persons!.personId2.journeys!.journeyId2 };
             }
         }
-    ]).test('getSegmentNextLocation: Uses the trip destination when fieldsWithGeojsonPoint is not configured: $description', ({ currentSegment, expected, setup }) => {
+    ]).describe('Uses the trip destination when fieldsWithGeojsonPoint is not configured: $description:', ({ currentSegment, expected, setup }) => {
+        // Prepare interview for both tests
         const interview = _cloneDeep(interviewAttributesForTestCases);
         const { journey, trip } = setup ? setup(interview) : makeTripWithSegments(interview);
-        helpers.initializeSegmentSectionHelpers({ type: 'segments', enabled: true });
 
-        const result = helpers.getSegmentNextLocation({ segment: currentSegment, trip, journey, interview, person: interview.response.household!.persons!.personId2 });
-        expect(result).toEqual(expected);
+        beforeEach(() => {
+            helpers.initializeSegmentSectionHelpers({ type: 'segments', enabled: true });
+        });
+
+        test('getSegmentNextLocation', () => {
+            const result = helpers.getSegmentNextLocation({ segment: currentSegment, trip, journey, interview, person: interview.response.household!.persons!.personId2 });
+            expect(result).toEqual(expected);
+        });
+
+        test('getSegmentNextKnownLocation', () => {
+            const result = helpers.getSegmentNextKnownLocation({ segment: currentSegment, trip, journey, interview, person: interview.response.household!.persons!.personId2 });
+            expect(result).toEqual(expected);
+        });
     });
 
     each([
@@ -933,13 +954,25 @@ describe('getSegmentPreviousLocation and getSegmentNextLocation', () => {
             currentSegmentUuid: segmentThree._uuid
         },
         {
+            description: 'Previous segment\'s destination defined but not a feature',
+            expected: 'unknown',
+            expectedKnown: stationFeatureCollection.features.find((feature) => feature.id === segmentTwo.originStation),
+            setup: (interview) => {
+                // segmentTwo's destination station should be the destination, but it is a different choice: other
+                const { journey, trip } = makeTripWithSegments(interview);
+                (trip.segments!.segment2 as any).destinationStation = 'other';
+                return { journey, trip };
+            },
+            currentSegmentUuid: segmentThree._uuid
+        },
+        {
             description: 'use location of the previous segment that has one',
             expected: stationFeatureCollection.features.find((feature) => feature.id === segmentTwo.destinationStation),
             setup: (interview) => {
                 // Put segmentTwo at the first position, so that last 2 segments do not have location data
                 const { journey, trip } = makeTripWithSegments(interview);
                 trip.segments!.segment2._sequence = 1;
-                trip.segments!.segment3._sequence = 2;
+                trip.segments!.segment1._sequence = 2;
                 return { journey, trip };
             },
             currentSegmentUuid: segmentThree._uuid
@@ -975,18 +1008,31 @@ describe('getSegmentPreviousLocation and getSegmentNextLocation', () => {
             },
             currentSegmentUuid: segmentOne._uuid
         }
-    ]).test('getSegmentPreviousLocation: Find correct origin when fieldsWithGeojsonPoint are configured: $description', ({ currentSegmentUuid, expected, setup }) => {
+    ]).describe('Find correct origin when fieldsWithGeojsonPoint are configured: $description: ', ({ currentSegmentUuid, expected, setup, expectedKnown = expected }) => {
+
+        // Prepare data for both tests
         // Initialize journey and trips
         const interview = _cloneDeep(interviewAttributesForTestCases);
         const { journey, trip } = setup ? setup(interview) : makeTripWithSegments(interview);
-        helpers.initializeSegmentSectionHelpers({ type: 'segments', enabled: true, fieldsWithGeojsonPoint });
 
         // Get the current segment
         const currentSegment = trip.segments[currentSegmentUuid];
 
-        // Get segment destination
-        const result = helpers.getSegmentPreviousLocation({ segment: currentSegment, trip, journey, interview, person: interview.response.household!.persons!.personId2 });
-        expect(result).toEqual(expected);
+        beforeEach(() => {
+            helpers.initializeSegmentSectionHelpers({ type: 'segments', enabled: true, fieldsWithGeojsonPoint });
+        });
+
+        test('getSegmentPreviousLocation', () => {
+            // Get segment destination
+            const result = helpers.getSegmentPreviousLocation({ segment: currentSegment, trip, journey, interview, person: interview.response.household!.persons!.personId2 });
+            expect(result).toEqual(expected);
+        });
+
+        test('getSegmentPreviousKnownLocation', () => {
+            // Get segment destination
+            const result = helpers.getSegmentPreviousKnownLocation({ segment: currentSegment, trip, journey, interview, person: interview.response.household!.persons!.personId2 });
+            expect(result).toEqual(expectedKnown);
+        })
     });
 
     each([
@@ -998,6 +1044,18 @@ describe('getSegmentPreviousLocation and getSegmentNextLocation', () => {
         {
             description: 'Use next segment\'s origin station when set',
             expected: stationFeatureCollection.features.find((feature) => feature.id === segmentTwo.originStation),
+            currentSegmentUuid: segmentOne._uuid
+        },
+        {
+            description: 'next segment\'s origin defined but not a feature',
+            expected: 'unknown',
+            expectedKnown: stationFeatureCollection.features.find((feature) => feature.id === segmentTwo.destinationStation),
+            setup: (interview) => {
+                // segmentTwo's origin station should be the origin, but it is a different choice: other
+                const { journey, trip } = makeTripWithSegments(interview);
+                (trip.segments!.segment2 as any).originStation = 'other';
+                return { journey, trip };
+            },
             currentSegmentUuid: segmentOne._uuid
         },
         {
@@ -1043,18 +1101,29 @@ describe('getSegmentPreviousLocation and getSegmentNextLocation', () => {
             },
             currentSegmentUuid: segmentOne._uuid
         }
-    ]).test('getSegmentNextLocation: Find correct destination when fieldsWithGeojsonPoint are configured: $description', ({ currentSegmentUuid, expected, setup }) => {
+    ]).describe('Find correct destination when fieldsWithGeojsonPoint are configured: $description: ', ({ currentSegmentUuid, expected, setup, expectedKnown = expected }) => {
         // Initialize journey and trips
         const interview = _cloneDeep(interviewAttributesForTestCases);
         const { journey, trip } = setup ? setup(interview) : makeTripWithSegments(interview);
-        helpers.initializeSegmentSectionHelpers({ type: 'segments', enabled: true, fieldsWithGeojsonPoint });
 
         // Get the current segment
         const currentSegment = trip.segments[currentSegmentUuid];
 
-        // Get segment destination
-        const result = helpers.getSegmentNextLocation({ segment: currentSegment, trip, journey, interview, person: interview.response.household!.persons!.personId2 });
-        expect(result).toEqual(expected);
+        beforeEach(() => {
+            helpers.initializeSegmentSectionHelpers({ type: 'segments', enabled: true, fieldsWithGeojsonPoint });
+        });
+
+        test('getSegmentNextLocation', () => {
+            // Get segment destination
+            const result = helpers.getSegmentNextLocation({ segment: currentSegment, trip, journey, interview, person: interview.response.household!.persons!.personId2 });
+            expect(result).toEqual(expected);
+        });
+
+        test('getSegmentNextKnownLocation', () => {
+            // Get segment destination
+            const result = helpers.getSegmentNextKnownLocation({ segment: currentSegment, trip, journey, interview, person: interview.response.household!.persons!.personId2 });
+            expect(result).toEqual(expectedKnown);
+        });
     });
 
     test('getCurrentSegmentOriginLocation: return null when no fields configured', () => {
@@ -1079,6 +1148,17 @@ describe('getSegmentPreviousLocation and getSegmentNextLocation', () => {
         {
             description: 'use originStation for current segment origin when available',
             expected: stationFeatureCollection.features.find((feature) => feature.id === segmentTwo.originStation),
+            currentSegmentUuid: segmentTwo._uuid
+        },
+        {
+            description: 'Return `unknown` if current segment\'s origin exists but is not a feature',
+            expected: 'unknown',
+            setup: (interview) => {
+                // segmentTwo's origin station should be the origin, but it is a different choice: other
+                const { journey, trip } = makeTripWithSegments(interview);
+                (trip.segments!.segment2 as any).originStation = 'other';
+                return { journey, trip };
+            },
             currentSegmentUuid: segmentTwo._uuid
         },
         {
@@ -1119,6 +1199,17 @@ describe('getSegmentPreviousLocation and getSegmentNextLocation', () => {
         {
             description: 'use destinationStation for current segment destination when available',
             expected: stationFeatureCollection.features.find((feature) => feature.id === segmentTwo.destinationStation),
+            currentSegmentUuid: segmentTwo._uuid
+        },
+        {
+            description: 'Return `unknown` if current segment\'s destination exists but is not a feature',
+            expected: 'unknown',
+            setup: (interview) => {
+                // segmentTwo's destination station should be the destination, but it is a different choice: other
+                const { journey, trip } = makeTripWithSegments(interview);
+                (trip.segments!.segment2 as any).destinationStation = 'other';
+                return { journey, trip };
+            },
             currentSegmentUuid: segmentTwo._uuid
         },
         {
