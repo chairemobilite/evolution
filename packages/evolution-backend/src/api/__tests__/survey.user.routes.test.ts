@@ -46,7 +46,7 @@ app.use(
     surveyUserRoutes(mockAuthorizationMiddleware, mockLoggingMiddleware)
 );
 
-describe('GET /survey/activeInterview/:interviewId', () => {
+describe('GET /survey/activeInterview/:interviewUuid', () => {
 
     const interviewUuid = uuidV4();
 

@@ -26,7 +26,7 @@ export default (authorizationMiddleware, loggingMiddleware: InterviewLoggingMidd
     addCommonRoutes(router, authorizationMiddleware, loggingMiddleware);
 
     router.get(
-        '/survey/activeInterview/:interviewId',
+        '/survey/activeInterview/:interviewUuid',
         validateUuidMiddleware,
         authorizationMiddleware(['update', 'read']),
         loggingMiddleware.openingInterview(false),
@@ -38,7 +38,7 @@ export default (authorizationMiddleware, loggingMiddleware: InterviewLoggingMidd
                     return;
                 }
                 // Get the current interview with uuid
-                const interview = await Interviews.getInterviewByUuid(req.params.interviewId);
+                const interview = await Interviews.getInterviewByUuid(req.params.interviewUuid);
                 if (interview?.is_frozen) {
                     console.log(`activeSurvey: Interview is frozen for interview id ${interview?.id}`);
                     return res
