@@ -166,6 +166,10 @@ export type Person = PersonAttributes &
  * journey.
  * @property {{ [visitedPlaceId: string]: VisitedPlace }} [visitedPlaces] The
  * visited places associated with this journey.
+ * @property { boolean } [_skipTripDiary] Optional property that, if set to
+ * `true`, will indicate that the trip diary sections associated with this
+ * journey should be skipped entirely. Individual surveys can assign this
+ * property to the journey as they see fit.
  */
 export type Journey = JourneyAttributes &
     QuestionnaireObjectWithUuidAndSequence & {
@@ -183,6 +187,7 @@ export type Journey = JourneyAttributes &
         visitedPlaces?: {
             [visitedPlaceId: string]: VisitedPlace;
         };
+        _skipTripDiary?: boolean;
     };
 
 type NextPlaceCategory = 'wentBackHome' | 'visitedAnotherPlace' | 'stayedThereUntilTheNextDay' | 'wentToUsualWorkPlace';
