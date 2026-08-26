@@ -3224,6 +3224,21 @@ describe('selectNextIncompleteTrip', () => {
         expect(Helpers.selectNextIncompleteTrip({ journey: attributes })).toEqual(attributes.trips!.trip1);
     });
 
+    test('should select trip with new segments, even if otherwise completed', () => {
+        const attributes = _cloneDeep(journey);
+        // Set the _isNew of segment2 to `true`
+        attributes.trips!.trip1.segments!.segment2._isNew = true;
+        expect(Helpers.selectNextIncompleteTrip({ journey: attributes })).toEqual(attributes.trips!.trip1);
+    });
+
+    test('should select trip with no segment, if the _isNew property is not set', () => {
+        const attributes = _cloneDeep(journey);
+        // Remove the _isNew property. Need to cast to any because it is mandatory, but we want to fake it anyway
+        delete (attributes.trips!.trip1.segments!.segment2 as any)._isNew;
+        delete (attributes.trips!.trip1.segments!.segment1 as any)._isNew;
+        expect(Helpers.selectNextIncompleteTrip({ journey: attributes })).toEqual(attributes.trips!.trip2);
+    });
+
     test('should return null if all trips complete', () => {
         const attributes = _cloneDeep(journey);
         // segments of trip2

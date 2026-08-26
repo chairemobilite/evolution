@@ -923,8 +923,11 @@ export const selectNextIncompleteTrip = ({ journey }: { journey: Journey }): Tri
         if (!tripHasDefinedSegments({ trip })) {
             return trip;
         } else {
-            // Return the trip if one of the segments does not have a mode
-            const incompleteSegment = segments.find((segment) => _isBlank(segment) || _isBlank(segment.mode));
+            // Return the trip if one of the segments does not have a mode, or if the `_isNew` field is still `true`
+            // FIXME A segment may still be incomplete if an existing one was modified and some fields may be invalid
+            const incompleteSegment = segments.find(
+                (segment) => _isBlank(segment) || _isBlank(segment.mode) || segment._isNew === true
+            );
             if (incompleteSegment) {
                 return trip;
             }
