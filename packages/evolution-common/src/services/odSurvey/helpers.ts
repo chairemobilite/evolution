@@ -1423,8 +1423,11 @@ export const getFirstIncompleteVisitedPlace = ({
         const geography = getVisitedPlaceGeography({ visitedPlace, interview, person });
 
         // FIXME The content of this function should depend on the survey's
-        // configuration. Now we suppose check only the activity and geography
+        // configuration. Now we suppose check only the activity, time and
+        // geography, but if an existing place is modified and has some invalid
+        // fields, we won't know.
         if (
+            visitedPlace._isNew === true ||
             _isBlank(visitedPlace.activity) ||
             (visitedPlace._sequence === lastSequence &&
                 visitedPlace.nextPlaceCategory !== 'stayedThereUntilTheNextDay') ||

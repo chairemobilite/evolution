@@ -2160,6 +2160,16 @@ describe('getFirstIncompleteVisitedPlace', () => {
             }
         ],
         [
+            'Select first place marked as _isNew',
+            {
+                setup: (interview: UserInterviewAttributes) => {
+                    // Set homePlace2P1 as new
+                    const journey = interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.homePlace2P1._isNew = true;
+                },
+                expectedUuid: 'homePlace2P1'
+            }
+        ],
+        [
             'Missing arrivalTime for non-first visited place',
             {
                 setup: (interview: UserInterviewAttributes) => {
