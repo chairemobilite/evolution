@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Household: reusable confirm popup, `getHouseholdMinimumAgeConfirmPopup`, to block the household section when no member reaches the new `ages.householdMinimumAge` config option (defaults to 16). Add it to the section's continue button: `confirmPopup: getHouseholdMinimumAgeConfirmPopup()` (fixes [#1858](https://github.com/chairemobilite/evolution/issues/1858)).
 - Journey: add the `_skipTripDiary` questionnaire time property, that, if set to `true` will skip the trip diary sections for the corresponding journey (fixes [#1855](https://github.com/chairemobilite/evolution/issues/1855)).
 - The `getSegmentNextKnownLocation`, `getSegmentPreviousKnownLocation` functions will skip unknown intermediate geographies and always return an actual location or `null` (fixes [#1862](https://github.com/chairemobilite/evolution/issues/1862))
+- InputRadioNumber: support additional non-numeric choices (fixes [#1881](https://github.com/chairemobilite/evolution/issues/1881))
 
 ### Changed
 
