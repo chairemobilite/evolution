@@ -10,7 +10,7 @@ import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { UserInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
-import { withTranslation, WithTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import { InputRadioChoiceT } from './InputRadio';
 
 type InputRadioNumberProps = {
@@ -30,9 +30,9 @@ export const InputRadioNumber = ({
     widgetConfig,
     interview,
     path,
-    user,
-    t
-}: InputRadioNumberProps & WithTranslation) => {
+    user
+}: InputRadioNumberProps) => {
+    const { t } = useTranslation();
     const minValue = surveyHelper.parseInteger(widgetConfig.valueRange.min, interview, path, user) || 0;
     const maxValue = surveyHelper.parseInteger(widgetConfig.valueRange.max, interview, path, user) || minValue + 1;
     const [currentValue, setCurrentValue] = useState(!_isBlank(value) ? Number(value) : -1);
@@ -175,4 +175,4 @@ export const InputRadioNumber = ({
     );
 };
 
-export default withTranslation()(InputRadioNumber);
+export default InputRadioNumber;

@@ -5,7 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import React, { JSX } from 'react';
-import { WithTranslation, withTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import { shuffle } from 'chaire-lib-common/lib/utils/RandomUtils';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
@@ -53,19 +53,14 @@ interface InputRadioChoiceProps {
     ) => void;
 }
 
-const InputRadioChoice = (props: InputRadioChoiceProps & WithTranslation) => {
+const InputRadioChoice = (props: InputRadioChoiceProps) => {
+    const { i18n } = useTranslation();
     const id = `${props.id}__input-radio__${props.choice.value}`;
     const strValue =
         props.choice.value !== null && props.choice.value !== undefined
             ? props.choice.value.toString()
             : props.choice.value;
-    const strLabel = surveyHelper.translateString(
-        props.choice.label,
-        props.i18n,
-        props.interview,
-        props.path,
-        props.user
-    );
+    const strLabel = surveyHelper.translateString(props.choice.label, i18n, props.interview, props.path, props.user);
     const inputRadioRef: React.RefObject<HTMLInputElement | null> = React.createRef();
     const iconPath = props.choice.iconPath
         ? surveyHelper.parseString(props.choice.iconPath, props.interview, props.path)
@@ -117,13 +112,13 @@ const InputRadioChoice = (props: InputRadioChoiceProps & WithTranslation) => {
     );
 };
 
-export const InputRadioChoiceT = withTranslation()(InputRadioChoice) as React.FunctionComponent<InputRadioChoiceProps>;
+export const InputRadioChoiceT = InputRadioChoice;
 
-export class InputRadio extends React.Component<InputRadioProps & WithTranslation, InputRadioState> {
+export class InputRadio extends React.Component<InputRadioProps, InputRadioState> {
     private customInputRef: React.RefObject<HTMLInputElement | null> = React.createRef();
     private customInputRadioRef: React.RefObject<HTMLInputElement | null> = React.createRef();
 
-    constructor(props: InputRadioProps & WithTranslation) {
+    constructor(props: InputRadioProps) {
         super(props);
 
         this.state = {
@@ -298,4 +293,4 @@ export class InputRadio extends React.Component<InputRadioProps & WithTranslatio
     }
 }
 
-export default withTranslation()(InputRadio);
+export default InputRadio;
