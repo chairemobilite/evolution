@@ -322,6 +322,7 @@ def generate_widget_statement(row, gender_fields: GenderFields = None) -> Widget
             conditional,
             validation,
             widget_label,
+            choices,
             row,
         )
     elif input_type == "Select":
@@ -782,6 +783,20 @@ def generate_choices(choices):
     return f"{INDENT}choices: choices.{choices}"
 
 
+def generate_additional_choices(choices, comma=True, skip_line=True):
+    """
+    Generates the TypeScript 'additionalChoices' property for a widget.
+
+    Uses the same choices module resolution as the regular 'choices' property.
+    """
+    if not choices:
+        return ""
+    additional_choices = generate_choices(choices).replace(
+        f"{INDENT}choices:", f"{INDENT}additionalChoices:", 1
+    )
+    return f"{additional_choices}{generate_comma(comma)}{generate_skip_line(skip_line)}"
+
+
 def generate_conditional(conditional):
     if not conditional:
         return f"{INDENT}conditional: defaultConditional"
@@ -906,6 +921,7 @@ def generate_radio_number_widget(
     conditional,
     validation,
     widget_label,
+    choices,
     row,
 ) -> WidgetResult:
     """
@@ -939,6 +955,7 @@ def generate_radio_number_widget(
         f"{INDENT}}},\n"
     )
     over_max = f"{INDENT}overMaxAllowed: true,\n" if over_max_allowed else ""
+    additional_choices = generate_additional_choices(choices)
     result["statement"] = (
         f"{generate_constExport(question_name, 'InputRadioNumberType')}\n"
         f"{generate_defaultInputBase('inputRadioNumberBase')},\n"
@@ -948,6 +965,7 @@ def generate_radio_number_widget(
         f"{value_range}"
         f"{over_max}"
         f"{generate_help_popup(help_popup)}"
+        f"{additional_choices}"
         f"{generate_conditional(conditional)},\n"
         f"{generate_validation(validation)}\n"
         f"}};"

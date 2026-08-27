@@ -10,6 +10,7 @@ import pytest
 from scripts.generate_widgets import (
     ImportFlags,
     generate_choices,
+    generate_additional_choices,
     generate_join_with,
     generate_common_properties,
     generate_info_text_widget,
@@ -431,6 +432,24 @@ class TestGenerateChoices:
         result = generate_choices("MyCustomChoices")
         assert "choices: customChoices.MyCustomChoices" in result
 
+    def test_generate_additional_choices_uses_same_choice_module_resolution(self):
+        assert (
+            generate_additional_choices("yesNo")
+            == "    additionalChoices: choices.yesNo,\n"
+        )
+        assert (
+            generate_additional_choices("MyCustomChoices")
+            == "    additionalChoices: customChoices.MyCustomChoices,\n"
+        )
+
+    def test_generate_additional_choices_empty(self):
+        assert generate_additional_choices("") == ""
+
+    def test_generate_additional_choices_formatting_options(self):
+        assert generate_additional_choices("yesNo", comma=False, skip_line=False) == (
+            "    additionalChoices: choices.yesNo"
+        )
+
 
 # TODO: Test generate_conditional
 # TODO: Test generate_validation
@@ -715,6 +734,7 @@ def test_generate_radio_number_widget_basic():
         row["conditional"],
         row["validation"],
         widget_label,
+        None,
         row,
     )
     code = result["statement"]
@@ -728,6 +748,7 @@ def test_generate_radio_number_widget_basic():
     assert "conditional: defaultConditional" in code
     assert "validations: validations.requiredValidation" in code
     assert code.strip().endswith("};")
+    assert "additionalChoices" not in code
     assert result["has_helper_import"] is False
 
 
@@ -742,6 +763,7 @@ def test_generate_radio_number_widget_complex():
         "conditional": "someConditional",
         "validation": "householdSizeValidation",
         "parameters": "min=1\nmax=17\noverMaxAllowed",
+        "choices": "householdSizeAdditionalChoices",
         "appearance": "",
         "label::fr": "Combien de personnes dans le ménage?",
         "label::en": "How many people in the household?",
@@ -756,6 +778,7 @@ def test_generate_radio_number_widget_complex():
         row["conditional"],
         row["validation"],
         widget_label,
+        row["choices"],
         row,
     )
     code = result["statement"]
@@ -766,6 +789,7 @@ def test_generate_radio_number_widget_complex():
     assert "min: 1" in code
     assert "max: 17" in code
     assert "overMaxAllowed: true" in code
+    assert "additionalChoices: choices.householdSizeAdditionalChoices" in code
     assert "helpPopup: customHelpPopup.householdSizeHelpPopup" in code
     assert "conditional: conditionals.someConditional" in code
     assert "validations: validations.householdSizeValidation" in code
@@ -782,6 +806,7 @@ def test_generate_radio_number_widget_min_max_field_values():
         "path": "household.size",
         "help_popup": "",
         "conditional": "",
+        "choices": "",
         "validation": "",
         "parameters": "min=abc\nmax=xyz",
         "appearance": "",
@@ -798,6 +823,7 @@ def test_generate_radio_number_widget_min_max_field_values():
         row["conditional"],
         row["validation"],
         widget_label,
+        row["choices"],
         row,
     )
     code = result["statement"]
@@ -809,6 +835,7 @@ def test_generate_radio_number_widget_min_max_field_values():
         "max: (interview) => surveyHelper.getResponse(interview, 'xyz', 0) as any"
         in code
     )  # default max is 6
+    assert "additionalChoices" not in code
     assert result["has_helper_import"] is True
 
 
@@ -821,6 +848,7 @@ def test_generate_radio_number_widget_min_gte_max(capsys):
         "path": "household.size",
         "help_popup": "",
         "conditional": "",
+        "choices": "",
         "validation": "",
         "parameters": "min=5\nmax=5",
         "appearance": "",
@@ -837,6 +865,7 @@ def test_generate_radio_number_widget_min_gte_max(capsys):
         row["conditional"],
         row["validation"],
         widget_label,
+        row["choices"],
         row,
     )
     captured = capsys.readouterr()
@@ -847,6 +876,7 @@ def test_generate_radio_number_widget_min_gte_max(capsys):
     )
     assert "min: 5" in code
     assert "max: 5" in code
+    assert "additionalChoices" not in code
     assert result["has_helper_import"] is False
 
 
@@ -875,6 +905,7 @@ def test_generate_radio_number_widget_unrecognized_parameter_line(capsys):
         row["conditional"],
         row["validation"],
         widget_label,
+        None,
         row,
     )
     captured = capsys.readouterr()
@@ -885,6 +916,7 @@ def test_generate_radio_number_widget_unrecognized_parameter_line(capsys):
     )
     assert "min: 2" in code
     assert "max: 5" in code
+    assert "additionalChoices" not in code
     assert result["has_helper_import"] is False
 
 
