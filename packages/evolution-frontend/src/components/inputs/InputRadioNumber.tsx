@@ -4,8 +4,8 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import React, { ReactElement, useState } from 'react';
-import { InputRadioNumberType } from 'evolution-common/lib/services/questionnaire/types';
+import React, { ReactElement, useEffect, useState } from 'react';
+import { InputRadioNumberType, RadioChoiceType } from 'evolution-common/lib/services/questionnaire/types';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { UserInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
@@ -16,7 +16,7 @@ import { InputRadioChoiceT } from './InputRadio';
 type InputRadioNumberProps = {
     id: string;
     onValueChange: (e: any, customValue?: string) => void;
-    value?: number;
+    value?: number | string | boolean;
     widgetConfig: InputRadioNumberType;
     interview: UserInterviewAttributes;
     path: string;
@@ -35,9 +35,39 @@ export const InputRadioNumber = ({
     const { t } = useTranslation();
     const minValue = surveyHelper.parseInteger(widgetConfig.valueRange.min, interview, path, user) || 0;
     const maxValue = surveyHelper.parseInteger(widgetConfig.valueRange.max, interview, path, user) || minValue + 1;
-    const [currentValue, setCurrentValue] = useState(!_isBlank(value) ? Number(value) : -1);
-    const [isOverMax, setIsOverMax] = useState(Number(value) > maxValue);
+    const additionalChoices = widgetConfig.additionalChoices
+        ? typeof widgetConfig.additionalChoices === 'function'
+            ? widgetConfig.additionalChoices(interview, path)
+            : widgetConfig.additionalChoices
+        : [];
+    const visibleAdditionalChoices = additionalChoices
+        .filter((choice) => surveyHelper.parseBoolean(choice.conditional, interview, path, user))
+        .filter((choice) => choice.hidden !== true);
+    const numericValue =
+        typeof value === 'number'
+            ? value
+            : typeof value === 'string' && value.trim() !== '' && Number.isFinite(Number(value))
+                ? Number(value)
+                : undefined;
+    const selectedAdditionalChoice = visibleAdditionalChoices.find((choice) => choice.value === value);
+    const selectedValue = numericValue ?? selectedAdditionalChoice?.value;
+    const [currentValue, setCurrentValue] = useState<number | string | boolean | undefined>(selectedValue);
+    const [isOverMax, setIsOverMax] = useState(numericValue !== undefined && numericValue > maxValue);
+    // Value of the text input, to make the input controlled instead of
+    // uncontrolled since the value received as props may change.
+    const [inputValue, setInputValue] = useState('');
     const customInputRadioRef: React.RefObject<HTMLInputElement | null> = React.createRef();
+
+    useEffect(() => {
+        setCurrentValue(selectedValue);
+        setIsOverMax(numericValue !== undefined && numericValue > maxValue);
+    }, [selectedValue, numericValue, maxValue]);
+
+    // Set the inputValue to the current numeric value. If the input is not to
+    // be displayed, it will be ignored
+    useEffect(() => {
+        setInputValue(typeof currentValue === 'number' ? String(currentValue) : '');
+    }, [currentValue]);
 
     const handleOnChange = (event) => {
         // "blur" is the event triggered when the input loses focus.
@@ -71,6 +101,12 @@ export const InputRadioNumber = ({
 
     const onLabelClick = (e: React.MouseEvent) => {
         e.stopPropagation();
+    };
+
+    const onAdditionalChoiceChange = (choice: RadioChoiceType) => {
+        setCurrentValue(choice.value);
+        setIsOverMax(false);
+        onValueChange({ target: { value: choice.value } });
     };
 
     const onContainerClick = (
@@ -119,6 +155,23 @@ export const InputRadioNumber = ({
         );
     }
 
+    const additionalChoiceInputs = visibleAdditionalChoices.map((choice) => (
+        <InputRadioChoiceT
+            checked={currentValue === choice.value}
+            key={`${id}_${choice.value}`}
+            id={`${id}_${choice.value}`}
+            choice={choice}
+            iconSize={widgetConfig.inputIconPath?.iconSize || '2em'}
+            path={path}
+            user={user}
+            interview={interview}
+            onRadioInputChange={() => onAdditionalChoiceChange(choice)}
+            onRadioClick={onRadioClick}
+            onContainerClick={onContainerClick}
+            onLabelClick={onLabelClick}
+        />
+    ));
+
     const overMaxChoice = {
         value: maxValue + 1,
         label: `${maxValue + 1}+`,
@@ -135,7 +188,7 @@ export const InputRadioNumber = ({
             {widgetConfig.overMaxAllowed && (
                 <>
                     <InputRadioChoiceT
-                        checked={Number(value) > maxValue}
+                        checked={typeof currentValue === 'number' && currentValue > maxValue}
                         key={`${id}_${maxValue + 1}`}
                         id={`${id}_${maxValue + 1}`}
                         choice={overMaxChoice as any}
@@ -162,7 +215,8 @@ export const InputRadioNumber = ({
                                 style={{ width: '6rem' }}
                                 name={`${id}over-max`}
                                 id={`${id}over-max`}
-                                defaultValue={currentValue}
+                                value={inputValue}
+                                onChange={(event) => setInputValue(event.target.value)}
                                 min={maxValue + 1}
                                 onBlur={handleOnChange}
                                 onMouseUp={handleOnChange}
@@ -171,6 +225,7 @@ export const InputRadioNumber = ({
                     )}
                 </>
             )}
+            {additionalChoiceInputs}
         </div>
     );
 };

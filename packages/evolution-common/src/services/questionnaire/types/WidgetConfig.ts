@@ -182,6 +182,7 @@ export type InputRadioNumberType = BaseQuestionType & {
         min: number | ParsingFunction<number>;
         max: number | ParsingFunction<number>;
     };
+    additionalChoices?: RadioChoiceType[] | ParsingFunction<RadioChoiceType[]>;
     iconSize?: string;
     icon?: IconProp;
     inputIconPath?: { iconPath: string; iconSize: string };
