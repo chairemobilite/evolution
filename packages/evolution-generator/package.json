@@ -3,7 +3,7 @@
     "node": ">=24.0.0"
   },
   "name": "evolution-generator",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "Automates creation of transit surveys for Evolution.",
   "repository": "github.com/chairemobilite/evolution",
   "license": "MIT",
