@@ -232,6 +232,33 @@ export const householdAuditChecks: { [errorCode: string]: HouseholdAuditCheckFun
     },
 
     /**
+     * Check if electric bicycle number is invalid.
+     * Same bicycle bound as HH_I_BicycleNumber ({@link isBicycleNumberInvalid}).
+     *
+     * @see {@link import('evolution-common/lib/services/widgets/validations/validations').bicycleNumberValidation}
+     * @param context - HouseholdAuditCheckContext
+     * @returns AuditForObject
+     */
+    HH_I_ElectricBicycleNumber: (context: HouseholdAuditCheckContext): AuditForObject | undefined => {
+        const { household } = context;
+        const electricBicycleNumber = household.electricBicycleNumber;
+
+        if (isBicycleNumberInvalid(electricBicycleNumber, household.size)) {
+            return {
+                objectType: 'household',
+                objectUuid: household._uuid!,
+                errorCode: 'HH_I_ElectricBicycleNumber',
+                version: 1,
+                level: 'error',
+                message: 'Electric bicycle number is out of range',
+                ignore: false
+            };
+        }
+
+        return undefined; // No audit needed
+    },
+
+    /**
      * Check for person sequences that cannot be ordered: missing, non-positive integer,
      * or shared by two household members.
      * @param context - HouseholdAuditCheckContext
