@@ -18,6 +18,7 @@
     "HH_I_TwoWheelNumber": "Le nombre de véhicules à deux roues est en dehors de la plage autorisée (devrait être un entier)",
     "HH_I_BicycleNumber": "Le nombre de vélos est en dehors de la plage autorisée",
     "HH_I_ElectricBicycleNumber": "Le nombre de vélos électriques est en dehors de la plage autorisée",
+    "HH_L_ElectricBicycleNumberOverBicycleNumber": "Le nombre de vélos électriques est supérieur au nombre de vélos",
     "HH_L_SizeMembersCountMismatch": "La taille du ménage et le nombre de personnes ne correspondent pas",
     "HH_L_InvalidPersonSequences": "Le numéro de séquence d'au moins une personne est invalide ou en double",
     "HH_W_PersonSequenceGaps": "Les numéros de séquence des personnes ne sont pas consécutifs",

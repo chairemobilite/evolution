@@ -18,6 +18,7 @@
     "HH_I_TwoWheelNumber": "The number of two-wheel vehicles is out of range (should be an integer)",
     "HH_I_BicycleNumber": "The number of bicycles is out of range",
     "HH_I_ElectricBicycleNumber": "The number of electric bicycles is out of range",
+    "HH_L_ElectricBicycleNumberOverBicycleNumber": "The number of electric bicycles is higher than the number of bicycles",
     "HH_L_SizeMembersCountMismatch": "Size and members count mismatch",
     "HH_L_InvalidPersonSequences": "At least one person sequence is invalid or duplicated",
     "HH_W_PersonSequenceGaps": "Person sequences are not contiguous",
