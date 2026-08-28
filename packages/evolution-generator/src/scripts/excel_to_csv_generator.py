@@ -88,7 +88,7 @@ class ExcelToCsvGenerator:
 
                 # Write data rows (skip header row at index 0)
                 for row in rows[1:]:
-                    values = ["" if cell.value is None else cell.value for cell in row]
+                    values = [self.normalize_cell_value(cell.value) for cell in row]
                     # Trim trailing None/empty values to match header count
                     values = values[: len(headers)]
                     writer.writerow(values)
@@ -99,6 +99,13 @@ class ExcelToCsvGenerator:
 
         print(f"Generated {csv_file_path} successfully")
         return csv_file_path
+
+    @staticmethod
+    def normalize_cell_value(value):
+        """Return a stable CSV representation for values read from Excel."""
+        if isinstance(value, bool):
+            return "TRUE" if value else "FALSE"
+        return "" if value is None else value
 
     @classmethod
     def generate_csv_copy(
