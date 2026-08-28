@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Generator: fix export of excel_to_csv boolean columns to always be "TRUE"/"FALSE" (fixes [#1743](https://github.com/chairemobilite/evolution/issues/1743))
+
 ### Security
 
 ### Dependency updates

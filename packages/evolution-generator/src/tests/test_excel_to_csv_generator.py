@@ -18,6 +18,10 @@ def create_workbook(excel_file_path: str):
     first_sheet.append(["section", "label"])
     first_sheet.append(["home", "Home"])
     first_sheet.append(["work", None])
+    first_sheet.append(["optional", True])
+    first_sheet.append(["required", False])
+    first_sheet.append(["zeroValue", 0])
+    first_sheet.append(["oneValue", 1])
 
     choices_sheet = workbook.create_sheet("Choices")
     choices_sheet.append(["choicesName", "value"])
@@ -72,6 +76,10 @@ class TestExcelToCsvGenerator:
             ["section", "label"],
             ["home", "Home"],
             ["work", ""],
+            ["optional", "TRUE"],
+            ["required", "FALSE"],
+            ["zeroValue", "0"],
+            ["oneValue", "1"],
         ]
         assert read_csv(os.path.join(output_folder_path, "Choices.csv")) == [
             ["choicesName", "value"],
