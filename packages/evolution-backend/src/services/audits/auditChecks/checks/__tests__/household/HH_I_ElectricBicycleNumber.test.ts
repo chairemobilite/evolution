@@ -62,7 +62,8 @@ describe('HH_I_ElectricBicycleNumber audit check', () => {
         expect(getResult(undefined, 4)).toBeUndefined();
     });
 
-    // More electric bicycles than declared bicycles is a consistency question, checked elsewhere
+    // More electric bicycles than declared bicycles is a consistency question,
+    // checked by HH_L_ElectricBicycleNumberOverBicycleNumber
     it('should not audit when there are more electric bicycles than bicycles', () => {
         const context = createContextWithHouseholdAndHome(
             { electricBicycleNumber: 3, bicycleNumber: 1, size: 4 },
