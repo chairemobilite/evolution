@@ -144,3 +144,7 @@ export const isTwoWheelNumberInvalid = (
     householdSize: number | undefined
 ): boolean =>
     isHouseholdAssetCountInvalid(twoWheelNumber, householdSize, projectConfig.vehicles.maxTwoWheelsPerHouseholdMember);
+
+/** Whether bicycle number fails participant validation rules for the given household size. */
+export const isBicycleNumberInvalid = (bicycleNumber: number | undefined, householdSize: number | undefined): boolean =>
+    isHouseholdAssetCountInvalid(bicycleNumber, householdSize, projectConfig.vehicles.maxBicyclesPerHouseholdMember);
