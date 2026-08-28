@@ -259,6 +259,39 @@ export const householdAuditChecks: { [errorCode: string]: HouseholdAuditCheckFun
     },
 
     /**
+     * Check if there are more electric bicycles than bicycles. When both questions are asked,
+     * electric bicycles are a subset ("among these bicycles, how many are electric"), so a
+     * higher count means one of the two answers is wrong. If bicycleNumber is missing — a
+     * survey that only asks electric bicycles — there is nothing to compare and this check
+     * does not fire.
+     * @param context - HouseholdAuditCheckContext
+     * @returns AuditForObject
+     */
+    HH_L_ElectricBicycleNumberOverBicycleNumber: (context: HouseholdAuditCheckContext): AuditForObject | undefined => {
+        const { household } = context;
+        const bicycleNumber = household.bicycleNumber;
+        const electricBicycleNumber = household.electricBicycleNumber;
+
+        if (
+            bicycleNumber !== undefined &&
+            electricBicycleNumber !== undefined &&
+            electricBicycleNumber > bicycleNumber
+        ) {
+            return {
+                objectType: 'household',
+                objectUuid: household._uuid!,
+                errorCode: 'HH_L_ElectricBicycleNumberOverBicycleNumber',
+                version: 1,
+                level: 'error',
+                message: 'Electric bicycle number is higher than bicycle number',
+                ignore: false
+            };
+        }
+
+        return undefined; // No audit needed
+    },
+
+    /**
      * Check for person sequences that cannot be ordered: missing, non-positive integer,
      * or shared by two household members.
      * @param context - HouseholdAuditCheckContext
