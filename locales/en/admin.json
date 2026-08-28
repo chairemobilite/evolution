@@ -41,6 +41,7 @@
     "Household": "Household",
     "Comments": "Comments",
     "StartedAndCompletedInterviewsPerDay": "Started and completed interviews per day",
+    "NoInterviewsYetOrOutsidePeriod": "No started interview or survey period not started yet",
     "StartedAndCompletedInterviewsPerHouseholdSize": "Started and completed interviews per household size",
     "NumberOfInterviews": "Number of interviews",
     "CumulativeNumberOfInterviews": "Cumulative number of interviews",

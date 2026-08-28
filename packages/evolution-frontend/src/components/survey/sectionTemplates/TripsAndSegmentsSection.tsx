@@ -20,7 +20,7 @@ import { SectionProps, useSectionTemplate } from '../../hooks/useSectionTemplate
 import * as odSurveyHelper from 'evolution-common/lib/services/odSurvey/helpers';
 import { getValuesByPathForActiveTrip } from 'evolution-common/lib/services/questionnaire/sections/segments/helpers';
 import * as helpers from 'evolution-common/lib/utils/helpers';
-import { secondsSinceMidnightToTimeStrWithSuffix } from '../../../services/display/frontendHelper';
+import { secondsSinceMidnightToTimeStrWithSuffix, stripHtml } from '../../../services/display/frontendHelper';
 import { Trip, VisitedPlace } from 'evolution-common/lib/services/questionnaire/types';
 import { getActivityMarkerIcon } from 'evolution-common/lib/services/questionnaire/sections/visitedPlaces/activityIconMapping';
 import { SurveyContext } from '../../../contexts/SurveyContext';
@@ -156,7 +156,7 @@ export const SegmentsSection: React.FC<SectionProps> = (props: SectionProps) => 
                             <img
                                 src={iconPathsByMode[segment.mode]}
                                 style={{ height: '1.5em', marginLeft: '0.3em' }}
-                                alt={t(`segments:mode:short:${segment.mode}`)}
+                                alt={stripHtml(t(`segments:mode:short:${segment.mode}`))}
                             />
                         </React.Fragment>
                     );
@@ -211,14 +211,14 @@ export const SegmentsSection: React.FC<SectionProps> = (props: SectionProps) => 
                         <img
                             src={getActivityMarkerIcon(origin.activity)}
                             style={{ height: '4rem' }}
-                            alt={t(`visitedPlaces:activities:${origin.activity}`)}
+                            alt={stripHtml(t(`visitedPlaces:activities:${origin.activity}`))}
                         />
                         <span>
-                            {t(`visitedPlaces:activities:${origin.activity}`)}
+                            {stripHtml(t(`visitedPlaces:activities:${origin.activity}`))}
                             {actualOrigin.name && (
                                 <React.Fragment>
                                     <br />
-                                    <em>&nbsp;• {actualOrigin.name}</em>
+                                    <em>&nbsp;• {stripHtml(actualOrigin.name)}</em>
                                 </React.Fragment>
                             )}
                         </span>
@@ -230,14 +230,14 @@ export const SegmentsSection: React.FC<SectionProps> = (props: SectionProps) => 
                         <img
                             src={getActivityMarkerIcon(destination.activity)}
                             style={{ height: '4rem' }}
-                            alt={t(`visitedPlaces:activities:${destination.activity}`)}
+                            alt={stripHtml(t(`visitedPlaces:activities:${destination.activity}`))}
                         />
                         <span>
-                            {t(`visitedPlaces:activities:${destination.activity}`)}
+                            {stripHtml(t(`visitedPlaces:activities:${destination.activity}`))}
                             {actualDestination.name && (
                                 <React.Fragment>
                                     <br />
-                                    <em>&nbsp;• {actualDestination.name}</em>
+                                    <em>&nbsp;• {stripHtml(actualDestination.name)}</em>
                                 </React.Fragment>
                             )}
                         </span>
@@ -254,14 +254,14 @@ export const SegmentsSection: React.FC<SectionProps> = (props: SectionProps) => 
                                 <img
                                     src={getActivityMarkerIcon(nextDestination.activity)}
                                     style={{ height: '4rem' }}
-                                    alt={t(`visitedPlaces:activities:${nextDestination.activity}`)}
+                                    alt={stripHtml(t(`visitedPlaces:activities:${nextDestination.activity}`))}
                                 />
                                 <span>
-                                    {t(`visitedPlaces:activities:${nextDestination.activity}`)}
+                                    {stripHtml(t(`visitedPlaces:activities:${nextDestination.activity}`))}
                                     {nextDestination.name && (
                                         <React.Fragment>
                                             <br />
-                                            <em>&nbsp;• {nextDestination.name}</em>
+                                            <em>&nbsp;• {stripHtml(nextDestination.name)}</em>
                                         </React.Fragment>
                                     )}
                                 </span>

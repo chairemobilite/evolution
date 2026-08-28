@@ -301,25 +301,24 @@ export const getFilteredModesPre = (sectionConfig: SegmentSectionConfiguration, 
     }
 };
 
+type SegmentLocationGetterReturnType = GeoJSON.Feature<GeoJSON.Point> | null;
+type SegmentLocationGetterWithUnknownReturnType = SegmentLocationGetterReturnType | 'unknown';
+type SegmentLocationGetterParams = {
+    segment: Segment;
+    journey: Journey;
+    trip: Trip;
+    person: Person;
+    interview: UserInterviewAttributes;
+};
 // Internal interface for various implementations of the segment next/previous
 // locations, depending on the received configuration.
 interface SegmentSectionHelpersImplementation {
-    getSegmentPreviousLocation: (params: {
-        segment: Segment;
-        journey: Journey;
-        trip: Trip;
-        person: Person;
-        interview: UserInterviewAttributes;
-    }) => GeoJSON.Feature<GeoJSON.Point> | null;
-    getSegmentNextLocation: (params: {
-        segment: Segment;
-        journey: Journey;
-        trip: Trip;
-        person: Person;
-        interview: UserInterviewAttributes;
-    }) => GeoJSON.Feature<GeoJSON.Point> | null;
-    getCurrentSegmentOriginLocation: (param: { segment: Segment }) => GeoJSON.Feature<GeoJSON.Point> | null;
-    getCurrentSegmentDestinationLocation: (param: { segment: Segment }) => GeoJSON.Feature<GeoJSON.Point> | null;
+    getSegmentPreviousLocation: (params: SegmentLocationGetterParams) => SegmentLocationGetterWithUnknownReturnType;
+    getSegmentNextLocation: (params: SegmentLocationGetterParams) => SegmentLocationGetterWithUnknownReturnType;
+    getSegmentPreviousKnownLocation: (params: SegmentLocationGetterParams) => SegmentLocationGetterReturnType;
+    getSegmentNextKnownLocation: (params: SegmentLocationGetterParams) => SegmentLocationGetterReturnType;
+    getCurrentSegmentOriginLocation: (param: { segment: Segment }) => SegmentLocationGetterWithUnknownReturnType;
+    getCurrentSegmentDestinationLocation: (param: { segment: Segment }) => SegmentLocationGetterWithUnknownReturnType;
 }
 
 /**
@@ -405,7 +404,7 @@ class SegmentSectionHelpersWithFields implements SegmentSectionHelpersImplementa
     private getLocationFromSegmentField = (
         segment: Segment,
         fieldDescription: Exclude<SegmentSectionConfiguration['fieldsWithGeojsonPoint'], undefined>[number]
-    ): GeoJSON.Feature<GeoJSON.Point> | null => {
+    ): SegmentLocationGetterWithUnknownReturnType => {
         if (_isBlank(segment[fieldDescription.fieldName])) {
             return null;
         }
@@ -416,7 +415,7 @@ class SegmentSectionHelpersWithFields implements SegmentSectionHelpersImplementa
             isPoint(segment[fieldDescription.fieldName].geometry)
         ) {
             return segment[fieldDescription.fieldName];
-        } else if (fieldDescription.type === 'fromCollection') {
+        } else if (fieldDescription.type === 'fromCollection' && !_isBlank(segment[fieldDescription.fieldName])) {
             // Find the corresponding value in the feature collection
             const location = fieldDescription.featureCollection.features.find(
                 (feature) => feature.id === segment[fieldDescription.fieldName]
@@ -424,24 +423,48 @@ class SegmentSectionHelpersWithFields implements SegmentSectionHelpersImplementa
             if (location) {
                 return location;
             }
+            return 'unknown';
         }
 
         return null;
     };
 
-    public getSegmentPreviousLocation({
-        segment,
-        trip,
-        journey,
-        person,
-        interview
-    }: {
-        segment: Segment;
-        journey: Journey;
-        trip: Trip;
-        person: Person;
-        interview: UserInterviewAttributes;
-    }): GeoJSON.Feature<GeoJSON.Point> | null {
+    private getCurrentSegmentOriginLocationMayBeUnknown(
+        { segment }: { segment: Segment },
+        withUnknown: boolean
+    ): SegmentLocationGetterWithUnknownReturnType {
+        for (let keyIndex = 0; keyIndex < this.fieldsWithGeojsonPoint.length; keyIndex++) {
+            const fieldDescription = this.fieldsWithGeojsonPoint[keyIndex];
+            const location = this.getLocationFromSegmentField(segment, fieldDescription);
+            if (location !== null && (withUnknown || location !== 'unknown')) {
+                return location;
+            }
+        }
+        return null;
+    }
+
+    private getCurrentSegmentDestinationLocationMayBeUnknown(
+        {
+            segment
+        }: {
+            segment: Segment;
+        },
+        withUnknown: boolean
+    ): SegmentLocationGetterWithUnknownReturnType {
+        for (let keyIndex = this.fieldsWithGeojsonPoint.length - 1; keyIndex >= 0; keyIndex--) {
+            const fieldDescription = this.fieldsWithGeojsonPoint[keyIndex];
+            const location = this.getLocationFromSegmentField(segment, fieldDescription);
+            if (location !== null && (withUnknown || location !== 'unknown')) {
+                return location;
+            }
+        }
+        return null;
+    }
+
+    private getSegmentPreviousLocationMayBeUnknown(
+        { segment, trip, journey, person, interview }: SegmentLocationGetterParams,
+        withUnknown: boolean
+    ): SegmentLocationGetterWithUnknownReturnType {
         const segments = odHelpers.getSegmentsArray({ trip });
         const previousSegments = segments.slice(
             0,
@@ -450,7 +473,10 @@ class SegmentSectionHelpersWithFields implements SegmentSectionHelpersImplementa
 
         for (let lookupIndex = previousSegments.length - 1; lookupIndex >= 0; lookupIndex--) {
             const segmentLookup = previousSegments[lookupIndex];
-            const location = this.getCurrentSegmentDestinationLocation({ segment: segmentLookup });
+            const location = this.getCurrentSegmentDestinationLocationMayBeUnknown(
+                { segment: segmentLookup },
+                withUnknown
+            );
             if (location) {
                 return location;
             }
@@ -458,19 +484,10 @@ class SegmentSectionHelpersWithFields implements SegmentSectionHelpersImplementa
         return getTripOriginGeography({ trip, journey, interview, person });
     }
 
-    public getSegmentNextLocation({
-        segment,
-        trip,
-        journey,
-        person,
-        interview
-    }: {
-        segment: Segment;
-        journey: Journey;
-        trip: Trip;
-        person: Person;
-        interview: UserInterviewAttributes;
-    }): GeoJSON.Feature<GeoJSON.Point> | null {
+    private getSegmentNextLocationMayBeUnknown(
+        { segment, trip, journey, person, interview }: SegmentLocationGetterParams,
+        withUnknown: boolean
+    ): SegmentLocationGetterWithUnknownReturnType {
         const segments = odHelpers.getSegmentsArray({ trip });
         const nextSegments = segments.slice(
             segments.findIndex((seg: Segment) => seg._sequence === segment._sequence) + 1
@@ -478,7 +495,7 @@ class SegmentSectionHelpersWithFields implements SegmentSectionHelpersImplementa
 
         for (let lookupIndex = 0; lookupIndex < nextSegments.length; lookupIndex++) {
             const segmentLookup = nextSegments[lookupIndex];
-            const location = this.getCurrentSegmentOriginLocation({ segment: segmentLookup });
+            const location = this.getCurrentSegmentOriginLocationMayBeUnknown({ segment: segmentLookup }, withUnknown);
             if (location) {
                 return location;
             }
@@ -486,30 +503,36 @@ class SegmentSectionHelpersWithFields implements SegmentSectionHelpersImplementa
         return getTripDestinationGeography({ trip, journey, person, interview });
     }
 
-    public getCurrentSegmentOriginLocation({ segment }: { segment: Segment }): GeoJSON.Feature<GeoJSON.Point> | null {
-        for (let keyIndex = 0; keyIndex < this.fieldsWithGeojsonPoint.length; keyIndex++) {
-            const fieldDescription = this.fieldsWithGeojsonPoint[keyIndex];
-            const location = this.getLocationFromSegmentField(segment, fieldDescription);
-            if (location) {
-                return location;
-            }
-        }
-        return null;
+    public getSegmentPreviousLocation(params: SegmentLocationGetterParams): SegmentLocationGetterWithUnknownReturnType {
+        return this.getSegmentPreviousLocationMayBeUnknown(params, true);
+    }
+
+    public getSegmentNextLocation(params: SegmentLocationGetterParams): SegmentLocationGetterWithUnknownReturnType {
+        return this.getSegmentNextLocationMayBeUnknown(params, true);
+    }
+
+    public getSegmentPreviousKnownLocation(params: SegmentLocationGetterParams): SegmentLocationGetterReturnType {
+        return this.getSegmentPreviousLocationMayBeUnknown(params, false) as SegmentLocationGetterReturnType;
+    }
+
+    public getSegmentNextKnownLocation(params: SegmentLocationGetterParams): SegmentLocationGetterReturnType {
+        return this.getSegmentNextLocationMayBeUnknown(params, false) as SegmentLocationGetterReturnType;
+    }
+
+    public getCurrentSegmentOriginLocation({
+        segment
+    }: {
+        segment: Segment;
+    }): SegmentLocationGetterWithUnknownReturnType {
+        return this.getCurrentSegmentOriginLocationMayBeUnknown({ segment }, true);
     }
 
     public getCurrentSegmentDestinationLocation({
         segment
     }: {
         segment: Segment;
-    }): GeoJSON.Feature<GeoJSON.Point> | null {
-        for (let keyIndex = this.fieldsWithGeojsonPoint.length - 1; keyIndex >= 0; keyIndex--) {
-            const fieldDescription = this.fieldsWithGeojsonPoint[keyIndex];
-            const location = this.getLocationFromSegmentField(segment, fieldDescription);
-            if (location) {
-                return location;
-            }
-        }
-        return null;
+    }): SegmentLocationGetterWithUnknownReturnType {
+        return this.getCurrentSegmentDestinationLocationMayBeUnknown({ segment }, true);
     }
 }
 
@@ -519,13 +542,7 @@ class DefaultSegmentSectionHelpers implements SegmentSectionHelpersImplementatio
         journey,
         person,
         interview
-    }: {
-        segment: Segment;
-        journey: Journey;
-        trip: Trip;
-        person: Person;
-        interview: UserInterviewAttributes;
-    }): GeoJSON.Feature<GeoJSON.Point> | null {
+    }: SegmentLocationGetterParams): GeoJSON.Feature<GeoJSON.Point> | null {
         return getTripOriginGeography({ trip, journey, person, interview });
     }
 
@@ -534,13 +551,25 @@ class DefaultSegmentSectionHelpers implements SegmentSectionHelpersImplementatio
         journey,
         person,
         interview
-    }: {
-        segment: Segment;
-        journey: Journey;
-        trip: Trip;
-        person: Person;
-        interview: UserInterviewAttributes;
-    }): GeoJSON.Feature<GeoJSON.Point> | null {
+    }: SegmentLocationGetterParams): GeoJSON.Feature<GeoJSON.Point> | null {
+        return getTripDestinationGeography({ trip, journey, person, interview });
+    }
+
+    public getSegmentPreviousKnownLocation({
+        trip,
+        journey,
+        person,
+        interview
+    }: SegmentLocationGetterParams): GeoJSON.Feature<GeoJSON.Point> | null {
+        return getTripOriginGeography({ trip, journey, person, interview });
+    }
+
+    public getSegmentNextKnownLocation({
+        trip,
+        journey,
+        person,
+        interview
+    }: SegmentLocationGetterParams): GeoJSON.Feature<GeoJSON.Point> | null {
         return getTripDestinationGeography({ trip, journey, person, interview });
     }
 
@@ -567,19 +596,21 @@ export const initializeSegmentSectionHelpers = (segmentConfig: SegmentSectionCon
 };
 
 /**
- * Get the previous known location before this segment. It excludes the current
+ * Get the previous defined location before this segment. It excludes the current
  * segment's location, which can be obtained with the
  * {@link getCurrentSegmentOriginLocation} and
  * {@link getCurrentSegmentDestinationLocation}. It will lookup all previous
- * segments to see if there are any known location and falls back to the trip's
- * origin.
+ * segments to see if there are any defined location and falls back to the trip's
+ * origin. The previous location can be defined, but with unknown geography.
+ *
  * @param arg The argument object
  * @param arg.segment The reference segment from which to get the previous
  * location
  * @param arg.trip The trip this segment is part of
  * @param arg.journey The journey this trip is part of
- * @returns The segment's previous location before the current segment, or `null`
- * if no location available
+ * @returns The segment's previous location before the current segment,
+ * 'unknown' if the segment has a previous location defined, but it is not
+ * associated with an actual location, or `null` if no location available
  */
 export const getSegmentPreviousLocation = ({
     segment,
@@ -587,14 +618,60 @@ export const getSegmentPreviousLocation = ({
     journey,
     person,
     interview
-}: {
-    segment: Segment;
-    journey: Journey;
-    trip: Trip;
-    person: Person;
-    interview: UserInterviewAttributes;
-}): GeoJSON.Feature<GeoJSON.Point> | null => {
+}: SegmentLocationGetterParams): SegmentLocationGetterWithUnknownReturnType => {
     return segmentSectionHelpers.getSegmentPreviousLocation({ segment, trip, journey, person, interview });
+};
+
+/**
+ * Get the next defined location after this segment. It excludes the current
+ * segment's location, which can be obtained with the
+ * {@link getCurrentSegmentOriginLocation} and
+ * {@link getCurrentSegmentDestinationLocation}. It will lookup all next
+ * segments to see if there are any defined location and falls back to the trip's
+ * destination. The next destination can be defined, but with an unknown geography.
+ *
+ * @param arg The argument object
+ * @param arg.segment The reference segment from which to get the next location
+ * @param arg.trip The trip this segment is part of
+ * @param arg.journey The journey this trip is part of
+ * @returns The segment's next location after the current segment, 'unknown' if
+ * the segment has a next location defined, but it is not associated with an
+ * actual location, or `null` if no location available
+ */
+export const getSegmentNextLocation = ({
+    segment,
+    trip,
+    journey,
+    person,
+    interview
+}: SegmentLocationGetterParams): SegmentLocationGetterWithUnknownReturnType => {
+    return segmentSectionHelpers.getSegmentNextLocation({ segment, trip, journey, person, interview });
+};
+
+/**
+ * Get the previous known location before this segment. It excludes the current
+ * segment's location, which can be obtained with the
+ * {@link getCurrentSegmentOriginLocation} and
+ * {@link getCurrentSegmentDestinationLocation}. It will lookup all previous
+ * segments to see if there are any known location and falls back to the trip's
+ * origin.
+ *
+ * @param arg The argument object
+ * @param arg.segment The reference segment from which to get the previous
+ * location
+ * @param arg.trip The trip this segment is part of
+ * @param arg.journey The journey this trip is part of
+ * @returns The segment's previous location before the current segment,
+ * or `null` if no location available
+ */
+export const getSegmentPreviousKnownLocation = ({
+    segment,
+    trip,
+    journey,
+    person,
+    interview
+}: SegmentLocationGetterParams): SegmentLocationGetterReturnType => {
+    return segmentSectionHelpers.getSegmentPreviousKnownLocation({ segment, trip, journey, person, interview });
 };
 
 /**
@@ -604,42 +681,40 @@ export const getSegmentPreviousLocation = ({
  * {@link getCurrentSegmentDestinationLocation}. It will lookup all next
  * segments to see if there are any known location and falls back to the trip's
  * destination.
+ *
  * @param arg The argument object
  * @param arg.segment The reference segment from which to get the next location
  * @param arg.trip The trip this segment is part of
  * @param arg.journey The journey this trip is part of
- * @returns The segment's next location after the current segment, or `null` if
- * no location available
+ * @returns The segment's next location after the current segment, or `null`
+ * if no location available
  */
-export const getSegmentNextLocation = ({
+export const getSegmentNextKnownLocation = ({
     segment,
     trip,
     journey,
     person,
     interview
-}: {
-    segment: Segment;
-    journey: Journey;
-    trip: Trip;
-    person: Person;
-    interview: UserInterviewAttributes;
-}): GeoJSON.Feature<GeoJSON.Point> | null => {
-    return segmentSectionHelpers.getSegmentNextLocation({ segment, trip, journey, person, interview });
+}: SegmentLocationGetterParams): SegmentLocationGetterReturnType => {
+    return segmentSectionHelpers.getSegmentNextKnownLocation({ segment, trip, journey, person, interview });
 };
 
 /**
  * Get the current segment's origin location. It looks only at the current
  * segment and see if any geography field has a value to use as origin. It looks
  * up from first to last field.
+ *
  * @param arg The argument object
  * @param arg.segment The reference segment from which to get the next location
- * @returns The segment's origin if available, or `null` otherwise
+ * @returns The segment's origin if available, 'unknown' if the segment has an
+ * origin defined, but it is not associated with an actual location, or `null`
+ * otherwise
  */
 export const getCurrentSegmentOriginLocation = ({
     segment
 }: {
     segment: Segment;
-}): GeoJSON.Feature<GeoJSON.Point> | null => {
+}): SegmentLocationGetterWithUnknownReturnType => {
     return segmentSectionHelpers.getCurrentSegmentOriginLocation({ segment });
 };
 
@@ -647,14 +722,17 @@ export const getCurrentSegmentOriginLocation = ({
  * Get the current segment's destination location. It looks only at the current
  * segment and see if any geography field has a value to use as destination. It
  * looks up from last to first field.
+ *
  * @param arg The argument object
  * @param arg.segment The reference segment from which to get the next location
- * @returns The segment's destination if available, or `null` otherwise
+ * @returns The segment's destination if available, 'unknown' if the segment has
+ * a destination defined, but it is not associated with an actual location, or
+ * `null` otherwise
  */
 export const getCurrentSegmentDestinationLocation = ({
     segment
 }: {
     segment: Segment;
-}): GeoJSON.Feature<GeoJSON.Point> | null => {
+}): SegmentLocationGetterWithUnknownReturnType => {
     return segmentSectionHelpers.getCurrentSegmentDestinationLocation({ segment });
 };

@@ -15,6 +15,7 @@ import { WidgetStatus } from 'evolution-common/lib/services/questionnaire/types'
 import { TextWidgetConfig } from 'evolution-common/lib/services/questionnaire/types';
 import { UserInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
+import { stripUnsafeHtml } from '../../services/display/frontendHelper';
 
 type TextProps = {
     widgetConfig: TextWidgetConfig;
@@ -43,7 +44,9 @@ export const Text: React.FunctionComponent<TextProps & WithTranslation> = ({
 
     return (
         <div className="survey-section__text">
-            {widgetConfig.containsHtml && <div dangerouslySetInnerHTML={{ __html: content as string }} />}
+            {widgetConfig.containsHtml && (
+                <div dangerouslySetInnerHTML={{ __html: stripUnsafeHtml(content as string) }} />
+            )}
             {!widgetConfig.containsHtml && (
                 <div
                     className={

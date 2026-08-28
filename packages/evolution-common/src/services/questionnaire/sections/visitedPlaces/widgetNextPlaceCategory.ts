@@ -4,7 +4,6 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import _escape from 'lodash/escape';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import type {
     RadioChoiceType,
@@ -100,7 +99,7 @@ export const getNextPlaceCategoryWidgetConfig = (
         // use our own custom name for the place here.
         const visitedPlaceName = activeVisitedPlace?.name;
         const atPlace = !_isBlank(visitedPlaceName)
-            ? t('survey:atPlace', { placeName: _escape(visitedPlaceName) })
+            ? t('survey:atPlace', { placeName: visitedPlaceName })
             : t('survey:atThisPlace', { context: activeVisitedPlace.activity });
         return t('visitedPlaces:visitedPlaceNextPlaceCategory', {
             context: odHelpers.getPersonGenderContext({ person }),

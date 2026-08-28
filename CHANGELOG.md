@@ -5,7 +5,36 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased (0.6.0)] - YYYY-MM-DD
+## [Unreleased (0.6.1)]
+
+### Added
+
+- Household: reusable confirm popup, `getHouseholdMinimumAgeConfirmPopup`, to block the household section when no member reaches the new `ages.householdMinimumAge` config option (defaults to 16). Add it to the section's continue button: `confirmPopup: getHouseholdMinimumAgeConfirmPopup()` (fixes [#1858](https://github.com/chairemobilite/evolution/issues/1858)).
+- Journey: add the `_skipTripDiary` questionnaire time property, that, if set to `true` will skip the trip diary sections for the corresponding journey (fixes [#1855](https://github.com/chairemobilite/evolution/issues/1855)).
+- The `getSegmentNextKnownLocation`, `getSegmentPreviousKnownLocation` functions will skip unknown intermediate geographies and always return an actual location or `null` (fixes [#1862](https://github.com/chairemobilite/evolution/issues/1862))
+
+### Changed
+
+- The `getSegmentNextLocation`, `getSegmentPreviousLocation`, `getCurrentSegmentOriginLocation` and `getCurrentSegmentDestinationLocation` functions may now return `unknown` if the location is answered, but does not map to a geography feature (fixes [#1862](https://github.com/chairemobilite/evolution/issues/1862))
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+- Add `inputId` to `InputMultiselect` for UI tests to properly identify the widget (fixes [#1860](https://github.com/chairemobilite/evolution/issues/1860))
+- Fix legacy `interviewId` parameter in `activeInterview` admin route (fixes [#1856](https://github.com/chairemobilite/evolution/issues/1856))
+- Redirect URLs returned by the `updateInterview` call do not log the participant out if it is internal, allowing in-survey redirections. (fixes [#1863](https://github.com/chairemobilite/evolution/issues/1863))
+- Fix spinner in admin's interview count by day graph when the count is 0 (fixes [#1870](https://github.com/chairemobilite/evolution/issues/1870))
+- Fix incomplete trip selection by selecting the first trip that has unsaved segments (fixes [#1868](https://github.com/chairemobilite/evolution/issues/1868))
+- Fix incomplete trip visited place selection by selecting the first place that has unsaved data (fixes [#1876](https://github.com/chairemobilite/evolution/issues/1876))
+
+### Security
+
+### Dependency updates
+
+## [0.6.0] - 2026-08-20
 
 ### Added
 
@@ -71,6 +100,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **BREAKING**: Builtin widgets now only use the widget name with section as namespace as locale translation key. Any key that was overridden in the `customSurvey` namespace should be moved to the widget's namespace. (fixes [#1441](https://github.com/chairemobilite/evolution/issues/1441))
 - The Google map widgets were migrated from the deprecated `@react-google-maps/api` package to `@vis.gl/react-google-maps`, which renders vector maps and uses `AdvancedMarker` (fixes [#453](https://github.com/chairemobilite/evolution/issues/453)). This uses the new Google Map ID, for which we provide a default style, but a new `GOOGLE_MAP_ID` environment variable was added if someone wants to override the default style. See `.env.example` and the [Get a Map ID](https://developers.google.com/maps/documentation/get-map-id) docs.
 - Audit and survey-object factory console logs are prefixed with `[Audit]` via `AuditLog` so they can be filtered in server error logs (fixes [#1836](https://github.com/chairemobilite/evolution/issues/1836)).
+- **BREAKING**: Participant-strings are not escaped in the helpers anymore, but the strings should be sanitized at render time. Any template trusting html-safe strings should now use sanitation functions like `stripUnsafeHtml` from `frontendHelpers` (fixes [#1838](https://github.com/chairemobilite/evolution/issues/1838))
 
 ### Deprecated
 

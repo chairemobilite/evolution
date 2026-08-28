@@ -27,6 +27,11 @@ const fetch = async (url, opts) => {
     return await fetchRetry(url, Object.assign({ retry: { retries: 4 }, ...opts }));
 };
 
+const isExternalRedirect = (redirectUrl: string): boolean => {
+    // Compare the origin of the redirect url with the current origin to see if it is an external URL or not
+    return new URL(redirectUrl, window.location.origin).origin !== window.location.origin;
+};
+
 import i18n from '../config/i18n.config';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
@@ -414,7 +419,11 @@ const updateInterviewCallback = async (
                 // TODO Can't use the dispatch action, as the startLogout
                 // requires the navigate function and here it is optional. This
                 // fetch logout should be in a helper.
-                fetch('/logout', { credentials: 'include' });
+                if (isExternalRedirect(body.redirectUrl)) {
+                    // Redirects to another origin require logging out of the current application
+                    // first, while same-origin redirects can navigate directly.
+                    fetch('/logout', { credentials: 'include' });
+                }
                 window.location.href = body.redirectUrl;
             } else {
                 // we need to do something if no interview is returned (error)

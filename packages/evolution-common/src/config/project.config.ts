@@ -30,6 +30,11 @@ export type EvolutionAgesConfiguration = {
     /** Maximum plausible person age for widgets and audits. Defaults to 125. */
     maxPersonAge: number;
     /**
+     * Minimum age that at least one member of the household must reach for the
+     * household to be able to answer the survey. Defaults to 16.
+     */
+    householdMinimumAge: number;
+    /**
      * Age from which a person triggers a reviewer warning audit (inclusive).
      * Applies up to {@link maxPersonAge}. When undefined, no warning audit is raised.
      */
@@ -282,6 +287,7 @@ const defaultAgesConfig: EvolutionAgesConfiguration = {
     workingAge: 15,
     schoolMandatoryAge: 15,
     maxPersonAge: 125,
+    householdMinimumAge: 16,
     addAuditWarningVeryOldAge: undefined
 };
 

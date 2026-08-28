@@ -229,7 +229,7 @@ describe('PersonVisitedPlacesGroupConfigFactory personVisitedPlaces GroupConfig 
                 title: 'uses escaped name when available',
                 groupedObject: { name: '<b>Work place</b>', activity: 'shopping' },
                 sequence: 2,
-                expected: 'VisitedPlaceSequence-2 • **&lt;b&gt;Work place&lt;/b&gt;**'
+                expected: 'VisitedPlaceSequence-2 • **<b>Work place</b>**'
             },
             {
                 title: 'uses translated activity when name is missing',

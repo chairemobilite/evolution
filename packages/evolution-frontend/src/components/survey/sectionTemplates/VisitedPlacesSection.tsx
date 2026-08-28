@@ -25,7 +25,11 @@ import ConfirmModal from 'chaire-lib-frontend/lib/components/modal/ConfirmModal'
 import LoadingPage from 'chaire-lib-frontend/lib/components/pages/LoadingPage';
 import { type SectionProps, useSectionTemplate } from '../../hooks/useSectionTemplate';
 import { SurveyContext } from '../../../contexts/SurveyContext';
-import { secondsSinceMidnightToTimeStrWithSuffix, stripHtml } from '../../../services/display/frontendHelper';
+import {
+    secondsSinceMidnightToTimeStrWithSuffix,
+    stripHtml,
+    stripUnsafeHtml
+} from '../../../services/display/frontendHelper';
 import type { GroupConfig, VisitedPlace } from 'evolution-common/lib/services/questionnaire/types';
 import { getResponse } from 'evolution-common/lib/utils/helpers';
 import { getActivityIcon } from 'evolution-common/lib/services/questionnaire/sections/visitedPlaces/activityIconMapping';
@@ -180,7 +184,7 @@ export const VisitedPlacesSection: React.FC<SectionProps> = (props: SectionProps
                     className={`survey-visited-places-schedule-visited-place${isPersonActive && !selectedVisitedPlaceId ? ' hand-cursor-on-hover' : ''}`}
                     key={visitedPlace._uuid}
                     style={{ left: startAtPercent.toString() + '%', width: width.toString() + '%' }}
-                    title={visitedPlaceDescription}
+                    title={stripHtml(visitedPlaceDescription)}
                     onClick={
                         props.interview.allWidgetsValid && isPersonActive && !selectedVisitedPlaceId
                             ? (e) => selectVisitedPlace(visitedPlace._uuid, e)
@@ -226,13 +230,15 @@ export const VisitedPlacesSection: React.FC<SectionProps> = (props: SectionProps
                         <p className={personForSchedule._uuid === person._uuid ? 'HTML _orange' : ''}>
                             <span
                                 dangerouslySetInnerHTML={{
-                                    __html: t('visitedPlaces:dayScheduleFor', {
-                                        nickname: odHelpers.getPersonIdentificationString({
-                                            person: personForSchedule,
-                                            t
-                                        }),
-                                        count: interviewablePersons.length
-                                    })
+                                    __html: stripUnsafeHtml(
+                                        t('visitedPlaces:dayScheduleFor', {
+                                            nickname: odHelpers.getPersonIdentificationString({
+                                                person: personForSchedule,
+                                                t
+                                            }),
+                                            count: interviewablePersons.length
+                                        })
+                                    )
                                 }}
                             />
                         </p>
@@ -350,7 +356,6 @@ export const VisitedPlacesSection: React.FC<SectionProps> = (props: SectionProps
                                 title={t('visitedPlaces:editVisitedPlace')}
                             >
                                 <FontAwesomeIcon icon={faPencilAlt} className="" />
-                                {/*props.t('visitedPlaces:editVisitedPlace')*/}
                             </button>
                         )}
                         {!selectedVisitedPlaceId /*state.editActivated*/ &&

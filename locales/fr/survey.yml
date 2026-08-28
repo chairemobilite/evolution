@@ -156,6 +156,17 @@ errors:
   householdSizeRequired: "La taille du ménage est requise."
   householdSizeOverMax: "La taille du ménage doit être au maximum {{max}}."
   householdSizeMinOne: "La taille du ménage doit être au moins de 1 (vous devez vous inclure)."
+  # Le count est le nombre de personnes dans le ménage. Le ménage n'est vide que
+  # pendant que le répondant remplit la section ménage, et ce cas a son propre
+  # message parce que le français sélectionne le message `_one` pour un count de
+  # 0, ce qui s'adresserait personnellement au répondant.
+  householdMinimumAge_zero: >-
+    Au moins un membre de votre ménage doit avoir {{age}} ans ou plus pour
+    répondre à ce questionnaire. Veuillez vérifier la composition du ménage.
+  householdMinimumAge_one: "Vous devez avoir au moins {{age}} ans pour répondre à ce questionnaire."
+  householdMinimumAge: >-
+    Au moins un membre de votre ménage doit avoir {{age}} ans ou plus pour
+    répondre à ce questionnaire. Veuillez vérifier les âges.
   answerRequired: "Cette réponse est requise."
   inputRangeMinZero: "Cette réponse doit être supérieure ou égale à 0."
   ageRequired: "L'âge est requis."

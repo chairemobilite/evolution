@@ -699,6 +699,69 @@ describe('getInterviewablePersonsArray', () => {
     });
 });
 
+describe('hasHouseholdMemberOfMinimumAge', () => {
+    // The ages of the test cases are relative to this value, so the tests keep
+    // their meaning if the configured default changes
+    const minimumAge = 16;
+
+    each([
+        ['No household', undefined, false],
+        ['No persons', {}, false],
+        [
+            'Single person of exactly the minimum age',
+            { personId1: { _uuid: 'personId1', _sequence: 1, age: minimumAge } },
+            true
+        ],
+        [
+            'Single person under the minimum age',
+            { personId1: { _uuid: 'personId1', _sequence: 1, age: minimumAge - 1 } },
+            false
+        ],
+        [
+            'All persons under the minimum age',
+            {
+                personId1: { _uuid: 'personId1', _sequence: 1, age: minimumAge - 1 },
+                personId2: { _uuid: 'personId2', _sequence: 2, age: 3 }
+            },
+            false
+        ],
+        [
+            'One person over the minimum age',
+            {
+                personId1: { _uuid: 'personId1', _sequence: 1, age: minimumAge - 1 },
+                personId2: { _uuid: 'personId2', _sequence: 2, age: minimumAge + 10 }
+            },
+            true
+        ],
+        // The age is required, an unanswered age does not make the household eligible
+        [
+            'Persons under the minimum age and a person without age',
+            {
+                personId1: { _uuid: 'personId1', _sequence: 1, age: minimumAge - 1 },
+                personId2: { _uuid: 'personId2', _sequence: 2 }
+            },
+            false
+        ],
+        [
+            'A person without age and a person over the minimum age',
+            {
+                personId1: { _uuid: 'personId1', _sequence: 1 },
+                personId2: { _uuid: 'personId2', _sequence: 2, age: minimumAge + 10 }
+            },
+            true
+        ]
+    ]).test('%s', (_title, persons: any, expected: boolean) => {
+        projectConfig.ages.householdMinimumAge = minimumAge;
+        const interview = _cloneDeep(interviewAttributesWithHh);
+        if (persons === undefined) {
+            interview.response.household = undefined;
+        } else {
+            interview.response.household!.persons = persons;
+        }
+        expect(Helpers.hasHouseholdMemberOfMinimumAge({ interview })).toEqual(expected);
+    });
+});
+
 each([
     [
         'One person-only',
@@ -957,7 +1020,7 @@ describe('getPersonIdentificationString', () => {
 
     it.each([
         [{ nickname: 'Bob', _sequence: 1, age: 30 }, 'Bob'],
-        [{ nickname: '<strong>Bob!!</strong>', _sequence: 1, age: 30 }, '&lt;strong&gt;Bob!!&lt;/strong&gt;'],
+        [{ nickname: '<strong>Bob!!</strong>', _sequence: 1, age: 30 }, '<strong>Bob!!</strong>'],
         [{ nickname: '', _sequence: 2, age: 25 }, 'Person 2, Age 25, Gender undefined'],
         [{ nickname: '  ', _sequence: 2, age: 25 }, 'Person 2, Age 25, Gender undefined'],
         [{ nickname: '  ', _sequence: 2, age: 25, gender: 'female' as const }, 'Person 2, Age 25, Gender female'],
@@ -1029,7 +1092,7 @@ describe('getHomeAddressOneLine', () => {
                 includePostalCode: true
             },
             expected:
-                '123 &lt;strong&gt;main&lt;/strong&gt; st, &lt;b&gt;montreal&lt;/b&gt;, &lt;span&gt;Quebec&lt;/span&gt;, &lt;script injectedScript/&gt;Canada, &lt;STRONG&gt;H2X 1Y4&lt;/STRONG&gt;'
+                '123 <strong>main</strong> st, <b>montreal</b>, <span>Quebec</span>, <script injectedScript/>Canada, <STRONG>H2X 1Y4</STRONG>'
         },
         {
             title: 'returns empty string when home object is missing',
@@ -1044,10 +1107,10 @@ describe('getHomeAddressOneLine', () => {
             expected: ''
         },
         {
-            title: 'returns only the address part when city is missing',
-            home: { address: '123 main st' },
+            title: 'returns only the address part when city is missing, with apostrophes',
+            home: { address: '123 rue de l\'Église' },
             options: undefined,
-            expected: '123 main st'
+            expected: '123 rue de l\'Église'
         },
         {
             title: 'returns only the city part when civic number/street is missing',
@@ -1720,6 +1783,33 @@ describe('shouldShowTripsAndPlacesSections', () => {
                 personDidTripsConfirm: 'no'
             },
             expected: false
+        },
+        {
+            title: 'personDidTrips, but flag _skipTripDiary flag set to `true`',
+            journey: {
+                ...baseJourney,
+                personDidTrips: 'yes',
+                _skipTripDiary: true
+            },
+            expected: false
+        },
+        {
+            title: 'personDidTrips \'no\', and flag _skipTripDiary flag set to `false`',
+            journey: {
+                ...baseJourney,
+                personDidTrips: 'no',
+                _skipTripDiary: false
+            },
+            expected: false
+        },
+        {
+            title: 'personDidTrips \'yes\', and flag _skipTripDiary flag set to `false`',
+            journey: {
+                ...baseJourney,
+                personDidTrips: 'yes',
+                _skipTripDiary: false
+            },
+            expected: true
         }
     ])('$title', ({ journey, expected }) => {
         expect(Helpers.shouldShowTripsAndPlacesSections({ journey })).toEqual(expected);
@@ -2067,6 +2157,16 @@ describe('getFirstIncompleteVisitedPlace', () => {
                     visitedPlaces[visitedPlaces.length - 1].nextPlaceCategory = undefined;
                 },
                 expectedUuid: visitedPlacesArray[visitedPlacesArray.length - 1]._uuid
+            }
+        ],
+        [
+            'Select first place marked as _isNew',
+            {
+                setup: (interview: UserInterviewAttributes) => {
+                    // Set homePlace2P1 as new
+                    const journey = interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.homePlace2P1._isNew = true;
+                },
+                expectedUuid: 'homePlace2P1'
             }
         ],
         [
@@ -3152,6 +3252,21 @@ describe('selectNextIncompleteTrip', () => {
         expect(Helpers.selectNextIncompleteTrip({ journey: attributes })).toEqual(attributes.trips!.trip1);
     });
 
+    test('should select trip with new segments, even if otherwise completed', () => {
+        const attributes = _cloneDeep(journey);
+        // Set the _isNew of segment2 to `true`
+        attributes.trips!.trip1.segments!.segment2._isNew = true;
+        expect(Helpers.selectNextIncompleteTrip({ journey: attributes })).toEqual(attributes.trips!.trip1);
+    });
+
+    test('should select trip with no segment, if the _isNew property is not set', () => {
+        const attributes = _cloneDeep(journey);
+        // Remove the _isNew property. Need to cast to any because it is mandatory, but we want to fake it anyway
+        delete (attributes.trips!.trip1.segments!.segment2 as any)._isNew;
+        delete (attributes.trips!.trip1.segments!.segment1 as any)._isNew;
+        expect(Helpers.selectNextIncompleteTrip({ journey: attributes })).toEqual(attributes.trips!.trip2);
+    });
+
     test('should return null if all trips complete', () => {
         const attributes = _cloneDeep(journey);
         // segments of trip2
@@ -3243,15 +3358,6 @@ describe('getVisitedPlaceNames', () => {
             expected:
                 interviewAttributesForTestCases.response.household!.persons!.personId1.journeys!.journeyId1
                     .visitedPlaces!.workPlace1P1.name
-        },
-        {
-            title: 'Place with a name to escape',
-            interview: testInterviewCopy,
-            visitedPlace:
-                testInterviewCopy.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!
-                    .workPlace1P1,
-            expectedTVal: undefined,
-            expected: 'mocked &lt;b&gt;place&lt;/b&gt;'
         },
         {
             title: 'Place with a shortcut',

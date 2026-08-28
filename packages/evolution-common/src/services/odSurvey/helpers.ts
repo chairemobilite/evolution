@@ -6,7 +6,6 @@
  */
 
 import _get from 'lodash/get';
-import _escape from 'lodash/escape';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { getResponse } from '../../utils/helpers';
 import {
@@ -310,6 +309,24 @@ export const getInterviewablePersonsArray = ({ interview }: { interview: UserInt
 };
 
 /**
+ * Whether the household has at least one member old enough to answer the
+ * survey, ie at least
+ * `config.ages.householdMinimumAge` years old. Persons
+ * whose age is not answered do not count, as well as a household without any
+ * person. The age is required in the household section, so an unanswered age
+ * only happens while the respondent is still filling the section.
+ *
+ * @param {Object} options - The options object.
+ * @param {UserInterviewAttributes} options.interview The interview object
+ * @returns {boolean} `true` if at least one member is old enough to answer the
+ * survey
+ */
+export const hasHouseholdMemberOfMinimumAge = ({ interview }: { interview: UserInterviewAttributes }): boolean =>
+    getPersonsArray({ interview }).some(
+        (person) => typeof person.age === 'number' && person.age >= config.ages.householdMinimumAge
+    );
+
+/**
  * Count the number of persons in the household. This function uses the person
  * defined in the household and not the household size specified by the
  * respondent.
@@ -411,18 +428,18 @@ export const getPersonGenderContext = ({ person }: { person: Person }): string |
     person.gender ?? person.sexAssignedAtBirth ?? undefined;
 
 /**
- * Get a html-safe string that identifies a person, either by their nickname or
- * by their sequence and age.
+ * Get a string that identifies a person, either by their nickname or by their
+ * sequence and age.
  *
  * @param {Object} options - The options object.
  * @param {Person} options.person The person to identify
  * @param {TFunction} options.t The translation function
- * @returns {string} A translated and/or escaped string that identifies the
- * person, either by their nickname or by their sequence and age.
+ * @returns {string} A translated string that identifies the person, either by
+ * their nickname or by their sequence and age.
  */
 export const getPersonIdentificationString = ({ person, t }: { person: Person; t: TFunction }): string => {
     if (typeof person.nickname === 'string' && !_isBlank(person.nickname.trim())) {
-        return _escape(person.nickname);
+        return person.nickname;
     }
     return _isBlank(person.age)
         ? t('survey:personWithSequence', {
@@ -437,8 +454,7 @@ export const getPersonIdentificationString = ({ person, t }: { person: Person; t
 };
 
 /**
- * Return an html-safe address as a one line string, including all the requested
- * parts
+ * Return an address as a one line string, including all the requested parts
  *
  * @param obj The object from which to extract address parts
  * @param options Options for which parts of the address to include
@@ -479,7 +495,7 @@ const getAddressOneLine = (
     if (includePostalCode && typeof obj.postalCode === 'string' && !_isBlank(obj.postalCode.trim())) {
         addressParts.push(obj.postalCode.trim().toUpperCase());
     }
-    return _escape(addressParts.join(', '));
+    return addressParts.join(', ');
 };
 
 /**
@@ -748,7 +764,8 @@ export const formatJourneyDates = ({
  * Determine whether the trips and visited places sections should exist for this
  * journey, based on the journey's data and prior answers.
  *
- * For OD surveys, this is based on the `personDidTrips` question.
+ * For OD surveys, this is based on the `personDidTrips` question and the
+ * `_skipTripDiary` flag.
  *
  * @param {Object} options - The options object.
  * @param {Journey} options.journey The journey for which to check if visited
@@ -760,7 +777,7 @@ export const shouldShowTripsAndPlacesSections = ({ journey }: { journey: Journey
     // FIXME This implies that the journey has the `personDidTrips` question.
     // Support surveys with journeys manually created by participant (see issue
     // #1498)
-    journey.personDidTrips === 'yes' || journey.personDidTripsConfirm === 'yes';
+    (journey.personDidTrips === 'yes' || journey.personDidTripsConfirm === 'yes') && journey._skipTripDiary !== true;
 
 // *** Trip-related functions
 
@@ -906,8 +923,11 @@ export const selectNextIncompleteTrip = ({ journey }: { journey: Journey }): Tri
         if (!tripHasDefinedSegments({ trip })) {
             return trip;
         } else {
-            // Return the trip if one of the segments does not have a mode
-            const incompleteSegment = segments.find((segment) => _isBlank(segment) || _isBlank(segment.mode));
+            // Return the trip if one of the segments does not have a mode, or if the `_isNew` field is still `true`
+            // FIXME A segment may still be incomplete if an existing one was modified and some fields may be invalid
+            const incompleteSegment = segments.find(
+                (segment) => _isBlank(segment) || _isBlank(segment.mode) || segment._isNew === true
+            );
             if (incompleteSegment) {
                 return trip;
             }
@@ -1128,16 +1148,16 @@ export const replaceVisitedPlaceShortcuts = ({
 };
 
 /**
- * Returns the html-safe visited place name string. If no name will return
- * generic name followed by sequence
+ * Returns the visited place name string. If no name will return generic name
+ * followed by sequence
  *
  * @param {Object} options - The options object.
  * @param {TFunction} options.t The translation function
  * @param {VisitedPlace} options.visitedPlace The visited place for which to get
  * the name
  * @param {UserInterviewAttributes} options.interview The interview object
- * @returns {string} The visited place name, html-safe, or a generic name
- * followed by its sequence.
+ * @returns {string} The visited place name or a generic name followed by its
+ * sequence.
  */
 export const getVisitedPlaceName = function ({
     t,
@@ -1158,7 +1178,7 @@ export const getVisitedPlaceName = function ({
             ? getResponse(interview, visitedPlace.shortcut, null)
             : visitedPlace;
     if (actualVisitedPlace && (actualVisitedPlace as VisitedPlace).name) {
-        return _escape((actualVisitedPlace as VisitedPlace).name as string);
+        return (actualVisitedPlace as VisitedPlace).name as string;
     }
 
     return t('survey:placeWithSequenceGeneric', { sequence: visitedPlace._sequence });
@@ -1403,8 +1423,11 @@ export const getFirstIncompleteVisitedPlace = ({
         const geography = getVisitedPlaceGeography({ visitedPlace, interview, person });
 
         // FIXME The content of this function should depend on the survey's
-        // configuration. Now we suppose check only the activity and geography
+        // configuration. Now we suppose check only the activity, time and
+        // geography, but if an existing place is modified and has some invalid
+        // fields, we won't know.
         if (
+            visitedPlace._isNew === true ||
             _isBlank(visitedPlace.activity) ||
             (visitedPlace._sequence === lastSequence &&
                 visitedPlace.nextPlaceCategory !== 'stayedThereUntilTheNextDay') ||

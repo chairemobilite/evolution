@@ -6,7 +6,6 @@
  */
 
 import _cloneDeep from 'lodash/cloneDeep';
-import _escape from 'lodash/escape';
 import {
     interviewAttributesForTestCases,
     setActiveSurveyObjects,
@@ -18,6 +17,11 @@ import { VisitedPlaceTimeWidgetFactory } from '../widgetsTime';
 import * as helpers from '../helpers';
 import { requiredValidation } from '../../../../widgets/validations/validations';
 
+// Mock the i18next so that calls to the i18n object resolve to something
+jest.mock('i18next', () => ({
+    t: jest.fn(str => `translated_${str}`)
+}));
+
 const visitedPlacesSectionConfig = {
     type: 'visitedPlaces' as const,
     enabled: true,
@@ -28,7 +32,7 @@ const visitedPlacesSectionConfig = {
 const visitedPlaceFieldPath = (visitedPlaceId: string, fieldName: string) =>
     `household.persons.personId1.journeys.journeyId1.visitedPlaces.${visitedPlaceId}.${fieldName}`;
 
-// Unset all times, so individual tests can set it again without interference
+// Unset all times for personId1, so individual tests can set it again without interference
 const unsetAllTimes = (interview: UserInterviewAttributes) => {
     const visitedPlaces = interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!;
     Object.values(visitedPlaces).forEach(visitedPlace => {
@@ -38,7 +42,57 @@ const unsetAllTimes = (interview: UserInterviewAttributes) => {
         visitedPlace._previousDepartureTime = undefined;
         visitedPlace._previousPreviousDepartureTime = undefined;
     });
-}
+};
+
+// All suffix time functions have similar test cases, we return them here
+const getTestCasesForSuffixTimes = (timeField: 'arrivalTime' | 'departureTime'): any[] => [
+    {
+        title: 'return empty when there are no places with same geographies',
+        visitedPlaceId: 'workPlace1P1',
+        setup: (interview: typeof interviewAttributesForTestCases) => {
+            interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.otherPlace2P1.activity = 'shopping';
+        },
+        expected: {}
+    },
+    {
+        title: 'return other person\'s time when places share the same geographies',
+        visitedPlaceId: 'homePlace1P1',
+        setup: (interview: typeof interviewAttributesForTestCases) => {
+            // Add nicknames for personId2 and personId3
+            interview.response.household!.persons!.personId3.nickname = 'Manche de pelle';
+            interview.response.household!.persons!.personId2.nickname = 'p2';
+            interview.response.household!.persons!.personId2.journeys!.journeyId2.visitedPlaces!.homePlace1P2[timeField] = 7 * 3600 + 35 * 60;
+            interview.response.household!.persons!.personId2.journeys!.journeyId2.visitedPlaces!.homePlace2P2[timeField] = 9 * 3600;
+            interview.response.household!.persons!.personId3.journeys!.journeyId3.visitedPlaces!.homePlace1P3[timeField] = 7 * 3600 + 35 * 60;
+            interview.response.household!.persons!.personId3.journeys!.journeyId3.visitedPlaces!.homePlace2P3[timeField] = 15 * 3600 + 20 * 60;
+        },
+        expected: {
+            [String(7 * 3600 + 35 * 60)]: ' (Manche ...)',
+            [String(9 * 3600)]: ' (p2)',
+            [String(15 * 3600 + 20 * 60)]: ' (Manche ...)',
+        }
+    },
+    {
+        title: 'do not return suffixes if the times for other places are not set',
+        visitedPlaceId: 'homePlace1P1',
+        setup: (interview: typeof interviewAttributesForTestCases) => {
+            delete interview.response.household!.persons!.personId2.journeys!.journeyId2.visitedPlaces!.homePlace1P2[timeField];
+            delete interview.response.household!.persons!.personId2.journeys!.journeyId2.visitedPlaces!.homePlace2P2[timeField];
+            delete interview.response.household!.persons!.personId3.journeys!.journeyId3.visitedPlaces!.homePlace1P3[timeField];
+            delete interview.response.household!.persons!.personId3.journeys!.journeyId3.visitedPlaces!.homePlace2P3[timeField];
+        },
+        expected: {}
+    },
+    {
+        title: 'do not return any times person is alone',
+        visitedPlaceId: 'workPlace1P1',
+        setup: (interview: typeof interviewAttributesForTestCases) => {
+            delete interview.response.household!.persons!.personId2;
+            delete interview.response.household!.persons!.personId3;
+        },
+        expected: {}
+    }
+];
 
 describe('VisitedPlaceTimeWidgetFactory', () => {
     let factory: VisitedPlaceTimeWidgetFactory;
@@ -116,7 +170,7 @@ describe('visitedPlacePreviousPreviousDepartureTime widget', () => {
             label: expect.any(Function),
             minuteStep: 5,
             addHourSeparators: true,
-            suffixTimes:undefined,
+            suffixTimes: expect.any(Function),
             maxTimeSecondsSinceMidnight: expect.any(Function),
             minTimeSecondsSinceMidnight: expect.any(Function),
             validations: requiredValidation,
@@ -419,6 +473,25 @@ describe('visitedPlacePreviousPreviousDepartureTime widget', () => {
         });
     });
 
+    describe('suffixTimes function', () => {
+        const suffixTimesFn = widget.suffixTimes as Function;
+
+        test.each(getTestCasesForSuffixTimes('departureTime'))('should handle case: $title', ({ visitedPlaceId, setup, expected }) => {
+            const interview = _cloneDeep(interviewAttributesForTestCases);
+            unsetAllTimes(interview);
+            setup(interview);
+            const path = visitedPlaceFieldPath(visitedPlaceId, '_previousPreviousDepartureTime');
+            expect(suffixTimesFn(interview, path)).toEqual(expected);
+        });
+
+        test('should throw error when visited place context is not found', () => {
+            const interview = _cloneDeep(interviewAttributesForTestCases);
+            expect(() => suffixTimesFn(interview, 'invalid/nonexistent/path')).toThrow(
+                'getSameVisitedPlacesFromOthers: cannot get visited place context from path invalid/nonexistent/path'
+            );
+        });
+    });
+
 });
 
 describe('visitedPlacePreviousArrivalTime widget', () => {
@@ -440,7 +513,7 @@ describe('visitedPlacePreviousArrivalTime widget', () => {
             label: expect.any(Function),
             minuteStep: 5,
             addHourSeparators: true,
-            suffixTimes:undefined,
+            suffixTimes: expect.any(Function),
             maxTimeSecondsSinceMidnight: expect.any(Function),
             minTimeSecondsSinceMidnight: expect.any(Function),
             validations: requiredValidation,
@@ -690,6 +763,25 @@ describe('visitedPlacePreviousArrivalTime widget', () => {
         });
     });
 
+    describe('suffixTimes function', () => {
+        const suffixTimesFn = widget.suffixTimes as Function;
+
+        test.each(getTestCasesForSuffixTimes('arrivalTime'))('should handle case: $title', ({ visitedPlaceId, setup, expected }) => {
+            const interview = _cloneDeep(interviewAttributesForTestCases);
+            unsetAllTimes(interview);
+            setup(interview);
+            const path = visitedPlaceFieldPath(visitedPlaceId, '_previousArrivalTime');
+            expect(suffixTimesFn(interview, path)).toEqual(expected);
+        });
+
+        test('should throw error when visited place context is not found', () => {
+            const interview = _cloneDeep(interviewAttributesForTestCases);
+            expect(() => suffixTimesFn(interview, 'invalid/nonexistent/path')).toThrow(
+                'getSameVisitedPlacesFromOthers: cannot get visited place context from path invalid/nonexistent/path'
+            );
+        });
+    });
+
 });
 
 describe('visitedPlacePreviousDepartureTime widget', () => {
@@ -711,7 +803,7 @@ describe('visitedPlacePreviousDepartureTime widget', () => {
             label: expect.any(Function),
             minuteStep: expect.any(Function),
             addHourSeparators: true,
-            suffixTimes:undefined,
+            suffixTimes: expect.any(Function),
             maxTimeSecondsSinceMidnight: expect.any(Function),
             minTimeSecondsSinceMidnight: expect.any(Function),
             validations: requiredValidation,
@@ -1011,6 +1103,25 @@ describe('visitedPlacePreviousDepartureTime widget', () => {
         });
     });
 
+    describe('suffixTimes function', () => {
+        const suffixTimesFn = widget.suffixTimes as Function;
+
+        test.each(getTestCasesForSuffixTimes('departureTime'))('should handle case: $title', ({ visitedPlaceId, setup, expected }) => {
+            const interview = _cloneDeep(interviewAttributesForTestCases);
+            unsetAllTimes(interview);
+            setup(interview);
+            const path = visitedPlaceFieldPath(visitedPlaceId, '_previousDepartureTime');
+            expect(suffixTimesFn(interview, path)).toEqual(expected);
+        });
+
+        test('should throw error when visited place context is not found', () => {
+            const interview = _cloneDeep(interviewAttributesForTestCases);
+            expect(() => suffixTimesFn(interview, 'invalid/nonexistent/path')).toThrow(
+                'getSameVisitedPlacesFromOthers: cannot get visited place context from path invalid/nonexistent/path'
+            );
+        });
+    });
+
 });
 
 describe('visitedPlaceArrivalTime widget', () => {
@@ -1242,7 +1353,7 @@ describe('visitedPlaceArrivalTime widget', () => {
                 ['visitedPlaces:visitedPlaceArrivalTime_shopping', 'visitedPlaces:visitedPlaceArrivalTime'], 
                 expect.objectContaining({ atPlace: 'visitedPlaces:atPlace' })
             );
-            expect(mockedT).toHaveBeenCalledWith('visitedPlaces:atPlace', { placeName: _escape(currentPlace.name) });
+            expect(mockedT).toHaveBeenCalledWith('visitedPlaces:atPlace', { placeName: currentPlace.name });
         });
 
         test('should not append duration text for loop activities', () => {
@@ -1418,13 +1529,39 @@ describe('visitedPlaceArrivalTime widget', () => {
     describe('suffixTimes function', () => {
         const suffixTimesFn = widget.suffixTimes as Function;
 
-        test('should return suffix for very last time', () => {
+        test.each(getTestCasesForSuffixTimes('arrivalTime'))('should handle case: $title', ({ visitedPlaceId, setup, expected }) => {
             const interview = _cloneDeep(interviewAttributesForTestCases);
             unsetAllTimes(interview);
-            const path = visitedPlaceFieldPath('workPlace1P1', 'arrivalTime');
-            expect(suffixTimesFn(interview, path)).toEqual({ [String(visitedPlacesSectionConfig.tripDiaryMaxTimeOfDay)]: expect.any(String) });
+            setup(interview);
+            const path = visitedPlaceFieldPath(visitedPlaceId, 'arrivalTime');
+            // Times should append the very last time suffix for arrival time
+            expect(suffixTimesFn(interview, path)).toEqual({
+                ...expected,
+                [String(visitedPlacesSectionConfig.tripDiaryMaxTimeOfDay)]: expect.stringContaining(` translated_visitedPlaces:orPlus`)
+            });
         });
-    })
+
+        test('should add suffix name to last time of day', () => {
+            const interview = _cloneDeep(interviewAttributesForTestCases);
+            unsetAllTimes(interview);
+            // Add nicknames for personId2 and arrivalTime of homePlace2P2 to the last time of day
+            interview.response.household!.persons!.personId2.nickname = 'p2';
+            interview.response.household!.persons!.personId2.journeys!.journeyId2.visitedPlaces!.homePlace2P2.arrivalTime = visitedPlacesSectionConfig.tripDiaryMaxTimeOfDay;
+
+            const path = visitedPlaceFieldPath('homePlace1P1', 'arrivalTime');
+            // Times should append the very last time suffix for arrival time with both 'or +' and nickname
+            expect(suffixTimesFn(interview, path)).toEqual({
+                [String(visitedPlacesSectionConfig.tripDiaryMaxTimeOfDay)]: expect.stringContaining(` translated_visitedPlaces:orPlus (p2)`)
+            });
+        });
+
+        test('should throw error when visited place context is not found', () => {
+            const interview = _cloneDeep(interviewAttributesForTestCases);
+            expect(() => suffixTimesFn(interview, 'invalid/nonexistent/path')).toThrow(
+                'getSameVisitedPlacesFromOthers: cannot get visited place context from path invalid/nonexistent/path'
+            );
+        });
+    });
 
 });
 
@@ -1446,7 +1583,7 @@ describe('visitedPlaceDepartureTime widget', () => {
             label: expect.any(Function),
             minuteStep: expect.any(Function),
             addHourSeparators: true,
-            suffixTimes:undefined,
+            suffixTimes: expect.any(Function),
             maxTimeSecondsSinceMidnight: expect.any(Function),
             minTimeSecondsSinceMidnight: expect.any(Function),
             validations: requiredValidation,
@@ -1799,5 +1936,25 @@ describe('visitedPlaceDepartureTime widget', () => {
             );
         });
     });
+
+    describe('suffixTimes function', () => {
+        const suffixTimesFn = widget.suffixTimes as Function;
+
+        test.each(getTestCasesForSuffixTimes('departureTime'))('should handle case: $title', ({ visitedPlaceId, setup, expected }) => {
+            const interview = _cloneDeep(interviewAttributesForTestCases);
+            unsetAllTimes(interview);
+            setup(interview);
+            const path = visitedPlaceFieldPath(visitedPlaceId, 'departureTime');
+            expect(suffixTimesFn(interview, path)).toEqual(expected);
+        });
+
+        test('should throw error when visited place context is not found', () => {
+            const interview = _cloneDeep(interviewAttributesForTestCases);
+            expect(() => suffixTimesFn(interview, 'invalid/nonexistent/path')).toThrow(
+                'getSameVisitedPlacesFromOthers: cannot get visited place context from path invalid/nonexistent/path'
+            );
+        });
+    });
     
 });
+

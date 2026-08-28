@@ -10,7 +10,7 @@ import { interviewAttributesForTestCases, setActiveSurveyObjects } from '../../.
 import { tripDiarySectionVisibleConditional } from '../tripDiaryHelpers';
 
 describe('tripDiarySectionVisibleConditional', () => {
-        
+
     let testInterview = _cloneDeep(interviewAttributesForTestCases);
     const iterationContext = ['personId1'];
 
@@ -22,22 +22,30 @@ describe('tripDiarySectionVisibleConditional', () => {
 
     test('should return false if no iteration context', () => {
         const result = tripDiarySectionVisibleConditional(testInterview, undefined);
-        
+
         expect(result).toBe(false);
     });
 
     test('should return false if no active journey', () => {
         setActiveSurveyObjects(testInterview, { personId: 'personId1', journeyId: undefined });
-        
+
         const result = tripDiarySectionVisibleConditional(testInterview, iterationContext);
-        
+
         expect(result).toBe(false);
     });
 
     test('should return true if there is an active journey with trips', () => {
         const result = tripDiarySectionVisibleConditional(testInterview, iterationContext);
-        
+
         expect(result).toBe(true);
+    });
+
+    test('should return false if the is an active journey with trips has the `_skipTripDiary` flag set to `true`', () => {
+        // Set the _skipTripDiary flag
+        testInterview.response.household!.persons!.personId1.journeys!.journeyId1._skipTripDiary = true;
+        const result = tripDiarySectionVisibleConditional(testInterview, iterationContext);
+
+        expect(result).toBe(false);
     });
 
     test('should return false if there is an active journey but with no trips', () => {

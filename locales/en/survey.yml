@@ -145,6 +145,17 @@ errors:
   householdSizeRequired: "Household size is required."
   householdSizeOverMax: "Household size must be at most {{max}}."
   householdSizeMinOne: "Household size must be at least 1 (you need to include yourself)."
+  # The count is the number of persons in the household. The household is only
+  # empty while the respondent is filling the household section, and it needs
+  # its own message because French selects the `_one` message for a count of 0,
+  # which would address the respondent personally.
+  householdMinimumAge_zero: >-
+    At least one member of your household must be {{age}} years old or older to
+    answer this questionnaire. Please verify the household composition.
+  householdMinimumAge_one: "You must be at least {{age}} years old to answer this questionnaire."
+  householdMinimumAge: >-
+    At least one member of your household must be {{age}} years old or older to
+    answer this questionnaire. Please verify the ages.
   answerRequired: "This answer is required."
   inputRangeMinZero: "This answer must be at least 0."
   ageRequired: "Age is required."

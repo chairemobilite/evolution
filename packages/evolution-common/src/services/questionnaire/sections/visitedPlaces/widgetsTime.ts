@@ -5,9 +5,9 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import _escape from 'lodash/escape';
 import _max from 'lodash/max';
 import _min from 'lodash/min';
+import _truncate from 'lodash/truncate';
 import i18n, { type TFunction } from 'i18next';
 import type {
     InputTimeType,
@@ -19,7 +19,7 @@ import type {
 import * as odHelpers from '../../../odSurvey/helpers';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import type { WidgetConfigFactory, WidgetFactoryOptions } from '../types';
-import { formatTripDuration, isWorkOnTheRoad } from './helpers';
+import { formatTripDuration, getSameVisitedPlacesFromOtherHouseholdMembers, isWorkOnTheRoad } from './helpers';
 import { requiredValidation } from '../../../widgets/validations/validations';
 
 export type TimeWidgetOptions = Pick<
@@ -283,11 +283,32 @@ export class VisitedPlaceTimeWidgetFactory implements WidgetConfigFactory {
                 return upperBoundSecondsSinceMidnight;
             };
 
-    private getSuffixTimes = (_interview: UserInterviewAttributes, _timeField: TimeField = 'arrivalTime') => {
+    private getSuffixTimes = (
+        interview: UserInterviewAttributes,
+        path: string,
+        timeField: TimeField = 'arrivalTime'
+    ) => {
         // return an object: {[secondsSinceMidnight (string)]: suffix (string)}
         const suffixTimes = {};
 
-        // TODO Implement correctly, but specify first!
+        // Find the other visited places, from other persons, which have the
+        // same geography as this one, so we can show the other persons'
+        // nicknames next to the time.
+        const similarPlaces = getSameVisitedPlacesFromOtherHouseholdMembers(interview, path);
+        // For each similar place, if there is a time associated with the place, add a suffix for that time with the name of the person (ellipsed at 10 characters)
+        for (const { person, visitedPlace } of similarPlaces) {
+            const otherPlaceTime = visitedPlace[timeField];
+            if (typeof otherPlaceTime === 'number') {
+                // FIXME If more than one person is at that place at the same
+                // time, this only shows one of them. But truncated at 10
+                // characters, showing more makes little sense, unless
+                // participants, have very short names. See how we want to
+                // support showing more than one person.
+                const otherPersonIdentification = odHelpers.getPersonIdentificationString({ person, t: i18n.t });
+                suffixTimes[otherPlaceTime.toString()] = ` (${_truncate(otherPersonIdentification, { length: 10 })})`;
+            }
+        }
+
         return suffixTimes;
     };
 
@@ -361,7 +382,9 @@ export class VisitedPlaceTimeWidgetFactory implements WidgetConfigFactory {
         ),
         maxTimeSecondsSinceMidnight: this.getTimeSecondsUpperBoundFromNextPlacesAndTimes(
             '_previousPreviousDepartureTime'
-        )
+        ),
+        // Use departureTime for suffix as this field will be rewritten to departure anyway
+        suffixTimes: (interview, path) => this.getSuffixTimes(interview, path, 'departureTime')
     });
 
     private getPreviousArrivalTimeWidgetConfiguration = (): TimeWidgetOptions => ({
@@ -408,7 +431,9 @@ export class VisitedPlaceTimeWidgetFactory implements WidgetConfigFactory {
             });
         },
         minTimeSecondsSinceMidnight: this.getTimeSecondsLowerBoundFromPreviousPlacesAndTimes('_previousArrivalTime'),
-        maxTimeSecondsSinceMidnight: this.getTimeSecondsUpperBoundFromNextPlacesAndTimes('_previousArrivalTime')
+        maxTimeSecondsSinceMidnight: this.getTimeSecondsUpperBoundFromNextPlacesAndTimes('_previousArrivalTime'),
+        // Use arrivalTime for suffix as this field will be rewritten to arrival anyway
+        suffixTimes: (interview, path) => this.getSuffixTimes(interview, path, 'arrivalTime')
     });
 
     private getPreviousDepartureTimeWidgetConfiguration = (): TimeWidgetOptions => ({
@@ -506,7 +531,9 @@ export class VisitedPlaceTimeWidgetFactory implements WidgetConfigFactory {
             });
         },
         minTimeSecondsSinceMidnight: this.getTimeSecondsLowerBoundFromPreviousPlacesAndTimes('_previousDepartureTime'),
-        maxTimeSecondsSinceMidnight: this.getTimeSecondsUpperBoundFromNextPlacesAndTimes('_previousDepartureTime')
+        maxTimeSecondsSinceMidnight: this.getTimeSecondsUpperBoundFromNextPlacesAndTimes('_previousDepartureTime'),
+        // Use departureTime for suffix as this field will be rewritten to departure anyway
+        suffixTimes: (interview, path) => this.getSuffixTimes(interview, path, 'departureTime')
     });
 
     private getArrivalTimeWidgetConfiguration = (): TimeWidgetOptions => ({
@@ -606,7 +633,7 @@ export class VisitedPlaceTimeWidgetFactory implements WidgetConfigFactory {
                 'visitedPlaces:visitedPlaceArrivalTime'
             ];
             const place = !_isBlank(visitedPlaceName)
-                ? t('visitedPlaces:atPlace', { placeName: _escape(visitedPlaceName) })
+                ? t('visitedPlaces:atPlace', { placeName: visitedPlaceName })
                 : t('visitedPlaces:atThisPlace', { context: visitedPlace.activity });
             return (
                 t(keys, {
@@ -619,10 +646,17 @@ export class VisitedPlaceTimeWidgetFactory implements WidgetConfigFactory {
         },
         minTimeSecondsSinceMidnight: this.getTimeSecondsLowerBoundFromPreviousPlacesAndTimes('arrivalTime'),
         maxTimeSecondsSinceMidnight: this.getTimeSecondsUpperBoundFromNextPlacesAndTimes('arrivalTime'),
-        suffixTimes: (interview) => {
-            const suffixTimes = this.getSuffixTimes(interview, 'arrivalTime');
+        suffixTimes: (interview, path) => {
+            const suffixTimes = this.getSuffixTimes(interview, path, 'arrivalTime');
             // Add the 'or +' at the end of the last time option
-            suffixTimes[String(this.sectionConfig.tripDiaryMaxTimeOfDay)] = ' ' + i18n.t('visitedPlaces:orPlus');
+            const lastTimeOfDay = String(this.sectionConfig.tripDiaryMaxTimeOfDay);
+            const lastTimeOfDaySuffix = ' ' + i18n.t('visitedPlaces:orPlus');
+            if (suffixTimes[lastTimeOfDay] !== undefined) {
+                // Append current suffix to the last time suffix
+                suffixTimes[lastTimeOfDay] = lastTimeOfDaySuffix + suffixTimes[lastTimeOfDay];
+            } else {
+                suffixTimes[lastTimeOfDay] = lastTimeOfDaySuffix;
+            }
 
             return suffixTimes;
         }
@@ -699,7 +733,7 @@ export class VisitedPlaceTimeWidgetFactory implements WidgetConfigFactory {
                 visitedPlace.activity === 'home'
                     ? t('visitedPlaces:theHome')
                     : !_isBlank(visitedPlaceName)
-                        ? t('visitedPlaces:place', { placeName: _escape(visitedPlaceName) })
+                        ? t('visitedPlaces:place', { placeName: visitedPlaceName })
                         : t('visitedPlaces:thisPlace', { context: visitedPlace.activity });
             const keys = [
                 `visitedPlaces:visitedPlaceDepartureTime_${visitedPlace.activity}`,
@@ -716,7 +750,8 @@ export class VisitedPlaceTimeWidgetFactory implements WidgetConfigFactory {
         maxTimeSecondsSinceMidnight: this.getTimeSecondsUpperBoundFromNextPlacesAndTimes(
             'departureTime',
             true /* ignoreNextLoopActivities */
-        )
+        ),
+        suffixTimes: (interview, path) => this.getSuffixTimes(interview, path, 'departureTime')
     });
 
     getWidgetConfigs = (): Record<string, InputTimeType> => {
