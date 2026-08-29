@@ -107,6 +107,7 @@ const SurveyParticipant: React.FC = () => {
 
     return (
         <Survey
+            surveyMode="participant"
             startUpdateInterview={startUpdateInterviewAction}
             startAddGroupedObjects={startAddGroupedObjectsAction}
             startRemoveGroupedObjects={startRemoveGroupedObjectsAction}
