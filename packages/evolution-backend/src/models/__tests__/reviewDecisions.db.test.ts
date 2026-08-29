@@ -13,6 +13,7 @@ import interviewsDbQueries from '../interviews.db.queries';
 
 const testFixtureSuffix = uuidV4();
 const personUuid = uuidV4();
+const interviewUuid = uuidV4();
 
 let participantId: number;
 let reviewer1Id: number;
@@ -20,6 +21,17 @@ let reviewer2Id: number;
 let interviewId: number;
 const extraUserIds: number[] = [];
 const extraParticipantIds: number[] = [];
+
+/** Creates a user allowed to force approve, cleaned up with the other test fixtures. */
+const createAdmin = async (): Promise<number> => {
+    const adminId = (await create(knex, 'users', undefined, {
+        email: `review-decisions-admin-${uuidV4()}@test.local`,
+        is_valid: true,
+        uuid: uuidV4()
+    } as any)) as number;
+    extraUserIds.push(adminId);
+    return adminId;
+};
 
 beforeAll(async () => {
     jest.setTimeout(10000);
@@ -38,7 +50,7 @@ beforeAll(async () => {
         uuid: uuidV4()
     } as any)) as number;
     const createdInterview = await interviewsDbQueries.create({
-        uuid: uuidV4(),
+        uuid: interviewUuid,
         participant_id: participantId,
         is_valid: false,
         is_active: true,
@@ -179,7 +191,7 @@ describe('setReviewDecision and getReviewDecisionsForInterview', () => {
             objectUuid: personUuid,
             decision: 'approve'
         });
-        await dbQueries.setForceApproveWhenConflictExists(interviewId, reviewer1Id, {
+        await dbQueries.setForceApproveWhenApprovalBlocked(interviewId, reviewer1Id, {
             objectType: 'person',
             objectUuid: personUuid
         });
@@ -209,7 +221,7 @@ describe('setReviewDecision and getReviewDecisionsForInterview', () => {
             objectUuid: clearWhileForceUuid,
             decision: 'approve'
         });
-        await dbQueries.setForceApproveWhenConflictExists(interviewId, reviewer1Id, {
+        await dbQueries.setForceApproveWhenApprovalBlocked(interviewId, reviewer1Id, {
             objectType: 'person',
             objectUuid: clearWhileForceUuid
         });
@@ -287,7 +299,7 @@ describe('requestReReviewFromOtherReviewers', () => {
     });
 });
 
-describe('setForceApproveWhenConflictExists stores and clears force-approve state', () => {
+describe('setForceApproveWhenApprovalBlocked stores and clears force-approve state', () => {
     const forcePersonUuid = uuidV4();
 
     beforeEach(async () => {
@@ -311,7 +323,7 @@ describe('setForceApproveWhenConflictExists stores and clears force-approve stat
     test('sets force_approved on the admin row while preserving reject decision', async () => {
         await seedReviewerConflict();
 
-        const review = await dbQueries.setForceApproveWhenConflictExists(interviewId, reviewer1Id, {
+        const review = await dbQueries.setForceApproveWhenApprovalBlocked(interviewId, reviewer1Id, {
             objectType: 'person',
             objectUuid: forcePersonUuid,
             forceApproveComment: 'overriding anyway'
@@ -326,29 +338,41 @@ describe('setForceApproveWhenConflictExists stores and clears force-approve stat
         });
     });
 
-    test('creates an approve row when admin force-approves without a prior decision', async () => {
+    test('creates a row without reviewer vote when admin force-approves without a prior decision', async () => {
         await seedReviewerConflict();
-        const adminId = (await create(knex, 'users', undefined, {
-            email: `review-decisions-admin-${uuidV4()}@test.local`,
-            is_valid: true,
-            uuid: uuidV4()
-        } as any)) as number;
-        extraUserIds.push(adminId);
+        const adminId = await createAdmin();
 
-        const review = await dbQueries.setForceApproveWhenConflictExists(interviewId, adminId, {
+        const review = await dbQueries.setForceApproveWhenApprovalBlocked(interviewId, adminId, {
             objectType: 'person',
             objectUuid: forcePersonUuid
         });
 
-        expect(review).toMatchObject({
-            decision: 'approve',
-            forceApproved: true
+        expect(review).toMatchObject({ forceApproved: true });
+        expect(review.decision).toBeUndefined();
+    });
+
+    test('clearForceApprove removes the row of an admin who never voted', async () => {
+        await seedReviewerConflict();
+        const adminId = await createAdmin();
+        await dbQueries.setForceApproveWhenApprovalBlocked(interviewId, adminId, {
+            objectType: 'person',
+            objectUuid: forcePersonUuid
         });
+
+        await dbQueries.clearForceApprove(interviewId, adminId, {
+            objectType: 'person',
+            objectUuid: forcePersonUuid
+        });
+
+        // No phantom approval is left behind: the object goes back to the reviewers' conflict.
+        const reviews = await dbQueries.getReviewDecisionsForInterview(interviewId);
+        expect(reviews.find((review) => review.userId === adminId)).toBeUndefined();
+        expect(reviews).toHaveLength(2);
     });
 
     test('setReviewDecision clears force_approved on the same row', async () => {
         await seedReviewerConflict();
-        await dbQueries.setForceApproveWhenConflictExists(interviewId, reviewer1Id, {
+        await dbQueries.setForceApproveWhenApprovalBlocked(interviewId, reviewer1Id, {
             objectType: 'person',
             objectUuid: forcePersonUuid,
             forceApproveComment: 'forced'
@@ -371,7 +395,7 @@ describe('setForceApproveWhenConflictExists stores and clears force-approve stat
 
     test('clearForceApprove removes force-approve while preserving the admin decision', async () => {
         await seedReviewerConflict();
-        await dbQueries.setForceApproveWhenConflictExists(interviewId, reviewer1Id, {
+        await dbQueries.setForceApproveWhenApprovalBlocked(interviewId, reviewer1Id, {
             objectType: 'person',
             objectUuid: forcePersonUuid,
             forceApproveComment: 'overriding anyway'
@@ -391,7 +415,7 @@ describe('setForceApproveWhenConflictExists stores and clears force-approve stat
     });
 });
 
-describe('setForceApproveWhenConflictExists requires reviewer conflict', () => {
+describe('setForceApproveWhenApprovalBlocked requires a decision to override', () => {
     const conflictPersonUuid = uuidV4();
 
     beforeEach(async () => {
@@ -411,7 +435,7 @@ describe('setForceApproveWhenConflictExists requires reviewer conflict', () => {
             comment: 'needs work'
         });
 
-        const review = await dbQueries.setForceApproveWhenConflictExists(
+        const review = await dbQueries.setForceApproveWhenApprovalBlocked(
             interviewId,
             reviewer1Id,
             {
@@ -450,16 +474,116 @@ describe('setForceApproveWhenConflictExists requires reviewer conflict', () => {
         });
 
         await expect(
-            dbQueries.setForceApproveWhenConflictExists(interviewId, reviewer1Id, {
+            dbQueries.setForceApproveWhenApprovalBlocked(interviewId, reviewer1Id, {
                 objectType: 'person',
                 objectUuid: conflictPersonUuid,
                 forceApproveComment: 'admin override'
             })
-        ).rejects.toThrow(/Cannot force-approve person\/.+ without reviewer conflict/);
+        ).rejects.toThrow(/Cannot force-approve person\/.+, no decision to override/);
 
         const reviews = await dbQueries.getReviewDecisionsForInterview(interviewId);
         expect(reviews).toHaveLength(2);
         expect(reviews.every((r) => !r.forceApproved)).toBe(true);
+    });
+
+    test('force-approves a rejected object even when no reviewer disagrees', async () => {
+        await dbQueries.setReviewDecision(interviewId, reviewer1Id, {
+            objectType: 'person',
+            objectUuid: conflictPersonUuid,
+            decision: 'reject'
+        });
+
+        const review = await dbQueries.setForceApproveWhenApprovalBlocked(interviewId, reviewer2Id, {
+            objectType: 'person',
+            objectUuid: conflictPersonUuid
+        });
+
+        expect(review).toMatchObject({ userId: reviewer2Id, forceApproved: true });
+    });
+
+    test('force-approves the interview over a rejection in an object it contains', async () => {
+        await dbQueries.setReviewDecision(interviewId, reviewer1Id, {
+            objectType: 'person',
+            objectUuid: conflictPersonUuid,
+            decision: 'reject'
+        });
+
+        const review = await dbQueries.setForceApproveWhenApprovalBlocked(interviewId, reviewer2Id, {
+            objectType: 'interview',
+            objectUuid: interviewUuid
+        });
+
+        expect(review).toMatchObject({ objectType: 'interview', forceApproved: true });
+    });
+});
+
+describe('setReviewDecision guards the approval of the interview', () => {
+    const guardPersonUuid = uuidV4();
+
+    beforeEach(async () => {
+        await dbQueries.deleteReviewDecisionsForInterview(interviewId);
+    });
+
+    const approveInterview = () =>
+        dbQueries.setReviewDecision(interviewId, reviewer1Id, {
+            objectType: 'interview',
+            objectUuid: interviewUuid,
+            decision: 'approve'
+        });
+
+    // [title, decisions seeded on the person, one per reviewer, approval of the interview allowed]
+    const containedObjectCases: [string, ('approve' | 'reject')[], boolean][] = [
+        ['nothing was reviewed below', [], true],
+        ['the object below is approved', ['approve'], true],
+        ['the object below is rejected', ['reject'], false],
+        ['the reviewers disagree on the object below', ['approve', 'reject'], false]
+    ];
+
+    test.each(containedObjectCases)('approving the interview when %s', async (_title, decisions, isAllowed) => {
+        const reviewerIds = [reviewer1Id, reviewer2Id];
+        for (const [index, decision] of decisions.entries()) {
+            await dbQueries.setReviewDecision(interviewId, reviewerIds[index], {
+                objectType: 'person',
+                objectUuid: guardPersonUuid,
+                decision
+            });
+        }
+
+        if (isAllowed) {
+            expect(await approveInterview()).toMatchObject({ objectType: 'interview', decision: 'approve' });
+        } else {
+            await expect(approveInterview()).rejects.toThrow(/Cannot approve interview \d+/);
+        }
+    });
+
+    test('rejecting the interview stays possible over a rejected object', async () => {
+        await dbQueries.setReviewDecision(interviewId, reviewer2Id, {
+            objectType: 'person',
+            objectUuid: guardPersonUuid,
+            decision: 'reject'
+        });
+
+        const review = await dbQueries.setReviewDecision(interviewId, reviewer1Id, {
+            objectType: 'interview',
+            objectUuid: interviewUuid,
+            decision: 'reject'
+        });
+
+        expect(review).toMatchObject({ objectType: 'interview', decision: 'reject' });
+    });
+
+    test('a force-approved object does not block the approval of the interview', async () => {
+        await dbQueries.setReviewDecision(interviewId, reviewer2Id, {
+            objectType: 'person',
+            objectUuid: guardPersonUuid,
+            decision: 'reject'
+        });
+        await dbQueries.setForceApproveWhenApprovalBlocked(interviewId, reviewer1Id, {
+            objectType: 'person',
+            objectUuid: guardPersonUuid
+        });
+
+        expect(await approveInterview()).toMatchObject({ objectType: 'interview', decision: 'approve' });
     });
 });
 

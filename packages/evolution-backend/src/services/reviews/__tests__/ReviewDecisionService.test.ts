@@ -13,7 +13,7 @@ jest.mock('../../../models/reviewDecisions.db.queries', () => ({
     setReviewDecision: jest.fn(),
     clearReviewDecision: jest.fn(),
     clearForceApprove: jest.fn(),
-    setForceApproveWhenConflictExists: jest.fn(),
+    setForceApproveWhenApprovalBlocked: jest.fn(),
     requestReReviewFromOtherReviewers: jest.fn()
 }));
 
@@ -101,7 +101,7 @@ describe('ReviewDecisionService', () => {
     });
 
     test('setForceApprove upserts then reloads review decisions with force approve', async () => {
-        mockedReviewDecisionsDbQueries.setForceApproveWhenConflictExists.mockResolvedValue({
+        mockedReviewDecisionsDbQueries.setForceApproveWhenApprovalBlocked.mockResolvedValue({
             objectType: 'person',
             objectUuid: 'person-uuid',
             userId: 3,
@@ -128,7 +128,7 @@ describe('ReviewDecisionService', () => {
             forceApproveComment: 'override'
         });
 
-        expect(mockedReviewDecisionsDbQueries.setForceApproveWhenConflictExists).toHaveBeenCalledWith(10, 3, {
+        expect(mockedReviewDecisionsDbQueries.setForceApproveWhenApprovalBlocked).toHaveBeenCalledWith(10, 3, {
             objectType: 'person',
             objectUuid: 'person-uuid',
             forceApproveComment: 'override'
@@ -143,7 +143,7 @@ describe('ReviewDecisionService', () => {
     });
 
     test('setForceApprove allows admin without a prior decision when reviewers conflict', async () => {
-        mockedReviewDecisionsDbQueries.setForceApproveWhenConflictExists.mockResolvedValue({
+        mockedReviewDecisionsDbQueries.setForceApproveWhenApprovalBlocked.mockResolvedValue({
             objectType: 'person',
             objectUuid: 'person-uuid',
             userId: 3,
@@ -170,7 +170,7 @@ describe('ReviewDecisionService', () => {
             forceApproveComment: 'override'
         });
 
-        expect(mockedReviewDecisionsDbQueries.setForceApproveWhenConflictExists).toHaveBeenCalledWith(10, 3, {
+        expect(mockedReviewDecisionsDbQueries.setForceApproveWhenApprovalBlocked).toHaveBeenCalledWith(10, 3, {
             objectType: 'person',
             objectUuid: 'person-uuid',
             forceApproveComment: 'override'
@@ -184,7 +184,7 @@ describe('ReviewDecisionService', () => {
     });
 
     test('setForceApprove rejects when reviewers agree', async () => {
-        mockedReviewDecisionsDbQueries.setForceApproveWhenConflictExists.mockRejectedValue(
+        mockedReviewDecisionsDbQueries.setForceApproveWhenApprovalBlocked.mockRejectedValue(
             new Error('Cannot force-approve person/person-uuid without reviewer conflict')
         );
 

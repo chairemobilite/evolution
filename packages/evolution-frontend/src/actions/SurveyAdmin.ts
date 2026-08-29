@@ -668,7 +668,17 @@ export const startSubmitObjectReview = (
             await submitReviewMutationRequest(dispatch, getState, interviewUuid, {
                 path: 'decision',
                 body: { objectType, objectUuid, decision },
-                actionLabel: 'Error submitting object review'
+                actionLabel: 'Error submitting object review',
+                onNonSuccessStatus: (response) => {
+                    // The server refuses approving an interview that still contains a rejected
+                    // or disagreed object; the admin UI hides that action, so this only happens
+                    // when another reviewer rejected something in the meantime.
+                    if (response.status === 409) {
+                        toast.error(i18n.t('admin:interviewMember.approveBlockedByObject'));
+                        return true;
+                    }
+                    return false;
+                }
             });
         });
     };
@@ -735,7 +745,7 @@ export const startForceApproveObject = (objectType: SurveyObjectName, objectUuid
                 actionLabel: 'Error force-approving object',
                 onNonSuccessStatus: (response) => {
                     if (response.status === 409) {
-                        toast.error(i18n.t('admin:interviewMember.forceApproveRequiresConflict'));
+                        toast.error(i18n.t('admin:interviewMember.forceApproveNothingToOverride'));
                         return true;
                     }
                     return false;

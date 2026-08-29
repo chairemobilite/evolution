@@ -30,7 +30,10 @@ import validateReviewObjectMiddleware, {
 import { getParadataLoggingFunction } from '../services/logging/paradataLogging';
 import { BatchAuditService } from '../services/audits/BatchAuditService';
 import { ReviewDecisionService } from '../services/reviews/ReviewDecisionService';
-import { CANNOT_FORCE_APPROVE_WITHOUT_CONFLICT_ERROR_CODE } from '../services/reviews/reviewDecisionErrors';
+import {
+    CANNOT_APPROVE_INTERVIEW_WITH_BLOCKING_OBJECT_ERROR_CODE,
+    CANNOT_FORCE_APPROVE_NOTHING_TO_OVERRIDE_ERROR_CODE
+} from '../services/reviews/reviewDecisionErrors';
 import type {
     InterviewListStatusFilter,
     ReviewDecisionValue,
@@ -54,7 +57,10 @@ const sendReviewMutationErrorResponse = (res: Response, error: unknown): boolean
         return false;
     }
     const exportedError = error.export();
-    if (exportedError.errorCode === CANNOT_FORCE_APPROVE_WITHOUT_CONFLICT_ERROR_CODE) {
+    if (
+        exportedError.errorCode === CANNOT_FORCE_APPROVE_NOTHING_TO_OVERRIDE_ERROR_CODE ||
+        exportedError.errorCode === CANNOT_APPROVE_INTERVIEW_WITH_BLOCKING_OBJECT_ERROR_CODE
+    ) {
         res.status(409).json({
             status: 'error',
             error: exportedError.error,
