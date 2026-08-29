@@ -33,10 +33,8 @@ export const validateParams = function (
         ...ParamsValidatorUtils.isPositiveNumber('participant_id', interviewAttributes.participant_id, displayName)
     );
 
-    errors.push(...ParamsValidatorUtils.isBoolean('isValid', interviewAttributes.is_valid, displayName));
     errors.push(...ParamsValidatorUtils.isBoolean('isCompleted', interviewAttributes.is_completed, displayName));
     errors.push(...ParamsValidatorUtils.isBoolean('isQuestionable', interviewAttributes.is_questionable, displayName));
-    errors.push(...ParamsValidatorUtils.isBoolean('isValidated', interviewAttributes.is_validated, displayName));
 
     errors.push(...ParamsValidatorUtils.isString('accessCode', dirtyParams.accessCode, displayName));
     errors.push(...ParamsValidatorUtils.isDateString('assignedDate', dirtyParams.assignedDate, displayName));

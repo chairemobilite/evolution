@@ -18,6 +18,7 @@ import { execJob } from '../../tasks/serverWorkerPool';
 import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
 import { fileManager } from 'chaire-lib-backend/lib/utils/filesystem/fileManager';
 import interviewsDbQueries from '../../models/interviews.db.queries';
+import { getInterviewReviewStatusFromRow } from '../../models/reviewDecisions.db.queries';
 import config from 'evolution-common/lib/config/project.config';
 
 export const filePathOnServer = 'exports/interviewData';
@@ -259,10 +260,9 @@ const getPathsBySurveyObject = async (options: ExportOptions): Promise<{ [objNam
     const pathsBySurveyObject = {
         interview: [
             'hasCorrectedResponse',
-            'is_valid',
             'is_completed',
-            'is_validated',
             'is_questionable',
+            'review_status',
             '_interviewer_created',
             '_interviewer_count'
         ]
@@ -440,10 +440,12 @@ export const exportAllToCsvBySurveyObjectTask = async function (
                     interview: exportedInterviewDataBySurveyObjectPath.interview
                 };
                 objectsBySurveyObjectPath.interview.hasCorrectedResponse = row.corrected_response_available;
-                objectsBySurveyObjectPath.interview.is_valid = interview.is_valid;
                 objectsBySurveyObjectPath.interview.is_completed = interview.is_completed;
-                objectsBySurveyObjectPath.interview.is_validated = interview.is_validated;
                 objectsBySurveyObjectPath.interview.is_questionable = interview.is_questionable;
+                // TODO Only the interview-level decision is exported. An interview can be
+                // approved while one of its objects is rejected, and vice-versa, so this
+                // column does not tell whether the whole interview is clean. See #1886.
+                objectsBySurveyObjectPath.interview.review_status = getInterviewReviewStatusFromRow(interview);
                 objectsBySurveyObjectPath.interview._interviewUuid = interview.uuid;
                 objectsBySurveyObjectPath.interview._interviewer_count = interview.interviewer_count;
                 objectsBySurveyObjectPath.interview._interviewer_created = interview.interviewer_created;

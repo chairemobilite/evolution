@@ -73,9 +73,7 @@ describe('exportAllToCsvBySurveyObject', () => {
             id: 1,
             uuid: uuidV4(),
             'updated_at': '2024-10-11 09:02:00',
-            is_valid: true,
             is_completed: true,
-            is_validated: null,
             is_questionable: null,
             response: {
                 household: {
@@ -124,8 +122,7 @@ describe('exportAllToCsvBySurveyObject', () => {
             'household.size': String(interviewData.response.household.size),
             is_completed: String(interviewData.is_completed),
             is_questionable: '',
-            is_valid: String(interviewData.is_valid),
-            is_validated: '',
+            review_status: 'notReviewed',
             'arrayOfObjects.0.a': String(interviewData.response.arrayOfObjects[0].a),
             'arrayOfObjects.0.b': String(interviewData.response.arrayOfObjects[0].b),
             'arrayOfObjects.1.a': String(interviewData.response.arrayOfObjects[1].a),
@@ -154,7 +151,7 @@ describe('exportAllToCsvBySurveyObject', () => {
         });
     });
 
-    test('Test one interview with many levels of multiple nested objects and geography coordinates', async () => {
+    test('Test one interview with many levels of multiple nested objects and geography coordinates, approved', async () => {
         const person1Uuid = uuidV4();
         const person2Uuid = uuidV4();
         const visitedPlace1P1Uuid = uuidV4();
@@ -165,10 +162,12 @@ describe('exportAllToCsvBySurveyObject', () => {
             id: 1,
             uuid: uuidV4(),
             'updated_at': '2024-10-11 09:02:00',
-            is_valid: true,
             is_completed: true,
-            is_validated: null,
             is_questionable: null,
+            // Approved by two reviewers, without any force approve
+            approval_count: '2',
+            rejection_count: '0',
+            is_force_approved: false,
             response: {
                 household: {
                     size: 1,
@@ -266,8 +265,7 @@ describe('exportAllToCsvBySurveyObject', () => {
             'household.size': String(interviewData.response.household.size),
             is_completed: String(interviewData.is_completed),
             is_questionable: '',
-            is_valid: String(interviewData.is_valid),
-            is_validated: '',
+            review_status: 'approved',
             'household.personsDidTrips': [person1Uuid, person2Uuid].join('|')
         });
 
@@ -348,10 +346,12 @@ describe('exportAllToCsvBySurveyObject', () => {
             id: 1,
             uuid: uuidV4(),
             'updated_at': '2024-10-11 09:02:00',
-            is_valid: true,
             is_completed: true,
-            is_validated: null,
             is_questionable: null,
+            // Force approved by an admin, which approves the interview whatever the reviewers decided
+            approval_count: '0',
+            rejection_count: '1',
+            is_force_approved: true,
             response: {
                 arrayOfObjectsIn1Only: [{ a: 1, b: 2 }, { a: 3, b: 4 }],
                 arrayOfStrings: ['a', 'b', 'c'],
@@ -362,10 +362,12 @@ describe('exportAllToCsvBySurveyObject', () => {
             id: 2,
             uuid: uuidV4(),
             'updated_at': '2024-10-11 09:02:00',
-            is_valid: true,
             is_completed: true,
-            is_validated: null,
             is_questionable: null,
+            // Rejected by a reviewer
+            approval_count: '0',
+            rejection_count: '1',
+            is_force_approved: false,
             response: {
                 arrayOfStrings: ['d', 'e', 'c'],
                 arrayOrString: ['an', 'array'],
@@ -403,8 +405,7 @@ describe('exportAllToCsvBySurveyObject', () => {
             hasCorrectedResponse: 'true',
             is_completed: String(interviewData[0].is_completed),
             is_questionable: '',
-            is_valid: String(interviewData[0].is_valid),
-            is_validated: '',
+            review_status: 'forceApproved',
             'arrayOfObjectsIn1Only.0.a': String(interviewData[0].response.arrayOfObjectsIn1Only![0].a),
             'arrayOfObjectsIn1Only.0.b': String(interviewData[0].response.arrayOfObjectsIn1Only![0].b),
             'arrayOfObjectsIn1Only.1.a': String(interviewData[0].response.arrayOfObjectsIn1Only![1].a),
@@ -422,8 +423,7 @@ describe('exportAllToCsvBySurveyObject', () => {
             hasCorrectedResponse: 'true',
             is_completed: String(interviewData[1].is_completed),
             is_questionable: '',
-            is_valid: String(interviewData[1].is_valid),
-            is_validated: '',
+            review_status: 'rejected',
             'arrayOfObjectsIn1Only.0.a': '',
             'arrayOfObjectsIn1Only.0.b': '',
             'arrayOfObjectsIn1Only.1.a': '',

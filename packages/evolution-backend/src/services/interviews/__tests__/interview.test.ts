@@ -293,6 +293,8 @@ describe('Update Interview', () => {
         expect(mockLog).not.toHaveBeenCalled();
     });
 
+    // The deprecated `is_valid` flag can still be written by a survey, but it no longer freezes
+    // the interview: reviewers now decide in the review decisions, which leave the participant free.
     test('With valid', async() => {
         // Test with true value
         let testAttributes = _cloneDeep(interviewAttributes);
@@ -306,7 +308,7 @@ describe('Update Interview', () => {
         expect(mockedServerUpdate).toHaveBeenCalledTimes(1);
         expect(mockedServerUpdate).toHaveBeenCalledWith(testAttributes, [], { is_valid: true }, undefined, undefined);
 
-        expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, { is_valid: true, is_frozen: true });
+        expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, { is_valid: true });
 
         // Test with false value
         testAttributes = _cloneDeep(interviewAttributes);
@@ -316,7 +318,7 @@ describe('Update Interview', () => {
         expect(interview.serverValidations).toEqual(true);
         expect(interviewsQueries.update).toHaveBeenCalledTimes(2);
 
-        expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, { is_valid: false, is_frozen: true });
+        expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, { is_valid: false });
 
         // Test with null value
         testAttributes = _cloneDeep(interviewAttributes);

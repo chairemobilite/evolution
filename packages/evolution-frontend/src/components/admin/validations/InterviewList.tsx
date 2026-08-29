@@ -21,6 +21,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { InterviewStatusAttributesBase } from 'evolution-common/lib/services/questionnaire/types';
 import * as Status from 'chaire-lib-common/lib/utils/Status';
+import { getInterviewListRowClassName } from '../../../services/admin/reviewDecisionStatusHelper';
 
 export type Filter = {
     id: string;
@@ -105,28 +106,6 @@ const InterviewList = (props: InterviewListProps) => {
         // TODO: handle multi-cooumns sorting
         const newSort = [{ id: columnId, desc: sortOrder === 'desc' }];
         setSortBy(newSort);
-    };
-
-    const getRowClassName = (
-        row: { original: InterviewStatusAttributesBase },
-        validationInterview: InterviewStatusAttributesBase | null
-    ): string => {
-        if (validationInterview && row.original.uuid === validationInterview.uuid) {
-            return '_active-background _blue';
-        }
-        if (row.original.is_validated && row.original.is_valid && row.original.is_completed) {
-            return '_green _strong _active-background';
-        }
-        if (row.original.is_valid && row.original.is_completed) {
-            return '_dark-green _strong';
-        }
-        if (row.original.is_valid && !row.original.is_completed) {
-            return '_orange _strong';
-        }
-        if (row.original.is_valid === false) {
-            return '_dark-red _strong';
-        }
-        return '';
     };
 
     return props.loading ? (
@@ -277,7 +256,14 @@ const InterviewList = (props: InterviewListProps) => {
                         return (
                             <li
                                 title={row.original.uuid}
-                                className={getRowClassName(row, props.validationInterview)}
+                                className={
+                                    props.validationInterview?.uuid === row.original.uuid
+                                        ? '_active-background _blue'
+                                        : getInterviewListRowClassName({
+                                            reviewStatus: row.original.review_status,
+                                            isCompleted: row.original.is_completed
+                                        })
+                                }
                                 {...row.getRowProps()}
                             >
                                 {row.cells.map((cell, index) => {

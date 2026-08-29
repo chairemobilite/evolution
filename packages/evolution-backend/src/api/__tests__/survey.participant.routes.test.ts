@@ -94,7 +94,6 @@ describe('GET /survey/activeInterview', () => {
         expect(Interviews.createInterviewForUser).toHaveBeenCalledWith(mockUserId, {}, undefined, [
             'id',
             'uuid',
-            'is_valid',
             'is_completed',
             'response',
             'participant_id'

@@ -652,6 +652,49 @@ describe('Stream paradata', () => {
 
 });
 
+describe('Stream paradata review status', () => {
+
+    beforeEach(async () => {
+        await truncate(knex, 'paradata_events');
+        await truncate(knex, 'sv_review_decisions');
+    });
+
+    afterAll(async () => {
+        await truncate(knex, 'sv_review_decisions');
+    });
+
+    // The status comes from the interview-level review decisions, the same way the admin
+    // interview list computes it, so an interview nobody reviewed streams as `notReviewed`.
+    each([
+        ['no decision', undefined, 'notReviewed'],
+        ['an approval', 'approve', 'approved'],
+        ['a rejection', 'reject', 'rejected']
+    ]).test('Interview with %s', async (_title, decisionValue: string | undefined, expectedStatus: string) => {
+        if (decisionValue !== undefined) {
+            await knex('sv_review_decisions').insert({
+                interview_id: testInterviewAttributes1.id,
+                user_id: localUser.id,
+                object_type: 'interview',
+                object_uuid: testInterviewAttributes1.uuid,
+                decision_value: decisionValue
+            });
+        }
+        await insertSomeLogs([{ valuesByPath: { 'response.data': 'value' } }], testInterviewAttributes1.id);
+
+        const rows: any[] = [];
+        await new Promise<void>((resolve, reject) => {
+            dbQueries.getParadataStream()
+                .on('error', reject)
+                .on('data', (row) => rows.push(row))
+                .on('end', resolve);
+        });
+
+        expect(rows.length).toEqual(1);
+        expect(rows[0].review_status).toEqual(expectedStatus);
+    });
+
+});
+
 describe('Query paradata temp view', () => {
 
     // Prepare two interviews, one complete and one incomplete
