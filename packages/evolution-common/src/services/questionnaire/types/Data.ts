@@ -15,6 +15,9 @@ import { SegmentAttributes } from '../../baseObjects/Segment';
 import { HouseholdAttributes } from '../../baseObjects/Household';
 import { NavigationSection } from './NavigationTypes';
 import type { Activity, ActivityCategory, Mode } from '../../odSurvey/types';
+// Type-only import: `reviews/types` reaches back to this file through the base
+// objects, so importing a value from it would create a runtime import cycle.
+import type { ReviewDecisionEffectiveStatus } from '../../reviews/types';
 import { YesNoDontKnow } from '../../baseObjects/attributeTypes/GenericAttributes';
 
 export type ParsingFunction<T> = (interview: UserInterviewAttributes, path: string, user?: CliUser) => T;
@@ -374,7 +377,13 @@ export interface UserInterviewAttributes {
     is_completed: boolean;
     response: InterviewResponse;
     validations: InterviewValidations;
-    is_valid: boolean;
+    /**
+     * @deprecated Legacy interview-level validation flag. Review decisions are
+     * now stored per survey object in `sv_review_decisions`; use the review
+     * status derived from them instead. Optional, since nothing sets it anymore, and kept for
+     * backward compatibility with surveys still reading this column.
+     */
+    is_valid?: boolean;
     is_frozen?: boolean; // Freeze the interview for the user, they cannot change it anymore
     is_questionable?: boolean;
     userRoles?: string[];
@@ -392,6 +401,11 @@ export interface InterviewAttributes extends UserInterviewAttributes {
     is_started?: boolean;
     corrected_response?: CorrectedResponse;
     audits?: InterviewAudits;
+    /**
+     * @deprecated Legacy flag marking an interview as confirmed by a
+     * supervisor. Superseded by the force-approve review decision in
+     * `sv_review_decisions`.
+     */
     is_validated?: boolean;
     is_questionable?: boolean;
     // TODO Type the following fields to date times
@@ -408,9 +422,9 @@ export interface InterviewListAttributes {
     participant_id: number;
     response: InterviewResponse;
     corrected_response: CorrectedResponse;
-    is_valid?: boolean;
+    /** Interview-level review status, aggregated from the reviewers' decisions. */
+    review_status: ReviewDecisionEffectiveStatus;
     is_completed?: boolean;
-    is_validated?: boolean;
     is_questionable?: boolean;
     username: string;
     facebook: boolean;
@@ -430,9 +444,9 @@ export interface InterviewStatusAttributesBase {
     id: number;
     uuid: string;
     response: PartialInterviewResponse;
-    is_valid?: boolean;
+    /** Interview-level review status, aggregated from the reviewers' decisions. */
+    review_status: ReviewDecisionEffectiveStatus;
     is_completed?: boolean;
-    is_validated?: boolean;
     username: string;
     facebook: boolean;
     google: boolean;

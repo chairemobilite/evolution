@@ -31,10 +31,8 @@ const interviewAttributesNames = [
     '_participant_id',
 
     // reviewing flags
-    '_isValid',
     '_isCompleted',
     '_isQuestionable',
-    '_isValidated',
 
     'accessCode',
     'assignedDate',
@@ -66,10 +64,8 @@ export type InterviewAttributes = {
     _participant_id?: number; // integer respondent/participan/user primary key id from db, TODO: update the User class to use this Interview class instead
 
     // reviewing flags
-    _isValid?: boolean; // whether the interview is valid (legit) and must be kept for export (true by default, must be set to false by a validator)
     _isCompleted?: boolean; // whether the interview is completed (false by default, changed by validators)
     _isQuestionable?: boolean; // whether the interview is doubtful or could be non genuine, changed by validator
-    _isValidated?: boolean; // whether the interview is validated (undefined by default, must be set to false by an admin or supervisor/super validator)
 
     // response attributes
     accessCode?: string; // accessCode used when starting an interview in most survey. This could be the code sent in a letter for households to be pre-geolocalized
@@ -229,10 +225,8 @@ export class Interview extends Uuidable {
         this._attributes = attributes;
         this._attributes._id = interviewAttributes.id;
         this._attributes._participant_id = interviewAttributes.participant_id;
-        this._attributes._isValid = interviewAttributes.is_valid;
         this._attributes._isCompleted = interviewAttributes.is_completed;
         this._attributes._isQuestionable = interviewAttributes.is_questionable;
-        this._attributes._isValidated = interviewAttributes.is_validated;
 
         this._customAttributes = customAttributes;
 
@@ -269,14 +263,6 @@ export class Interview extends Uuidable {
         return this._attributes._participant_id;
     }
 
-    get isValid(): Optional<boolean> {
-        return this._attributes._isValid;
-    }
-
-    set isValid(value: Optional<boolean>) {
-        this._attributes._isValid = value;
-    }
-
     get isCompleted(): Optional<boolean> {
         return this._attributes._isCompleted;
     }
@@ -291,14 +277,6 @@ export class Interview extends Uuidable {
 
     set isQuestionable(value: Optional<boolean>) {
         this._attributes._isQuestionable = value;
-    }
-
-    get isValidated(): Optional<boolean> {
-        return this._attributes._isValidated;
-    }
-
-    set isValidated(value: Optional<boolean>) {
-        this._attributes._isValidated = value;
     }
 
     get accessCode(): Optional<string> {
@@ -484,9 +462,7 @@ export class Interview extends Uuidable {
                 is_completed: flattenedParamsAny._isCompleted as boolean,
                 response: flattenedParamsAny.response || {},
                 validations: flattenedParamsAny.validations || {},
-                is_valid: flattenedParamsAny._isValid as boolean,
-                is_questionable: flattenedParamsAny._isQuestionable as boolean,
-                is_validated: flattenedParamsAny._isValidated as boolean
+                is_questionable: flattenedParamsAny._isQuestionable as boolean
             };
         }
 

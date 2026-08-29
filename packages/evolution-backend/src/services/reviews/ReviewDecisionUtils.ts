@@ -9,12 +9,12 @@ import {
     reviewUuidKeyedCollectionKeysByObjectType,
     type ReviewDecisions,
     type ReviewDecision,
-    type ReviewDecisionEffectiveStatus,
     type ReviewDecisionsByObject,
     type ReviewDecisionStatusByObject,
     type ReviewDecisionStatusForObject,
     type SingletonSurveyObjectName
 } from 'evolution-common/lib/services/reviews/types';
+import { getReviewDecisionEffectiveStatus } from 'evolution-common/lib/services/reviews/reviewDecisionStatus';
 import { surveyObjectNames, type SurveyObjectName } from 'evolution-common/lib/services/baseObjects/types';
 
 // Null prototype: bucket keys are object uuids coming from external data, so
@@ -119,33 +119,6 @@ export const reviewDecisionsArrayToReviewDecisionsByObject = (
 // so the first force-approved row is the most recent one.
 const findForceApproveReviewDecision = (objectReviewDecisions: ReviewDecision[]): ReviewDecision | undefined =>
     objectReviewDecisions.find((reviewDecision) => reviewDecision.forceApproved);
-
-/**
- * Resolves export-gate status from reviewer counts and optional admin force-approve.
- * @param approvalCount - Number of approve decisions
- * @param rejectionCount - Number of reject decisions
- * @param isForceApproved - Whether an admin force-approved the object
- * @returns Effective review status for the object
- */
-export const getReviewDecisionEffectiveStatus = (
-    approvalCount: number,
-    rejectionCount: number,
-    isForceApproved: boolean
-): ReviewDecisionEffectiveStatus => {
-    if (isForceApproved) {
-        return 'forceApproved';
-    }
-    if (approvalCount > 0 && rejectionCount > 0) {
-        return 'conflict';
-    }
-    if (approvalCount > 0) {
-        return 'approved';
-    }
-    if (rejectionCount > 0) {
-        return 'rejected';
-    }
-    return 'notReviewed';
-};
 
 /**
  * Computes aggregated review status from review decisions already scoped to one object.

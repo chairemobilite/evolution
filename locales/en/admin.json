@@ -10,23 +10,13 @@
     "NotCompletedFemSingular": "Not completed",
     "NotCompletedSingular": "Not completed",
     "UnknownCompletionFemSingular": "Completion?",
-    "Valid": "Valid",
-    "Invalid": "Invalid",
-    "UnknownValidity": "Validity?",
     "ShowMore": "Show more",
     "ReloadCache": "Refresh",
     "Validate": "Validate",
     "Correct": "Correct",
-    "ShowInvalidInterviews": "Show invalid interviews",
-    "HideInvalidInterviews": "Hide invalid interviews",
-    "SetValid": "Set as valid",
-    "SetInvalid": "Set as invalid",
-    "ClearValidityStatus": "Clear validity",
     "SetComplete": "Set as complete",
     "SetIncomplete": "Set as incomplete",
     "ClearCompletionStatus": "Clear completion",
-    "SetIsValidated": "Set as validated and confirmed",
-    "SetIsValidatedEmpty": "Disable validated and confirmed",
     "SetQuestionable": "Flag as questionable",
     "UnsetQuestionable": "Unflag as questionable",
     "household": "household",
@@ -85,13 +75,22 @@
     "interviewers": {
         "InterviewsSearchAndEdit": "Search And Edit Surveys"
     },
-    "validationFilters": {
-        "title": "Valid?",
+    "reviewStatus": {
+        "notReviewed": "Not reviewed",
+        "approved": "Approved",
+        "rejected": "Rejected",
+        "conflict": "Reviewers disagree",
+        "forceApproved": "Force approved"
+    },
+    "reviewStatusFilters": {
+        "title": "Review?",
         "all": "Show all",
-        "invalid": "Show only invalid",
-        "valid": "Show only valid",
-        "notValidated": "Show unvalidated",
-        "notInvalid": "Hide invalid",
+        "notReviewed": "Show only not reviewed",
+        "approved": "Show only approved",
+        "rejected": "Show only rejected",
+        "conflict": "Show only reviewer disagreements",
+        "forceApproved": "Show only force approved",
+        "notRejected": "Hide rejected",
         "questionable": "Show only questionables"
     },
     "interviewCompletedFilter": {

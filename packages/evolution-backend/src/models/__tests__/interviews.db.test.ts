@@ -14,6 +14,7 @@ import dbQueries from '../interviews.db.queries';
 import { INTERVIEWER_PARTICIPANT_PREFIX } from 'evolution-common/lib/services/interviews/interview';
 import moment from 'moment';
 import { InterviewAttributes, InterviewListAttributes, InterviewResponse } from 'evolution-common/lib/services/questionnaire/types';
+import { type InterviewReviewStatusFilter, type ReviewDecisionEffectiveStatus } from 'evolution-common/lib/services/reviews/types';
 
 const surveysTable = 'sv_surveys';
 const localSurvey = {
@@ -143,8 +144,48 @@ const googleUserInterviewAttributes = {
     },
 } as any;
 
+/**
+ * Records an interview-level review decision, the modern replacement for the
+ * legacy `is_valid` column.
+ * @param interviewUuid - Uuid of the reviewed interview
+ * @param userId - Reviewer user id
+ * @param decision - Decision to record
+ */
+const setInterviewReviewDecision = async (
+    interviewUuid: string,
+    userId: number,
+    decision: 'approve' | 'reject'
+): Promise<void> => {
+    const interview = await knex('sv_interviews').select('id').where('uuid', interviewUuid).first();
+    await knex('sv_review_decisions').insert({
+        interview_id: interview.id,
+        user_id: userId,
+        object_type: 'interview',
+        object_uuid: interviewUuid,
+        decision_value: decision
+    });
+};
+
+/**
+ * Records an interview-level force approve, which overrides the decisions of the other reviewers.
+ * @param interviewUuid - Uuid of the interview to force approve
+ * @param userId - Id of the admin overriding the reviewers, who has no vote of their own
+ */
+const setInterviewForceApprove = async (interviewUuid: string, userId: number): Promise<void> => {
+    const interview = await knex('sv_interviews').select('id').where('uuid', interviewUuid).first();
+    await knex('sv_review_decisions').insert({
+        interview_id: interview.id,
+        user_id: userId,
+        object_type: 'interview',
+        object_uuid: interviewUuid,
+        decision_value: null,
+        force_approved: true
+    });
+};
+
 beforeAll(async () => {
     jest.setTimeout(10000);
+    await truncate(knex, 'sv_review_decisions');
     await truncate(knex, 'sv_audits');
     await truncate(knex, 'sv_interviews');
     await truncate(knex, surveysTable);
@@ -167,6 +208,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+    await truncate(knex, 'sv_review_decisions');
     await truncate(knex, 'sv_audits');
     await truncate(knex, 'sv_interviews');
     await truncate(knex, surveysTable);
@@ -231,7 +273,7 @@ describe('find by response', () => {
             id: expect.anything(),
             uuid: localUserInterviewAttributes.uuid,
             isCompleted: undefined,
-            isValid: false,
+            reviewStatus: 'notReviewed',
             surveyId: 1,
             home: {},
             isQuestionable: false,
@@ -257,7 +299,7 @@ describe('find by response', () => {
             id: expect.anything(),
             uuid: facebookUserInterviewAttributes.uuid,
             isCompleted: facebookUserInterviewAttributes.is_completed,
-            isValid: facebookUserInterviewAttributes.is_valid,
+            reviewStatus: 'notReviewed',
             surveyId: 1,
             isQuestionable: false,
             home: facebookUserInterviewAttributes.response.home,
@@ -270,7 +312,7 @@ describe('find by response', () => {
             id: expect.anything(),
             uuid: googleUserInterviewAttributes.uuid,
             isCompleted: googleUserInterviewAttributes.is_completed,
-            isValid: googleUserInterviewAttributes.is_valid,
+            reviewStatus: 'notReviewed',
             surveyId: 1,
             isQuestionable: false,
             home: googleUserInterviewAttributes.response.home,
@@ -290,7 +332,7 @@ describe('find by response', () => {
             id: expect.anything(),
             uuid: facebookUserInterviewAttributes.uuid,
             isCompleted: facebookUserInterviewAttributes.is_completed,
-            isValid: facebookUserInterviewAttributes.is_valid,
+            reviewStatus: 'notReviewed',
             surveyId: 1,
             isQuestionable: false,
             home: facebookUserInterviewAttributes.response.home,
@@ -347,7 +389,6 @@ describe('Get interview by user id', () => {
             is_frozen: localUserInterviewAttributes.is_frozen,
             response: localUserInterviewAttributes.response,
             survey_id: 1,
-            is_valid: localUserInterviewAttributes.is_valid,
             is_questionable: false,
             validations: localUserInterviewAttributes.validations
         });
@@ -414,6 +455,16 @@ describe('list interviews', () => {
     // There are 6 interviews in the DB, but one, facebookUserInterviewAttributes, is invalid
     const nbActiveInterviews = 5;
 
+    // One interview is approved, one is rejected, the 3 others are left unreviewed
+    beforeAll(async () => {
+        await setInterviewReviewDecision(googleUserInterviewAttributes.uuid, localUserWithPermission.id, 'approve');
+        await setInterviewReviewDecision(localUserInterviewAttributes.uuid, localUserWithPermission.id, 'reject');
+    });
+
+    afterAll(async () => {
+        await truncate(knex, 'sv_review_decisions');
+    });
+
     test('Get the complete list', async () => {
         const { interviews, totalCount } = await dbQueries.getList({ filters: {}, pageIndex: 0, pageSize: -1 });
         expect(totalCount).toEqual(nbActiveInterviews);
@@ -445,57 +496,51 @@ describe('list interviews', () => {
         expect(page4.length).toEqual(0);
     });
 
-    test('Get lists with various validity filter', async () => {
-        // There is 1 valid interview, 1 invalid and 3 with no validity value
+    // [review status filter, expected count, expected status of each returned interview]
+    const reviewStatusFilterCases: [InterviewReviewStatusFilter, number, ReviewDecisionEffectiveStatus | undefined][] = [
+        ['all', nbActiveInterviews, undefined],
+        ['approved', 1, 'approved'],
+        ['rejected', 1, 'rejected'],
+        ['notReviewed', 3, 'notReviewed'],
+        // Everything but the single rejected interview
+        ['notRejected', 4, undefined],
+        ['conflict', 0, undefined],
+        ['forceApproved', 0, undefined]
+    ];
 
-        // Get valid interviews
-        const { interviews: filterValid, totalCount: countValid } = await dbQueries.getList({ filters: { is_valid: { value: true } }, pageIndex: 0, pageSize: -1 });
-        expect(countValid).toEqual(1);
-        expect(filterValid.length).toEqual(1);
-        expect(filterValid[0].is_valid).toEqual(true);
-
-        // Get not valid interviews, should return invalid and undefined ones
-        const { interviews: filterNotValid, totalCount: countNotValid } = await dbQueries.getList({ filters: { is_valid: { value: true, op: 'not' } }, pageIndex: 0, pageSize: -1 });
-        expect(countNotValid).toEqual(4);
-        expect(filterNotValid.length).toEqual(4);
-        for (let i = 0; i < 4; i++) {
-            expect(filterNotValid[i].is_valid).not.toEqual(true);
+    test.each(reviewStatusFilterCases)(
+        'Get lists filtered on review status %s',
+        async (reviewStatus, expectedCount, expectedStatus) => {
+            const { interviews, totalCount } = await dbQueries.getList({
+                filters: { review_status: { value: reviewStatus } },
+                pageIndex: 0,
+                pageSize: -1
+            });
+            expect(totalCount).toEqual(expectedCount);
+            expect(interviews.length).toEqual(expectedCount);
+            if (expectedStatus !== undefined) {
+                interviews.forEach((interview) => expect(interview.review_status).toEqual(expectedStatus));
+            }
         }
+    );
 
-        // Get invalid interviews, should return only invalid ones
-        const { interviews: filterInvalid, totalCount: totalInvalid } = await dbQueries.getList({ filters: { is_valid: { value: false } }, pageIndex: 0, pageSize: -1 });
-        expect(totalInvalid).toEqual(1);
-        expect(filterInvalid.length).toEqual(1);
-        expect(filterInvalid[0].is_valid).toEqual(false);
-        expect(filterInvalid[0].is_valid).toEqual(false);
+    test('Get lists filtered on review status, the rejected interview is excluded from notRejected', async () => {
+        const { interviews } = await dbQueries.getList({
+            filters: { review_status: { value: 'notRejected' } },
+            pageIndex: 0,
+            pageSize: -1
+        });
+        expect(interviews.find((interview) => interview.uuid === localUserInterviewAttributes.uuid)).toBeUndefined();
+        interviews.forEach((interview) => expect(interview.review_status).not.toEqual('rejected'));
+    });
 
-        // Get not invalid interviews, should return valids and undefined ones
-        const { interviews: filterNotInvalid, totalCount: coutNotInvalid } = await dbQueries.getList({ filters: { is_valid: { value: false, op: 'not' } }, pageIndex: 0, pageSize: -1 });
-        expect(coutNotInvalid).toEqual(4);
-        expect(filterNotInvalid.length).toEqual(4);
-        for (let i = 0; i < 4; i++) {
-            expect(filterNotInvalid[i].is_valid).not.toEqual(false);
-        }
-
-        // Get valid interviews, using booleish string value
-        const { interviews: filterValidBooleish1, totalCount: countValidBooleish } = await dbQueries.getList({ filters: { is_valid: { value: 'y' } }, pageIndex: 0, pageSize: -1 });
-        expect(countValidBooleish).toEqual(1);
-        expect(filterValidBooleish1.length).toEqual(1);
-        expect(filterValidBooleish1[0].is_valid).toEqual(true);
-
-        // Get invalid interviews, using booleish string value
-        const { interviews: filterInvalidBooleish2, totalCount: countInvalidBooleish } = await dbQueries.getList({ filters: { is_valid: { value: 'n' } }, pageIndex: 0, pageSize: -1 });
-        expect(countInvalidBooleish).toEqual(1);
-        expect(filterInvalidBooleish2.length).toEqual(1);
-        expect(filterInvalidBooleish2[0].is_valid).toEqual(false);
-
-        // Get neither valid nor invalid
-        const { interviews: filterNullBooleish, totalCount: countNullBooleish } = await dbQueries.getList({ filters: { is_valid: { value: null } }, pageIndex: 0, pageSize: -1 });
-        expect(countNullBooleish).toEqual(3);
-        expect(filterNullBooleish.length).toEqual(3);
-        expect(filterNullBooleish[0].is_valid).toBeUndefined();
-        expect(filterNullBooleish[1].is_valid).toBeUndefined();
-        expect(filterNullBooleish[2].is_valid).toBeUndefined();
+    test('An unknown review status filter value is ignored', async () => {
+        const { totalCount } = await dbQueries.getList({
+            filters: { review_status: { value: 'notAStatus' } },
+            pageIndex: 0,
+            pageSize: -1
+        });
+        expect(totalCount).toEqual(nbActiveInterviews);
     });
 
     test('Get lists with various filter combinations', async () => {
@@ -627,8 +672,8 @@ describe('list interviews', () => {
 
     test('Combine filter and paging', async () => {
 
-        // Get not invalid interviews, with paging
-        const filters = { is_valid: { value: false, op: 'not' as const } };
+        // Get the interviews no reviewer rejected, with paging
+        const filters = { review_status: { value: 'notRejected' } };
         const pageSize = 2;
         const { interviews: filterPage1, totalCount: totalCount1 } = await dbQueries.getList({ filters, pageIndex: 0, pageSize });
         expect(totalCount1).toEqual(4);
@@ -656,12 +701,12 @@ describe('list interviews', () => {
     });
 
     test('Sort data', async () => {
-        // Sort by is_valid
+        // Sort by a top-level column
         const { interviews: page, totalCount: totalCount } = await dbQueries.getList({
             filters: {},
             pageIndex: 0,
             pageSize: -1,
-            sort: ['is_valid']
+            sort: ['is_completed']
         });
         expect(totalCount).toEqual(nbActiveInterviews);
         expect(page.length).toEqual(nbActiveInterviews);
@@ -699,7 +744,7 @@ describe('list interviews', () => {
             filters: {},
             pageIndex: 0,
             pageSize: -1,
-            sort: ['is_valid', { field: 'response.home.someField', order: 'desc' }]
+            sort: ['is_completed', { field: 'response.home.someField', order: 'desc' }]
         });
         expect(totalCount3).toEqual(nbActiveInterviews);
         expect(page3.length).toEqual(nbActiveInterviews);
@@ -811,6 +856,39 @@ describe('list interviews', () => {
         expect(invalidGeoInterview.length).toEqual(0);
     });
 
+    // Declared last, as the decisions of the second reviewer change the status of two of the
+    // interviews the other tests of this block count on.
+    describe('statuses taking a second reviewer', () => {
+
+        beforeAll(async () => {
+            // The second reviewer disagrees with the approval, and overrides the rejection
+            await setInterviewReviewDecision(googleUserInterviewAttributes.uuid, localUser2WithPermission.id, 'reject');
+            await setInterviewForceApprove(localUserInterviewAttributes.uuid, localUser2WithPermission.id);
+        });
+
+        afterAll(async () => {
+            await knex('sv_review_decisions').where('user_id', localUser2WithPermission.id).delete();
+        });
+
+        // [review status filter, uuid of the only interview expected to match]
+        const cases: [InterviewReviewStatusFilter, string][] = [
+            ['conflict', googleUserInterviewAttributes.uuid],
+            ['forceApproved', localUserInterviewAttributes.uuid]
+        ];
+
+        test.each(cases)('Get lists filtered on review status %s', async (reviewStatus, expectedUuid) => {
+            const { interviews, totalCount } = await dbQueries.getList({
+                filters: { review_status: { value: reviewStatus } },
+                pageIndex: 0,
+                pageSize: -1
+            });
+            expect(totalCount).toEqual(1);
+            expect(interviews[0].uuid).toEqual(expectedUuid);
+            expect(interviews[0].review_status).toEqual(reviewStatus);
+        });
+
+    });
+
 });
 
 describe('Queries with audits', () => {
@@ -840,10 +918,13 @@ describe('Queries with audits', () => {
         await create(knex, 'sv_audits', undefined, { interview_id: secondInterview.id, error_code: errorOneCode, object_type: 'person', object_uuid: uuidV4(), version: 2 } as any, { returning: 'interview_id' });
         await create(knex, 'sv_audits', undefined, { interview_id: secondInterview.id, error_code: errorTwoCode, object_type: 'household', object_uuid: uuidV4(), version: 2 } as any, { returning: 'interview_id' });
 
+        // Only the second interview is approved, so a review status filter narrows the stats to its audits
+        await setInterviewReviewDecision(googleUserInterviewAttributes.uuid, localUserWithPermission.id, 'approve');
     });
 
     afterAll(async () => {
         await truncate(knex, 'sv_audits');
+        await truncate(knex, 'sv_review_decisions');
     });
 
     test('Get the complete list of validation errors', async () => {
@@ -870,9 +951,10 @@ describe('Queries with audits', () => {
         });
     });
 
-    test('Get validation errors with a validity filter', async () => {
-        const { auditStats } = await dbQueries.getValidationAuditStats({ filters: { is_valid: { value: true } } });
-        console.dir(auditStats, { depth: null });
+    test('Get validation errors with a review status filter', async () => {
+        const { auditStats } = await dbQueries.getValidationAuditStats({
+            filters: { review_status: { value: 'approved' } }
+        });
         expect(auditStats.error).toEqual({
             person: [
                 {

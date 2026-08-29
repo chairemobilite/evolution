@@ -54,7 +54,7 @@ describe('BatchAuditService', () => {
         uuid,
         id: 123,
         participant_id: 456,
-        is_valid: false,
+        review_status: 'rejected',
         is_completed: false,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()

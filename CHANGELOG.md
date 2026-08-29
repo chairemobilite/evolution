@@ -11,9 +11,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Admin: the interview list and search results are colored and filtered by the review status derived from the review decisions, their validity column becoming a review status column (see [#16](https://github.com/chairemobilite/evolution/issues/16) and [#1891](https://github.com/chairemobilite/evolution/pull/1891))
+- Admin: reviewing an interview no longer freezes it, only marking it complete does (see [#1253](https://github.com/chairemobilite/evolution/issues/1253))
+- Export: the CSV and log exports of interviews carry a `review_status` column instead of the `is_valid` and `is_validated` ones (see [#1886](https://github.com/chairemobilite/evolution/issues/1886) for the objects an approved interview may still contain)
+
 ### Deprecated
 
+- The `is_valid` and `is_validated` interview fields are deprecated in favor of the review decisions of the `sv_review_decisions` table, nothing reading them anymore and a migration converting the existing `is_valid` values into interview-level decisions (see [#16](https://github.com/chairemobilite/evolution/issues/16))
+
 ### Removed
+
+- Admin: the `ShowInvalidInterviews` and `HideInvalidInterviews` translations are gone with the validity filter they described, a survey needing such a toggle defining its own key ([#1891](https://github.com/chairemobilite/evolution/pull/1891))
 
 ### Fixed
 

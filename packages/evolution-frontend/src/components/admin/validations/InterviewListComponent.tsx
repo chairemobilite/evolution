@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next';
 import { connect } from 'react-redux';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import InterviewList, { type Filter } from './InterviewList';
-import ValidityColumnFilter from './ValidityColumnFilter';
+import { ReviewStatusColumnFilter } from './ReviewStatusColumnFilter';
 import InterviewCompletedFilter from './InterviewCompletedFilter';
 import InterviewByCodeFilter from './InterviewByCodeFilter';
 import InterviewByDateFilter from './InterviewByDateFilter';
@@ -249,6 +249,8 @@ const InterviewListComponent: React.FunctionComponent<InterviewListComponentProp
                 enableSortBy: true
             },
             {
+                // The completion the participant reached in the questionnaire, which is not the
+                // `is_completed` flag the reviewer sets from the top menu and which colors the row.
                 accessor: 'response._isCompleted',
                 Filter: InterviewCompletedFilter,
                 enableSortBy: false,
@@ -256,10 +258,9 @@ const InterviewListComponent: React.FunctionComponent<InterviewListComponentProp
                     value ? t('admin:CompletedFemSingular') : t('admin:NotCompletedFemSingular')
             },
             {
-                accessor: 'is_valid',
-                Filter: ValidityColumnFilter,
-                Cell: ({ value }: CellArgs) =>
-                    value ? t('admin:Valid') : value === false ? t('admin:Invalid') : t('admin:UnknownValidity')
+                accessor: 'review_status',
+                Filter: ReviewStatusColumnFilter,
+                Cell: ({ value }: CellArgs) => t(`admin:reviewStatus:${value}`)
             },
             {
                 accessor: 'response.household.size',
