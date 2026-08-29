@@ -17,7 +17,12 @@ export type ReviewDecision = {
     objectType: SurveyObjectName;
     objectUuid: string;
     userId: number;
-    decision: ReviewDecisionValue;
+    /**
+     * Approve/reject taken by the reviewer. Undefined on a row that exists only to carry a
+     * force approve, since an admin override is not a reviewer vote: clearing that override
+     * leaves nothing behind, whereas it preserves the vote of a reviewer who had taken one.
+     */
+    decision?: ReviewDecisionValue;
     /** Comment left with the approve/reject decision. */
     comment?: string;
     /** True when this reviewer force-approved the object (admin override; kept with decision). */
@@ -32,6 +37,11 @@ export type ReviewDecision = {
     /** Comment explaining why a re-review was requested. */
     reReviewRequestComment?: string;
     updatedAt?: string;
+};
+
+/** A reviewer vote on a survey object, where the approve/reject is mandatory. */
+export type ReviewerVote = Pick<ReviewDecision, 'objectType' | 'objectUuid' | 'comment'> & {
+    decision: ReviewDecisionValue;
 };
 
 /**
