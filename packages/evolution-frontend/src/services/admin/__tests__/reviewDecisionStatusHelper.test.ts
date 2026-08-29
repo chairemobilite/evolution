@@ -9,10 +9,12 @@ import type { SurveyObjectName } from 'evolution-common/lib/services/baseObjects
 import {
     buildSurveyObjectBoxClassName,
     getInterviewListRowClassName,
+    getInheritedStatusForDisplay,
     getInterviewSearchResultClassName,
     getReviewDecisionStatusBoxClass,
     getReviewDecisionStatusForObject,
-    isReviewStatusRejectedForDisplay
+    isReviewStatusRejectedForDisplay,
+    type InheritedReviewDisplayStatus
 } from '../reviewDecisionStatusHelper';
 import type {
     ReviewDecisionEffectiveStatus,
@@ -179,21 +181,82 @@ describe('reviewDecisionStatusHelper', () => {
         }
     );
 
-    test('buildSurveyObjectBoxClassName applies inherited rejected styling without changing own status', () => {
-        const approvedStatus = {
-            ...reviewDecisionStatusByObject.persons[personUuid],
-            effectiveStatus: 'approved',
-            isReviewed: true,
-            hasConflict: false
-        };
-        const className = buildSurveyObjectBoxClassName({
-            objectType: 'trip',
-            status: approvedStatus as any,
-            objectUuid: 'trip-uuid',
-            inheritedRejected: true
-        });
-        expect(className).toContain('admin__survey-object-box--rejected');
-    });
+    // [own effective status, own decision, status inherited from the ancestors, status passed down]
+    const inheritedStatusCases: [
+        ReviewDecisionEffectiveStatus,
+        string | undefined,
+        InheritedReviewDisplayStatus | undefined,
+        InheritedReviewDisplayStatus | undefined
+    ][] = [
+        ['approved', undefined, undefined, 'approved'],
+        ['rejected', undefined, 'approved', 'rejected'],
+        ['approved', undefined, 'rejected', 'rejected'],
+        ['notReviewed', undefined, 'approved', 'approved'],
+        ['notReviewed', undefined, undefined, undefined],
+        // A disagreement is unsettled, so it passes nothing down, not even to the reviewer who
+        // approved, whose own colour would otherwise hide the disagreement from them.
+        ['conflict', 'approve', undefined, undefined],
+        ['conflict', undefined, 'approved', 'approved'],
+        // A reviewer who rejected still sees their own rejection propagate.
+        ['conflict', 'reject', undefined, 'rejected']
+    ];
+
+    it.each(inheritedStatusCases)(
+        'getInheritedStatusForDisplay with own=%s, decision=%s and inherited=%s',
+        (effectiveStatus, currentUserDecision, inheritedStatus, expected) => {
+            const statusByObject = {
+                persons: {
+                    [personUuid]: {
+                        ...makeFixtureStatus('person', personUuid, effectiveStatus),
+                        isReviewed: effectiveStatus !== 'notReviewed',
+                        currentUserDecision
+                    }
+                }
+            } as unknown as ReviewDecisionStatusByObject;
+
+            expect(getInheritedStatusForDisplay(statusByObject, { objectType: 'person', objectUuid: personUuid, inheritedStatus })).toBe(expected);
+        }
+    );
+
+    // An inherited rejection overrides the object's own decision, while an inherited approval
+    // only colours objects nobody reviewed individually.
+    // [inherited status, own effective status, expected box modifier]
+    const boxClassNameCases: [InheritedReviewDisplayStatus | undefined, string | undefined, string][] = [
+        ['rejected', 'approved', 'admin__survey-object-box--rejected'],
+        ['rejected', undefined, 'admin__survey-object-box--rejected'],
+        ['approved', 'rejected', 'admin__survey-object-box--rejected'],
+        ['approved', 'approved', 'admin__survey-object-box--approved'],
+        ['approved', undefined, 'admin__survey-object-box--approved'],
+        [undefined, 'approved', 'admin__survey-object-box--approved'],
+        [undefined, undefined, '']
+    ];
+
+    it.each(boxClassNameCases)(
+        'buildSurveyObjectBoxClassName with inherited=%s and own=%s',
+        (inheritedStatus, effectiveStatus, expectedClass) => {
+            const status = effectiveStatus
+                ? {
+                    ...reviewDecisionStatusByObject.persons[personUuid],
+                    effectiveStatus,
+                    isReviewed: true,
+                    hasConflict: false
+                }
+                : undefined;
+            const className = buildSurveyObjectBoxClassName({
+                objectType: 'trip',
+                status: status as any,
+                objectUuid: 'trip-uuid',
+                inheritedStatus
+            });
+            if (expectedClass === '') {
+                expect(className).not.toContain('admin__survey-object-box--rejected');
+                expect(className).not.toContain('admin__survey-object-box--approved');
+            } else {
+                expect(className).toContain(expectedClass);
+            }
+        }
+    );
+
     // [reviewStatus, isCompleted, expected class names]
     const listRowClassNameCases: [ReviewDecisionEffectiveStatus, boolean | undefined, string][] = [
         ['forceApproved', true, '_green _strong _active-background'],

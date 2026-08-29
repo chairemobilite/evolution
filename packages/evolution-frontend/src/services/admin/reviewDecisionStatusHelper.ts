@@ -88,23 +88,56 @@ export const isReviewStatusRejectedForDisplay = (status: ReviewDecisionStatusFor
     status?.effectiveStatus === 'rejected' || status?.currentUserDecision === 'reject';
 
 /**
- * Whether an object should show rejected styling, including inherited ancestor rejection.
- * @param reviewDecisionStatusByObject - Review status grouped by object type
- * @param objectType - Survey object type key
- * @param objectUuid - Survey object uuid
- * @param inheritedRejected - Whether a parent object is already rejected for display
- * @returns True when the object is rejected for display purposes
+ * Whether a review status should show as approved in the admin UI (own decision or aggregate).
+ * An approval the other reviewers contradict does not count: a conflict is unsettled, and
+ * showing it as approved would hide the disagreement from the reviewer who approved.
+ * @param status - Aggregated review status for the object
+ * @returns True when the object is approved for display purposes
  */
-export const getRejectedForDisplay = (
+export const isReviewStatusApprovedForDisplay = (status: ReviewDecisionStatusForObject | undefined): boolean =>
+    status?.effectiveStatus === 'approved' ||
+    status?.effectiveStatus === 'forceApproved' ||
+    (status?.currentUserDecision === 'approve' && status?.effectiveStatus !== 'conflict');
+
+/**
+ * Decision an object passes down to its children for display only: approving or
+ * rejecting an object implicitly covers everything it contains, without creating
+ * decisions for the children in the database.
+ */
+export type InheritedReviewDisplayStatus = 'rejected' | 'approved';
+
+/**
+ * Review decision an object shows and passes down, from its own decision and its ancestors'.
+ * A rejection anywhere in the ancestry wins, so an approved interview containing a rejected
+ * person still shows that person, and everything below it, as rejected.
+ * @param reviewDecisionStatusByObject - Review status grouped by object type
+ * @param object - Object the decision is displayed for
+ * @param object.objectType - Survey object type key
+ * @param object.objectUuid - Survey object uuid
+ * @param object.inheritedStatus - Decision already inherited from the ancestors
+ * @returns The decision to display, or undefined when neither the object nor its ancestors were reviewed
+ */
+export const getInheritedStatusForDisplay = (
     reviewDecisionStatusByObject: ReviewDecisionStatusByObject | undefined,
-    objectType: SurveyObjectName,
-    objectUuid: string | undefined,
-    inheritedRejected = false
-): boolean =>
-    inheritedRejected ||
-    isReviewStatusRejectedForDisplay(
-        getReviewDecisionStatusForObject(reviewDecisionStatusByObject, objectType, objectUuid)
-    );
+    {
+        objectType,
+        objectUuid,
+        inheritedStatus
+    }: {
+        objectType: SurveyObjectName;
+        objectUuid: string | undefined;
+        inheritedStatus?: InheritedReviewDisplayStatus;
+    }
+): InheritedReviewDisplayStatus | undefined => {
+    if (inheritedStatus === 'rejected') {
+        return 'rejected';
+    }
+    const status = getReviewDecisionStatusForObject(reviewDecisionStatusByObject, objectType, objectUuid);
+    if (isReviewStatusRejectedForDisplay(status)) {
+        return 'rejected';
+    }
+    return isReviewStatusApprovedForDisplay(status) ? 'approved' : inheritedStatus;
+};
 
 /**
  * CSS modifier for a survey object box from its effective review status.
@@ -181,7 +214,7 @@ export type BuildSurveyObjectBoxClassNameOptions = {
     status?: ReviewDecisionStatusForObject;
     extraClassNames?: string;
     objectUuid?: string;
-    inheritedRejected?: boolean;
+    inheritedStatus?: InheritedReviewDisplayStatus;
     hasReviewControls?: boolean;
     nested?: boolean;
 };
@@ -196,7 +229,7 @@ export const buildSurveyObjectBoxClassName = ({
     status,
     extraClassNames = '',
     objectUuid,
-    inheritedRejected = false,
+    inheritedStatus,
     hasReviewControls,
     nested = false
 }: BuildSurveyObjectBoxClassNameOptions): string => {
@@ -211,9 +244,13 @@ export const buildSurveyObjectBoxClassName = ({
     if (showReviewGutter) {
         classes.push('admin__survey-object-box--has-review');
     }
-    const statusClass = inheritedRejected
-        ? 'admin__survey-object-box--rejected'
-        : getReviewDecisionStatusBoxClass(status);
+    // An inherited rejection overrides the object's own decision, while an inherited approval
+    // only applies to objects nobody reviewed individually.
+    const statusClass =
+        inheritedStatus === 'rejected'
+            ? 'admin__survey-object-box--rejected'
+            : getReviewDecisionStatusBoxClass(status) ||
+              (inheritedStatus === 'approved' ? 'admin__survey-object-box--approved' : '');
     if (statusClass) {
         classes.push(statusClass);
     }

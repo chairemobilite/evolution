@@ -12,7 +12,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Admin: the interview list and search results are colored and filtered by the review status derived from the review decisions, their validity column becoming a review status column (see [#16](https://github.com/chairemobilite/evolution/issues/16) and [#1891](https://github.com/chairemobilite/evolution/pull/1891))
+- Admin: the interview approve/reject actions move to the top menu, replacing the legacy `is_valid`/`is_validated` buttons, and approving is not offered while an object of the interview is rejected or disagreed upon (fixes [#1777](https://github.com/chairemobilite/evolution/issues/1777))
 - Admin: reviewing an interview no longer freezes it, only marking it complete does (see [#1253](https://github.com/chairemobilite/evolution/issues/1253))
+- Admin: a decision taken on an object colors what it contains, an approval in green as a rejection already did in red ([#1891](https://github.com/chairemobilite/evolution/pull/1891))
+- Admin: a journey without any visited place or trip no longer shows an empty review box ([#1891](https://github.com/chairemobilite/evolution/pull/1891))
 - Export: the CSV and log exports of interviews carry a `review_status` column instead of the `is_valid` and `is_validated` ones (see [#1886](https://github.com/chairemobilite/evolution/issues/1886) for the objects an approved interview may still contain)
 
 ### Deprecated

@@ -24,7 +24,7 @@ import { PersonPanel } from '../widgets/PersonPanel';
 import AuditDisplay from '../AuditDisplay';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
-import { getRejectedForDisplay } from '../../../services/admin/reviewDecisionStatusHelper';
+import { getInheritedStatusForDisplay } from '../../../services/admin/reviewDecisionStatusHelper';
 import { useReviewDecisionStatusByObject } from '../../../services/admin/useObjectReview';
 
 // TODO This component should be replaced by the v2 audits that come from the server and uses an object to validate the survey.
@@ -118,13 +118,17 @@ const InterviewStats = (props: InterviewStatsProps) => {
     );
 
     const interviewUuid = interview._uuid;
-    const interviewRejectedForDisplay = getRejectedForDisplay(reviewDecisionStatusByObject, 'interview', interviewUuid);
-    const householdRejectedForDisplay = getRejectedForDisplay(
-        reviewDecisionStatusByObject,
-        'household',
-        household._uuid
-    );
-    const personInheritedRejected = interviewRejectedForDisplay || householdRejectedForDisplay;
+    // Decisions taken on the interview and the household are shown on everything they contain,
+    // without storing a decision per object: approving the interview implicitly approves it all.
+    const interviewStatusForDisplay = getInheritedStatusForDisplay(reviewDecisionStatusByObject, {
+        objectType: 'interview',
+        objectUuid: interviewUuid
+    });
+    const personInheritedStatus = getInheritedStatusForDisplay(reviewDecisionStatusByObject, {
+        objectType: 'household',
+        objectUuid: household._uuid,
+        inheritedStatus: interviewStatusForDisplay
+    });
 
     return (
         <React.Fragment>
@@ -160,13 +164,13 @@ const InterviewStats = (props: InterviewStatsProps) => {
                 home={home}
                 audits={surveyObjects?.auditsByObject?.home}
                 showAuditErrorCode={props.prefs?.showAuditErrorCode}
-                inheritedRejected={interviewRejectedForDisplay}
+                inheritedStatus={interviewStatusForDisplay}
             />
             <HouseholdPanel
                 household={household}
                 audits={surveyObjects?.auditsByObject?.household}
                 showAuditErrorCode={props.prefs?.showAuditErrorCode}
-                inheritedRejected={interviewRejectedForDisplay}
+                inheritedStatus={interviewStatusForDisplay}
             />
             <div className="admin__interview-stats" key="persons">
                 <h4>{t('interviewStats.labels.persons')}</h4>
@@ -191,7 +195,7 @@ const InterviewStats = (props: InterviewStatsProps) => {
                             selectPlace={props.selectPlace}
                             selectTrip={props.selectTrip}
                             showAuditErrorCode={props.prefs?.showAuditErrorCode}
-                            inheritedRejected={personInheritedRejected}
+                            inheritedStatus={personInheritedStatus}
                         />
                     );
                 })}

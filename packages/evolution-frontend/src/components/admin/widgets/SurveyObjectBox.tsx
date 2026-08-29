@@ -7,7 +7,10 @@
 import React from 'react';
 import type { SurveyObjectName } from 'evolution-common/lib/services/baseObjects/types';
 import ObjectReviewControls from '../validations/ObjectReviewControls';
-import { buildSurveyObjectBoxClassName } from '../../../services/admin/reviewDecisionStatusHelper';
+import {
+    buildSurveyObjectBoxClassName,
+    type InheritedReviewDisplayStatus
+} from '../../../services/admin/reviewDecisionStatusHelper';
 import { useObjectReview } from '../../../services/admin/useObjectReview';
 import { createKeyboardActivateHandler } from '../../../services/admin/selectableKeyboard';
 
@@ -19,8 +22,8 @@ type SurveyObjectBoxCommonProps = {
     /** Extra CSS classes (e.g. `_selectable`, `_widget_container`). */
     extraClassNames?: string;
     children: React.ReactNode;
-    /** Rejected styling inherited from a parent object (display only; DB unchanged). */
-    inheritedRejected?: boolean;
+    /** Review decision inherited from a parent object (display only; DB unchanged). */
+    inheritedStatus?: InheritedReviewDisplayStatus;
     /** Slightly darker styling when nested inside another survey object box. */
     nested?: boolean;
 };
@@ -72,7 +75,7 @@ export type SurveyObjectBoxProps = SurveyObjectBoxDivProps | SurveyObjectBoxDeta
  * @returns A `div` or `details` element with review UI wired consistently
  */
 export const SurveyObjectBox: React.FC<SurveyObjectBoxProps> = (props) => {
-    const { objectType, objectUuid, extraClassNames = '', children, inheritedRejected = false, nested = false } = props;
+    const { objectType, objectUuid, extraClassNames = '', children, inheritedStatus, nested = false } = props;
 
     const [uncontrolledOpen, setUncontrolledOpen] = React.useState(
         props.as === 'details' ? (props.defaultOpen ?? false) : false
@@ -86,7 +89,7 @@ export const SurveyObjectBox: React.FC<SurveyObjectBoxProps> = (props) => {
         status: review.status,
         extraClassNames,
         objectUuid,
-        inheritedRejected,
+        inheritedStatus,
         hasReviewControls: review.hasReviewControls,
         nested
     });

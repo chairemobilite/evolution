@@ -13,7 +13,10 @@ import { HomePanel } from '../../widgets/HomePanel';
 import { HouseholdPanel } from '../../widgets/HouseholdPanel';
 import { PersonPanel } from '../../widgets/PersonPanel';
 import { getReviewDecisionStatusForObject } from '../../../../services/admin/reviewDecisionStatusHelper';
-import { createRejectedReviewDecisionStatus } from '../../../../services/admin/__tests__/reviewDecisionStatusHelperTestUtils';
+import {
+    createApprovedReviewDecisionStatus,
+    createRejectedReviewDecisionStatus
+} from '../../../../services/admin/__tests__/reviewDecisionStatusHelperTestUtils';
 
 jest.mock('../../../../services/admin/reviewDecisionStatusHelper');
 
@@ -61,6 +64,7 @@ const homeUuid = uuidV4();
 const personUuid = uuidV4();
 
 const rejectedStatus = createRejectedReviewDecisionStatus;
+const approvedStatus = createApprovedReviewDecisionStatus;
 
 const baseProps = {
     interview: { uuid: interviewUuid, _uuid: interviewUuid },
@@ -96,15 +100,15 @@ describe('InterviewStats rejection inheritance', () => {
         render(<InterviewStats {...baseProps} />);
 
         expect(mockHomePanel).toHaveBeenCalledWith(
-            expect.objectContaining({ inheritedRejected: true }),
+            expect.objectContaining({ inheritedStatus: 'rejected' }),
             undefined
         );
         expect(mockHouseholdPanel).toHaveBeenCalledWith(
-            expect.objectContaining({ inheritedRejected: true }),
+            expect.objectContaining({ inheritedStatus: 'rejected' }),
             undefined
         );
         expect(mockPersonPanel).toHaveBeenCalledWith(
-            expect.objectContaining({ inheritedRejected: true }),
+            expect.objectContaining({ inheritedStatus: 'rejected' }),
             undefined
         );
     });
@@ -120,15 +124,56 @@ describe('InterviewStats rejection inheritance', () => {
         render(<InterviewStats {...baseProps} />);
 
         expect(mockHomePanel).toHaveBeenCalledWith(
-            expect.objectContaining({ inheritedRejected: false }),
+            expect.objectContaining({ inheritedStatus: undefined }),
             undefined
         );
         expect(mockHouseholdPanel).toHaveBeenCalledWith(
-            expect.objectContaining({ inheritedRejected: false }),
+            expect.objectContaining({ inheritedStatus: undefined }),
             undefined
         );
         expect(mockPersonPanel).toHaveBeenCalledWith(
-            expect.objectContaining({ inheritedRejected: true }),
+            expect.objectContaining({ inheritedStatus: 'rejected' }),
+            undefined
+        );
+    });
+
+    test('interview approval propagates to home, household, and person panels', () => {
+        mockGetReviewDecisionStatusForObject.mockImplementation((_map, objectType, objectUuid) =>
+            objectType === 'interview' && objectUuid === interviewUuid
+                ? approvedStatus('interview', interviewUuid)
+                : undefined
+        );
+
+        render(<InterviewStats {...baseProps} />);
+
+        expect(mockHomePanel).toHaveBeenCalledWith(
+            expect.objectContaining({ inheritedStatus: 'approved' }),
+            undefined
+        );
+        expect(mockHouseholdPanel).toHaveBeenCalledWith(
+            expect.objectContaining({ inheritedStatus: 'approved' }),
+            undefined
+        );
+        expect(mockPersonPanel).toHaveBeenCalledWith(
+            expect.objectContaining({ inheritedStatus: 'approved' }),
+            undefined
+        );
+    });
+
+    test('a rejected household keeps its persons rejected inside an approved interview', () => {
+        mockGetReviewDecisionStatusForObject.mockImplementation((_map, objectType, objectUuid) => {
+            if (objectType === 'interview' && objectUuid === interviewUuid) {
+                return approvedStatus('interview', interviewUuid);
+            }
+            return objectType === 'household' && objectUuid === householdUuid
+                ? rejectedStatus('household', householdUuid)
+                : undefined;
+        });
+
+        render(<InterviewStats {...baseProps} />);
+
+        expect(mockPersonPanel).toHaveBeenCalledWith(
+            expect.objectContaining({ inheritedStatus: 'rejected' }),
             undefined
         );
     });

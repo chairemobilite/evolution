@@ -15,6 +15,7 @@ import { faRotate } from '@fortawesome/free-solid-svg-icons/faRotate';
 import type { SurveyObjectName } from 'evolution-common/lib/services/baseObjects/types';
 import type { ReviewDecisionStatusForObject } from 'evolution-common/lib/services/reviews/types';
 import { isReviewableObjectType } from '../../../services/admin/reviewDecisionStatusHelper';
+import { getReviewDecisionButtonsState } from '../../../services/admin/reviewDecisionButtonsState';
 import { stopActivationKeyPropagation } from '../../../services/admin/selectableKeyboard';
 
 export type ObjectReviewButtonsProps = {
@@ -67,20 +68,17 @@ const ObjectReviewButtons: React.FC<ObjectReviewButtonsProps> = ({
         event.preventDefault();
     };
 
-    const currentDecision = status?.currentUserDecision;
-    const rejectPressed = currentDecision === 'reject';
-    const showApproveActive = currentDecision === 'approve';
-    const showConflictWarning = status?.effectiveStatus === 'conflict';
-    const currentUserForceApproved = status?.currentUserForceApproved === true;
-    // Number of reviewers other than the current user who already decided on this object.
-    // approvalCount/rejectionCount exclude force-approved rows, so the current user's own
-    // decision is counted in them only when it exists and is not force-approved.
-    const reviewerCount = (status?.approvalCount ?? 0) + (status?.rejectionCount ?? 0);
-    const currentUserCountedInReviewerTotals = currentDecision !== undefined && !currentUserForceApproved;
-    const otherReviewersCount = reviewerCount - (currentUserCountedInReviewerTotals ? 1 : 0);
-    const askedToReReview = status?.reReviewRequestedOfCurrentUser === true;
-    // Pressed state reflects only the current user's own re-review request, not other reviewers'.
-    const requestedReReview = status?.reReviewRequestedByCurrentUser === true;
+    const {
+        rejectPressed,
+        approvePressed,
+        forceApprovePressed,
+        showConflictWarning,
+        canClearDecision,
+        showForceApprove,
+        showRequestReReview,
+        reReviewPressed,
+        askedToReReview
+    } = getReviewDecisionButtonsState(status);
 
     const renderReviewToggleButton = ({
         labelKey,
@@ -160,37 +158,37 @@ const ObjectReviewButtons: React.FC<ObjectReviewButtonsProps> = ({
                 activeClassSuffix: 'admin__survey-object-box__review-button--active-reject',
                 onActivate: onReject,
                 onClear: onClearReview,
-                canClearWhenPressed: !currentUserForceApproved
+                canClearWhenPressed: canClearDecision
             })}
             {renderReviewToggleButton({
                 labelKey: 'interviewMember.approveObject',
                 icon: faCheck,
                 colorClass: '_green',
-                isPressed: showApproveActive,
+                isPressed: approvePressed,
                 activeClassSuffix: 'admin__survey-object-box__review-button--active-approve',
                 onActivate: onApprove,
                 onClear: onClearReview,
-                canClearWhenPressed: !currentUserForceApproved
+                canClearWhenPressed: canClearDecision
             })}
             {canForceApprove &&
                 onForceApprove &&
-                (status?.hasConflict || status?.isForceApproved) &&
+                showForceApprove &&
                 renderReviewToggleButton({
                     labelKey: 'interviewMember.forceApproveObject',
                     icon: faCheckDouble,
                     colorClass: '_green',
-                    isPressed: currentUserForceApproved,
+                    isPressed: forceApprovePressed,
                     activeClassSuffix: 'admin__survey-object-box__review-button--active-force',
                     onActivate: onForceApprove,
                     onClear: onClearForceApprove
                 })}
-            {otherReviewersCount > 0 &&
+            {showRequestReReview &&
                 onRequestReReview &&
                 renderReviewToggleButton({
                     labelKey: 'interviewMember.requestReReview',
                     icon: faRotate,
                     colorClass: '',
-                    isPressed: requestedReReview,
+                    isPressed: reReviewPressed,
                     activeClassSuffix: 'admin__survey-object-box__review-button--active-rereview',
                     onActivate: onRequestReReview,
                     canClearWhenPressed: false
