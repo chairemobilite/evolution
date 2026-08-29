@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Admin: the interview list and search results are colored and filtered by the review status derived from the review decisions, their validity column becoming a review status column (see [#16](https://github.com/chairemobilite/evolution/issues/16) and [#1891](https://github.com/chairemobilite/evolution/pull/1891))
 - Admin: the interview approve/reject actions move to the top menu, replacing the legacy `is_valid`/`is_validated` buttons, and approving is not offered while an object of the interview is rejected or disagreed upon (fixes [#1777](https://github.com/chairemobilite/evolution/issues/1777))
+- Admin: the review status dropdown of the interview list can keep only the interviews whose participant answered again since their last review (see [#1253](https://github.com/chairemobilite/evolution/issues/1253))
 - Admin: reviewing an interview no longer freezes it, only marking it complete does (see [#1253](https://github.com/chairemobilite/evolution/issues/1253))
 - Admin: the interview list follows the review status and the completion of the interviews reviewed beside it, without a page reload, the decisions of the other reviewers still needing one ([#1891](https://github.com/chairemobilite/evolution/pull/1891))
 - Admin: the server refuses the approval of an interview one of its objects contradicts, a force approve being the way through (see [#1886](https://github.com/chairemobilite/evolution/issues/1886))

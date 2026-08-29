@@ -9,7 +9,8 @@
 // `reviewDecisions.db.test.ts` and in the `getList` tests of `interviews.db.test.ts`.
 import {
     getInterviewReviewStatusFromRow,
-    getInterviewReviewStatusWhereClause
+    getInterviewReviewStatusWhereClause,
+    getModifiedSinceReviewWhereClause
 } from '../reviewDecisions.db.queries';
 import {
     interviewReviewStatusFilterValues,
@@ -55,4 +56,11 @@ describe('getInterviewReviewStatusWhereClause', () => {
         // placeholder would mean a binding was dropped along the way.
         expect(clause).not.toContain('?');
     });
+});
+
+test('getModifiedSinceReviewWhereClause compares the answers with the last decision', () => {
+    const clause = getModifiedSinceReviewWhereClause('i');
+    expect(clause).toContain('i.response');
+    expect(clause).toContain('max(d.updated_at)');
+    expect(clause).not.toContain('?');
 });

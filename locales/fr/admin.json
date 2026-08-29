@@ -91,7 +91,8 @@
         "conflict": "Désaccords seulement",
         "forceApproved": "Approuvées d'office seulement",
         "notRejected": "Cacher rejetées",
-        "questionable": "Montrer seulement questionables"
+        "questionable": "Montrer seulement questionables",
+        "modifiedSinceReview": "Modifiées par le répondant depuis leur révision"
     },
     "interviewCompletedFilter": {
         "title": "Complètes?",
@@ -130,9 +131,9 @@
         "rejectObject": "Rejeter cet objet",
         "forceApproveObject": "Forcer l'approbation (outrepasser les rejets et les désaccords)",
         "reviewConflict": "Les réviseurs ne sont pas d'accord sur cet objet",
-        "withdrawApprove": "Retirer cette approbation, contredite par un objet rejeté ou en désaccord",
         "forceApproveNothingToOverride": "L'approbation forcée n'est disponible que lorsqu'un rejet ou un désaccord doit être outrepassé",
         "approveBlockedByObject": "Cette entrevue ne peut pas être approuvée tant qu'un des objets qu'elle contient est rejeté ou fait l'objet d'un désaccord",
+        "withdrawApprove": "Retirer cette approbation, contredite par un objet rejeté ou en désaccord",
         "requestReReview": "Demander aux autres réviseurs de revoir cet objet",
         "reReviewRequested": "On vous demande de revoir cet objet"
     },

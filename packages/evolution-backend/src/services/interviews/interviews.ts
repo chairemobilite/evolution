@@ -47,10 +47,13 @@ const getFiltersForDb = (
         [key: string]: ValueFilterType;
     } = {};
 
-    // `questionable` is offered by the same dropdown as the review statuses, but it is a
-    // column of the interview rather than something the reviewers decided.
+    // `questionable` and `modifiedSinceReview` are not review statuses, but the admin list
+    // offers them in the same dropdown: the first is a column of the interview, the second
+    // compares the answers of the participant with the date of the last review decision.
     if (review_status === 'questionable') {
         actualFilters.is_questionable = { value: true, op: 'eq' };
+    } else if (review_status === 'modifiedSinceReview') {
+        actualFilters.modified_since_review = { value: true };
     } else if (review_status !== undefined && review_status !== 'all') {
         actualFilters.review_status = { value: review_status };
     }
