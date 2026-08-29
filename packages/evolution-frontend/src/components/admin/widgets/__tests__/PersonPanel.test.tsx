@@ -13,6 +13,7 @@ import { PersonPanel } from '../PersonPanel';
 import { SurveyObjectBox } from '../SurveyObjectBox';
 import { getReviewDecisionStatusForObject } from '../../../../services/admin/reviewDecisionStatusHelper';
 import { createRejectedReviewDecisionStatus } from '../../../../services/admin/__tests__/reviewDecisionStatusHelperTestUtils';
+import type { InheritedReviewDisplayStatus } from '../../../../services/admin/reviewDecisionStatusHelper';
 
 jest.mock('../../../../assets/images/admin/steering-wheel-solid.svg', () => 'steering-wheel.svg');
 
@@ -68,12 +69,12 @@ const journey = {
 
 const rejectedStatus = createRejectedReviewDecisionStatus;
 
-const getInheritedRejected = (objectType: string, objectUuid: string): boolean | undefined =>
+const getInheritedStatus = (objectType: string, objectUuid: string): string | undefined =>
     mockSurveyObjectBox.mock.calls.find(
         ([props]) => props.objectType === objectType && props.objectUuid === objectUuid
-    )?.[0].inheritedRejected;
+    )?.[0].inheritedStatus;
 
-const renderPersonPanel = (inheritedRejected = false) =>
+const renderPersonPanel = (inheritedStatus?: InheritedReviewDisplayStatus) =>
     render(
         <PersonPanel
             person={person}
@@ -81,7 +82,7 @@ const renderPersonPanel = (inheritedRejected = false) =>
             personId={personUuid}
             selectPlace={jest.fn()}
             selectTrip={jest.fn()}
-            inheritedRejected={inheritedRejected}
+            inheritedStatus={inheritedStatus}
         />
     );
 
@@ -111,6 +112,61 @@ describe('PersonPanel visited place times', () => {
     });
 });
 
+describe('PersonPanel journey box', () => {
+    const journeyWithoutContent = { _uuid: journeyUuid, visitedPlaces: [], trips: [] } as unknown as Journey;
+
+    test.each([
+        ['a journey with trips', journey, true],
+        [
+            'a journey with visited places only',
+            { _uuid: journeyUuid, visitedPlaces: [{ _uuid: 'place-1' }], trips: [] } as unknown as Journey,
+            true
+        ],
+        ['a journey without visited places nor trips', journeyWithoutContent, false],
+        [
+            'a journey whose trips have no start or end place',
+            { _uuid: journeyUuid, visitedPlaces: [], trips: [{ _uuid: tripUuid }] } as unknown as Journey,
+            false
+        ],
+        ['no journey', undefined, false]
+    ])('%s: journey box rendered is %s', (_title, journeyToRender, expectedRendered) => {
+        render(
+            <PersonPanel
+                person={person}
+                journey={journeyToRender}
+                personId={personUuid}
+                selectPlace={jest.fn()}
+                selectTrip={jest.fn()}
+            />
+        );
+
+        const journeyBoxRendered = mockSurveyObjectBox.mock.calls.some(
+            ([props]) => props.objectType === 'journey' && props.objectUuid === journeyUuid
+        );
+        expect(journeyBoxRendered).toBe(expectedRendered);
+    });
+});
+
+describe('PersonPanel review decision inheritance', () => {
+    test('ancestor approval propagates through the journey subtree', () => {
+        renderPersonPanel('approved');
+
+        expect(getInheritedStatus('trip', tripUuid)).toBe('approved');
+        expect(getInheritedStatus('segment', segmentUuid)).toBe('approved');
+    });
+
+    test('a rejected trip stays rejected inside an approved ancestor', () => {
+        mockGetReviewDecisionStatusForObject.mockImplementation((_map, objectType, objectUuid) =>
+            objectType === 'trip' && objectUuid === tripUuid ? rejectedStatus('trip', tripUuid) : undefined
+        );
+
+        renderPersonPanel('approved');
+
+        expect(getInheritedStatus('trip', tripUuid)).toBe('approved');
+        expect(getInheritedStatus('segment', segmentUuid)).toBe('rejected');
+    });
+});
+
 describe('PersonPanel rejection inheritance', () => {
     test('journey rejection propagates to trip and segment boxes', () => {
         mockGetReviewDecisionStatusForObject.mockImplementation((_map, objectType, objectUuid) => {
@@ -122,8 +178,8 @@ describe('PersonPanel rejection inheritance', () => {
 
         renderPersonPanel();
 
-        expect(getInheritedRejected('trip', tripUuid)).toBe(true);
-        expect(getInheritedRejected('segment', segmentUuid)).toBe(true);
+        expect(getInheritedStatus('trip', tripUuid)).toBe('rejected');
+        expect(getInheritedStatus('segment', segmentUuid)).toBe('rejected');
     });
 
     test('trip rejection propagates to segment but not the trip box itself', () => {
@@ -136,8 +192,8 @@ describe('PersonPanel rejection inheritance', () => {
 
         renderPersonPanel();
 
-        expect(getInheritedRejected('trip', tripUuid)).toBe(false);
-        expect(getInheritedRejected('segment', segmentUuid)).toBe(true);
+        expect(getInheritedStatus('trip', tripUuid)).toBeUndefined();
+        expect(getInheritedStatus('segment', segmentUuid)).toBe('rejected');
     });
 
     test('person rejection propagates to journey subtree descendants', () => {
@@ -150,14 +206,14 @@ describe('PersonPanel rejection inheritance', () => {
 
         renderPersonPanel();
 
-        expect(getInheritedRejected('trip', tripUuid)).toBe(true);
-        expect(getInheritedRejected('segment', segmentUuid)).toBe(true);
+        expect(getInheritedStatus('trip', tripUuid)).toBe('rejected');
+        expect(getInheritedStatus('segment', segmentUuid)).toBe('rejected');
     });
 
-    test('ancestor inheritedRejected propagates through the trip subtree', () => {
-        renderPersonPanel(true);
+    test('ancestor rejection propagates through the trip subtree', () => {
+        renderPersonPanel('rejected');
 
-        expect(getInheritedRejected('trip', tripUuid)).toBe(true);
-        expect(getInheritedRejected('segment', segmentUuid)).toBe(true);
+        expect(getInheritedStatus('trip', tripUuid)).toBe('rejected');
+        expect(getInheritedStatus('segment', segmentUuid)).toBe('rejected');
     });
 });

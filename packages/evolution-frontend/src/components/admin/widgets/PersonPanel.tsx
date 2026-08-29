@@ -30,7 +30,10 @@ import { AuditForObject } from 'evolution-common/lib/services/audits/types';
 import { VisitedPlaceDecorator } from '../../../services/surveyObjectDecorators/VisitedPlaceDecorator';
 import AuditDisplay from '../AuditDisplay';
 import { SurveyObjectBox } from './SurveyObjectBox';
-import { getRejectedForDisplay } from '../../../services/admin/reviewDecisionStatusHelper';
+import {
+    getInheritedStatusForDisplay,
+    type InheritedReviewDisplayStatus
+} from '../../../services/admin/reviewDecisionStatusHelper';
 import { useReviewDecisionStatusByObject } from '../../../services/admin/useObjectReview';
 
 export interface PersonPanelProps {
@@ -44,8 +47,8 @@ export interface PersonPanelProps {
     selectPlace: (path: string | undefined) => void;
     selectTrip: (uuid: string | undefined) => void;
     showAuditErrorCode?: boolean;
-    /** Rejected styling inherited from rejected interview/household ancestors (display only). */
-    inheritedRejected?: boolean;
+    /** Review decision inherited from the interview/household ancestors (display only). */
+    inheritedStatus?: InheritedReviewDisplayStatus;
 }
 
 export const PersonPanel = ({
@@ -59,7 +62,7 @@ export const PersonPanel = ({
     selectPlace,
     selectTrip,
     showAuditErrorCode,
-    inheritedRejected = false
+    inheritedStatus
 }: PersonPanelProps) => {
     const { t } = useTranslation(['admin']);
 
@@ -67,19 +70,16 @@ export const PersonPanel = ({
     const personUuid = person._uuid;
 
     const reviewDecisionStatusByObject = useReviewDecisionStatusByObject();
-    const personRejectedForDisplay = getRejectedForDisplay(
-        reviewDecisionStatusByObject,
-        'person',
-        personUuid,
-        inheritedRejected
-    );
-    const journeyRejectedForDisplay = getRejectedForDisplay(
-        reviewDecisionStatusByObject,
-        'journey',
-        journeyUuid,
-        false
-    );
-    const journeySubtreeInheritedRejected = personRejectedForDisplay || journeyRejectedForDisplay;
+    const personStatusForDisplay = getInheritedStatusForDisplay(reviewDecisionStatusByObject, {
+        objectType: 'person',
+        objectUuid: personUuid,
+        inheritedStatus
+    });
+    const journeySubtreeInheritedStatus = getInheritedStatusForDisplay(reviewDecisionStatusByObject, {
+        objectType: 'journey',
+        objectUuid: journeyUuid,
+        inheritedStatus: personStatusForDisplay
+    });
 
     // Handle visited places
     const visitedPlacesStats: JSX.Element[] = [];
@@ -107,7 +107,7 @@ export const PersonPanel = ({
                 objectType="visitedPlace"
                 objectUuid={visitedPlaceId}
                 extraClassNames="_selectable"
-                inheritedRejected={journeySubtreeInheritedRejected}
+                inheritedStatus={journeySubtreeInheritedStatus}
                 nested
                 onClick={() => selectPlace(visitedPlacePath)}
                 selectableClassName="_widget"
@@ -120,7 +120,7 @@ export const PersonPanel = ({
                 key={visitedPlaceId}
                 objectType="visitedPlace"
                 objectUuid={visitedPlaceId}
-                inheritedRejected={journeySubtreeInheritedRejected}
+                inheritedStatus={journeySubtreeInheritedStatus}
                 nested
             >
                 <span className="_widget">{visitedPlaceLabel}</span>
@@ -142,12 +142,11 @@ export const PersonPanel = ({
             const endAt = trip.endPlace.startTime as number;
             const duration = !_isBlank(startAt) && !_isBlank(endAt) ? endAt! - startAt! : undefined;
 
-            const tripSubtreeInheritedRejected = getRejectedForDisplay(
-                reviewDecisionStatusByObject,
-                'trip',
-                tripId,
-                journeySubtreeInheritedRejected
-            );
+            const tripSubtreeInheritedStatus = getInheritedStatusForDisplay(reviewDecisionStatusByObject, {
+                objectType: 'trip',
+                objectUuid: tripId,
+                inheritedStatus: journeySubtreeInheritedStatus
+            });
 
             const segmentsArray: Segment[] = trip.segments || [];
             const segmentsStats: JSX.Element[] = [];
@@ -176,7 +175,7 @@ export const PersonPanel = ({
                         key={segmentId}
                         objectType="segment"
                         objectUuid={segmentId}
-                        inheritedRejected={tripSubtreeInheritedRejected}
+                        inheritedStatus={tripSubtreeInheritedStatus}
                         nested
                     >
                         <strong>{segment.mode || '?'}</strong>: {segmentStats}
@@ -191,7 +190,7 @@ export const PersonPanel = ({
                     objectType="trip"
                     objectUuid={tripId}
                     extraClassNames="_selectable"
-                    inheritedRejected={journeySubtreeInheritedRejected}
+                    inheritedStatus={journeySubtreeInheritedStatus}
                     nested
                     onClick={() => selectTrip(tripId)}
                     selectableClassName="_widget"
@@ -233,7 +232,7 @@ export const PersonPanel = ({
             objectType="person"
             objectUuid={personUuid}
             extraClassNames="_widget_container"
-            inheritedRejected={inheritedRejected}
+            inheritedStatus={inheritedStatus}
             summary={
                 <summary>
                     {personIndex || 1}.{' '}
@@ -368,18 +367,21 @@ export const PersonPanel = ({
                 </span>
             )}
             {audits && audits.length > 0 && <AuditDisplay audits={audits} showAuditErrorCode={showAuditErrorCode} />}
-            {journeyUuid ? (
-                <SurveyObjectBox
-                    objectType="journey"
-                    objectUuid={journeyUuid}
-                    inheritedRejected={personRejectedForDisplay}
-                    nested
-                >
-                    <div>{journeySubtreeContent}</div>
-                </SurveyObjectBox>
-            ) : (
-                journeySubtreeContent
-            )}
+            {/* A journey without any visited place or trip has nothing to show or review, so
+                its box is omitted rather than displayed empty with review buttons. */}
+            {journeySubtreeContent &&
+                (journeyUuid ? (
+                    <SurveyObjectBox
+                        objectType="journey"
+                        objectUuid={journeyUuid}
+                        inheritedStatus={personStatusForDisplay}
+                        nested
+                    >
+                        <div>{journeySubtreeContent}</div>
+                    </SurveyObjectBox>
+                ) : (
+                    journeySubtreeContent
+                ))}
         </SurveyObjectBox>
     );
 };

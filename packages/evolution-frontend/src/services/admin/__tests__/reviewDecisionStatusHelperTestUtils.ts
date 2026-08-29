@@ -26,3 +26,24 @@ export const createRejectedReviewDecisionStatus = (
     reReviewRequestedUserIds: [],
     isReviewed: true
 });
+
+/**
+ * Builds an approved review status fixture for admin component tests.
+ * @param objectType - Survey object type key
+ * @param objectUuid - Survey object uuid
+ * @returns Approved review status for display assertions
+ */
+export const createApprovedReviewDecisionStatus = (
+    objectType: ReviewDecisionStatusForObject['objectType'],
+    objectUuid: string
+): ReviewDecisionStatusForObject => ({
+    objectType,
+    objectUuid,
+    approvalCount: 1,
+    rejectionCount: 0,
+    hasConflict: false,
+    isForceApproved: false,
+    effectiveStatus: 'approved',
+    reReviewRequestedUserIds: [],
+    isReviewed: true
+});

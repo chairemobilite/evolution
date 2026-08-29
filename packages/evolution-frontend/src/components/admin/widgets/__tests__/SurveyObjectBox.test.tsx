@@ -223,7 +223,7 @@ describe('SurveyObjectBox', () => {
 
         it('applies nested and inherited-rejected styling classes', () => {
             const { container } = render(
-                <SurveyObjectBox {...baseProps} onClick={jest.fn()} nested inheritedRejected />
+                <SurveyObjectBox {...baseProps} onClick={jest.fn()} nested inheritedStatus="rejected" />
             );
 
             const wrapper = container.firstChild as HTMLElement;

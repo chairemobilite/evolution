@@ -128,8 +128,9 @@
     "interviewMember": {
         "approveObject": "Approuver cet objet",
         "rejectObject": "Rejeter cet objet",
-        "forceApproveObject": "Forcer l'approbation (outrepasser les désaccords)",
+        "forceApproveObject": "Forcer l'approbation (outrepasser les rejets et les désaccords)",
         "reviewConflict": "Les réviseurs ne sont pas d'accord sur cet objet",
+        "withdrawApprove": "Retirer cette approbation, contredite par un objet rejeté ou en désaccord",
         "forceApproveRequiresConflict": "L'approbation forcée n'est disponible que lorsque les réviseurs ne sont pas d'accord sur cet objet",
         "requestReReview": "Demander aux autres réviseurs de revoir cet objet",
         "reReviewRequested": "On vous demande de revoir cet objet"
