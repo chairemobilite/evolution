@@ -15,7 +15,10 @@ import { isUserAllowed } from '../../services/auth/userAuthorization';
 import { surveyObjectExistsInInterview } from '../../services/surveyObjects/surveyObjectExistsInInterview';
 import { ReviewDecisionService } from '../../services/reviews/ReviewDecisionService';
 import { SurveyObjectsAndAuditsFactory } from '../../services/audits/SurveyObjectsAndAuditsFactory';
-import { CANNOT_FORCE_APPROVE_WITHOUT_CONFLICT_ERROR_CODE } from '../../services/reviews/reviewDecisionErrors';
+import {
+    CANNOT_APPROVE_INTERVIEW_WITH_BLOCKING_OBJECT_ERROR_CODE,
+    CANNOT_FORCE_APPROVE_NOTHING_TO_OVERRIDE_ERROR_CODE
+} from '../../services/reviews/reviewDecisionErrors';
 import { UserAttributes } from 'chaire-lib-backend/lib/services/users/user';
 
 // Mirrors the real interviewUserIsAuthorized behavior (services/auth/userAuthorization.ts),
@@ -432,6 +435,28 @@ describe('POST /review/decision/:interviewId', () => {
         expect(mockSetReviewDecision).not.toHaveBeenCalled();
     });
 
+    it('returns 409 when approving the interview over a blocking object', async () => {
+        const error = `Cannot approve interview 10, it contains a rejected or disagreed object`;
+        mockSetReviewDecision.mockRejectedValue(
+            new TrError(error, CANNOT_APPROVE_INTERVIEW_WITH_BLOCKING_OBJECT_ERROR_CODE, 'CannotApproveInterviewWithBlockingObject')
+        );
+
+        const response = await request(app)
+            .post(`/review/decision/${interviewUuid}`)
+            .send({
+                objectType: 'person',
+                objectUuid: personUuid,
+                decision: 'approve'
+            });
+
+        expect(response.status).toBe(409);
+        expect(response.body).toEqual({
+            status: 'error',
+            error,
+            errorCode: CANNOT_APPROVE_INTERVIEW_WITH_BLOCKING_OBJECT_ERROR_CODE
+        });
+    });
+
     describe('validateReviewObjectMiddleware failures', () => {
         runValidationReviewContextFailureTests({
             path: 'decision',
@@ -580,8 +605,8 @@ describe('POST /review/forceApprove/:interviewId', () => {
         mockSetForceApprove.mockRejectedValue(
             new TrError(
                 `Cannot force-approve person/${personUuid} without reviewer conflict`,
-                CANNOT_FORCE_APPROVE_WITHOUT_CONFLICT_ERROR_CODE,
-                'CannotForceApproveWithoutConflict'
+                CANNOT_FORCE_APPROVE_NOTHING_TO_OVERRIDE_ERROR_CODE,
+                'CannotForceApproveNothingToOverride'
             )
         );
 
@@ -597,7 +622,7 @@ describe('POST /review/forceApprove/:interviewId', () => {
         expect(response.body).toEqual({
             status: 'error',
             error: `Cannot force-approve person/${personUuid} without reviewer conflict`,
-            errorCode: CANNOT_FORCE_APPROVE_WITHOUT_CONFLICT_ERROR_CODE
+            errorCode: CANNOT_FORCE_APPROVE_NOTHING_TO_OVERRIDE_ERROR_CODE
         });
         expect(mockSetForceApprove).toHaveBeenCalledWith(10, 3, {
             objectType: 'person',

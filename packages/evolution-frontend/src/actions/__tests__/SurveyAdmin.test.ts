@@ -165,19 +165,28 @@ describe('SurveyAdmin review thunks', () => {
         }
     });
 
-    test('startForceApproveObject shows the conflict toast on 409 without generic failure handling', async () => {
+    test('startForceApproveObject shows the nothing to override toast on 409 without generic failure handling', async () => {
         fetchRetryMock.mockResolvedValue({ status: 409 } as never);
 
         await startForceApproveObject('person', personUuid)(mockDispatch, mockGetState as never);
 
-        expect(mockedI18nT).toHaveBeenCalledWith('admin:interviewMember.forceApproveRequiresConflict');
-        expect(mockedToastError).toHaveBeenCalledWith('admin:interviewMember.forceApproveRequiresConflict');
+        expect(mockedI18nT).toHaveBeenCalledWith('admin:interviewMember.forceApproveNothingToOverride');
+        expect(mockedToastError).toHaveBeenCalledWith('admin:interviewMember.forceApproveNothingToOverride');
         expect(mockedHandleHttpOtherResponseCode).not.toHaveBeenCalled();
         expect(mockDispatch).toHaveBeenCalledWith({ type: LoadingStateActionTypes.INCREMENT_LOADING_STATE });
         expect(mockDispatch).toHaveBeenCalledWith({ type: LoadingStateActionTypes.DECREMENT_LOADING_STATE });
         expect(mockDispatch).not.toHaveBeenCalledWith(
             expect.objectContaining({ type: SurveyActionTypes.SET_REVIEW_DECISIONS })
         );
+    });
+
+    test('startSubmitObjectReview shows the blocked approval toast on 409 without generic failure handling', async () => {
+        fetchRetryMock.mockResolvedValue({ status: 409 } as never);
+
+        await startSubmitObjectReview('interview', personUuid, 'approve')(mockDispatch, mockGetState as never);
+
+        expect(mockedToastError).toHaveBeenCalledWith('admin:interviewMember.approveBlockedByObject');
+        expect(mockedHandleHttpOtherResponseCode).not.toHaveBeenCalled();
     });
 
     test('review thunks no-op when the admin interview is not loaded', async () => {

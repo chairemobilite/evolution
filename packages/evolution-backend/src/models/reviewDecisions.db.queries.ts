@@ -8,12 +8,23 @@ import knex from 'chaire-lib-backend/lib/config/shared/db.config';
 import TrError from 'chaire-lib-common/lib/utils/TrError';
 import {
     ReviewDecision,
+    ReviewDecisionValue,
+    ReviewerVote,
     type InterviewReviewStatusFilter,
     type ReviewDecisionEffectiveStatus
 } from 'evolution-common/lib/services/reviews/types';
-import { getReviewDecisionEffectiveStatus } from 'evolution-common/lib/services/reviews/reviewDecisionStatus';
-import { computeReviewDecisionStatusForObject } from '../services/reviews/ReviewDecisionUtils';
-import { CANNOT_FORCE_APPROVE_WITHOUT_CONFLICT_ERROR_CODE } from '../services/reviews/reviewDecisionErrors';
+import {
+    computeReviewDecisionStatusForObject,
+    hasDecisionBlockingInterviewApproval
+} from '../services/reviews/ReviewDecisionUtils';
+import {
+    blocksApproval,
+    getReviewDecisionEffectiveStatus
+} from 'evolution-common/lib/services/reviews/reviewDecisionStatus';
+import {
+    CANNOT_APPROVE_INTERVIEW_WITH_BLOCKING_OBJECT_ERROR_CODE,
+    CANNOT_FORCE_APPROVE_NOTHING_TO_OVERRIDE_ERROR_CODE
+} from '../services/reviews/reviewDecisionErrors';
 import type { SurveyObjectName } from 'evolution-common/lib/services/baseObjects/types';
 import { Knex } from 'knex';
 
@@ -24,7 +35,8 @@ type DbObject = {
     user_id: number;
     object_type: string;
     object_uuid: string;
-    decision_value: 'approve' | 'reject';
+    /** Null on a row that only carries a force approve, an admin override being no reviewer vote. */
+    decision_value: ReviewDecisionValue | null;
     comment: string | null;
     force_approved: boolean;
     force_approve_comment: string | null;
@@ -45,7 +57,7 @@ const dbObjectToReviewDecision = (dbObject: DbObject): ReviewDecision => ({
     objectType: dbObject.object_type as SurveyObjectName,
     objectUuid: dbObject.object_uuid,
     userId: dbObject.user_id,
-    decision: dbObject.decision_value,
+    decision: nullToUndefined(dbObject.decision_value),
     comment: nullToUndefined(dbObject.comment),
     forceApproved: dbObject.force_approved,
     forceApproveComment: nullToUndefined(dbObject.force_approve_comment),
@@ -56,11 +68,7 @@ const dbObjectToReviewDecision = (dbObject: DbObject): ReviewDecision => ({
     updatedAt: dbObject.updated_at?.toISOString()
 });
 
-const reviewDecisionToDbObject = (
-    interviewId: number,
-    userId: number,
-    reviewDecision: Pick<ReviewDecision, 'objectType' | 'objectUuid' | 'decision' | 'comment'>
-): DbObject => ({
+const reviewDecisionToDbObject = (interviewId: number, userId: number, reviewDecision: ReviewerVote): DbObject => ({
     interview_id: interviewId,
     user_id: userId,
     object_type: reviewDecision.objectType,
@@ -75,43 +83,17 @@ const reviewDecisionToDbObject = (
     re_review_request_comment: null
 });
 
-const getReviewDecisionsForInterviewObject = async (
+const getReviewDecisionsForInterview = async (
     interviewId: number,
-    objectType: SurveyObjectName,
-    objectUuid: string,
-    transaction: Knex.Transaction,
+    transaction?: Knex.Transaction,
     forUpdate = false
 ): Promise<ReviewDecision[]> => {
     try {
         // Newest first: aggregation helpers rely on this order (e.g. most recent force-approve wins)
-        const query = transaction(tableName)
-            .where({
-                interview_id: interviewId,
-                object_type: objectType,
-                object_uuid: objectUuid
-            })
-            .orderBy('updated_at', 'desc');
+        const query = (transaction ?? knex)(tableName).where('interview_id', interviewId).orderBy('updated_at', 'desc');
         if (forUpdate) {
             query.forUpdate();
         }
-        const rows = await query;
-        return rows.map(dbObjectToReviewDecision);
-    } catch (error) {
-        throw new TrError(
-            `Error getting reviews for interview ${interviewId} object ${objectType}/${objectUuid} in database (knex error: ${error})`,
-            'DBSVREV0005',
-            'CannotGetReviewsForInterviewObjectBecauseDatabaseError'
-        );
-    }
-};
-
-const getReviewDecisionsForInterview = async (
-    interviewId: number,
-    transaction?: Knex.Transaction
-): Promise<ReviewDecision[]> => {
-    try {
-        // Newest first: aggregation helpers rely on this order (e.g. most recent force-approve wins)
-        const query = (transaction ?? knex)(tableName).where('interview_id', interviewId).orderBy('updated_at', 'desc');
         const reviews = await query;
         return reviews.map(dbObjectToReviewDecision);
     } catch (error) {
@@ -176,6 +158,7 @@ const clearReviewDecision = async (
 
 /**
  * Clears force-approve on the admin's review row without removing their approve/reject decision.
+ * The row itself goes when the admin never voted on the object, as the override was all it held.
  * @param interviewId - Interview database id
  * @param userId - Admin user id who force-approved
  * @param reviewDecision - Object type and uuid
@@ -188,18 +171,25 @@ const clearForceApprove = async (
     transaction?: Knex.Transaction
 ): Promise<void> => {
     try {
-        await (transaction ?? knex)(tableName)
-            .where({
+        const forceApprovedRow = (queryKnex: Knex | Knex.Transaction) =>
+            queryKnex(tableName).where({
                 interview_id: interviewId,
                 user_id: userId,
                 object_type: reviewDecision.objectType,
                 object_uuid: reviewDecision.objectUuid,
                 force_approved: true
-            })
-            .update({
+            });
+        const clearOrDeleteRow = async (queryKnex: Knex | Knex.Transaction): Promise<void> => {
+            // A row without a decision value holds nothing but the override, so clearing the
+            // override leaves nothing to keep. A row also carrying a vote keeps that vote: the
+            // admin who approved before overriding still approves once the override is gone.
+            await forceApprovedRow(queryKnex).whereNull('decision_value').del();
+            await forceApprovedRow(queryKnex).whereNotNull('decision_value').update({
                 force_approved: false,
                 force_approve_comment: null
             });
+        };
+        await (transaction ? clearOrDeleteRow(transaction) : knex.transaction(clearOrDeleteRow));
     } catch (error) {
         throw new TrError(
             `Error clearing force approve for interview ${interviewId} in database (knex error: ${error})`,
@@ -212,6 +202,14 @@ const clearForceApprove = async (
 /**
  * Upserts a reviewer decision for one survey object in an interview.
  * Clears any pending re-review request and any prior force-approve override for that reviewer.
+ * Approving the interview means accepting everything it contains, so it is refused while one
+ * of its objects is rejected or disagreed upon; a force approve is then the only way through.
+ * That check and the upsert run in the same transaction, locking the decision rows it reads, so
+ * a concurrent update of one of them waits for it. A reviewer inserting a brand new rejection
+ * meanwhile is not held back, no lock covering rows that do not exist yet, so the interview may
+ * end up approved over it. Serializing every review of an interview would cost more than the
+ * rare stale approval, which a reviewer clears. See
+ * https://github.com/chairemobilite/evolution/issues/1886
  * @param interviewId - Interview database id
  * @param userId - Reviewer user id
  * @param reviewDecision - Object type, uuid, decision and optional decision comment
@@ -221,12 +219,33 @@ const clearForceApprove = async (
 const setReviewDecision = async (
     interviewId: number,
     userId: number,
-    reviewDecision: Pick<ReviewDecision, 'objectType' | 'objectUuid' | 'decision' | 'comment'>,
+    reviewDecision: ReviewerVote,
     transaction?: Knex.Transaction
 ): Promise<ReviewDecision> => {
-    try {
+    // Approving the interview accepts everything it contains, so that decision alone is checked
+    // against the decisions taken on the objects below. Any other decision stands on its own and
+    // is written without reading them.
+    const guardsInterviewApproval = reviewDecision.objectType === 'interview' && reviewDecision.decision === 'approve';
+
+    const runQuery = async (queryKnex: Knex | Knex.Transaction): Promise<ReviewDecision> => {
+        if (guardsInterviewApproval) {
+            // Read under lock inside the transaction of the upsert, so that a decision read here
+            // cannot change while the approval is being written.
+            const reviewDecisions = await getReviewDecisionsForInterview(
+                interviewId,
+                queryKnex as Knex.Transaction,
+                true
+            );
+            if (hasDecisionBlockingInterviewApproval(reviewDecisions)) {
+                throw new TrError(
+                    `Cannot approve interview ${interviewId}, it contains a rejected or disagreed object`,
+                    CANNOT_APPROVE_INTERVIEW_WITH_BLOCKING_OBJECT_ERROR_CODE,
+                    'CannotApproveInterviewWithBlockingObject'
+                );
+            }
+        }
         const dbObject = reviewDecisionToDbObject(interviewId, userId, reviewDecision);
-        const rows = await (transaction ?? knex)(tableName)
+        const rows = await queryKnex(tableName)
             .insert(dbObject)
             .onConflict(['interview_id', 'object_type', 'object_uuid', 'user_id'])
             .merge({
@@ -242,7 +261,18 @@ const setReviewDecision = async (
             .returning('*');
 
         return dbObjectToReviewDecision(rows[0]);
+    };
+
+    try {
+        if (transaction) {
+            return await runQuery(transaction);
+        }
+        // Only the guarded case needs a transaction of its own; a plain upsert is atomic already.
+        return guardsInterviewApproval ? await knex.transaction(runQuery) : await runQuery(knex);
     } catch (error) {
+        if (error instanceof TrError) {
+            throw error;
+        }
         throw new TrError(
             `Error setting review for interview ${interviewId} in database (knex error: ${error})`,
             'DBSVREV0003',
@@ -290,54 +320,52 @@ const requestReReviewFromOtherReviewers = async (
 };
 
 /**
- * Force-approves only when reviewer conflict still exists on the object.
- * Force-approve is an admin override of a reviewer disagreement; without a
- * conflict there is nothing to override, so the request is rejected to avoid
- * silently masking future conflicting reviews. The conflict check and the
- * upsert run in the same transaction (with row locks) so a concurrent review
- * cannot invalidate the check between read and write.
+ * Force-approves only when a decision still stands in the way of approving the object:
+ * a rejection or a reviewer disagreement, on the object itself or, for the interview, on
+ * any object it contains. Without one there is nothing to override, so the request is
+ * rejected to avoid silently masking future conflicting reviews. The check and the upsert
+ * run in the same transaction (with row locks) so a concurrent review cannot invalidate
+ * the check between read and write.
  * @param interviewId - Interview database id
  * @param userId - Admin user id
  * @param reviewDecision - Object type, uuid and optional force-approve comment
  * @param transaction - Optional knex transaction for atomic writes
  * @returns The persisted review decision row
  */
-const setForceApproveWhenConflictExists = async (
+const setForceApproveWhenApprovalBlocked = async (
     interviewId: number,
     userId: number,
     reviewDecision: Pick<ReviewDecision, 'objectType' | 'objectUuid' | 'forceApproveComment'>,
     transaction?: Knex.Transaction
 ): Promise<ReviewDecision> => {
     const runInTransaction = async (trx: Knex.Transaction): Promise<ReviewDecision> => {
-        const reviewDecisions = await getReviewDecisionsForInterviewObject(
-            interviewId,
-            reviewDecision.objectType,
-            reviewDecision.objectUuid,
-            trx,
-            true
-        );
+        // Every row of the interview is locked and read: force-approving the interview also
+        // overrides the decisions taken on the objects it contains.
+        const reviewDecisions = await getReviewDecisionsForInterview(interviewId, trx, true);
         const status = computeReviewDecisionStatusForObject(
             reviewDecisions,
             reviewDecision.objectType,
             reviewDecision.objectUuid,
             userId
         );
-        if (!status.hasConflict) {
+        const overridesContainedObject =
+            reviewDecision.objectType === 'interview' && hasDecisionBlockingInterviewApproval(reviewDecisions);
+        if (!blocksApproval(status.effectiveStatus) && !overridesContainedObject) {
             throw new TrError(
-                `Cannot force-approve ${reviewDecision.objectType}/${reviewDecision.objectUuid} without reviewer conflict`,
-                CANNOT_FORCE_APPROVE_WITHOUT_CONFLICT_ERROR_CODE,
-                'CannotForceApproveWithoutConflict'
+                `Cannot force-approve ${reviewDecision.objectType}/${reviewDecision.objectUuid}, no decision to override`,
+                CANNOT_FORCE_APPROVE_NOTHING_TO_OVERRIDE_ERROR_CODE,
+                'CannotForceApproveNothingToOverride'
             );
         }
 
-        // Upsert force-approve on the admin's own row. Inserts use reviewer defaults;
+        // Upsert force-approve on the admin's own row. Inserted rows carry no reviewer vote;
         // conflicts merge only the force-approve fields so an existing decision is kept.
         const dbObject: DbObject = {
             interview_id: interviewId,
             user_id: userId,
             object_type: reviewDecision.objectType,
             object_uuid: reviewDecision.objectUuid,
-            decision_value: 'approve',
+            decision_value: null,
             comment: null,
             force_approved: true,
             force_approve_comment: optionalStringToDb(reviewDecision.forceApproveComment),
@@ -531,6 +559,6 @@ export default {
     setReviewDecision,
     clearReviewDecision,
     clearForceApprove,
-    setForceApproveWhenConflictExists,
+    setForceApproveWhenApprovalBlocked,
     requestReReviewFromOtherReviewers
 };
