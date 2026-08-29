@@ -70,9 +70,15 @@ export type InterviewReviewStatusFilter = (typeof interviewReviewStatusFilterVal
 
 /**
  * Values offered by the status dropdown of the admin interview list: the review statuses, plus
- * `questionable`, which is a flag of its own column on the interview rather than a review status.
+ * two values that are not statuses. `questionable` is a flag of its own column on the interview,
+ * and `modifiedSinceReview` finds the interviews the participant answered again after they were
+ * reviewed, whose review therefore no longer describes their answers.
  */
-export const interviewListStatusFilterValues = [...interviewReviewStatusFilterValues, 'questionable'] as const;
+export const interviewListStatusFilterValues = [
+    ...interviewReviewStatusFilterValues,
+    'questionable',
+    'modifiedSinceReview'
+] as const;
 
 export type InterviewListStatusFilter = (typeof interviewListStatusFilterValues)[number];
 

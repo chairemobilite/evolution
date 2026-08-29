@@ -26,6 +26,7 @@ import {
 import {
     getInterviewReviewStatusFromRow,
     getInterviewReviewStatusWhereClause,
+    getModifiedSinceReviewWhereClause,
     interviewReviewDecisionCountsQuery
 } from './reviewDecisions.db.queries';
 
@@ -445,6 +446,8 @@ const getRawWhereClause = (
             return [undefined];
         }
         return [getInterviewReviewStatusWhereClause(filter.value as InterviewReviewStatusFilter, tblAlias)];
+    case 'modified_since_review':
+        return [_booleish(filter.value) === true ? getModifiedSinceReviewWhereClause(tblAlias) : undefined];
     case 'is_questionable':
         return getBooleanFilter(`${tblAlias}.is_questionable`, filter);
     case 'uuid':

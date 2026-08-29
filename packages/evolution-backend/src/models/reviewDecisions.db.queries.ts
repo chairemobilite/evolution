@@ -529,6 +529,19 @@ const reviewedInterviewIdsSql = (): string =>
     knex(tableName).select('interview_id').where('object_type', 'interview').toString();
 
 /**
+ * Builds the raw where clause matching the interviews whose participant answered again after
+ * the last review decision, whatever object that decision was about. Their review no longer
+ * describes the current answers, so a reviewer has to look at them again.
+ *
+ * An interview nobody reviewed never matches: the subquery returns no date, and the comparison
+ * with it is then unknown rather than true.
+ * @param tblAlias - Alias of the interviews table in the enclosing query
+ * @returns Raw where clause
+ */
+export const getModifiedSinceReviewWhereClause = (tblAlias: string): string =>
+    `(${tblAlias}.response->>'_updatedAt')::double precision > (select extract(epoch from max(d.updated_at)) from ${tableName} d where d.interview_id = ${tblAlias}.id)`;
+
+/**
  * Builds the raw where clause filtering interviews on their interview-level
  * review status. Returns undefined for `all`, which means no filtering.
  * @param status - Review status filter requested by the admin interview list
