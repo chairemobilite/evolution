@@ -137,3 +137,10 @@ export const twoWheelNumberValidation = createHouseholdAssetCountValidation(
 /** Whether car number fails participant validation rules for the given household size. */
 export const isCarNumberInvalid = (carNumber: number | undefined, householdSize: number | undefined): boolean =>
     isHouseholdAssetCountInvalid(carNumber, householdSize, projectConfig.vehicles.maxCarsPerHouseholdMember);
+
+/** Whether two-wheel number fails participant validation rules for the given household size. */
+export const isTwoWheelNumberInvalid = (
+    twoWheelNumber: number | undefined,
+    householdSize: number | undefined
+): boolean =>
+    isHouseholdAssetCountInvalid(twoWheelNumber, householdSize, projectConfig.vehicles.maxTwoWheelsPerHouseholdMember);

@@ -8,7 +8,10 @@
 import type { AuditForObject } from 'evolution-common/lib/services/audits/types';
 import projectConfig from 'evolution-common/lib/config/project.config';
 import type { HouseholdAuditCheckContext, HouseholdAuditCheckFunction } from '../AuditCheckContexts';
-import { isCarNumberInvalid } from 'evolution-common/lib/services/widgets/validations/householdAssetCountValidation';
+import {
+    isCarNumberInvalid,
+    isTwoWheelNumberInvalid
+} from 'evolution-common/lib/services/widgets/validations/householdAssetCountValidation';
 import {
     hasInvalidOrDuplicateSequences,
     hasSequenceGaps
@@ -166,6 +169,33 @@ export const householdAuditChecks: { [errorCode: string]: HouseholdAuditCheckFun
                 version: 1,
                 level: 'error',
                 message: 'Car number is out of range',
+                ignore: false
+            };
+        }
+
+        return undefined; // No audit needed
+    },
+
+    /**
+     * Check if two-wheel number is invalid.
+     * Validates a non-negative integer up to household.size × maxTwoWheelsPerHouseholdMember.
+     *
+     * @see {@link import('evolution-common/lib/services/widgets/validations/validations').twoWheelNumberValidation}
+     * @param context - HouseholdAuditCheckContext
+     * @returns AuditForObject
+     */
+    HH_I_TwoWheelNumber: (context: HouseholdAuditCheckContext): AuditForObject | undefined => {
+        const { household } = context;
+        const twoWheelNumber = household.twoWheelNumber;
+
+        if (isTwoWheelNumberInvalid(twoWheelNumber, household.size)) {
+            return {
+                objectType: 'household',
+                objectUuid: household._uuid!,
+                errorCode: 'HH_I_TwoWheelNumber',
+                version: 1,
+                level: 'error',
+                message: 'Two-wheel number is out of range',
                 ignore: false
             };
         }
