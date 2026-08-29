@@ -5,7 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import { buildReviewDecisions } from './ReviewDecisionUtils';
-import type { ReviewDecisions, ReviewDecision } from 'evolution-common/lib/services/reviews/types';
+import type { ReviewDecisions, ReviewDecision, ReviewerVote } from 'evolution-common/lib/services/reviews/types';
 import reviewDecisionsDbQueries from '../../models/reviewDecisions.db.queries';
 
 /**
@@ -47,7 +47,7 @@ export class ReviewDecisionService {
     static async setReviewDecision(
         interviewId: number,
         userId: number,
-        reviewDecision: Pick<ReviewDecision, 'objectType' | 'objectUuid' | 'decision' | 'comment'>
+        reviewDecision: ReviewerVote
     ): Promise<ReviewDecisions> {
         return ReviewDecisionService.mutateAndReloadReviewDecisions(interviewId, userId, () =>
             reviewDecisionsDbQueries.setReviewDecision(interviewId, userId, reviewDecision)
@@ -74,9 +74,9 @@ export class ReviewDecisionService {
     }
 
     /**
-     * Admin force-approve when reviewers disagree on an object. Upserts the admin's review row,
-     * preserving an existing approve/reject decision when present, or creating an approve row
-     * when the admin has no prior decision.
+     * Admin force-approve of an object whose approval is blocked, by a rejection or by a
+     * disagreement. Upserts the admin's review row, preserving their approve/reject decision when
+     * they took one, or storing the override alone when they never voted.
      * @param interviewId - Interview database id
      * @param userId - Admin user id
      * @param reviewDecision - Object type, uuid and optional force-approve comment
@@ -88,7 +88,7 @@ export class ReviewDecisionService {
         reviewDecision: Pick<ReviewDecision, 'objectType' | 'objectUuid' | 'forceApproveComment'>
     ): Promise<ReviewDecisions> {
         return ReviewDecisionService.mutateAndReloadReviewDecisions(interviewId, userId, () =>
-            reviewDecisionsDbQueries.setForceApproveWhenConflictExists(interviewId, userId, reviewDecision)
+            reviewDecisionsDbQueries.setForceApproveWhenApprovalBlocked(interviewId, userId, reviewDecision)
         );
     }
 
