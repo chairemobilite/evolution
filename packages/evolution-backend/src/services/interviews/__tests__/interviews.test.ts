@@ -363,7 +363,9 @@ const reviewStatusFilterCases: [InterviewListStatusFilter, { [key: string]: unkn
     ['forceApproved', { review_status: { value: 'forceApproved' } }],
     ['notRejected', { review_status: { value: 'notRejected' } }],
     // `questionable` is a column of its own, not a review status
-    ['questionable', { is_questionable: { value: true, op: 'eq' } }]
+    ['questionable', { is_questionable: { value: true, op: 'eq' } }],
+    // `modifiedSinceReview` compares the answers with the date of the last review decision
+    ['modifiedSinceReview', { modified_since_review: { value: true } }]
 ];
 
 describe('Get all matching', () => {

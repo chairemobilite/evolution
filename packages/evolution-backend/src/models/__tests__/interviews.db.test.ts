@@ -1261,3 +1261,56 @@ describe('stream interviews query', () => {
     });
 
 });
+
+// Last of the file: this describe answers interviews again, which moves their `updated_at` and
+// would throw off the tests above that count the interviews updated since a given time.
+describe('list the interviews answered again after their review', () => {
+
+    beforeAll(async () => {
+        await setInterviewReviewDecision(googleUserInterviewAttributes.uuid, localUserWithPermission.id, 'approve');
+        await setInterviewReviewDecision(localUserInterviewAttributes.uuid, localUserWithPermission.id, 'reject');
+    });
+
+    afterAll(async () => {
+        await truncate(knex, 'sv_review_decisions');
+    });
+
+    const listModifiedSinceReview = async () =>
+        await dbQueries.getList({ filters: { modified_since_review: { value: true } }, pageIndex: 0, pageSize: -1 });
+
+    const answerAgain = async (interviewUuid: string, secondsFromNow: number) => {
+        const interview = await dbQueries.getInterviewByUuid(interviewUuid) as any;
+        await dbQueries.update(interviewUuid, {
+            response: { ...interview.response, _updatedAt: Math.round(Date.now() / 1000) + secondsFromNow }
+        });
+    };
+
+    test('An interview nobody answered again since its review does not match', async () => {
+        const { totalCount } = await listModifiedSinceReview();
+        expect(totalCount).toEqual(0);
+    });
+
+    test('An interview answered before its review does not match', async () => {
+        await answerAgain(googleUserInterviewAttributes.uuid, -3600);
+
+        const { totalCount } = await listModifiedSinceReview();
+        expect(totalCount).toEqual(0);
+    });
+
+    test('An interview answered after its review matches, an unreviewed one never does', async () => {
+        const { interviews: allInterviews } = await dbQueries.getList({ filters: {}, pageIndex: 0, pageSize: -1 });
+        const unreviewed = allInterviews.find(
+            (interview) =>
+                interview.uuid !== googleUserInterviewAttributes.uuid &&
+                interview.uuid !== localUserInterviewAttributes.uuid
+        );
+
+        await answerAgain(googleUserInterviewAttributes.uuid, 60);
+        await answerAgain(unreviewed!.uuid, 60);
+
+        const { interviews, totalCount } = await listModifiedSinceReview();
+        expect(totalCount).toEqual(1);
+        expect(interviews[0].uuid).toEqual(googleUserInterviewAttributes.uuid);
+    });
+
+});

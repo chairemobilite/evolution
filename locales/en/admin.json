@@ -91,7 +91,8 @@
         "conflict": "Show only reviewer disagreements",
         "forceApproved": "Show only force approved",
         "notRejected": "Hide rejected",
-        "questionable": "Show only questionables"
+        "questionable": "Show only questionables",
+        "modifiedSinceReview": "Show only those answered again since their review"
     },
     "interviewCompletedFilter": {
         "title": "Completed?",
@@ -130,9 +131,9 @@
         "rejectObject": "Reject this object",
         "forceApproveObject": "Force approve (override rejections and reviewer disagreements)",
         "reviewConflict": "Reviewers disagree on this object",
-        "withdrawApprove": "Withdraw this approval, contradicted by a rejected or disagreed object",
         "forceApproveNothingToOverride": "Force approve is only available when a rejection or a disagreement must be overridden",
         "approveBlockedByObject": "This interview cannot be approved while one of the objects it contains is rejected or has reviewers disagreeing",
+        "withdrawApprove": "Withdraw this approval, contradicted by a rejected or disagreed object",
         "requestReReview": "Ask the other reviewers to review this object again",
         "reReviewRequested": "You are asked to review this object again"
     },
