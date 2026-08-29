@@ -7,6 +7,8 @@
 import React from 'react';
 import { WithTranslation, withTranslation } from 'react-i18next';
 
+import { getInterviewSearchResultClassName } from '../../../services/admin/reviewDecisionStatusHelper';
+
 interface InterviewProps extends WithTranslation {
     interview: { [key: string]: any };
     key: string;
@@ -18,18 +20,10 @@ const InterviewSearchResult: React.FunctionComponent<InterviewProps> = (props: I
         <li
             title={props.interview.uuid}
             key={props.key}
-            className={`
-                ${props.interview.isValid === true && props.interview.isCompleted === true ? '_dark-green _strong' : ''}
-                ${
-        props.interview.isValidated === true &&
-                    props.interview.isValid === true &&
-                    props.interview.isCompleted === true
-            ? '_green _strong _active-background'
-            : ''
-        }
-                ${props.interview.isValid === true && props.interview.isCompleted === false ? '_orange _strong' : ''}
-                ${props.interview.isValid === false ? '_dark-red _strong' : ''}
-                `}
+            className={getInterviewSearchResultClassName({
+                reviewStatus: props.interview.reviewStatus,
+                isCompleted: props.interview.isCompleted
+            })}
         >
             {props.t('admin:interviewSearch:InterviewUser')}
             {': '}
@@ -46,13 +40,8 @@ const InterviewSearchResult: React.FunctionComponent<InterviewProps> = (props: I
                 : props.interview.isCompleted === false
                     ? props.t('admin:NotCompletedFemSingular')
                     : props.t('admin:UnknownCompletionFemSingular')}{' '}
-            •{' '}
-            {props.interview.isValid === true
-                ? props.t('admin:Valid')
-                : props.interview.isValid === false
-                    ? props.t('admin:Invalid')
-                    : props.t('admin:UnknownValidity')}{' '}
-            • {props.interview.home.address || props.t('admin:interviewSearch:UnknownAddress')},{' '}
+            • {props.t(`admin:reviewStatus:${props.interview.reviewStatus}`)} •{' '}
+            {props.interview.home.address || props.t('admin:interviewSearch:UnknownAddress')},{' '}
             {props.interview.home.city || ''} •{' '}
             <a
                 href={interviewUrl}

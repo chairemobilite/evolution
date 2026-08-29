@@ -23,4 +23,6 @@ export const isReviewableObjectType = actual.isReviewableObjectType;
 export const isReviewStatusRejectedForDisplay = actual.isReviewStatusRejectedForDisplay;
 export const getReviewDecisionStatusBoxClass = actual.getReviewDecisionStatusBoxClass;
 export const buildSurveyObjectBoxClassName = actual.buildSurveyObjectBoxClassName;
+export const getInterviewListRowClassName = actual.getInterviewListRowClassName;
+export const getInterviewSearchResultClassName = actual.getInterviewSearchResultClassName;
 export type { BuildSurveyObjectBoxClassNameOptions } from '../reviewDecisionStatusHelper';

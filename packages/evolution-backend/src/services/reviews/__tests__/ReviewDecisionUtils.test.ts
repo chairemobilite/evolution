@@ -7,7 +7,6 @@
 
 import {
     buildReviewDecisions,
-    getReviewDecisionEffectiveStatus,
     computeReviewDecisionStatusForObject,
     reviewDecisionsArrayToReviewDecisionsByObject
 } from '../ReviewDecisionUtils';
@@ -376,18 +375,5 @@ describe('ReviewDecisionUtils', () => {
             currentUserForceApproved: true,
             effectiveStatus: 'forceApproved'
         });
-    });
-
-    // [title, approvalCount, rejectionCount, isForceApproved, expected]
-    const effectiveStatusCases: [string, number, number, boolean, ReturnType<typeof getReviewDecisionEffectiveStatus>][] = [
-        ['force approve wins over conflict', 1, 1, true, 'forceApproved'],
-        ['conflict when reviewers disagree', 1, 1, false, 'conflict'],
-        ['approved when only approvals', 2, 0, false, 'approved'],
-        ['rejected when only rejections', 0, 2, false, 'rejected'],
-        ['not reviewed when no decisions', 0, 0, false, 'notReviewed']
-    ];
-
-    it.each(effectiveStatusCases)('getReviewDecisionEffectiveStatus: %s', (_title, approvalCount, rejectionCount, isForceApproved, expected) => {
-        expect(getReviewDecisionEffectiveStatus(approvalCount, rejectionCount, isForceApproved)).toBe(expected);
     });
 });

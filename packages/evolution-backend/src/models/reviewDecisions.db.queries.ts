@@ -6,7 +6,12 @@
  */
 import knex from 'chaire-lib-backend/lib/config/shared/db.config';
 import TrError from 'chaire-lib-common/lib/utils/TrError';
-import { ReviewDecision } from 'evolution-common/lib/services/reviews/types';
+import {
+    ReviewDecision,
+    type InterviewReviewStatusFilter,
+    type ReviewDecisionEffectiveStatus
+} from 'evolution-common/lib/services/reviews/types';
+import { getReviewDecisionEffectiveStatus } from 'evolution-common/lib/services/reviews/reviewDecisionStatus';
 import { computeReviewDecisionStatusForObject } from '../services/reviews/ReviewDecisionUtils';
 import { CANNOT_FORCE_APPROVE_WITHOUT_CONFLICT_ERROR_CODE } from '../services/reviews/reviewDecisionErrors';
 import type { SurveyObjectName } from 'evolution-common/lib/services/baseObjects/types';
@@ -383,6 +388,140 @@ const setForceApproveWhenConflictExists = async (
             'DBSVREV0008',
             'CannotSetForceApproveBecauseDatabaseError'
         );
+    }
+};
+
+/**
+ * The queries below aggregate the decisions of many interviews at once, resolving their
+ * interview-level review status. They are composed by the queries of the other tables needing
+ * that status: the admin interview list, the paradata stream and the exports.
+ */
+
+/**
+ * Reviewer vote counts for the interview-level review decisions, as aggregated
+ * by the database. Mirrors the counts that
+ * `computeReviewDecisionStatusForObject` derives in memory for a single object,
+ * so both paths resolve the same effective status.
+ */
+export type InterviewReviewDecisionCounts = {
+    approvalCount: number;
+    rejectionCount: number;
+    isForceApproved: boolean;
+};
+
+/**
+ * Aggregates the interview-level review decisions, one row per reviewed
+ * interview. Force-approve rows are excluded from the vote counts, since a
+ * force approve overrides the reviewers instead of counting as a vote.
+ *
+ * The aggregates stay raw: knex has no builder for the `filter` clause of an aggregate, and
+ * counting with a `case` expression would be raw as well.
+ * @param transaction - Optional knex transaction, to read within the caller's context
+ * @returns Knex query builder selecting `interview_id` and the vote counts
+ */
+export const interviewReviewDecisionCountsQuery = (transaction?: Knex.Transaction) =>
+    (transaction ?? knex)(tableName)
+        .select('interview_id')
+        .select(
+            knex.raw('count(*) filter (where decision_value = \'approve\' and force_approved is false) approval_count'),
+            knex.raw('count(*) filter (where decision_value = \'reject\' and force_approved is false) rejection_count'),
+            knex.raw('bool_or(force_approved) is_force_approved')
+        )
+        .where('object_type', 'interview')
+        .groupBy('interview_id');
+
+// Postgres returns the bigint counts as strings.
+const toCount = (count: unknown): number =>
+    typeof count === 'string' ? parseInt(count) : typeof count === 'number' ? count : 0;
+
+/**
+ * Resolves the interview-level review status from the counts selected with
+ * {@link interviewReviewDecisionCountsQuery}. Interviews nobody reviewed have no
+ * aggregated row at all, so their counts come back absent and resolve to
+ * `notReviewed`.
+ * @param row - Query row joined with the aggregated review decision counts
+ * @returns Effective interview-level review status
+ */
+export const getInterviewReviewStatusFromRow = (row: {
+    approval_count?: unknown;
+    rejection_count?: unknown;
+    is_force_approved?: unknown;
+}): ReviewDecisionEffectiveStatus =>
+    getReviewDecisionEffectiveStatus(
+        toCount(row.approval_count),
+        toCount(row.rejection_count),
+        row.is_force_approved === true
+    );
+
+/**
+ * Predicates on the aggregated vote counts, one per review status. They are the SQL counterpart
+ * of `getReviewDecisionEffectiveStatus` and must be kept equivalent to it: the list filters here
+ * and the status shown for a row come from the two, and they would otherwise disagree. Only the
+ * database tests of `getList` compare them, on the statuses those tests cover.
+ */
+const countsPredicateByStatus = {
+    forceApproved: 'r.is_force_approved is true',
+    approved: 'r.is_force_approved is not true and r.approval_count > 0 and r.rejection_count = 0',
+    rejected: 'r.is_force_approved is not true and r.rejection_count > 0 and r.approval_count = 0',
+    conflict: 'r.is_force_approved is not true and r.approval_count > 0 and r.rejection_count > 0'
+} as const;
+
+/** Statuses that can be matched by a predicate on the aggregated counts. */
+export type MatchableInterviewReviewStatus = keyof typeof countsPredicateByStatus;
+
+/**
+ * Builds the SQL resolving the interview-level review status of each row, for the queries
+ * reading the status instead of filtering on it. The aggregated counts must be joined under
+ * the `r` alias the predicates expect, with a left join: an interview nobody reviewed has no
+ * aggregated row, and its null counts then fall to `notReviewed`.
+ * @returns Raw SQL selecting a `review_status` column
+ */
+export const interviewReviewStatusSelect = () =>
+    knex.raw(
+        `case ${Object.entries(countsPredicateByStatus)
+            .map(([status, predicate]) => `when ${predicate} then '${status}'`)
+            .join(' ')} else 'notReviewed' end as review_status`
+    );
+
+/**
+ * Builds the SQL selecting the ids of the interviews whose interview-level
+ * review status matches the given status.
+ * @param status - Review status to match
+ * @returns SQL string usable as a subquery
+ */
+const interviewIdsWithStatusSql = (status: MatchableInterviewReviewStatus): string =>
+    knex
+        .select('r.interview_id')
+        .from(interviewReviewDecisionCountsQuery().as('r'))
+        .whereRaw(countsPredicateByStatus[status])
+        .toString();
+
+/** SQL selecting the ids of every interview having at least one interview-level review decision. */
+const reviewedInterviewIdsSql = (): string =>
+    knex(tableName).select('interview_id').where('object_type', 'interview').toString();
+
+/**
+ * Builds the raw where clause filtering interviews on their interview-level
+ * review status. Returns undefined for `all`, which means no filtering.
+ * @param status - Review status filter requested by the admin interview list
+ * @param tblAlias - Alias of the interviews table in the enclosing query
+ * @returns Raw where clause, or undefined when no filtering is required
+ */
+export const getInterviewReviewStatusWhereClause = (
+    status: InterviewReviewStatusFilter,
+    tblAlias: string
+): string | undefined => {
+    switch (status) {
+    case 'all':
+        return undefined;
+        // An interview without any interview-level decision has no aggregated
+        // row at all, so it is unreviewed by absence rather than by predicate.
+    case 'notReviewed':
+        return `${tblAlias}.id not in (${reviewedInterviewIdsSql()})`;
+    case 'notRejected':
+        return `${tblAlias}.id not in (${interviewIdsWithStatusSql('rejected')})`;
+    default:
+        return `${tblAlias}.id in (${interviewIdsWithStatusSql(status)})`;
     }
 };
 

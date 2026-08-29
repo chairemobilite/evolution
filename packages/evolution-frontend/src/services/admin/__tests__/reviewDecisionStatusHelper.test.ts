@@ -8,6 +8,8 @@ import projectConfig from 'evolution-common/lib/config/project.config';
 import type { SurveyObjectName } from 'evolution-common/lib/services/baseObjects/types';
 import {
     buildSurveyObjectBoxClassName,
+    getInterviewListRowClassName,
+    getInterviewSearchResultClassName,
     getReviewDecisionStatusBoxClass,
     getReviewDecisionStatusForObject,
     isReviewStatusRejectedForDisplay
@@ -192,4 +194,42 @@ describe('reviewDecisionStatusHelper', () => {
         });
         expect(className).toContain('admin__survey-object-box--rejected');
     });
+    // [reviewStatus, isCompleted, expected class names]
+    const listRowClassNameCases: [ReviewDecisionEffectiveStatus, boolean | undefined, string][] = [
+        ['forceApproved', true, '_green _strong _active-background'],
+        ['approved', true, '_dark-green _strong'],
+        ['approved', false, '_orange _strong'],
+        ['approved', undefined, '_orange _strong'],
+        ['rejected', true, '_dark-red _strong'],
+        ['conflict', true, '_yellow _strong'],
+        ['notReviewed', true, '']
+    ];
+
+    it.each(listRowClassNameCases)(
+        'getInterviewListRowClassName when status=%s and completed=%s',
+        (reviewStatus, isCompleted, expected) => {
+            expect(getInterviewListRowClassName({ reviewStatus, isCompleted })).toBe(expected);
+        }
+    );
+
+    // [reviewStatus, isCompleted, expected class names]
+    const searchResultClassNameCases: [ReviewDecisionEffectiveStatus, boolean | undefined, string][] = [
+        ['approved', true, '_green _strong _active-background'],
+        ['forceApproved', true, '_green _strong _active-background'],
+        ['rejected', true, '_dark-red _strong'],
+        ['conflict', true, ''],
+        ['notReviewed', true, ''],
+        // An incomplete interview shows as incomplete whatever the reviewers decided
+        ['approved', false, '_orange _strong'],
+        ['rejected', false, '_orange _strong'],
+        ['notReviewed', false, '_orange _strong'],
+        ['notReviewed', undefined, '_orange _strong']
+    ];
+
+    it.each(searchResultClassNameCases)(
+        'getInterviewSearchResultClassName when status=%s and completed=%s',
+        (reviewStatus, isCompleted, expected) => {
+            expect(getInterviewSearchResultClassName({ reviewStatus, isCompleted })).toBe(expected);
+        }
+    );
 });

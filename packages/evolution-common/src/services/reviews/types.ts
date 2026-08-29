@@ -34,7 +34,37 @@ export type ReviewDecision = {
     updatedAt?: string;
 };
 
-export type ReviewDecisionEffectiveStatus = 'forceApproved' | 'approved' | 'rejected' | 'conflict' | 'notReviewed';
+/**
+ * Aggregated review statuses an object can resolve to, ordered for display in
+ * the admin interview list dropdown.
+ */
+export const reviewDecisionEffectiveStatuses = [
+    'notReviewed',
+    'approved',
+    'rejected',
+    'conflict',
+    'forceApproved'
+] as const;
+
+export type ReviewDecisionEffectiveStatus = (typeof reviewDecisionEffectiveStatuses)[number];
+
+/**
+ * Review status values the admin interview list can be filtered on. Besides the
+ * effective statuses, it accepts `all` (no filtering) and `notRejected`, which hides the
+ * interviews whose status is `rejected`. An interview a reviewer rejected and another approved
+ * is a `conflict`, not a rejection, and stays in the list: the disagreement is unsettled.
+ */
+export const interviewReviewStatusFilterValues = ['all', ...reviewDecisionEffectiveStatuses, 'notRejected'] as const;
+
+export type InterviewReviewStatusFilter = (typeof interviewReviewStatusFilterValues)[number];
+
+/**
+ * Values offered by the status dropdown of the admin interview list: the review statuses, plus
+ * `questionable`, which is a flag of its own column on the interview rather than a review status.
+ */
+export const interviewListStatusFilterValues = [...interviewReviewStatusFilterValues, 'questionable'] as const;
+
+export type InterviewListStatusFilter = (typeof interviewListStatusFilterValues)[number];
 
 /**
  * Aggregated review state for one object, derived from all reviewer decisions.
