@@ -5,7 +5,11 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import { type ReviewDecisionEffectiveStatus } from './types';
+import type {
+    ReviewDecisionEffectiveStatus,
+    ReviewDecisionStatusByObject,
+    ReviewDecisionStatusForObject
+} from './types';
 
 /**
  * Resolves export-gate status from reviewer counts and optional admin force-approve.
@@ -37,3 +41,36 @@ export const getReviewDecisionEffectiveStatus = (
     }
     return 'notReviewed';
 };
+
+/**
+ * Whether a status stands in the way of approving the object, or the interview containing it.
+ * A rejection and an unsettled disagreement both do; a force approve already settled one.
+ * @param effectiveStatus - Effective review status of the object
+ * @returns True when the status must be settled before an approval makes sense
+ */
+export const blocksApproval = (effectiveStatus: ReviewDecisionEffectiveStatus): boolean =>
+    effectiveStatus === 'rejected' || effectiveStatus === 'conflict';
+
+/**
+ * Whether an object of the interview, the interview itself excepted, blocks its approval.
+ * Approving an interview means accepting everything it contains, so a reviewer may not
+ * approve it while an object below is rejected or disagreed upon; only a force approve can.
+ * Shared by the admin UI, which stops offering to approve, keeping the action only to withdraw
+ * an approval taken before the rejection, and by the server, which refuses a new approval.
+ * @param reviewDecisionStatusByObject - Review status grouped by object type
+ * @returns True when at least one object below the interview blocks its approval
+ */
+export const hasObjectBlockingInterviewApproval = (
+    reviewDecisionStatusByObject: ReviewDecisionStatusByObject | undefined
+): boolean =>
+    Object.entries(reviewDecisionStatusByObject || {}).some(([objectTypeKey, bucket]) => {
+        if (objectTypeKey === 'interview' || !bucket) {
+            return false;
+        }
+        // Singleton object types hold a single status, the other ones a status per uuid.
+        const statuses: ReviewDecisionStatusForObject[] =
+            typeof (bucket as ReviewDecisionStatusForObject).effectiveStatus === 'string'
+                ? [bucket as ReviewDecisionStatusForObject]
+                : Object.values(bucket as { [uuid: string]: ReviewDecisionStatusForObject });
+        return statuses.some((status) => blocksApproval(status.effectiveStatus));
+    });

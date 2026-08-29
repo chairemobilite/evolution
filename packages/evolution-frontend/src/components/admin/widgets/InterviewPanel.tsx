@@ -10,7 +10,8 @@ import { useTranslation } from 'react-i18next';
 import { Interview } from 'evolution-common/lib/services/baseObjects/interview/Interview';
 import { AuditForObject } from 'evolution-common/lib/services/audits/types';
 import AuditDisplay from '../AuditDisplay';
-import { SurveyObjectBox } from './SurveyObjectBox';
+import { getReviewDecisionStatusBoxClass } from '../../../services/admin/reviewDecisionStatusHelper';
+import { useReviewDecisionStatusByObject } from '../../../services/admin/useObjectReview';
 
 export interface InterviewPanelProps {
     interview: Interview;
@@ -23,23 +24,22 @@ export const InterviewPanel = ({ interview, audits, showAuditErrorCode }: Interv
 
     const formattedTripsDate = interview.assignedDate ? moment(interview.assignedDate).format('LL') : '-';
 
+    const reviewStatus = useReviewDecisionStatusByObject('interview', interview.uuid);
+    const statusClassName = getReviewDecisionStatusBoxClass(reviewStatus);
+
     const languages = interview.paradata?.languages || [];
     const formattedLanguages = languages.map((language) => language.language || '?').join('|') || '?';
-    const interviewUuid = interview._uuid || interview.uuid;
 
     return (
         <div className="admin__interview-stats" key="interview">
-            <SurveyObjectBox
-                as="details"
-                defaultOpen
-                objectType="interview"
-                objectUuid={interviewUuid}
-                summary={
-                    <summary>
-                        <h4 style={{ display: 'inline', margin: 0 }}>{t('Interview')}</h4>
-                    </summary>
-                }
-            >
+            {/* Plain disclosure rather than a SurveyObjectBox: the interview is the parent of
+                every other survey object, so framing it adds noise, and its review controls
+                live in the top menu next to the completion buttons. Only the status class is
+                borrowed, which tints the panel the way the boxes below it are tinted. */}
+            <details open className={statusClassName || undefined}>
+                <summary>
+                    <h4 style={{ display: 'inline', margin: 0 }}>{t('Interview')}</h4>
+                </summary>
                 <span className="_widget">
                     {t('interviewStats.labels.uuid')}: <span className="_strong">{interview.uuid}</span>
                 </span>
@@ -57,7 +57,7 @@ export const InterviewPanel = ({ interview, audits, showAuditErrorCode }: Interv
                 {audits && audits.length > 0 && (
                     <AuditDisplay audits={audits} showAuditErrorCode={showAuditErrorCode} />
                 )}
-            </SurveyObjectBox>
+            </details>
         </div>
     );
 };

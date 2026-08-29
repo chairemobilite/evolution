@@ -22,6 +22,7 @@ import { faListCheck } from '@fortawesome/free-solid-svg-icons/faListCheck';
 
 import ConfirmModal from 'chaire-lib-frontend/lib/components/modal/ConfirmModal';
 import { UserRuntimeInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
+import InterviewReviewLinks from './InterviewReviewLinks';
 
 type ValidationLinksProps = {
     handleInterviewSummaryChange: (uuid: string | null) => void;
@@ -163,6 +164,7 @@ const ValidationLinks: React.FunctionComponent<ValidationLinksProps> = ({
                 </React.Fragment>
             }{' '}
             &nbsp;&nbsp;
+            <InterviewReviewLinks interviewUuid={interviewUuid} /> &nbsp;&nbsp;
             <a href="#" onClick={handleEditClick} title={t('admin:editValidationInterview')}>
                 <FontAwesomeIcon icon={faPencilAlt} />
             </a>{' '}

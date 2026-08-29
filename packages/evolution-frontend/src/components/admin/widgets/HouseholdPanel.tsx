@@ -12,21 +12,17 @@ import { Household } from 'evolution-common/lib/services/baseObjects/Household';
 import { AuditForObject } from 'evolution-common/lib/services/audits/types';
 import AuditDisplay from '../AuditDisplay';
 import { SurveyObjectBox } from './SurveyObjectBox';
+import type { InheritedReviewDisplayStatus } from '../../../services/admin/reviewDecisionStatusHelper';
 
 export interface HouseholdPanelProps {
     household?: Household;
     audits?: AuditForObject[];
     showAuditErrorCode?: boolean;
-    /** Rejected styling inherited from a rejected interview ancestor (display only). */
-    inheritedRejected?: boolean;
+    /** Review decision inherited from the interview ancestor (display only). */
+    inheritedStatus?: InheritedReviewDisplayStatus;
 }
 
-export const HouseholdPanel = ({
-    household,
-    audits,
-    showAuditErrorCode,
-    inheritedRejected = false
-}: HouseholdPanelProps) => {
+export const HouseholdPanel = ({ household, audits, showAuditErrorCode, inheritedStatus }: HouseholdPanelProps) => {
     const { t } = useTranslation(['admin']);
 
     if (!household) {
@@ -49,7 +45,7 @@ export const HouseholdPanel = ({
                 defaultOpen
                 objectType="household"
                 objectUuid={household._uuid}
-                inheritedRejected={inheritedRejected}
+                inheritedStatus={inheritedStatus}
                 summary={
                     <summary>
                         <h4 style={{ display: 'inline', margin: 0 }}>{t('Household')}</h4>
