@@ -15,6 +15,7 @@
     "HH_M_CarNumber": "Car number is missing",
     "HH_I_CarNumber": "Car number is out of range (should be an integer between 0 and 13)",
     "HH_W_CarNumberPerPotentialDrivingLicenseTooHigh": "Car number per potential driving license holder > 3",
+    "HH_I_TwoWheelNumber": "The number of two-wheel vehicles is out of range (should be an integer)",
     "HH_L_SizeMembersCountMismatch": "Size and members count mismatch",
     "HH_L_InvalidPersonSequences": "At least one person sequence is invalid or duplicated",
     "HH_W_PersonSequenceGaps": "Person sequences are not contiguous",

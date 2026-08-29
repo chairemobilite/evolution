@@ -15,6 +15,7 @@
     "HH_M_CarNumber": "Le nombre de véhicules automobiles est manquant",
     "HH_I_CarNumber": "Le nombre de véhicules automobiles est en dehors de la plage autorisée (devrait être un entier entre 0 et 13)",
     "HH_W_CarNumberPerPotentialDrivingLicenseTooHigh": "Le nombre de véhicules automobiles par titulaire potentiel d'un permis de conduire > 3",
+    "HH_I_TwoWheelNumber": "Le nombre de véhicules à deux roues est en dehors de la plage autorisée (devrait être un entier)",
     "HH_L_SizeMembersCountMismatch": "La taille du ménage et le nombre de personnes ne correspondent pas",
     "HH_L_InvalidPersonSequences": "Le numéro de séquence d'au moins une personne est invalide ou en double",
     "HH_W_PersonSequenceGaps": "Les numéros de séquence des personnes ne sont pas consécutifs",
