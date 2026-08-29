@@ -197,8 +197,8 @@ export const updateInterview = async (
         (databaseUpdateJson as any)[field] = interview[field];
     });
 
-    // Freeze the interviews when they are marked validated or completed (the participant won't be able to change the answers anymore)
-    if (!_isBlank(databaseUpdateJson.is_valid) || !_isBlank(databaseUpdateJson.is_completed)) {
+    // Freeze the interviews when they are marked completed (the participant won't be able to change the answers anymore)
+    if (!_isBlank(databaseUpdateJson.is_completed)) {
         databaseUpdateJson.is_frozen = true;
     }
     const retInterview = await interviewsDbQueries.update(interview.uuid, databaseUpdateJson);

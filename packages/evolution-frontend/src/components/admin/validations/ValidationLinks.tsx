@@ -9,7 +9,6 @@ import { useTranslation } from 'react-i18next';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faWindowClose } from '@fortawesome/free-solid-svg-icons/faWindowClose';
 import { faCheck } from '@fortawesome/free-solid-svg-icons/faCheck';
-import { faCheckDouble } from '@fortawesome/free-solid-svg-icons/faCheckDouble';
 import { faPencilAlt } from '@fortawesome/free-solid-svg-icons/faPencilAlt';
 import { faUndoAlt } from '@fortawesome/free-solid-svg-icons/faUndoAlt';
 import { faBan } from '@fortawesome/free-solid-svg-icons/faBan';
@@ -22,45 +21,36 @@ import { faBolt } from '@fortawesome/free-solid-svg-icons/faBolt';
 import { faListCheck } from '@fortawesome/free-solid-svg-icons/faListCheck';
 
 import ConfirmModal from 'chaire-lib-frontend/lib/components/modal/ConfirmModal';
-import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { UserRuntimeInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 
 type ValidationLinksProps = {
     handleInterviewSummaryChange: (uuid: string | null) => void;
     updateValuesByPath: (values: any) => void;
-    interviewIsValid: boolean;
     interviewIsQuestionable: boolean;
     interviewUuid: string;
-    user: CliUser;
     nextInterviewUuid?: string;
     prevInterviewUuid?: string;
     refreshInterview: () => void;
     refreshInterviewWithExtended: () => void;
     resetInterview: () => void;
     interviewIsComplete: boolean;
-    interviewIsValidated: boolean;
     interview: UserRuntimeInterviewAttributes;
 };
 
 const ValidationLinks: React.FunctionComponent<ValidationLinksProps> = ({
     handleInterviewSummaryChange,
     updateValuesByPath,
-    interviewIsValid,
     interviewIsQuestionable,
     interviewUuid,
-    user,
     nextInterviewUuid,
     prevInterviewUuid,
     refreshInterview,
     refreshInterviewWithExtended,
     resetInterview,
     interviewIsComplete,
-    interviewIsValidated,
     interview
 }: ValidationLinksProps) => {
     const { t } = useTranslation('admin');
-    const canConfirm = user.isAuthorized({ Interviews: ['confirm'] });
-    const isInterviewValidated = interviewIsValidated === true;
 
     // State for confirmation modals
     const [showResetConfirmation, setShowResetConfirmation] = useState(false);
@@ -130,42 +120,6 @@ const ValidationLinks: React.FunctionComponent<ValidationLinksProps> = ({
                     &nbsp;&nbsp;
                     <a
                         href="#"
-                        className={`_red${interviewIsValid === false ? ' _active-background' : ''}`}
-                        title={interviewIsValid === false ? t('admin:ClearValidityStatus') : t('admin:SetInvalid')}
-                        onClick={(e) => {
-                            e.preventDefault();
-                            // Second click on the same choice clears validity (null in DB).
-                            updateValuesByPath({ is_valid: interviewIsValid === false ? null : false });
-                        }}
-                    >
-                        <FontAwesomeIcon icon={faBan} />
-                    </a>
-                </React.Fragment>
-            }
-            {
-                <React.Fragment>
-                    {' '}
-                    &nbsp;&nbsp;
-                    <a
-                        href="#"
-                        className={`_green${interviewIsValid === true ? ' _active-background' : ''}`}
-                        title={interviewIsValid === true ? t('admin:ClearValidityStatus') : t('admin:SetValid')}
-                        onClick={(e) => {
-                            e.preventDefault();
-                            // Second click on the same choice clears validity (null in DB).
-                            updateValuesByPath({ is_valid: interviewIsValid === true ? null : true });
-                        }}
-                    >
-                        <FontAwesomeIcon icon={faCheck} />
-                    </a>
-                </React.Fragment>
-            }
-            {
-                <React.Fragment>
-                    {' '}
-                    &nbsp;&nbsp;
-                    <a
-                        href="#"
                         className={`_together _red${interviewIsComplete === false ? ' _active-background' : ''}`}
                         title={
                             interviewIsComplete === false ? t('admin:ClearCompletionStatus') : t('admin:SetIncomplete')
@@ -207,25 +161,7 @@ const ValidationLinks: React.FunctionComponent<ValidationLinksProps> = ({
                         <FontAwesomeIcon icon={faClipboardList} />
                     </a>
                 </React.Fragment>
-            }
-            {canConfirm && (
-                <React.Fragment>
-                    {' '}
-                    &nbsp;&nbsp;
-                    <a
-                        href="#"
-                        className={`_green${isInterviewValidated ? ' _active-background' : ''}`}
-                        title={isInterviewValidated ? t('admin:SetIsValidatedEmpty') : t('admin:SetIsValidated')}
-                        onClick={(e) => {
-                            e.preventDefault();
-                            // Same control as "set validated": second click clears (null in DB).
-                            updateValuesByPath({ is_validated: isInterviewValidated ? null : true });
-                        }}
-                    >
-                        <FontAwesomeIcon icon={faCheckDouble} />
-                    </a>
-                </React.Fragment>
-            )}{' '}
+            }{' '}
             &nbsp;&nbsp;
             <a href="#" onClick={handleEditClick} title={t('admin:editValidationInterview')}>
                 <FontAwesomeIcon icon={faPencilAlt} />

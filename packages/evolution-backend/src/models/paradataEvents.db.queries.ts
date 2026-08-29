@@ -7,6 +7,7 @@
 import knex from 'chaire-lib-backend/lib/config/shared/db.config';
 import { Knex } from 'knex';
 import TrError from 'chaire-lib-common/lib/utils/TrError';
+import { interviewReviewDecisionCountsQuery, interviewReviewStatusSelect } from './reviewDecisions.db.queries';
 
 const tableName = 'paradata_events';
 const interviewsTable = 'sv_interviews';
@@ -64,8 +65,8 @@ const log = async ({
  * entries for corrected interviews. If false, only get paradata entries for
  * participant responses. If undefined, get all paradata entries.
  * @returns An interview logs stream. Returned fields are the interview 'id',
- * 'uuid', 'updated_at', 'is_valid', 'is_completed', 'is_validated',
- * 'is_questionable', as well as for each event the timestamp, as date
+ * 'uuid', 'updated_at', 'is_completed', 'is_questionable', 'review_status', as
+ * well as for each event the timestamp, as date
  * ('event_date') and unix timestamp ('timestampSec'), the ID of the user who
  * did the update ('user_id', null for participant) and the 'values_by_path',
  * 'unset_paths' and 'user_action' data
@@ -81,13 +82,12 @@ const getParadataStream = function ({
             'id',
             'uuid',
             'updated_at',
-            'is_valid',
             'is_completed',
-            'is_validated',
             'is_questionable',
             'user_id',
             'event_type',
             'for_correction',
+            interviewReviewStatusSelect(),
             knex.raw('response->>\'_isCompleted\' as interview_is_completed'),
             knex.raw('to_char(timestamp AT TIME ZONE \'UTC\', \'YYYY-MM-DD"T"HH24:MI:SS.MS"Z"\') as event_date'),
             knex.raw('extract(epoch from timestamp) as timestamp_sec'),
@@ -96,7 +96,8 @@ const getParadataStream = function ({
             knex.raw('event_data->\'userAction\' as user_action')
         ])
         .from(tableName)
-        .innerJoin(interviewsTable, 'id', `${tableName}.interview_id`);
+        .innerJoin(interviewsTable, 'id', `${tableName}.interview_id`)
+        .leftJoin(interviewReviewDecisionCountsQuery().as('r'), 'r.interview_id', `${tableName}.interview_id`);
     if (interviewId) {
         interviewParadataQuery.andWhere('id', interviewId);
     }
@@ -105,7 +106,8 @@ const getParadataStream = function ({
             this.where('for_correction', forCorrection).orWhereNull('for_correction');
         });
     }
-    return interviewParadataQuery.orderBy(['interview_id', 'timestamp']).stream();
+    // The interview id is qualified, as the joined review decision counts also carry one
+    return interviewParadataQuery.orderBy([`${tableName}.interview_id`, 'timestamp']).stream();
 };
 
 /**

@@ -18,6 +18,16 @@ import {
     InterviewListAttributes,
     UserInterviewAttributes
 } from 'evolution-common/lib/services/questionnaire/types';
+import {
+    interviewReviewStatusFilterValues,
+    type InterviewReviewStatusFilter,
+    type ReviewDecisionEffectiveStatus
+} from 'evolution-common/lib/services/reviews/types';
+import {
+    getInterviewReviewStatusFromRow,
+    getInterviewReviewStatusWhereClause,
+    interviewReviewDecisionCountsQuery
+} from './reviewDecisions.db.queries';
 
 const st = knexPostgis(knex);
 
@@ -33,7 +43,8 @@ export interface InterviewSearchAttributes {
     uuid: string;
     home: { [key: string]: any };
     isCompleted?: boolean;
-    isValid?: boolean;
+    /** Interview-level review status, aggregated from the reviewers' decisions. */
+    reviewStatus: ReviewDecisionEffectiveStatus;
     email?: string | undefined;
     username?: string | undefined;
     facebook: boolean;
@@ -93,15 +104,18 @@ const findByResponse = async (searchObject: { [key: string]: any }): Promise<Int
                 knex.raw('response->\'home\' as home'),
                 'i.is_completed',
                 'i.is_questionable',
-                'i.is_valid',
                 'i.survey_id',
+                'review.approval_count',
+                'review.rejection_count',
+                'review.is_force_approved',
                 'participant.email',
                 'participant.username',
                 knex.raw('case when participant.facebook_id is null then false else true end facebook'),
                 knex.raw('case when participant.google_id is null then false else true end google')
             )
             .from(`${tableName} as i`)
-            .join(`${participantTable} as participant`, 'i.participant_id', 'participant.id');
+            .join(`${participantTable} as participant`, 'i.participant_id', 'participant.id')
+            .leftJoin(interviewReviewDecisionCountsQuery().as('review'), 'i.id', 'review.interview_id');
         // Create the where query
         const whereRawString: string[] = [`survey_id = ${surveyId}`];
         const bindings: string[] = [];
@@ -127,7 +141,7 @@ const findByResponse = async (searchObject: { [key: string]: any }): Promise<Int
             home: interview.home === null ? {} : interview.home,
             isCompleted: interview.is_completed === null ? undefined : interview.is_completed,
             isQuestionable: interview.is_questionable,
-            isValid: interview.is_valid === null ? undefined : interview.is_valid,
+            reviewStatus: getInterviewReviewStatusFromRow(interview),
             email: interview.email === null ? undefined : interview.email,
             username: interview.username === null ? undefined : interview.username,
             facebook: interview.facebook,
@@ -187,7 +201,6 @@ const getUserInterview = async (participantId: number): Promise<UserInterviewAtt
                 'validations',
                 'participant_id',
                 'is_frozen',
-                'is_valid',
                 'is_completed',
                 'is_questionable',
                 'sv_interviews.survey_id'
@@ -434,8 +447,19 @@ const getRawWhereClause = (
                 }) `
             ];
         }
-    case 'is_valid':
-        return getBooleanFilter(`${tblAlias}.is_valid`, filter);
+        // A filter on the deprecated `is_valid`/`is_validated` columns falls to the default
+        // branch below and is dropped, like any unknown field: those columns no longer decide
+        // anything, `review_status` replaces them.
+    case 'review_status':
+        // An unknown status is dropped rather than refused, like the other filters here: the
+        // dropdown only sends known ones, and a stale one must not empty the list.
+        if (
+            typeof filter.value !== 'string' ||
+                !interviewReviewStatusFilterValues.includes(filter.value as InterviewReviewStatusFilter)
+        ) {
+            return [undefined];
+        }
+        return [getInterviewReviewStatusWhereClause(filter.value as InterviewReviewStatusFilter, tblAlias)];
     case 'is_questionable':
         return getBooleanFilter(`${tblAlias}.is_questionable`, filter);
     case 'uuid':
@@ -610,6 +634,7 @@ const getList = async (params: {
             .select('interview_id', knex.raw('json_agg(json_build_object(error_code, count)) as audits'))
             .groupBy('interview_id')
             .as('audits');
+        const reviewDecisionCountsQuery = interviewReviewDecisionCountsQuery().as('review');
         const interviewsQuery = knex
             .select(
                 'i.id',
@@ -619,11 +644,12 @@ const getList = async (params: {
                 'i.response',
                 'i.corrected_response',
                 'audits.audits',
-                'i.is_valid',
                 'i.is_completed',
-                'i.is_validated',
                 'i.is_questionable',
                 'i.survey_id',
+                'review.approval_count',
+                'review.rejection_count',
+                'review.is_force_approved',
                 'participant.username',
                 knex.raw('case when participant.facebook_id is null then false else true end facebook'),
                 knex.raw('case when participant.google_id is null then false else true end google')
@@ -631,6 +657,7 @@ const getList = async (params: {
             .from(`${tableName} as i`)
             .leftJoin(`${participantTable} as participant`, 'i.participant_id', 'participant.id')
             .leftJoin(auditsQuery, 'i.id', 'audits.interview_id')
+            .leftJoin(reviewDecisionCountsQuery, 'i.id', 'review.interview_id')
             .whereRaw(rawFilter, bindings);
         // Add sort fields
         sortFields.forEach((field) => {
@@ -648,7 +675,7 @@ const getList = async (params: {
         const interviews = await interviewsQuery;
 
         // TODO For backward compatibility, the type of the audits is an object with key => count. When we only use the new audits, this can be udpated
-        const auditsToObject = ({ audits, ...rest }) => {
+        const rowToInterview = ({ audits, approval_count, rejection_count, is_force_approved, ...rest }) => {
             const newAudits =
                 audits === undefined
                     ? undefined
@@ -658,10 +685,11 @@ const getList = async (params: {
                     );
             return {
                 ...rest,
-                audits: newAudits
+                audits: newAudits,
+                review_status: getInterviewReviewStatusFromRow({ approval_count, rejection_count, is_force_approved })
             } as InterviewListAttributes;
         };
-        return { interviews: interviews.map((interview) => auditsToObject(_removeBlankFields(interview))), totalCount };
+        return { interviews: interviews.map((interview) => rowToInterview(_removeBlankFields(interview))), totalCount };
     } catch (error) {
         throw new TrError(
             `Cannot get interview list in table ${tableName} database (knex error: ${error})`,
@@ -772,11 +800,12 @@ const getInterviewsStream = function (params: {
         'i.id',
         'i.uuid',
         'i.updated_at',
-        'i.is_valid',
         'i.is_completed',
-        'i.is_validated',
         'i.is_questionable',
         'i.survey_id',
+        'review.approval_count',
+        'review.rejection_count',
+        'review.is_force_approved',
         knex.raw('case when corrected_response is null then false else true end as corrected_response_available')
     ];
     if (selectFields.includeAudits || selectFields.includeAudits === undefined) {
@@ -819,7 +848,8 @@ const getInterviewsStream = function (params: {
     const interviewsQuery = knex
         .select(...select)
         .from(`${tableName} as i`)
-        .leftJoin(`${participantTable} as participant`, 'i.participant_id', 'participant.id');
+        .leftJoin(`${participantTable} as participant`, 'i.participant_id', 'participant.id')
+        .leftJoin(interviewReviewDecisionCountsQuery().as('review'), 'i.id', 'review.interview_id');
     if (accessJoinTbl !== undefined) {
         interviewsQuery.leftJoin(accessJoinTbl as any, 'i.id', 'accesses.interview_id');
     }

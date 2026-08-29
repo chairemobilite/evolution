@@ -5,13 +5,16 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import { v4 as uuidV4 } from 'uuid';
+import { ObjectReadableMock } from 'stream-mock';
 
 import Interviews from '../interviews';
 import { InterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
+import { type InterviewListStatusFilter } from 'evolution-common/lib/services/reviews/types';
 import projectConfig from 'evolution-common/lib/config/project.config';
 import { RandomOrderQuestions } from 'evolution-common/lib/services/questionnaire/randomOrderQuestions';
 import interviewsQueries from '../../../models/interviews.db.queries';
 import interviewsAccessesQueries from '../../../models/interviewsAccesses.db.queries';
+import reviewDecisionsQueries from '../../../models/reviewDecisions.db.queries';
 import { registerAccessCodeValidationFunction } from '../../accessCode';
 import { updateInterview } from '../interview';
 import moment from 'moment';
@@ -23,11 +26,16 @@ jest.mock('../../../models/interviews.db.queries', () => ({
     create: jest.fn(),
     getUserInterview: jest.fn(),
     getList: jest.fn(),
-    getValidationAuditStats: jest.fn()
+    getValidationAuditStats: jest.fn(),
+    getInterviewsStream: jest.fn()
 }));
 
 jest.mock('../../../models/interviewsAccesses.db.queries', () => ({
     statEditingUsers: jest.fn()
+}));
+
+jest.mock('../../../models/reviewDecisions.db.queries', () => ({
+    deleteReviewDecisionsForInterview: jest.fn().mockResolvedValue(true)
 }));
 const mockDbCreate = interviewsQueries.create as jest.MockedFunction<typeof interviewsQueries.create>;
 const mockDbGetByUuid = interviewsQueries.getInterviewByUuid as jest.MockedFunction<typeof interviewsQueries.getInterviewByUuid>;
@@ -345,6 +353,19 @@ describe('Create interviews', () => {
 
 });
 
+// [reviewStatus filter requested, filters expected in the db query]
+const reviewStatusFilterCases: [InterviewListStatusFilter, { [key: string]: unknown }][] = [
+    ['all', {}],
+    ['notReviewed', { review_status: { value: 'notReviewed' } }],
+    ['approved', { review_status: { value: 'approved' } }],
+    ['rejected', { review_status: { value: 'rejected' } }],
+    ['conflict', { review_status: { value: 'conflict' } }],
+    ['forceApproved', { review_status: { value: 'forceApproved' } }],
+    ['notRejected', { review_status: { value: 'notRejected' } }],
+    // `questionable` is a column of its own, not a review status
+    ['questionable', { is_questionable: { value: true, op: 'eq' } }]
+];
+
 describe('Get all matching', () => {
 
     beforeEach(() => {
@@ -400,66 +421,15 @@ describe('Get all matching', () => {
         });
     });
 
-    test('Various isValid filter values', async() => {
+    test.each(reviewStatusFilterCases)('Review status filter value: %s', async(reviewStatus, expectedFilters) => {
         const pageIndex = 3;
         const pageSize = 10;
-        // isValid: valid
-        await Interviews.getAllMatching({
-            pageIndex,
-            pageSize,
-            filter: { is_valid: 'valid' }
-        });
+        await Interviews.getAllMatching({ pageIndex, pageSize, filter: { review_status: reviewStatus } });
         expect(interviewsQueries.getList).toHaveBeenCalledTimes(1);
         expect(interviewsQueries.getList).toHaveBeenCalledWith({
-            filters: { is_valid: { value: true, op: 'eq' } },
+            filters: expectedFilters,
             pageIndex,
             pageSize
-        });
-
-        // isValid: all
-        await Interviews.getAllMatching({
-            pageIndex,
-            pageSize,
-            filter: { is_valid: 'all' }
-        });
-        expect(interviewsQueries.getList).toHaveBeenCalledTimes(2);
-        expect(interviewsQueries.getList).toHaveBeenLastCalledWith({
-            filters: { },
-            pageIndex,
-            pageSize
-        });
-
-        // isValid: invalid
-        await Interviews.getAllMatching({
-            filter: { is_valid: 'invalid' }
-        });
-        expect(interviewsQueries.getList).toHaveBeenCalledTimes(3);
-        expect(interviewsQueries.getList).toHaveBeenLastCalledWith({
-            filters: { is_valid: { value: false, op: 'eq' } },
-            pageIndex: 0,
-            pageSize: -1
-        });
-
-        // isValid: notValidated
-        await Interviews.getAllMatching({
-            filter: { is_valid: 'notValidated' }
-        });
-        expect(interviewsQueries.getList).toHaveBeenCalledTimes(4);
-        expect(interviewsQueries.getList).toHaveBeenLastCalledWith({
-            filters: { is_valid: { value: null, op: 'eq' } },
-            pageIndex: 0,
-            pageSize: -1
-        });
-
-        // isValid: notInvalid
-        await Interviews.getAllMatching({
-            filter: { is_valid: 'notInvalid' }
-        });
-        expect(interviewsQueries.getList).toHaveBeenCalledTimes(5);
-        expect(interviewsQueries.getList).toHaveBeenLastCalledWith({
-            filters: { is_valid: { value: false, op: 'not' } },
-            pageIndex: 0,
-            pageSize: -1
         });
     });
 
@@ -559,25 +529,14 @@ describe('Get Validation errors', () => {
         });
     });
 
-    test('Various isValid filter values', async() => {
-        // isValid: valid
-        await Interviews.getValidationAuditStats({
-            filter: { is_valid: 'valid' }
-        });
-        expect(interviewsQueries.getValidationAuditStats).toHaveBeenCalledTimes(1);
-        expect(interviewsQueries.getValidationAuditStats).toHaveBeenCalledWith({
-            filters: { is_valid: { value: true, op: 'eq' } }
-        });
-
-        // isValid: all
-        await Interviews.getValidationAuditStats({
-            filter: { is_valid: 'all' }
-        });
-        expect(interviewsQueries.getValidationAuditStats).toHaveBeenCalledTimes(2);
-        expect(interviewsQueries.getValidationAuditStats).toHaveBeenLastCalledWith({
-            filters: { }
-        });
-    });
+    test.each(reviewStatusFilterCases)(
+        'Review status filter value: %s',
+        async(reviewStatus, expectedFilters) => {
+            await Interviews.getValidationAuditStats({ filter: { review_status: reviewStatus } });
+            expect(interviewsQueries.getValidationAuditStats).toHaveBeenCalledTimes(1);
+            expect(interviewsQueries.getValidationAuditStats).toHaveBeenCalledWith({ filters: expectedFilters });
+        }
+    );
 
     test('Filters: various filters', async() => {
         await Interviews.getValidationAuditStats({
@@ -601,6 +560,9 @@ describe('Get Validation errors', () => {
 
 describe('Reset interview', () => {
 
+    const mockDeleteReviewDecisions = reviewDecisionsQueries.deleteReviewDecisionsForInterview as jest.MockedFunction<typeof reviewDecisionsQueries.deleteReviewDecisionsForInterview>;
+    const mockGetInterviewsStream = interviewsQueries.getInterviewsStream as jest.MockedFunction<typeof interviewsQueries.getInterviewsStream>;
+
     test('Test with bad confirmation parameter', async () => {
         let exception: unknown = undefined;
         try {
@@ -609,6 +571,26 @@ describe('Reset interview', () => {
             exception = error;
         }
         expect(exception).toBeDefined();
+    });
+
+    test('Should delete the review decisions along with the legacy validation fields', async () => {
+        const interview = { id: 3, uuid: uuidV4(), response: { accessCode: '1111-2222' } };
+        mockInterviewUpdate.mockResolvedValue({} as any);
+        mockGetInterviewsStream.mockReturnValue(new ObjectReadableMock([interview]) as any);
+
+        await Interviews.resetInterviews('I WANT TO DELETE ALL VALIDATION WORK');
+
+        expect(mockDeleteReviewDecisions).toHaveBeenCalledTimes(1);
+        expect(mockDeleteReviewDecisions).toHaveBeenCalledWith(interview.id);
+        expect(mockInterviewUpdate).toHaveBeenCalledWith(interview, {
+            fieldsToUpdate: ['corrected_response', 'is_completed', 'is_validated', 'is_valid'],
+            valuesByPath: {
+                corrected_response: interview.response,
+                is_completed: null,
+                is_validated: null,
+                is_valid: null
+            }
+        });
     });
 
 });

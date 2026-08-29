@@ -16,6 +16,7 @@ import interviewsDbQueries, {
     ValueFilterType
 } from '../../models/interviews.db.queries';
 import interviewsAccessesDbQueries from '../../models/interviewsAccesses.db.queries';
+import reviewDecisionsDbQueries from '../../models/reviewDecisions.db.queries';
 import { UserInterviewAccesses } from '../logging/loggingTypes';
 import { SurveyObjectsAndAuditsFactory } from '../audits/SurveyObjectsAndAuditsFactory';
 import { AuditLog } from '../audits/auditLog';
@@ -27,44 +28,31 @@ import {
 } from 'evolution-common/lib/services/questionnaire/types';
 import { getParadataLoggingFunction } from '../logging/paradataLogging';
 import projectConfig from 'evolution-common/lib/config/project.config';
+import { type InterviewListStatusFilter } from 'evolution-common/lib/services/reviews/types';
 import { randomOrderQuestionsResponsePath } from 'evolution-common/lib/services/questionnaire/randomOrderQuestions';
 import { generateRandomOrderQuestions } from './generateRandomOrderQuestions';
 
 export type FilterType = string | string[] | ValueFilterType;
 
 const getFiltersForDb = (
-    filter: { is_valid?: 'valid' | 'invalid' | 'notInvalid' | 'notValidated' | 'questionable' | 'all' } & {
+    filter: { review_status?: InterviewListStatusFilter } & {
         [key: string]: FilterType;
     }
 ): {
     [key: string]: ValueFilterType;
 } => {
-    const { is_valid, ...filters } = filter;
+    const { review_status, ...filters } = filter;
 
     const actualFilters: {
         [key: string]: ValueFilterType;
     } = {};
 
-    // Add the desired validity query
-    switch (is_valid) {
-    case 'valid':
-        actualFilters.is_valid = { value: true, op: 'eq' };
-        break;
-    case 'invalid':
-        actualFilters.is_valid = { value: false, op: 'eq' };
-        break;
-    case 'notInvalid':
-        actualFilters.is_valid = { value: false, op: 'not' };
-        break;
-    case 'notValidated':
-        actualFilters.is_valid = { value: null, op: 'eq' };
-        break;
-    case 'questionable':
+    // `questionable` is offered by the same dropdown as the review statuses, but it is a
+    // column of the interview rather than something the reviewers decided.
+    if (review_status === 'questionable') {
         actualFilters.is_questionable = { value: true, op: 'eq' };
-        break;
-    default:
-        // No filter required
-        break;
+    } else if (review_status !== undefined && review_status !== 'all') {
+        actualFilters.review_status = { value: review_status };
     }
 
     Object.keys(filters).forEach((key) => {
@@ -153,7 +141,7 @@ export default class Interviews {
     // TODO Add filters fields as required
     static getAllMatching = async (
         params: {
-            filter?: { is_valid?: 'valid' | 'invalid' | 'notInvalid' | 'notValidated' | 'all' } & {
+            filter?: { review_status?: InterviewListStatusFilter } & {
                 [key: string]: FilterType;
             };
             pageIndex?: number;
@@ -180,7 +168,7 @@ export default class Interviews {
 
     static getValidationAuditStats = async (
         params: {
-            filter?: { is_valid?: 'valid' | 'invalid' | 'notInvalid' | 'notValidated' | 'all' } & {
+            filter?: { review_status?: InterviewListStatusFilter } & {
                 [key: string]:
                     | string
                     | string[]
@@ -284,6 +272,12 @@ export default class Interviews {
                     queryStream.pause();
                     // Pausing the connnection is useful if your processing involves I/O
                     const interview = row;
+                    // The review decisions hold the validation work, so they are deleted along
+                    // with the deprecated is_valid/is_validated flags. Both writes destroy what
+                    // they touch, and no transaction spans them, as `updateInterview` takes
+                    // none: a failure in between leaves an interview with its flags reset and
+                    // its decisions still there. Running the task again completes it, both
+                    // writes being idempotent.
                     updateInterview(interview, {
                         fieldsToUpdate: ['corrected_response', 'is_completed', 'is_validated', 'is_valid'],
                         valuesByPath: {
@@ -293,6 +287,7 @@ export default class Interviews {
                             is_valid: null
                         }
                     })
+                        .then(() => reviewDecisionsDbQueries.deleteReviewDecisionsForInterview(interview.id))
                         .then(() => {
                             queryStream.resume();
                         })

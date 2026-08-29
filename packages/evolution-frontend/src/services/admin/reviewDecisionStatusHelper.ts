@@ -7,6 +7,7 @@
 import projectConfig from 'evolution-common/lib/config/project.config';
 import type { SurveyObjectName } from 'evolution-common/lib/services/baseObjects/types';
 import type {
+    ReviewDecisionEffectiveStatus,
     ReviewDecisionStatusByObject,
     ReviewDecisionStatusForObject
 } from 'evolution-common/lib/services/reviews/types';
@@ -126,6 +127,53 @@ export const getReviewDecisionStatusBoxClass = (status: ReviewDecisionStatusForO
     default:
         return '';
     }
+};
+
+/**
+ * Colour classes of an interview row in the admin lists, by interview-level
+ * review status. `approved` is resolved separately, since an approved interview
+ * the participant never completed still needs the reviewer's attention.
+ */
+const listRowClassNameByReviewStatus: Record<Exclude<ReviewDecisionEffectiveStatus, 'approved'>, string> = {
+    forceApproved: '_green _strong _active-background',
+    conflict: '_yellow _strong',
+    rejected: '_dark-red _strong',
+    notReviewed: ''
+};
+
+/**
+ * Colour classes of one interview row of the admin interview lists.
+ * @param interview - Review status and completion of the interview on the row
+ * @returns Space-separated CSS class names, empty when the row needs no colour
+ */
+export const getInterviewListRowClassName = (interview: {
+    reviewStatus: ReviewDecisionEffectiveStatus;
+    isCompleted?: boolean;
+}): string => {
+    if (interview.reviewStatus === 'approved') {
+        return interview.isCompleted ? '_dark-green _strong' : '_orange _strong';
+    }
+    return listRowClassNameByReviewStatus[interview.reviewStatus] ?? '';
+};
+
+/**
+ * Colour classes of one interview of the admin interview search results. An
+ * incomplete interview shows as incomplete whatever the reviewers decided, so
+ * the rejected colour only applies to completed interviews.
+ * @param interview - Review status and completion of the interview
+ * @returns Space-separated CSS class names, empty when the row needs no colour
+ */
+export const getInterviewSearchResultClassName = (interview: {
+    reviewStatus: ReviewDecisionEffectiveStatus;
+    isCompleted?: boolean;
+}): string => {
+    if (interview.isCompleted !== true) {
+        return '_orange _strong';
+    }
+    if (interview.reviewStatus === 'approved' || interview.reviewStatus === 'forceApproved') {
+        return '_green _strong _active-background';
+    }
+    return interview.reviewStatus === 'rejected' ? '_dark-red _strong' : '';
 };
 
 export type BuildSurveyObjectBoxClassNameOptions = {

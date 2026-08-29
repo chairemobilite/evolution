@@ -13,7 +13,7 @@ import moment from 'moment';
 import Interviews, { FilterType } from '../services/interviews/interviews';
 import { updateInterview, copyResponseToCorrectedResponse } from '../services/interviews/interview';
 import { VALID_OPERATORS } from '../models/interviews.db.queries';
-import interviewUserIsAuthorized, { isUserAllowed } from '../services/auth/userAuthorization';
+import interviewUserIsAuthorized from '../services/auth/userAuthorization';
 import serverProjectConfig from '../config/projectConfig';
 import { handleUserActionSideEffect, mapResponseToCorrectedResponse } from '../services/interviews/interviewUtils';
 import { UserAttributes } from 'chaire-lib-backend/lib/services/users/user';
@@ -31,7 +31,11 @@ import { getParadataLoggingFunction } from '../services/logging/paradataLogging'
 import { BatchAuditService } from '../services/audits/BatchAuditService';
 import { ReviewDecisionService } from '../services/reviews/ReviewDecisionService';
 import { CANNOT_FORCE_APPROVE_WITHOUT_CONFLICT_ERROR_CODE } from '../services/reviews/reviewDecisionErrors';
-import type { ReviewDecisionValue, ReviewDecisions } from 'evolution-common/lib/services/reviews/types';
+import type {
+    InterviewListStatusFilter,
+    ReviewDecisionValue,
+    ReviewDecisions
+} from 'evolution-common/lib/services/reviews/types';
 import { hasErrors } from 'evolution-common/lib/types/Result.type';
 import TrError from 'chaire-lib-common/lib/utils/TrError';
 import isAuthorized from 'chaire-lib-backend/lib/services/auth/authorization';
@@ -100,7 +104,7 @@ router.use(isAuthorized({ [InterviewsSubject]: ['read', 'validate'] }));
 /**
  * Type for the filter parameter accepted by getValidationAuditStats
  */
-type ValidationAuditStatsFilter = { is_valid?: 'valid' | 'invalid' | 'notInvalid' | 'notValidated' | 'all' } & {
+type ValidationAuditStatsFilter = { review_status?: InterviewListStatusFilter } & {
     [key: string]:
         | string
         | string[]
@@ -311,12 +315,10 @@ router.post(
                     userAction
                 } = mapResponseToCorrectedResponse(valuesByPath, origUnsetPaths, content.userAction);
 
-                const canConfirm = isUserAllowed(req.user as UserAttributes, interview, ['confirm']);
                 const fieldsToUpdate: (keyof InterviewAttributes)[] = [
                     'corrected_response',
                     'validations',
                     'audits',
-                    'is_valid',
                     'is_completed',
                     'is_questionable'
                 ];
@@ -330,7 +332,7 @@ router.post(
                     valuesByPath: mappedValuesByPath,
                     unsetPaths,
                     userAction,
-                    fieldsToUpdate: canConfirm ? [...fieldsToUpdate, 'is_validated'] : fieldsToUpdate,
+                    fieldsToUpdate,
                     logData: { adminValidation: true }
                 });
                 if (retInterview.serverValidations === true) {

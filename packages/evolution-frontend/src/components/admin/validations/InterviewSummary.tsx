@@ -20,7 +20,6 @@ import AdminErrorBoundary from '../hoc/AdminErrorBoundary';
 import { RootState } from '../../../store/configureStore';
 import { ThunkDispatch } from 'redux-thunk';
 import { SurveyAction } from '../../../store/survey';
-import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { UserRuntimeInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 
 type InterviewSummaryProps = {
@@ -32,8 +31,6 @@ type InterviewSummaryProps = {
 const InterviewSummary = (props: InterviewSummaryProps) => {
     const dispatch = useDispatch<ThunkDispatch<RootState, unknown, SurveyAction>>();
     const interview = useSelector((state: RootState) => state.survey.interview) as UserRuntimeInterviewAttributes;
-    const user = useSelector((state: RootState) => state.auth.user) as CliUser;
-
     // extended: false runs only standard audit checks (fast, suitable for frequent refreshes during review)
     const refreshInterview = useCallback(() => {
         dispatch(startFetchCorrectedInterviewAndAudits(interview.uuid, false));
@@ -75,18 +72,14 @@ const InterviewSummary = (props: InterviewSummaryProps) => {
                     <ValidationLinks
                         handleInterviewSummaryChange={props.handleInterviewSummaryChange}
                         updateValuesByPath={updateValuesByPath}
-                        interviewIsValid={interview.is_valid}
                         interviewIsQuestionable={interview.is_questionable || false}
                         interviewIsComplete={interview.is_completed}
-                        // FIXME Add the is_validated to the interview type, but it is only for the admin
-                        interviewIsValidated={(interview as any).is_validated}
                         interviewUuid={interview.uuid}
                         prevInterviewUuid={props.prevInterviewUuid}
                         nextInterviewUuid={props.nextInterviewUuid}
                         refreshInterview={refreshInterview}
                         refreshInterviewWithExtended={refreshInterviewWithExtended}
                         resetInterview={resetInterview}
-                        user={user}
                         interview={interview}
                     />
                 </div>

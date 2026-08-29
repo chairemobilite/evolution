@@ -10,21 +10,11 @@
     "NotCompletedFemSingular": "Non complétée",
     "NotCompletedSingular": "Non complété",
     "UnknownCompletionFemSingular": "Complétion?",
-    "Valid": "Valide",
-    "Invalid": "Invalide",
-    "UnknownValidity": "Validité?",
     "Validate": "Valider",
     "Correct": "Corriger",
-    "ShowInvalidInterviews": "Montrer les entrevues invalides",
-    "HideInvalidInterviews": "Cacher les entrevues invalides",
-    "SetValid": "Rendre valide",
-    "SetInvalid": "Rendre invalide",
-    "ClearValidityStatus": "Effacer validité",
     "SetComplete": "Rendre complète",
     "SetIncomplete": "Rendre incomplète",
     "ClearCompletionStatus": "Effacer complétion",
-    "SetIsValidated": "Rendre validé et confirmé",
-    "SetIsValidatedEmpty": "Désactiver validé et confirmé",
     "SetQuestionable": "Rendre questionable",
     "UnsetQuestionable": "Enlever questionable",
     "ShowMore": "Montrer plus",
@@ -85,13 +75,22 @@
     "interviewers": {
         "InterviewsSearchAndEdit": "Recherche et édition d'enquêtes"
     },
-    "validationFilters": {
-        "title": "Valides?",
+    "reviewStatus": {
+        "notReviewed": "Non révisée",
+        "approved": "Approuvée",
+        "rejected": "Rejetée",
+        "conflict": "Désaccord entre réviseurs",
+        "forceApproved": "Approuvée d'office"
+    },
+    "reviewStatusFilters": {
+        "title": "Révision?",
         "all": "Tout montrer",
-        "invalid": "Invalides seulement",
-        "valid": "Valides seulement",
-        "notValidated": "Non validées seulement",
-        "notInvalid": "Cacher invalides",
+        "notReviewed": "Non révisées seulement",
+        "approved": "Approuvées seulement",
+        "rejected": "Rejetées seulement",
+        "conflict": "Désaccords seulement",
+        "forceApproved": "Approuvées d'office seulement",
+        "notRejected": "Cacher rejetées",
         "questionable": "Montrer seulement questionables"
     },
     "interviewCompletedFilter": {
