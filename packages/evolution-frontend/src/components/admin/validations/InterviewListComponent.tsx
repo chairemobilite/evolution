@@ -25,6 +25,13 @@ import { InterviewStatusAttributesBase } from 'evolution-common/lib/services/que
 import config from 'evolution-common/lib/config/project.config';
 import { dateToIsoWithTimezone } from 'evolution-common/lib/utils/DateTimeUtils';
 import * as Status from 'chaire-lib-common/lib/utils/Status';
+import { useReviewDecisionStatusByObject } from '../../../services/admin/useObjectReview';
+import {
+    getOpenInterviewStatus,
+    withLearnedInterviewStatus,
+    withLiveInterviewStatuses,
+    type InterviewLiveStatusByUuid
+} from '../../../services/admin/interviewListLiveStatus';
 
 interface InterviewListComponentProps {
     onInterviewSummaryChanged: (uuid: string, prevUuid?: string, nextUuid?: string) => void;
@@ -51,6 +58,22 @@ const InterviewListComponent: React.FunctionComponent<InterviewListComponentProp
     const [totalCount, setTotalCount] = React.useState(0);
     const [pageCount, setPageCount] = React.useState(0);
     const fetchIdRef = React.useRef(0);
+    // The rows are a snapshot taken when the list was fetched. Reviewing an interview beside the
+    // list changes its status right away, so those changes are kept here and applied to the rows,
+    // sparing the reviewer a page reload. They are kept for the whole visit: the reviewer sees
+    // their own decisions, and reloads the page to see what the other reviewers did meanwhile.
+    //
+    // The store is what renders the list again: reviewing dispatches the decisions to
+    // `state.survey.reviewDecisions`, subscribed to below, and marking complete updates
+    // `state.survey.interview`, which arrives as `validationInterview`. The effect only records
+    // what those renders show, so that a status outlives the fetch replacing the rows.
+    const [liveStatusByUuid, setLiveStatusByUuid] = React.useState<InterviewLiveStatusByUuid>({});
+    const reviewDecisionStatusByObject = useReviewDecisionStatusByObject();
+    const openInterviewStatus = getOpenInterviewStatus(props.validationInterview, reviewDecisionStatusByObject);
+    React.useEffect(() => {
+        setLiveStatusByUuid((learned) => withLearnedInterviewStatus(learned, openInterviewStatus));
+    }, [openInterviewStatus?.uuid, openInterviewStatus?.review_status, openInterviewStatus?.is_completed]);
+    const rows = React.useMemo(() => withLiveInterviewStatuses(data, liveStatusByUuid), [data, liveStatusByUuid]);
     const batchAuditIdRef = React.useRef(0);
     const [batchAuditLoading, setBatchAuditLoading] = React.useState(false);
     const [batchAuditResult, setBatchAuditResult] = React.useState<Status.Status<{
@@ -124,6 +147,10 @@ const InterviewListComponent: React.FunctionComponent<InterviewListComponentProp
             }
             if (response.status === 200) {
                 const jsonData = await response.json();
+                if (fetchId !== fetchIdRef.current) {
+                    // Reading the body took long enough for another query to answer, ignore
+                    return;
+                }
                 const data = jsonData.interviews ? jsonData.interviews : [];
                 const [totalCount, pageCount] = jsonData.totalCount
                     ? [jsonData.totalCount, Math.ceil(jsonData.totalCount / pageSize)]
@@ -250,7 +277,8 @@ const InterviewListComponent: React.FunctionComponent<InterviewListComponentProp
             },
             {
                 // The completion the participant reached in the questionnaire, which is not the
-                // `is_completed` flag the reviewer sets from the top menu and which colors the row.
+                // `is_completed` flag the reviewer sets from the top menu and which colors the
+                // row. The two are distinct, so this column does not follow a live review either.
                 accessor: 'response._isCompleted',
                 Filter: InterviewCompletedFilter,
                 enableSortBy: false,
@@ -342,7 +370,7 @@ const InterviewListComponent: React.FunctionComponent<InterviewListComponentProp
             validationInterview={props.validationInterview}
             interviewListChange={props.interviewListChange}
             columns={columns}
-            data={data}
+            data={rows}
             fetchData={fetchData}
             loading={loading}
             pageCount={pageCount}
