@@ -13,13 +13,16 @@ export const createParticipantWebpackConfig = (params: ParticipantWebpackConfigP
     const currentNodeEnv = params.env.NODE_ENV || process.env.NODE_ENV;
     const isProduction = currentNodeEnv === 'production';
 
+    const createEntry = (entryFile: string) =>
+        params.customStylesFilePath === undefined ? entryFile : [entryFile, params.customStylesFilePath];
+
     const entry =
         params.surveyEndedEntryFile !== undefined
             ? {
-                survey: [params.participantEntryFile, params.customStylesFilePath],
-                'survey-ended': [params.surveyEndedEntryFile || '', params.customStylesFilePath]
+                survey: createEntry(params.participantEntryFile),
+                'survey-ended': createEntry(params.surveyEndedEntryFile || '')
             }
-            : [params.participantEntryFile, params.customStylesFilePath];
+            : createEntry(params.participantEntryFile);
     // Use [name] in output filename only if there are multiple entry points
     const namePartOfOutputFilename = params.surveyEndedEntryFile !== undefined ? '[name]' : 'survey';
 

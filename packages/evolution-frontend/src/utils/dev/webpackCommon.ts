@@ -26,8 +26,8 @@ export type ParticipantWebpackConfigParams = CommonWebpackConfigParams & {
     participantEntryFile: string;
     /** The path to the survey-ended entry file. Leave undefined if no survey end date */
     surveyEndedEntryFile?: string;
-    /** The custom style file path */
-    customStylesFilePath: string;
+    /** The optional path to a custom style file */
+    customStylesFilePath?: string;
     /** Extra environment variables to be injected into the build: they will be available in the build using `process.env` */
     extraEnvs?: Record<string, unknown>;
 };
@@ -35,8 +35,8 @@ export type ParticipantWebpackConfigParams = CommonWebpackConfigParams & {
 export type AdminWebpackConfigParams = CommonWebpackConfigParams & {
     /** The path to the admin app's entry file */
     adminEntryFile: string;
-    /** The custom style file path */
-    customStylesFilePath: string;
+    /** The optional path to a custom style file */
+    customStylesFilePath?: string;
     /** Extra environment variables to be injected into the build: they will be available in the build using `process.env` */
     extraEnvs?: Record<string, unknown>;
 };
