@@ -37,7 +37,10 @@ export const createAdminWebpackConfig = (params: AdminWebpackConfigParams): Conf
     // Update config to replace the auth config with the admin auth config
     const updatedConfig = applyAdminAuthToConfig(params.config);
 
-    const entry = [params.adminEntryFile, params.customStylesFilePath];
+    const entry =
+        params.customStylesFilePath === undefined
+            ? params.adminEntryFile
+            : [params.adminEntryFile, params.customStylesFilePath];
 
     // Name of the output file to generate
     const outputFilename = isProduction
