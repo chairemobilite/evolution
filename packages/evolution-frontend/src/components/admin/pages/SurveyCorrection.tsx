@@ -98,6 +98,7 @@ const SurveyCorrection: React.FC = () => {
 
     return (
         <Survey
+            surveyMode="correction"
             startUpdateInterview={startUpdateInterviewAction}
             startAddGroupedObjects={startAddGroupedObjectsAction}
             startRemoveGroupedObjects={startRemoveGroupedObjectsAction}

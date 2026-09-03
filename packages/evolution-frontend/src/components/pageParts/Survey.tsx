@@ -31,6 +31,7 @@ import { SurveyContext } from '../../contexts/SurveyContext';
 
 type SurveyProps = InterviewUpdateCallbacks & {
     interview: UserRuntimeInterviewAttributes;
+    surveyMode: 'participant' | 'correction';
 };
 
 const Survey: React.FC<SurveyProps> = (props: SurveyProps) => {
@@ -137,7 +138,7 @@ const Survey: React.FC<SurveyProps> = (props: SurveyProps) => {
         customStyle = sections[activeSection].customStyle as React.CSSProperties;
     }
 
-    const surveyContainerClassNames = `survey${config.logoPaths ? ' survey-with-logo' : ''}`;
+    const surveyContainerClassNames = `survey survey-${props.surveyMode}${config.logoPaths ? ' survey-with-logo' : ''}`;
 
     return (
         <div className={surveyContainerClassNames}>
