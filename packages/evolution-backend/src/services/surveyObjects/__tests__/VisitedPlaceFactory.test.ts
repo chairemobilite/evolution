@@ -287,5 +287,55 @@ describe('VisitedPlaceFactory', () => {
             // Should not throw error and should still add to journey
             expect(journey.addVisitedPlace).toHaveBeenCalledWith(mockVisitedPlace);
         });
+
+        it.each([
+            [
+                'interview arrivalTime/departureTime',
+                { arrivalTime: 3600, departureTime: 7200 },
+                { startTime: 3600, endTime: 7200 }
+            ],
+            [
+                'midnight interview times',
+                { arrivalTime: 0, departureTime: 0 },
+                { startTime: 0, endTime: 0 }
+            ],
+            [
+                'object startTime/endTime when both names are present',
+                { startTime: 100, endTime: 200, arrivalTime: 3600, departureTime: 7200 },
+                { startTime: 100, endTime: 200 }
+            ]
+        ])('should pass mapped times to create for %s', async (_title, times, expectedTimes) => {
+            const mockVisitedPlace = {
+                _uuid: 'vp-1',
+                activity: 'work',
+                place: { geography: { type: 'Point', coordinates: [-73.6, 45.6] } }
+            } as unknown as VisitedPlace;
+
+            (MockedVisitedPlace.create as jest.Mock).mockReturnValue(createOk(mockVisitedPlace));
+
+            journeyAttributes.visitedPlaces = {
+                'vp-1': {
+                    _uuid: 'vp-1',
+                    _sequence: 1,
+                    activity: 'work',
+                    ...times
+                }
+            } as any;
+
+            await populateVisitedPlacesForJourney(
+                surveyObjectsWithErrors,
+                person,
+                journey,
+                journeyAttributes,
+                home,
+                { uuid: 'test' } as any,
+                surveyObjectsRegistry
+            );
+
+            const createdAttributes = (MockedVisitedPlace.create as jest.Mock).mock.calls[0][0];
+            expect(createdAttributes).toEqual(expect.objectContaining(expectedTimes));
+            expect(createdAttributes.arrivalTime).toBeUndefined();
+            expect(createdAttributes.departureTime).toBeUndefined();
+        });
     });
 });
