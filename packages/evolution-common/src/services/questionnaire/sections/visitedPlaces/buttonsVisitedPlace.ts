@@ -284,6 +284,40 @@ export class ButtonsVisitedPlaceConfigFactory implements WidgetConfigFactory {
         return updateValuesbyPath;
     };
 
+    /**
+     * The departure place of the journey is asked before the diary, but the
+     * respondent can then change how their day started, by inserting a place at
+     * the beginning of the diary. Return the values to update to keep the
+     * journey answer coherent with the first place of the diary, if any. The
+     * answer is left as is when the survey did not ask it, some surveys ask the
+     * departure place differently.
+     */
+    private updateJourneyDeparturePlace = ({
+        person,
+        journey
+    }: {
+        person: Person;
+        journey: Journey;
+    }): Record<string, unknown> => {
+        const firstVisitedPlace = odHelpers.getVisitedPlacesArray({ journey })[0];
+        if (firstVisitedPlace === undefined || _isBlank(firstVisitedPlace.activity)) {
+            return {};
+        }
+        const departurePlaceIsHome = firstVisitedPlace.activity === 'home' ? 'yes' : 'no';
+        if (_isBlank(journey.departurePlaceIsHome) || journey.departurePlaceIsHome === departurePlaceIsHome) {
+            return {};
+        }
+        const journeyPath = `household.persons.${person._uuid}.journeys.${journey._uuid}`;
+        const updateValuesByPath: Record<string, unknown> = {
+            [`response.${journeyPath}.departurePlaceIsHome`]: departurePlaceIsHome
+        };
+        if (departurePlaceIsHome === 'yes') {
+            // The day now starts at home, the other departure place does not apply anymore
+            updateValuesByPath[`response.${journeyPath}.departurePlaceOther`] = null;
+        }
+        return updateValuesByPath;
+    };
+
     private getSaveVisitedPlaceButtonWidgetConfig = (): ButtonWidgetConfig => ({
         type: 'button',
         color: 'green',
@@ -388,7 +422,8 @@ export class ButtonsVisitedPlaceConfigFactory implements WidgetConfigFactory {
                         person: updatedPerson
                     });
                     const updateActivePlaceValuesByPath = {
-                        ['response._activeVisitedPlaceId']: nextIncompletePlace ? nextIncompletePlace._uuid : null
+                        ['response._activeVisitedPlaceId']: nextIncompletePlace ? nextIncompletePlace._uuid : null,
+                        ...this.updateJourneyDeparturePlace({ person: updatedPerson, journey: updatedJourney })
                     };
                     callbacks.startUpdateInterview({
                         sectionShortname: 'visitedPlaces',
