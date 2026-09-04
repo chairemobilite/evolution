@@ -29,6 +29,7 @@ describe('calculateTimeDistanceByMode: invalid parameters', () => {
         ['Invalid origin', 'origin', { type: 'LineString' as const, coordinates: [[0, 0], [1, 1]] }, 'Invalid origin or destination'],
         ['Invalid destination', 'destination', { type: 'LineString' as const, coordinates: [[0, 0], [1, 1]] }, 'Invalid origin or destination'],
         ['Negative trip time', 'departureSecondsSinceMidnight', -1, 'Invalid departure time'],
+        ['Trip time after 4am next day', 'departureSecondsSinceMidnight', 28 * 3600 + 1, 'Invalid departure time'],
         ['Mixed day/month in date', 'departureDateString', '2024-23-05', 'Invalid trip date'],
         ['Invalid date string', 'departureDateString', 'not a date', 'Invalid trip date'],
     ]).test('Invalid parameters: %s', async (_, testedParam, value, expected) => {
@@ -102,6 +103,7 @@ describe('getTransitSummary: invalid parameters', () => {
         ['Invalid origin', 'origin', { type: 'LineString' as const, coordinates: [[0, 0], [1, 1]] }, 'Invalid origin or destination'],
         ['Invalid destination', 'destination', { type: 'LineString' as const, coordinates: [[0, 0], [1, 1]] }, 'Invalid origin or destination'],
         ['Negative trip time', 'departureSecondsSinceMidnight', -1, 'Invalid departure time'],
+        ['Trip time after 4am next day', 'departureSecondsSinceMidnight', 28 * 3600 + 1, 'Invalid departure time'],
         ['Mixed day/month in date', 'departureDateString', '2024-23-05', 'Invalid trip date'],
         ['Invalid date string', 'departureDateString', 'not a date', 'Invalid trip date'],
         ['No scenario', 'transitScenario', undefined, 'Transit summary requires a scenario'],
@@ -163,6 +165,25 @@ describe('getTransitSummary: with Transition', () => {
         expect(result).toEqual(routingResults);
     });
 
+    test('Accept departure time at exactly 4am the next day (28h)', async () => {
+        const validParameters = {
+            origin: { type: 'Point' as const, coordinates: [0, 0] },
+            destination: { type: 'Point' as const, coordinates: [0, 0] },
+            departureSecondsSinceMidnight: 28 * 3600,
+            departureDateString: '2024-05-23',
+            transitScenario: 'scenarioId'
+        };
+        const routingResults = {
+            status: 'success' as const,
+            nbRoutes: 0,
+            lines: [],
+            source: 'transitionApi'
+        };
+        mockedSummaryFromTransition.mockResolvedValueOnce(routingResults);
+        await expect(getTransitSummary(validParameters)).resolves.toEqual(routingResults);
+        expect(mockedSummaryFromTransition).toHaveBeenCalledWith(validParameters);
+    });
+
 });
 
 describe('getTransitAccessibilityMap: invalid parameters', () => {
@@ -178,6 +199,7 @@ describe('getTransitAccessibilityMap: invalid parameters', () => {
     each([
         ['Invalid point', 'point', { type: 'LineString' as const, coordinates: [[0, 0], [1, 1]] }, 'Invalid point'],
         ['Negative trip time', 'departureSecondsSinceMidnight', -1, 'Invalid departure time'],
+        ['Trip time after 4am next day', 'departureSecondsSinceMidnight', 28 * 3600 + 1, 'Invalid departure time'],
         ['Trip time too large', 'departureSecondsSinceMidnight', 29 * 3600, 'Invalid departure time'],
         ['No scenario', 'transitScenario', undefined, 'Transit accessibility map requires a scenario'],
         ['No max travel time', 'maxTotalTravelTimeMinutes', undefined, 'Invalid max total travel time'],
