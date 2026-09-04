@@ -36,6 +36,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Routing: accept a departure time of exactly 28 hours since midnight (4am the next day) for transit summary, time/distance and accessibility map (fixes [#1930](https://github.com/chairemobilite/evolution/issues/1930))
 - A deferred server update now waits for the interview update that registered it to be saved before reloading the interview, instead of possibly reading it before the save and writing that stale copy back over it (fixes [#1934](https://github.com/chairemobilite/evolution/issues/1934))
 - Segments: initialize `segments` object on section entry instead of individual segment to avoid relying on key insertion order (fixes [#1943](https://github.com/chairemobilite/evolution/issues/1943))
+- Admin: filtering the interview list or the audit stats by an audit coming from a parameter validation no longer fails, as the code of those audits is a slugified message and held punctuation the filter refused (fixes [#1927](https://github.com/chairemobilite/evolution/issues/1927))
 
 ### Security
 
