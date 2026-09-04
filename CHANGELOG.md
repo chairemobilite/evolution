@@ -34,6 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Generator: fix export of excel_to_csv boolean columns to always be "TRUE"/"FALSE" (fixes [#1743](https://github.com/chairemobilite/evolution/issues/1743))
 - Routing: accept a departure time of exactly 28 hours since midnight (4am the next day) for transit summary, time/distance and accessibility map (fixes [#1930](https://github.com/chairemobilite/evolution/issues/1930))
+- A deferred server update now waits for the interview update that registered it to be saved before reloading the interview, instead of possibly reading it before the save and writing that stale copy back over it (fixes [#1934](https://github.com/chairemobilite/evolution/issues/1934))
 
 ### Security
 
