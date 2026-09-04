@@ -37,13 +37,11 @@ export const visitedPlaceAttributes = [
     '_sequence',
     'activity',
     'activityCategory',
-    'shortcut',
+    'isShortcut',
     'preData'
 ];
 
 export const visitedPlaceAttributesWithComposedAttributes = [...visitedPlaceAttributes, '_place'];
-
-type VisitedPlaceUuid = string;
 
 export type VisitedPlaceAttributes = {
     /**
@@ -55,8 +53,8 @@ export type VisitedPlaceAttributes = {
     _sequence?: Optional<number>;
     activity?: Optional<VPAttr.Activity>;
     activityCategory?: Optional<VPAttr.ActivityCategory>;
-    /** UUID of another visited place that this place references as a shortcut */
-    shortcut?: Optional<VisitedPlaceUuid>;
+    /** Whether this place was created from an interview shortcut */
+    isShortcut?: Optional<boolean>;
     preData?: Optional<PreData>;
 } & StartEndDateAndTimesAttributes &
     UuidableAttributes &
@@ -227,15 +225,15 @@ export class VisitedPlace extends SurveyObject {
     }
 
     /**
-     * UUID of another visited place that this place references as a shortcut.
-     * Can be empty if no shortcut is defined.
+     * Whether this place was created from an interview shortcut.
+     * The interview path itself is not kept on the survey object.
      */
-    get shortcut(): Optional<string> {
-        return this._attributes.shortcut;
+    get isShortcut(): Optional<boolean> {
+        return this._attributes.isShortcut;
     }
 
-    set shortcut(value: Optional<string>) {
-        this._attributes.shortcut = value;
+    set isShortcut(value: Optional<boolean>) {
+        this._attributes.isShortcut = value;
     }
 
     get preData(): Optional<PreData> {
@@ -320,18 +318,9 @@ export class VisitedPlace extends SurveyObject {
         // Validate visited place specific attributes:
         errors.push(...ParamsValidatorUtils.isString('activity', dirtyParams.activity, displayName));
         errors.push(...ParamsValidatorUtils.isString('activityCategory', dirtyParams.activityCategory, displayName));
-        errors.push(...ParamsValidatorUtils.isUuid('shortcut', dirtyParams.shortcut, displayName));
+        errors.push(...ParamsValidatorUtils.isBoolean('isShortcut', dirtyParams.isShortcut, displayName));
 
         errors.push(...ParamsValidatorUtils.isRecord('preData', dirtyParams.preData, displayName, false));
-
-        // forbid self-reference when both UUIDs are present
-        if (
-            typeof dirtyParams._uuid === 'string' &&
-            typeof dirtyParams.shortcut === 'string' &&
-            dirtyParams._uuid === dirtyParams.shortcut
-        ) {
-            errors.push(new Error(`${displayName} validateParams: shortcut cannot reference itself`));
-        }
 
         // Validate composed place:
         const placeAttributes = dirtyParams._place as { [key: string]: unknown };
