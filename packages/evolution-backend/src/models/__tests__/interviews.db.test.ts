@@ -13,6 +13,7 @@ import config from 'chaire-lib-common/lib/config/shared/project.config';
 import dbQueries from '../interviews.db.queries';
 import { INTERVIEWER_PARTICIPANT_PREFIX } from 'evolution-common/lib/services/interviews/interview';
 import moment from 'moment';
+import slugify from 'slugify';
 import { InterviewAttributes, InterviewListAttributes, InterviewResponse } from 'evolution-common/lib/services/questionnaire/types';
 import { type InterviewReviewStatusFilter, type ReviewDecisionEffectiveStatus } from 'evolution-common/lib/services/reviews/types';
 
@@ -1038,6 +1039,72 @@ describe('Queries with audits', () => {
             }
         }
 
+    });
+
+});
+
+describe('Queries with parameter validation audits', () => {
+
+    // The code of a parameter validation audit is its message run through
+    // `slugify`, so it holds punctuation that an audit check code does not.
+    // The codes are built here from real validation messages, the way the
+    // audits build them, so that they cannot drift from the stored ones.
+    const paramValidationCodes = [
+        'Person validateParams: age should be a positive integer',
+        'VisitedPlace validateParams: activityCategory should be a string',
+        'Segment validateParams: modePre should be one of the valid mode values'
+    ].map((message) => slugify(message));
+
+    beforeAll(async () => {
+        const interview = await dbQueries.getInterviewByUuid(localUserInterviewAttributes.uuid);
+        if (interview === undefined) {
+            throw 'error getting interview for parameter validation audits';
+        }
+        for (const errorCode of paramValidationCodes) {
+            await create(knex, 'sv_audits', undefined, { interview_id: interview.id, error_code: errorCode, object_type: 'visitedPlace', object_uuid: uuidV4(), version: 2 } as any, { returning: 'interview_id' });
+        }
+    });
+
+    afterAll(async () => {
+        await truncate(knex, 'sv_audits');
+    });
+
+    test.each(paramValidationCodes)('List the interviews having the audit %s', async (errorCode) => {
+        const { interviews, totalCount } = await dbQueries.getList({ filters: { 'audits': { value: errorCode } }, pageIndex: 0, pageSize: -1 });
+        expect(totalCount).toEqual(1);
+        expect(interviews.length).toEqual(1);
+        expect(interviews[0].uuid).toEqual(localUserInterviewAttributes.uuid);
+    });
+
+    test.each(paramValidationCodes)('Get the audit stats filtered by the audit %s', async (errorCode) => {
+        const { auditStats } = await dbQueries.getValidationAuditStats({ filters: { 'audits': { value: errorCode } } });
+        expect(auditStats.error?.visitedPlace).toEqual(expect.arrayContaining([{ errorCode, count: 1 }]));
+    });
+
+    // A filter can hold many codes, each one adding its own condition, so the
+    // interviews and the stats are those having all of them
+    test('List the interviews having every audit of an array of codes', async () => {
+        const { interviews, totalCount } = await dbQueries.getList({ filters: { 'audits': { value: paramValidationCodes } }, pageIndex: 0, pageSize: -1 });
+        expect(totalCount).toEqual(1);
+        expect(interviews.length).toEqual(1);
+        expect(interviews[0].uuid).toEqual(localUserInterviewAttributes.uuid);
+    });
+
+    test('Get the audit stats filtered by an array of codes', async () => {
+        const { auditStats } = await dbQueries.getValidationAuditStats({ filters: { 'audits': { value: paramValidationCodes } } });
+        expect(auditStats.error?.visitedPlace).toEqual(expect.arrayContaining(paramValidationCodes.map((errorCode) => ({ errorCode, count: 1 }))));
+    });
+
+    // An error code is a slug and never holds whitespace, which is what
+    // separates a legitimate code from a value that cannot be one.
+    test.each([
+        ['a value with whitespace', 'error code with spaces'],
+        ['an injection attempt', 'accessCode\'; delete from sv_interviews;'],
+        ['a list holding a value that is not a string', ['errorOne', true]]
+    ])('Refuse an audit filter on %s', async (_description, value) => {
+        await expect(dbQueries.getList({ filters: { 'audits': { value: value as any } }, pageIndex: 0, pageSize: -1 }))
+            .rejects
+            .toThrow('Cannot get interview list in table sv_interviews database (knex error: Invalid value for where clause in sv_interviews database (DBQCR0006))');
     });
 
 });
