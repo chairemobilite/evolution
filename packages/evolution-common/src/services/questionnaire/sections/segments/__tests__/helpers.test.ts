@@ -49,13 +49,14 @@ describe('getValuesByPathForActiveTrip', () => {
                 expect(result).toEqual({ 'response._activeTripId': tripId });
                 return;
             }
-            // The segment uuid is generated, get it from the returned path
-            const segmentPath = Object.keys(result).find((path) => path.startsWith(`response.${segmentsPath}.`));
-            const segmentId = segmentPath!.split('.').pop();
+            // There should be one segment under the segmentPath
+            const segments = result[`response.${segmentsPath}`] as any;
+            expect(Object.keys(segments).length).toEqual(1);
+            const segmentUuid = Object.keys(segments)[0];
             expect(result).toEqual({
                 'response._activeTripId': tripId,
-                [`response.${segmentsPath}.${segmentId}`]: { _uuid: segmentId, _sequence: 1, _isNew: true },
-                [`validations.${segmentsPath}.${segmentId}`]: {}
+                [`response.${segmentsPath}`]: { [segmentUuid!]: { _uuid: segmentUuid, _sequence: 1, _isNew: true } },
+                [`validations.${segmentsPath}.${segmentUuid}`]: {}
             });
         }
     );

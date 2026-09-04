@@ -433,12 +433,10 @@ describe('SegmentsSection behavior', () => {
         fireEvent.click(editButton!);
         const valuesByPath = (props.startUpdateInterview as jest.Mock).mock.calls[0][0].valuesByPath;
         expect(valuesByPath['response._activeTripId']).toEqual('trip2');
-        const newSegmentPath = Object.keys(valuesByPath).find((path: string) =>
-            path.startsWith('response.household.persons.person1.journeys.journey1.trips.trip2.segments.')
-        );
-        expect(newSegmentPath).toBeDefined();
-        const segmentId = newSegmentPath!.split('.').pop();
-        expect(valuesByPath[newSegmentPath!]).toEqual({ _uuid: segmentId, _sequence: 1, _isNew: true });
+        const segments = valuesByPath['response.household.persons.person1.journeys.journey1.trips.trip2.segments'];
+        expect(segments).toBeDefined();
+        const segmentId = Object.keys(segments)[0];
+        expect(segments).toEqual({ [segmentId]: { _uuid: segmentId, _sequence: 1, _isNew: true } });
         expect(valuesByPath[`validations.household.persons.person1.journeys.journey1.trips.trip2.segments.${segmentId}`]).toEqual({});
     });
 

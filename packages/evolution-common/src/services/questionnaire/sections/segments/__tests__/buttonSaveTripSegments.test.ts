@@ -170,7 +170,7 @@ describe('getButtonSaveTripSegmentsConfig save callback', () => {
             journeyId: undefined,
             activeTripId: undefined
         });
-        
+
         // Call the save callback
         saveCallback!(updateCallbacks, testInterview, buttonPath);
 
@@ -226,12 +226,10 @@ describe('getButtonSaveTripSegmentsConfig save callback', () => {
 
         const valuesByPath = updateCallbacks.startUpdateInterview.mock.calls[0][0].valuesByPath;
         expect(valuesByPath['response._activeTripId']).toEqual('tripId3P2');
-        const newSegmentPath = Object.keys(valuesByPath).find((path) =>
-            path.startsWith('response.household.persons.personId2.journeys.journeyId2.trips.tripId3P2.segments.')
-        );
-        expect(newSegmentPath).toBeDefined();
-        const segmentId = newSegmentPath!.split('.').pop();
-        expect(valuesByPath[newSegmentPath!]).toEqual({ _uuid: segmentId, _sequence: 1, _isNew: true });
+        const newSegments = valuesByPath['response.household.persons.personId2.journeys.journeyId2.trips.tripId3P2.segments']
+        expect(newSegments).toBeDefined();
+        const segmentId = Object.keys(newSegments)[0]
+        expect(valuesByPath['response.household.persons.personId2.journeys.journeyId2.trips.tripId3P2.segments'!]).toEqual({ [segmentId]: { _uuid: segmentId, _sequence: 1, _isNew: true }});
         expect(valuesByPath[`validations.household.persons.personId2.journeys.journeyId2.trips.tripId3P2.segments.${segmentId}`]).toEqual({});
     });
 

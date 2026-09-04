@@ -68,10 +68,13 @@ export const getValuesByPathForActiveTrip = ({
     const { valuesByPath: addedValuesByPath, newObjects } = addGroupedObjects(interview, 1, 1, segmentsPath, [
         { _isNew: true }
     ]);
-    // Keep only the new segment: the other paths resequence the segments that
+    // Initialize the current trip's segments object. Keep only the new segment
+    // from the addedValuesByPath: the other paths resequence the segments that
     // the caller deletes in the same update.
     const newSegmentPath = `${segmentsPath}.${newObjects[0]._uuid}`;
-    valuesByPath[`response.${newSegmentPath}`] = addedValuesByPath[`response.${newSegmentPath}`];
+    valuesByPath[`response.${segmentsPath}`] = {
+        [newObjects[0]._uuid]: addedValuesByPath[`response.${newSegmentPath}`]
+    };
     valuesByPath[`validations.${newSegmentPath}`] = addedValuesByPath[`validations.${newSegmentPath}`];
     return valuesByPath;
 };
