@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Admin: a decision taken on an object colors what it contains, an approval in green as a rejection already did in red ([#1891](https://github.com/chairemobilite/evolution/pull/1891))
 - Admin: a journey without any visited place or trip no longer shows an empty review box ([#1891](https://github.com/chairemobilite/evolution/pull/1891))
 - Export: the CSV and log exports of interviews carry a `review_status` column instead of the `is_valid` and `is_validated` ones (see [#1886](https://github.com/chairemobilite/evolution/issues/1886) for the objects an approved interview may still contain)
+- VisitedPlace: interview shortcuts are stored as `isShortcut` instead of a uuid, so a path or usual-place shortcut no longer fails parameter validation (fixes [#1928](https://github.com/chairemobilite/evolution/issues/1928))
 
 ### Deprecated
 

@@ -13,6 +13,7 @@ import { Home } from 'evolution-common/lib/services/baseObjects/Home';
 import { Person } from 'evolution-common/lib/services/baseObjects/Person';
 import { createOk, createErrors } from 'evolution-common/lib/types/Result.type';
 import { SurveyObjectsRegistry } from 'evolution-common/lib/services/baseObjects/SurveyObjectsRegistry';
+import { v4 as uuidV4 } from 'uuid';
 
 // Mock VisitedPlace.create
 jest.mock('evolution-common/lib/services/baseObjects/VisitedPlace', () => ({
@@ -336,6 +337,88 @@ describe('VisitedPlaceFactory', () => {
             expect(createdAttributes).toEqual(expect.objectContaining(expectedTimes));
             expect(createdAttributes.arrivalTime).toBeUndefined();
             expect(createdAttributes.departureTime).toBeUndefined();
+        });
+
+        it.each([
+            {
+                title: 'visited place path',
+                shortcut: `household.persons.${uuidV4()}.journeys.${uuidV4()}.visitedPlaces.${uuidV4()}`
+            },
+            {
+                title: 'visited place uuid',
+                shortcut: uuidV4()
+            },
+            {
+                title: 'usualWorkPlace path',
+                shortcut: `household.persons.${uuidV4()}.usualWorkPlace`
+            },
+            {
+                title: 'usualSchoolPlace path',
+                shortcut: `household.persons.${uuidV4()}.usualSchoolPlace`
+            }
+        ])('should set isShortcut when the interview shortcut is a $title', async ({ shortcut }) => {
+            const visitedPlaceId = 'vp-shortcut';
+            const mockVisitedPlace = {
+                _uuid: visitedPlaceId,
+                activity: 'shopping',
+                place: { geography: { type: 'Point', coordinates: [-73.6, 45.6] } }
+            } as unknown as VisitedPlace;
+
+            (MockedVisitedPlace.create as jest.Mock).mockReturnValue(createOk(mockVisitedPlace));
+
+            journeyAttributes.visitedPlaces = {
+                [visitedPlaceId]: {
+                    ...mockVisitedPlace,
+                    _sequence: 1,
+                    shortcut
+                }
+            } as any;
+
+            await populateVisitedPlacesForJourney(
+                surveyObjectsWithErrors,
+                person,
+                journey,
+                journeyAttributes,
+                home,
+                { uuid: 'test' } as any,
+                surveyObjectsRegistry
+            );
+
+            const createdAttributes = (MockedVisitedPlace.create as jest.Mock).mock.calls[0][0];
+            expect(createdAttributes.isShortcut).toBe(true);
+            expect(createdAttributes.shortcut).toBeUndefined();
+        });
+
+        it('should leave isShortcut unset when the interview has no shortcut', async () => {
+            const visitedPlaceId = 'vp-no-shortcut';
+            const mockVisitedPlace = {
+                _uuid: visitedPlaceId,
+                activity: 'work',
+                place: { geography: { type: 'Point', coordinates: [-73.6, 45.6] } }
+            } as unknown as VisitedPlace;
+
+            (MockedVisitedPlace.create as jest.Mock).mockReturnValue(createOk(mockVisitedPlace));
+
+            journeyAttributes.visitedPlaces = {
+                [visitedPlaceId]: {
+                    ...mockVisitedPlace,
+                    _sequence: 1
+                }
+            } as any;
+
+            await populateVisitedPlacesForJourney(
+                surveyObjectsWithErrors,
+                person,
+                journey,
+                journeyAttributes,
+                home,
+                { uuid: 'test' } as any,
+                surveyObjectsRegistry
+            );
+
+            const createdAttributes = (MockedVisitedPlace.create as jest.Mock).mock.calls[0][0];
+            expect(createdAttributes.isShortcut).toBeUndefined();
+            expect(createdAttributes.shortcut).toBeUndefined();
         });
     });
 });

@@ -69,7 +69,7 @@ describe('VisitedPlace', () => {
         endTimePeriod: 'pm',
         activity: 'work',
         activityCategory: 'work',
-        shortcut: uuidV4(),
+        isShortcut: true,
         _sequence: 1,
         _weights: [{ weight: 1.2, method: new WeightMethod(weightMethodAttributes) }],
         _isValid: true
@@ -149,16 +149,9 @@ describe('VisitedPlace', () => {
         expect(errors).toHaveLength(0);
     });
 
-    test('should return errors for self-reference shortcut', () => {
-        const invalidAttributes = { ...validVisitedPlaceAttributesWithPlace, shortcut: validVisitedPlaceAttributesWithPlace._uuid };
-        const errors = VisitedPlace.validateParams(invalidAttributes);
-        expect(errors).toHaveLength(1);
-        expect(errors[0].message).toEqual('VisitedPlace validateParams: shortcut cannot reference itself');
-    });
-
-    test('should allow shortcut to be undefined', () => {
+    test('should allow isShortcut to be undefined', () => {
         const attrs = { ...validVisitedPlaceAttributesWithPlace };
-        delete (attrs as any).shortcut;
+        delete (attrs as any).isShortcut;
         const errors = VisitedPlace.validateParams(attrs);
         expect(errors).toHaveLength(0);
     });
@@ -211,7 +204,7 @@ describe('VisitedPlace', () => {
             ['endTimePeriod', 123],
             ['activity', 123],
             ['activityCategory', 123],
-            ['shortcut', 'invalid-uuid'],
+            ['isShortcut', 'invalid'],
             ['_sequence', 'invalid'],
             ['hasMinimum', 'invalid'],
             ['isCompleted', 'invalid'],
@@ -243,7 +236,7 @@ describe('VisitedPlace', () => {
             ['endTimePeriod', 'pm'],
             ['activity', 'leisure'],
             ['activityCategory', 'leisure'],
-            ['shortcut', uuidV4()],
+            ['isShortcut', true],
             ['_sequence', 2],
             ['preData', { importedVisitedPlaceData: 'value', duration: 30 }],
         ])('should set and get %s', (attribute, value) => {
