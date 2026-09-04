@@ -361,6 +361,8 @@ describe('Update Interview', () => {
         expect(mockedServerUpdate).toHaveBeenCalledWith(reloadedInterview, updateCallbacks, asyncUpdatedValuesByPath, undefined, undefined);
         expect(interviewsQueries.update).toHaveBeenCalledTimes(2);
         expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, expectedUpdatedValues);
+        // Deferred reload must run after the main save, not before (race #1934)
+        expect(mockUpdate.mock.invocationCallOrder[0]).toBeLessThan(mockGetInterviewByUuid.mock.invocationCallOrder[0]);
 
         // The second update should update with the received values and updated ones
         const asyncExpectedUpdatedValues = {
@@ -386,6 +388,39 @@ describe('Update Interview', () => {
             server: true,
             valuesByPath: asyncUpdatedValuesByPath
         });
+    });
+
+    test('With execution callback, when the main update fails to save', async() => {
+        const deferredUpdateCallback = jest.fn();
+        const testAttributes = _cloneDeep(interviewAttributes);
+        const valuesByPath = { 'response.testFields.fieldB': 'abc' };
+        const updateCallbacks = [
+            { field: 'testFields.fieldA', callback: jest.fn().mockResolvedValue({}) }
+        ];
+        registerServerUpdateCallbacks(updateCallbacks);
+        const asyncUpdatedValuesByPath = { 'response.testFields.fieldC': 'valC' };
+        // The mocked server update will call the execution callback once
+        mockedServerUpdate.mockImplementationOnce(async (_i, _c, _v, _u, execCallback) => {
+            execCallback!(asyncUpdatedValuesByPath);
+            return [{}, undefined];
+        });
+        // The save of the main update fails, the one of the deferred operation succeeds
+        mockUpdate.mockRejectedValueOnce(new Error('cannot save the interview'));
+        mockGetInterviewByUuid.mockResolvedValueOnce(testAttributes);
+
+        await expect(updateInterview(testAttributes, { valuesByPath, deferredUpdateCallback }))
+            .rejects
+            .toThrow('cannot save the interview');
+        await TestUtils.flushPromises();
+        registerServerUpdateCallbacks([]);
+
+        // The deferred operation is not lost when the main update could not be
+        // saved: it waits for it, then reloads the interview and saves its own
+        // values (see #1934)
+        expect(mockUpdate.mock.invocationCallOrder[0]).toBeLessThan(mockGetInterviewByUuid.mock.invocationCallOrder[0]);
+        expect(mockGetInterviewByUuid).toHaveBeenCalledWith(testAttributes.uuid);
+        expect(mockUpdate).toHaveBeenCalledTimes(2);
+        expect(deferredUpdateCallback).toHaveBeenCalledWith(asyncUpdatedValuesByPath);
     });
 
     test('With server field updates and redirect URL', async() => {

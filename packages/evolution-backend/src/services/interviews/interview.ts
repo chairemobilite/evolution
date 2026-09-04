@@ -107,17 +107,32 @@ const sanitizeInterviewData = (data: any) => {
  **/
 export const updateInterview = async (
     interview: InterviewAttributes,
-    options: {
-        logUpdate?: ParadataLoggingFunction;
-        valuesByPath: { [key: string]: unknown };
-        unsetPaths?: string[];
-        userAction?: UserAction;
-        serverValidations?: ServerValidation;
-        fieldsToUpdate?: (keyof InterviewAttributes)[];
-        logData?: { [key: string]: unknown };
-        deferredUpdateCallback?: (valuesByPath: { [key: string]: unknown }) => Promise<void>;
+    options: UpdateInterviewOptions
+): Promise<UpdateInterviewResult> => {
+    // This promise avoids a race condition between the deferred operations and
+    // the main update, by having the former wait for the latter to complete.
+    const { promise: mainUpdateWritten, resolve: releaseDeferredUpdates } = Promise.withResolvers<void>();
+    try {
+        return await saveInterviewUpdate(interview, options, mainUpdateWritten);
+    } finally {
+        // Released even when the update failed: the result of a long operation
+        // should not be lost because an unrelated update could not be saved.
+        releaseDeferredUpdates();
     }
-): Promise<{
+};
+
+type UpdateInterviewOptions = {
+    logUpdate?: ParadataLoggingFunction;
+    valuesByPath: { [key: string]: unknown };
+    unsetPaths?: string[];
+    userAction?: UserAction;
+    serverValidations?: ServerValidation;
+    fieldsToUpdate?: (keyof InterviewAttributes)[];
+    logData?: { [key: string]: unknown };
+    deferredUpdateCallback?: (valuesByPath: { [key: string]: unknown }) => Promise<void>;
+};
+
+type UpdateInterviewResult = {
     interviewId: string | undefined;
     serverValidations:
         | true
@@ -128,7 +143,22 @@ export const updateInterview = async (
           };
     serverValuesByPath: { [key: string]: unknown };
     redirectUrl: string | undefined;
-}> => {
+};
+
+/**
+ * Apply the update to the interview and save it in the database. See
+ * `updateInterview`, which wraps it, for the parameters.
+ *
+ * @param {Promise<void>} mainUpdateWritten Resolves once this update has been
+ * written to the database. The deferred update callbacks wait for it before
+ * reloading the interview, as they may otherwise overwrite this update with
+ * the copy they read before it was saved.
+ */
+const saveInterviewUpdate = async (
+    interview: InterviewAttributes,
+    options: UpdateInterviewOptions,
+    mainUpdateWritten: Promise<void>
+): Promise<UpdateInterviewResult> => {
     // FIXME: When validations and side effects are managed server-side, we won't have custom code for server validations and updates and we can send the user action directly (issue #858)
     const allValuesByPath = options.userAction
         ? updateValuesByPathWithUserAction(options.valuesByPath, options.userAction)
@@ -148,6 +178,7 @@ export const updateInterview = async (
 
     // Generates an execution callback function that will save the asynchronous values by path to set before calling the executionCallback argument
     const deferredSaveFct = async (serverValuesByPath: { [key: string]: unknown }) => {
+        await mainUpdateWritten;
         // Reload the interview as it may be outdated
         const reloadedInterview = await interviewsDbQueries.getInterviewByUuid(interview.uuid);
         if (!reloadedInterview) {

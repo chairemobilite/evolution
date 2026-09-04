@@ -176,7 +176,8 @@ class InterviewUpdateOperation {
                 asyncServerValuesByPath[`response.${key}`] = responseByPath[key];
             });
 
-            // Call the update callback
+            // Do not await: deferred save waits for the in-flight interview
+            // update to finish. Awaiting here would deadlock.
             this.deferredUpdateCallback(asyncServerValuesByPath);
         } catch (error) {
             console.log(
