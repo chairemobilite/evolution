@@ -57,6 +57,13 @@ export async function populateVisitedPlacesForJourney(
             parsedVisitedPlaceAttributes as ExtendedVisitedPlaceAttributes
         );
 
+        // Interview `shortcut` is a response path. Review and admin only need
+        // to know that the place came from a shortcut.
+        if (typeof visitedPlaceAttributes.shortcut === 'string' && visitedPlaceAttributes.shortcut !== '') {
+            visitedPlaceAttributes.isShortcut = true;
+        }
+        delete visitedPlaceAttributes.shortcut;
+
         const visitedPlaceResult = VisitedPlace.create(visitedPlaceAttributes, surveyObjectsRegistry);
 
         if (isOk(visitedPlaceResult)) {
