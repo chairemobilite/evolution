@@ -187,7 +187,7 @@ This analysis provides a roadmap for extending the Evolution platform's audit ca
 | `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.deviceUsed` | Device used for input | ⚠️ | `deviceUsed` | Present in Place |
 | `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.zoom` | Map zoom level | ⚠️ | `zoom` | Present in Place |
 | `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.address` | Address object | ⚠️ | `address` | Present in Place (composed attribute) |
-| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.shortcut` | Place shortcut | ✅ | | Present in VisitedPlace |
+| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.shortcut` | Place shortcut | ⚠️ | `isShortcut` | Interview path is not kept; VisitedPlace stores a boolean |
 | `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.onTheRoadDepartureType` | On-road departure type | ❌ | | Missing in VisitedPlace, used as metadata only |
 | `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.onTheRoadArrivalType` | On-road arrival type | ❌ | | Missing in VisitedPlace, used as metadata only |
 | `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.alreadyVisitedBySelfOrAnotherHouseholdMember` | Already visited by self or household member | ❌ | | Missing in VisitedPlace, used as metadata only |
