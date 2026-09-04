@@ -17,6 +17,8 @@ const visitedPlaceObjectKeyRegex =
 const tripObjectKeyRegex = /^response\.household\.persons\.[0-9a-f-]{36}.journeys.[0-9a-f-]{36}.trips.[0-9a-f-]{36}$/;
 const segmentObjectKeyRegex =
     /^response\.household\.persons\.[0-9a-f-]{36}.journeys.[0-9a-f-]{36}.trips.[0-9a-f-]{36}.segments.[0-9a-f-]{36}$/;
+const tripSegmentsObjectKeyRegex =
+    /^response\.household\.persons\.[0-9a-f-]{36}.journeys.[0-9a-f-]{36}.trips.[0-9a-f-]{36}.segments$/;
 const activePersonKeyRegex = /^response\._activePersonId$/;
 const activeJourneyKeyRegex = /^response\._activeJourneyId$/;
 const activeVisitedPlaceKeyRegex = /^response\._activeVisitedPlaceId$/;
@@ -278,6 +280,30 @@ export class SurveyObjectDetector {
                     const matchGroups = key.match(uuidRegex);
                     if (matchGroups !== null && matchGroups.length === 4) {
                         return { tripId: matchGroups[2], segmentId: matchGroups[3], data: data[key] };
+                    }
+                    throw `Invalid segment found: ${key}`;
+                })
+                .sort((a, b) => a.data['_sequence'] - b.data['_sequence'])
+                .forEach((segmentTrip) => {
+                    if (!this.segments[segmentTrip.tripId]) {
+                        this.segments[segmentTrip.tripId] = [];
+                    }
+                    this.segments[segmentTrip.tripId].push(segmentTrip.segmentId);
+                });
+        }
+        // Segments can also come in objects directly, without uuid in the path
+        const segmentsObjectKeys = Object.keys(data).filter((key) => key.match(tripSegmentsObjectKeyRegex) !== null);
+        if (segmentsObjectKeys.length > 0) {
+            segmentsObjectKeys
+                .flatMap((key) => {
+                    const segmentData = data[key];
+                    const matchGroups = key.match(uuidRegex);
+                    if (matchGroups !== null && matchGroups.length === 3) {
+                        return Object.keys(segmentData).map((segmentUuid) => ({
+                            tripId: matchGroups[2],
+                            segmentId: segmentUuid,
+                            data: segmentData[segmentUuid]
+                        }));
                     }
                     throw `Invalid segment found: ${key}`;
                 })
