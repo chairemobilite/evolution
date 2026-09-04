@@ -18,6 +18,7 @@ import { CorrectedResponse } from 'evolution-common/lib/services/questionnaire/t
 import { SurveyObjectsRegistry } from 'evolution-common/lib/services/baseObjects/SurveyObjectsRegistry';
 import { compareSequenceThenUuid } from 'evolution-common/lib/services/baseObjects/sequenceUtils';
 import { AuditLog } from '../audits/auditLog';
+import { mapInterviewVisitedPlaceTimes } from './interviewVisitedPlaceTimes';
 
 /**
  * Create all visited places for a journey
@@ -49,14 +50,14 @@ export async function populateVisitedPlacesForJourney(
             continue;
         }
 
-        const visitedPlaceAttributes = projectConfig.surveyObjectParsers?.visitedPlace
+        const parsedVisitedPlaceAttributes = projectConfig.surveyObjectParsers?.visitedPlace
             ? projectConfig.surveyObjectParsers.visitedPlace(originalCorrectedVisitedPlaceAttributes, correctedResponse)
             : originalCorrectedVisitedPlaceAttributes;
-
-        const visitedPlaceResult = VisitedPlace.create(
-            visitedPlaceAttributes as ExtendedVisitedPlaceAttributes,
-            surveyObjectsRegistry
+        const visitedPlaceAttributes = mapInterviewVisitedPlaceTimes(
+            parsedVisitedPlaceAttributes as ExtendedVisitedPlaceAttributes
         );
+
+        const visitedPlaceResult = VisitedPlace.create(visitedPlaceAttributes, surveyObjectsRegistry);
 
         if (isOk(visitedPlaceResult)) {
             const visitedPlace = visitedPlaceResult.result;
