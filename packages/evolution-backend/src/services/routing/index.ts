@@ -25,6 +25,18 @@ import {
 } from './RouteCalculationFromTransition';
 
 /**
+ * Inclusive upper bound for departure time, in seconds since midnight.
+ * 28h (4am the next day) is the current default, matching typical
+ * `tripDiaryMaxTimeOfDay` and transit service days that run past midnight.
+ * Other surveys may end at a different hour (1am, 5am, …). This bound may
+ * become configurable.
+ */
+const MAX_DEPARTURE_SECONDS_SINCE_MIDNIGHT = 28 * 3600;
+
+const hasInvalidDepartureTime = (departureSecondsSinceMidnight: number): boolean =>
+    departureSecondsSinceMidnight < 0 || departureSecondsSinceMidnight > MAX_DEPARTURE_SECONDS_SINCE_MIDNIGHT;
+
+/**
  * Calculate the times and distances between 2 points for a list of modes
  * @param modes The list of modes to calculate the routes for
  * @param parameters The parameters for the route calculation
@@ -40,10 +52,7 @@ export const calculateTimeDistanceByMode = async function (
     if (!originCoordinates || !destinationCoordinates) {
         throw new Error('Invalid origin or destination');
     }
-    // Departure time since midnight should be between 0 and 28 hours, not 24 as
-    // transit days can be longer and it will be useful to determine the
-    // scenario to use
-    if (parameters.departureSecondsSinceMidnight < 0 || parameters.departureSecondsSinceMidnight >= 28 * 3600) {
+    if (hasInvalidDepartureTime(parameters.departureSecondsSinceMidnight)) {
         throw new Error('Invalid departure time');
     }
     const tripDateMoment = moment(parameters.departureDateString, 'YYYY-MM-DD');
@@ -78,10 +87,7 @@ export const getTransitSummary = async function (parameters: RouteCalculationPar
     if (!originCoordinates || !destinationCoordinates) {
         throw new Error('Invalid origin or destination');
     }
-    // Departure time since midnight should be between 0 and 28 hours, not 24 as
-    // transit days can be longer and it will be useful to determine the
-    // scenario to use
-    if (parameters.departureSecondsSinceMidnight < 0 || parameters.departureSecondsSinceMidnight >= 28 * 3600) {
+    if (hasInvalidDepartureTime(parameters.departureSecondsSinceMidnight)) {
         throw new Error('Invalid departure time');
     }
     const tripDateMoment = moment(parameters.departureDateString, 'YYYY-MM-DD');
@@ -116,10 +122,7 @@ export const getTransitAccessibilityMap = async function (
     if (!pointCoordinates) {
         throw new Error('Invalid point');
     }
-    // Departure time since midnight should be between 0 and 28 hours, not 24 as
-    // transit days can be longer and it will be useful to determine the
-    // scenario to use
-    if (parameters.departureSecondsSinceMidnight < 0 || parameters.departureSecondsSinceMidnight >= 28 * 3600) {
+    if (hasInvalidDepartureTime(parameters.departureSecondsSinceMidnight)) {
         throw new Error('Invalid departure time');
     }
 
