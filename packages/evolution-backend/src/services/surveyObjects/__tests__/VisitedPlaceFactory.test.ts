@@ -13,6 +13,7 @@ import { Home } from 'evolution-common/lib/services/baseObjects/Home';
 import { Person } from 'evolution-common/lib/services/baseObjects/Person';
 import { createOk, createErrors } from 'evolution-common/lib/types/Result.type';
 import { SurveyObjectsRegistry } from 'evolution-common/lib/services/baseObjects/SurveyObjectsRegistry';
+import { v4 as uuidV4 } from 'uuid';
 
 // Mock VisitedPlace.create
 jest.mock('evolution-common/lib/services/baseObjects/VisitedPlace', () => ({
@@ -287,5 +288,88 @@ describe('VisitedPlaceFactory', () => {
             // Should not throw error and should still add to journey
             expect(journey.addVisitedPlace).toHaveBeenCalledWith(mockVisitedPlace);
         });
+
+        it.each([
+            [
+                'visited place path',
+                (targetVisitedPlaceId: string) =>
+                    `household.persons.${uuidV4()}.journeys.${uuidV4()}.visitedPlaces.${targetVisitedPlaceId}`,
+                (targetVisitedPlaceId: string) => targetVisitedPlaceId
+            ],
+            ['visited place uuid', (targetVisitedPlaceId: string) => targetVisitedPlaceId, (id: string) => id]
+        ])('should pass shortcut as a uuid when it is a %s', async (_title, getShortcut, getExpected) => {
+            const targetVisitedPlaceId = uuidV4();
+            const shortcut = getShortcut(targetVisitedPlaceId);
+            const mockVisitedPlace = {
+                _uuid: 'vp-shortcut',
+                activity: 'shopping',
+                place: { geography: { type: 'Point', coordinates: [-73.6, 45.6] } }
+            } as unknown as VisitedPlace;
+
+            (MockedVisitedPlace.create as jest.Mock).mockReturnValue(createOk(mockVisitedPlace));
+
+            journeyAttributes.visitedPlaces = {
+                'vp-shortcut': {
+                    _uuid: 'vp-shortcut',
+                    _sequence: 1,
+                    activity: 'shopping',
+                    shortcut
+                }
+            } as any;
+
+            await populateVisitedPlacesForJourney(
+                surveyObjectsWithErrors,
+                person,
+                journey,
+                journeyAttributes,
+                home,
+                { uuid: 'test' } as any,
+                surveyObjectsRegistry
+            );
+
+            expect(MockedVisitedPlace.create).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    _uuid: 'vp-shortcut',
+                    shortcut: getExpected(targetVisitedPlaceId)
+                }),
+                surveyObjectsRegistry
+            );
+        });
+
+        it.each(['usualWorkPlace', 'usualSchoolPlace'])(
+            'should omit shortcut when it is a %s path',
+            async (usualPlaceField) => {
+                const shortcutPath = `household.persons.${uuidV4()}.${usualPlaceField}`;
+                const mockVisitedPlace = {
+                    _uuid: 'vp-shortcut',
+                    activity: 'work',
+                    place: { geography: { type: 'Point', coordinates: [-73.6, 45.6] } }
+                } as unknown as VisitedPlace;
+
+                (MockedVisitedPlace.create as jest.Mock).mockReturnValue(createOk(mockVisitedPlace));
+
+                journeyAttributes.visitedPlaces = {
+                    'vp-shortcut': {
+                        _uuid: 'vp-shortcut',
+                        _sequence: 1,
+                        activity: 'work',
+                        shortcut: shortcutPath
+                    }
+                } as any;
+
+                await populateVisitedPlacesForJourney(
+                    surveyObjectsWithErrors,
+                    person,
+                    journey,
+                    journeyAttributes,
+                    home,
+                    { uuid: 'test' } as any,
+                    surveyObjectsRegistry
+                );
+
+                const createdAttributes = (MockedVisitedPlace.create as jest.Mock).mock.calls[0][0];
+                expect(createdAttributes.shortcut).toBeUndefined();
+            }
+        );
     });
 });

@@ -18,6 +18,7 @@ import { CorrectedResponse } from 'evolution-common/lib/services/questionnaire/t
 import { SurveyObjectsRegistry } from 'evolution-common/lib/services/baseObjects/SurveyObjectsRegistry';
 import { compareSequenceThenUuid } from 'evolution-common/lib/services/baseObjects/sequenceUtils';
 import { AuditLog } from '../audits/auditLog';
+import { interviewShortcutToVisitedPlaceUuid, isUsualPlaceInterviewShortcut } from './interviewVisitedPlaceShortcut';
 
 /**
  * Create all visited places for a journey
@@ -49,14 +50,25 @@ export async function populateVisitedPlacesForJourney(
             continue;
         }
 
-        const visitedPlaceAttributes = projectConfig.surveyObjectParsers?.visitedPlace
+        const parsedVisitedPlaceAttributes = projectConfig.surveyObjectParsers?.visitedPlace
             ? projectConfig.surveyObjectParsers.visitedPlace(originalCorrectedVisitedPlaceAttributes, correctedResponse)
             : originalCorrectedVisitedPlaceAttributes;
+        const visitedPlaceAttributes = {
+            ...parsedVisitedPlaceAttributes
+        } as ExtendedVisitedPlaceAttributes;
 
-        const visitedPlaceResult = VisitedPlace.create(
-            visitedPlaceAttributes as ExtendedVisitedPlaceAttributes,
-            surveyObjectsRegistry
-        );
+        // Interview shortcut is a uuid or a response path. Base objects store a
+        // visited-place uuid only; usual-place paths have no VP uuid.
+        if (typeof visitedPlaceAttributes.shortcut === 'string') {
+            const shortcutUuid = interviewShortcutToVisitedPlaceUuid(visitedPlaceAttributes.shortcut);
+            if (shortcutUuid !== undefined) {
+                visitedPlaceAttributes.shortcut = shortcutUuid;
+            } else if (isUsualPlaceInterviewShortcut(visitedPlaceAttributes.shortcut)) {
+                delete visitedPlaceAttributes.shortcut;
+            }
+        }
+
+        const visitedPlaceResult = VisitedPlace.create(visitedPlaceAttributes, surveyObjectsRegistry);
 
         if (isOk(visitedPlaceResult)) {
             const visitedPlace = visitedPlaceResult.result;
