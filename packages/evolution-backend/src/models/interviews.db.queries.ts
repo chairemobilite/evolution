@@ -474,8 +474,13 @@ const getRawWhereClause = (
             return [undefined];
         }
         const values = typeof filter.value === 'string' ? [filter.value] : filter.value;
-        const matches = values.map((value) => value.match(dotSeparatedStringRegex));
-        if (matches.find((m) => m === null) !== undefined) {
+        // An audit error code is a slug: the codes of the audit checks are
+        // identifiers, and those of the parameter validations are slugified
+        // messages, like `Person-validateParams:-age-should-be-a-positive-integer`,
+        // so they may contain any punctuation `slugify` emits, but never
+        // whitespace. The value itself is bound to the query below, so this
+        // only rejects values that cannot be an error code.
+        if (values.some((value) => typeof value !== 'string' || /\s/.test(value))) {
             throw new TrError(
                 `Invalid value for where clause in ${tableName} database`,
                 'DBQCR0006',

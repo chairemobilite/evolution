@@ -34,6 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Generator: fix export of excel_to_csv boolean columns to always be "TRUE"/"FALSE" (fixes [#1743](https://github.com/chairemobilite/evolution/issues/1743))
 - Routing: accept a departure time of exactly 28 hours since midnight (4am the next day) for transit summary, time/distance and accessibility map (fixes [#1930](https://github.com/chairemobilite/evolution/issues/1930))
+- Admin: filtering the interview list or the audit stats by an audit coming from a parameter validation no longer fails, as the code of those audits is a slugified message and held punctuation the filter refused (fixes [#1927](https://github.com/chairemobilite/evolution/issues/1927))
 
 ### Security
 
