@@ -22,7 +22,9 @@ type ParadataEventType =
     | 'server_event'
     | 'section_change'
     | 'language_change'
-    | 'interview_open';
+    | 'interview_open'
+    | 'support_request_sent'
+    | 'support_request_opened';
 
 const log = async ({
     interviewId,
@@ -136,13 +138,13 @@ const createParadataWithWidgetPathTable = async (trx: Knex.Transaction): Promise
             CREATE TEMPORARY TABLE ${tempTableName}
             ON COMMIT DROP
             AS
-            SELECT 
+            SELECT
                 interview_id,
                 timestamp,
                 user_id,
                 event_type,
                 event_data,
-                CASE 
+                CASE
                     WHEN event_type = 'widget_interaction' THEN event_data->'userAction'->>'path'
                     WHEN event_type = 'section_change' THEN event_data->'userAction'->'targetSection'->>'sectionShortname'
                     WHEN event_type = 'button_click' THEN event_data->'userAction'->>'buttonId'
@@ -158,13 +160,13 @@ const createParadataWithWidgetPathTable = async (trx: Knex.Transaction): Promise
 
         // Create index on interview_id for faster queries
         await trx.raw(`
-            CREATE INDEX idx_${tempTableName}_interview_id 
+            CREATE INDEX idx_${tempTableName}_interview_id
             ON ${tempTableName}(interview_id)
         `);
 
         // Create index on timestamp for time-based queries
         await trx.raw(`
-            CREATE INDEX idx_${tempTableName}_timestamp 
+            CREATE INDEX idx_${tempTableName}_timestamp
             ON ${tempTableName}(timestamp)
         `);
     } catch (error) {

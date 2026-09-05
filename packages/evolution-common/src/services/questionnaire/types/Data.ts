@@ -500,7 +500,8 @@ export type UserAction =
           type: 'interviewOpen';
           browser: { [key: string]: unknown };
           language: string;
-      };
+      }
+    | { type: 'supportRequestOpened' };
 
 /**
  * Type of the callback to send interview updates to the server
