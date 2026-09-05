@@ -10,8 +10,11 @@ import config from 'chaire-lib-backend/lib/config/server.config';
 
 import paradataEventsDbQueries from '../../models/paradataEvents.db.queries';
 
+// Type that extends user action with server side only actions
+type UserOrServerAction = UserAction | { type: 'supportRequestSent' };
+
 export type ParadataLoggingFunction = (logData: {
-    userAction?: UserAction;
+    userAction?: UserOrServerAction;
     valuesByPath?: Record<string, any>;
     unsetPaths?: string[];
     server?: boolean;
@@ -46,7 +49,7 @@ const enqueueLog = (logData: Parameters<typeof paradataEventsDbQueries.log>[0]):
 };
 
 const userActionTypeToDbType = (
-    userAction: UserAction
+    userAction: UserOrServerAction
 ): Parameters<typeof paradataEventsDbQueries.log>[0]['eventType'] => {
     switch (userAction.type) {
     case 'buttonClick':
@@ -59,6 +62,10 @@ const userActionTypeToDbType = (
         return 'language_change';
     case 'interviewOpen':
         return 'interview_open';
+    case 'supportRequestSent':
+        return 'support_request_sent';
+    case 'supportRequestOpened':
+        return 'support_request_opened';
     default:
         console.warn(`Unknown user action type: ${(userAction as any).type}. Falling back to 'legacy'.`);
         return 'legacy';
@@ -69,9 +76,14 @@ export const isUserAction = (data: unknown): data is UserAction =>
     data !== null &&
     typeof data === 'object' &&
     typeof (data as Record<string, unknown>).type === 'string' &&
-    ['buttonClick', 'widgetInteraction', 'sectionChange', 'languageChange', 'interviewOpen'].includes(
-        (data as Record<string, unknown>).type as string
-    );
+    [
+        'buttonClick',
+        'widgetInteraction',
+        'sectionChange',
+        'languageChange',
+        'interviewOpen',
+        'supportRequestOpened'
+    ].includes((data as Record<string, unknown>).type as string);
 
 /**
  * Get the paradata logging functions for a given interview and user

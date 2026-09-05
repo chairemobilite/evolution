@@ -44,6 +44,10 @@ describe('isUserAction', () => {
         {
             name: 'interview open',
             userAction: { type: 'interviewOpen', browser: { name: 'Firefox' }, language: 'fr' }
+        },
+        {
+            name: 'support request opened',
+            userAction: { type: 'supportRequestOpened' }
         }
     ])('valid $name', ({ userAction }) => {
         expect(isUserAction(userAction)).toEqual(true);
@@ -71,117 +75,59 @@ describe('Log for a participant', () => {
 
     const logFunction = getParadataLoggingFunction({ interviewId });
 
-    it('Should correctly log a widget interaction', async () => {
-        expect(logFunction).toBeDefined();
-        const userAction = {
-            type: 'widgetInteraction' as const,
-            widgetType: 'string',
-            path: 'testWidget',
-            value: 'myValue'
-        };
-        const logData = { valuesByPath: {someData: 'test'} };
-
-        expect(await logFunction!({ userAction, ...logData})).toBe(true);
-
-        expect(mockLog).toHaveBeenCalledWith({
+    it.each([
+        {
+            name: 'widget interaction',
+            userAction: { type: 'widgetInteraction', widgetType: 'string', path: 'testWidget', value: 'myValue' },
             eventType: 'widget_interaction',
-            eventData: {
-                ...logData,
-                userAction
-            },
-            interviewId,
-            userId: undefined,
-            forCorrection: false
-        });
-    });
-
-    it('Should correctly log a button click', async () => {
-        const userAction = {
-            type: 'buttonClick' as const,
-            buttonId: 'button1'
-        };
-        const logData = { valuesByPath: {someData: 'test'}, unsetPaths: ['path1', 'path2'] };
-
-        expect(await logFunction!({ userAction, ...logData})).toBe(true);
-
-        expect(mockLog).toHaveBeenCalledWith({
+            logData: { valuesByPath: { someData: 'test' } }
+        },
+        {
+            name: 'button click',
+            userAction: { type: 'buttonClick', buttonId: 'button1' },
             eventType: 'button_click',
-            eventData: {
-                ...logData,
-                userAction
-            },
-            interviewId,
-            userId: undefined,
-            forCorrection: false
-        });
-        
-    });
-
-    it('Should correctly log a section change', async () => {
-        const userAction = {
-            type: 'sectionChange' as const,
-            targetSection: { sectionShortname: 'section1' }
-        };
-        const logData = { valuesByPath: {someData: 'test'}, unsetPaths: ['path1', 'path2'] };
-
-        expect(await logFunction!({ userAction, ...logData})).toBe(true);
-
-        expect(mockLog).toHaveBeenCalledWith({
+            logData: { valuesByPath: { someData: 'test' }, unsetPaths: ['path1', 'path2'] }
+        },
+        {
+            name: 'section change',
+            userAction: { type: 'sectionChange', targetSection: { sectionShortname: 'section1' } },
             eventType: 'section_change',
-            eventData: {
-                ...logData,
-                userAction
-            },
-            interviewId,
-            userId: undefined,
-            forCorrection: false
-        });
-        
-    });
-
-    it('Should correctly log a language change', async () => {
-        const userAction: UserAction = {
-            type: 'languageChange' as const,
-            language: 'fr'
-        };
-        const logData = { valuesByPath: {someData: 'test'}, unsetPaths: ['path1', 'path2'] };
-
-        expect(await logFunction!({ userAction, ...logData})).toBe(true);
-
-        expect(mockLog).toHaveBeenCalledWith({
+            logData: { valuesByPath: { someData: 'test' }, unsetPaths: ['path1', 'path2'] }
+        },
+        {
+            name: 'language change',
+            userAction: { type: 'languageChange', language: 'fr' },
             eventType: 'language_change',
-            eventData: {
-                ...logData,
-                userAction
-            },
-            interviewId,
-            userId: undefined,
-            forCorrection: false
-        });
-        
-    });
-
-    it('Should correctly log a interview open', async () => {
-        const userAction: UserAction = {
-            type: 'interviewOpen' as const,
-            browser: { name: 'Firefox'},
-            language: 'fr'
-        };
-        const logData = { valuesByPath: {someData: 'test'}, unsetPaths: ['path1', 'path2'] };
-
-        expect(await logFunction!({ userAction, ...logData})).toBe(true);
-
-        expect(mockLog).toHaveBeenCalledWith({
+            logData: { valuesByPath: { someData: 'test' }, unsetPaths: ['path1', 'path2'] }
+        },
+        {
+            name: 'interview open',
+            userAction: { type: 'interviewOpen', browser: { name: 'Firefox' }, language: 'fr' },
             eventType: 'interview_open',
-            eventData: {
-                ...logData,
-                userAction
-            },
+            logData: { valuesByPath: { someData: 'test' }, unsetPaths: ['path1', 'path2'] }
+        },
+        {
+            name: 'support request sent',
+            userAction: { type: 'supportRequestSent' },
+            eventType: 'support_request_sent',
+            logData: {}
+        },
+        {
+            name: 'support request opened',
+            userAction: { type: 'supportRequestOpened' },
+            eventType: 'support_request_opened',
+            logData: {}
+        }
+    ])('Should correctly log a $name', async ({ userAction, eventType, logData }) => {
+        expect(logFunction).toBeDefined();
+        expect(await logFunction!({ userAction: userAction as UserAction, ...logData })).toBe(true);
+        expect(mockLog).toHaveBeenCalledWith({
+            eventType,
+            eventData: { ...logData, userAction },
             interviewId,
             userId: undefined,
             forCorrection: false
         });
-        
     });
 
     it('Should correctly log a server event', async () => {
@@ -247,7 +193,7 @@ describe('Log for a participant', () => {
             userId: undefined,
             forCorrection: false
         });
-        
+
     });
 
     it('Should return false if error on server event', async () => {
@@ -267,9 +213,9 @@ describe('Log for a participant', () => {
 });
 
 describe.each([
-    [true],
-    [false],
-])('Log for a user with forCorrection set to `%s`', (forCorrection) => {
+    { forCorrection: true },
+    { forCorrection: false }
+])('Log for a user with forCorrection set to `$forCorrection`', ({ forCorrection }) => {
 
     const interviewId = 123;
     const userId = 456;
@@ -279,117 +225,59 @@ describe.each([
         (config as any).logDatabaseUpdates = true;
     });
 
-    it('Should correctly log a widget interaction', async () => {
-        expect(logFunction).toBeDefined();
-        const userAction = {
-            type: 'widgetInteraction' as const,
-            widgetType: 'string',
-            path: 'testWidget',
-            value: 'myValue'
-        };
-        const logData = { valuesByPath: {someData: 'test'} };
-
-        expect(await logFunction!({ userAction, ...logData})).toBe(true);
-
-        expect(mockLog).toHaveBeenCalledWith({
+    it.each([
+        {
+            name: 'widget interaction',
+            userAction: { type: 'widgetInteraction', widgetType: 'string', path: 'testWidget', value: 'myValue' },
             eventType: 'widget_interaction',
-            eventData: {
-                ...logData,
-                userAction
-            },
-            interviewId,
-            userId,
-            forCorrection
-        });
-    });
-
-    it('Should correctly log a button click', async () => {
-        const userAction = {
-            type: 'buttonClick' as const,
-            buttonId: 'button1'
-        };
-        const logData = { valuesByPath: {someData: 'test'}, unsetPaths: ['path1', 'path2'] };
-
-        expect(await logFunction!({ userAction, ...logData})).toBe(true);
-
-        expect(mockLog).toHaveBeenCalledWith({
+            logData: { valuesByPath: { someData: 'test' } }
+        },
+        {
+            name: 'button click',
+            userAction: { type: 'buttonClick', buttonId: 'button1' },
             eventType: 'button_click',
-            eventData: {
-                ...logData,
-                userAction
-            },
-            interviewId,
-            userId,
-            forCorrection
-        });
-        
-    });
-
-    it('Should correctly log a section change', async () => {
-        const userAction = {
-            type: 'sectionChange' as const,
-            targetSection: { sectionShortname: 'section1' }
-        };
-        const logData = { valuesByPath: {someData: 'test'}, unsetPaths: ['path1', 'path2'] };
-
-        expect(await logFunction!({ userAction, ...logData})).toBe(true);
-
-        expect(mockLog).toHaveBeenCalledWith({
+            logData: { valuesByPath: { someData: 'test' }, unsetPaths: ['path1', 'path2'] }
+        },
+        {
+            name: 'section change',
+            userAction: { type: 'sectionChange', targetSection: { sectionShortname: 'section1' } },
             eventType: 'section_change',
-            eventData: {
-                ...logData,
-                userAction
-            },
-            interviewId,
-            userId,
-            forCorrection
-        });
-        
-    });
-
-    it('Should correctly log a language change', async () => {
-        const userAction: UserAction = {
-            type: 'languageChange' as const,
-            language: 'fr'
-        };
-        const logData = { valuesByPath: {someData: 'test'}, unsetPaths: ['path1', 'path2'] };
-
-        expect(await logFunction!({ userAction, ...logData})).toBe(true);
-
-        expect(mockLog).toHaveBeenCalledWith({
+            logData: { valuesByPath: { someData: 'test' }, unsetPaths: ['path1', 'path2'] }
+        },
+        {
+            name: 'language change',
+            userAction: { type: 'languageChange', language: 'fr' },
             eventType: 'language_change',
-            eventData: {
-                ...logData,
-                userAction
-            },
-            interviewId,
-            userId,
-            forCorrection
-        });
-        
-    });
-
-    it('Should correctly log a interview open', async () => {
-        const userAction: UserAction = {
-            type: 'interviewOpen' as const,
-            browser: { name: 'Firefox'},
-            language: 'fr'
-        };
-        const logData = { valuesByPath: {someData: 'test'}, unsetPaths: ['path1', 'path2'] };
-
-        expect(await logFunction!({ userAction, ...logData})).toBe(true);
-
-        expect(mockLog).toHaveBeenCalledWith({
+            logData: { valuesByPath: { someData: 'test' }, unsetPaths: ['path1', 'path2'] }
+        },
+        {
+            name: 'interview open',
+            userAction: { type: 'interviewOpen', browser: { name: 'Firefox' }, language: 'fr' },
             eventType: 'interview_open',
-            eventData: {
-                ...logData,
-                userAction
-            },
+            logData: { valuesByPath: { someData: 'test' }, unsetPaths: ['path1', 'path2'] }
+        },
+        {
+            name: 'support request sent',
+            userAction: { type: 'supportRequestSent' },
+            eventType: 'support_request_sent',
+            logData: {}
+        },
+        {
+            name: 'support request opened',
+            userAction: { type: 'supportRequestOpened' },
+            eventType: 'support_request_opened',
+            logData: {}
+        }
+    ])('Should correctly log a $name', async ({ userAction, eventType, logData }) => {
+        expect(logFunction).toBeDefined();
+        expect(await logFunction!({ userAction: userAction as UserAction, ...logData })).toBe(true);
+        expect(mockLog).toHaveBeenCalledWith({
+            eventType,
+            eventData: { ...logData, userAction },
             interviewId,
             userId,
             forCorrection
         });
-        
     });
 
     it('Should correctly log a server event', async () => {
@@ -420,7 +308,7 @@ describe.each([
         });
     });
 
-    it('Should return false if error on user action', async () => {
+    it('Should return false if error when logging paradata', async () => {
         const userAction = {
             type: 'buttonClick' as const,
             buttonId: 'button1'

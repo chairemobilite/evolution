@@ -8,6 +8,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import projectConfig from 'evolution-common/lib/config/project.config';
 import SupportForm from './SupportForm';
+import { logClientEvent } from '../../services/paradata/paradataLogging';
 
 const FloatingSupportForm: React.FC = () => {
     const { t } = useTranslation(['survey', 'main']);
@@ -17,6 +18,10 @@ const FloatingSupportForm: React.FC = () => {
 
     const toggleForm = () => {
         setIsExpanded(!isExpanded);
+        // Log a client event if the form is expanded
+        if (!isExpanded) {
+            logClientEvent({ type: 'supportRequestOpened' });
+        }
     };
 
     // Handle clicks outside the form to close it

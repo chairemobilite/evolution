@@ -336,9 +336,11 @@ describe('POST /supportRequest', () => {
         });
         expect(Interviews.getUserInterview).not.toHaveBeenCalled();
         expect(mockedValidateCaptchaToken).toHaveBeenCalledTimes(1);
+        // There should have been no paradata logging
+        expect(mockGetParadataLoggingFunction).not.toHaveBeenCalled();
     });
 
-    test('should handle support request successfully when user is logged in', async () => {
+    test('should handle support request successfully when user is logged in, and log paradata', async () => {
         // Set up a mock app that simulates logged-in user
         const loggedInApp = express();
         loggedInApp.use(express.json());
@@ -348,9 +350,12 @@ describe('POST /supportRequest', () => {
         });
         loggedInApp.use(getPublicParticipantRoutes(mockLoggingMiddleware));
 
+        // Return the paradata logging function as well
         const mockInterview = { id: 42 };
+        const logFunction = jest.fn();
         (Interviews.getUserInterview as jest.Mock).mockResolvedValue(mockInterview);
         (sendSupportRequestEmail as jest.Mock).mockResolvedValue(undefined);
+        mockGetParadataLoggingFunction.mockReturnValue(logFunction);
 
         const requestData = {
             email: 'test@example.com',
@@ -368,6 +373,13 @@ describe('POST /supportRequest', () => {
             userEmail: requestData.email,
             interviewId: mockInterview.id,
             currentUrl: requestData.currentUrl
+        });
+        expect(mockGetParadataLoggingFunction).toHaveBeenCalledWith({
+            interviewId: mockInterview.id,
+            userId: undefined
+        });
+        expect(logFunction).toHaveBeenCalledWith({
+            userAction: { type: 'supportRequestSent' }
         });
         expect(mockedValidateCaptchaToken).toHaveBeenCalledTimes(1);
     });
@@ -405,6 +417,86 @@ describe('POST /supportRequest', () => {
 
         expect(response.status).toBe(500);
         expect(response.body).toEqual({ status: 'failed' });
+        expect(mockedValidateCaptchaToken).toHaveBeenCalledTimes(1);
+    });
+
+    test('should not log paradata for logged in user and request failed', async () => {
+        // Set up a mock app that simulates logged-in user
+        const loggedInApp = express();
+        loggedInApp.use(express.json());
+        loggedInApp.use((req, res, next) => {
+            req.user = { id: mockUserId };
+            next();
+        });
+        loggedInApp.use(getPublicParticipantRoutes(mockLoggingMiddleware));
+
+        // Return the paradata logging function as well
+        const mockInterview = { id: 42 };
+        const logFunction = jest.fn();
+        mockGetParadataLoggingFunction.mockReturnValue(logFunction);
+        (Interviews.getUserInterview as jest.Mock).mockResolvedValue(mockInterview);
+        (sendSupportRequestEmail as jest.Mock).mockRejectedValue(new Error('Email sending failed'));
+
+        const requestData = {
+            email: 'test@example.com',
+            message: 'Help me please',
+            currentUrl: 'http://test.com/page'
+        };
+
+        const response = await request(loggedInApp).post('/supportRequest/').send(requestData);
+
+        expect(response.status).toBe(500);
+        expect(response.body).toEqual({ status: 'failed' });
+        expect(Interviews.getUserInterview).toHaveBeenCalledWith(mockUserId);
+        expect(sendSupportRequestEmail).toHaveBeenCalledWith({
+            message: requestData.message,
+            userEmail: requestData.email,
+            interviewId: mockInterview.id,
+            currentUrl: requestData.currentUrl
+        });
+        // Paradata logging function should not have been called
+        expect(mockGetParadataLoggingFunction).not.toHaveBeenCalled();
+        expect(logFunction).not.toHaveBeenCalled();
+        expect(mockedValidateCaptchaToken).toHaveBeenCalledTimes(1);
+    });
+
+    test('should not log paradata if logging is disabled', async () => {
+        // Set up a mock app that simulates logged-in user
+        const loggedInApp = express();
+        loggedInApp.use(express.json());
+        loggedInApp.use((req, res, next) => {
+            req.user = { id: mockUserId };
+            next();
+        });
+        loggedInApp.use(getPublicParticipantRoutes(mockLoggingMiddleware));
+
+        // Return the paradata logging function as well
+        const mockInterview = { id: 42 };
+        (Interviews.getUserInterview as jest.Mock).mockResolvedValue(mockInterview);
+        (sendSupportRequestEmail as jest.Mock).mockResolvedValue(undefined);
+        mockGetParadataLoggingFunction.mockReturnValue(undefined);
+
+        const requestData = {
+            email: 'test@example.com',
+            message: 'Help me please',
+            currentUrl: 'http://test.com/page'
+        };
+
+        const response = await request(loggedInApp).post('/supportRequest/').send(requestData);
+
+        expect(response.status).toBe(200);
+        expect(response.body).toEqual({ status: 'success' });
+        expect(Interviews.getUserInterview).toHaveBeenCalledWith(mockUserId);
+        expect(sendSupportRequestEmail).toHaveBeenCalledWith({
+            message: requestData.message,
+            userEmail: requestData.email,
+            interviewId: mockInterview.id,
+            currentUrl: requestData.currentUrl
+        });
+        expect(mockGetParadataLoggingFunction).toHaveBeenCalledWith({
+            interviewId: mockInterview.id,
+            userId: undefined
+        });
         expect(mockedValidateCaptchaToken).toHaveBeenCalledTimes(1);
     });
 

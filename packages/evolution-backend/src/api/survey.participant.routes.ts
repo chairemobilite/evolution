@@ -45,6 +45,20 @@ export const getPublicParticipantRoutes = (loggingMiddleware: InterviewLoggingMi
                     interviewId,
                     currentUrl: content.currentUrl
                 });
+                // Log this support request in the paradata if logging is enabled
+                if (interviewId !== undefined) {
+                    const paradataLoggingFct = getParadataLoggingFunction({
+                        interviewId,
+                        userId: loggingMiddleware.getUserIdForLogging(req)
+                    });
+                    if (paradataLoggingFct !== undefined) {
+                        paradataLoggingFct({
+                            userAction: {
+                                type: 'supportRequestSent'
+                            }
+                        });
+                    }
+                }
 
                 return res.status(200).json({ status: 'success' });
             } catch (error) {
