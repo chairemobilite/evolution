@@ -690,7 +690,7 @@ describe('exportInterviewLogTask', () => {
             platform: '',
             language: ''
         });
-        
+
     });
 
     test('Test with an event of type language_change with user action', async () => {
@@ -798,6 +798,58 @@ describe('exportInterviewLogTask', () => {
             hiddenWidgets: '',
             invalidFields: '',
             validFields: 'home.geography',
+            browser: '',
+            os: '',
+            platform: '',
+            language: ''
+        });
+    });
+
+    test('Test with an event of type help_popup_clicked with user action', async () => {
+        // Add one log statement, with/without hidden paths to test the button_click event:
+        const userAction: UserAction = { type: 'helpPopupClicked', path: 'path.to.widget' };
+        const helpPopupClickedLogs: { [key: string]: any }[] = [{
+            ...commonInterviewData,
+            event_type: 'help_popup_clicked',
+            timestamp_sec: 1,
+            event_date: new Date(1 * 1000),
+            user_action: userAction
+        }];
+        // Add the logs to the stream
+        mockGetInterviewLogsStream.mockReturnValue(new ObjectReadableMock(helpPopupClickedLogs) as any);
+
+        const fileName = await exportInterviewLogTask({});
+
+        // Check the file content of the exported logs
+        expect(mockCreateStream).toHaveBeenCalledTimes(1);
+        expect(mockGetInterviewLogsStream).toHaveBeenCalledWith({ forCorrection: undefined, interviewId: undefined });
+
+        const csvFileName = Object.keys(fileStreams).find((filename) => filename.endsWith(fileName));
+        expect(csvFileName).toBeDefined();
+
+        const csvStream = fileStreams[csvFileName as string];
+        // There should be one row per log
+        expect(csvStream.data.length).toEqual(helpPopupClickedLogs.length);
+
+        // Get the actual rows in the file data
+        const logRows = await getCsvFileRows(csvStream.data);
+        // There should be one row per log
+        expect(logRows.length).toEqual(helpPopupClickedLogs.length);
+
+        // Test the row values
+        expect(logRows[0]).toEqual({
+            ...commonInterviewDataInRows,
+            event_type: 'help_popup_clicked',
+            timestampMs : String((1) * 1000),
+            event_date: new Date((1) * 1000).toISOString(),
+            modifiedFields: '',
+            initializedFields: '',
+            unsetFields: '',
+            widgetType: '',
+            widgetPath: 'path.to.widget',
+            hiddenWidgets: '',
+            invalidFields: '',
+            validFields: '',
             browser: '',
             os: '',
             platform: '',

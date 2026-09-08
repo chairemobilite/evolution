@@ -59,6 +59,7 @@ const FieldsetWrapper = (props: React.PropsWithChildren<InputWidgetWrapperProps>
                             containsHtml={props.widgetConfig.helpPopup?.containsHtml === true}
                             title={props.helpTitle}
                             content={props.helpContent}
+                            widgetPath={props.widgetConfig.path}
                         />
                     )}
                 </legend>
@@ -119,6 +120,7 @@ export const LabelOrDivWrapper = (
                         containsHtml={props.widgetConfig.helpPopup?.containsHtml === true}
                         title={props.helpTitle}
                         content={props.helpContent}
+                        widgetPath={props.widgetConfig.path}
                     />
                 )}
             </div>

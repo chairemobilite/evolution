@@ -66,6 +66,8 @@ const userActionTypeToDbType = (
         return 'support_request_sent';
     case 'supportRequestOpened':
         return 'support_request_opened';
+    case 'helpPopupClicked':
+        return 'help_popup_clicked';
     default:
         console.warn(`Unknown user action type: ${(userAction as any).type}. Falling back to 'legacy'.`);
         return 'legacy';
@@ -82,7 +84,8 @@ export const isUserAction = (data: unknown): data is UserAction =>
         'sectionChange',
         'languageChange',
         'interviewOpen',
-        'supportRequestOpened'
+        'supportRequestOpened',
+        'helpPopupClicked'
     ].includes((data as Record<string, unknown>).type as string);
 
 /**

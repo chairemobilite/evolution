@@ -48,6 +48,10 @@ describe('isUserAction', () => {
         {
             name: 'support request opened',
             userAction: { type: 'supportRequestOpened' }
+        },
+        {
+            name: 'help popup clicked',
+            userAction: { type: 'helpPopupClicked', path: 'path.to.widget' }
         }
     ])('valid $name', ({ userAction }) => {
         expect(isUserAction(userAction)).toEqual(true);
@@ -116,6 +120,12 @@ describe('Log for a participant', () => {
             name: 'support request opened',
             userAction: { type: 'supportRequestOpened' },
             eventType: 'support_request_opened',
+            logData: {}
+        },
+        {
+            name: 'help popup clicked',
+            userAction: { type: 'helpPopupClicked', path: 'path.to.widget' },
+            eventType: 'help_popup_clicked',
             logData: {}
         }
     ])('Should correctly log a $name', async ({ userAction, eventType, logData }) => {
