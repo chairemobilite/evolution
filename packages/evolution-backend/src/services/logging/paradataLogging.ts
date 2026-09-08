@@ -65,6 +65,14 @@ const userActionTypeToDbType = (
     }
 };
 
+export const isUserAction = (data: unknown): data is UserAction =>
+    data !== null &&
+    typeof data === 'object' &&
+    typeof (data as Record<string, unknown>).type === 'string' &&
+    ['buttonClick', 'widgetInteraction', 'sectionChange', 'languageChange', 'interviewOpen'].includes(
+        (data as Record<string, unknown>).type as string
+    );
+
 /**
  * Get the paradata logging functions for a given interview and user
  *

@@ -12,6 +12,7 @@ import { InterviewLoggingMiddlewares } from '../../services/logging/queryLogging
 import Interviews from '../../services/interviews/interviews';
 import { addRolesToInterview } from '../../services/interviews/interview';
 import { isLoggedIn } from 'chaire-lib-backend/lib/services/auth/authorization';
+import { getParadataLoggingFunction } from '../../services/logging/paradataLogging';
 
 jest.mock('../../services/interviews/interviews', () => ({
     getInterviewByUuid: jest.fn()
@@ -22,6 +23,9 @@ jest.mock('../../services/interviews/interview', () => ({
 }));
 const mockAddRolesToInterview = addRolesToInterview as jest.MockedFunction<typeof addRolesToInterview>;
 jest.mock('../../services/logging/queryLoggingMiddleware');
+jest.mock('../../services/logging/paradataLogging', () => ({
+    getParadataLoggingFunction: jest.fn()
+}));
 
 const mockUserId = 3;
 const mockAuthorizationMiddleware = jest.fn(() => (req, res, next) => next());
@@ -39,6 +43,9 @@ jest.mock('chaire-lib-backend/lib/services/auth/authorization', () => ({
     }),
 }));
 const mockIsLoggedIn = isLoggedIn as jest.MockedFunction<typeof isLoggedIn>;
+const mockGetParadataLoggingFunction = getParadataLoggingFunction as jest.MockedFunction<
+    typeof getParadataLoggingFunction
+>;
 
 const app = express();
 app.use(express.json());
@@ -107,5 +114,116 @@ describe('GET /survey/activeInterview/:interviewUuid', () => {
         const response = await request(app).get('/survey/activeInterview/notAUuid');
         expect(response.status).toBe(400);
         expect(response.body).toEqual({ status: 'failed', error: "Invalid interview ID" });
+    });
+});
+
+describe('POST /survey/logClientEvent', () => {
+    const clientEvent = { type: 'buttonClick', path: 'survey.next' };
+
+    beforeEach(() => {
+        jest.clearAllMocks();
+        mockGetParadataLoggingFunction.mockReturnValue(undefined);
+        (mockLoggingMiddleware.getUserIdForLogging as jest.Mock).mockReturnValue(mockUserId);
+    });
+
+    test('should log an event for an admin user with an interview ID', async () => {
+        const logFunction = jest.fn();
+        mockGetParadataLoggingFunction.mockReturnValue(logFunction);
+
+        const response = await request(app)
+            .post('/survey/logClientEvent/')
+            .send({ interviewId: 42, clientEvent });
+
+        expect(response.status).toBe(200);
+        expect(response.body).toEqual({ status: 'success' });
+        expect(mockGetParadataLoggingFunction).toHaveBeenCalledWith({
+            interviewId: 42,
+            userId: mockUserId
+        });
+        expect(logFunction).toHaveBeenCalledWith({ userAction: clientEvent });
+    });
+
+    test('should return 400 when the interview ID is missing', async () => {
+        const response = await request(app).post('/survey/logClientEvent/').send({ clientEvent });
+
+        expect(response.status).toBe(400);
+        expect(response.body).toEqual({ status: 'MissingInterviewId' });
+        expect(mockGetParadataLoggingFunction).not.toHaveBeenCalled();
+    });
+
+    test.each([
+        ['a UUID', uuidV4()],
+        ['a non-numeric string', 'not-an-id'],
+        ['a decimal number', 42.5],
+        ['zero', 0],
+        ['a negative number', -1],
+        ['a boolean', true]
+    ])('should return 400 for %s as the interview ID', async (_description, interviewId) => {
+        const response = await request(app)
+            .post('/survey/logClientEvent/')
+            .send({ interviewId, clientEvent });
+
+        expect(response.status).toBe(400);
+        expect(response.body).toEqual({ status: 'InvalidInterviewId' });
+        expect(mockGetParadataLoggingFunction).not.toHaveBeenCalled();
+    });
+
+    test('should accept a positive integer interview ID provided as a numeric string', async () => {
+        const response = await request(app)
+            .post('/survey/logClientEvent/')
+            .send({ interviewId: '42', clientEvent });
+
+        expect(response.status).toBe(200);
+        expect(response.body).toEqual({ status: 'success' });
+        expect(mockGetParadataLoggingFunction).toHaveBeenCalledWith({
+            interviewId: 42,
+            userId: mockUserId
+        });
+    });
+
+    test('should return 400 if the req user is not defined', async () => {
+        mockIsLoggedIn.mockImplementationOnce((req, res, next) => {
+            req.user = undefined;
+            next();
+        });
+
+        const response = await request(app)
+            .post('/survey/logClientEvent/')
+            .send({ interviewId: 42, clientEvent });
+
+        expect(response.status).toBe(400);
+        expect(response.body).toEqual({ status: 'BadRequest' });
+        expect(mockGetParadataLoggingFunction).not.toHaveBeenCalled();
+    });
+
+    test('should accept an event when database paradata logging is disabled', async () => {
+        const response = await request(app)
+            .post('/survey/logClientEvent/')
+            .send({ interviewId: 42, clientEvent });
+
+        expect(response.status).toBe(200);
+        expect(response.body).toEqual({ status: 'success' });
+        expect(mockGetParadataLoggingFunction).toHaveBeenCalledWith({
+            interviewId: 42,
+            userId: mockUserId
+        });
+    });
+
+    test('should return 500 when paradata logging fails', async () => {
+        mockGetParadataLoggingFunction.mockImplementationOnce(() => {
+            throw new Error('Logging error');
+        });
+        const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+
+        try {
+             const response = await request(app)
+                .post('/survey/logClientEvent/')
+                .send({ interviewId: 42, clientEvent });
+
+            expect(response.status).toBe(500);
+            expect(response.body).toEqual({ status: 'failed' });
+        } finally {
+            consoleErrorSpy.mockRestore();
+        }
     });
 });

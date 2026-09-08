@@ -23,6 +23,7 @@ import '../../styles/survey/styles-participant-survey.scss';
 import verifyAuthentication from 'chaire-lib-frontend/lib/services/auth/verifyAuthentication';
 import SegmentsSection from '../../components/survey/sectionTemplates/TripsAndSegmentsSection';
 import VisitedPlacesSection from '../../components/survey/sectionTemplates/VisitedPlacesSection';
+import { setLogClientEventRoute } from '../../services/paradata/paradataLogging';
 
 setApplicationConfiguration({
     homePage: '/survey',
@@ -33,6 +34,9 @@ type AppSettings = {
     // Additional app context, that can be used as context in basic translations strings
     appContext?: string;
 };
+
+// Set client event route for the participant app to the public route
+setLogClientEventRoute('/public/logClientEvent');
 
 const App = (settings?: AppSettings) => {
     document.title = config.title[i18n.language];

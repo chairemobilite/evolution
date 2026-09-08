@@ -24,6 +24,7 @@ import SegmentsSection from '../../components/survey/sectionTemplates/TripsAndSe
 import VisitedPlacesSection from '../../components/survey/sectionTemplates/VisitedPlacesSection';
 import { UserPermissions } from 'chaire-lib-common/lib/services/user/userType';
 import { Toaster } from 'sonner';
+import { setLogClientEventRoute } from '../../services/paradata/paradataLogging';
 
 // TODO This is a workaround to get the links to the user, until some more complete solution is implemented (see https://github.com/chairemobilite/transition/issues/1516)
 const pages: { path: string; permissions: UserPermissions; title: string }[] = [
@@ -36,6 +37,9 @@ setApplicationConfiguration({
     pages,
     templateMapping: { tripsAndSegmentsWithMap: SegmentsSection, visitedPlaces: VisitedPlacesSection }
 });
+
+// Set client event route for the admin app to a guarded route
+setLogClientEventRoute('/api/survey/logClientEvent');
 
 export default () => {
     document.title = config.title[i18n.language];

@@ -11,10 +11,19 @@ import Interviews from '../../services/interviews/interviews';
 import { InterviewLoggingMiddlewares } from '../../services/logging/queryLoggingMiddleware';
 import { isLoggedIn } from 'chaire-lib-backend/lib/services/auth/authorization';
 import { sendSupportRequestEmail } from '../../services/logging/supportRequest';
+import { getParadataLoggingFunction } from '../../services/logging/paradataLogging';
+import { UserAction } from 'evolution-common/lib/services/questionnaire/types';
 
 jest.mock('../../services/interviews/interviews');
 jest.mock('../../services/logging/queryLoggingMiddleware');
 jest.mock('../../services/logging/supportRequest');
+jest.mock('../../services/logging/paradataLogging', () => {
+    const actual = jest.requireActual('../../services/logging/paradataLogging');
+    return {
+        ...actual,
+        getParadataLoggingFunction: jest.fn()
+    }
+});
 jest.mock('evolution-common/lib/config/project.config', () => {
     const actual = jest.requireActual('evolution-common/lib/config/project.config');
     return {
@@ -38,6 +47,9 @@ jest.mock('chaire-lib-backend/lib/services/auth/authorization', () => ({
     })
 }));
 const mockIsLoggedIn = isLoggedIn as jest.MockedFunction<typeof isLoggedIn>;
+const mockGetParadataLoggingFunction = getParadataLoggingFunction as jest.MockedFunction<
+    typeof getParadataLoggingFunction
+>;
 
 // Mock the captcha validation, return next() to simulate successful validation
 jest.mock('chaire-lib-backend/lib/api/captcha.routes', () => ({
@@ -147,11 +159,157 @@ describe('GET /survey/activeInterview', () => {
     });
 });
 
+describe('POST /logClientEvent', () => {
+    const clientEvent: UserAction = { type: 'buttonClick', buttonId: 'survey.next' };
+
+    beforeEach(() => {
+        jest.clearAllMocks();
+        mockGetParadataLoggingFunction.mockReturnValue(undefined);
+    });
+
+    test('should accept an event from a participant who is not logged in', async () => {
+        const publicApp = express();
+        publicApp.use(express.json());
+        publicApp.use((req, res, next) => {
+            req.user = undefined;
+            next();
+        });
+        publicApp.use(getPublicParticipantRoutes(mockLoggingMiddleware));
+
+        const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined);
+        try {
+            const response = await request(publicApp).post('/logClientEvent/').send({ clientEvent });
+
+            expect(response.status).toBe(200);
+            expect(response.body).toEqual({ status: 'success' });
+            expect(consoleLogSpy).toHaveBeenCalledWith(
+                'Received not logged in client paradata event: ',
+                clientEvent.type
+            );
+            expect(Interviews.getUserInterview).not.toHaveBeenCalled();
+            expect(mockGetParadataLoggingFunction).not.toHaveBeenCalled();
+        } finally {
+            consoleLogSpy.mockRestore();
+        }
+    });
+
+    test('should log an event for a logged-in participant with an interview', async () => {
+        const mockInterview = { id: 42 };
+        const logFunction = jest.fn();
+        (Interviews.getUserInterview as jest.Mock).mockResolvedValue(mockInterview);
+        mockGetParadataLoggingFunction.mockReturnValue(logFunction);
+
+        const publicApp = express();
+        publicApp.use(express.json());
+        publicApp.use((req, res, next) => {
+            req.user = { id: mockUserId };
+            next();
+        });
+        publicApp.use(getPublicParticipantRoutes(mockLoggingMiddleware));
+
+        const response = await request(publicApp).post('/logClientEvent/').send({ clientEvent });
+
+        expect(response.status).toBe(200);
+        expect(response.body).toEqual({ status: 'success' });
+        expect(Interviews.getUserInterview).toHaveBeenCalledWith(mockUserId);
+        expect(mockGetParadataLoggingFunction).toHaveBeenCalledWith({
+            interviewId: mockInterview.id,
+            userId: undefined
+        });
+        expect(logFunction).toHaveBeenCalledWith({ userAction: clientEvent });
+    });
+
+    test('should accept an event without logging when the participant has no interview', async () => {
+        // This case should not happen (logged in participant, no interview), but we still test it in case
+        (Interviews.getUserInterview as jest.Mock).mockResolvedValue(undefined);
+        const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation(() => undefined);
+
+        try {
+
+            const publicApp = express();
+            publicApp.use(express.json());
+            publicApp.use((req, res, next) => {
+                req.user = { id: mockUserId };
+                next();
+            });
+            publicApp.use(getPublicParticipantRoutes(mockLoggingMiddleware));
+
+            const response = await request(publicApp).post('/logClientEvent/').send({ clientEvent });
+
+            expect(response.status).toBe(200);
+            expect(response.body).toEqual({ status: 'success' });
+            expect(consoleLogSpy).toHaveBeenCalledWith(
+                'Received not logged in client paradata event: ',
+                clientEvent.type
+            );
+            expect(mockGetParadataLoggingFunction).not.toHaveBeenCalled();
+        } finally {
+            consoleLogSpy.mockRestore();
+        }
+    });
+
+    test('should accept an event when database paradata logging is disabled', async () => {
+        (Interviews.getUserInterview as jest.Mock).mockResolvedValue({ id: 42 });
+        mockGetParadataLoggingFunction.mockReturnValue(undefined);
+
+        const publicApp = express();
+        publicApp.use(express.json());
+        publicApp.use((req, res, next) => {
+            req.user = { id: mockUserId };
+            next();
+        });
+        publicApp.use(getPublicParticipantRoutes(mockLoggingMiddleware));
+
+        const response = await request(publicApp).post('/logClientEvent/').send({ clientEvent });
+
+        expect(response.status).toBe(200);
+        expect(response.body).toEqual({ status: 'success' });
+        expect(mockGetParadataLoggingFunction).toHaveBeenCalled();
+    });
+
+    test('should return 500 when retrieving the participant interview fails', async () => {
+        (Interviews.getUserInterview as jest.Mock).mockRejectedValue(new Error('Database error'));
+        const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => undefined);
+
+        try {
+            const publicApp = express();
+            publicApp.use(express.json());
+            publicApp.use((req, res, next) => {
+                req.user = { id: mockUserId };
+                next();
+            });
+            publicApp.use(getPublicParticipantRoutes(mockLoggingMiddleware));
+
+            const response = await request(publicApp).post('/logClientEvent/').send({ clientEvent });
+
+            expect(response.status).toBe(500);
+            expect(response.body).toEqual({ status: 'failed' });
+        } finally {
+            consoleErrorSpy.mockRestore();
+        }
+    });
+
+    test('should return 400 when client event is not a client event', async () => {
+        const publicApp = express();
+        publicApp.use(express.json());
+        publicApp.use((req, res, next) => {
+            req.user = { id: mockUserId };
+            next();
+        });
+        publicApp.use(getPublicParticipantRoutes(mockLoggingMiddleware));
+
+        const response = await request(publicApp).post('/logClientEvent/').send({ clientEvent: { type: 'notAClientEvent' } });
+
+        expect(response.status).toBe(400);
+        expect(response.body).toEqual({ status: 'NotAClientEvent' });
+    });
+});
+
 describe('POST /supportRequest', () => {
     // Setup public routes app
     const publicApp = express();
     publicApp.use(express.json());
-    publicApp.use(getPublicParticipantRoutes());
+    publicApp.use(getPublicParticipantRoutes(mockLoggingMiddleware));
 
     beforeEach(() => {
         jest.clearAllMocks();
@@ -188,7 +346,7 @@ describe('POST /supportRequest', () => {
             req.user = { id: mockUserId };
             next();
         });
-        loggedInApp.use(getPublicParticipantRoutes());
+        loggedInApp.use(getPublicParticipantRoutes(mockLoggingMiddleware));
 
         const mockInterview = { id: 42 };
         (Interviews.getUserInterview as jest.Mock).mockResolvedValue(mockInterview);
@@ -288,7 +446,7 @@ describe('POST /supportRequest', () => {
 
         const disabledApp = express();
         disabledApp.use(express.json());
-        disabledApp.use(getUpdatedRoutes());
+        disabledApp.use(getUpdatedRoutes(mockLoggingMiddleware));
 
         const response = await request(disabledApp).post('/supportRequest/').send({ message: 'test' });
 

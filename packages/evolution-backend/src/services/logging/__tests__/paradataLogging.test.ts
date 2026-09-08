@@ -4,7 +4,7 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import { getParadataLoggingFunction } from '../paradataLogging';
+import { getParadataLoggingFunction, isUserAction } from '../paradataLogging';
 import config from 'chaire-lib-backend/lib/config/server.config';
 
 import paradataEventsDbQueries from '../../../models/paradataEvents.db.queries';
@@ -22,6 +22,44 @@ jest.mock('chaire-lib-backend/lib/config/server.config', () => ({
 beforeEach(() => {
     jest.clearAllMocks();
 });
+
+describe('isUserAction', () => {
+    it.each([
+        {
+            name: 'widget interaction',
+            userAction: { type: 'widgetInteraction', widgetType: 'string', path: 'testWidget', value: 'myValue' }
+        },
+        {
+            name: 'button click',
+            userAction: { type: 'buttonClick', buttonId: 'button1' }
+        },
+        {
+            name: 'section change',
+            userAction: { type: 'sectionChange', targetSection: { sectionShortname: 'section1' } }
+        },
+        {
+            name: 'language change',
+            userAction: { type: 'languageChange', language: 'fr' }
+        },
+        {
+            name: 'interview open',
+            userAction: { type: 'interviewOpen', browser: { name: 'Firefox' }, language: 'fr' }
+        }
+    ])('valid $name', ({ userAction }) => {
+        expect(isUserAction(userAction)).toEqual(true);
+    });
+
+    it.each([
+        { name: 'undefined', value: undefined },
+        { name: 'null', value: null },
+        { name: 'not an object', value: 'a string' },
+        { name: 'an array', value: [2, 3, 4] },
+        { name: 'an object without the type', value: { fieldA: 'abc', fieldB: 2 } },
+        { name: 'an object with none of the right type', value: { type: 'unknownType' } }
+    ])('invalid $name', ({ value }) => {
+        expect(isUserAction(value)).toEqual(false);
+    });
+})
 
 describe('Log for a participant', () => {
 
@@ -227,7 +265,6 @@ describe('Log for a participant', () => {
         });
     });
 });
-
 
 describe.each([
     [true],
