@@ -112,8 +112,8 @@ export const driverValues = [
     'colleague',
     'taxiDriver',
     'transitTaxiDriver',
-    'paraTransit',
-    'ridesharing',
+    'paratransit',
+    'carpool',
     'other',
     'dontKnow',
     'nonApplicable'

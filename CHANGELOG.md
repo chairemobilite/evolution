@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Segment: the `driverType` values `paraTransit` and `ridesharing` are renamed `paratransit` and `carpool`, to match with surveys using these questions. paratransit should not have a capital T, because it is one word, and carpool is more precise than ridesharing.
+
 ### Deprecated
 
 ### Removed
