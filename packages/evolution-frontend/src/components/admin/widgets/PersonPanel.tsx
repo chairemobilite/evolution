@@ -26,6 +26,7 @@ import { Journey } from 'evolution-common/lib/services/baseObjects/Journey';
 import { VisitedPlace } from 'evolution-common/lib/services/baseObjects/VisitedPlace';
 import { Trip } from 'evolution-common/lib/services/baseObjects/Trip';
 import { Segment } from 'evolution-common/lib/services/baseObjects/Segment';
+import { getAnswerDisplayString } from '../../../services/display/answerStatusHelper';
 import { AuditForObject } from 'evolution-common/lib/services/audits/types';
 import { VisitedPlaceDecorator } from '../../../services/surveyObjectDecorators/VisitedPlaceDecorator';
 import AuditDisplay from '../AuditDisplay';
@@ -35,7 +36,6 @@ import {
     type InheritedReviewDisplayStatus
 } from '../../../services/admin/reviewDecisionStatusHelper';
 import { useReviewDecisionStatusByObject } from '../../../services/admin/useObjectReview';
-
 export interface PersonPanelProps {
     person: Person;
     journey?: Journey;
@@ -157,7 +157,7 @@ export const PersonPanel = ({
                 if (!_isBlank(segment.mode)) {
                     if (segment.mode === 'carDriver') {
                         segmentStats.push(
-                            `(${t('interviewStats.labels.segment.vehicleOccupancy')}: ${segment.vehicleOccupancy ? segment.vehicleOccupancy.toString() : '?'} | ${t('interviewStats.labels.segment.paidForParking')}: ${segment.paidForParking ? segment.paidForParking.toString() : '?'})`
+                            `(${t('interviewStats.labels.segment.vehicleOccupancy')}: ${getAnswerDisplayString(segment.vehicleOccupancy, t)} | ${t('interviewStats.labels.segment.paidForParking')}: ${getAnswerDisplayString(segment.paidForParking, t)})`
                         );
                     } else if (segment.mode === 'carPassenger') {
                         segmentStats.push(
