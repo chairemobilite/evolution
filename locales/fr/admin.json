@@ -176,6 +176,11 @@
             },
             "unitNumber": "#Unité",
             "yearsOld": "ans"
+        },
+        "answerStatus": {
+            "dont_know": "Ne sait pas",
+            "refusal": "Refus de répondre",
+            "not_applicable": "Non applicable"
         }
     },
     "auditObjectTypes": {

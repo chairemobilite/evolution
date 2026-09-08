@@ -6,7 +6,7 @@
  */
 
 import _omit from 'lodash/omit';
-
+import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { Optional } from '../../types/Optional.type';
 import { PreData } from '../../types/shared';
 import { validatableAttributeNames, type ValidatableAttributes } from './IValidatable';
@@ -22,6 +22,12 @@ import { ParamsValidatorUtils } from '../../utils/ParamsValidatorUtils';
 import { ConstructorUtils } from '../../utils/ConstructorUtils';
 import { StartEndable, startEndDateAndTimesAttributes, StartEndDateAndTimesAttributes } from './StartEndable';
 import { TimePeriod } from './attributeTypes/GenericAttributes';
+import {
+    type AnswerStatus,
+    toAnswerStatus,
+    toNumberAnswerStatus,
+    validateAnswerStatus
+} from './attributeTypes/AnswerStatus';
 import { SurveyObjectUnserializer } from './SurveyObjectUnserializer';
 import { SurveyObjectsRegistry } from './SurveyObjectsRegistry';
 import { Trip } from './Trip';
@@ -87,9 +93,9 @@ export type SegmentAttributes = {
     modeOtherSpecify?: Optional<string>;
     driverType?: Optional<SAttr.Driver>;
     driverUuid?: Optional<string>; // person uuid
-    vehicleOccupancy?: Optional<number>; // positive integer
+    vehicleOccupancy?: Optional<AnswerStatus<number>>; // positive integer when answered
     carType?: Optional<SAttr.CarType>;
-    paidForParking?: Optional<boolean>;
+    paidForParking?: Optional<AnswerStatus<boolean>>;
     onDemandType?: Optional<string>;
     busLines?: Optional<string[]>; // for now, the bus lines are the line slugified shortname. TODO: discuss if we want to change that.
     preData?: Optional<PreData>;
@@ -343,11 +349,11 @@ export class Segment extends SurveyObject {
         this._attributes.driverUuid = value;
     }
 
-    get vehicleOccupancy(): Optional<number> {
+    get vehicleOccupancy(): Optional<AnswerStatus<number>> {
         return this._attributes.vehicleOccupancy;
     }
 
-    set vehicleOccupancy(value: Optional<number>) {
+    set vehicleOccupancy(value: Optional<AnswerStatus<number>>) {
         this._attributes.vehicleOccupancy = value;
     }
 
@@ -359,11 +365,11 @@ export class Segment extends SurveyObject {
         this._attributes.carType = value;
     }
 
-    get paidForParking(): Optional<boolean> {
+    get paidForParking(): Optional<AnswerStatus<boolean>> {
         return this._attributes.paidForParking;
     }
 
-    set paidForParking(value: Optional<boolean>) {
+    set paidForParking(value: Optional<AnswerStatus<boolean>>) {
         this._attributes.paidForParking = value;
     }
 
@@ -511,15 +517,49 @@ export class Segment extends SurveyObject {
         return new Segment(flattenedParams as ExtendedSegmentAttributes, surveyObjectsRegistry);
     }
 
+    /**
+     * Wrap the answers that a questionnaire stores as plain values in their
+     * status, and leave the ones already wrapped as they are. Surveys write
+     * these two answers directly in the response, so they reach `create`
+     * unwrapped. A blank one is omitted so that it does not read as an answer
+     * of the wrong shape. A value that is not a number and not a known
+     * non-response is left as it is, for `validateParams` to reject.
+     *
+     * @param {Object} dirtyParams The parameters as read from the response
+     * @returns {Object} A copy of the parameters, with those answers wrapped.
+     * Parameters that are not an object are returned as they are, for
+     * `validateParams` to report.
+     */
+    private static wrapAnswerStatuses(dirtyParams: { [key: string]: unknown }): { [key: string]: unknown } {
+        if (typeof dirtyParams !== 'object' || dirtyParams === null) {
+            return dirtyParams;
+        }
+        const vehicleOccupancy = toNumberAnswerStatus(dirtyParams.vehicleOccupancy);
+        const paidForParking = toAnswerStatus<boolean>(dirtyParams.paidForParking);
+        const params = {
+            ...dirtyParams,
+            // Keep a value that could not be wrapped as a number, so validation rejects it
+            vehicleOccupancy: vehicleOccupancy !== undefined ? vehicleOccupancy : dirtyParams.vehicleOccupancy,
+            paidForParking
+        };
+        // An answer that wraps to nothing leaves its attribute absent, rather than present and empty
+        if (_isBlank(params.vehicleOccupancy)) {
+            delete params.vehicleOccupancy;
+        }
+        if (paidForParking === undefined) {
+            delete params.paidForParking;
+        }
+        return params;
+    }
+
     static create(
         dirtyParams: { [key: string]: unknown },
         surveyObjectsRegistry: SurveyObjectsRegistry
     ): Result<Segment> {
-        const errors = Segment.validateParams(dirtyParams);
+        const params = Segment.wrapAnswerStatuses(dirtyParams);
+        const errors = Segment.validateParams(params);
         const segment =
-            errors.length === 0
-                ? new Segment(dirtyParams as ExtendedSegmentAttributes, surveyObjectsRegistry)
-                : undefined;
+            errors.length === 0 ? new Segment(params as ExtendedSegmentAttributes, surveyObjectsRegistry) : undefined;
         if (errors.length > 0) {
             return createErrors(errors);
         }
@@ -558,12 +598,24 @@ export class Segment extends SurveyObject {
         errors.push(...ParamsValidatorUtils.isUuid('driverUuid', dirtyParams.driverUuid, displayName));
 
         errors.push(
-            ...ParamsValidatorUtils.isPositiveInteger('vehicleOccupancy', dirtyParams.vehicleOccupancy, displayName)
+            ...validateAnswerStatus(
+                'vehicleOccupancy',
+                dirtyParams.vehicleOccupancy,
+                displayName,
+                ParamsValidatorUtils.isPositiveInteger
+            )
         );
 
         errors.push(...ParamsValidatorUtils.isString('carType', dirtyParams.carType, displayName));
 
-        errors.push(...ParamsValidatorUtils.isBoolean('paidForParking', dirtyParams.paidForParking, displayName));
+        errors.push(
+            ...validateAnswerStatus(
+                'paidForParking',
+                dirtyParams.paidForParking,
+                displayName,
+                ParamsValidatorUtils.isBoolean
+            )
+        );
 
         errors.push(...ParamsValidatorUtils.isString('onDemandType', dirtyParams.onDemandType, displayName));
 

@@ -9,9 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Segment: the `AnswerStatus<T>` type wraps an answer whose value is a number or a boolean with the reason there is none, so that a survey letting a respondent answer "I don't know" has somewhere to store it, `paidForParking` and `vehicleOccupancy` being the first two attributes to use it (see [#1946](https://github.com/chairemobilite/evolution/issues/1946))
+
 ### Changed
 
-- Segment: the `driverType` values `paraTransit` and `ridesharing` are renamed `paratransit` and `carpool`, to match with surveys using these questions. paratransit should not have a capital T, because it is one word, and carpool is more precise than ridesharing.
+- Segment: `paidForParking` and `vehicleOccupancy` hold an `AnswerStatus`, which `Segment.create` builds from the value the questionnaire stores, a count answered as a string included, instead of failing parameter validation and dropping the segment from the audited objects and the admin review panels (fixes [#1946](https://github.com/chairemobilite/evolution/issues/1946))
 
 ### Deprecated
 
@@ -19,6 +21,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Segment: `driverType` now keeps `paratransit` and `carpool`, the values the `driver` question already stores, instead of `paraTransit` and `ridesharing`, so those answers reach the model and its audits
 - Admin: household and home creation errors are shown on the review summary instead of replacing the page with a generic unavailable message (fixes [#1961](https://github.com/chairemobilite/evolution/issues/1961))
 
 ### Security
