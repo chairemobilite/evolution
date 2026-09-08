@@ -94,6 +94,7 @@ export const visitedPlacesSectionConfig: VisitedPlacesSectionConfiguration = {
         // Widgets including the builtin ones
         'visitedPlaceActivityCategory',
         'visitedPlaceActivity',
+        'visitedPlaceActivityOtherSpecify',
         'visitedPlaceOnTheRoadPreviousPlaceActivity',
         'visitedPlaceAlreadyVisited',
         'visitedPlaceShortcut',

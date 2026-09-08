@@ -12,6 +12,7 @@ import * as utilHelpers from '../../../../../utils/helpers';
 import { GroupConfig, VisitedPlacesSectionConfiguration, WidgetConfig } from '../../../types';
 import { getActivityCategoryWidgetConfig } from '../widgetActivityCategory';
 import { getActivityWidgetConfig } from '../widgetActivity';
+import { getActivityOtherSpecifyWidgetConfig } from '../widgetActivityOtherSpecify';
 import { getNextPlaceCategoryWidgetConfig } from '../widgetNextPlaceCategory';
 import { VisitedPlaceGeographyWidgetFactory } from '../widgetsGeography';
 import { VisitedPlaceShortcutWidgetFactory } from '../widgetsVisitedPlaceShortcut';
@@ -27,13 +28,14 @@ const visitedPlacesSectionConfig: VisitedPlacesSectionConfiguration = {
     tripDiaryMaxTimeOfDay: 28 * 60 * 60
 };
 
-const expectedWidgetCount = 18;
+const expectedWidgetCount = 19;
 
 describe('PersonVisitedPlacesGroupConfigFactory widgets', () => {
     test.each([
         'personVisitedPlaces',
         'visitedPlaceActivityCategory',
         'visitedPlaceActivity',
+        'visitedPlaceActivityOtherSpecify',
         'visitedPlaceOnTheRoadPreviousPlaceActivity',
         'visitedPlaceAlreadyVisited',
         'visitedPlaceShortcut',
@@ -75,6 +77,10 @@ describe('PersonVisitedPlacesGroupConfigFactory widgets', () => {
         {
             widgetName: 'visitedPlaceActivity',
             expected: (config: VisitedPlacesSectionConfiguration) => getActivityWidgetConfig(config, widgetFactoryOptions)
+        },
+        {
+            widgetName: 'visitedPlaceActivityOtherSpecify',
+            expected: (_config: VisitedPlacesSectionConfiguration) => getActivityOtherSpecifyWidgetConfig(widgetFactoryOptions)
         },
         {
             widgetName: 'visitedPlaceNextPlaceCategory',
@@ -196,6 +202,7 @@ describe('PersonVisitedPlacesGroupConfigFactory personVisitedPlaces GroupConfig 
             widgets: [
                 'visitedPlaceActivityCategory',
                 'visitedPlaceActivity',
+                'visitedPlaceActivityOtherSpecify',
                 'visitedPlaceOnTheRoadPreviousPlaceActivity',
                 'visitedPlaceAlreadyVisited',
                 'visitedPlaceShortcut',
@@ -324,6 +331,7 @@ describe('PersonVisitedPlacesGroupConfigFactory personVisitedPlaces GroupConfig 
             widgets: [
                 'visitedPlaceActivityCategory',
                 'visitedPlaceActivity',
+                'visitedPlaceActivityOtherSpecify',
                 'visitedPlaceOnTheRoadPreviousPlaceActivity',
                 'visitedPlaceAlreadyVisited',
                 'visitedPlaceShortcut',
@@ -378,6 +386,7 @@ describe('PersonVisitedPlacesGroupConfigFactory personVisitedPlaces GroupConfig 
             addButtonLocation: 'both',
             widgets: [
                 'visitedPlaceActivityCategory',
+                'visitedPlaceActivityOtherSpecify',
                 'visitedPlaceOnTheRoadPreviousPlaceActivity',
                 'visitedPlaceAlreadyVisited',
                 'visitedPlaceShortcut',
@@ -414,6 +423,7 @@ describe('PersonVisitedPlacesGroupConfigFactory widgets, with inlining usual pla
         'personVisitedPlaces',
         'visitedPlaceActivityCategory',
         'visitedPlaceActivity',
+        'visitedPlaceActivityOtherSpecify',
         'visitedPlaceOnTheRoadPreviousPlaceActivity',
         'visitedPlacePreviousWorkPlaceName',
         'visitedPlacePreviousWorkPlaceGeography',

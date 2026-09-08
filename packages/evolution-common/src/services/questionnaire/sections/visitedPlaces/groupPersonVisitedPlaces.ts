@@ -10,6 +10,7 @@ import { TFunction } from 'i18next';
 import { WidgetConfigFactory, WidgetFactoryOptions } from '../types';
 import { getActivityCategoryWidgetConfig } from './widgetActivityCategory';
 import { getActivityWidgetConfig } from './widgetActivity';
+import { getActivityOtherSpecifyWidgetConfig } from './widgetActivityOtherSpecify';
 import { VisitedPlaceGeographyWidgetFactory } from './widgetsGeography';
 import { getNextPlaceCategoryWidgetConfig } from './widgetNextPlaceCategory';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
@@ -58,6 +59,7 @@ export class PersonVisitedPlacesGroupConfigFactory implements WidgetConfigFactor
             // Add previous work place location if usual places are inlined
             ...onTheRoadPreviousWorkPlaceNames,
             'visitedPlaceOnTheRoadPreviousPlaceActivity',
+            'visitedPlaceActivityOtherSpecify',
             'visitedPlaceActivity',
             'visitedPlaceActivityCategory'
         ];
@@ -145,6 +147,7 @@ export class PersonVisitedPlacesGroupConfigFactory implements WidgetConfigFactor
             personVisitedPlaces: this.getVisitedPlacesGroupConfig(),
             visitedPlaceActivityCategory: getActivityCategoryWidgetConfig(this.sectionConfig, this.options),
             visitedPlaceActivity: getActivityWidgetConfig(this.sectionConfig, this.options),
+            visitedPlaceActivityOtherSpecify: getActivityOtherSpecifyWidgetConfig(this.options),
             ...visitedPlaceShortcutWidgetFactory.getWidgetConfigs(),
             ...geographyWidgetFactory.getWidgetConfigs(),
             visitedPlaceNextPlaceCategory: getNextPlaceCategoryWidgetConfig(this.sectionConfig, this.options),
