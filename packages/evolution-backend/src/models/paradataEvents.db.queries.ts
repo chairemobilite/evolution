@@ -24,7 +24,8 @@ type ParadataEventType =
     | 'language_change'
     | 'interview_open'
     | 'support_request_sent'
-    | 'support_request_opened';
+    | 'support_request_opened'
+    | 'help_popup_clicked';
 
 const log = async ({
     interviewId,

@@ -501,7 +501,8 @@ export type UserAction =
           browser: { [key: string]: unknown };
           language: string;
       }
-    | { type: 'supportRequestOpened' };
+    | { type: 'supportRequestOpened' }
+    | { type: 'helpPopupClicked'; path: string };
 
 /**
  * Type of the callback to send interview updates to the server

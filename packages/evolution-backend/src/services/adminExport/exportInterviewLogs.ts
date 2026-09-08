@@ -82,6 +82,13 @@ const userActionToWidgetData = (
             hiddenWidgets: userAction.hiddenWidgets ? userAction.hiddenWidgets.join('|') : '',
             invalidWidgets: []
         };
+    case 'helpPopupClicked':
+        return {
+            widgetType: '',
+            widgetPath: userAction.path,
+            hiddenWidgets: '',
+            invalidWidgets: []
+        };
     default:
         return {
             widgetType: '',

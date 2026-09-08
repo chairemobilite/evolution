@@ -17,6 +17,7 @@ import { interviewAttributes } from '../../inputs/__tests__/interviewData';
 import Question from '../Question';
 import { WidgetStatus } from 'evolution-common/lib/services/questionnaire/types';
 import { featureCollection } from '@turf/turf';
+import { logClientEvent } from '../../../services/paradata/paradataLogging';
 
 // Mock react-markdown and remark-gfm as they use syntax not supported by jest
 jest.mock('react-markdown', () => 'Markdown');
@@ -44,6 +45,10 @@ jest.mock('../../../services/display/frontendHelper', () => ({
     stripHtml: jest.fn((str) => str),
     stripUnsafeHtml: jest.fn((str) => str)
 }));
+jest.mock('../../../services/paradata/paradataLogging', () => ({
+    logClientEvent: jest.fn()
+}));
+const mockLogClientEvent = logClientEvent as jest.MockedFunction<typeof logClientEvent>;
 
 // Mock the createPortal function to allow the snapshots with Modal questions to work. With later React and React-modal versions, this won't be necessary anymore. See https://github.com/reactjs/react-modal/issues/553
 jest.mock('react-dom', () => ({
@@ -164,6 +169,10 @@ describe('With help popup and link', () => {
         }
     };
 
+    beforeEach(() => {
+        jest.clearAllMocks();
+    })
+
     test('Test widget with help', () => {
         const widgetStatus = _cloneDeep(defaultWidgetStatus);
         widgetStatus.value = 'test';
@@ -201,12 +210,14 @@ describe('With help popup and link', () => {
 
         // Find and click on the help button
         expect(widgetConfig.helpPopup.content).not.toHaveBeenCalled();
+        expect(mockLogClientEvent).not.toHaveBeenCalled();
         await user.click(screen.getByText(helpTitle));
 
         // The modal should be opened now
         expect(widgetConfig.helpPopup.content).toHaveBeenCalledTimes(1);
         const modalAfterClick = await screen.findByLabelText(helpTitle);
         expect(modalAfterClick).toMatchSnapshot();
+        expect(mockLogClientEvent).toHaveBeenCalledWith({ type: 'helpPopupClicked', path: 'home.region' });
     });
 });
 
@@ -272,7 +283,7 @@ describe('Modal widget', () => {
     };
 
     test('Widget is not visible', () => {
-        
+
         const widgetStatus = _cloneDeep(defaultWidgetStatus);
         widgetStatus.isVisible = false;
 
@@ -292,7 +303,7 @@ describe('Modal widget', () => {
     });
 
     test('Widget is visible', () => {
-        
+
         const widgetStatus = _cloneDeep(defaultWidgetStatus);
         widgetStatus.isVisible = true;
 
