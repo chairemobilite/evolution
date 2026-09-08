@@ -139,13 +139,32 @@ describe('GET /survey/activeInterview', () => {
         expect(Interviews.getUserInterview).toHaveBeenCalledWith(mockUserId);
     });
 
-    test('should return 403 if interview is frozen', async () => {
+    test.each([
+        {
+            title: 'frozen after the minimum delay',
+            startedAtSecondsAgo: 7 * 24 * 60 * 60 + 60,
+            expectedStatus: 403
+        },
+        {
+            title: 'frozen before the minimum delay',
+            startedAtSecondsAgo: 60,
+            expectedStatus: 200
+        },
+        {
+            title: 'frozen and the opening time is unknown',
+            startedAtSecondsAgo: undefined,
+            expectedStatus: 200
+        }
+    ])('returns $expectedStatus when the interview is $title', async ({ startedAtSecondsAgo, expectedStatus }) => {
         const mockFrozenInterview = {
             id: 1,
             uuid: 'mockUuid',
             is_valid: true,
             is_completed: false,
-            response: {},
+            response:
+                startedAtSecondsAgo !== undefined
+                    ? { _startedAt: Math.floor(Date.now() / 1000) - startedAtSecondsAgo }
+                    : {},
             participant_id: 1,
             is_frozen: true
         };
@@ -153,8 +172,16 @@ describe('GET /survey/activeInterview', () => {
 
         const response = await request(app).get('/survey/activeInterview');
 
-        expect(response.status).toBe(403);
-        expect(response.body).toEqual({ status: 'forbidden', interview: null, error: 'interview cannot be accessed' });
+        expect(response.status).toBe(expectedStatus);
+        if (expectedStatus === 403) {
+            expect(response.body).toEqual({
+                status: 'forbidden',
+                interview: null,
+                error: 'interview cannot be accessed'
+            });
+        } else {
+            expect(response.body).toEqual({ status: 'success', interview: mockFrozenInterview });
+        }
         expect(Interviews.getUserInterview).toHaveBeenCalledWith(mockUserId);
     });
 });

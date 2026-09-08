@@ -150,41 +150,73 @@ describe('Update Interview', () => {
         expect(mockLog).not.toHaveBeenCalled();
     });
 
-    test('With completed', async() => {
-        // Test with true value
-        let testAttributes = _cloneDeep(interviewAttributes);
-        let valuesByPath = { 'is_completed': true };
-        let interview = await updateInterview(testAttributes, { valuesByPath, fieldsToUpdate: ['is_completed'] });
-        expect(interview.interviewId).toEqual(testAttributes.uuid);
-        expect(interview.serverValidations).toEqual(true);
-        expect(interviewsQueries.update).toHaveBeenCalledTimes(1);
-        expect(mockedServerValidate).toHaveBeenCalledTimes(1);
-        expect(mockedServerValidate).toHaveBeenCalledWith(testAttributes, undefined, valuesByPath, []);
-        expect(mockedServerUpdate).toHaveBeenCalledTimes(1);
-        expect(mockedServerUpdate).toHaveBeenCalledWith(testAttributes, [], { is_completed: true }, undefined, undefined);
-
-        expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, { is_completed: true, is_frozen: true });
-
-        // Test with false value
-        testAttributes = _cloneDeep(interviewAttributes);
-        valuesByPath = { 'is_completed': false };
-        interview = await updateInterview(testAttributes, { valuesByPath, fieldsToUpdate: ['is_completed'] });
-        expect(interview.interviewId).toEqual(testAttributes.uuid);
-        expect(interview.serverValidations).toEqual(true);
-        expect(interviewsQueries.update).toHaveBeenCalledTimes(2);
-
-        expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, { is_completed: false, is_frozen: true });
-
-        // Test with null value
-        testAttributes = _cloneDeep(interviewAttributes);
-        valuesByPath = { 'is_completed': null } as any;
-        interview = await updateInterview(testAttributes, { valuesByPath, fieldsToUpdate: ['is_completed'] });
-        expect(interview.interviewId).toEqual(testAttributes.uuid);
-        expect(interview.serverValidations).toEqual(true);
-        expect(interviewsQueries.update).toHaveBeenCalledTimes(3);
-
-        expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, { is_completed: null });
-        expect(mockLog).not.toHaveBeenCalled();
+    test.each([
+        {
+            title: 'completed true after the minimum delay',
+            valuesByPath: { is_completed: true },
+            fieldsToUpdate: ['is_completed'] as const,
+            startedAtSecondsAgo: 7 * 24 * 60 * 60 + 60,
+            expected: { is_completed: true, is_frozen: true }
+        },
+        {
+            title: 'completed false after the minimum delay',
+            valuesByPath: { is_completed: false },
+            fieldsToUpdate: ['is_completed'] as const,
+            startedAtSecondsAgo: 7 * 24 * 60 * 60 + 60,
+            expected: { is_completed: false, is_frozen: true }
+        },
+        {
+            title: 'completed true before the minimum delay',
+            valuesByPath: { is_completed: true },
+            fieldsToUpdate: ['is_completed'] as const,
+            startedAtSecondsAgo: 60,
+            expected: { is_completed: true }
+        },
+        {
+            title: 'completed true when the opening time is unknown',
+            valuesByPath: { is_completed: true },
+            fieldsToUpdate: ['is_completed'] as const,
+            startedAtSecondsAgo: undefined,
+            expected: { is_completed: true }
+        },
+        {
+            title: 'completed null after the minimum delay',
+            valuesByPath: { is_completed: null },
+            fieldsToUpdate: ['is_completed'] as const,
+            startedAtSecondsAgo: 7 * 24 * 60 * 60 + 60,
+            expected: { is_completed: null }
+        },
+        {
+            title: 'explicit freeze after the minimum delay',
+            valuesByPath: { is_frozen: true },
+            fieldsToUpdate: ['is_frozen'] as const,
+            startedAtSecondsAgo: 7 * 24 * 60 * 60 + 60,
+            expected: { is_frozen: true }
+        },
+        {
+            title: 'explicit freeze before the minimum delay',
+            valuesByPath: { is_frozen: true },
+            fieldsToUpdate: ['is_frozen'] as const,
+            startedAtSecondsAgo: 60,
+            expected: {}
+        },
+        {
+            title: 'explicit freeze when the opening time is unknown',
+            valuesByPath: { is_frozen: true },
+            fieldsToUpdate: ['is_frozen'] as const,
+            startedAtSecondsAgo: undefined,
+            expected: {}
+        }
+    ])('$title', async ({ valuesByPath, fieldsToUpdate, startedAtSecondsAgo, expected }) => {
+        const testAttributes = _cloneDeep(interviewAttributes);
+        if (startedAtSecondsAgo !== undefined) {
+            testAttributes.response._startedAt = Math.floor(Date.now() / 1000) - startedAtSecondsAgo;
+        }
+        await updateInterview(testAttributes, {
+            valuesByPath: valuesByPath as any,
+            fieldsToUpdate: [...fieldsToUpdate]
+        });
+        expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, expected);
     });
 
     // The deprecated `is_valid` flag can still be written by a survey, but it no longer freezes

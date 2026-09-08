@@ -91,6 +91,14 @@ jest.mock('evolution-common/lib/config/project.config', () => ({
     }
 }));
 
+jest.mock('../../services/logging/queryLoggingMiddleware', () => ({
+    logUserAccessesMiddleware: {
+        openingInterview: () => (_req: unknown, _res: unknown, next: () => void) => next(),
+        updatingInterview: () => (_req: unknown, _res: unknown, next: () => void) => next(),
+        getUserIdForLogging: () => 3
+    }
+}));
+
 const mockGetInterviewByUuid = Interviews.getInterviewByUuid as jest.MockedFunction<
     typeof Interviews.getInterviewByUuid
 >;
@@ -656,5 +664,33 @@ describe('POST /review/forceApprove/:interviewId', () => {
             path: 'forceApprove',
             body: { comment: 'admin override' },
         });
+    });
+});
+
+describe('GET /survey/activeCorrectedInterview/:interviewUuid', () => {
+    const interviewUuid = uuidV4();
+
+    beforeEach(() => {
+        jest.clearAllMocks();
+        mockAuthUser = defaultUser;
+        mockIsUserAllowed.mockReturnValue(true);
+        mockCopyResponseToCorrectedResponse.mockResolvedValue(undefined as any);
+    });
+
+    it('returns the corrected interview when it is frozen', async () => {
+        mockGetInterviewByUuid.mockResolvedValue({
+            id: 10,
+            uuid: interviewUuid,
+            is_frozen: true,
+            response: { foo: 'original' },
+            corrected_response: { foo: 'corrected' }
+        } as any);
+
+        const response = await request(app).get(`/survey/activeCorrectedInterview/${interviewUuid}`);
+
+        expect(response.status).toBe(200);
+        expect(response.body.status).toBe('success');
+        expect(response.body.interview.response).toEqual({ foo: 'corrected' });
+        expect(response.body.interview.is_frozen).toBe(true);
     });
 });

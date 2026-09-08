@@ -250,6 +250,13 @@ export type EvolutionProjectConfiguration = {
     surveyAreaGeojsonPath?: string;
 
     /**
+     * Minimum seconds after the respondent opened the interview before it may
+     * be frozen. Completing (true or false) freezes only after this delay.
+     * Defaults to 1 week.
+     */
+    minimumDelayBeforeFreezeSeconds: number;
+
+    /**
      * Groups of consecutive widgets to show in a random order that is fixed
      * for the interview.
      *
@@ -375,7 +382,8 @@ const defaultConfig = {
     reviewableSurveyObjects: ['interview', 'home', 'household', 'person'],
     auditChecksGroup: 'custom', // custom by default so older surveys works.
     surveyBase: 'householdBased',
-    randomOrderQuestions: {}
+    randomOrderQuestions: {},
+    minimumDelayBeforeFreezeSeconds: 7 * 24 * 60 * 60
 };
 
 // Validate and set the configuration

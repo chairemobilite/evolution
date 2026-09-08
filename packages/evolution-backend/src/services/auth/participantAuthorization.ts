@@ -6,6 +6,7 @@
  */
 import { NextFunction, Request, Response } from 'express';
 import Interviews from '../interviews/interviews';
+import { isParticipantBlockedByFreeze } from 'evolution-common/lib/services/interviews/canFreezeInterview';
 
 export type permissionType = 'read' | 'update' | 'validate' | 'confirm' | 'delete' | 'create';
 
@@ -44,7 +45,10 @@ const interviewParticipantIsAuthorized = () => {
                 res.status(404).json({ status: 'NotFound' });
                 return;
             }
-            const allowed = interview.participant_id === participantId && interview.is_active && !interview.is_frozen;
+            const allowed =
+                interview.participant_id === participantId &&
+                interview.is_active &&
+                !isParticipantBlockedByFreeze(interview);
             if (!allowed) {
                 res.status(401).json({ status: 'Unauthorized' });
                 return;

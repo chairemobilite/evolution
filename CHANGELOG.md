@@ -11,11 +11,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Interview: marking completed still freezes the interview, but only after `minimumDelayBeforeFreezeSeconds` since the respondent opened it (defaults to 1 week); the participant is blocked only when both `is_frozen` and that delay are true (fixes [#1950](https://github.com/chairemobilite/evolution/issues/1950))
+
 ### Deprecated
 
 ### Removed
 
 ### Fixed
+
+- Admin: a frozen interview can still be opened in review or correction (fixes [#1949](https://github.com/chairemobilite/evolution/issues/1949))
 
 ### Security
 

@@ -244,20 +244,6 @@ router.get(
             try {
                 const interview = await Interviews.getInterviewByUuid(req.params.interviewUuid);
                 if (interview) {
-                    // FIXME Check if interview is frozen, if so, do not allow
-                    // access. When
-                    // https://github.com/chairemobilite/evolution/issues/1257
-                    // is fixed, we can remove this check and still open the
-                    // interview, the corrector knows what he is doing. Or we
-                    // can pass a parameter to bypass the check and make sure we
-                    // had confirmation from the corrector.
-                    if (interview?.is_frozen) {
-                        console.log('activeSurvey: Interview is frozen');
-                        return res
-                            .status(403)
-                            .json({ status: 'forbidden', interview: null, error: 'interview cannot be accessed' });
-                    }
-
                     // Copy the response in the corrected_response if it is not already
                     if (_isBlank(interview.corrected_response)) {
                         await copyResponseToCorrectedResponse(interview);

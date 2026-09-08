@@ -44,7 +44,8 @@ test('Expected default', () => {
         logoPaths: {},
         languageNames: { en: 'English', fr: 'Français' },
         title: { en: 'Survey', fr: 'Enquête' },
-        randomOrderQuestions: {}
+        randomOrderQuestions: {},
+        minimumDelayBeforeFreezeSeconds: 7 * 24 * 60 * 60
     }));
 });
 

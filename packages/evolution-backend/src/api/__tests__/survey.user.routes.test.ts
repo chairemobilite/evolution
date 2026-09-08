@@ -96,6 +96,48 @@ describe('GET /survey/activeInterview/:interviewUuid', () => {
         expect(mockGetInterviewByUuid).toHaveBeenCalledWith(interviewUuid);
     });
 
+    test.each([
+        {
+            title: 'frozen after the minimum delay',
+            startedAtSecondsAgo: 7 * 24 * 60 * 60 + 60,
+            expectedStatus: 403
+        },
+        {
+            title: 'frozen before the minimum delay',
+            startedAtSecondsAgo: 60,
+            expectedStatus: 200
+        },
+        {
+            title: 'frozen and the opening time is unknown',
+            startedAtSecondsAgo: undefined,
+            expectedStatus: 200
+        }
+    ])('returns $expectedStatus when the interview is $title', async ({ startedAtSecondsAgo, expectedStatus }) => {
+        const mockInterview = {
+            id: 1,
+            uuid: interviewUuid,
+            is_frozen: true,
+            response:
+                startedAtSecondsAgo !== undefined
+                    ? { _startedAt: Math.floor(Date.now() / 1000) - startedAtSecondsAgo }
+                    : {}
+        };
+        mockGetInterviewByUuid.mockResolvedValueOnce(mockInterview as any);
+
+        const response = await request(app).get('/survey/activeInterview/' + interviewUuid);
+
+        expect(response.status).toBe(expectedStatus);
+        if (expectedStatus === 200) {
+            expect(response.body).toEqual({ status: 'success', interview: mockInterview });
+        } else {
+            expect(response.body).toEqual({
+                status: 'forbidden',
+                interview: null,
+                error: 'interview cannot be accessed'
+            });
+        }
+    });
+
     it('should return 500 if an error occurs', async () => {
         mockGetInterviewByUuid.mockRejectedValueOnce(new Error('Database error'));
 

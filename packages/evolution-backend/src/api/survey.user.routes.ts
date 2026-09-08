@@ -19,6 +19,7 @@ import { addRolesToInterview } from '../services/interviews/interview';
 import { UserAttributes } from 'chaire-lib-backend/lib/services/users/user';
 import { UserAction } from 'evolution-common/lib/services/questionnaire/types';
 import { getParadataLoggingFunction } from '../services/logging/paradataLogging';
+import { isParticipantBlockedByFreeze } from 'evolution-common/lib/services/interviews/canFreezeInterview';
 
 export default (authorizationMiddleware, loggingMiddleware: InterviewLoggingMiddlewares): Router => {
     const router = express.Router();
@@ -41,8 +42,8 @@ export default (authorizationMiddleware, loggingMiddleware: InterviewLoggingMidd
                 }
                 // Get the current interview with uuid
                 const interview = await Interviews.getInterviewByUuid(req.params.interviewUuid);
-                if (interview?.is_frozen) {
-                    console.log(`activeSurvey: Interview is frozen for interview id ${interview?.id}`);
+                if (interview !== undefined && isParticipantBlockedByFreeze(interview)) {
+                    console.log(`activeSurvey: Interview is frozen for interview id ${interview.id}`);
                     return res
                         .status(403)
                         .json({ status: 'forbidden', interview: null, error: 'interview cannot be accessed' });

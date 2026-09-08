@@ -46,11 +46,37 @@ describe('Participant interview access', () => {
         ['Post params, participant, own interview inactive, not ok', mockParticipant, defaultGetParams, true, 401, false],
         ['Post params, participant, other interview, not ok', mockOtherParticipant, defaultPostParams, true, 401, false],
         ['Post and get params, identical, ok', mockParticipant, { ...defaultPostParams, ...defaultGetParams }, true, true],
-        ['Post and get params, not identical, ok', mockParticipant, { ...defaultGetParams, body: { interviewId: uuidV4() } }, true, 400]
-    ]).test('%s', async (_title, participant, reqParams, isDefined, expectedNextOrCode, is_active = true) => {
+        ['Post and get params, not identical, ok', mockParticipant, { ...defaultGetParams, body: { interviewId: uuidV4() } }, true, 400],
+        [
+            'Get params, participant, own interview frozen after delay, not ok',
+            mockParticipant,
+            defaultGetParams,
+            true,
+            401,
+            true,
+            {
+                is_frozen: true,
+                response: { _startedAt: Math.floor(Date.now() / 1000) - (7 * 24 * 60 * 60 + 60) }
+            }
+        ],
+        [
+            'Get params, participant, own interview frozen before delay, ok',
+            mockParticipant,
+            defaultGetParams,
+            true,
+            true,
+            true,
+            {
+                is_frozen: true,
+                response: { _startedAt: Math.floor(Date.now() / 1000) - 60 }
+            }
+        ]
+    ]).test('%s', async (_title, participant, reqParams, isDefined, expectedNextOrCode, is_active = true, interviewOverrides = {}) => {
         mockRequest.user = participant;
         const request = {...mockRequest, ...reqParams };
-        mockGetInterviewByUuid.mockResolvedValue(isDefined ? { id: 1, participant_id: mockParticipant.id, is_active } : undefined);
+        mockGetInterviewByUuid.mockResolvedValue(
+            isDefined ? { id: 1, participant_id: mockParticipant.id, is_active, ...interviewOverrides } : undefined
+        );
         await isAuthorized()(request as Request, mockResponse as Response, nextFunction);
         if (typeof expectedNextOrCode === 'number') {
             expect(mockResponse.status).toHaveBeenCalledTimes(1);

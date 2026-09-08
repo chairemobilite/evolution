@@ -19,6 +19,7 @@ import { validateCaptchaToken } from 'chaire-lib-backend/lib/api/captcha.routes'
 
 import { InterviewLoggingMiddlewares } from '../services/logging/queryLoggingMiddleware';
 import addCommonRoutes from './survey.common.routes';
+import { isParticipantBlockedByFreeze } from 'evolution-common/lib/services/interviews/canFreezeInterview';
 
 // Get a router for the routes that do not need the participant to be logged in
 export const getPublicParticipantRoutes = (loggingMiddleware: InterviewLoggingMiddlewares) => {
@@ -141,8 +142,8 @@ export default (authorizationMiddleware, loggingMiddleware: InterviewLoggingMidd
                     );
                 }
 
-                // Check if interview is frozen, if so, do not allow access
-                if (interview?.is_frozen) {
+                // Check if interview is frozen after the minimum delay
+                if (interview !== undefined && isParticipantBlockedByFreeze(interview)) {
                     console.log(`activeSurvey: Interview is frozen for interview id ${interview?.id}`);
                     return res
                         .status(403)

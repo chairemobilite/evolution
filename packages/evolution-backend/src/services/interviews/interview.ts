@@ -23,6 +23,7 @@ import {
 } from 'evolution-common/lib/services/questionnaire/types';
 import { ParadataLoggingFunction } from '../logging/paradataLogging';
 import { applyInterviewValuesByPath } from 'evolution-common/lib/services/interviews/applyInterviewValuesByPath';
+import { canFreezeInterview } from 'evolution-common/lib/services/interviews/canFreezeInterview';
 
 // Create a DOMPurify instance with a virtual DOM
 const window = new JSDOM('').window;
@@ -228,9 +229,14 @@ const saveInterviewUpdate = async (
         (databaseUpdateJson as any)[field] = interview[field];
     });
 
-    // Freeze the interviews when they are marked completed (the participant won't be able to change the answers anymore)
+    // Marking completed (true or false) freezes the interview so the
+    // participant cannot change answers. The freeze is stored only after
+    // `minimumDelayBeforeFreezeSeconds`.
     if (!_isBlank(databaseUpdateJson.is_completed)) {
         databaseUpdateJson.is_frozen = true;
+    }
+    if (databaseUpdateJson.is_frozen === true && !canFreezeInterview(interview)) {
+        delete databaseUpdateJson.is_frozen;
     }
     const retInterview = await interviewsDbQueries.update(interview.uuid, databaseUpdateJson);
     // logs this update event, asynchronously to avoid blocking the flow
