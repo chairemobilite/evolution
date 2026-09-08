@@ -15,6 +15,6 @@ export default (app: Application) => {
     app.use('/api', userSurveyRouter);
 
     // Add public routes for the participant
-    const participantPublicRouter = getPublicParticipantRoutes();
+    const participantPublicRouter = getPublicParticipantRoutes(defaultMiddlewares);
     app.use('/public', participantPublicRouter);
 };

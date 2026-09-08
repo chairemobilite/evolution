@@ -11,6 +11,7 @@
 import express, { Request, Response, Router } from 'express';
 import projectConfig from 'evolution-common/lib/config/project.config';
 import { isLoggedIn } from 'chaire-lib-backend/lib/services/auth/authorization';
+import { getParadataLoggingFunction, isUserAction } from '../services/logging/paradataLogging';
 import { UserAttributes } from 'chaire-lib-backend/lib/services/users/user';
 import Interviews from '../services/interviews/interviews';
 import { sendSupportRequestEmail } from '../services/logging/supportRequest';
@@ -20,7 +21,7 @@ import { InterviewLoggingMiddlewares } from '../services/logging/queryLoggingMid
 import addCommonRoutes from './survey.common.routes';
 
 // Get a router for the routes that do not need the participant to be logged in
-export const getPublicParticipantRoutes = () => {
+export const getPublicParticipantRoutes = (loggingMiddleware: InterviewLoggingMiddlewares) => {
     const publicRouter = express.Router();
 
     if (projectConfig.surveySupportForm === true) {
@@ -52,6 +53,49 @@ export const getPublicParticipantRoutes = () => {
             }
         });
     }
+
+    // Client paradata events can occur when the user is not logged in (support
+    // request open for example, so this route is not protedted)
+    publicRouter.post('/logClientEvent/', async (req: Request, res: Response) => {
+        try {
+            // Validate the client event first
+            const content = req.body;
+            const clientEvent = content.clientEvent;
+            if (!isUserAction(clientEvent)) {
+                return res.status(400).json({ status: 'NotAClientEvent' });
+            }
+            // Get interview ID if user is logged in
+            let interviewId: number | undefined = undefined;
+            let userId: number | undefined;
+            if (req.user) {
+                const interview = await Interviews.getUserInterview((req.user as UserAttributes).id);
+                if (interview) {
+                    interviewId = interview.id;
+                    userId = loggingMiddleware.getUserIdForLogging(req);
+                }
+            }
+            if (interviewId === undefined) {
+                // Client is not logged in yet, just console.log the event to record it in the logs
+                console.log('Received not logged in client paradata event: ', clientEvent.type);
+                return res.status(200).json({ status: 'success' });
+            }
+
+            // Log this support request in the paradata if logging is enabled
+            const paradataLoggingFct = getParadataLoggingFunction({
+                interviewId,
+                userId
+            });
+            if (paradataLoggingFct !== undefined) {
+                paradataLoggingFct({
+                    userAction: clientEvent
+                });
+            }
+            return res.status(200).json({ status: 'success' });
+        } catch (error) {
+            console.error(`Error logging client paradata event: ${error}`);
+            return res.status(500).json({ status: 'failed' });
+        }
+    });
 
     return publicRouter;
 };
