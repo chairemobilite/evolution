@@ -15,6 +15,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Backported: review decision mechanism for flagging the interview as approved or rejected. This mechanism handles conflicting decisions and allow to approve individual objects.
 
+- Segment: the `driverType` values `paraTransit` and `ridesharing` are renamed `paratransit` and `carpool`, to match with surveys using these questions. paratransit should not have a capital T, because it is one word, and carpool is more precise than ridesharing.
+
 ### Deprecated
 
 ### Removed
