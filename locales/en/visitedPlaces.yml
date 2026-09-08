@@ -24,7 +24,7 @@ activities:
         etc.)
     leisureTourism: Vacation, tourism
     medical: Medical (clinic, hospital, physiotherapy, etc.)
-    other: Other
+    other: Other (specify)
     otherParentHome: Home of the other parent or guardian
     pickClassifiedPurchase: Pick up a purchase from a private seller (classified ads)
     restaurant: Restaurant, coffee shop, bar
@@ -49,7 +49,7 @@ activityCategories:
     home: Home
     kindergarten: Kindergarten/Preschool
     leisure: Leisure (stroll, sports, arts, outdoors, tourism, etc.)
-    other: Other
+    other: Other (Specify)
     otherParentHome: Home of the other parent or guardian
     school: School
     schoolStudies: School / studies
@@ -58,6 +58,7 @@ activityCategories:
     dontKnow: Don't know
     preferNotToAnswer: Prefer not to answer
 visitedPlaceActivity: 'Specify:'
+visitedPlaceActivityOtherSpecify: 'Please describe this other activity:'
 visitedPlaceName: Name or address of the place
 visitedPlaceNameExample: 50 Petunia street, corner 1st avenue / 3rd street, etc.
 visitedPlaceNameExample_workUsual: Lighthouse building, Les Petits génies CPE

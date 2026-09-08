@@ -206,6 +206,7 @@ export type VisitedPlace = QuestionnaireObjectWithUuidAndSequence &
         _isNew?: boolean;
         activity?: Optional<Activity>;
         activityCategory?: Optional<ActivityCategory>;
+        activityOtherSpecify?: Optional<string>;
         alreadyVisitedBySelfOrAnotherHouseholdMember?: Optional<boolean>;
         shortcut?: Optional<string>;
         /**

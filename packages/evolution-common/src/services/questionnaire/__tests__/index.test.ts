@@ -43,6 +43,7 @@ describe('QuestionnaireFactory', () => {
             'personVisitedPlaces',
             'visitedPlaceActivityCategory',
             'visitedPlaceActivity',
+            'visitedPlaceActivityOtherSpecify',
             'visitedPlaceOnTheRoadPreviousPlaceActivity',
             'visitedPlaceAlreadyVisited',
             'visitedPlaceShortcut',

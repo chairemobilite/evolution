@@ -24,7 +24,7 @@ activities:
         promener le chien, etc.)
     leisureTourism: Vacances, tourisme
     medical: Santé (clinique, hôpital, physiothérapie, etc.)
-    other: Autre
+    other: Autre (spécifiez)
     otherParentHome: Domicile de l'autre parent ou tuteur
     pickClassifiedPurchase: Récupérer un achat fait chez un particulier (petites annonces)
     restaurant: Restaurant, café, bar
@@ -49,7 +49,7 @@ activityCategories:
     home: Domicile
     kindergarten: Maternelle
     leisure: Loisirs (promenade, sports, arts, plein air, tourisme, etc.)
-    other: Autre
+    other: Autre (spécifiez)
     otherParentHome: Domicile de l'autre parent ou tuteur
     school: École
     schoolStudies: École / Études
@@ -58,6 +58,7 @@ activityCategories:
     dontKnow: Ne sait pas
     preferNotToAnswer: Préfère ne pas répondre
 visitedPlaceActivity: 'Spécifier:'
+visitedPlaceActivityOtherSpecify: 'Veuillez décrire cette autre activité:'
 visitedPlaceName: Nom ou adresse du lieu
 visitedPlaceNameExample: 50 rue des Fleurs, coin 1er avenue / 3e rue, etc.
 visitedPlaceNameExample_workUsual: Édifice du Phare, CPE les petits génies
