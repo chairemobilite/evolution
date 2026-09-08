@@ -46,9 +46,9 @@ describe('Segment', () => {
         endTimePeriod: 'pm',
         driverType: 'householdMember',
         driverUuid: uuidV4(),
-        vehicleOccupancy: 2,
+        vehicleOccupancy: { status: 'answered', value: 2 },
         carType: 'householdCar',
-        paidForParking: true,
+        paidForParking: { status: 'answered', value: true },
         onDemandType: 'pickupAtOrigin',
         busLines: ['Line 1', 'Line 2'],
         _weights: [{ weight: 1.2, method: new WeightMethod(weightMethodAttributes) }],
@@ -115,10 +115,98 @@ describe('Segment', () => {
         expect(unwrap(result)).toBeInstanceOf(Segment);
     });
 
+    // Questionnaires store these two answers as plain values, so `create` wraps
+    // them in their status. A survey's own choices, like a `yes` for a boolean,
+    // are its parser's job to map.
+    describe('create wraps the answers stored as plain values', () => {
+        test.each([
+            {
+                description: 'an answered occupancy',
+                attribute: 'vehicleOccupancy',
+                stored: 2,
+                expected: { status: 'answered', value: 2 }
+            },
+            {
+                description: 'an occupancy the respondent does not know',
+                attribute: 'vehicleOccupancy',
+                stored: 'dontKnow',
+                expected: { status: 'dont_know' }
+            },
+            {
+                description: 'an occupancy stored as a string',
+                attribute: 'vehicleOccupancy',
+                stored: '3',
+                expected: { status: 'answered', value: 3 }
+            },
+            {
+                description: 'an answered parking',
+                attribute: 'paidForParking',
+                stored: false,
+                expected: { status: 'answered', value: false }
+            },
+            {
+                description: 'a parking that does not apply',
+                attribute: 'paidForParking',
+                stored: 'nonApplicable',
+                expected: { status: 'not_applicable' }
+            },
+            {
+                description: 'a parking refused',
+                attribute: 'paidForParking',
+                stored: 'preferNotToAnswer',
+                expected: { status: 'refusal' }
+            },
+            {
+                description: 'an answer already wrapped',
+                attribute: 'paidForParking',
+                stored: { status: 'refusal' },
+                expected: { status: 'refusal' }
+            }
+        ])('$description', ({ attribute, stored, expected }) => {
+            const result = Segment.create({ ...validAttributes, [attribute]: stored }, registry);
+            expect(isOk(result)).toBe(true);
+            expect((unwrap(result) as any)[attribute]).toEqual(expected);
+        });
+
+        // An answer that wraps to nothing leaves no trace of the stored value,
+        // so exports and audits see an attribute that was never answered
+        test.each([
+            { attribute: 'vehicleOccupancy', stored: '' },
+            { attribute: 'paidForParking', stored: null }
+        ])('$attribute left blank has no attribute at all', ({ attribute, stored }) => {
+            const result = Segment.create({ ...validAttributes, [attribute]: stored }, registry);
+            expect(isOk(result)).toBe(true);
+            expect(Object.keys((unwrap(result) as Segment).attributes)).not.toContain(attribute);
+        });
+
+        test('an occupancy that is not a number is rejected', () => {
+            const result = Segment.create({ ...validAttributes, vehicleOccupancy: '3abc' }, registry);
+            expect(hasErrors(result)).toBe(true);
+        });
+    });
+
     test('should unserialize a Segment instance', () => {
         const segment = Segment.unserialize(validAttributes, registry);
         expect(segment).toBeInstanceOf(Segment);
         expect(segment.attributes).toEqual(validAttributes);
+    });
+
+    // The serialized form of a segment comes from a segment built by `create`,
+    // so the answers reach `unserialize` already wrapped and go through as they
+    // are, whatever their status
+    test('should unserialize the answers that come with a status', () => {
+        const segment = Segment.unserialize(
+            {
+                _attributes: {
+                    ...validAttributes,
+                    vehicleOccupancy: { status: 'answered', value: 4 },
+                    paidForParking: { status: 'dont_know' }
+                }
+            },
+            registry
+        );
+        expect(segment.vehicleOccupancy).toEqual({ status: 'answered', value: 4 });
+        expect(segment.paidForParking).toEqual({ status: 'dont_know' });
     });
 
     test('should validate Segment attributes', () => {
@@ -171,9 +259,12 @@ describe('Segment', () => {
             ['endTimePeriod', 123],
             ['driverType', 123],
             ['driverUuid', 123],
-            ['vehicleOccupancy', -1],
+            ['vehicleOccupancy', { status: 'answered', value: -1 }],
+            ['vehicleOccupancy', 2], // an answer has to come wrapped in its status
             ['carType', 123],
-            ['paidForParking', 'invalid'],
+            ['paidForParking', { status: 'answered', value: 'invalid' }],
+            ['paidForParking', { status: 'maybe' }],
+            ['paidForParking', true], // an answer has to come wrapped in its status
             ['onDemandType', 123],
             ['busLines', 'invalid'],
             ['busLines', [undefined, 'Line']],
@@ -208,9 +299,9 @@ describe('Segment', () => {
             ['endTimePeriod', 'pm'],
             ['driverType', 'colleague'],
             ['driverUuid', uuidV4()],
-            ['vehicleOccupancy', 3],
+            ['vehicleOccupancy', { status: 'answered', value: 3 }],
             ['carType', 'rentalCar'],
-            ['paidForParking', false],
+            ['paidForParking', { status: 'refusal' }],
             ['onDemandType', 'pickupAtOrigin'],
             ['busLines', ['Line 3', 'Line 4']],
             ['preData', { importedSegmentData: 'value', mode: 'bus' }],
