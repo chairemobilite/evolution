@@ -150,40 +150,21 @@ describe('Update Interview', () => {
         expect(mockLog).not.toHaveBeenCalled();
     });
 
-    test('With completed', async() => {
-        // Test with true value
-        let testAttributes = _cloneDeep(interviewAttributes);
-        let valuesByPath = { 'is_completed': true };
-        let interview = await updateInterview(testAttributes, { valuesByPath, fieldsToUpdate: ['is_completed'] });
+    test.each([
+        { title: 'true', valuesByPath: { is_completed: true }, expected: { is_completed: true } },
+        { title: 'false', valuesByPath: { is_completed: false }, expected: { is_completed: false } },
+        { title: 'null', valuesByPath: { is_completed: null }, expected: { is_completed: null } }
+    ])('completed $title does not freeze', async ({ valuesByPath, expected }) => {
+        const testAttributes = _cloneDeep(interviewAttributes);
+        const interview = await updateInterview(testAttributes, {
+            valuesByPath: valuesByPath as any,
+            fieldsToUpdate: ['is_completed']
+        });
         expect(interview.interviewId).toEqual(testAttributes.uuid);
         expect(interview.serverValidations).toEqual(true);
-        expect(interviewsQueries.update).toHaveBeenCalledTimes(1);
-        expect(mockedServerValidate).toHaveBeenCalledTimes(1);
         expect(mockedServerValidate).toHaveBeenCalledWith(testAttributes, undefined, valuesByPath, []);
-        expect(mockedServerUpdate).toHaveBeenCalledTimes(1);
-        expect(mockedServerUpdate).toHaveBeenCalledWith(testAttributes, [], { is_completed: true }, undefined, undefined);
-
-        expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, { is_completed: true, is_frozen: true });
-
-        // Test with false value
-        testAttributes = _cloneDeep(interviewAttributes);
-        valuesByPath = { 'is_completed': false };
-        interview = await updateInterview(testAttributes, { valuesByPath, fieldsToUpdate: ['is_completed'] });
-        expect(interview.interviewId).toEqual(testAttributes.uuid);
-        expect(interview.serverValidations).toEqual(true);
-        expect(interviewsQueries.update).toHaveBeenCalledTimes(2);
-
-        expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, { is_completed: false, is_frozen: true });
-
-        // Test with null value
-        testAttributes = _cloneDeep(interviewAttributes);
-        valuesByPath = { 'is_completed': null } as any;
-        interview = await updateInterview(testAttributes, { valuesByPath, fieldsToUpdate: ['is_completed'] });
-        expect(interview.interviewId).toEqual(testAttributes.uuid);
-        expect(interview.serverValidations).toEqual(true);
-        expect(interviewsQueries.update).toHaveBeenCalledTimes(3);
-
-        expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, { is_completed: null });
+        expect(mockedServerUpdate).toHaveBeenCalledWith(testAttributes, [], valuesByPath, undefined, undefined);
+        expect(interviewsQueries.update).toHaveBeenCalledWith(testAttributes.uuid, expected);
         expect(mockLog).not.toHaveBeenCalled();
     });
 

@@ -15,7 +15,6 @@ import serverValidate, { ServerValidation } from '../validations/serverValidatio
 import serverUpdateField from './serverFieldUpdate';
 import interviewsDbQueries from '../../models/interviews.db.queries';
 import projectConfig from '../../config/projectConfig';
-import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import {
     InterviewAttributes,
     UserAction,
@@ -228,10 +227,6 @@ const saveInterviewUpdate = async (
         (databaseUpdateJson as any)[field] = interview[field];
     });
 
-    // Freeze the interviews when they are marked completed (the participant won't be able to change the answers anymore)
-    if (!_isBlank(databaseUpdateJson.is_completed)) {
-        databaseUpdateJson.is_frozen = true;
-    }
     const retInterview = await interviewsDbQueries.update(interview.uuid, databaseUpdateJson);
     // logs this update event, asynchronously to avoid blocking the flow
     options.logUpdate?.({

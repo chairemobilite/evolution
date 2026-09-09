@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Interview: completing an interview no longer freezes it, and `is_frozen` no longer blocks participant or review access (fixes [#1949](https://github.com/chairemobilite/evolution/issues/1949) and [#1950](https://github.com/chairemobilite/evolution/issues/1950))
 - Segment: `paidForParking` and `vehicleOccupancy` hold an `AnswerStatus`, which `Segment.create` builds from the value the questionnaire stores, a count answered as a string included, instead of failing parameter validation and dropping the segment from the audited objects and the admin review panels (fixes [#1946](https://github.com/chairemobilite/evolution/issues/1946))
 
 ### Deprecated

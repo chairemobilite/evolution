@@ -57,6 +57,11 @@ jest.mock('../../services/interviews/interviews', () => ({
     }
 }));
 
+jest.mock('../../models/interviewsAccesses.db.queries', () => ({
+    userOpenedInterview: jest.fn().mockResolvedValue(true),
+    userUpdatedInterview: jest.fn().mockResolvedValue(true)
+}));
+
 jest.mock('../../services/interviews/interview', () => ({
     copyResponseToCorrectedResponse: jest.fn()
 }));
@@ -656,5 +661,29 @@ describe('POST /review/forceApprove/:interviewId', () => {
             path: 'forceApprove',
             body: { comment: 'admin override' },
         });
+    });
+});
+
+describe('GET /survey/activeCorrectedInterview/:interviewUuid', () => {
+    const interviewUuid = uuidV4();
+
+    beforeEach(() => {
+        jest.clearAllMocks();
+        mockAuthUser = defaultUser;
+    });
+
+    it('returns the corrected interview when it is frozen', async () => {
+        mockGetInterviewByUuid.mockResolvedValue({
+            uuid: interviewUuid,
+            is_frozen: true,
+            corrected_response: { foo: 'bar' }
+        } as any);
+
+        const response = await request(app).get(`/survey/activeCorrectedInterview/${interviewUuid}`);
+
+        expect(response.status).toBe(200);
+        expect(response.body.status).toBe('success');
+        expect(response.body.interview.is_frozen).toBe(true);
+        expect(response.body.interview.response).toEqual({ foo: 'bar' });
     });
 });

@@ -141,13 +141,6 @@ export default (authorizationMiddleware, loggingMiddleware: InterviewLoggingMidd
                     );
                 }
 
-                // Check if interview is frozen, if so, do not allow access
-                if (interview?.is_frozen) {
-                    console.log(`activeSurvey: Interview is frozen for interview id ${interview?.id}`);
-                    return res
-                        .status(403)
-                        .json({ status: 'forbidden', interview: null, error: 'interview cannot be accessed' });
-                }
                 return res.status(200).json({ status: 'success', interview });
             } catch (error) {
                 console.error(`Error opening participant's interview: ${error}`);

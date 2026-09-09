@@ -139,7 +139,7 @@ describe('GET /survey/activeInterview', () => {
         expect(Interviews.getUserInterview).toHaveBeenCalledWith(mockUserId);
     });
 
-    test('should return 403 if interview is frozen', async () => {
+    test('should return 200 if interview is frozen', async () => {
         const mockFrozenInterview = {
             id: 1,
             uuid: 'mockUuid',
@@ -153,8 +153,8 @@ describe('GET /survey/activeInterview', () => {
 
         const response = await request(app).get('/survey/activeInterview');
 
-        expect(response.status).toBe(403);
-        expect(response.body).toEqual({ status: 'forbidden', interview: null, error: 'interview cannot be accessed' });
+        expect(response.status).toBe(200);
+        expect(response.body).toEqual({ status: 'success', interview: mockFrozenInterview });
         expect(Interviews.getUserInterview).toHaveBeenCalledWith(mockUserId);
     });
 });
