@@ -8,6 +8,7 @@ import os
 import csv
 from typing import Literal
 from helpers.generator_helpers import get_data_from_excel, clean_text
+from scripts.generate_widgets import get_radio_number_parameters
 
 
 # Function to generate questionnaire_test for each section
@@ -43,6 +44,12 @@ def generate_questionnaire_dictionary(
         widgets_conditional_index = widgets_headers.index("conditional")
         widgets_choices_index = widgets_headers.index("choices")
         widgets_input_range_index = widgets_headers.index("inputRange")
+        # The 'parameters' column is optional: not every Widgets sheet has it.
+        widgets_parameters_index = (
+            widgets_headers.index("parameters")
+            if "parameters" in widgets_headers
+            else None
+        )
         section_name_index = sections_headers.index("section")
         section_title_language_index = sections_headers.index(f"title_{language}")
         section_title_abbreviation_index = sections_headers.index("abbreviation")
@@ -81,6 +88,11 @@ def generate_questionnaire_dictionary(
             active = row[widgets_active_index].value
             choices_name = row[widgets_choices_index].value
             input_range = row[widgets_input_range_index].value
+            parameters = (
+                row[widgets_parameters_index].value
+                if widgets_parameters_index is not None
+                else None
+            )
             question_path = row[widgets_path_index].value
             conditional = row[widgets_conditional_index].value
             input_type = row[widgets_input_type_index].value
@@ -94,18 +106,15 @@ def generate_questionnaire_dictionary(
             if section_name and question_text and active:
                 if section_name not in sections_questions:
                     sections_questions[section_name] = []
-                choices_text = ""
-                if choices_name:
-                    # Filter out empty choices in choices_map
-                    filtered_choices_list = [
-                        choice for choice in choices_map.get(choices_name, []) if choice
-                    ]
-                    choices_text = "\n".join(
-                        f"{choice}" for choice in filtered_choices_list
-                    )
+                choices_text = get_choices_text(choices_name, choices_map)
                 range_text = ""
                 if input_range:
                     range_text = ranges_map.get(input_range, "")
+                radio_number_text = ""
+                if input_type == "RadioNumber":
+                    radio_number_text = process_radio_number_values(
+                        parameters, language
+                    )
                 transformed_path = transform_path(question_path, sections)
                 # Get conditional text or the name if it contains 'CustomConditional'
                 conditional_text = (
@@ -122,6 +131,7 @@ def generate_questionnaire_dictionary(
                         input_type,
                         choices_text,
                         range_text,
+                        radio_number_text,
                     )
                 )  # Store this tuple
 
@@ -166,6 +176,7 @@ def generate_questionnaire_dictionary(
                 input_type,
                 choices_text,
                 range_text,
+                radio_number_text,
             ) in questions:  # Unpack tuple here
                 questionnaire_data.append([""])  # Add line break before each question
                 questionnaire_data.append([field_label, question_path])
@@ -179,6 +190,10 @@ def generate_questionnaire_dictionary(
                     questionnaire_data.append([conditional_label, conditional_text])
 
                 questionnaire_data.append([question_label, question])
+
+                # Only add radio number values if it exists
+                if radio_number_text:
+                    questionnaire_data.append([values_label, radio_number_text])
 
                 # Only add choices if it exists
                 if choices_text:
@@ -203,6 +218,33 @@ def generate_questionnaire_dictionary(
     except Exception as e:
         print(f"Error with questionnaire dictionary: {e}")
         raise e
+
+
+def get_choices_text(choices_name, choices_map):
+    """
+    Build the newline-separated "value : label" text for a given choicesName, by
+    looking it up in the choices_map produced by process_choices.
+
+    This is shared by every widget backed by the Choices sheet (Radio, Checkbox,
+    Select, RadioNumber's additionalChoices, etc.) so they all render their
+    values the same way.
+
+    Args:
+        choices_name (str): The choicesName to look up (the widget's 'choices' column).
+        choices_map (dict): Mapping of choicesName to their choice entries, from process_choices.
+
+    Returns:
+        str: The choices formatted as newline-separated entries, or an empty
+        string if choices_name is falsy or not found in choices_map.
+    """
+    if not choices_name:
+        return ""
+
+    # Filter out empty choices in choices_map
+    filtered_choices_list = [
+        choice for choice in choices_map.get(choices_name, []) if choice
+    ]
+    return "\n".join(filtered_choices_list)
 
 
 def process_choices(choices_rows, choices_headers, language, conditionals_map):
@@ -286,6 +328,43 @@ def process_choices(choices_rows, choices_headers, language, conditionals_map):
                 )
 
     return choices_map
+
+
+def process_radio_number_values(parameters: str, language: Literal["en", "fr"]) -> str:
+    """
+    Build the list of selectable numeric values for a RadioNumber widget, based on
+    the min/max (and overMaxAllowed) parsed from the widget's 'parameters' column.
+
+    Args:
+        parameters (str): The raw 'parameters' cell value for the widget row
+            (e.g. "min=1\\nmax=6\\noverMaxAllowed").
+        language (str): Language code ('en' or 'fr').
+
+    Returns:
+        str: The selectable values, one per line (e.g. "1\n2\n3\n4\n5\n6\n7+"). When
+        min and/or max reference another response's path dynamically instead of a
+        fixed number, the values can't be enumerated ahead of time, so the raw
+        min/max are shown instead (e.g. "Min : someOtherField\nMax : 6").
+    """
+    radio_number_parameters = get_radio_number_parameters({"parameters": parameters or ""})
+    min_value = radio_number_parameters["min_value"]
+    max_value = radio_number_parameters["max_value"]
+    over_max_allowed = radio_number_parameters["over_max_allowed"]
+
+    if isinstance(min_value, int) and isinstance(max_value, int):
+        values = [str(value) for value in range(min_value, max_value + 1)]
+        if over_max_allowed:
+            values.append(f"{max_value + 1}+")
+        return "\n".join(values)
+
+    min_label = "Min" if language == "en" else "Min"
+    max_label = "Max" if language == "en" else "Max"
+    values = [f"{min_label} : {min_value}", f"{max_label} : {max_value}"]
+    # The over max choice is max + 1, which can only be computed when max is a fixed number
+    if over_max_allowed and isinstance(max_value, int):
+        values.append(f"{max_value + 1}+")
+
+    return "\n".join(values)
 
 
 def process_range(ranges_rows, ranges_headers, language):
@@ -426,14 +505,17 @@ def rename_input_type(input_type: str, language: Literal["en", "fr"]) -> str:
 
     # TODO: Use a traduction package (e.g. gettext) to handle multiple translations
     translations = {
-        "Custom": {"en": "Unknown input", "fr": "Entrée inconnue"},
+        "BuiltIn": {"en": "Builtin input", "fr": "Champ intégré"},
+        "Custom": {"en": "Custom input", "fr": "Champ personnalisé"},
+        "Checkbox": {"en": "Checkbox input", "fr": "Case à cocher"},
         "Radio": {"en": "Radio input", "fr": "Bouton radio"},
+        "RadioNumber": {"en": "Radio number input", "fr": "Bouton radio numérique"},
         "Select": {"en": "Select input", "fr": "Liste déroulante"},
         "String": {"en": "Text input", "fr": "Champ de texte"},
         "Number": {"en": "Number input", "fr": "Champ numérique"},
         "Range": {"en": "Range input", "fr": "Curseur de plage"},
-        "Checkbox": {"en": "Checkbox input", "fr": "Case à cocher"},
         "Text": {"en": "Text area input", "fr": "Zone de texte"},
+        "NextButton": {"en": "Next button", "fr": "Bouton suivant"},
     }
 
     # Ignore InfoText type because it is not a question
