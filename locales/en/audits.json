@@ -44,6 +44,7 @@
     "J_W_VisitedPlaceSequenceGaps": "Visited place sequences are not contiguous",
     "J_L_InvalidTripSequences": "At least one trip sequence is invalid or duplicated",
     "J_W_TripSequenceGaps": "Trip sequences are not contiguous",
+    "J_L_InconsistentChronology": "Journey chronology is inconsistent",
 
     "VP_M_Geography": "Visited place geography is missing",
     "VP_I_Geography": "Visited place geography is invalid",
