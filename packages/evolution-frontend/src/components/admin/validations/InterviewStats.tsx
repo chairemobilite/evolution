@@ -81,24 +81,6 @@ const InterviewStats = (props: InterviewStatsProps) => {
         );
     }
 
-    if (!household) {
-        return (
-            <div className="admin__interview-stats">
-                <h4>{t('interviewStats.errors.error')}</h4>
-                <p className="_red">{t('interviewStats.errors.householdNotAvailable')}</p>
-            </div>
-        );
-    }
-
-    if (!home) {
-        return (
-            <div className="admin__interview-stats">
-                <h4>{t('interviewStats.errors.error')}</h4>
-                <p className="_red">{t('interviewStats.errors.homeNotAvailable')}</p>
-            </div>
-        );
-    }
-
     const persons: { [key: string]: Person } = household?.members
         ? household.members.reduce(
             (acc, person) => {
@@ -127,7 +109,7 @@ const InterviewStats = (props: InterviewStatsProps) => {
     });
     const personInheritedStatus = getInheritedStatusForDisplay(reviewDecisionStatusByObject, {
         objectType: 'household',
-        objectUuid: household._uuid,
+        objectUuid: household?._uuid,
         inheritedStatus: interviewStatusForDisplay
     });
 
