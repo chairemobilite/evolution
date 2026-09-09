@@ -3,7 +3,7 @@
         "node": ">=24.0.0"
     },
     "name": "evolution-interviewer",
-    "version": "0.6.1",
+    "version": "0.6.2",
     "description": "Interviewer module for for Evolution platform",
     "repository": "github.com/chairemobilite/evolution",
     "license": "MIT",
