@@ -38,7 +38,9 @@ const AuditDisplay = ({
                         icon={audit.level === 'info' ? faCircleInfo : faTriangleExclamation}
                         className="faIconLeft"
                     />
-                    {showAuditErrorCode ? audit.errorCode : t(`audits:${audit.errorCode}`)}
+                    {showAuditErrorCode
+                        ? audit.errorCode
+                        : t(`audits:${audit.errorCode}`, { defaultValue: audit.message || audit.errorCode })}
                     {/* •&nbsp; // TODO: add ignore audit implementation in backend
                     <a href="#" onClick={(e) => {
                         e.preventDefault();
