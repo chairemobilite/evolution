@@ -5,9 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased (0.6.2)]
+## [Unreleased (0.6.3)]
 
 ### Added
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+
+### Dependency updates
+
+## [0.6.2] - 2026-09-09
+
+### Added
+
+- Paradata: add paradata events for support request opened and sent, and help popup link clicks (fixes [#1358](https://github.com/chairemobilite/evolution/issues/1358) and [#713](https://github.com/chairemobilite/evolution/issues/713))
+- css: different styles for corrected (`survey-corrected`) and participant survey (`survey-participant`) allow to style those differently (fixes [#1890](https://github.com/chairemobilite/evolution/issues/1890))
 
 ### Changed
 
@@ -22,6 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Admin: a journey without any visited place or trip no longer shows an empty review box ([#1891](https://github.com/chairemobilite/evolution/pull/1891))
 - Export: the CSV and log exports of interviews carry a `review_status` column instead of the `is_valid` and `is_validated` ones (see [#1886](https://github.com/chairemobilite/evolution/issues/1886) for the objects an approved interview may still contain)
 - VisitedPlace: interview shortcuts are stored as `isShortcut` instead of a uuid, so a path or usual-place shortcut no longer fails parameter validation (fixes [#1928](https://github.com/chairemobilite/evolution/issues/1928))
+- Webpack: do not require `customStylesFilePath` parameter (fixes [#1895](https://github.com/chairemobilite/evolution/issues/1895))
 
 ### Deprecated
 
@@ -38,6 +58,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - A deferred server update now waits for the interview update that registered it to be saved before reloading the interview, instead of possibly reading it before the save and writing that stale copy back over it (fixes [#1934](https://github.com/chairemobilite/evolution/issues/1934))
 - Segments: initialize `segments` object on section entry instead of individual segment to avoid relying on key insertion order (fixes [#1943](https://github.com/chairemobilite/evolution/issues/1943))
 - Admin: filtering the interview list or the audit stats by an audit coming from a parameter validation no longer fails, as the code of those audits is a slugified message and held punctuation the filter refused (fixes [#1927](https://github.com/chairemobilite/evolution/issues/1927))
+- Admin: visitedPlace's arrivalTime/departureTime are correctly mapped to startTime/endTime (fixes [#1931](https://github.com/chairemobilite/evolution/issues/1931))
 
 ### Security
 

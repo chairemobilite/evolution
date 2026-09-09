@@ -3,7 +3,7 @@
         "node": ">=24.0.0"
     },
     "name": "evolution-backend",
-    "version": "0.6.1",
+    "version": "0.6.2",
     "description": "Backend library for Evolution",
     "repository": "github.com/chairemobilite/evolution",
     "license": "MIT",
