@@ -61,4 +61,18 @@ describe('Participant interview access', () => {
             expect(nextFunction).toHaveBeenCalledTimes(1);
         }
     });
+
+    test('allows access to own frozen interview', async () => {
+        mockRequest.user = mockParticipant;
+        const request = { ...mockRequest, ...defaultGetParams };
+        mockGetInterviewByUuid.mockResolvedValue({
+            id: 1,
+            participant_id: mockParticipant.id,
+            is_active: true,
+            is_frozen: true
+        });
+        await isAuthorized()(request as Request, mockResponse as Response, nextFunction);
+        expect(mockResponse.status).not.toHaveBeenCalled();
+        expect(nextFunction).toHaveBeenCalledTimes(1);
+    });
 });
