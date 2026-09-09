@@ -5,7 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import React from 'react';
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { v4 as uuidV4 } from 'uuid';
 import InterviewStats, { type InterviewStatsProps } from '../InterviewStats';
@@ -176,5 +176,79 @@ describe('InterviewStats rejection inheritance', () => {
             expect.objectContaining({ inheritedStatus: 'rejected' }),
             undefined
         );
+    });
+});
+
+describe('InterviewStats when a survey object failed to create', () => {
+    const householdCreationAudit = {
+        version: 1,
+        objectType: 'household',
+        objectUuid: interviewUuid,
+        errorCode: 'Household-validateParams-twoWheelNumber-should-be-a-positive-integer',
+        message: 'Household validateParams: twoWheelNumber should be a positive integer',
+        level: 'error' as const
+    };
+
+    test.each([
+        {
+            title: 'household',
+            surveyObjectsAndAudits: {
+                household: undefined,
+                home: { _uuid: homeUuid },
+                audits: [householdCreationAudit],
+                auditsByObject: { household: [householdCreationAudit], persons: {} }
+            }
+        },
+        {
+            title: 'home',
+            surveyObjectsAndAudits: {
+                household: { _uuid: householdUuid, members: [] },
+                home: undefined,
+                audits: [],
+                auditsByObject: { persons: {} }
+            }
+        }
+    ])('still renders the interview panels when $title is missing', ({ surveyObjectsAndAudits }) => {
+        render(
+            <InterviewStats
+                {...({
+                    ...baseProps,
+                    surveyObjectsAndAudits: {
+                        ...baseProps.surveyObjectsAndAudits,
+                        ...surveyObjectsAndAudits
+                    }
+                } as InterviewStatsProps)}
+            />
+        );
+
+        expect(screen.queryByText('interviewStats.errors.householdNotAvailable')).not.toBeInTheDocument();
+        expect(screen.queryByText('interviewStats.errors.homeNotAvailable')).not.toBeInTheDocument();
+        expect(mockHomePanel).toHaveBeenCalled();
+        expect(mockHouseholdPanel).toHaveBeenCalled();
+    });
+
+    test('passes household creation audits to HouseholdPanel', () => {
+        render(
+            <InterviewStats
+                {...({
+                    ...baseProps,
+                    surveyObjectsAndAudits: {
+                        ...baseProps.surveyObjectsAndAudits,
+                        household: undefined,
+                        audits: [householdCreationAudit],
+                        auditsByObject: { household: [householdCreationAudit], persons: {} }
+                    }
+                } as InterviewStatsProps)}
+            />
+        );
+
+        expect(mockHouseholdPanel).toHaveBeenCalledWith(
+            expect.objectContaining({
+                household: undefined,
+                audits: [householdCreationAudit]
+            }),
+            undefined
+        );
+        expect(screen.getByText('AllAudits')).toBeInTheDocument();
     });
 });
