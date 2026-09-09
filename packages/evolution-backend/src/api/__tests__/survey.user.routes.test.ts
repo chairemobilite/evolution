@@ -89,6 +89,17 @@ describe('GET /survey/activeInterview/:interviewId', () => {
         expect(mockGetInterviewByUuid).toHaveBeenCalledWith(interviewUuid);
     });
 
+    it('should return 200 if interview is frozen', async () => {
+        const mockInterview = { id: 1, uuid: interviewUuid, is_frozen: true };
+        mockGetInterviewByUuid.mockResolvedValueOnce(mockInterview as any);
+
+        const response = await request(app).get('/survey/activeInterview/' + interviewUuid);
+
+        expect(response.status).toBe(200);
+        expect(response.body).toEqual({ status: 'success', interview: mockInterview });
+        expect(mockAddRolesToInterview).toHaveBeenCalledWith(mockInterview, { id: mockUserId });
+    });
+
     it('should return 500 if an error occurs', async () => {
         mockGetInterviewByUuid.mockRejectedValueOnce(new Error('Database error'));
 

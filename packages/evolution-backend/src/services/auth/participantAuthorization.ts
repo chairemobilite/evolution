@@ -44,7 +44,7 @@ const interviewParticipantIsAuthorized = () => {
                 res.status(404).json({ status: 'NotFound' });
                 return;
             }
-            const allowed = interview.participant_id === participantId && interview.is_active && !interview.is_frozen;
+            const allowed = interview.participant_id === participantId && interview.is_active;
             if (!allowed) {
                 res.status(401).json({ status: 'Unauthorized' });
                 return;
