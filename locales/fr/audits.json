@@ -44,6 +44,7 @@
     "J_W_VisitedPlaceSequenceGaps": "Les numéros de séquence des lieux visités ne sont pas consécutifs",
     "J_L_InvalidTripSequences": "Le numéro de séquence d'au moins un déplacement est invalide ou en double",
     "J_W_TripSequenceGaps": "Les numéros de séquence des déplacements ne sont pas consécutifs",
+    "J_L_InconsistentChronology": "La chronologie du séjour est incohérente",
 
     "VP_M_Geography": "La géographie du lieu visité est manquante",
     "VP_I_Geography": "La géographie du lieu visité est invalide",
