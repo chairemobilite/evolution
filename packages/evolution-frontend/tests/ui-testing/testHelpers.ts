@@ -1050,7 +1050,7 @@ export const waitTextVisible = ({
     context,
     text,
     isVisible = true
-}: { text: Path; isVisible?: boolean } & CommonTestParameters) => {
+}: { text: string | RegExp; isVisible?: boolean } & CommonTestParameters) => {
     test(`Check text visibility ${text} - ${getTestCounter(context, `${text} - ${isVisible}`)}`, async () => {
         const input = context.page.getByText(text);
         if (isVisible) {
