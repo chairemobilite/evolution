@@ -204,6 +204,50 @@ describe('Interview', () => {
 
     });
 
+    describe('commentsOnSurvey mapping', () => {
+        it.each([
+            [{ commentsOnSurvey: 'From top level' }, 'From top level'],
+            [{ end: { commentsOnSurvey: 'From end' } }, 'From end'],
+            [{ commentsOnSurvey: 'Ignored', respondentComments: 'Already set' }, 'Already set'],
+            [{ end: { commentsOnSurvey: 'Ignored' }, respondentComments: 'Already set' }, 'Already set']
+        ])('maps commentsOnSurvey to respondentComments %#', (extra, expected) => {
+            const interview = new Interview({ ...validParams, ...extra }, createRawInterviewAttributes(), registry);
+            expect(interview.respondentComments).toBe(expected);
+            expect(interview.customAttributes.commentsOnSurvey).toBeUndefined();
+            expect((interview.customAttributes.end as { commentsOnSurvey?: string } | undefined)?.commentsOnSurvey).toBeUndefined();
+        });
+
+        it('does not mutate the original params when stripping commentsOnSurvey from end', () => {
+            const end = { commentsOnSurvey: 'Hello', durationRange: 3 };
+            const params = { ...validParams, end };
+            new Interview(params, createRawInterviewAttributes(), registry);
+            expect(end.commentsOnSurvey).toBe('Hello');
+        });
+
+        it('keeps other end fields as custom attributes', () => {
+            const interview = new Interview(
+                { ...validParams, end: { commentsOnSurvey: 'Hello', durationOfTheSurvey: 3 } },
+                createRawInterviewAttributes(),
+                registry
+            );
+            expect(interview.respondentComments).toBe('Hello');
+            expect(interview.customAttributes.end).toEqual({ durationOfTheSurvey: 3 });
+        });
+
+        it('maps commentsOnSurvey when using create', () => {
+            const result = create(
+                { ...validParams, end: { commentsOnSurvey: 'From create' } },
+                createRawInterviewAttributes(),
+                registry
+            );
+            expect(isOk(result)).toBe(true);
+            if (isOk(result)) {
+                expect(result.result.respondentComments).toBe('From create');
+                expect(result.result.customAttributes.commentsOnSurvey).toBeUndefined();
+            }
+        });
+    });
+
     describe('Interview - Custom attributes and composed objects', () => {
         it('should handle custom attributes', () => {
             const customParams = {

@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Interview: map `commentsOnSurvey` (including `end.commentsOnSurvey`) to `respondentComments` when creating the interview object (fixes [#1947](https://github.com/chairemobilite/evolution/issues/1947))
+
 ### Security
 
 ### Dependency updates

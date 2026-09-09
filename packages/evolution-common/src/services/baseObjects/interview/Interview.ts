@@ -112,6 +112,37 @@ export type SerializedExtendedInterviewAttributesWithComposedObjects = {
 };
 
 /**
+ * Surveys store comments as `commentsOnSurvey` (top-level or under `end`).
+ * Copy to respondentComments and drop commentsOnSurvey so it is not a custom attribute.
+ */
+const mapCommentsOnSurveyToRespondentComments = (
+    params: ExtendedInterviewAttributesWithComposedObjects
+): ExtendedInterviewAttributesWithComposedObjects => {
+    const mapped = { ...params };
+    const end = mapped.end;
+    const endComments =
+        end !== null && typeof end === 'object' && !Array.isArray(end)
+            ? (end as { commentsOnSurvey?: unknown }).commentsOnSurvey
+            : undefined;
+    const commentsOnSurvey = [mapped.commentsOnSurvey, endComments].find(
+        (value): value is string => typeof value === 'string' && value !== ''
+    );
+    if (commentsOnSurvey && !mapped.respondentComments) {
+        mapped.respondentComments = commentsOnSurvey;
+    }
+    delete mapped.commentsOnSurvey;
+    if (end !== null && typeof end === 'object' && !Array.isArray(end) && 'commentsOnSurvey' in end) {
+        const { commentsOnSurvey: _removed, ...endWithoutComments } = end as Record<string, unknown>;
+        if (Object.keys(endWithoutComments).length === 0) {
+            delete mapped.end;
+        } else {
+            mapped.end = endWithoutComments;
+        }
+    }
+    return mapped;
+};
+
+/**
  * Represents an interview in the survey.
  *
  * @class
@@ -204,8 +235,10 @@ export class Interview extends Uuidable {
         this._attributes = {} as InterviewAttributes;
         this._customAttributes = {};
 
+        const paramsWithComments = mapCommentsOnSurveyToRespondentComments(params);
+
         const { attributes, customAttributes } = ConstructorUtils.initializeAttributes(
-            _omit(params, [
+            _omit(paramsWithComments, [
                 '_paradata',
                 'paradata',
                 '_language', // TODO: remove this once we have migrated all interviews to the new paradata structure
@@ -231,7 +264,9 @@ export class Interview extends Uuidable {
         this._customAttributes = customAttributes;
 
         this._paradata = ConstructorUtils.initializeComposedAttribute(
-            params._paradata === undefined ? Interview.extractDirtyParadataParams(params) : params._paradata,
+            paramsWithComments._paradata === undefined
+                ? Interview.extractDirtyParadataParams(paramsWithComments)
+                : paramsWithComments._paradata,
             (_paradataParams) =>
                 InterviewParadata.unserialize(
                     _paradataParams as ExtendedInterviewParadataAttributes,
