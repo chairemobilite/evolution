@@ -31,6 +31,9 @@ export const HomePanel = ({ home, audits, showAuditErrorCode, inheritedStatus }:
                         <h4 style={{ display: 'inline', margin: 0 }}>{t('Home')}</h4>
                     </summary>
                     <span className="_widget _red">{t('survey:homeNotAvailable')}</span>
+                    {audits && audits.length > 0 && (
+                        <AuditDisplay audits={audits} showAuditErrorCode={showAuditErrorCode} />
+                    )}
                 </details>
             </div>
         );

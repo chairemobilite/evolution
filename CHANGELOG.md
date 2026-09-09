@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Admin: household and home creation errors are shown on the review summary instead of replacing the page with a generic unavailable message (fixes [#1961](https://github.com/chairemobilite/evolution/issues/1961))
+
 ### Security
 
 ### Dependency updates

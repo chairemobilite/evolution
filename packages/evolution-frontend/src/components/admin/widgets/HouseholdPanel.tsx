@@ -33,6 +33,9 @@ export const HouseholdPanel = ({ household, audits, showAuditErrorCode, inherite
                         <h4 style={{ display: 'inline', margin: 0 }}>{t('Household')}</h4>
                     </summary>
                     <span className="_widget _red">{t('interviewStats.errors.householdNotAvailable')}</span>
+                    {audits && audits.length > 0 && (
+                        <AuditDisplay audits={audits} showAuditErrorCode={showAuditErrorCode} />
+                    )}
                 </details>
             </div>
         );
