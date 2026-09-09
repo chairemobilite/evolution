@@ -84,12 +84,12 @@ type RedirectionTest = (
 ) => void;
 type NavBarButtonStatusTest = (
     params: {
-        buttonText: Text;
+        buttonText: Text | RegExp;
         buttonStatus: 'completed' | 'active' | 'activeAndCompleted' | 'inactive';
         isDisabled: boolean;
     } & CommonTestParameters
 ) => void;
-type ChangePageFromNavBarTest = (params: { buttonText: Text; nextPageUrl: Url } & CommonTestParameters) => void;
+type ChangePageFromNavBarTest = (params: { buttonText: Text | RegExp; nextPageUrl: Url } & CommonTestParameters) => void;
 type SectionProgressBarTest = (
     params: { sectionName: string; completionPercentage: number } & CommonTestParameters
 ) => void;
@@ -1193,7 +1193,7 @@ export const pageRedirectionTest: RedirectionTest = ({ context, buttonText, expe
  * Also checks if the button is disabled, and thus unclickable.
  *
  * @param {Object} options - The options for the test.
- * @param {string} options.buttonText - The text of the nav bar button we are checking.
+ * @param {string | RegExp} options.buttonText - The text of the nav bar button we are checking.
  * @param {string} options.buttonStatus - The status we expect for the button. Can be one of four values: "completed", "active", "active and completed", and "inactive".
  * @param {boolean} options.isDisabled - true if we expect the button to be disabled, false is not.
  */
@@ -1231,7 +1231,7 @@ export const verifyNavBarButtonStatus: NavBarButtonStatusTest = ({ context, butt
  * Verify that clicking a button in the navigation bar takes you to the expected page.
  *
  * @param {Object} options - The options for the test.
- * @param {string} options.buttonText - The text of the nav bar button we are clicking.
+ * @param {string | RegExp} options.buttonText - The text of the nav bar button we are clicking.
  * @param {string} options.nextPageUrl - The page we expect to be taken to after clicking.
  */
 export const changePageFromNavBar: ChangePageFromNavBarTest = ({ context, buttonText, nextPageUrl }) => {
