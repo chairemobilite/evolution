@@ -55,6 +55,60 @@ export const journeyAuditChecks: { [errorCode: string]: JourneyAuditCheckFunctio
     },
 
     /**
+     * Flag a journey whose last visited place does not close it
+     * (`nextPlaceCategory === 'stayedThereUntilTheNextDay'`).
+     *
+     * Fires only on the explicit `false` of `journey.isJourneyClosed`.
+     *
+     * @param context - JourneyAuditCheckContext
+     * @returns AuditForObject
+     */
+    J_L_JourneyNotClosed: (context: JourneyAuditCheckContext): AuditForObject | undefined => {
+        const { journey } = context;
+
+        if (journey.isJourneyClosed !== false) {
+            return undefined;
+        }
+
+        return {
+            objectType: 'journey',
+            objectUuid: journey._uuid!,
+            errorCode: 'J_L_JourneyNotClosed',
+            version: 1,
+            level: 'error',
+            message: 'Journey is not closed',
+            ignore: false
+        };
+    },
+
+    /**
+     * Flag a journey with more than one visited place answering
+     * `nextPlaceCategory === 'stayedThereUntilTheNextDay'`.
+     *
+     * Fires only on the explicit `true` of `journey.isJourneyClosedMoreThanOnce`.
+     *
+     * @param context - JourneyAuditCheckContext
+     * @returns AuditForObject
+     */
+    J_L_JourneyClosedMoreThanOnce: (context: JourneyAuditCheckContext): AuditForObject | undefined => {
+        const { journey } = context;
+
+        if (journey.isJourneyClosedMoreThanOnce !== true) {
+            return undefined;
+        }
+
+        return {
+            objectType: 'journey',
+            objectUuid: journey._uuid!,
+            errorCode: 'J_L_JourneyClosedMoreThanOnce',
+            version: 1,
+            level: 'error',
+            message: 'Journey is closed more than once',
+            ignore: false
+        };
+    },
+
+    /**
      * Check for visited place sequences that cannot be ordered: missing, non-positive
      * integer, or shared by two visited places.
      * @param context - JourneyAuditCheckContext

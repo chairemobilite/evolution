@@ -20,6 +20,11 @@ import {
     compareSequenceThenUuid,
     hasInvalidOrDuplicateSequences
 } from 'evolution-common/lib/services/baseObjects/sequenceUtils';
+import {
+    computeIsSegmentChainClosed,
+    computeIsSegmentChainClosedMoreThanOnce
+} from './derivedFlags/segmentChainClosure';
+import type { ExtendedSegmentAttributes } from 'evolution-common/lib/services/baseObjects/Segment';
 import { AuditLog } from '../audits/auditLog';
 
 /**
@@ -70,6 +75,22 @@ export async function populateTripsForJourney(
 
             if (origin) trip.result.origin = origin;
             if (destination) trip.result.destination = destination;
+
+            // Parse segments first so hasNextMode is in its official place
+            // (populateSegmentsForTrip will parse them again when creating objects).
+            const rawSegmentsByUuid = (tripAttrs.segments ?? {}) as { [uuid: string]: ExtendedSegmentAttributes };
+            const segmentsByUuid = Object.fromEntries(
+                Object.entries(rawSegmentsByUuid)
+                    .filter(([segmentUuid]) => segmentUuid !== 'undefined')
+                    .map(([segmentUuid, segmentAttributes]) => [
+                        segmentUuid,
+                        projectConfig.surveyObjectParsers?.segment
+                            ? projectConfig.surveyObjectParsers.segment(segmentAttributes, correctedResponse)
+                            : segmentAttributes
+                    ])
+            ) as { [uuid: string]: ExtendedSegmentAttributes };
+            trip.result.isSegmentChainClosed = computeIsSegmentChainClosed(segmentsByUuid);
+            trip.result.isSegmentChainClosedMoreThanOnce = computeIsSegmentChainClosedMoreThanOnce(segmentsByUuid);
 
             // Associate trip with journey
             journey.addTrip(trip.result);
