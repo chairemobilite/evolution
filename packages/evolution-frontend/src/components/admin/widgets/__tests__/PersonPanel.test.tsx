@@ -5,7 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import React from 'react';
-import { render } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import type { Person } from 'evolution-common/lib/services/baseObjects/Person';
 import type { Journey } from 'evolution-common/lib/services/baseObjects/Journey';
@@ -30,7 +30,7 @@ jest.mock('../../AuditDisplay', () => ({
 
 jest.mock('react-i18next', () => ({
     useTranslation: () => ({
-        t: (key: string) => key
+        t: (key: string, defaultValue?: string) => defaultValue ?? key
     })
 }));
 
@@ -109,6 +109,56 @@ describe('PersonPanel visited place times', () => {
         );
 
         expect(getByText(/\(1h\)/)).toBeTruthy();
+    });
+});
+
+describe('PersonPanel visited place lastAction', () => {
+    test.each(['shortcut', 'findPlace'])('from geography (%s)', (lastAction) => {
+        const visitedPlace = {
+            _uuid: 'place-1',
+            geography: {
+                type: 'Feature',
+                geometry: { type: 'Point', coordinates: [0, 0] },
+                properties: { lastAction }
+            }
+        };
+
+        render(
+            <PersonPanel
+                person={person}
+                journey={
+                    {
+                        ...journey,
+                        visitedPlaces: [visitedPlace]
+                    } as unknown as Journey
+                }
+                personId={personUuid}
+                selectPlace={jest.fn()}
+                selectTrip={jest.fn()}
+            />
+        );
+
+        expect(screen.getByText(/interviewStats.labels.lastAction/)).toBeInTheDocument();
+        expect(screen.getByText(lastAction)).toBeInTheDocument();
+    });
+
+    test('does not show lastAction when it is missing', () => {
+        render(
+            <PersonPanel
+                person={person}
+                journey={
+                    {
+                        ...journey,
+                        visitedPlaces: [{ _uuid: 'place-1' }]
+                    } as unknown as Journey
+                }
+                personId={personUuid}
+                selectPlace={jest.fn()}
+                selectTrip={jest.fn()}
+            />
+        );
+
+        expect(screen.queryByText(/interviewStats.labels.lastAction/)).not.toBeInTheDocument();
     });
 });
 

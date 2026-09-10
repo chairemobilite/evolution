@@ -31,6 +31,7 @@ import { AuditForObject } from 'evolution-common/lib/services/audits/types';
 import { VisitedPlaceDecorator } from '../../../services/surveyObjectDecorators/VisitedPlaceDecorator';
 import AuditDisplay from '../AuditDisplay';
 import { SurveyObjectBox } from './SurveyObjectBox';
+import { LastActionWidget } from './LastActionWidget';
 import {
     getInheritedStatusForDisplay,
     type InheritedReviewDisplayStatus
@@ -92,12 +93,14 @@ export const PersonPanel = ({
         const visitedPlacePath = journeyUuid
             ? `response.household.persons.${personId}.journeys.${journeyUuid}.visitedPlaces.${visitedPlaceId}`
             : undefined;
+        const lastAction = visitedPlace.geography?.properties?.lastAction as string | undefined;
         const visitedPlaceLabel = (
             <>
                 {i + 1}. {visitedPlaceDecorator.getDescription(true)}{' '}
                 {!_isBlank(visitedPlace.startTime) && !_isBlank(visitedPlace.endTime)
                     ? '(' + Math.round((10 * (visitedPlace.endTime! - visitedPlace.startTime!)) / 3600) / 10 + 'h)'
                     : ''}
+                <LastActionWidget lastAction={lastAction} />
             </>
         );
         const isVisitedPlaceActive = Boolean(visitedPlacePath && activePlacePath === visitedPlacePath);
