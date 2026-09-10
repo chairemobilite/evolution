@@ -35,6 +35,34 @@ export const tripAuditChecks: { [errorCode: string]: TripAuditCheckFunction } = 
     },
 
     /**
+     * Flag a trip that is not attached to both its origin and destination.
+     *
+     * TripFactory only assigns `origin` / `destination` when it finds the place
+     * for `_originVisitedPlaceUuid` / `_destinationVisitedPlaceUuid`. An unattached
+     * end can mean a missing answer or a place the factory could not resolve.
+     *
+     * @param context - TripAuditCheckContext
+     * @returns AuditForObject
+     */
+    T_M_OriginOrDestination: (context: TripAuditCheckContext): AuditForObject | undefined => {
+        const { trip } = context;
+
+        if (trip.origin && trip.destination) {
+            return undefined;
+        }
+
+        return {
+            objectType: 'trip',
+            objectUuid: trip._uuid!,
+            errorCode: 'T_M_OriginOrDestination',
+            version: 1,
+            level: 'error',
+            message: 'Trip is missing origin or destination',
+            ignore: false
+        };
+    },
+
+    /**
      * Check for segment sequences that cannot be ordered: missing, non-positive integer,
      * or shared by two segments.
      *

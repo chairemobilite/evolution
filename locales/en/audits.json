@@ -50,6 +50,7 @@
     "VP_I_Geography": "Visited place geography is invalid",
 
     "T_M_Segments": "Trip segments are missing",
+    "T_M_OriginOrDestination": "Trip is missing origin or destination",
     "T_L_InvalidSegmentSequences": "At least one segment sequence is invalid or duplicated",
 
     "S_M_Mode": "Segment mode is missing"
