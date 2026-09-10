@@ -10,6 +10,7 @@ import { Home } from 'evolution-common/lib/services/baseObjects/Home';
 import { AuditForObject } from 'evolution-common/lib/services/audits/types';
 import AuditDisplay from '../AuditDisplay';
 import { SurveyObjectBox } from './SurveyObjectBox';
+import { LastActionWidget } from './LastActionWidget';
 import type { InheritedReviewDisplayStatus } from '../../../services/admin/reviewDecisionStatusHelper';
 
 export interface HomePanelProps {
@@ -43,6 +44,7 @@ export const HomePanel = ({ home, audits, showAuditErrorCode, inheritedStatus }:
         home.address?.fullAddress ||
         `${home.address?.municipalityName || ''} ${home.address?.region || ''} ${home.address?.country || ''} ${home.address?.postalCode || ''}`.trim() ||
         '';
+    const lastAction = home.geography?.properties?.lastAction as string | undefined;
 
     return (
         <div className="admin__interview-stats" key="home">
@@ -67,6 +69,7 @@ export const HomePanel = ({ home, audits, showAuditErrorCode, inheritedStatus }:
                         {home.address?.municipalityName ? home.address?.municipalityName : ''}
                     </span>
                 </span>
+                <LastActionWidget lastAction={lastAction} />
                 {audits && audits.length > 0 && (
                     <AuditDisplay audits={audits} showAuditErrorCode={showAuditErrorCode} />
                 )}
