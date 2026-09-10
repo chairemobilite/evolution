@@ -175,7 +175,17 @@
                 "busLines": "Lignes de bus"
             },
             "unitNumber": "#Unité",
-            "yearsOld": "ans"
+            "yearsOld": "ans",
+            "lastAction": "Dernière action",
+            "lastActionValues": {
+                "preGeocoded": "Prérempli",
+                "findPlace": "Recherche",
+                "mapClicked": "Clic sur la carte",
+                "markerDragged": "Déplacement du marqueur",
+                "geocoding": "Géocodage",
+                "shortcut": "Raccourci",
+                "clonedFromUsualPlace": "Copié du lieu habituel du carnet"
+            }
         },
         "answerStatus": {
             "dont_know": "Ne sait pas",

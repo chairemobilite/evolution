@@ -175,7 +175,17 @@
                 "busLines": "Bus lines"
             },
             "unitNumber": "#Unit",
-            "yearsOld": "years old"
+            "yearsOld": "years old",
+            "lastAction": "Last action",
+            "lastActionValues": {
+                "preGeocoded": "Pre-filled",
+                "findPlace": "Search",
+                "mapClicked": "Map click",
+                "markerDragged": "Marker drag",
+                "geocoding": "Geocoding",
+                "shortcut": "Shortcut",
+                "clonedFromUsualPlace": "Copied from usual place in the diary"
+            }
         },
         "answerStatus": {
             "dont_know": "Don't know",
