@@ -17,6 +17,12 @@ import { InterviewAttributes, InterviewResponse } from '../questionnaire/types';
 export const INTERVIEWER_PARTICIPANT_PREFIX = 'telephone';
 
 /**
+ * Prefix used for the username of participants created by anonymous login
+ * TODO: use a single constant with chaire-lib's anonymousLoginStrategy (`anonym_`)
+ */
+export const ANONYMOUS_PARTICIPANT_PREFIX = 'anonym';
+
+/**
  * Runs the audit validations on the interview data and returns the audit result
  *
  * @param interview The Interview to audit
