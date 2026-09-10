@@ -60,6 +60,18 @@ describe('Interview - validateParams', () => {
         expect(errors.some((e) => e.message.includes('participant_id'))).toBe(true);
     });
 
+    it('should validate loginMethod', () => {
+        const params = { ...validParams };
+        const errors = validateParams(params, { id: 1, participant_id: 1, loginMethod: 'sms' } as any);
+        expect(errors.some((e) => e.message.includes('loginMethod'))).toBe(true);
+    });
+
+    it('should allow loginMethod to be undefined', () => {
+        const params = { ...validParams };
+        const errors = validateParams(params, { id: 1, participant_id: 1 } as any);
+        expect(errors).toHaveLength(0);
+    });
+
     it('should validate accessCode', () => {
         const params = { ...validParams, accessCode: 123 };
         const errors = validateParams(params, { id: 1, participant_id: 1 } as any);
