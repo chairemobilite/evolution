@@ -50,6 +50,7 @@
     "VP_I_Geography": "La géographie du lieu visité est invalide",
 
     "T_M_Segments": "Les segments du déplacement sont manquants",
+    "T_M_OriginOrDestination": "L'origine ou la destination du déplacement est manquante",
     "T_L_InvalidSegmentSequences": "Le numéro de séquence d'au moins un segment est invalide ou en double",
 
     "S_M_Mode": "Le mode du segment est manquant"
