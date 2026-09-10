@@ -282,6 +282,8 @@ describe('Trip', () => {
             ['_isValid', false],
             ['_weights', [{ weight: 2.0, method: new WeightMethod(weightMethodAttributes) }]],
             ['preData', { importedTripData: 'value', distance: 12.5 }],
+            ['isSegmentChainClosed', true],
+            ['isSegmentChainClosedMoreThanOnce', true],
         ])('should set and get %s', (attribute, value) => {
             const trip = new Trip(validAttributes, registry);
             trip[attribute] = value;

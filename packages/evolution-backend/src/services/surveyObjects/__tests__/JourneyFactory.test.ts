@@ -237,6 +237,77 @@ describe('JourneyFactory', () => {
             expect(MockedJourney.create).toHaveBeenNthCalledWith(3, expect.objectContaining({ _sequence: 3 }), surveyObjectsRegistry);
         });
 
+        describe('journey closure flags', () => {
+            it.each([
+                {
+                    description: 'no visited places',
+                    visitedPlaces: {},
+                    isJourneyClosed: false,
+                    isJourneyClosedMoreThanOnce: false
+                },
+                {
+                    description: 'last place closes the journey',
+                    visitedPlaces: {
+                        'place-1': { _uuid: 'place-1', _sequence: 1, nextPlaceCategory: 'visitedAnotherPlace' },
+                        'place-2': { _uuid: 'place-2', _sequence: 2, nextPlaceCategory: 'stayedThereUntilTheNextDay' }
+                    },
+                    isJourneyClosed: true,
+                    isJourneyClosedMoreThanOnce: false
+                },
+                {
+                    description: 'last place leaves the journey open',
+                    visitedPlaces: {
+                        'place-1': { _uuid: 'place-1', _sequence: 1, nextPlaceCategory: 'wentBackHome' }
+                    },
+                    isJourneyClosed: false,
+                    isJourneyClosedMoreThanOnce: false
+                },
+                {
+                    description: 'closed more than once',
+                    visitedPlaces: {
+                        'place-1': { _uuid: 'place-1', _sequence: 1, nextPlaceCategory: 'stayedThereUntilTheNextDay' },
+                        'place-2': { _uuid: 'place-2', _sequence: 2, nextPlaceCategory: 'stayedThereUntilTheNextDay' }
+                    },
+                    isJourneyClosed: true,
+                    isJourneyClosedMoreThanOnce: true
+                }
+            ])(
+                '$description',
+                async ({
+                    visitedPlaces,
+                    isJourneyClosed,
+                    isJourneyClosedMoreThanOnce
+                }) => {
+                    const mockJourney = {
+                        _uuid: 'journey-1'
+                    } as Journey;
+
+                    personAttributes.journeys = {
+                        'journey-1': {
+                            _uuid: 'journey-1',
+                            _sequence: 1,
+                            visitedPlaces
+                        }
+                    } as any;
+
+                    (MockedJourney.create as jest.Mock).mockReturnValue(createOk(mockJourney));
+                    mockedpopulateVisitedPlacesForJourney.mockResolvedValue();
+                    mockedpopulateTripsForJourney.mockResolvedValue();
+
+                    await populateJourneysForPerson(
+                        surveyObjectsWithErrors,
+                        person,
+                        personAttributes,
+                        home,
+                    { uuid: 'test' } as any,
+                    surveyObjectsRegistry
+                    );
+
+                    expect(mockJourney.isJourneyClosed).toBe(isJourneyClosed);
+                    expect(mockJourney.isJourneyClosedMoreThanOnce).toBe(isJourneyClosedMoreThanOnce);
+                });
+        });
+
         it('should pass correct parameters to nested factory functions', async () => {
             const mockJourney = {
                 _uuid: 'journey-1'

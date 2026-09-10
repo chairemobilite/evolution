@@ -5,6 +5,8 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
+import _omit from 'lodash/omit';
+
 import { SurveyObjectsWithErrors } from 'evolution-common/lib/services/baseObjects/types';
 import { Trip, ExtendedTripAttributes } from 'evolution-common/lib/services/baseObjects/Trip';
 import { Segment, ExtendedSegmentAttributes } from 'evolution-common/lib/services/baseObjects/Segment';
@@ -42,13 +44,21 @@ export async function populateSegmentsForTrip(
             continue;
         }
 
-        const segmentAttributes = projectConfig.surveyObjectParsers?.segment
-            ? projectConfig.surveyObjectParsers.segment(originalCorrectedSegmentAttributes, correctedResponse)
-            : originalCorrectedSegmentAttributes;
+        const segmentAttributes = (
+            projectConfig.surveyObjectParsers?.segment
+                ? projectConfig.surveyObjectParsers.segment(originalCorrectedSegmentAttributes, correctedResponse)
+                : originalCorrectedSegmentAttributes
+        ) as ExtendedSegmentAttributes;
 
-        const segment = Segment.create(segmentAttributes as ExtendedSegmentAttributes, surveyObjectsRegistry);
+        const segment = Segment.create(
+            _omit(segmentAttributes, ['hasNextMode']) as ExtendedSegmentAttributes,
+            surveyObjectsRegistry
+        );
 
         if (isOk(segment)) {
+            // hasNextMode lives only on the questionnaire segment, not on Segment attributes.
+            segment.result.hasNextMode =
+                typeof segmentAttributes.hasNextMode === 'boolean' ? segmentAttributes.hasNextMode : undefined;
             // Associate segment with trip
             trip.addSegment(segment.result);
         } else {

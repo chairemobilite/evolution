@@ -420,5 +420,59 @@ describe('VisitedPlaceFactory', () => {
             expect(createdAttributes.isShortcut).toBeUndefined();
             expect(createdAttributes.shortcut).toBeUndefined();
         });
+
+        it.each([
+            {
+                description: 'answered',
+                nextPlaceCategory: 'visitedAnotherPlace',
+                expected: true
+            },
+            {
+                description: 'missing',
+                nextPlaceCategory: undefined,
+                expected: false
+            },
+            {
+                description: 'blank',
+                nextPlaceCategory: '',
+                expected: false
+            }
+        ])('sets hasNextPlaceCategory from the questionnaire: $description', async ({
+            nextPlaceCategory,
+            expected
+        }) => {
+            const mockVisitedPlace = { _uuid: 'vp-1' } as unknown as VisitedPlace;
+            (MockedVisitedPlace.create as jest.Mock).mockReturnValue(createOk(mockVisitedPlace));
+
+            journeyAttributes.visitedPlaces = {
+                'vp-1': {
+                    _uuid: 'vp-1',
+                    _sequence: 1,
+                    activity: 'work',
+                    nextPlaceCategory
+                }
+            } as any;
+
+            await populateVisitedPlacesForJourney(
+                surveyObjectsWithErrors,
+                person,
+                journey,
+                journeyAttributes,
+                home,
+                { uuid: 'test' } as any,
+                surveyObjectsRegistry
+            );
+
+            expect(mockVisitedPlace.hasNextPlaceCategory).toBe(expected);
+            const createdAttributes = (MockedVisitedPlace.create as jest.Mock).mock.calls[0][0];
+            expect(createdAttributes).toEqual(
+                expect.objectContaining({
+                    _uuid: 'vp-1',
+                    _sequence: 1,
+                    activity: 'work'
+                })
+            );
+            expect(createdAttributes).not.toHaveProperty('nextPlaceCategory');
+        });
     });
 });
