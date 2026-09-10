@@ -305,6 +305,7 @@ describe('Segment', () => {
             ['onDemandType', 'pickupAtOrigin'],
             ['busLines', ['Line 3', 'Line 4']],
             ['preData', { importedSegmentData: 'value', mode: 'bus' }],
+            ['hasNextMode', true],
         ])('should set and get %s', (attribute, value) => {
             const segment = new Segment(validAttributes, registry);
             segment[attribute] = value;

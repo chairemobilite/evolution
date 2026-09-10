@@ -87,6 +87,7 @@ export class VisitedPlace extends SurveyObject {
 
     private _place?: Optional<Place>;
     private _journeyUuid?: Optional<string>;
+    private _hasNextPlaceCategory?: Optional<boolean>;
 
     static _confidentialAttributes = ['preData'];
 
@@ -222,6 +223,18 @@ export class VisitedPlace extends SurveyObject {
 
     get address(): Optional<Address> {
         return this._place?.address;
+    }
+
+    /**
+     * Whether the questionnaire place has a `nextPlaceCategory` answer.
+     * The category itself stays on the response hashmap.
+     */
+    get hasNextPlaceCategory(): Optional<boolean> {
+        return this._hasNextPlaceCategory;
+    }
+
+    set hasNextPlaceCategory(value: Optional<boolean>) {
+        this._hasNextPlaceCategory = value;
     }
 
     /**
