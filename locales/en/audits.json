@@ -45,13 +45,19 @@
     "J_L_InvalidTripSequences": "At least one trip sequence is invalid or duplicated",
     "J_W_TripSequenceGaps": "Trip sequences are not contiguous",
     "J_L_InconsistentChronology": "Journey chronology is inconsistent",
+    "J_L_JourneyNotClosed": "Journey is not closed",
+    "J_L_JourneyClosedMoreThanOnce": "Journey is closed more than once",
 
     "VP_M_Geography": "Visited place geography is missing",
     "VP_I_Geography": "Visited place geography is invalid",
+    "VP_M_NextPlaceCategory": "Visited place nextPlaceCategory is missing",
 
     "T_M_Segments": "Trip segments are missing",
     "T_M_OriginOrDestination": "Trip is missing origin or destination",
+    "T_L_TripSegmentsNotClosed": "Trip segment chain is not closed",
+    "T_L_TripSegmentsClosedMoreThanOnce": "Trip segment chain is closed more than once",
     "T_L_InvalidSegmentSequences": "At least one segment sequence is invalid or duplicated",
 
-    "S_M_Mode": "Segment mode is missing"
+    "S_M_Mode": "Segment mode is missing",
+    "S_M_HasNextMode": "Segment hasNextMode is missing"
 }

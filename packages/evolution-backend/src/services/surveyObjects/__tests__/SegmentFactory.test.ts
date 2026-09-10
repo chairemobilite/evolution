@@ -278,5 +278,28 @@ describe('SegmentFactory', () => {
             expect(MockedSegment.create).toHaveBeenCalledTimes(4);
             expect(trip.addSegment).toHaveBeenCalledTimes(4);
         });
+
+        it.each([
+            { description: 'true', hasNextMode: true, expected: true },
+            { description: 'false', hasNextMode: false, expected: false },
+            { description: 'missing', hasNextMode: undefined, expected: undefined }
+        ])('copies hasNextMode from the questionnaire: $description', async ({ hasNextMode, expected }) => {
+            const mockSegment = { _uuid: 'segment-1' } as Segment;
+            tripAttributes.segments = {
+                'segment-1': { _uuid: 'segment-1', _sequence: 1, mode: 'walk', hasNextMode }
+            } as any;
+            (MockedSegment.create as jest.Mock).mockReturnValue(createOk(mockSegment));
+
+            await populateSegmentsForTrip(
+                surveyObjectsWithErrors,
+                trip,
+                tripAttributes,
+                { uuid: 'test' } as any,
+                surveyObjectsRegistry
+            );
+
+            expect(mockSegment.hasNextMode).toBe(expected);
+            expect((MockedSegment.create as jest.Mock).mock.calls[0][0].hasNextMode).toBeUndefined();
+        });
     });
 });

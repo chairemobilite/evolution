@@ -239,6 +239,8 @@ describe('Journey', () => {
             ['previousWeekRemoteWorkDays', { friday: true, saturday: true, sunday: true }],
             ['previousWeekTravelToWorkDays', { thursday: true, friday: true }],
             ['preData', { importedJourneyData: 'value', tripCount: 5 }],
+            ['isJourneyClosed', true],
+            ['isJourneyClosedMoreThanOnce', true],
         ])('should set and get %s', (attribute, value) => {
             const journey = new Journey(validAttributes, registry);
             journey[attribute] = value;

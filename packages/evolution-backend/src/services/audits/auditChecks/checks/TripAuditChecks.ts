@@ -63,6 +63,58 @@ export const tripAuditChecks: { [errorCode: string]: TripAuditCheckFunction } = 
     },
 
     /**
+     * Flag a trip whose last segment does not close the chain (`hasNextMode === false`).
+     *
+     * Fires only on the explicit `false` of `trip.isSegmentChainClosed`.
+     *
+     * @param context - TripAuditCheckContext
+     * @returns AuditForObject
+     */
+    T_L_TripSegmentsNotClosed: (context: TripAuditCheckContext): AuditForObject | undefined => {
+        const { trip } = context;
+
+        if (trip.isSegmentChainClosed !== false) {
+            return undefined;
+        }
+
+        return {
+            objectType: 'trip',
+            objectUuid: trip._uuid!,
+            errorCode: 'T_L_TripSegmentsNotClosed',
+            version: 1,
+            level: 'error',
+            message: 'Trip segment chain is not closed',
+            ignore: false
+        };
+    },
+
+    /**
+     * Flag a trip with more than one segment answering `hasNextMode === false`.
+     *
+     * Fires only on the explicit `true` of `trip.isSegmentChainClosedMoreThanOnce`.
+     *
+     * @param context - TripAuditCheckContext
+     * @returns AuditForObject
+     */
+    T_L_TripSegmentsClosedMoreThanOnce: (context: TripAuditCheckContext): AuditForObject | undefined => {
+        const { trip } = context;
+
+        if (trip.isSegmentChainClosedMoreThanOnce !== true) {
+            return undefined;
+        }
+
+        return {
+            objectType: 'trip',
+            objectUuid: trip._uuid!,
+            errorCode: 'T_L_TripSegmentsClosedMoreThanOnce',
+            version: 1,
+            level: 'error',
+            message: 'Trip segment chain is closed more than once',
+            ignore: false
+        };
+    },
+
+    /**
      * Check for segment sequences that cannot be ordered: missing, non-positive integer,
      * or shared by two segments.
      *

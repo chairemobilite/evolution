@@ -146,6 +146,7 @@ export class Segment extends SurveyObject {
     private _drivingCalculatedRoutings?: Optional<Routing[]>;
 
     private _tripUuid?: Optional<string>;
+    private _hasNextMode?: Optional<boolean>;
 
     static _confidentialAttributes = ['preData'];
 
@@ -483,6 +484,18 @@ export class Segment extends SurveyObject {
 
     set tripUuid(value: Optional<string>) {
         this._tripUuid = value;
+    }
+
+    /**
+     * Questionnaire answer: whether another mode follows this segment.
+     * Not a Segment attribute; copied from the response hashmap by SegmentFactory.
+     */
+    get hasNextMode(): Optional<boolean> {
+        return this._hasNextMode;
+    }
+
+    set hasNextMode(value: Optional<boolean>) {
+        this._hasNextMode = value;
     }
 
     get trip(): Optional<Trip> {
