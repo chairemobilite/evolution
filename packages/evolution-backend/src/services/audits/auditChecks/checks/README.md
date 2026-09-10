@@ -105,7 +105,8 @@ __tests__/
 ├── segment/
 │   └── S_M_Mode.test.ts
 ├── trip/
-│   └── T_M_Segments.test.ts
+│   ├── T_M_Segments.test.ts
+│   └── T_M_OriginOrDestination.test.ts
 └── visitedPlace/
     ├── VP_M_Geography.test.ts
     └── VP_I_Geography.test.ts

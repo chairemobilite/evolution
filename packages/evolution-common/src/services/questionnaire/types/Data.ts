@@ -391,6 +391,13 @@ export interface UserInterviewAttributes {
 }
 
 /**
+ * How the participant authenticated. Computed in the interview/participant join
+ * from google_id, the username prefix (`telephone_`, `anonym_`), then email.
+ */
+export const interviewLoginMethodValues = ['email', 'anonymous', 'google', 'telephone', 'byField', 'unknown'] as const;
+export type InterviewLoginMethod = (typeof interviewLoginMethodValues)[number];
+
+/**
  * Interview attributes, describing a complete interview object. This object
  * will typically be available to admins to other user roles.
  *
@@ -402,6 +409,11 @@ export interface InterviewAttributes extends UserInterviewAttributes {
     is_started?: boolean;
     corrected_response?: CorrectedResponse;
     audits?: InterviewAudits;
+    /**
+     * Participant login method, computed in the interview/participant join.
+     * Not an interview column.
+     */
+    loginMethod?: InterviewLoginMethod;
     /**
      * @deprecated Legacy flag marking an interview as confirmed by a
      * supervisor. Superseded by the force-approve review decision in

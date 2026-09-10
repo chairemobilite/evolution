@@ -17,7 +17,10 @@ import {
     InterviewParadata,
     InterviewParadataAttributes
 } from './InterviewParadata';
-import { InterviewAttributes as rawInterviewAttributes } from '../../../services/questionnaire/types';
+import {
+    InterviewAttributes as rawInterviewAttributes,
+    type InterviewLoginMethod
+} from '../../../services/questionnaire/types';
 import { SurveyObjectUnserializer } from '../SurveyObjectUnserializer';
 import { SurveyObjectsRegistry } from '../SurveyObjectsRegistry';
 
@@ -33,6 +36,7 @@ const interviewAttributesNames = [
     // reviewing flags
     '_isCompleted',
     '_isQuestionable',
+    'loginMethod',
 
     'accessCode',
     'assignedDate',
@@ -58,6 +62,8 @@ const interviewAttributesNames = [
 
 const interviewAttributesWithComposedAttributes = [...interviewAttributesNames, '_paradata'];
 
+export type { InterviewLoginMethod };
+
 export type InterviewAttributes = {
     _uuid?: string; // TODO: discuss whether the original and audited should have the same uuid
     _id?: number; // integer primary key from db.
@@ -66,6 +72,8 @@ export type InterviewAttributes = {
     // reviewing flags
     _isCompleted?: boolean; // whether the interview is completed (false by default, changed by validators)
     _isQuestionable?: boolean; // whether the interview is doubtful or could be non genuine, changed by validator
+    /** How the participant authenticated. Set from the interview/participant join. */
+    loginMethod?: InterviewLoginMethod;
 
     // response attributes
     accessCode?: string; // accessCode used when starting an interview in most survey. This could be the code sent in a letter for households to be pre-geolocalized
@@ -227,6 +235,7 @@ export class Interview extends Uuidable {
         this._attributes._participant_id = interviewAttributes.participant_id;
         this._attributes._isCompleted = interviewAttributes.is_completed;
         this._attributes._isQuestionable = interviewAttributes.is_questionable;
+        this._attributes.loginMethod = interviewAttributes.loginMethod;
 
         this._customAttributes = customAttributes;
 
@@ -261,6 +270,14 @@ export class Interview extends Uuidable {
     get participant_id(): Optional<number> {
         // no setter, comes from the db
         return this._attributes._participant_id;
+    }
+
+    get loginMethod(): Optional<InterviewLoginMethod> {
+        return this._attributes.loginMethod;
+    }
+
+    set loginMethod(value: Optional<InterviewLoginMethod>) {
+        this._attributes.loginMethod = value;
     }
 
     get isCompleted(): Optional<boolean> {
@@ -462,7 +479,8 @@ export class Interview extends Uuidable {
                 is_completed: flattenedParamsAny._isCompleted as boolean,
                 response: flattenedParamsAny.response || {},
                 validations: flattenedParamsAny.validations || {},
-                is_questionable: flattenedParamsAny._isQuestionable as boolean
+                is_questionable: flattenedParamsAny._isQuestionable as boolean,
+                loginMethod: flattenedParamsAny.loginMethod as InterviewLoginMethod
             };
         }
 

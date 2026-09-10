@@ -29,6 +29,7 @@ import {
     getModifiedSinceReviewWhereClause,
     interviewReviewDecisionCountsQuery
 } from './reviewDecisions.db.queries';
+import { getParticipantLoginMethodSelect } from './interviews.admin.db.queries';
 
 const st = knexPostgis(knex);
 
@@ -814,7 +815,8 @@ const getInterviewsStream = function (params: {
         'review.approval_count',
         'review.rejection_count',
         'review.is_force_approved',
-        knex.raw('case when corrected_response is null then false else true end as corrected_response_available')
+        knex.raw('case when corrected_response is null then false else true end as corrected_response_available'),
+        getParticipantLoginMethodSelect()
     ];
     if (selectFields.includeAudits || selectFields.includeAudits === undefined) {
         select.push('i.audits');

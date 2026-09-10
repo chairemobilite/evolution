@@ -13,6 +13,7 @@ import { type InterviewListStatusFilter } from 'evolution-common/lib/services/re
 import projectConfig from 'evolution-common/lib/config/project.config';
 import { RandomOrderQuestions } from 'evolution-common/lib/services/questionnaire/randomOrderQuestions';
 import interviewsQueries from '../../../models/interviews.db.queries';
+import interviewsAdminQueries from '../../../models/interviews.admin.db.queries';
 import interviewsAccessesQueries from '../../../models/interviewsAccesses.db.queries';
 import reviewDecisionsQueries from '../../../models/reviewDecisions.db.queries';
 import { registerAccessCodeValidationFunction } from '../../accessCode';
@@ -30,6 +31,10 @@ jest.mock('../../../models/interviews.db.queries', () => ({
     getInterviewsStream: jest.fn()
 }));
 
+jest.mock('../../../models/interviews.admin.db.queries', () => ({
+    getInterviewByUuidWithParticipant: jest.fn()
+}));
+
 jest.mock('../../../models/interviewsAccesses.db.queries', () => ({
     statEditingUsers: jest.fn()
 }));
@@ -39,6 +44,9 @@ jest.mock('../../../models/reviewDecisions.db.queries', () => ({
 }));
 const mockDbCreate = interviewsQueries.create as jest.MockedFunction<typeof interviewsQueries.create>;
 const mockDbGetByUuid = interviewsQueries.getInterviewByUuid as jest.MockedFunction<typeof interviewsQueries.getInterviewByUuid>;
+const mockDbGetByUuidWithParticipant = interviewsAdminQueries.getInterviewByUuidWithParticipant as jest.MockedFunction<
+    typeof interviewsAdminQueries.getInterviewByUuidWithParticipant
+>;
 const mockStatEditingUsers = interviewsAccessesQueries.statEditingUsers as jest.MockedFunction<typeof interviewsAccessesQueries.statEditingUsers>;
 
 jest.mock('../interview', () => ({
@@ -67,6 +75,7 @@ const allInterviews = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((id) => ({
 const returnedInterview = allInterviews[3];
 (interviewsQueries.findByResponse as any).mockResolvedValue(allInterviews);
 mockDbGetByUuid.mockResolvedValue(returnedInterview as InterviewAttributes);
+mockDbGetByUuidWithParticipant.mockResolvedValue(returnedInterview as InterviewAttributes);
 (interviewsQueries.getUserInterview as any).mockResolvedValue(returnedInterview);
 mockDbCreate.mockImplementation(async (newObject: Partial<InterviewAttributes>, returning: string | string[] = 'id') => {
     const returnFields = typeof returning === 'string' ? [returning] : returning;
@@ -150,6 +159,28 @@ describe('Get interview by interview ID', () => {
         const interviewUserId = await Interviews.getInterviewByUuid({ foo: 'bar' } as any);
         expect(interviewsQueries.getInterviewByUuid).not.toHaveBeenCalled();
         expect(interviewUserId).toBeUndefined();
+    });
+
+});
+
+describe('Get interview by interview ID with participant', () => {
+    const interviewId = uuidV4();
+
+    beforeEach(() => {
+        mockDbGetByUuidWithParticipant.mockClear();
+    });
+
+    test('Get interview', async() => {
+        const interview = await Interviews.getInterviewByUuidWithParticipant(interviewId);
+        expect(interviewsAdminQueries.getInterviewByUuidWithParticipant).toHaveBeenCalledTimes(1);
+        expect(interviewsAdminQueries.getInterviewByUuidWithParticipant).toHaveBeenCalledWith(interviewId);
+        expect(interview).toEqual(returnedInterview);
+    });
+
+    test('Invalid uuid', async() => {
+        const interview = await Interviews.getInterviewByUuidWithParticipant('not a valid uuid');
+        expect(interviewsAdminQueries.getInterviewByUuidWithParticipant).not.toHaveBeenCalled();
+        expect(interview).toBeUndefined();
     });
 
 });

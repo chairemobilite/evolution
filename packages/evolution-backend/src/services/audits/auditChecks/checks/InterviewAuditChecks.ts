@@ -12,6 +12,35 @@ import projectConfig from 'evolution-common/lib/config/project.config';
 import { secondsToMillisecondsTimestamp, parseISODateToTimestamp } from 'evolution-common/lib/utils/DateTimeUtils';
 import { validateAccessCode } from '../../../accessCode';
 import { fieldIsRequired } from '../../AuditUtils';
+import type { InterviewLoginMethod } from 'evolution-common/lib/services/questionnaire/types';
+
+/**
+ * Info flag for a participant login method. Lets reviewers filter interviews.
+ * @param loginMethod - Value that must match `interview.loginMethod`
+ * @param errorCode - Audit error code
+ * @param message - English audit message (locales override the display)
+ */
+const loginMethodInfoAudit = (
+    loginMethod: InterviewLoginMethod,
+    errorCode: string,
+    message: string
+): InterviewAuditCheckFunction => {
+    return (context: InterviewAuditCheckContext): AuditForObject | undefined => {
+        if (context.interview.loginMethod !== loginMethod) {
+            return undefined;
+        }
+
+        return {
+            objectType: 'interview',
+            objectUuid: context.interview.uuid!,
+            errorCode,
+            version: 1,
+            level: 'info',
+            message,
+            ignore: false
+        };
+    };
+};
 
 export const interviewAuditChecks: { [errorCode: string]: InterviewAuditCheckFunction } = {
     /**
@@ -273,5 +302,20 @@ export const interviewAuditChecks: { [errorCode: string]: InterviewAuditCheckFun
             };
         }
         return undefined;
-    }
+    },
+
+    I_F_loginMethodIsEmail: loginMethodInfoAudit('email', 'I_F_loginMethodIsEmail', 'Login method is email'),
+    I_F_loginMethodIsAnonymous: loginMethodInfoAudit(
+        'anonymous',
+        'I_F_loginMethodIsAnonymous',
+        'Login method is anonymous'
+    ),
+    I_F_loginMethodIsGoogle: loginMethodInfoAudit('google', 'I_F_loginMethodIsGoogle', 'Login method is Google'),
+    I_F_loginMethodIsTelephone: loginMethodInfoAudit(
+        'telephone',
+        'I_F_loginMethodIsTelephone',
+        'The interview was started by an interviewer'
+    ),
+    I_F_loginMethodIsByField: loginMethodInfoAudit('byField', 'I_F_loginMethodIsByField', 'Login method is by field'),
+    I_F_loginMethodIsUnknown: loginMethodInfoAudit('unknown', 'I_F_loginMethodIsUnknown', 'Login method is unknown')
 };
