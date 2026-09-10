@@ -52,7 +52,8 @@ jest.mock('../../services/auth/userAuthorization', () => {
 jest.mock('../../services/interviews/interviews', () => ({
     __esModule: true,
     default: {
-        getInterviewByUuid: jest.fn()
+        getInterviewByUuid: jest.fn(),
+        getInterviewByUuidWithParticipant: jest.fn()
     }
 }));
 

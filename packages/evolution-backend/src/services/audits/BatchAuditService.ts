@@ -140,7 +140,7 @@ const processInterviewAudit = async (
     runExtendedAuditChecks: boolean
 ): Promise<InterviewAuditResult> => {
     try {
-        const interview = await Interviews.getInterviewByUuid(interviewUuid);
+        const interview = await Interviews.getInterviewByUuidWithParticipant(interviewUuid);
         if (!interview) {
             return {
                 uuid: interviewUuid,

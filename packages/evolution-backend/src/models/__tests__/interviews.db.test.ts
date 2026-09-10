@@ -11,7 +11,12 @@ import { _removeBlankFields } from 'chaire-lib-common/lib/utils/LodashExtensions
 import config from 'chaire-lib-common/lib/config/shared/project.config';
 
 import dbQueries from '../interviews.db.queries';
-import { INTERVIEWER_PARTICIPANT_PREFIX } from 'evolution-common/lib/services/interviews/interview';
+import interviewsAdminDbQueries from '../interviews.admin.db.queries';
+import {
+    ANONYMOUS_PARTICIPANT_PREFIX,
+    INTERVIEWER_PARTICIPANT_PREFIX
+} from 'evolution-common/lib/services/interviews/interview';
+import projectConfig from 'evolution-common/lib/config/project.config';
 import moment from 'moment';
 import slugify from 'slugify';
 import { InterviewAttributes, InterviewListAttributes, InterviewResponse } from 'evolution-common/lib/services/questionnaire/types';
@@ -358,6 +363,7 @@ describe('Get interview and ID by interview uuid', () => {
     test('Valid interview', async () => {
         const interview = await dbQueries.getInterviewByUuid(localUserInterviewAttributes.uuid);
         expect(interview).toEqual(expect.objectContaining(_removeBlankFields({ ...localUserInterviewAttributes })));
+        expect(interview?.loginMethod).toBeUndefined();
         const interviewId = await dbQueries.getInterviewIdByUuid(localUserInterviewAttributes.uuid);
         expect(interviewId).toEqual((interview as any).id);
     });
@@ -376,6 +382,114 @@ describe('Get interview and ID by interview uuid', () => {
         await expect(dbQueries.getInterviewIdByUuid('not a valid uuid'))
             .rejects
             .toThrow();
+    });
+});
+
+describe('Get interview by uuid with participant', () => {
+    const previousByField = projectConfig.auth?.byField;
+    const anonymousParticipant = {
+        id: 340,
+        username: `${ANONYMOUS_PARTICIPANT_PREFIX}_abcd`,
+        is_valid: true
+    };
+    const anonymousInterviewAttributes = {
+        uuid: uuidV4(),
+        participant_id: anonymousParticipant.id,
+        is_valid: true,
+        is_active: true,
+        response: {},
+        validations: {}
+    } as any;
+    const interviewerInterviewAttributes = {
+        uuid: uuidV4(),
+        participant_id: interviewerParticipant.id,
+        is_valid: true,
+        is_active: true,
+        response: {},
+        validations: {}
+    } as any;
+    const byFieldParticipant = {
+        id: 350,
+        username: 'fieldAgent1',
+        is_valid: true
+    };
+    const byFieldInterviewAttributes = {
+        uuid: uuidV4(),
+        participant_id: byFieldParticipant.id,
+        is_valid: true,
+        is_active: true,
+        response: {},
+        validations: {}
+    } as any;
+
+    beforeAll(async () => {
+        projectConfig.auth = { ...projectConfig.auth, byField: false };
+        await create(knex, 'sv_participants', undefined, anonymousParticipant as any);
+        await create(knex, 'sv_participants', undefined, byFieldParticipant as any);
+        await dbQueries.create(anonymousInterviewAttributes);
+        await dbQueries.create(interviewerInterviewAttributes);
+        await dbQueries.create(byFieldInterviewAttributes);
+    });
+
+    afterAll(async () => {
+        projectConfig.auth = { ...projectConfig.auth, byField: previousByField };
+        await knex('sv_interviews')
+            .whereIn('uuid', [
+                anonymousInterviewAttributes.uuid,
+                interviewerInterviewAttributes.uuid,
+                byFieldInterviewAttributes.uuid
+            ])
+            .del();
+        await knex('sv_participants').whereIn('id', [anonymousParticipant.id, byFieldParticipant.id]).del();
+    });
+
+    test.each([
+        { description: 'email', uuid: localUserInterviewAttributes.uuid, expected: 'email' },
+        { description: 'google', uuid: googleUserInterviewAttributes.uuid, expected: 'google' },
+        {
+            description: 'telephone username prefix',
+            uuid: interviewerInterviewAttributes.uuid,
+            expected: 'interviewer'
+        },
+        { description: 'anonymous username prefix', uuid: anonymousInterviewAttributes.uuid, expected: 'anonymous' },
+        {
+            description: 'no email and no reserved username prefix',
+            uuid: facebookUserInterviewAttributes.uuid,
+            expected: 'unknown'
+        }
+    ])('loginMethod from the participant join: $description', async ({ uuid, expected }) => {
+        const interview = await interviewsAdminDbQueries.getInterviewByUuidWithParticipant(uuid);
+        expect(interview).toEqual(expect.objectContaining({ uuid }));
+        expect(interview?.loginMethod).toBe(expected);
+    });
+
+    test('byField when that auth method is enabled and username has no prefix', async () => {
+        projectConfig.auth = { ...projectConfig.auth, byField: true };
+        try {
+            const interview = await interviewsAdminDbQueries.getInterviewByUuidWithParticipant(
+                byFieldInterviewAttributes.uuid
+            );
+            expect(interview?.loginMethod).toBe('byField');
+        } finally {
+            projectConfig.auth = { ...projectConfig.auth, byField: false };
+        }
+    });
+
+    test('unknown when byField is enabled but the participant has no username', async () => {
+        projectConfig.auth = { ...projectConfig.auth, byField: true };
+        try {
+            const interview = await interviewsAdminDbQueries.getInterviewByUuidWithParticipant(
+                facebookUserInterviewAttributes.uuid
+            );
+            expect(interview?.loginMethod).toBe('unknown');
+        } finally {
+            projectConfig.auth = { ...projectConfig.auth, byField: false };
+        }
+    });
+
+    test('Invalid interview', async () => {
+        const interview = await interviewsAdminDbQueries.getInterviewByUuidWithParticipant(uuidV4());
+        expect(interview).toBeUndefined();
     });
 });
 
