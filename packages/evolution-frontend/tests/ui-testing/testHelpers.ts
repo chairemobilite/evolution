@@ -89,7 +89,9 @@ type NavBarButtonStatusTest = (
         isDisabled: boolean;
     } & CommonTestParameters
 ) => void;
-type ChangePageFromNavBarTest = (params: { buttonText: Text | RegExp; nextPageUrl: Url } & CommonTestParameters) => void;
+type ChangePageFromNavBarTest = (
+    params: { buttonText: Text | RegExp; nextPageUrl: Url } & CommonTestParameters
+) => void;
 type SectionProgressBarTest = (
     params: { sectionName: string; completionPercentage: number } & CommonTestParameters
 ) => void;
