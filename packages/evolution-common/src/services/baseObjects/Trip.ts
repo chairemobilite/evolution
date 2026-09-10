@@ -99,6 +99,8 @@ export class Trip extends SurveyObject {
 
     private _journeyUuid?: Optional<string>; // allow reverse lookup: must be filled by Journey.
     private _tripChainUuid?: Optional<string>; // allow reverse lookup: must be filled by TripChain.
+    private _isSegmentChainClosed?: Optional<boolean>;
+    private _isSegmentChainClosedMoreThanOnce?: Optional<boolean>;
 
     static _confidentialAttributes = ['preData'];
 
@@ -290,6 +292,34 @@ export class Trip extends SurveyObject {
 
     set destination(value: Optional<VisitedPlace>) {
         this.endPlace = value;
+    }
+
+    /**
+     * Whether the last questionnaire segment closed this trip's segment chain.
+     *
+     * `true` when the last segment answers `hasNextMode === false`.
+     * `false` when the last segment did not close the chain, including when the answer is missing.
+     */
+    get isSegmentChainClosed(): Optional<boolean> {
+        return this._isSegmentChainClosed;
+    }
+
+    set isSegmentChainClosed(value: Optional<boolean>) {
+        this._isSegmentChainClosed = value;
+    }
+
+    /**
+     * Whether more than one questionnaire segment closed this trip's segment chain.
+     *
+     * `true` when more than one segment answers `hasNextMode === false`.
+     * `false` when at most one segment closed the chain.
+     */
+    get isSegmentChainClosedMoreThanOnce(): Optional<boolean> {
+        return this._isSegmentChainClosedMoreThanOnce;
+    }
+
+    set isSegmentChainClosedMoreThanOnce(value: Optional<boolean>) {
+        this._isSegmentChainClosedMoreThanOnce = value;
     }
 
     get attributes(): TripAttributes {

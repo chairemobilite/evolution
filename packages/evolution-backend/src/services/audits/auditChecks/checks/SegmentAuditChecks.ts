@@ -31,5 +31,28 @@ export const segmentAuditChecks: { [errorCode: string]: SegmentAuditCheckFunctio
         }
 
         return undefined;
+    },
+
+    /**
+     * Check if the questionnaire `hasNextMode` answer is missing on this segment.
+     * @param context - SegmentAuditCheckContext
+     * @returns AuditForObject
+     */
+    S_M_HasNextMode: (context: SegmentAuditCheckContext): AuditForObject | undefined => {
+        const { segment } = context;
+
+        if (typeof segment.hasNextMode === 'boolean') {
+            return undefined;
+        }
+
+        return {
+            objectType: 'segment',
+            objectUuid: segment._uuid!,
+            errorCode: 'S_M_HasNextMode',
+            version: 1,
+            level: 'error',
+            message: 'Segment hasNextMode is missing',
+            ignore: false
+        };
     }
 };

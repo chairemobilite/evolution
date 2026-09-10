@@ -57,5 +57,28 @@ export const visitedPlaceAuditChecks: { [errorCode: string]: VisitedPlaceAuditCh
         }
 
         return undefined; // No audit needed
+    },
+
+    /**
+     * Check if the questionnaire `nextPlaceCategory` answer is missing on this place.
+     * @param context - VisitedPlaceAuditCheckContext
+     * @returns AuditForObject
+     */
+    VP_M_NextPlaceCategory: (context: VisitedPlaceAuditCheckContext): AuditForObject | undefined => {
+        const { visitedPlace } = context;
+
+        if (visitedPlace.hasNextPlaceCategory === true) {
+            return undefined;
+        }
+
+        return {
+            objectType: 'visitedPlace',
+            objectUuid: visitedPlace._uuid!,
+            errorCode: 'VP_M_NextPlaceCategory',
+            version: 1,
+            level: 'error',
+            message: 'Visited place nextPlaceCategory is missing',
+            ignore: false
+        };
     }
 };

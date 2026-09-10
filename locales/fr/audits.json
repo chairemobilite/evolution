@@ -45,13 +45,19 @@
     "J_L_InvalidTripSequences": "Le numéro de séquence d'au moins un déplacement est invalide ou en double",
     "J_W_TripSequenceGaps": "Les numéros de séquence des déplacements ne sont pas consécutifs",
     "J_L_InconsistentChronology": "La chronologie du séjour est incohérente",
+    "J_L_JourneyNotClosed": "Le séjour n'est pas fermé",
+    "J_L_JourneyClosedMoreThanOnce": "Le séjour est fermé plusieurs fois",
 
     "VP_M_Geography": "La géographie du lieu visité est manquante",
     "VP_I_Geography": "La géographie du lieu visité est invalide",
+    "VP_M_NextPlaceCategory": "L'attribut nextPlaceCategory du lieu visité est manquant",
 
     "T_M_Segments": "Les segments du déplacement sont manquants",
     "T_M_OriginOrDestination": "L'origine ou la destination du déplacement est manquante",
+    "T_L_TripSegmentsNotClosed": "La chaîne de segments du déplacement n'est pas fermée",
+    "T_L_TripSegmentsClosedMoreThanOnce": "La chaîne de segments du déplacement est fermée plusieurs fois",
     "T_L_InvalidSegmentSequences": "Le numéro de séquence d'au moins un segment est invalide ou en double",
 
-    "S_M_Mode": "Le mode du segment est manquant"
+    "S_M_Mode": "Le mode du segment est manquant",
+    "S_M_HasNextMode": "L'attribut hasNextMode du segment est manquant"
 }

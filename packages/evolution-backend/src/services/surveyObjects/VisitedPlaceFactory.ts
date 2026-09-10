@@ -5,6 +5,9 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
+import _omit from 'lodash/omit';
+import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
+
 import { SurveyObjectsWithErrors } from 'evolution-common/lib/services/baseObjects/types';
 import { Journey, ExtendedJourneyAttributes } from 'evolution-common/lib/services/baseObjects/Journey';
 import { VisitedPlace, ExtendedVisitedPlaceAttributes } from 'evolution-common/lib/services/baseObjects/VisitedPlace';
@@ -64,10 +67,15 @@ export async function populateVisitedPlacesForJourney(
         }
         delete visitedPlaceAttributes.shortcut;
 
-        const visitedPlaceResult = VisitedPlace.create(visitedPlaceAttributes, surveyObjectsRegistry);
+        const nextPlaceCategory = (visitedPlaceAttributes as { nextPlaceCategory?: unknown }).nextPlaceCategory;
+        const visitedPlaceResult = VisitedPlace.create(
+            _omit(visitedPlaceAttributes, ['nextPlaceCategory']) as ExtendedVisitedPlaceAttributes,
+            surveyObjectsRegistry
+        );
 
         if (isOk(visitedPlaceResult)) {
             const visitedPlace = visitedPlaceResult.result;
+            visitedPlace.hasNextPlaceCategory = typeof nextPlaceCategory === 'string' && !_isBlank(nextPlaceCategory);
 
             if (!visitedPlace.place) {
                 // Fetch place if not included in the attributes
