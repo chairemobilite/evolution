@@ -9,6 +9,7 @@ import moment from 'moment';
 import { test, expect, Page, Browser, BrowserContext, Locator } from '@playwright/test';
 import configureI18n, { registerTranslationDir } from './configurei18n';
 import { SurveyObjectDetector } from './SurveyObjectDetectors';
+import { ANONYMOUS_PARTICIPANT_PREFIX } from 'evolution-common/lib/services/interviews/interview';
 
 if (process.env.LOCALE_DIR) {
     registerTranslationDir(process.env.LOCALE_DIR);
@@ -389,8 +390,9 @@ export const logoutTest: SimpleAction = ({ context }) => {
 // Test if the page has a user
 export const hasUserTest: HasUserTest = ({ context }) => {
     test('Has anonym user', async () => {
-        const userName = context.page.getByRole('button', { name: /anonym_.*/ });
-        await expect(userName).toHaveText(/anonym_.*/);
+        const anonymousUsername = new RegExp(`${ANONYMOUS_PARTICIPANT_PREFIX}_.*`);
+        const userName = context.page.getByRole('button', { name: anonymousUsername });
+        await expect(userName).toHaveText(anonymousUsername);
     });
 };
 

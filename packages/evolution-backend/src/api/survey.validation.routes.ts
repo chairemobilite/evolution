@@ -190,7 +190,7 @@ router.get(
         }
         if (req.params.interviewUuid) {
             try {
-                const interview = await Interviews.getInterviewByUuid(req.params.interviewUuid);
+                const interview = await Interviews.getInterviewByUuidWithParticipant(req.params.interviewUuid);
                 if (interview) {
                     const forceCopy = _booleish(req.query.reset) === true;
                     // Copy the response in the corrected_response

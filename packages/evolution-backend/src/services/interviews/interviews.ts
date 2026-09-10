@@ -15,6 +15,7 @@ import interviewsDbQueries, {
     OperatorSigns,
     ValueFilterType
 } from '../../models/interviews.db.queries';
+import interviewsAdminDbQueries from '../../models/interviews.admin.db.queries';
 import interviewsAccessesDbQueries from '../../models/interviewsAccesses.db.queries';
 import reviewDecisionsDbQueries from '../../models/reviewDecisions.db.queries';
 import { UserInterviewAccesses } from '../logging/loggingTypes';
@@ -85,6 +86,19 @@ export default class Interviews {
             return undefined;
         }
         return await interviewsDbQueries.getInterviewByUuid(interviewId);
+    };
+
+    /**
+     * Load an interview for admin review/audit, including `loginMethod`.
+     * Do not use this from participant-facing routes.
+     */
+    static getInterviewByUuidWithParticipant = async (
+        interviewId: string
+    ): Promise<InterviewAttributes | undefined> => {
+        if (!validateUuid(interviewId)) {
+            return undefined;
+        }
+        return await interviewsAdminDbQueries.getInterviewByUuidWithParticipant(interviewId);
     };
 
     static getUserInterview = async (userId: number): Promise<UserInterviewAttributes | undefined> => {
