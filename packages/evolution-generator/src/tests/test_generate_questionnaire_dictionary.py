@@ -4,6 +4,8 @@
 
 import pytest
 from scripts.generate_questionnaire_dictionary import (
+    MAX_RADIO_NUMBER_VALUES,
+    combine_values_text,
     get_choices_text,
     process_choices,
     process_radio_number_values,
@@ -188,3 +190,46 @@ class TestProcessRadioNumberValues:
             )
             == "Min : someOtherField\nMax : 6\n7+"
         )
+
+    def test_still_enumerates_a_range_at_the_limit(self):
+        max_value = MAX_RADIO_NUMBER_VALUES - 1
+        expected = "\n".join(str(value) for value in range(0, max_value + 1))
+
+        assert process_radio_number_values(f"min=0\nmax={max_value}", "en") == expected
+
+    def test_falls_back_to_bounds_when_range_exceeds_the_limit(self):
+        # A typo like max=100000 shouldn't materialize a huge list of values into
+        # one CSV cell; show the bounds instead, same as a dynamic min/max.
+        max_value = MAX_RADIO_NUMBER_VALUES
+        assert (
+            process_radio_number_values(f"min=0\nmax={max_value}", "en")
+            == f"Min : 0\nMax : {max_value}"
+        )
+
+    def test_falls_back_to_bounds_with_over_max_choice_when_range_exceeds_the_limit(
+        self,
+    ):
+        max_value = MAX_RADIO_NUMBER_VALUES
+        assert (
+            process_radio_number_values(f"min=0\nmax={max_value}\noverMaxAllowed", "en")
+            == f"Min : 0\nMax : {max_value}\n{max_value + 1}+"
+        )
+
+
+class TestCombineValuesText:
+    def test_joins_non_empty_parts_with_newlines_in_order(self):
+        # This is what merges a RadioNumber's enumerated values (e.g.
+        # vehicleOccupancy: 1..6, 7+) with its additionalChoices (e.g. "I don't
+        # know") into a single Values row instead of two separate ones.
+        assert (
+            combine_values_text("1\n2\n3", "dontKnow : I don't know")
+            == "1\n2\n3\ndontKnow : I don't know"
+        )
+
+    def test_skips_empty_parts(self):
+        assert combine_values_text("1\n2\n3", "", "") == "1\n2\n3"
+        assert combine_values_text("", "yes : Yes", "") == "yes : Yes"
+
+    def test_returns_empty_string_when_all_parts_are_empty(self):
+        assert combine_values_text("", "", "") == ""
+        assert combine_values_text() == ""
