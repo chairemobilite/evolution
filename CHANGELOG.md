@@ -10,8 +10,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Added `platform`, `os`, `browser` and `language` fields to each record of the exported paradata (#1395)
+- Backported: audits from `main` branch: `HH_W_CarNumberPerPotentialDrivingLicenseTooHigh`, `HH_F_AtLeastOneTransitSegmentInHousehold`, `I_M_ContactEmailButWouldLikeToParticipateInOtherSurveys`, `P_L_InvalidJourneySequences`, `J_L_InvalidVisitedPlaceSequences`, `J_L_InvalidTripSequences`, `T_L_InvalidSegmentSequences`, `HH_W_PersonSequenceGaps`, `P_W_JourneySequenceGaps`, `J_W_VisitedPlaceSequenceGaps`, `J_W_TripSequenceGaps`, `P_I_AgeTooHigh`, `P_W_VeryOldAge`, `I_M_AssignedDate`, `HH_I_TwoWheelNumber`, `HH_I_BicycleNumber`, `HH_I_ElectricBicycleNumber`, `HH_L_ElectricBicycleNumberOverBicycleNumber`
 
 ### Changed
+- Backported: review decision mechanism for flagging the interview as approved or rejected. This mechanism handles conflicting decisions and allow to approve individual objects.
 
 ### Deprecated
 
