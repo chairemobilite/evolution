@@ -191,17 +191,11 @@ def generate_questionnaire_dictionary(
 
                 questionnaire_data.append([question_label, question])
 
-                # Only add radio number values if it exists
-                if radio_number_text:
-                    questionnaire_data.append([values_label, radio_number_text])
-
-                # Only add choices if it exists
-                if choices_text:
-                    questionnaire_data.append([values_label, choices_text])
-
-                # Only add range if it exists
-                if range_text:
-                    questionnaire_data.append([values_label, range_text])
+                values_text = combine_values_text(
+                    radio_number_text, choices_text, range_text
+                )
+                if values_text:
+                    questionnaire_data.append([values_label, values_text])
 
         # Save the questionnaire text to questionnaire_dictionary_en.txt
         questionnaire_dictionary_path = os.path.join(
@@ -245,6 +239,22 @@ def get_choices_text(choices_name, choices_map):
         choice for choice in choices_map.get(choices_name, []) if choice
     ]
     return "\n".join(filtered_choices_list)
+
+
+def combine_values_text(*value_parts: str) -> str:
+    """
+    Combine the possible "Values" pieces for a question (RadioNumber's enumerated
+    values, choices, range) into a single block, since a question only ever has
+    one set of possible values to show, not several separate "Values" rows.
+
+    Args:
+        *value_parts (str): Any number of value texts (e.g. radio_number_text,
+            choices_text, range_text), in the order they should appear.
+
+    Returns:
+        str: The non-empty parts joined with newlines, preserving their order.
+    """
+    return "\n".join(part for part in value_parts if part)
 
 
 def process_choices(choices_rows, choices_headers, language, conditionals_map):
@@ -330,6 +340,12 @@ def process_choices(choices_rows, choices_headers, language, conditionals_map):
     return choices_map
 
 
+# Radio number widgets are meant for small selectable ranges (e.g. 0-10). Cap the
+# enumeration so an authoring typo (e.g. max=100000) can't materialize a huge
+# CSV cell; ranges past this fall back to the Min/Max representation instead.
+MAX_RADIO_NUMBER_VALUES = 20
+
+
 def process_radio_number_values(parameters: str, language: Literal["en", "fr"]) -> str:
     """
     Build the list of selectable numeric values for a RadioNumber widget, based on
@@ -343,15 +359,19 @@ def process_radio_number_values(parameters: str, language: Literal["en", "fr"]) 
     Returns:
         str: The selectable values, one per line (e.g. "1\n2\n3\n4\n5\n6\n7+"). When
         min and/or max reference another response's path dynamically instead of a
-        fixed number, the values can't be enumerated ahead of time, so the raw
-        min/max are shown instead (e.g. "Min : someOtherField\nMax : 6").
+        fixed number, or the range is larger than MAX_RADIO_NUMBER_VALUES, the
+        values aren't enumerated, so the raw min/max are shown instead
+        (e.g. "Min : someOtherField\nMax : 6").
     """
-    radio_number_parameters = get_radio_number_parameters({"parameters": parameters or ""})
+    radio_number_parameters = get_radio_number_parameters(
+        {"parameters": parameters or ""}
+    )
     min_value = radio_number_parameters["min_value"]
     max_value = radio_number_parameters["max_value"]
     over_max_allowed = radio_number_parameters["over_max_allowed"]
 
-    if isinstance(min_value, int) and isinstance(max_value, int):
+    is_fixed_range = isinstance(min_value, int) and isinstance(max_value, int)
+    if is_fixed_range and max_value - min_value + 1 <= MAX_RADIO_NUMBER_VALUES:
         values = [str(value) for value in range(min_value, max_value + 1)]
         if over_max_allowed:
             values.append(f"{max_value + 1}+")
