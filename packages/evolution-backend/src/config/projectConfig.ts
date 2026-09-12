@@ -37,6 +37,19 @@ interface ProjectServerConfig {
      */
     surveyObjectParsers?: SurveyObjectParsers;
     /**
+     * Path of the module that calls `setProjectConfig`, which the module gives
+     * as its own `__filename`.
+     *
+     * The tasks of the worker pool, the batch audits among them, run in a
+     * worker that has its own instance of this configuration, holding the
+     * defaults only: a function cannot be sent to a worker, so the worker
+     * requires this module to configure itself the way the server did. Without
+     * it, a batch audit sees none of the survey parsers and audits the response
+     * as the questionnaire wrote it, reporting errors a single-interview audit
+     * does not.
+     */
+    serverConfigFile?: string;
+    /**
      * Configuration of a Transition instance for route calculations. If not
      * set, route calculations will not use the Transition public API for
      * eventual route calculations.

@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Audits: the tasks running in a worker of the pool, the batch audits among them, configure themselves from the `serverConfigFile` a survey now declares in `setProjectConfig`, so a batch audit uses the object parsers of the survey instead of auditing the raw response and reporting errors a single-interview audit does not (fixes [#1997](https://github.com/chairemobilite/evolution/issues/1997))
 - Segment: `driverType` now keeps `paratransit` and `carpool`, the values the `driver` question already stores, instead of `paraTransit` and `ridesharing`, so those answers reach the model and its audits
 - Admin: household and home creation errors are shown on the review summary instead of replacing the page with a generic unavailable message (fixes [#1961](https://github.com/chairemobilite/evolution/issues/1961))
 
