@@ -104,6 +104,26 @@ describe('Interview', () => {
         });
     });
 
+    describe('loginMethod', () => {
+        it('should set loginMethod from interview attributes', () => {
+            const interview = new Interview(
+                validParams,
+                createRawInterviewAttributes({ loginMethod: 'google' }),
+                registry
+            );
+            expect(interview.loginMethod).toBe('google');
+            expect(interview.attributes.loginMethod).toBe('google');
+        });
+
+        it('should get and set loginMethod', () => {
+            const interview = new Interview(validParams, createRawInterviewAttributes(), registry);
+            expect(interview.loginMethod).toBeUndefined();
+            interview.loginMethod = 'email';
+            expect(interview.loginMethod).toBe('email');
+            expect(interview.attributes.loginMethod).toBe('email');
+        });
+    });
+
     describe('create', () => {
         it('should create an Interview instance with valid parameters', () => {
             const result = create(validParams, createRawInterviewAttributes(), registry);

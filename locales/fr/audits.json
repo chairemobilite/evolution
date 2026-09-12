@@ -9,6 +9,12 @@
     "I_I_ContactEmail": "Le courriel de contact est invalide",
     "I_M_ContactEmailButWouldLikeToParticipateInOtherSurveys": "Le courriel de contact est manquant, mais la personne répondante aimerait participer à d'autres enquêtes",
     "I_I_HelpContactEmail": "Le courriel de contact d'aide est invalide",
+    "I_F_loginMethodIsEmail": "La méthode de connexion est le courriel",
+    "I_F_loginMethodIsAnonymous": "La méthode de connexion est anonyme",
+    "I_F_loginMethodIsGoogle": "La méthode de connexion est Google",
+    "I_F_loginMethodIsTelephone": "L'entrevue a été débutée par un intervieweur",
+    "I_F_loginMethodIsByField": "La méthode de connexion est par champ",
+    "I_F_loginMethodIsUnknown": "La méthode de connexion est inconnue",
 
     "HH_I_Size": "La taille du ménage est en dehors de la plage autorisée (devrait être un entier entre 1 et 18)",
     "HH_M_Size": "La taille du ménage est manquante",

@@ -59,6 +59,15 @@ describe('Interview - Getters and Setters', () => {
         expect(interview.participant_id).toBe(456);
     });
 
+    it('should get and set loginMethod', () => {
+        expect(interview.loginMethod).toBeUndefined();
+        interview.loginMethod = 'anonymous';
+        expect(interview.loginMethod).toBe('anonymous');
+        expect(interview.attributes.loginMethod).toBe('anonymous');
+        interview.loginMethod = undefined;
+        expect(interview.loginMethod).toBeUndefined();
+    });
+
     it('should get and set accessCode', () => {
         interview.accessCode = 'NEW123';
         expect(interview.accessCode).toBe('NEW123');

@@ -1,7 +1,7 @@
 import { Result, createErrors, createOk } from '../../../types/Result.type';
 import { ParamsValidatorUtils } from '../../../utils/ParamsValidatorUtils';
 import { Uuidable } from '../Uuidable';
-import { InterviewAttributes } from '../../../services/questionnaire/types';
+import { InterviewAttributes, interviewLoginMethodValues } from '../../../services/questionnaire/types';
 import { Interview, ExtendedInterviewAttributesWithComposedObjects } from './Interview';
 import { InterviewParadata } from './InterviewParadata';
 import { yesNoDontKnowValues } from '../attributeTypes/GenericAttributes';
@@ -35,6 +35,15 @@ export const validateParams = function (
 
     errors.push(...ParamsValidatorUtils.isBoolean('isCompleted', interviewAttributes.is_completed, displayName));
     errors.push(...ParamsValidatorUtils.isBoolean('isQuestionable', interviewAttributes.is_questionable, displayName));
+    errors.push(
+        ...ParamsValidatorUtils.isIn(
+            'loginMethod',
+            interviewAttributes.loginMethod,
+            displayName,
+            [...interviewLoginMethodValues],
+            'InterviewLoginMethod'
+        )
+    );
 
     errors.push(...ParamsValidatorUtils.isString('accessCode', dirtyParams.accessCode, displayName));
     errors.push(...ParamsValidatorUtils.isDateString('assignedDate', dirtyParams.assignedDate, displayName));

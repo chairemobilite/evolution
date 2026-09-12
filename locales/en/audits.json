@@ -9,6 +9,12 @@
     "I_I_ContactEmail": "Contact email is invalid",
     "I_M_ContactEmailButWouldLikeToParticipateInOtherSurveys": "Contact email is missing but respondent would like to participate in other surveys",
     "I_I_HelpContactEmail": "Help contact email is invalid",
+    "I_F_loginMethodIsEmail": "Login method is email",
+    "I_F_loginMethodIsAnonymous": "Login method is anonymous",
+    "I_F_loginMethodIsGoogle": "Login method is Google",
+    "I_F_loginMethodIsTelephone": "The interview was started by an interviewer",
+    "I_F_loginMethodIsByField": "Login method is by field",
+    "I_F_loginMethodIsUnknown": "Login method is unknown",
 
     "HH_I_Size": "Household size is out of range (should be an integer between 1 and 18)",
     "HH_M_Size": "Household size is missing",
