@@ -36,6 +36,9 @@ Checks do *not* run while the respondent fills the questionnaire — that is **r
            │                                         │
            ▼                                         ▼
  GET /api/survey/correctInterview/:uuid   POST /api/validation/batchAudits
+           │                              (in a worker of the pool, which
+           │                               requires `serverConfigFile` to get
+           │                               the same configuration and parsers)
            │                                         │
            └──────────────┬──────────────────────────┘
                           ▼
