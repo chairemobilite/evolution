@@ -224,9 +224,17 @@ describe('VisitedPlacesSection behavior', () => {
     });
 
     test.each([
-        ['first visited place', 0, 'homePlace1P1'],
-        ['last visited place', 4, 'otherPlace2P1']
-    ])('click on the edit button for %s', (_label, buttonIndex, expectedVisitedPlaceId) => {
+        {
+            title: 'first visited place',
+            buttonIndex: 0,
+            expectedVisitedPlaceId: 'homePlace1P1'
+        },
+        {
+            title: 'last visited place',
+            buttonIndex: 4,
+            expectedVisitedPlaceId: 'otherPlace2P1'
+        }
+    ])('click on the edit button for $title', ({ buttonIndex, expectedVisitedPlaceId }) => {
         const props = getDefaultProps();
         const { getAllByTitle } = render(
             <TestContextProvider>
@@ -244,22 +252,35 @@ describe('VisitedPlacesSection behavior', () => {
     });
 
     test.each([
-        ['insert button', () => getDefaultProps(), 'visitedPlaces:insertVisitedPlace', 0, 2],
-        [
-            'footer add button',
-            () => {
+        {
+            title: 'insert button before the first place',
+            getProps: () => getDefaultProps(),
+            buttonTitle: 'visitedPlaces:insertVisitedPlace',
+            buttonIndex: 0,
+            expectedSequence: 1
+        },
+        {
+            title: 'insert button after the first place',
+            getProps: () => getDefaultProps(),
+            buttonTitle: 'visitedPlaces:insertVisitedPlace',
+            buttonIndex: 1,
+            expectedSequence: 2
+        },
+        {
+            title: 'footer add button',
+            getProps: () => {
                 const props = getDefaultProps();
                 props.interview.response.household!.persons!.personId1.journeys!.journeyId1.visitedPlaces!.otherPlace2P1.nextPlaceCategory =
                     'visitedAnotherPlace';
                 return props;
             },
-            'visitedPlaces:addVisitedPlace',
-            0,
-            -1
-        ]
+            buttonTitle: 'visitedPlaces:addVisitedPlace',
+            buttonIndex: 0,
+            expectedSequence: -1
+        }
     ])(
-        'click on the %s calls addVisitedPlace helper',
-        (_label, getProps, buttonTitle, buttonIndex, expectedSequence) => {
+        'click on the $title calls addVisitedPlace helper',
+        ({ getProps, buttonTitle, buttonIndex, expectedSequence }) => {
             const props = getProps();
             const { getAllByTitle } = render(
                 <TestContextProvider>

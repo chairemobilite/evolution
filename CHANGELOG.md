@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- `VisitedPlacesSection` template: the respondent can insert a visited place before the first one of the day, for example if they forgot a trip or did not start their day where they said they did. The arrival time of the place that is not the first anymore is then asked, and the `departurePlaceIsHome` answer of the journey is updated when the first place of the diary contradicts it (fixes [#1832](https://github.com/chairemobilite/evolution/issues/1832))
 - Segment: `driverType` now keeps `paratransit` and `carpool`, the values the `driver` question already stores, instead of `paraTransit` and `ridesharing`, so those answers reach the model and its audits
 - Admin: household and home creation errors are shown on the review summary instead of replacing the page with a generic unavailable message (fixes [#1961](https://github.com/chairemobilite/evolution/issues/1961))
 
