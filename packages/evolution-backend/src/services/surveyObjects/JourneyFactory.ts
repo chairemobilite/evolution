@@ -21,6 +21,11 @@ import { CorrectedResponse } from 'evolution-common/lib/services/questionnaire/t
 import { AuditLog } from '../audits/auditLog';
 import { SurveyObjectsRegistry } from 'evolution-common/lib/services/baseObjects/SurveyObjectsRegistry';
 import { compareSequenceThenUuid } from 'evolution-common/lib/services/baseObjects/sequenceUtils';
+import {
+    computeIsJourneyClosed,
+    computeIsJourneyClosedMoreThanOnce,
+    type VisitedPlaceJourneyClosureAttributes
+} from './derivedFlags/journeyClosure';
 
 /**
  * Generate all journeys for a person
@@ -64,6 +69,25 @@ export async function populateJourneysForPerson(
         );
 
         if (isOk(journey)) {
+            // Parse visited places first so nextPlaceCategory is in its official
+            // place (populateVisitedPlacesForJourney will parse them again).
+            const journeyAttrs = journeyAttributes as ExtendedJourneyAttributes;
+            const rawVisitedPlacesByUuid = (journeyAttrs.visitedPlaces ?? {}) as {
+                [uuid: string]: VisitedPlaceJourneyClosureAttributes;
+            };
+            const visitedPlacesByUuid = Object.fromEntries(
+                Object.entries(rawVisitedPlacesByUuid)
+                    .filter(([visitedPlaceUuid]) => visitedPlaceUuid !== 'undefined')
+                    .map(([visitedPlaceUuid, visitedPlaceAttributes]) => [
+                        visitedPlaceUuid,
+                        projectConfig.surveyObjectParsers?.visitedPlace
+                            ? projectConfig.surveyObjectParsers.visitedPlace(visitedPlaceAttributes, correctedResponse)
+                            : visitedPlaceAttributes
+                    ])
+            ) as { [uuid: string]: VisitedPlaceJourneyClosureAttributes };
+            journey.result.isJourneyClosed = computeIsJourneyClosed(visitedPlacesByUuid);
+            journey.result.isJourneyClosedMoreThanOnce = computeIsJourneyClosedMoreThanOnce(visitedPlacesByUuid);
+
             person.addJourney(journey.result);
 
             // Create visited places for this journey

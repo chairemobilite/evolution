@@ -113,6 +113,8 @@ export class Journey extends SurveyObject {
     private _tripChains?: Optional<TripChain[]>;
 
     private _personUuid?: Optional<string>; // allow reverse lookup: must be filled by Person.
+    private _isJourneyClosed?: Optional<boolean>;
+    private _isJourneyClosedMoreThanOnce?: Optional<boolean>;
 
     static _confidentialAttributes = ['preData'];
 
@@ -352,6 +354,34 @@ export class Journey extends SurveyObject {
 
     set personUuid(value: Optional<string>) {
         this._personUuid = value;
+    }
+
+    /**
+     * Whether the last questionnaire visited place closed this journey.
+     *
+     * `true` when the last place answers `nextPlaceCategory === 'stayedThereUntilTheNextDay'`.
+     * `false` when the last place did not close the journey, including when the answer is missing.
+     */
+    get isJourneyClosed(): Optional<boolean> {
+        return this._isJourneyClosed;
+    }
+
+    set isJourneyClosed(value: Optional<boolean>) {
+        this._isJourneyClosed = value;
+    }
+
+    /**
+     * Whether more than one questionnaire visited place closed this journey.
+     *
+     * `true` when more than one place answers `nextPlaceCategory === 'stayedThereUntilTheNextDay'`.
+     * `false` when at most one place closed the journey.
+     */
+    get isJourneyClosedMoreThanOnce(): Optional<boolean> {
+        return this._isJourneyClosedMoreThanOnce;
+    }
+
+    set isJourneyClosedMoreThanOnce(value: Optional<boolean>) {
+        this._isJourneyClosedMoreThanOnce = value;
     }
 
     get person(): Optional<Person> {

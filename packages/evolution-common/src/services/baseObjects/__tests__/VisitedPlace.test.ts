@@ -237,6 +237,7 @@ describe('VisitedPlace', () => {
             ['activity', 'leisure'],
             ['activityCategory', 'leisure'],
             ['isShortcut', true],
+            ['hasNextPlaceCategory', true],
             ['_sequence', 2],
             ['preData', { importedVisitedPlaceData: 'value', duration: 30 }],
         ])('should set and get %s', (attribute, value) => {

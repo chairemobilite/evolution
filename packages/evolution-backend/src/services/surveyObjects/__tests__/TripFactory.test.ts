@@ -14,6 +14,7 @@ import { Trip } from 'evolution-common/lib/services/baseObjects/Trip';
 import { VisitedPlace } from 'evolution-common/lib/services/baseObjects/VisitedPlace';
 import { createOk, createErrors } from 'evolution-common/lib/types/Result.type';
 import { SurveyObjectsRegistry } from 'evolution-common/lib/services/baseObjects/SurveyObjectsRegistry';
+import projectConfig from '../../../config/projectConfig';
 
 // Mock dependencies
 jest.mock('evolution-common/lib/services/baseObjects/Trip', () => ({
@@ -354,6 +355,126 @@ describe('TripFactory', () => {
             expect(MockedTrip.create).toHaveBeenNthCalledWith(1, expect.objectContaining({ _sequence: 1 }), surveyObjectsRegistry);
             expect(MockedTrip.create).toHaveBeenNthCalledWith(2, expect.objectContaining({ _sequence: 2 }), surveyObjectsRegistry);
             expect(MockedTrip.create).toHaveBeenNthCalledWith(3, expect.objectContaining({ _sequence: 3 }), surveyObjectsRegistry);
+        });
+
+        describe('segment chain closure flags', () => {
+            it.each([
+                {
+                    description: 'no segments',
+                    segments: {},
+                    isSegmentChainClosed: false,
+                    isSegmentChainClosedMoreThanOnce: false
+                },
+                {
+                    description: 'last segment closes the chain',
+                    segments: {
+                        'segment-1': { _uuid: 'segment-1', _sequence: 1, hasNextMode: true },
+                        'segment-2': { _uuid: 'segment-2', _sequence: 2, hasNextMode: false }
+                    },
+                    isSegmentChainClosed: true,
+                    isSegmentChainClosedMoreThanOnce: false
+                },
+                {
+                    description: 'last segment leaves the chain open',
+                    segments: {
+                        'segment-1': { _uuid: 'segment-1', _sequence: 1, hasNextMode: true }
+                    },
+                    isSegmentChainClosed: false,
+                    isSegmentChainClosedMoreThanOnce: false
+                },
+                {
+                    description: 'closed more than once',
+                    segments: {
+                        'segment-1': { _uuid: 'segment-1', _sequence: 1, hasNextMode: false },
+                        'segment-2': { _uuid: 'segment-2', _sequence: 2, hasNextMode: false }
+                    },
+                    isSegmentChainClosed: true,
+                    isSegmentChainClosedMoreThanOnce: true
+                }
+            ])(
+                '$description',
+                async ({
+                    segments,
+                    isSegmentChainClosed,
+                    isSegmentChainClosedMoreThanOnce
+                }) => {
+                const mockTrip = {
+                    _uuid: 'trip-1',
+                    origin: null,
+                    destination: null,
+                    segments: [],
+                    getSegmentsWithoutWalkingInMultimode: jest.fn().mockReturnValue([]),
+                    setupStartAndEndTimes: jest.fn()
+                } as unknown as Trip;
+
+                journeyAttributes.trips = {
+                    'trip-1': {
+                        _uuid: 'trip-1',
+                        _sequence: 1,
+                        segments
+                    }
+                } as any;
+
+                (MockedTrip.create as jest.Mock).mockReturnValue(createOk(mockTrip));
+                mockedpopulateSegmentsForTrip.mockResolvedValue();
+
+                await populateTripsForJourney(
+                    surveyObjectsWithErrors,
+                    person,
+                    journey,
+                    journeyAttributes,
+                    { uuid: 'test' } as any,
+                    surveyObjectsRegistry
+                );
+
+                expect(mockTrip.isSegmentChainClosed).toBe(isSegmentChainClosed);
+                expect(mockTrip.isSegmentChainClosedMoreThanOnce).toBe(isSegmentChainClosedMoreThanOnce);
+            });
+
+            it('uses hasNextMode after the segment parser remaps it', async () => {
+                const previousParsers = projectConfig.surveyObjectParsers;
+                projectConfig.surveyObjectParsers = {
+                    ...previousParsers,
+                    segment: (attributes) => ({ ...attributes, hasNextMode: false })
+                };
+
+                const mockTrip = {
+                    _uuid: 'trip-1',
+                    origin: null,
+                    destination: null,
+                    segments: [],
+                    getSegmentsWithoutWalkingInMultimode: jest.fn().mockReturnValue([]),
+                    setupStartAndEndTimes: jest.fn()
+                } as unknown as Trip;
+
+                journeyAttributes.trips = {
+                    'trip-1': {
+                        _uuid: 'trip-1',
+                        _sequence: 1,
+                        segments: {
+                            'segment-1': { _uuid: 'segment-1', _sequence: 1, hasNextMode: true }
+                        }
+                    }
+                } as any;
+
+                (MockedTrip.create as jest.Mock).mockReturnValue(createOk(mockTrip));
+                mockedpopulateSegmentsForTrip.mockResolvedValue();
+
+                try {
+                    await populateTripsForJourney(
+                        surveyObjectsWithErrors,
+                        person,
+                        journey,
+                        journeyAttributes,
+                        { uuid: 'test' } as any,
+                        surveyObjectsRegistry
+                    );
+
+                    expect(mockTrip.isSegmentChainClosed).toBe(true);
+                } finally {
+                    projectConfig.surveyObjectParsers = previousParsers;
+                }
+            });
         });
 
         it('should pass correct parameters to segment factory', async () => {
