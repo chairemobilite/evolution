@@ -15,7 +15,7 @@ import {
 } from 'evolution-common/lib/services/questionnaire/types';
 import commonProjectConfig from 'evolution-common/lib/config/project.config';
 
-interface ProjectServerConfig {
+export interface ProjectServerConfig {
     /**
      * Filters the interview object to return minimal data. Used server side
      * before sending validation list to server
@@ -134,18 +134,6 @@ export const setProjectConfig = (config: Partial<ProjectServerConfig>) => {
         }
     }
     Object.assign(projectConfig, config);
-};
-
-/**
- * Register server-side callbacks to be called when certain fields are updated.
- * These callbacks are used to add/modify field values in the interview
- * depending on certain other response fields.
- *
- * @param serverCallbacks An array of callbacks to call when response is
- * updated
- */
-export const registerServerUpdateCallbacks = (serverCallbacks: ServerFieldUpdateCallback[]) => {
-    projectConfig.serverUpdateCallbacks = serverCallbacks;
 };
 
 export default projectConfig;

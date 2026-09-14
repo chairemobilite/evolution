@@ -23,8 +23,12 @@ import authRoutes from '../../api/auth.routes';
 import participantRoutes from '../../apps/participant/routes';
 import { hasFileExtension } from '../../services/routing/urlHelpers';
 import { isSurveyEnded } from '../../services/surveyStatus/surveyStatus';
+import { loadRegisteredServerConfig } from '../../config/serverConfigRegistry';
 
-export const setupServerApp = (app: Express, serverSetupFct: (() => void) | undefined = undefined) => {
+export const setupServerApp = async (
+    app: Express,
+    serverSetupFct: (() => void | Promise<void>) | undefined = undefined
+) => {
     // Public directory from which files are served
     const publicDirectory = path.join(__dirname, '..', '..', '..', '..', '..', 'public');
     const publicDistDirectory = path.join(publicDirectory, 'dist', config.projectShortname, 'survey');
@@ -114,11 +118,20 @@ export const setupServerApp = (app: Express, serverSetupFct: (() => void) | unde
     // TODO Let the survey project's server.js file do this
     try {
         if (typeof serverSetupFct === 'function') {
-            serverSetupFct();
+            // Awaited so that a survey setting itself up asynchronously is done
+            // before the configuration it may register is loaded
+            await serverSetupFct();
         }
     } catch (error) {
         console.log('Error running project specific server setup function: ', error);
     }
+
+    // Loaded after the setup function of the survey, which may be what registers
+    // the configuration, and before the routes, which read it. A failure reaches
+    // the survey, which stops the server rather than serve with the default
+    // configuration and audit or validate differently than the survey asked for.
+    await loadRegisteredServerConfig();
+
     participantRoutes(app);
     // Add the trRouting routes
     trRoutingRouter(app);
