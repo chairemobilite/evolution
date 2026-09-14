@@ -5,17 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased (0.6.3)]
+## [Unreleased (0.6.4)]
+
+### Added
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+
+### Dependency updates
+
+## [0.6.3] - 2026-09-14
 
 ### Added
 
 - Segment: the `AnswerStatus<T>` type wraps an answer whose value is a number or a boolean with the reason there is none, so that a survey letting a respondent answer "I don't know" has somewhere to store it, `paidForParking` and `vehicleOccupancy` being the first two attributes to use it (see [#1946](https://github.com/chairemobilite/evolution/issues/1946))
 - Server configuration: `registerSurveyObjectParsersModule`, `registerServerUpdateCallbacksModule`, `registerServerValidationsModule`, `registerRoleDefinitionsModule`, `registerAuditInterviewModule` and `registerValidationListFilterModule` of `evolution-backend/lib/config/serverConfigRegistry` register the path of the modules holding those functions, so a worker of the pool can load the same configuration as the server (see [#1997](https://github.com/chairemobilite/evolution/issues/1997))
+- Support regex in UI tests (fixes [#1894](https://github.com/chairemobilite/evolution/issues/1894))
+- New audit checks: J_L_InconsistentChronology ([#1924](https://github.com/chairemobilite/evolution/issues/1924)), T_M_OriginOrDestionation([#1922](https://github.com/chairemobilite/evolution/issues/1922)), Journey and trip closure ([#1920](https://github.com/chairemobilite/evolution/issues/1920) and [#1921](https://github.com/chairemobilite/evolution/issues/1921)), HH_W_NicknameDuplicate ([#1910](https://github.com/chairemobilite/evolution/issues/1910)), I_F_loginMethodIsXyz ([#1974](https://github.com/chairemobilite/evolution/issues/1974))
 
 ### Changed
 
 - Interview: completing an interview no longer freezes it, and `is_frozen` no longer blocks participant or review access (fixes [#1949](https://github.com/chairemobilite/evolution/issues/1949) and [#1950](https://github.com/chairemobilite/evolution/issues/1950))
 - Segment: `paidForParking` and `vehicleOccupancy` hold an `AnswerStatus`, which `Segment.create` builds from the value the questionnaire stores, a count answered as a string included, instead of failing parameter validation and dropping the segment from the audited objects and the admin review panels (fixes [#1946](https://github.com/chairemobilite/evolution/issues/1946))
+- Let the `other` activity choice propose to specify the activity (fixes [#1900](https://github.com/chairemobilite/evolution/issues/1900))
+- Audits: parse corrected response once before building the objects (fixes [#2005](https://github.com/chairemobilite/evolution/issues/2005))
 
 ### Deprecated
 
@@ -29,10 +49,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `VisitedPlacesSection` template: the respondent can insert a visited place before the first one of the day, for example if they forgot a trip or did not start their day where they said they did. The arrival time of the place that is not the first anymore is then asked, and the `departurePlaceIsHome` answer of the journey is updated when the first place of the diary contradicts it (fixes [#1832](https://github.com/chairemobilite/evolution/issues/1832))
 - Segment: `driverType` now keeps `paratransit` and `carpool`, the values the `driver` question already stores, instead of `paraTransit` and `ridesharing`, so those answers reach the model and its audits
 - Admin: household and home creation errors are shown on the review summary instead of replacing the page with a generic unavailable message (fixes [#1961](https://github.com/chairemobilite/evolution/issues/1961))
+- Show geography last action in review summary (fixes [#1975](https://github.com/chairemobilite/evolution/issues/1975))
+- Generator: fix dictionary input types and choices (part of [#1493](https://github.com/chairemobilite/evolution/issues/1493))
 
 ### Security
 
 ### Dependency updates
+
+- Multer: 2.2.0 => 2.3.0
+- Morgan: 1.11.0 => 1.12.0
 
 ## [0.6.2] - 2026-09-09
 
