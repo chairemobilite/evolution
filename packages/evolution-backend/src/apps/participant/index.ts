@@ -28,9 +28,23 @@ process.on('uncaughtException', (err) => {
     console.error('Just caught an uncaught exception!', err);
 });
 
-export const setupServer = (serverSetupFct: (() => void) | undefined = undefined) => {
+/**
+ * Set up and start the participant server, once the server configuration the
+ * survey registered is loaded, since the routes read it as they are mounted.
+ *
+ * @param {Function} [serverSetupFct] Called for the survey to set up what it
+ * needs of its own
+ * @returns {Promise<void>} Resolves once the server listens. A survey has nothing
+ * to await, the modules of its configuration being loaded by the setup, right
+ * after its own setup function, which may be what registers them, and before the
+ * routes that read them are mounted.
+ */
+export const setupServer = async (
+    serverSetupFct: (() => void | Promise<void>) | undefined = undefined
+): Promise<void> => {
     const app = express();
-    setupServerApp(app, serverSetupFct);
+    await setupServerApp(app, serverSetupFct);
+
     if (!useSSL) {
         // Create http server
         const server = httpCreateServer(app);
