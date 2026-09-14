@@ -341,6 +341,53 @@ export const householdAuditChecks: { [errorCode: string]: HouseholdAuditCheckFun
     },
 
     /**
+     * Check if two or more household members share the same nickname. The nickname is
+     * what the questionnaire shows to designate a person in the trip diary, so two identical
+     * ones make the interview ambiguous for the respondent, who may fill one person's diary
+     * under the other's name. Nicknames are normalized (trimmed, case-insensitive, accents
+     * folded) before comparison so e.g. `Paul`, `paul `, and `Pål` are treated as duplicates.
+     * Blank nicknames are ignored. Warning only: a duplicate is not an impossible answer.
+     * The duplicated value itself is not included in the message, since nickname is a
+     * confidential attribute.
+     * @param context - HouseholdAuditCheckContext
+     * @returns AuditForObject
+     */
+    HH_W_NicknameDuplicate: (context: HouseholdAuditCheckContext): AuditForObject | undefined => {
+        const { household } = context;
+        const members = household.members ?? [];
+
+        const normalizedNicknames = members
+            .map((person) => person.nickname)
+            .filter((nickname): nickname is string => !!nickname && nickname.trim() !== '')
+            .map((nickname) =>
+                nickname
+                    .trim()
+                    .toLowerCase()
+                    // NFD splits accented characters into base letter + combining accent mark(s),
+                    // then strip those marks (any Unicode "Mark" character) so accents are
+                    // ignored (e.g. "Léa" -> "lea").
+                    .normalize('NFD')
+                    .replace(/\p{M}/gu, '')
+            );
+
+        const hasDuplicate = new Set(normalizedNicknames).size !== normalizedNicknames.length;
+
+        if (hasDuplicate) {
+            return {
+                objectType: 'household',
+                objectUuid: household._uuid!,
+                errorCode: 'HH_W_NicknameDuplicate',
+                version: 1,
+                level: 'warning',
+                message: 'At least two household members share the same nickname',
+                ignore: false
+            };
+        }
+
+        return undefined; // No audit needed
+    },
+
+    /**
      * Check if atLeastOnePersonWithDisability is missing for multi-person households.
      * For single-person households, disability is asked per person instead.
      * @param context - HouseholdAuditCheckContext

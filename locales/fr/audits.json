@@ -22,6 +22,7 @@
     "HH_L_SizeMembersCountMismatch": "La taille du ménage et le nombre de personnes ne correspondent pas",
     "HH_L_InvalidPersonSequences": "Le numéro de séquence d'au moins une personne est invalide ou en double",
     "HH_W_PersonSequenceGaps": "Les numéros de séquence des personnes ne sont pas consécutifs",
+    "HH_W_NicknameDuplicate": "Au moins deux membres du ménage ont le même surnom",
     "HH_L_CarNumberVehiclesCountMismatch": "Le nombre de véhicules automobiles et le nombre de véhicules déclarés ne correspondent pas",
     "HH_F_AtLeastOneTransitSegmentInHousehold": "Au moins un déplacement transport collectif dans le ménage",
     "HH_M_Home": "Le domicile est manquant",

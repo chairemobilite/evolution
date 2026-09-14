@@ -22,6 +22,7 @@
     "HH_L_SizeMembersCountMismatch": "Size and members count mismatch",
     "HH_L_InvalidPersonSequences": "At least one person sequence is invalid or duplicated",
     "HH_W_PersonSequenceGaps": "Person sequences are not contiguous",
+    "HH_W_NicknameDuplicate": "At least two household members share the same nickname",
     "HH_L_CarNumberVehiclesCountMismatch": "Car number and vehicles count mismatch",
     "HH_F_AtLeastOneTransitSegmentInHousehold": "At least one transit trip in household",
     "HH_M_Home": "Home is missing",
