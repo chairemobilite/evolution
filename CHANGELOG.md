@@ -5,17 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased (0.5.2)] - YYYY-MM-DD
 
-## [Unreleased (0.5.1)] - YYYY-MM-DD
+### Added
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+
+### Dependency updates
+
+
+## [0.5.1] - 2026-09-14
+
+Audits: This version of the 0.5.x branch has feature parity with Evolution's [`0.6.3` version](https://github.com/chairemobilite/evolution/blob/main/CHANGELOG.md).
 
 ### Added
 - Added `platform`, `os`, `browser` and `language` fields to each record of the exported paradata (#1395)
-- Backported: audits from `main` branch: `HH_W_CarNumberPerPotentialDrivingLicenseTooHigh`, `HH_F_AtLeastOneTransitSegmentInHousehold`, `I_M_ContactEmailButWouldLikeToParticipateInOtherSurveys`, `P_L_InvalidJourneySequences`, `J_L_InvalidVisitedPlaceSequences`, `J_L_InvalidTripSequences`, `T_L_InvalidSegmentSequences`, `HH_W_PersonSequenceGaps`, `P_W_JourneySequenceGaps`, `J_W_VisitedPlaceSequenceGaps`, `J_W_TripSequenceGaps`, `P_I_AgeTooHigh`, `P_W_VeryOldAge`, `I_M_AssignedDate`, `HH_I_TwoWheelNumber`, `HH_I_BicycleNumber`, `HH_I_ElectricBicycleNumber`, `HH_L_ElectricBicycleNumberOverBicycleNumber`
 
 ### Changed
-- Backported: review decision mechanism for flagging the interview as approved or rejected. This mechanism handles conflicting decisions and allow to approve individual objects.
-
-- Segment: the `driverType` values `paraTransit` and `ridesharing` are renamed `paratransit` and `carpool`, to match with surveys using these questions. paratransit should not have a capital T, because it is one word, and carpool is more precise than ridesharing.
 
 ### Deprecated
 
