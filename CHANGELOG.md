@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Segment: the `AnswerStatus<T>` type wraps an answer whose value is a number or a boolean with the reason there is none, so that a survey letting a respondent answer "I don't know" has somewhere to store it, `paidForParking` and `vehicleOccupancy` being the first two attributes to use it (see [#1946](https://github.com/chairemobilite/evolution/issues/1946))
+- Server configuration: `registerSurveyObjectParsersModule`, `registerServerUpdateCallbacksModule`, `registerServerValidationsModule`, `registerRoleDefinitionsModule`, `registerAuditInterviewModule` and `registerValidationListFilterModule` of `evolution-backend/lib/config/serverConfigRegistry` register the path of the modules holding those functions, so a worker of the pool can load the same configuration as the server (see [#1997](https://github.com/chairemobilite/evolution/issues/1997))
 
 ### Changed
 
@@ -18,10 +19,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Deprecated
 
+- Passing `surveyObjectParsers`, `serverUpdateCallbacks`, `serverValidations`, `roleDefinitions`, `auditInterview` and `validationListFilter` as functions to `setProjectConfig` is deprecated: the worker pool cannot receive functions, register the modules with `serverConfigRegistry` instead (see [#1997](https://github.com/chairemobilite/evolution/issues/1997))
+
 ### Removed
 
 ### Fixed
 
+- Audits: a worker of the pool loads the configuration modules its server registered, so a batch audit runs with the object parsers, the callbacks and the validations of the survey instead of the defaults, and no longer reports errors a single-interview audit does not (fixes [#1997](https://github.com/chairemobilite/evolution/issues/1997))
 - Segment: `driverType` now keeps `paratransit` and `carpool`, the values the `driver` question already stores, instead of `paraTransit` and `ridesharing`, so those answers reach the model and its audits
 - Admin: household and home creation errors are shown on the review summary instead of replacing the page with a generic unavailable message (fixes [#1961](https://github.com/chairemobilite/evolution/issues/1961))
 

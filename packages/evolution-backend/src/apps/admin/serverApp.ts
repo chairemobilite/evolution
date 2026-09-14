@@ -27,8 +27,9 @@ import { directoryManager } from 'chaire-lib-backend/lib/utils/filesystem/direct
 import authRoutes from 'chaire-lib-backend/lib/api/auth.routes';
 import surveyRoutes from './routes';
 import { hasFileExtension } from '../../services/routing/urlHelpers';
+import { loadRegisteredServerConfig } from '../../config/serverConfigRegistry';
 
-export const setupServerApp = (app: Express, serverSetupFct?: (app: Express) => void) => {
+export const setupServerApp = async (app: Express, serverSetupFct?: (app: Express) => void | Promise<void>) => {
     const publicDirectory = path.join(__dirname, '..', '..', '..', '..', '..', 'public');
     const publicDistDirectory = path.join(publicDirectory, 'dist', config.projectShortname, 'admin');
     const localeDirectory = path.join(__dirname, '..', '..', '..', '..', '..', 'locales');
@@ -97,11 +98,19 @@ export const setupServerApp = (app: Express, serverSetupFct?: (app: Express) => 
 
     try {
         if (typeof serverSetupFct === 'function') {
-            serverSetupFct(app);
+            // Awaited so that a survey setting itself up asynchronously is done
+            // before the configuration it may register is loaded
+            await serverSetupFct(app);
         }
     } catch (error) {
         console.log('Error running project specific server setup function: ', error);
     }
+
+    // Loaded after the setup function of the survey, which may be what registers
+    // the configuration, and before the routes, which read it. A failure reaches
+    // the survey, which stops the server rather than serve with the default
+    // configuration and audit or validate differently than the survey asked for.
+    await loadRegisteredServerConfig();
 
     surveyRoutes(app);
     trRoutingRouter(app);

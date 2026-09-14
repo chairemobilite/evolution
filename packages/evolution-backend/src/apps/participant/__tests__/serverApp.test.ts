@@ -82,7 +82,7 @@ describe('serverApp index path routing', () => {
     let app: express.Express;
     let sendFileMock: jest.Mock;
 
-    beforeEach(() => {
+    beforeEach(async () => {
         // Reset mocks before each test
         jest.clearAllMocks();
 
@@ -119,7 +119,7 @@ describe('serverApp index path routing', () => {
         });
 
         // Setup the server app AFTER adding the sendFile mock middleware
-        setupServerApp(app);
+        await setupServerApp(app);
     });
 
     afterEach(() => {
@@ -166,7 +166,7 @@ describe('serverApp index path routing', () => {
     });
 
     describe('* handler when survey has ended', () => {
-        beforeEach(() => {
+        beforeEach(async () => {
             // Mock isSurveyEnded to return true
             jest.spyOn(surveyStatus, 'isSurveyEnded').mockReturnValue(true);
         });
@@ -232,7 +232,7 @@ describe('serverApp index path routing', () => {
                 next();
             });
 
-            setupServerApp(app);
+            await setupServerApp(app);
 
             const response = await request(app).get('/');
 
@@ -282,23 +282,23 @@ describe('serverApp index path routing', () => {
     });
 
     describe('custom server setup function', () => {
-        test('should call the custom setup function if provided', () => {
+        test('should call the custom setup function if provided', async () => {
             const mockSetupFct = jest.fn();
             const testApp = express();
 
-            setupServerApp(testApp, mockSetupFct);
+            await setupServerApp(testApp, mockSetupFct);
 
             expect(mockSetupFct).toHaveBeenCalled();
         });
 
-        test('should handle errors from custom setup function gracefully', () => {
+        test('should handle errors from custom setup function gracefully', async () => {
             const mockSetupFct = jest.fn().mockImplementation(() => {
                 throw new Error('Setup error');
             });
             const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
             const testApp = express();
 
-            expect(() => setupServerApp(testApp, mockSetupFct)).not.toThrow();
+            await expect(setupServerApp(testApp, mockSetupFct)).resolves.toBeDefined();
             expect(consoleSpy).toHaveBeenCalledWith(
                 'Error running project specific server setup function: ',
                 expect.any(Error)
@@ -307,10 +307,10 @@ describe('serverApp index path routing', () => {
             consoleSpy.mockRestore();
         });
 
-        test('should work without a custom setup function', () => {
+        test('should work without a custom setup function', async () => {
             const testApp = express();
 
-            expect(() => setupServerApp(testApp)).not.toThrow();
+            await expect(setupServerApp(testApp)).resolves.toBeDefined();
         });
     });
 

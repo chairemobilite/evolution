@@ -7,23 +7,34 @@
 import path from 'path';
 
 import setupServer from 'evolution-backend/lib/apps/admin';
-import { setProjectConfig } from 'evolution-backend/lib/config/projectConfig';
 import { registerTranslationDir, addTranslationNamespace } from 'chaire-lib-backend/lib/config/i18next';
-import roleDefinitions from '../survey/server/roleDefinition';
-import validationListFilter from '../survey/server/validationListFilter';
-import serverUpdateCallbacks from '../survey/server/serverFieldUpdate';
-import serverValidations from '../survey/server/serverValidations';
+import {
+    registerRoleDefinitionsModule,
+    registerServerUpdateCallbacksModule,
+    registerServerValidationsModule,
+    registerValidationListFilterModule
+} from 'evolution-backend/lib/config/serverConfigRegistry';
 
+// The modules of the server configuration are registered by their path, not by
+// the functions they export, so that the workers of the pool load the same ones.
+registerServerUpdateCallbacksModule(require.resolve('../survey/server/serverFieldUpdate'));
+registerServerValidationsModule(require.resolve('../survey/server/serverValidations'));
+registerRoleDefinitionsModule(require.resolve('../survey/server/roleDefinition'));
+registerValidationListFilterModule(require.resolve('../survey/server/validationListFilter'));
+
+// Anything this survey adds to the server itself goes here, its own routes and
+// monitoring views for instance. The express app is passed as the first argument.
+// The server configuration registered above is loaded by the server right after
+// this runs.
 const configureServer = () => {
-    setProjectConfig({
-        serverUpdateCallbacks,
-        serverValidations,
-        roleDefinitions,
-        validationListFilter
-    });
+    // Nothing of its own in this example survey
 };
 
-setupServer(configureServer);
+setupServer(configureServer).catch((error) => {
+    console.error('Error starting the server: ', error);
+    // eslint-disable-next-line n/no-process-exit
+    process.exit(1);
+});
 
 // FIXME Project directory is for runtime, locales should be in the config file (See #420)
 registerTranslationDir(path.join(__dirname, '../../locales/'));
