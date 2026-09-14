@@ -14,7 +14,6 @@ import { isOk } from 'evolution-common/lib/types/Result.type';
 import { Household } from 'evolution-common/lib/services/baseObjects/Household';
 import { Home } from 'evolution-common/lib/services/baseObjects/Home';
 import { Optional } from 'evolution-common/lib/types/Optional.type';
-import projectConfig from '../../config/projectConfig';
 import { SurveyObjectsRegistry } from 'evolution-common/lib/services/baseObjects/SurveyObjectsRegistry';
 import { AuditLog } from '../audits/auditLog';
 import { compareSequenceThenUuid } from 'evolution-common/lib/services/baseObjects/sequenceUtils';
@@ -27,7 +26,7 @@ import { ExtendedPersonAttributes } from 'evolution-common/lib/services/baseObje
  * @param {SurveyObjectsWithErrors} surveyObjectsWithErrors - Container for created objects with errors
  * @param {Household} household - The household to add the members to
  * @param {Home} home - The home object for geography assignment, needed by nested journeys
- * @param {CorrectedResponse} correctedResponse - corrected response
+ * @param {CorrectedResponse} correctedResponse - Already-parsed corrected response
  * @param {SurveyObjectsRegistry} surveyObjectsRegistry - SurveyObjectsRegistry
  * @returns {Promise<void>}
  */
@@ -61,9 +60,7 @@ export async function populatePersonsForHousehold(
             continue; // ignore if uuid is undefined
         }
 
-        const personAttributes = projectConfig.surveyObjectParsers?.person
-            ? projectConfig.surveyObjectParsers.person(originalCorrectedPersonAttributes, correctedResponse)
-            : originalCorrectedPersonAttributes;
+        const personAttributes = originalCorrectedPersonAttributes as ExtendedPersonAttributes;
 
         // Omit journeys as they will be populated separately in the next step (populateJourneysForPerson)
         const personResult = Person.create(
@@ -81,9 +78,8 @@ export async function populatePersonsForHousehold(
             await populateJourneysForPerson(
                 surveyObjectsWithErrors,
                 personResult.result,
-                personAttributes as ExtendedPersonAttributes,
+                personAttributes,
                 home,
-                correctedResponse,
                 surveyObjectsRegistry
             );
 
