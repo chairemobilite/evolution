@@ -13,8 +13,6 @@ import { Journey, ExtendedJourneyAttributes } from 'evolution-common/lib/service
 import { Trip, ExtendedTripAttributes } from 'evolution-common/lib/services/baseObjects/Trip';
 import { isOk } from 'evolution-common/lib/types/Result.type';
 import { populateSegmentsForTrip } from './SegmentFactory';
-import projectConfig from '../../config/projectConfig';
-import { CorrectedResponse } from 'evolution-common/lib/services/questionnaire/types';
 import { SurveyObjectsRegistry } from 'evolution-common/lib/services/baseObjects/SurveyObjectsRegistry';
 import {
     compareSequenceThenUuid,
@@ -29,12 +27,11 @@ import { AuditLog } from '../audits/auditLog';
 
 /**
  * Generate all trips for a journey
- * Populate trips for a journey from the journey's trips attributes
+ * Populate trips for a journey from the journey's already-parsed trips attributes
  * @param {SurveyObjectsWithErrors} surveyObjectsWithErrors - Container for created objects with errors
  * @param {Person} person - The person this journey belongs to
  * @param {Journey} journey - The journey to process trips for
- * @param {ExtendedJourneyAttributes} journeyAttributes - Journey attributes containing trips data
- * @param {CorrectedResponse} correctedResponse - corrected response
+ * @param {ExtendedJourneyAttributes} journeyAttributes - Parsed journey attributes containing trips data
  * @param {SurveyObjectsRegistry} surveyObjectsRegistry - SurveyObjectsRegistry
  * @returns {Promise<void>}
  */
@@ -43,7 +40,6 @@ export async function populateTripsForJourney(
     person: Person,
     journey: Journey,
     journeyAttributes: ExtendedJourneyAttributes,
-    correctedResponse: CorrectedResponse,
     surveyObjectsRegistry: SurveyObjectsRegistry
 ): Promise<void> {
     const tripsAttributes = journeyAttributes?.trips || {};
@@ -56,9 +52,7 @@ export async function populateTripsForJourney(
             continue;
         }
 
-        const tripAttributes = projectConfig.surveyObjectParsers?.trip
-            ? projectConfig.surveyObjectParsers.trip(originalCorrectedTripAttributes, correctedResponse)
-            : originalCorrectedTripAttributes;
+        const tripAttributes = originalCorrectedTripAttributes as ExtendedTripAttributes;
 
         const trip = Trip.create(
             _omit(tripAttributes as { [key: string]: unknown }, ['segments']) as ExtendedTripAttributes,
@@ -67,28 +61,15 @@ export async function populateTripsForJourney(
 
         if (isOk(trip)) {
             // Set origin and destination
-            const tripAttrs = tripAttributes as ExtendedTripAttributes;
-            const originUuid = tripAttrs._originVisitedPlaceUuid as string;
-            const destinationUuid = tripAttrs._destinationVisitedPlaceUuid as string;
+            const originUuid = tripAttributes._originVisitedPlaceUuid as string;
+            const destinationUuid = tripAttributes._destinationVisitedPlaceUuid as string;
             const origin = person.findVisitedPlaceByUuid(originUuid);
             const destination = person.findVisitedPlaceByUuid(destinationUuid);
 
             if (origin) trip.result.origin = origin;
             if (destination) trip.result.destination = destination;
 
-            // Parse segments first so hasNextMode is in its official place
-            // (populateSegmentsForTrip will parse them again when creating objects).
-            const rawSegmentsByUuid = (tripAttrs.segments ?? {}) as { [uuid: string]: ExtendedSegmentAttributes };
-            const segmentsByUuid = Object.fromEntries(
-                Object.entries(rawSegmentsByUuid)
-                    .filter(([segmentUuid]) => segmentUuid !== 'undefined')
-                    .map(([segmentUuid, segmentAttributes]) => [
-                        segmentUuid,
-                        projectConfig.surveyObjectParsers?.segment
-                            ? projectConfig.surveyObjectParsers.segment(segmentAttributes, correctedResponse)
-                            : segmentAttributes
-                    ])
-            ) as { [uuid: string]: ExtendedSegmentAttributes };
+            const segmentsByUuid = (tripAttributes.segments ?? {}) as { [uuid: string]: ExtendedSegmentAttributes };
             trip.result.isSegmentChainClosed = computeIsSegmentChainClosed(segmentsByUuid);
             trip.result.isSegmentChainClosedMoreThanOnce = computeIsSegmentChainClosedMoreThanOnce(segmentsByUuid);
 
@@ -99,13 +80,7 @@ export async function populateTripsForJourney(
             trip.result.setupStartAndEndTimes();
 
             // Create segments for this trip
-            await populateSegmentsForTrip(
-                surveyObjectsWithErrors,
-                trip.result,
-                tripAttributes as ExtendedTripAttributes,
-                correctedResponse,
-                surveyObjectsRegistry
-            );
+            await populateSegmentsForTrip(surveyObjectsWithErrors, trip.result, tripAttributes, surveyObjectsRegistry);
 
             // Remove walking segments from multimode trips, but only when the raw
             // sequences are sound. Filtering drops segments, which would hide a

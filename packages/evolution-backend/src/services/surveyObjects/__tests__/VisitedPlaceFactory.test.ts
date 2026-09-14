@@ -107,7 +107,7 @@ describe('VisitedPlaceFactory', () => {
             (MockedVisitedPlace.create as jest.Mock).mockReturnValueOnce(createOk(mockVisitedPlace1))
                 .mockReturnValueOnce(createOk(mockVisitedPlace2));
 
-            await populateVisitedPlacesForJourney(surveyObjectsWithErrors, person, journey, journeyAttributes, home, { uuid: 'test' } as any, surveyObjectsRegistry);
+            await populateVisitedPlacesForJourney(surveyObjectsWithErrors, person, journey, journeyAttributes, home, surveyObjectsRegistry);
 
             // Verify VisitedPlace.create was called with correct attributes
             expect(MockedVisitedPlace.create).toHaveBeenCalledTimes(2);
@@ -156,7 +156,7 @@ describe('VisitedPlaceFactory', () => {
                 }
             } as any;
 
-            await populateVisitedPlacesForJourney(surveyObjectsWithErrors, person, journey, journeyAttributes, home, { uuid: 'test' } as any, surveyObjectsRegistry);
+            await populateVisitedPlacesForJourney(surveyObjectsWithErrors, person, journey, journeyAttributes, home, surveyObjectsRegistry);
 
             // Verify home was assigned as the place
             expect(mockVisitedPlace.place).toBe(home);
@@ -180,7 +180,7 @@ describe('VisitedPlaceFactory', () => {
                 }
             } as any;
 
-            await populateVisitedPlacesForJourney(surveyObjectsWithErrors, person, journey, journeyAttributes, home, { uuid: 'test' } as any, surveyObjectsRegistry);
+            await populateVisitedPlacesForJourney(surveyObjectsWithErrors, person, journey, journeyAttributes, home, surveyObjectsRegistry);
 
             // Verify geography was not changed
             expect(mockVisitedPlace.place!.geography).toBe(originalGeography);
@@ -194,7 +194,7 @@ describe('VisitedPlaceFactory', () => {
                     _uuid: 'vp-2'
                 } as VisitedPlace));
 
-            await populateVisitedPlacesForJourney(surveyObjectsWithErrors, person, journey, journeyAttributes, home, { uuid: 'test' } as any, surveyObjectsRegistry);
+            await populateVisitedPlacesForJourney(surveyObjectsWithErrors, person, journey, journeyAttributes, home, surveyObjectsRegistry);
 
             // Verify error was stored
             expect(surveyObjectsWithErrors.errorsByObject.visitedPlacesByUuid['vp-1']).toEqual(errors);
@@ -219,7 +219,7 @@ describe('VisitedPlaceFactory', () => {
                 _uuid: 'vp-1'
             } as VisitedPlace));
 
-            await populateVisitedPlacesForJourney(surveyObjectsWithErrors, person, journey, journeyAttributes, home, { uuid: 'test' } as any, surveyObjectsRegistry);
+            await populateVisitedPlacesForJourney(surveyObjectsWithErrors, person, journey, journeyAttributes, home, surveyObjectsRegistry);
 
             // Should only create one visited place (skip undefined)
             expect(MockedVisitedPlace.create).toHaveBeenCalledTimes(1);
@@ -229,7 +229,7 @@ describe('VisitedPlaceFactory', () => {
         it('should handle missing visitedPlaces attributes', async () => {
             journeyAttributes.visitedPlaces = undefined;
 
-            await populateVisitedPlacesForJourney(surveyObjectsWithErrors, person, journey, journeyAttributes, home, { uuid: 'test' } as any, surveyObjectsRegistry);
+            await populateVisitedPlacesForJourney(surveyObjectsWithErrors, person, journey, journeyAttributes, home, surveyObjectsRegistry);
 
             expect(MockedVisitedPlace.create).not.toHaveBeenCalled();
             expect(journey.addVisitedPlace).not.toHaveBeenCalled();
@@ -259,7 +259,7 @@ describe('VisitedPlaceFactory', () => {
                 .mockReturnValueOnce(createOk({ _uuid: 'vp-2' } as VisitedPlace))
                 .mockReturnValueOnce(createOk({ _uuid: 'vp-3' } as VisitedPlace));
 
-            await populateVisitedPlacesForJourney(surveyObjectsWithErrors, person, journey, journeyAttributes, home, { uuid: 'test' } as any, surveyObjectsRegistry);
+            await populateVisitedPlacesForJourney(surveyObjectsWithErrors, person, journey, journeyAttributes, home, surveyObjectsRegistry);
 
             // Verify visited places were created in sequence order (1, 2, 3)
             expect(MockedVisitedPlace.create).toHaveBeenNthCalledWith(1, expect.objectContaining({ _sequence: 1 }), surveyObjectsRegistry);
@@ -283,7 +283,7 @@ describe('VisitedPlaceFactory', () => {
                 }
             } as any;
 
-            await populateVisitedPlacesForJourney(surveyObjectsWithErrors,  person, journey, journeyAttributes, home, { uuid: 'test' } as any, surveyObjectsRegistry);
+            await populateVisitedPlacesForJourney(surveyObjectsWithErrors,  person, journey, journeyAttributes, home, surveyObjectsRegistry);
 
             // Should not throw error and should still add to journey
             expect(journey.addVisitedPlace).toHaveBeenCalledWith(mockVisitedPlace);
@@ -329,7 +329,6 @@ describe('VisitedPlaceFactory', () => {
                 journey,
                 journeyAttributes,
                 home,
-                { uuid: 'test' } as any,
                 surveyObjectsRegistry
             );
 
@@ -380,7 +379,6 @@ describe('VisitedPlaceFactory', () => {
                 journey,
                 journeyAttributes,
                 home,
-                { uuid: 'test' } as any,
                 surveyObjectsRegistry
             );
 
@@ -412,7 +410,6 @@ describe('VisitedPlaceFactory', () => {
                 journey,
                 journeyAttributes,
                 home,
-                { uuid: 'test' } as any,
                 surveyObjectsRegistry
             );
 
@@ -459,7 +456,6 @@ describe('VisitedPlaceFactory', () => {
                 journey,
                 journeyAttributes,
                 home,
-                { uuid: 'test' } as any,
                 surveyObjectsRegistry
             );
 

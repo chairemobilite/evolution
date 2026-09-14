@@ -206,7 +206,6 @@ describe('PersonFactory', () => {
                 mockPerson1,
                 expect.objectContaining({ _uuid: 'person-1' }),
                 home,
-                correctedResponse,
                 surveyObjectsRegistry
             );
             expect(mockedPopulateJourneysForPerson).toHaveBeenNthCalledWith(
@@ -215,7 +214,6 @@ describe('PersonFactory', () => {
                 mockPerson2,
                 expect.objectContaining({ _uuid: 'person-2' }),
                 home,
-                correctedResponse,
                 surveyObjectsRegistry
             );
 
@@ -243,7 +241,6 @@ describe('PersonFactory', () => {
                 mockPerson2,
                 expect.objectContaining({ _uuid: 'person-2' }),
                 undefined,
-                correctedResponse,
                 surveyObjectsRegistry
             );
             expect(mockPerson2.setupWorkAndSchoolPlaces).toHaveBeenCalledTimes(1);
