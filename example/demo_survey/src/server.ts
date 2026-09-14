@@ -7,20 +7,30 @@
 import path from 'path';
 
 import setupServer from 'evolution-backend/lib/apps/participant';
-import { setProjectConfig } from 'evolution-backend/lib/config/projectConfig';
 import { registerTranslationDir, addTranslationNamespace } from 'chaire-lib-backend/lib/config/i18next';
-import serverUpdateCallbacks from './server/serverFieldUpdate';
+import {
+    registerServerUpdateCallbacksModule,
+    registerServerValidationsModule
+} from 'evolution-backend/lib/config/serverConfigRegistry';
 
+// This server only runs the questionnaire, so it registers what answering it
+// needs, by the path of the module holding it rather than by the functions that
+// module exports. Registering `undefined` configures nothing. The object parsers, the roles
+// and the audits belong to the admin server, see `admin/server.ts`.
+registerServerUpdateCallbacksModule(require.resolve('./server/serverFieldUpdate'));
+registerServerValidationsModule(undefined);
+
+// Anything this survey adds to the server itself goes here. The server
+// configuration registered above is loaded right after this runs.
 const configureServer = () => {
-    // Default values for each field. Same as default config, but this is an example project, keep it here.
-    setProjectConfig({
-        serverUpdateCallbacks: serverUpdateCallbacks as any,
-        serverValidations: undefined,
-        roleDefinitions: undefined
-    });
-}
+    // Nothing of its own in this example survey
+};
 
-setupServer(configureServer);
+setupServer(configureServer).catch((error) => {
+    console.error('Error starting the server: ', error);
+    // eslint-disable-next-line n/no-process-exit
+    process.exit(1);
+});
 
 // FIXME Project directory is for runtime, locales should be in the config file (See #420)
 registerTranslationDir(path.join(__dirname, `../locales/`));

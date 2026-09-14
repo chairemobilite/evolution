@@ -13,7 +13,7 @@ import interviewsQueries from '../../../models/interviews.db.queries';
 import serverValidate from '../../validations/serverValidation';
 import serverUpdate from '../serverFieldUpdate';
 import config from 'chaire-lib-backend/lib/config/server.config';
-import { registerServerUpdateCallbacks } from '../../../config/projectConfig';
+import { setProjectConfig } from '../../../config/projectConfig';
 import TestUtils from 'chaire-lib-common/lib/test/TestUtils';
 import { ParadataLoggingFunction } from '../../logging/paradataLogging';
 
@@ -369,11 +369,11 @@ describe('Update Interview', () => {
         const updateCallbacks = [
             { field: 'testFields.fieldA', callback: jest.fn().mockResolvedValue({}) }
         ];
-        registerServerUpdateCallbacks(updateCallbacks);
+        setProjectConfig({ serverUpdateCallbacks: updateCallbacks });
         const updatedValuesByPath = { 'response.testFields.fieldB': 'newVal' };
         mockedServerUpdate.mockResolvedValueOnce([updatedValuesByPath, undefined]);
         const interview = await updateInterview(testAttributes, { valuesByPath, unsetPaths });
-        registerServerUpdateCallbacks([]);
+        setProjectConfig({ serverUpdateCallbacks: [] });
         expect(interview).toEqual({
             interviewId: testAttributes.uuid,
             serverValidations: true,
@@ -408,7 +408,7 @@ describe('Update Interview', () => {
         const updateCallbacks = [
             { field: 'testFields.fieldA', callback: jest.fn().mockResolvedValue({}) }
         ];
-        registerServerUpdateCallbacks(updateCallbacks);
+        setProjectConfig({ serverUpdateCallbacks: updateCallbacks });
         const updatedValuesByPath = { 'response.testFields.fieldB': 'newVal' };
         const asyncUpdatedValuesByPath = { 'response.testFields.fieldC': 'valC' };
         // The mocked server update will call the execution callback once
@@ -431,7 +431,7 @@ describe('Update Interview', () => {
 
         const interview = await updateInterview(testAttributes, { logUpdate: mockLog, valuesByPath, unsetPaths, deferredUpdateCallback });
         await TestUtils.flushPromises();
-        registerServerUpdateCallbacks([]);
+        setProjectConfig({ serverUpdateCallbacks: [] });
         expect(interview).toEqual({
             interviewId: testAttributes.uuid,
             serverValidations: true,
@@ -484,11 +484,11 @@ describe('Update Interview', () => {
         const updateCallbacks = [
             { field: 'testFields.fieldA', callback: jest.fn().mockResolvedValue({}) }
         ];
-        registerServerUpdateCallbacks(updateCallbacks);
+        setProjectConfig({ serverUpdateCallbacks: updateCallbacks });
         const updatedValuesByPath = { 'response.testFields.fieldB': 'newVal' };
         mockedServerUpdate.mockResolvedValueOnce([updatedValuesByPath, testRedirectURL]);
         const interview = await updateInterview(testAttributes, { valuesByPath, unsetPaths });
-        registerServerUpdateCallbacks([]);
+        setProjectConfig({ serverUpdateCallbacks: [] });
         expect(interview).toEqual({
             interviewId: testAttributes.uuid,
             serverValidations: true,

@@ -47,9 +47,21 @@ if (!(config as any).adminAuth) {
 config.auth = (config as any).adminAuth;
 delete (config as any).adminAuth;
 
-export const setupServer = (serverSetupFct?: (app: Express) => void) => {
+/**
+ * Set up and start the admin server, once the server configuration the survey
+ * registered is loaded, since the routes read it as they are mounted.
+ *
+ * @param {Function} [serverSetupFct] Called with the express app, for the survey
+ * to set up its own routes and middlewares
+ * @returns {Promise<void>} Resolves once the server listens. A survey has nothing
+ * to await, the modules of its configuration being loaded by the setup, right
+ * after its own setup function, which may be what registers them, and before the
+ * routes that read them are mounted.
+ */
+export const setupServer = async (serverSetupFct?: (app: Express) => void | Promise<void>): Promise<void> => {
     const app = express();
-    setupServerApp(app, serverSetupFct);
+    await setupServerApp(app, serverSetupFct);
+
     if (!useSSL) {
         const server = httpCreateServer(app);
         server.listen(port);
