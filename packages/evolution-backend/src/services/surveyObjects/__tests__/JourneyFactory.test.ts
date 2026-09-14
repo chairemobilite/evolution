@@ -109,7 +109,7 @@ describe('JourneyFactory', () => {
             mockedpopulateVisitedPlacesForJourney.mockResolvedValue();
             mockedpopulateTripsForJourney.mockResolvedValue();
 
-            await populateJourneysForPerson(surveyObjectsWithErrors, person, personAttributes, home, { uuid: 'test' } as any, surveyObjectsRegistry);
+            await populateJourneysForPerson(surveyObjectsWithErrors, person, personAttributes, home, surveyObjectsRegistry);
 
             // Verify Journey.create was called with correct attributes (visitedPlaces and trips are omitted)
             expect(MockedJourney.create).toHaveBeenCalledTimes(2);
@@ -154,7 +154,7 @@ describe('JourneyFactory', () => {
             mockedpopulateVisitedPlacesForJourney.mockResolvedValue();
             mockedpopulateTripsForJourney.mockResolvedValue();
 
-            await populateJourneysForPerson(surveyObjectsWithErrors, person, personAttributes, home, { uuid: 'test' } as any, surveyObjectsRegistry);
+            await populateJourneysForPerson(surveyObjectsWithErrors, person, personAttributes, home, surveyObjectsRegistry);
 
             // Verify error was stored
             expect(surveyObjectsWithErrors.errorsByObject.journeysByUuid['journey-1']).toEqual(errors);
@@ -186,7 +186,7 @@ describe('JourneyFactory', () => {
             mockedpopulateVisitedPlacesForJourney.mockResolvedValue();
             mockedpopulateTripsForJourney.mockResolvedValue();
 
-            await populateJourneysForPerson(surveyObjectsWithErrors, person, personAttributes, home, { uuid: 'test' } as any, surveyObjectsRegistry);
+            await populateJourneysForPerson(surveyObjectsWithErrors, person, personAttributes, home, surveyObjectsRegistry);
 
             // Should only create one journey (skip undefined)
             expect(MockedJourney.create).toHaveBeenCalledTimes(1);
@@ -196,7 +196,7 @@ describe('JourneyFactory', () => {
         it('should handle missing journeys attributes', async () => {
             personAttributes.journeys = undefined;
 
-            await populateJourneysForPerson(surveyObjectsWithErrors, person, personAttributes, home, { uuid: 'test' } as any, surveyObjectsRegistry);
+            await populateJourneysForPerson(surveyObjectsWithErrors, person, personAttributes, home, surveyObjectsRegistry);
 
             expect(MockedJourney.create).not.toHaveBeenCalled();
             expect(person.addJourney).not.toHaveBeenCalled();
@@ -229,7 +229,7 @@ describe('JourneyFactory', () => {
             mockedpopulateVisitedPlacesForJourney.mockResolvedValue();
             mockedpopulateTripsForJourney.mockResolvedValue();
 
-            await populateJourneysForPerson(surveyObjectsWithErrors, person, personAttributes, home, { uuid: 'test' } as any, surveyObjectsRegistry);
+            await populateJourneysForPerson(surveyObjectsWithErrors, person, personAttributes, home, surveyObjectsRegistry);
 
             // Verify journeys were created in sequence order (1, 2, 3)
             expect(MockedJourney.create).toHaveBeenNthCalledWith(1, expect.objectContaining({ _sequence: 1 }), surveyObjectsRegistry);
@@ -299,8 +299,7 @@ describe('JourneyFactory', () => {
                         person,
                         personAttributes,
                         home,
-                    { uuid: 'test' } as any,
-                    surveyObjectsRegistry
+                        surveyObjectsRegistry
                     );
 
                     expect(mockJourney.isJourneyClosed).toBe(isJourneyClosed);
@@ -317,7 +316,7 @@ describe('JourneyFactory', () => {
             mockedpopulateVisitedPlacesForJourney.mockResolvedValue();
             mockedpopulateTripsForJourney.mockResolvedValue();
 
-            await populateJourneysForPerson(surveyObjectsWithErrors, person, personAttributes, home, { uuid: 'test' } as any, surveyObjectsRegistry);
+            await populateJourneysForPerson(surveyObjectsWithErrors, person, personAttributes, home, surveyObjectsRegistry);
 
             // Verify visited places factory was called with correct parameters
             expect(mockedpopulateVisitedPlacesForJourney).toHaveBeenCalledWith(
@@ -326,7 +325,6 @@ describe('JourneyFactory', () => {
                 mockJourney,
                 personAttributes.journeys!['journey-1'],
                 home,
-                { uuid: 'test' },
                 surveyObjectsRegistry
             );
 
@@ -336,7 +334,6 @@ describe('JourneyFactory', () => {
                 person,
                 mockJourney,
                 personAttributes.journeys!['journey-1'],
-                { uuid: 'test' },
                 surveyObjectsRegistry
             );
         });

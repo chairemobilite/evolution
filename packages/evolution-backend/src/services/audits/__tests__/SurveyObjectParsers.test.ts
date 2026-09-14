@@ -9,25 +9,11 @@ import { v4 as uuidV4 } from 'uuid';
 
 import projectConfig, { setProjectConfig } from '../../../config/projectConfig';
 import { SurveyObjectsFactory } from '../../surveyObjects/SurveyObjectsFactory';
-import { populateJourneysForPerson } from '../../surveyObjects/JourneyFactory';
-import { populatePersonsForHousehold } from '../../surveyObjects/PersonFactory';
-import { populateSegmentsForTrip } from '../../surveyObjects/SegmentFactory';
-import { populateVisitedPlacesForJourney } from '../../surveyObjects/VisitedPlaceFactory';
-import { populateTripsForJourney } from '../../surveyObjects/TripFactory';
 import { InterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
-import { ExtendedTripAttributes } from 'evolution-common/lib/services/baseObjects/Trip';
-import { ExtendedPersonAttributes } from 'evolution-common/lib/services/baseObjects/Person';
-import { ExtendedJourneyAttributes } from 'evolution-common/lib/services/baseObjects/Journey';
-import { SurveyObjectsWithErrors } from 'evolution-common/lib/services/baseObjects/types';
-import { Person } from 'evolution-common/lib/services/baseObjects/Person';
-import { Journey } from 'evolution-common/lib/services/baseObjects/Journey';
-import { Trip } from 'evolution-common/lib/services/baseObjects/Trip';
-import { Household } from 'evolution-common/lib/services/baseObjects/Household';
-import { CorrectedResponse } from 'evolution-common/lib/services/questionnaire/types';
 import { SurveyObjectsRegistry } from 'evolution-common/lib/services/baseObjects/SurveyObjectsRegistry';
 
 describe('SurveyObjectParsers Integration', () => {
-    let originalConfig: any;
+    let originalConfig: typeof projectConfig;
     let surveyObjectsRegistry: SurveyObjectsRegistry;
 
     beforeEach(() => {
@@ -62,8 +48,9 @@ describe('SurveyObjectParsers Integration', () => {
 
             await factory.createAllObjectsWithErrors(interviewAttributes);
 
-            expect(mockInterviewParser).toHaveBeenCalledWith(interviewAttributes.corrected_response);
             expect(mockInterviewParser).toHaveBeenCalledTimes(1);
+            expect(mockInterviewParser.mock.calls[0][0]).toEqual(interviewAttributes.corrected_response);
+            expect(mockInterviewParser.mock.calls[0][0]).not.toBe(interviewAttributes.corrected_response);
         });
 
         it('should call home parser when configured in SurveyObjectsFactory', async () => {
@@ -89,13 +76,17 @@ describe('SurveyObjectParsers Integration', () => {
                 }
             } as any;
 
+            const correctedResponse = interviewAttributes.corrected_response!;
+            const home = correctedResponse.home;
             await factory.createAllObjectsWithErrors(interviewAttributes);
 
-            expect(mockHomeParser).toHaveBeenCalledWith(
-                interviewAttributes.corrected_response!.home,
-                interviewAttributes.corrected_response
-            );
             expect(mockHomeParser).toHaveBeenCalledTimes(1);
+            expect(mockHomeParser.mock.calls[0][0]).toEqual(home);
+            expect(mockHomeParser.mock.calls[0][0]).not.toBe(home);
+            expect(mockHomeParser.mock.calls[0][1]).not.toBe(correctedResponse);
+            expect(mockHomeParser.mock.calls[0][1]).toMatchObject({
+                home: expect.objectContaining({ address: '123 Test St' })
+            });
         });
 
         it('should call household parser when configured in SurveyObjectsFactory', async () => {
@@ -121,342 +112,97 @@ describe('SurveyObjectParsers Integration', () => {
                 }
             } as any;
 
+            const correctedResponse = interviewAttributes.corrected_response!;
+            const household = correctedResponse.household;
             await factory.createAllObjectsWithErrors(interviewAttributes);
 
-            expect(mockHouseholdParser).toHaveBeenCalledWith(
-                interviewAttributes.corrected_response!.household,
-                interviewAttributes.corrected_response
-            );
             expect(mockHouseholdParser).toHaveBeenCalledTimes(1);
+            expect(mockHouseholdParser.mock.calls[0][0]).toEqual(household);
+            expect(mockHouseholdParser.mock.calls[0][0]).not.toBe(household);
+            expect(mockHouseholdParser.mock.calls[0][1]).not.toBe(correctedResponse);
+            expect(mockHouseholdParser.mock.calls[0][1]).toMatchObject({
+                household: expect.objectContaining({ size: 2 })
+            });
         });
 
-        it('should call person parser when configured in PersonFactory', async () => {
-            const mockPersonParser = jest.fn().mockReturnValue({
-                _uuid: 'person-uuid',
-                _sequence: 1,
-                age: 30
-            });
-
-            setProjectConfig({
-                surveyObjectParsers: {
-                    person: mockPersonParser
-                }
-            });
-
-            const personUuid = 'person-uuid';
-            const householdUuid = uuidV4();
-
-            // Create a household object first
-            const household = Household.create({ _uuid: householdUuid, size: 2 }, surveyObjectsRegistry);
-            if (!('result' in household)) {
-                throw new Error('Failed to create household for test');
-            }
-
-            const surveyObjectsWithErrors: SurveyObjectsWithErrors = {
-                interview: undefined,
-                household: household.result, // Set the household here
-                home: undefined,
-                errorsByObject: {
-                    interview: [],
-                    interviewUuid: uuidV4(),
-                    home: [],
-                    homeUuid: uuidV4(),
-                    household: [],
-                    householdUuid: householdUuid,
-                    personsByUuid: {},
-                    journeysByUuid: {},
-                    visitedPlacesByUuid: {},
-                    tripsByUuid: {},
-                    segmentsByUuid: {}
-                }
+        it('should run each configured parser once before creating objects', async () => {
+            const personUuid = uuidV4();
+            const journeyUuid = uuidV4();
+            const visitedPlaceUuid = uuidV4();
+            const tripUuid = uuidV4();
+            const segmentUuid = uuidV4();
+            const parsers = {
+                interview: jest.fn((response) => ({ ...response })),
+                home: jest.fn((home) => ({ ...home })),
+                household: jest.fn((household) => ({ ...household })),
+                person: jest.fn((person) => ({ ...person })),
+                journey: jest.fn((journey) => ({ ...journey })),
+                visitedPlace: jest.fn((visitedPlace) => ({ ...visitedPlace })),
+                trip: jest.fn((trip) => ({ ...trip })),
+                segment: jest.fn((segment) => ({ ...segment }))
             };
 
-            const correctedResponse: CorrectedResponse = {
-                household: {
-                    persons: {
-                        [personUuid]: {
-                            _uuid: personUuid,
-                            _sequence: 1,
-                            age: 30
+            setProjectConfig({
+                surveyObjectParsers: parsers
+            });
+
+            const factory = new SurveyObjectsFactory();
+            const interviewAttributes: InterviewAttributes = {
+                uuid: uuidV4(),
+                corrected_response: {
+                    _language: 'en',
+                    home: {
+                        address: '123 Test St'
+                    },
+                    household: {
+                        size: 1,
+                        persons: {
+                            [personUuid]: {
+                                _uuid: personUuid,
+                                _sequence: 1,
+                                age: 30,
+                                journeys: {
+                                    [journeyUuid]: {
+                                        _uuid: journeyUuid,
+                                        _sequence: 1,
+                                        visitedPlaces: {
+                                            [visitedPlaceUuid]: {
+                                                _uuid: visitedPlaceUuid,
+                                                _sequence: 1,
+                                                activity: 'home'
+                                            }
+                                        },
+                                        trips: {
+                                            [tripUuid]: {
+                                                _uuid: tripUuid,
+                                                _sequence: 1,
+                                                segments: {
+                                                    [segmentUuid]: {
+                                                        _uuid: segmentUuid,
+                                                        _sequence: 1,
+                                                        mode: 'walk'
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
             } as any;
 
-            await populatePersonsForHousehold(
-                surveyObjectsWithErrors,
-                surveyObjectsWithErrors.household!,
-                undefined,
-                correctedResponse,
-                surveyObjectsRegistry
-            );
+            await factory.createAllObjectsWithErrors(interviewAttributes);
 
-            expect(mockPersonParser).toHaveBeenCalledWith(
-                correctedResponse.household!.persons![personUuid],
-                correctedResponse
-            );
-            expect(mockPersonParser).toHaveBeenCalledTimes(1);
-        });
-
-        it('should call journey parser when configured in JourneyFactory', async () => {
-            const mockJourneyParser = jest.fn().mockReturnValue({
-                _uuid: 'journey-uuid',
-                _sequence: 1
-            });
-
-            setProjectConfig({
-                surveyObjectParsers: {
-                    journey: mockJourneyParser
-                }
-            });
-
-            const surveyObjectsWithErrors: SurveyObjectsWithErrors = {
-                interview: undefined,
-                household: undefined,
-                home: undefined,
-                errorsByObject: {
-                    interview: [],
-                    interviewUuid: 'test-uuid',
-                    home: [],
-                    homeUuid: 'test-uuid',
-                    household: [],
-                    householdUuid: 'test-uuid',
-                    personsByUuid: {},
-                    journeysByUuid: {},
-                    visitedPlacesByUuid: {},
-                    tripsByUuid: {},
-                    segmentsByUuid: {}
-                }
-            };
-
-            const person = Person.create({ _uuid: 'person-uuid', age: 30 }, surveyObjectsRegistry);
-            if ('result' in person) {
-                const personAttributes: ExtendedPersonAttributes = {
-                    journeys: {
-                        'journey-uuid': {
-                            _uuid: 'journey-uuid',
-                            _sequence: 1
-                        }
-                    }
-                } as any;
-
-                const correctedResponse: CorrectedResponse = {
-                    _language: 'en'
-                } as any;
-
-                await populateJourneysForPerson(
-                    surveyObjectsWithErrors,
-                    person.result,
-                    personAttributes,
-                    undefined,
-                    correctedResponse,
-                    surveyObjectsRegistry
-                );
-
-                expect(mockJourneyParser).toHaveBeenCalledWith(
-                    personAttributes.journeys!['journey-uuid'],
-                    correctedResponse
-                );
-                expect(mockJourneyParser).toHaveBeenCalledTimes(1);
-            }
-        });
-
-        it('should call trip parser when configured in TripFactory', async () => {
-            const mockTripParser = jest.fn().mockReturnValue({
-                _uuid: 'trip-uuid',
-                _sequence: 1
-            });
-
-            setProjectConfig({
-                surveyObjectParsers: {
-                    trip: mockTripParser
-                }
-            });
-
-            const surveyObjectsWithErrors: SurveyObjectsWithErrors = {
-                interview: undefined,
-                household: undefined,
-                home: undefined,
-                errorsByObject: {
-                    interview: [],
-                    interviewUuid: 'test-uuid',
-                    home: [],
-                    homeUuid: 'test-uuid',
-                    household: [],
-                    householdUuid: 'test-uuid',
-                    personsByUuid: {},
-                    journeysByUuid: {},
-                    visitedPlacesByUuid: {},
-                    tripsByUuid: {},
-                    segmentsByUuid: {}
-                }
-            };
-
-            const person = Person.create({ _uuid: 'person-uuid', age: 30 }, surveyObjectsRegistry);
-            const journey = Journey.create({ _uuid: 'journey-uuid' }, surveyObjectsRegistry);
-
-            if ('result' in person && 'result' in journey) {
-                const journeyAttributes: ExtendedJourneyAttributes = {
-                    trips: {
-                        'trip-uuid': {
-                            _uuid: 'trip-uuid',
-                            _sequence: 1
-                        }
-                    }
-                } as any;
-
-                const correctedResponse: CorrectedResponse = {
-                    _language: 'en'
-                } as any;
-
-                await populateTripsForJourney(
-                    surveyObjectsWithErrors,
-                    person.result,
-                    journey.result,
-                    journeyAttributes,
-                    correctedResponse,
-                    surveyObjectsRegistry
-                );
-
-                expect(mockTripParser).toHaveBeenCalledWith(
-                    journeyAttributes.trips!['trip-uuid'],
-                    correctedResponse
-                );
-                expect(mockTripParser).toHaveBeenCalledTimes(1);
-            }
-        });
-
-        it('should call segment parser when configured in SegmentFactory', async () => {
-            const mockSegmentParser = jest.fn().mockReturnValue({
-                _uuid: 'segment-uuid',
-                _sequence: 1,
-                mode: 'walk'
-            });
-
-            setProjectConfig({
-                surveyObjectParsers: {
-                    segment: mockSegmentParser
-                }
-            });
-
-            const surveyObjectsWithErrors: SurveyObjectsWithErrors = {
-                interview: undefined,
-                household: undefined,
-                home: undefined,
-                errorsByObject: {
-                    interview: [],
-                    interviewUuid: 'test-uuid',
-                    home: [],
-                    homeUuid: 'test-uuid',
-                    household: [],
-                    householdUuid: 'test-uuid',
-                    personsByUuid: {},
-                    journeysByUuid: {},
-                    visitedPlacesByUuid: {},
-                    tripsByUuid: {},
-                    segmentsByUuid: {}
-                }
-            };
-
-            const trip = Trip.create({ _uuid: 'trip-uuid' }, surveyObjectsRegistry);
-
-            if ('result' in trip) {
-                const tripAttributes: ExtendedTripAttributes = {
-                    segments: {
-                        'segment-uuid': {
-                            _uuid: 'segment-uuid',
-                            _sequence: 1,
-                            mode: 'walk'
-                        }
-                    }
-                } as any;
-
-                const correctedResponse: CorrectedResponse = {
-                    _language: 'en'
-                } as any;
-
-                await populateSegmentsForTrip(
-                    surveyObjectsWithErrors,
-                    trip.result,
-                    tripAttributes,
-                    correctedResponse,
-                    surveyObjectsRegistry
-                );
-
-                expect(mockSegmentParser).toHaveBeenCalledWith(
-                    tripAttributes.segments!['segment-uuid'],
-                    correctedResponse
-                );
-                expect(mockSegmentParser).toHaveBeenCalledTimes(1);
-            }
-        });
-
-        it('should call visitedPlace parser when configured in VisitedPlaceFactory', async () => {
-            const mockVisitedPlaceParser = jest.fn().mockReturnValue({
-                _uuid: 'place-uuid',
-                _sequence: 1,
-                activity: 'home'
-            });
-
-            setProjectConfig({
-                surveyObjectParsers: {
-                    visitedPlace: mockVisitedPlaceParser
-                }
-            });
-
-            const surveyObjectsWithErrors: SurveyObjectsWithErrors = {
-                interview: undefined,
-                household: undefined,
-                home: undefined,
-                errorsByObject: {
-                    interview: [],
-                    interviewUuid: 'test-uuid',
-                    home: [],
-                    homeUuid: 'test-uuid',
-                    household: [],
-                    householdUuid: 'test-uuid',
-                    personsByUuid: {},
-                    journeysByUuid: {},
-                    visitedPlacesByUuid: {},
-                    tripsByUuid: {},
-                    segmentsByUuid: {}
-                }
-            };
-
-            const person = Person.create({ _uuid: 'person-uuid', age: 30 }, surveyObjectsRegistry);
-            const journey = Journey.create({ _uuid: 'journey-uuid' }, surveyObjectsRegistry);
-
-            if ('result' in person && 'result' in journey) {
-                const journeyAttributes: ExtendedJourneyAttributes = {
-                    visitedPlaces: {
-                        'place-uuid': {
-                            _uuid: 'place-uuid',
-                            _sequence: 1,
-                            activity: 'home'
-                        }
-                    }
-                } as any;
-
-                const correctedResponse: CorrectedResponse = {
-                    _language: 'en'
-                } as any;
-
-                await populateVisitedPlacesForJourney(
-                    surveyObjectsWithErrors,
-                    person.result,
-                    journey.result,
-                    journeyAttributes,
-                    undefined,
-                    correctedResponse,
-                    surveyObjectsRegistry
-                );
-
-                expect(mockVisitedPlaceParser).toHaveBeenCalledWith(
-                    journeyAttributes.visitedPlaces!['place-uuid'],
-                    correctedResponse
-                );
-                expect(mockVisitedPlaceParser).toHaveBeenCalledTimes(1);
-            }
+            expect(parsers.interview).toHaveBeenCalledTimes(1);
+            expect(parsers.home).toHaveBeenCalledTimes(1);
+            expect(parsers.household).toHaveBeenCalledTimes(1);
+            expect(parsers.person).toHaveBeenCalledTimes(1);
+            expect(parsers.journey).toHaveBeenCalledTimes(1);
+            expect(parsers.visitedPlace).toHaveBeenCalledTimes(1);
+            expect(parsers.trip).toHaveBeenCalledTimes(1);
+            expect(parsers.segment).toHaveBeenCalledTimes(1);
         });
 
         it('should not call parsers when not configured', async () => {

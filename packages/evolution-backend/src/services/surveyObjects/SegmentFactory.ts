@@ -11,8 +11,6 @@ import { SurveyObjectsWithErrors } from 'evolution-common/lib/services/baseObjec
 import { Trip, ExtendedTripAttributes } from 'evolution-common/lib/services/baseObjects/Trip';
 import { Segment, ExtendedSegmentAttributes } from 'evolution-common/lib/services/baseObjects/Segment';
 import { isOk } from 'evolution-common/lib/types/Result.type';
-import projectConfig from '../../config/projectConfig';
-import { CorrectedResponse } from 'evolution-common/lib/services/questionnaire/types';
 import { SurveyObjectsRegistry } from 'evolution-common/lib/services/baseObjects/SurveyObjectsRegistry';
 import { compareSequenceThenUuid } from 'evolution-common/lib/services/baseObjects/sequenceUtils';
 import { AuditLog } from '../audits/auditLog';
@@ -22,8 +20,7 @@ import { AuditLog } from '../audits/auditLog';
  * Populate segments for a trip from the trip's segments attributes
  * @param {SurveyObjectsWithErrors} surveyObjectsWithErrors - Container for created objects with errors
  * @param {Trip} trip - The trip these segments belong to
- * @param {ExtendedTripAttributes} tripAttributes - Trip attributes containing segment data
- * @param {CorrectedResponse} correctedResponse - corrected response
+ * @param {ExtendedTripAttributes} tripAttributes - Parsed trip attributes containing segment data
  * @param {SurveyObjectsRegistry} surveyObjectsRegistry - SurveyObjectsRegistry
  * @returns {Promise<void>}
  */
@@ -31,7 +28,6 @@ export async function populateSegmentsForTrip(
     surveyObjectsWithErrors: SurveyObjectsWithErrors,
     trip: Trip,
     tripAttributes: ExtendedTripAttributes,
-    correctedResponse: CorrectedResponse,
     surveyObjectsRegistry: SurveyObjectsRegistry
 ): Promise<void> {
     const segmentsAttributes = tripAttributes?.segments || {};
@@ -44,11 +40,7 @@ export async function populateSegmentsForTrip(
             continue;
         }
 
-        const segmentAttributes = (
-            projectConfig.surveyObjectParsers?.segment
-                ? projectConfig.surveyObjectParsers.segment(originalCorrectedSegmentAttributes, correctedResponse)
-                : originalCorrectedSegmentAttributes
-        ) as ExtendedSegmentAttributes;
+        const segmentAttributes = originalCorrectedSegmentAttributes as ExtendedSegmentAttributes;
 
         const segment = Segment.create(
             _omit(segmentAttributes, ['hasNextMode']) as ExtendedSegmentAttributes,

@@ -13,11 +13,10 @@ import { isOk } from 'evolution-common/lib/types/Result.type';
 import { SurveyObjectsWithErrors } from 'evolution-common/lib/services/baseObjects/types';
 import { CorrectedResponse } from 'evolution-common/lib/services/questionnaire/types';
 import { populatePersonsForHousehold } from './PersonFactory';
-import projectConfig from '../../config/projectConfig';
+import { parseCorrectedResponse } from './parseCorrectedResponse';
 import { Home } from 'evolution-common/lib/services/baseObjects/Home';
-import { ExtendedHouseholdAttributes, Household } from 'evolution-common/lib/services/baseObjects/Household';
+import { Household } from 'evolution-common/lib/services/baseObjects/Household';
 import { SurveyObjectsRegistry } from 'evolution-common/lib/services/baseObjects/SurveyObjectsRegistry';
-import { ExtendedPlaceAttributes } from 'evolution-common/lib/services/baseObjects/Place';
 import { AuditLog } from '../audits/auditLog';
 
 /**
@@ -57,7 +56,8 @@ export class SurveyObjectsFactory {
      * If a survey objects has any error, it will be set as undefined in the surveyObjectsWithErrors
      * and the errors will be included in the errorsByObject.
      *
-     * This function also runs the parsers found in the survey project and setup in project config.
+     * This function cloneDeeps `corrected_response`, runs the parsers from
+     * project config once on that copy, then creates objects from the result.
      *
      * @param {SurveyObjectsWithErrors} surveyObjectsWithErrors - Container for created objects with errors
      * @param {InterviewAttributes} interviewAttributes - The interview attributes
@@ -96,10 +96,8 @@ export class SurveyObjectsFactory {
         // reset SurveyObjectsRegistry (otherwise the registry will fill out with previous interview objects)
         const surveyObjectsRegistry = new SurveyObjectsRegistry();
 
-        // Create Interview
-        const correctedResponse = projectConfig.surveyObjectParsers?.interview
-            ? projectConfig.surveyObjectParsers.interview(interviewAttributes.corrected_response)
-            : interviewAttributes.corrected_response;
+        // Parse once; factories below create objects from this tree.
+        const correctedResponse = parseCorrectedResponse(interviewAttributes.corrected_response);
 
         const interviewResult = createInterviewObject(
             _omit(correctedResponse, ['home', 'household']) as CorrectedResponse,
@@ -113,12 +111,7 @@ export class SurveyObjectsFactory {
             AuditLog.debug(`Interview creation failed with errors count: ${interviewResult.errors?.length || 0}`);
         }
 
-        const homeAttributes = projectConfig.surveyObjectParsers?.home
-            ? projectConfig.surveyObjectParsers.home(
-                  correctedResponse.home as ExtendedPlaceAttributes,
-                  correctedResponse
-            )
-            : correctedResponse.home;
+        const homeAttributes = correctedResponse.home;
 
         // Only try to create home if we have home attributes
         if (homeAttributes) {
@@ -139,12 +132,7 @@ export class SurveyObjectsFactory {
             AuditLog.debug('Home creation skipped (no home attributes)');
         }
 
-        const householdAttributes = projectConfig.surveyObjectParsers?.household
-            ? projectConfig.surveyObjectParsers.household(
-                  correctedResponse.household as ExtendedHouseholdAttributes,
-                  correctedResponse
-            )
-            : correctedResponse.household;
+        const householdAttributes = correctedResponse.household;
 
         // Only try to create household if we have household attributes
         if (householdAttributes) {

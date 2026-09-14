@@ -16,8 +16,6 @@ import { populateTripsForJourney } from './TripFactory';
 import { ExtendedPersonAttributes } from 'evolution-common/lib/services/baseObjects/Person';
 import { SurveyObjectsWithErrors } from 'evolution-common/lib/services/baseObjects/types';
 import { Optional } from 'evolution-common/lib/types/Optional.type';
-import projectConfig from '../../config/projectConfig';
-import { CorrectedResponse } from 'evolution-common/lib/services/questionnaire/types';
 import { AuditLog } from '../audits/auditLog';
 import { SurveyObjectsRegistry } from 'evolution-common/lib/services/baseObjects/SurveyObjectsRegistry';
 import { compareSequenceThenUuid } from 'evolution-common/lib/services/baseObjects/sequenceUtils';
@@ -29,12 +27,11 @@ import {
 
 /**
  * Generate all journeys for a person
- * Populate journeys for a person from the person's journeys attributes
+ * Populate journeys for a person from the person's already-parsed journeys attributes
  * @param {surveyObjectsWithErrors} surveyObjectsWithErrors - Container for created objects with errors
  * @param {Person} person - The person to generate journeys for
  * @param {Home} home - The home object for geography assignment
- * @param {ExtendedPersonAttributes} personAttributes - Person attributes containing journeys data
- * @param {CorrectedResponse} correctedResponse - corrected response
+ * @param {ExtendedPersonAttributes} personAttributes - Parsed person attributes containing journeys data
  * @param {SurveyObjectsRegistry} surveyObjectsRegistry - SurveyObjectsRegistry
  * @returns {Promise<void>}
  */
@@ -43,7 +40,6 @@ export async function populateJourneysForPerson(
     person: Person,
     personAttributes: ExtendedPersonAttributes,
     home: Optional<Home>,
-    correctedResponse: CorrectedResponse,
     surveyObjectsRegistry: SurveyObjectsRegistry
 ): Promise<void> {
     const journeysAttributes = personAttributes.journeys || {};
@@ -56,9 +52,7 @@ export async function populateJourneysForPerson(
             continue;
         }
 
-        const journeyAttributes = projectConfig.surveyObjectParsers?.journey
-            ? projectConfig.surveyObjectParsers.journey(originalCorrectedJourneyAttributes, correctedResponse)
-            : originalCorrectedJourneyAttributes;
+        const journeyAttributes = originalCorrectedJourneyAttributes as ExtendedJourneyAttributes;
 
         const journey = Journey.create(
             _omit(journeyAttributes as { [key: string]: unknown }, [
@@ -69,22 +63,9 @@ export async function populateJourneysForPerson(
         );
 
         if (isOk(journey)) {
-            // Parse visited places first so nextPlaceCategory is in its official
-            // place (populateVisitedPlacesForJourney will parse them again).
-            const journeyAttrs = journeyAttributes as ExtendedJourneyAttributes;
-            const rawVisitedPlacesByUuid = (journeyAttrs.visitedPlaces ?? {}) as {
+            const visitedPlacesByUuid = (journeyAttributes.visitedPlaces ?? {}) as {
                 [uuid: string]: VisitedPlaceJourneyClosureAttributes;
             };
-            const visitedPlacesByUuid = Object.fromEntries(
-                Object.entries(rawVisitedPlacesByUuid)
-                    .filter(([visitedPlaceUuid]) => visitedPlaceUuid !== 'undefined')
-                    .map(([visitedPlaceUuid, visitedPlaceAttributes]) => [
-                        visitedPlaceUuid,
-                        projectConfig.surveyObjectParsers?.visitedPlace
-                            ? projectConfig.surveyObjectParsers.visitedPlace(visitedPlaceAttributes, correctedResponse)
-                            : visitedPlaceAttributes
-                    ])
-            ) as { [uuid: string]: VisitedPlaceJourneyClosureAttributes };
             journey.result.isJourneyClosed = computeIsJourneyClosed(visitedPlacesByUuid);
             journey.result.isJourneyClosedMoreThanOnce = computeIsJourneyClosedMoreThanOnce(visitedPlacesByUuid);
 
@@ -95,9 +76,8 @@ export async function populateJourneysForPerson(
                 surveyObjectsWithErrors,
                 person,
                 journey.result,
-                journeyAttributes as ExtendedJourneyAttributes,
+                journeyAttributes,
                 home,
-                correctedResponse,
                 surveyObjectsRegistry
             );
 
@@ -106,8 +86,7 @@ export async function populateJourneysForPerson(
                 surveyObjectsWithErrors,
                 person,
                 journey.result,
-                journeyAttributes as ExtendedJourneyAttributes,
-                correctedResponse,
+                journeyAttributes,
                 surveyObjectsRegistry
             );
         } else {

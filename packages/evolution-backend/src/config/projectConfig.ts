@@ -31,9 +31,9 @@ interface ProjectServerConfig {
      */
     auditInterview?: (attributes: InterviewAttributes) => Promise<SurveyObjectsWithAudits>;
     /**
-     * Configuration for parsing survey response values before object creation.
-     * This allows converting string values like 'yes'/'no' to proper types like boolean
-     * before validation occurs. Optional - if not provided, no parsing will occur.
+     * Parsers run once on a deep clone of `corrected_response` before survey
+     * objects are created. Use them to convert questionnaire values (for example
+     * `'yes'`/`'no'`) to the types expected by validation. Optional.
      */
     surveyObjectParsers?: SurveyObjectParsers;
     /**
