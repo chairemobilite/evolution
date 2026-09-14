@@ -16,8 +16,6 @@ import { Person } from 'evolution-common/lib/services/baseObjects/Person';
 import { Place } from 'evolution-common/lib/services/baseObjects/Place';
 import { Optional } from 'evolution-common/lib/types/Optional.type';
 import { isOk } from 'evolution-common/lib/types/Result.type';
-import projectConfig from '../../config/projectConfig';
-import { CorrectedResponse } from 'evolution-common/lib/services/questionnaire/types';
 import { SurveyObjectsRegistry } from 'evolution-common/lib/services/baseObjects/SurveyObjectsRegistry';
 import { compareSequenceThenUuid } from 'evolution-common/lib/services/baseObjects/sequenceUtils';
 import { AuditLog } from '../audits/auditLog';
@@ -29,9 +27,8 @@ import { mapInterviewVisitedPlaceTimes } from './interviewVisitedPlaceTimes';
  * @param {SurveyObjectsWithErrors} surveyObjectsWithErrors - Container for created objects with errors
  * @param {Person} person - The person to generate visited places for
  * @param {Journey} journey - The journey to generate visited places for
- * @param {ExtendedJourneyAttributes} journeyAttributes - Journey attributes containing visited places data
+ * @param {ExtendedJourneyAttributes} journeyAttributes - Parsed journey attributes containing visited places data
  * @param {Optional<Home>} home - The home object for geography assignment
- * @param {CorrectedResponse} correctedResponse - corrected response,
  * @param {SurveyObjectsRegistry} surveyObjectsRegistry - SurveyObjectsRegistry
  */
 export async function populateVisitedPlacesForJourney(
@@ -40,7 +37,6 @@ export async function populateVisitedPlacesForJourney(
     journey: Journey,
     journeyAttributes: ExtendedJourneyAttributes,
     home: Optional<Home>,
-    correctedResponse: CorrectedResponse,
     surveyObjectsRegistry: SurveyObjectsRegistry
 ): Promise<void> {
     const visitedPlacesAttributes = journeyAttributes?.visitedPlaces || {};
@@ -53,11 +49,8 @@ export async function populateVisitedPlacesForJourney(
             continue;
         }
 
-        const parsedVisitedPlaceAttributes = projectConfig.surveyObjectParsers?.visitedPlace
-            ? projectConfig.surveyObjectParsers.visitedPlace(originalCorrectedVisitedPlaceAttributes, correctedResponse)
-            : originalCorrectedVisitedPlaceAttributes;
         const visitedPlaceAttributes = mapInterviewVisitedPlaceTimes(
-            parsedVisitedPlaceAttributes as ExtendedVisitedPlaceAttributes
+            originalCorrectedVisitedPlaceAttributes as ExtendedVisitedPlaceAttributes
         );
 
         // Interview `shortcut` is a response path. Review and admin only need
