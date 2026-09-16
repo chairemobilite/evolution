@@ -360,7 +360,8 @@ export class Journey extends SurveyObject {
      * Whether the last questionnaire visited place closed this journey.
      *
      * `true` when the last place answers `nextPlaceCategory === 'stayedThereUntilTheNextDay'`.
-     * `false` when the last place did not close the journey, including when the answer is missing.
+     * `false` when there is a last place that did not close the journey.
+     * Unset when the journey has no visited place.
      */
     get isJourneyClosed(): Optional<boolean> {
         return this._isJourneyClosed;

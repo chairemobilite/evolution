@@ -57,7 +57,6 @@
 
     "VP_M_Geography": "La géographie du lieu visité est manquante",
     "VP_I_Geography": "La géographie du lieu visité est invalide",
-    "VP_M_NextPlaceCategory": "L'attribut nextPlaceCategory du lieu visité est manquant",
 
     "T_M_Segments": "Les segments du déplacement sont manquants",
     "T_M_OriginOrDestination": "L'origine ou la destination du déplacement est manquante",

@@ -242,7 +242,16 @@ describe('JourneyFactory', () => {
                 {
                     description: 'no visited places',
                     visitedPlaces: {},
-                    isJourneyClosed: false,
+                    isJourneyClosed: undefined,
+                    isJourneyClosedMoreThanOnce: false
+                },
+                {
+                    description: 'personDidTrips is no with leftover unclosed place',
+                    visitedPlaces: {
+                        'place-1': { _uuid: 'place-1', _sequence: 1, nextPlaceCategory: 'wentBackHome' }
+                    },
+                    personDidTrips: 'no',
+                    isJourneyClosed: undefined,
                     isJourneyClosedMoreThanOnce: false
                 },
                 {
@@ -275,6 +284,7 @@ describe('JourneyFactory', () => {
                 '$description',
                 async ({
                     visitedPlaces,
+                    personDidTrips,
                     isJourneyClosed,
                     isJourneyClosedMoreThanOnce
                 }) => {
@@ -286,7 +296,8 @@ describe('JourneyFactory', () => {
                         'journey-1': {
                             _uuid: 'journey-1',
                             _sequence: 1,
-                            visitedPlaces
+                            visitedPlaces,
+                            ...(personDidTrips !== undefined ? { personDidTrips } : {})
                         }
                     } as any;
 
