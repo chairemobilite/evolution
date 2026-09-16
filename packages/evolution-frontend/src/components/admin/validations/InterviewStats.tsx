@@ -173,6 +173,7 @@ const InterviewStats = (props: InterviewStatsProps) => {
                             personId={personId}
                             personIndex={index + 1}
                             audits={surveyObjects?.auditsByObject?.persons?.[personId]}
+                            auditsByObject={surveyObjects?.auditsByObject}
                             activeTripUuid={props.activeTripUuid}
                             activePlacePath={props.activePlacePath}
                             selectPlace={props.selectPlace}

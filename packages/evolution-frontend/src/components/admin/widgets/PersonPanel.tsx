@@ -27,7 +27,7 @@ import { VisitedPlace } from 'evolution-common/lib/services/baseObjects/VisitedP
 import { Trip } from 'evolution-common/lib/services/baseObjects/Trip';
 import { Segment } from 'evolution-common/lib/services/baseObjects/Segment';
 import { getAnswerDisplayString } from '../../../services/display/answerStatusHelper';
-import { AuditForObject } from 'evolution-common/lib/services/audits/types';
+import { AuditForObject, AuditsByObject } from 'evolution-common/lib/services/audits/types';
 import { VisitedPlaceDecorator } from '../../../services/surveyObjectDecorators/VisitedPlaceDecorator';
 import AuditDisplay from '../AuditDisplay';
 import { SurveyObjectBox } from './SurveyObjectBox';
@@ -37,12 +37,17 @@ import {
     type InheritedReviewDisplayStatus
 } from '../../../services/admin/reviewDecisionStatusHelper';
 import { useReviewDecisionStatusByObject } from '../../../services/admin/useObjectReview';
+
+const ObjectAudits = ({ audits, showAuditErrorCode }: { audits?: AuditForObject[]; showAuditErrorCode?: boolean }) =>
+    audits && audits.length > 0 ? <AuditDisplay audits={audits} showAuditErrorCode={showAuditErrorCode} /> : null;
+
 export interface PersonPanelProps {
     person: Person;
     journey?: Journey;
     personId: string;
     personIndex?: number;
     audits?: AuditForObject[];
+    auditsByObject?: Partial<AuditsByObject>;
     activeTripUuid?: string;
     activePlacePath?: string;
     selectPlace: (path: string | undefined) => void;
@@ -58,6 +63,7 @@ export const PersonPanel = ({
     personId,
     personIndex,
     audits,
+    auditsByObject,
     activeTripUuid,
     activePlacePath,
     selectPlace,
@@ -117,6 +123,10 @@ export const PersonPanel = ({
                 isActive={isVisitedPlaceActive}
             >
                 {visitedPlaceLabel}
+                <ObjectAudits
+                    audits={auditsByObject?.visitedPlaces?.[visitedPlaceId]}
+                    showAuditErrorCode={showAuditErrorCode}
+                />
             </SurveyObjectBox>
         ) : (
             <SurveyObjectBox
@@ -127,6 +137,10 @@ export const PersonPanel = ({
                 nested
             >
                 <span className="_widget">{visitedPlaceLabel}</span>
+                <ObjectAudits
+                    audits={auditsByObject?.visitedPlaces?.[visitedPlaceId]}
+                    showAuditErrorCode={showAuditErrorCode}
+                />
             </SurveyObjectBox>
         );
         visitedPlacesStats.push(visitedPlaceStats);
@@ -182,6 +196,10 @@ export const PersonPanel = ({
                         nested
                     >
                         <strong>{segment.mode || '?'}</strong>: {segmentStats}
+                        <ObjectAudits
+                            audits={auditsByObject?.segments?.[segmentId]}
+                            showAuditErrorCode={showAuditErrorCode}
+                        />
                     </SurveyObjectBox>
                 );
             }
@@ -208,6 +226,7 @@ export const PersonPanel = ({
                         </>
                     }
                 >
+                    <ObjectAudits audits={auditsByObject?.trips?.[tripId]} showAuditErrorCode={showAuditErrorCode} />
                     <div key="segments" className={`_widget${isTripActive ? ' _active' : ''}`}>
                         {segmentsStats}
                     </div>
@@ -226,6 +245,8 @@ export const PersonPanel = ({
                 {tripsStats}
             </>
         ) : null;
+    const journeyAudits = journeyUuid ? auditsByObject?.journeys?.[journeyUuid] : undefined;
+    const showJourneyBox = Boolean(journeySubtreeContent || (journeyAudits && journeyAudits.length > 0));
 
     return (
         <SurveyObjectBox
@@ -370,9 +391,9 @@ export const PersonPanel = ({
                 </span>
             )}
             {audits && audits.length > 0 && <AuditDisplay audits={audits} showAuditErrorCode={showAuditErrorCode} />}
-            {/* A journey without any visited place or trip has nothing to show or review, so
+            {/* A journey without any visited place, trip or audit has nothing to show or review, so
                 its box is omitted rather than displayed empty with review buttons. */}
-            {journeySubtreeContent &&
+            {showJourneyBox &&
                 (journeyUuid ? (
                     <SurveyObjectBox
                         objectType="journey"
@@ -380,7 +401,8 @@ export const PersonPanel = ({
                         inheritedStatus={personStatusForDisplay}
                         nested
                     >
-                        <div>{journeySubtreeContent}</div>
+                        <ObjectAudits audits={journeyAudits} showAuditErrorCode={showAuditErrorCode} />
+                        {journeySubtreeContent && <div>{journeySubtreeContent}</div>}
                     </SurveyObjectBox>
                 ) : (
                     journeySubtreeContent
