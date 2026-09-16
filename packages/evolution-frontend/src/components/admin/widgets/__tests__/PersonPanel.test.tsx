@@ -9,6 +9,7 @@ import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import type { Person } from 'evolution-common/lib/services/baseObjects/Person';
 import type { Journey } from 'evolution-common/lib/services/baseObjects/Journey';
+import type { AuditForObject } from 'evolution-common/lib/services/audits/types';
 import { PersonPanel } from '../PersonPanel';
 import { SurveyObjectBox } from '../SurveyObjectBox';
 import { getReviewDecisionStatusForObject } from '../../../../services/admin/reviewDecisionStatusHelper';
@@ -25,7 +26,8 @@ jest.mock('../../../../services/surveyObjectDecorators/VisitedPlaceDecorator', (
 
 jest.mock('../../AuditDisplay', () => ({
     __esModule: true,
-    default: () => null
+    default: ({ audits }: { audits?: AuditForObject[] }) =>
+        audits && audits.length > 0 ? <div>{audits.map((audit) => audit.errorCode).join(' ')}</div> : null
 }));
 
 jest.mock('react-i18next', () => ({
@@ -162,24 +164,62 @@ describe('PersonPanel visited place lastAction', () => {
     });
 });
 
+const placeUuid = 'place-1';
+
+const auditFor = (objectType: string, objectUuid: string, errorCode: string): AuditForObject => ({
+    version: 1,
+    objectType,
+    objectUuid,
+    errorCode,
+    level: 'error'
+});
+
 describe('PersonPanel journey box', () => {
     const journeyWithoutContent = { _uuid: journeyUuid, visitedPlaces: [], trips: [] } as unknown as Journey;
 
     test.each([
-        ['a journey with trips', journey, true],
-        [
-            'a journey with visited places only',
-            { _uuid: journeyUuid, visitedPlaces: [{ _uuid: 'place-1' }], trips: [] } as unknown as Journey,
-            true
-        ],
-        ['a journey without visited places nor trips', journeyWithoutContent, false],
-        [
-            'a journey whose trips have no start or end place',
-            { _uuid: journeyUuid, visitedPlaces: [], trips: [{ _uuid: tripUuid }] } as unknown as Journey,
-            false
-        ],
-        ['no journey', undefined, false]
-    ])('%s: journey box rendered is %s', (_title, journeyToRender, expectedRendered) => {
+        {
+            title: 'a journey with trips',
+            expectedRendered: true,
+            journeyToRender: journey
+        },
+        {
+            title: 'a journey with visited places only',
+            expectedRendered: true,
+            journeyToRender: {
+                _uuid: journeyUuid,
+                visitedPlaces: [{ _uuid: placeUuid }],
+                trips: []
+            } as unknown as Journey
+        },
+        {
+            title: 'a journey without visited places nor trips',
+            expectedRendered: false,
+            journeyToRender: journeyWithoutContent
+        },
+        {
+            title: 'a journey whose trips have no start or end place',
+            expectedRendered: false,
+            journeyToRender: {
+                _uuid: journeyUuid,
+                visitedPlaces: [],
+                trips: [{ _uuid: tripUuid }]
+            } as unknown as Journey
+        },
+        {
+            title: 'no journey',
+            expectedRendered: false,
+            journeyToRender: undefined
+        },
+        {
+            title: 'a journey without places or trips but with an audit',
+            expectedRendered: true,
+            journeyToRender: journeyWithoutContent,
+            auditsByObject: {
+                journeys: { [journeyUuid]: [auditFor('journey', journeyUuid, 'J_L_JourneyNotClosed')] }
+            }
+        }
+    ])('$title: journey box rendered is $expectedRendered', ({ expectedRendered, journeyToRender, auditsByObject }) => {
         render(
             <PersonPanel
                 person={person}
@@ -187,6 +227,7 @@ describe('PersonPanel journey box', () => {
                 personId={personUuid}
                 selectPlace={jest.fn()}
                 selectTrip={jest.fn()}
+                auditsByObject={auditsByObject}
             />
         );
 
@@ -194,6 +235,57 @@ describe('PersonPanel journey box', () => {
             ([props]) => props.objectType === 'journey' && props.objectUuid === journeyUuid
         );
         expect(journeyBoxRendered).toBe(expectedRendered);
+    });
+});
+
+describe('PersonPanel object audits', () => {
+    const journeyWithPlace = {
+        _uuid: journeyUuid,
+        visitedPlaces: [{ _uuid: placeUuid, startTime: 0, endTime: 3600 }],
+        trips: journey.trips
+    } as unknown as Journey;
+
+    test.each([
+        {
+            title: 'person',
+            errorCode: 'P_W_VeryOldAge',
+            audits: [auditFor('person', personUuid, 'P_W_VeryOldAge')],
+            auditsByObject: { persons: { [personUuid]: [auditFor('person', personUuid, 'P_W_VeryOldAge')] } }
+        },
+        {
+            title: 'journey',
+            errorCode: 'J_L_JourneyNotClosed',
+            auditsByObject: { journeys: { [journeyUuid]: [auditFor('journey', journeyUuid, 'J_L_JourneyNotClosed')] } }
+        },
+        {
+            title: 'visited place',
+            errorCode: 'VP_M_Geography',
+            auditsByObject: { visitedPlaces: { [placeUuid]: [auditFor('visitedPlace', placeUuid, 'VP_M_Geography')] } }
+        },
+        {
+            title: 'trip',
+            errorCode: 'T_L_TripSegmentsNotClosed',
+            auditsByObject: { trips: { [tripUuid]: [auditFor('trip', tripUuid, 'T_L_TripSegmentsNotClosed')] } }
+        },
+        {
+            title: 'segment',
+            errorCode: 'S_M_Mode',
+            auditsByObject: { segments: { [segmentUuid]: [auditFor('segment', segmentUuid, 'S_M_Mode')] } }
+        }
+    ])('shows the $title audit on that object', ({ errorCode, audits, auditsByObject }) => {
+        render(
+            <PersonPanel
+                person={person}
+                journey={journeyWithPlace}
+                personId={personUuid}
+                selectPlace={jest.fn()}
+                selectTrip={jest.fn()}
+                audits={audits}
+                auditsByObject={auditsByObject}
+            />
+        );
+
+        expect(screen.getByText(errorCode)).toBeInTheDocument();
     });
 });
 
