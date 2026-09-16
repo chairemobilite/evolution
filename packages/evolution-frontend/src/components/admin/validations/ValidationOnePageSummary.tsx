@@ -13,7 +13,7 @@ import appConfig from '../../../config/application.config';
 import config from 'evolution-common/lib/config/project.config';
 import LoadingPage from 'chaire-lib-frontend/lib/components/pages/LoadingPage';
 import { startUpdateSurveyCorrectedInterview } from '../../../actions/SurveyAdmin';
-import ValidationCommentForm from './ValidationCommentForm';
+import ReviewCommentForm from './ReviewCommentForm';
 import AdminErrorBoundary from '../hoc/AdminErrorBoundary';
 import { generateMapFeatureFromInterview } from '../../../services/admin/odSurveyAdminHelper';
 import { RootState } from '../../../store/configureStore';
@@ -342,7 +342,7 @@ const ValidationOnePageSummary = () => {
                                 />
                             </AdminErrorBoundary>
                         }
-                        <ValidationCommentForm interview={interview} />
+                        <ReviewCommentForm interview={interview} />
                     </div>
                 </div>
             </div>

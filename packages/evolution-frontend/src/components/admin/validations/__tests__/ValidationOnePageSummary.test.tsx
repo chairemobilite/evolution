@@ -66,7 +66,7 @@ jest.mock('../../../../services/admin/odSurveyAdminHelper', () => ({
     }))
 }));
 
-jest.mock('../ValidationCommentForm', () => ({
+jest.mock('../ReviewCommentForm', () => ({
     __esModule: true,
     default: () => null
 }));
