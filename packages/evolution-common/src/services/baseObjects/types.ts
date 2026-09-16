@@ -30,19 +30,19 @@ export type ParentSurveyObjects = {
  */
 export const surveyObjectNames = [
     'interview',
-    'household',
     'home',
+    'household',
     'organization',
-    'vehicle',
     'person',
+    'workPlace',
+    'schoolPlace',
+    'vehicle',
     'journey',
     'tripChain',
     'visitedPlace',
     'trip',
     'segment',
-    'junction',
-    'workPlace',
-    'schoolPlace'
+    'junction'
 ] as const;
 
 export type SurveyObjectName = (typeof surveyObjectNames)[number];
