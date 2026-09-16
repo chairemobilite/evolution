@@ -184,7 +184,7 @@ const InterviewStats = (props: InterviewStatsProps) => {
                 })}
             </div>
             <div className="admin__interview-stats" key="comments">
-                <h4>{t('Comments')}</h4>
+                <h4>{t('respondentComments')}</h4>
                 <p className="_scrollable _oblique _small">
                     {interview.respondentComments || t('interviewStats.labels.noComments')}
                 </p>
