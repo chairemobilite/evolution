@@ -447,6 +447,41 @@ describe('Interview', () => {
             expect(result.personsRandomSequence).toBeUndefined();
             expect(result.sections).toBeUndefined();
         });
+
+        test.each([
+            {
+                description: 'single _language',
+                dirtyParams: { _language: 'en' },
+                languages: [{ language: 'en' }]
+            },
+            {
+                description: '_languages after a parser deleted _language',
+                dirtyParams: { _languages: ['fr'] },
+                languages: [{ language: 'fr' }]
+            },
+            {
+                description: 'multiple _languages',
+                dirtyParams: { _languages: ['fr', 'en'] },
+                languages: [{ language: 'fr' }, { language: 'en' }]
+            },
+            {
+                description: '_language wins when both fields are present',
+                dirtyParams: { _language: 'en', _languages: ['fr'] },
+                languages: [{ language: 'en' }]
+            },
+            {
+                description: 'empty _languages',
+                dirtyParams: { _languages: [] },
+                languages: undefined
+            },
+            {
+                description: 'no language fields',
+                dirtyParams: {},
+                languages: undefined
+            }
+        ])('$description', ({ dirtyParams, languages }) => {
+            expect(Interview.extractDirtyParadataParams(dirtyParams).languages).toEqual(languages);
+        });
     });
 
     describe('Interview - Paradata extraction during creation', () => {
@@ -514,6 +549,22 @@ describe('Interview', () => {
                 expect(interview.paradata?.browsers?.[0].browser?.name).toBe('Firefox');
                 expect(interview.paradata?.personsRandomSequence).toEqual(['uuid1', 'uuid2']);
                 expect(interview.paradata?.sections?.home).toBeDefined();
+            }
+        });
+
+        it('should extract languages from _languages when _language was deleted', () => {
+            const validParams = {
+                _uuid: uuidV4(),
+                accessCode: 'ABC123',
+                assignedDate: '2023-09-30',
+                _languages: ['fr']
+            };
+
+            const result = create(validParams, { id: 123, participant_id: 456 } as RawInterviewAttributes, registry);
+            expect(isOk(result)).toBe(true);
+            if (isOk(result)) {
+                const interview = unwrap(result) as Interview;
+                expect(interview.paradata?.languages).toEqual([{ language: 'fr' }]);
             }
         });
 

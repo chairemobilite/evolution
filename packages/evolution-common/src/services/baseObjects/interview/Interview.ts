@@ -120,6 +120,26 @@ export type SerializedExtendedInterviewAttributesWithComposedObjects = {
 };
 
 /**
+ * Map questionnaire language fields to `InterviewParadata.languages`.
+ *
+ * The frontend writes the last language to `_language`. Some survey parsers
+ * copy that into `_languages` (string[]) and delete `_language`. Either form
+ * is accepted. `_language` wins when both are present.
+ */
+const extractLanguages = (dirtyParams: { [key: string]: unknown }): { language: string }[] | undefined => {
+    if (typeof dirtyParams._language === 'string' && dirtyParams._language !== '') {
+        return [{ language: dirtyParams._language }];
+    }
+    if (!Array.isArray(dirtyParams._languages)) {
+        return undefined;
+    }
+    const languages = dirtyParams._languages
+        .filter((language): language is string => typeof language === 'string' && language !== '')
+        .map((language) => ({ language }));
+    return languages.length > 0 ? languages : undefined;
+};
+
+/**
  * Represents an interview in the survey.
  *
  * @class
@@ -501,12 +521,20 @@ export class Interview extends Uuidable {
 
     /**
      * Extract paradata params from dirty params
+     *
+     * `_language` is the respondent's last language (`SurveyParticipant` writes
+     * it on load and on `languageChange`). Admin review does not update it:
+     * `SurveyCorrection` has no language listener, correction load does not
+     * set `_language`, and switching the admin UI language only changes i18n.
+     * Audits read this field from `corrected_response`, which is a copy of the
+     * original `response`, so it stays the respondent language.
+     *
      * @param dirtyParams the dirty params (not validated)
      * @returns the paradata params (not validated)
      */
     static extractDirtyParadataParams(dirtyParams: { [key: string]: unknown }): { [key: string]: unknown } {
         return {
-            languages: dirtyParams._language ? [{ language: dirtyParams._language }] : undefined,
+            languages: extractLanguages(dirtyParams),
             browsers: dirtyParams._browser ? [dirtyParams._browser] : undefined,
             startedAt: dirtyParams._startedAt,
             updatedAt: dirtyParams._updatedAt,
