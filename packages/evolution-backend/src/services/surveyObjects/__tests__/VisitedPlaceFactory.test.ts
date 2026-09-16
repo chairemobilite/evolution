@@ -418,26 +418,7 @@ describe('VisitedPlaceFactory', () => {
             expect(createdAttributes.shortcut).toBeUndefined();
         });
 
-        it.each([
-            {
-                description: 'answered',
-                nextPlaceCategory: 'visitedAnotherPlace',
-                expected: true
-            },
-            {
-                description: 'missing',
-                nextPlaceCategory: undefined,
-                expected: false
-            },
-            {
-                description: 'blank',
-                nextPlaceCategory: '',
-                expected: false
-            }
-        ])('sets hasNextPlaceCategory from the questionnaire: $description', async ({
-            nextPlaceCategory,
-            expected
-        }) => {
+        it('omits nextPlaceCategory when creating the visited place', async () => {
             const mockVisitedPlace = { _uuid: 'vp-1' } as unknown as VisitedPlace;
             (MockedVisitedPlace.create as jest.Mock).mockReturnValue(createOk(mockVisitedPlace));
 
@@ -446,7 +427,7 @@ describe('VisitedPlaceFactory', () => {
                     _uuid: 'vp-1',
                     _sequence: 1,
                     activity: 'work',
-                    nextPlaceCategory
+                    nextPlaceCategory: 'visitedAnotherPlace'
                 }
             } as any;
 
@@ -459,7 +440,6 @@ describe('VisitedPlaceFactory', () => {
                 surveyObjectsRegistry
             );
 
-            expect(mockVisitedPlace.hasNextPlaceCategory).toBe(expected);
             const createdAttributes = (MockedVisitedPlace.create as jest.Mock).mock.calls[0][0];
             expect(createdAttributes).toEqual(
                 expect.objectContaining({
