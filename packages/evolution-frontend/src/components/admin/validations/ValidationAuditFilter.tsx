@@ -12,6 +12,7 @@ import Select from 'react-select';
 
 import { AuditStatsByLevelAndObjectType } from 'evolution-common/lib/services/audits/types';
 import { InterviewListAttributes } from 'evolution-common/lib/services/questionnaire/types';
+import { surveyObjectNames } from 'evolution-common/lib/services/baseObjects/types';
 
 const auditLevels = ['error', 'warning', 'info'];
 
@@ -24,17 +25,6 @@ type GroupType = {
     label: string; // group label
     options: OptionType[];
 };
-
-const surveyObjectsSortOrder = [
-    'interview',
-    'home',
-    'household',
-    'person',
-    'vehicle',
-    'visitedPlace',
-    'trip',
-    'segment'
-];
 
 /**
  * Textbox input for column filter
@@ -114,8 +104,7 @@ export const ValidationAuditFilter = ({
         selectedAuditKeyByLevel[level] = [];
         const groupedChoices: GroupType[] = [];
 
-        for (let i = 0, countI = surveyObjectsSortOrder.length; i < countI; i++) {
-            const surveyObject = surveyObjectsSortOrder[i];
+        for (const surveyObject of surveyObjectNames) {
             const choices: OptionType[] = [];
             const audits = auditsBySurveyObject[surveyObject] || [];
             for (let j = 0, countJ = audits.length; j < countJ; j++) {
