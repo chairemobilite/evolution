@@ -22,6 +22,7 @@ import { compareSequenceThenUuid } from 'evolution-common/lib/services/baseObjec
 import {
     computeIsJourneyClosed,
     computeIsJourneyClosedMoreThanOnce,
+    type JourneyClosureAnswers,
     type VisitedPlaceJourneyClosureAttributes
 } from './derivedFlags/journeyClosure';
 
@@ -66,7 +67,10 @@ export async function populateJourneysForPerson(
             const visitedPlacesByUuid = (journeyAttributes.visitedPlaces ?? {}) as {
                 [uuid: string]: VisitedPlaceJourneyClosureAttributes;
             };
-            journey.result.isJourneyClosed = computeIsJourneyClosed(visitedPlacesByUuid);
+            journey.result.isJourneyClosed = computeIsJourneyClosed(
+                visitedPlacesByUuid,
+                journeyAttributes as JourneyClosureAnswers
+            );
             journey.result.isJourneyClosedMoreThanOnce = computeIsJourneyClosedMoreThanOnce(visitedPlacesByUuid);
 
             person.addJourney(journey.result);

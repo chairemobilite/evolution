@@ -57,7 +57,6 @@
 
     "VP_M_Geography": "Visited place geography is missing",
     "VP_I_Geography": "Visited place geography is invalid",
-    "VP_M_NextPlaceCategory": "Visited place nextPlaceCategory is missing",
 
     "T_M_Segments": "Trip segments are missing",
     "T_M_OriginOrDestination": "Trip is missing origin or destination",

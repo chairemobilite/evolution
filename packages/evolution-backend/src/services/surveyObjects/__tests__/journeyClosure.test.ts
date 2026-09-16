@@ -8,14 +8,16 @@
 import {
     computeIsJourneyClosed,
     computeIsJourneyClosedMoreThanOnce,
+    type JourneyClosureAnswers,
     type VisitedPlaceJourneyClosureAttributes
 } from '../derivedFlags/journeyClosure';
 
 type ClosureCase = {
     description: string;
     visitedPlaces?: { [uuid: string]: VisitedPlaceJourneyClosureAttributes };
-            isClosed: boolean;
-            isClosedMoreThanOnce: boolean;
+    journeyAnswers?: JourneyClosureAnswers;
+    isClosed: boolean | undefined;
+    isClosedMoreThanOnce: boolean;
 };
 
 describe('journey closure', () => {
@@ -23,13 +25,13 @@ describe('journey closure', () => {
         {
             description: 'no visited places map',
             visitedPlaces: undefined,
-            isClosed: false,
+            isClosed: undefined,
             isClosedMoreThanOnce: false
         },
         {
             description: 'empty visited places map',
             visitedPlaces: {},
-            isClosed: false,
+            isClosed: undefined,
             isClosedMoreThanOnce: false
         },
         {
@@ -95,9 +97,30 @@ describe('journey closure', () => {
             },
             isClosed: true,
             isClosedMoreThanOnce: true
+        },
+        {
+            description: 'personDidTrips is no, even with leftover places',
+            visitedPlaces: { a: { _sequence: 1, nextPlaceCategory: 'visitedAnotherPlace' } },
+            journeyAnswers: { personDidTrips: 'no' },
+            isClosed: undefined,
+            isClosedMoreThanOnce: false
+        },
+        {
+            description: 'personDidTrips is no but confirm is yes, last place open',
+            visitedPlaces: { a: { _sequence: 1, nextPlaceCategory: 'visitedAnotherPlace' } },
+            journeyAnswers: { personDidTrips: 'no', personDidTripsConfirm: 'yes' },
+            isClosed: false,
+            isClosedMoreThanOnce: false
+        },
+        {
+            description: 'trip diary skipped',
+            visitedPlaces: { a: { _sequence: 1, nextPlaceCategory: 'visitedAnotherPlace' } },
+            journeyAnswers: { personDidTrips: 'yes', _skipTripDiary: true },
+            isClosed: undefined,
+            isClosedMoreThanOnce: false
         }
-    ])('$description', ({ visitedPlaces, isClosed, isClosedMoreThanOnce }) => {
-        expect(computeIsJourneyClosed(visitedPlaces)).toBe(isClosed);
+    ])('$description', ({ visitedPlaces, journeyAnswers, isClosed, isClosedMoreThanOnce }) => {
+        expect(computeIsJourneyClosed(visitedPlaces, journeyAnswers)).toBe(isClosed);
         expect(computeIsJourneyClosedMoreThanOnce(visitedPlaces)).toBe(isClosedMoreThanOnce);
     });
 });
