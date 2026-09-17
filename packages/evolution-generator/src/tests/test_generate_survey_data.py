@@ -33,9 +33,9 @@ from scripts.generate_survey_data import (
 
 class TestDataclassShapes:
     def test_section_data_required_fields_and_defaults(self):
-        section = SectionData(section="home", title_fr="Accueil", title_en="Home")
+        section = SectionData(section="home", in_nav=True, abbreviation="HM_")
+        assert section.title_fr is None
         assert section.parent_section is None
-        assert section.abbreviation is None
 
     def test_widget_data_required_fields_and_defaults(self):
         widget = WidgetData(
@@ -94,7 +94,7 @@ class TestDataclassShapes:
 
     def test_survey_data_holds_parsed_rows(self):
         survey_data = SurveyData(
-            sections=[SectionData(section="home", title_fr="Accueil", title_en="Home")],
+            sections=[SectionData(section="home", in_nav=True, abbreviation="HM_")],
             widgets=[
                 WidgetData(
                     question_name="q1",
@@ -394,6 +394,7 @@ class TestCollectSheetIssues:
             "section": section,
             "title_fr": "Accueil",
             "title_en": "Home",
+            "in_nav": True,
             "abbreviation": abbreviation,
         }
 
@@ -419,6 +420,36 @@ class TestCollectSheetIssues:
             "Error in Sections sheet - Required field is missing in row 3. "
             "Missing fields: ['section']"
         ]
+
+    def test_reports_missing_titles_when_in_nav_is_true(self):
+        rows = [
+            {
+                **self._valid_section_row("home", "HM_"),
+                "title_fr": None,
+                "title_en": None,
+            }
+        ]
+        issues = collect_sheet_issues(
+            rows=rows, specs=SECTION_COLUMN_SPECS, sheet_name="Sections"
+        )
+        assert issues == [
+            "Error in Sections sheet - Invalid in_nav in row 2: True - "
+            "When true, this row's title_fr and title_en must also be set."
+        ]
+
+    def test_allows_missing_titles_when_in_nav_is_false(self):
+        rows = [
+            {
+                **self._valid_section_row("home", "HM_"),
+                "title_fr": None,
+                "title_en": None,
+                "in_nav": False,
+            }
+        ]
+        issues = collect_sheet_issues(
+            rows=rows, specs=SECTION_COLUMN_SPECS, sheet_name="Sections"
+        )
+        assert issues == []
 
     def test_reports_duplicate_values_in_a_unique_column(self):
         rows = [
@@ -477,6 +508,19 @@ class TestCollectSheetIssues:
         assert issues == [
             "Error in Sections sheet - Invalid abbreviation in row 2: 'HM' - "
             "Must end with an underscore ('_'), e.g. 'h_'."
+        ]
+
+    def test_reports_enable_conditional_not_ending_with_conditional(self):
+        rows = [
+            {**self._valid_section_row("home", "HM_"), "enable_conditional": "hasSize1"}
+        ]
+        issues = collect_sheet_issues(
+            rows=rows, specs=SECTION_COLUMN_SPECS, sheet_name="Sections"
+        )
+        assert issues == [
+            "Error in Sections sheet - Invalid enable_conditional in row 2: "
+            "'hasSize1' - Must end with 'Conditional' or 'CustomConditional' "
+            "(e.g. 'hasHouseholdSize1Conditional', 'isCompleteCustomConditional')."
         ]
 
     def test_allows_parent_section_that_names_a_real_section(self):
