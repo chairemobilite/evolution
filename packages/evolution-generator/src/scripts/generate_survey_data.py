@@ -41,9 +41,12 @@ class SurveyData:
     labels: list[LabelData] = field(default_factory=list)
 
 
-# A per-cell check: takes the (already-non-None) cell value, returns True when valid,
-# False when invalid. Its docstring's first line is used as the error message.
-ColumnCheck = Callable[[Any], bool]
+# A per-cell check: takes the cell's own (already-non-None) value, plus the full row
+# (field -> value, same shape collect_row_issues receives, for checks that depend on
+# a sibling column), and returns True when valid, False when invalid. Its docstring's
+# first line is used as the error message. Checks that only care about their own
+# value can ignore `row`.
+ColumnCheck = Callable[[Any, dict], bool]
 
 
 @dataclass(frozen=True)
@@ -87,8 +90,9 @@ class ColumnSpec:
             None for no such constraint. See ColumnReference for same-sheet vs.
             cross-sheet resolution.
         custom_data_checks: extra per-cell checks beyond type/allowed-value (e.g.
-            survey_custom_data_checks.valid_ts_identifier, .valid_path_chars).
-            Only evaluated for non-blank cell values.
+            survey_custom_data_checks.valid_ts_identifier, .valid_path_chars). Only
+            evaluated for non-blank cell values (see ColumnCheck for the (value, row)
+            signature, e.g. to enforce a same-row conditional requirement).
     """
 
     field: str
@@ -179,7 +183,7 @@ def collect_row_issues(
             )
 
         for check in spec.custom_data_checks:
-            if not check(value):
+            if not check(value, row):
                 reason = (check.__doc__ or check.__name__).strip().splitlines()[0]
                 issues.append(
                     f"{prefix}Invalid {spec.header} in row {row_number}: {value!r} - {reason}"
@@ -341,12 +345,12 @@ SECTION_COLUMN_SPECS: tuple[ColumnSpec, ...] = (
         field="in_nav",
         header="in_nav",
         required=True,
-        value_required=False,
+        value_required=True,
         allowed_values=None,
         allowed_types=(bool,),
         unique=False,
         references=None,
-        custom_data_checks=(),
+        custom_data_checks=(survey_custom_data_checks.requires_titles_when_true,),
     ),
     ColumnSpec(
         field="template",
@@ -393,7 +397,7 @@ SECTION_COLUMN_SPECS: tuple[ColumnSpec, ...] = (
         allowed_types=(str,),
         unique=False,
         references=None,
-        custom_data_checks=(),
+        custom_data_checks=(survey_custom_data_checks.valid_conditional_name,),
     ),
     ColumnSpec(
         field="completion_conditional",
@@ -404,7 +408,7 @@ SECTION_COLUMN_SPECS: tuple[ColumnSpec, ...] = (
         allowed_types=(str,),
         unique=False,
         references=None,
-        custom_data_checks=(),
+        custom_data_checks=(survey_custom_data_checks.valid_conditional_name,),
     ),
     ColumnSpec(
         field="abbreviation",
@@ -422,16 +426,18 @@ SECTION_COLUMN_SPECS: tuple[ColumnSpec, ...] = (
 
 @dataclass
 class SectionData:
+    # Fields with no default mirror SECTION_COLUMN_SPECS's value_required=True columns
+    # (section, in_nav, abbreviation); every other field may be blank on a given row.
     section: str
-    title_fr: str
-    title_en: str
-    in_nav: bool | None = None
+    in_nav: bool
+    abbreviation: str
+    title_fr: str | None = None
+    title_en: str | None = None
     template: str | bool | None = None
     parent_section: str | None = None
     has_preload: bool | None = None
     enable_conditional: str | None = None
     completion_conditional: str | None = None
-    abbreviation: str | None = None
 
 
 # ----------------------------------- Widgets sheet ------------------------------------
