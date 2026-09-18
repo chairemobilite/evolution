@@ -12,7 +12,7 @@
 
 from pydantic import BaseModel, Field
 
-from survey_definition.sections_definition import SectionDefinition
+from survey_definition.sections_definition import Sections
 
 
 class SurveyDefinition(BaseModel):
@@ -25,7 +25,8 @@ class SurveyDefinition(BaseModel):
     instead of each re-reading and re-parsing the source on its own.
 
     Attributes:
-        sections: Every row of the Sections table, one SectionDefinition each, in source order.
+        sections: The Sections table, already checked: one SectionDefinition per row, in
+            source order.
     """
 
-    sections: list[SectionDefinition] = Field(default_factory=list)
+    sections: Sections = Field(default_factory=lambda: Sections([]))
