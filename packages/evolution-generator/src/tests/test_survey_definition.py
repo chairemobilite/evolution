@@ -2,16 +2,16 @@
 # This file is licensed under the MIT License.
 # License text available at https://opensource.org/licenses/MIT
 
-# Note: Tests for scripts/generate_survey_data.py: the SurveyData shape (one Pydantic
+# Note: Tests for scripts/survey_definition.py: the SurveyDefinition shape (one Pydantic
 # model per table) and the shared field-name/row validation helpers.
 
 import pytest  # pyright: ignore[reportMissingImports]
 from pydantic import ValidationError
 
-from scripts.generate_survey_data import (
+from scripts.survey_definition import (
     SECTION_REQUIRED_FIELD_NAMES,
-    SectionData,
-    SurveyData,
+    SectionDefinition,
+    SurveyDefinition,
     _raise_if_check_fails,
     _strip_blanks,
     collect_sections_issues,
@@ -23,19 +23,21 @@ from scripts.generate_survey_data import (
 class TestDataclassShapes:
     def test_section_data_required_fields_and_defaults(self):
         # in_nav=False so title_fr/title_en aren't required for this minimal example.
-        section = SectionData(section="home", in_nav=False, abbreviation="HM_")
+        section = SectionDefinition(section="home", in_nav=False, abbreviation="HM_")
         assert section.title_fr is None
         assert section.parent_section is None
 
-    def test_survey_data_defaults_to_empty_lists(self):
-        survey_data = SurveyData()
-        assert survey_data.sections == []
+    def test_survey_definition_defaults_to_empty_lists(self):
+        survey_definition = SurveyDefinition()
+        assert survey_definition.sections == []
 
-    def test_survey_data_holds_parsed_rows(self):
-        survey_data = SurveyData(
-            sections=[SectionData(section="home", in_nav=False, abbreviation="HM_")],
+    def test_survey_definition_holds_parsed_rows(self):
+        survey_definition = SurveyDefinition(
+            sections=[
+                SectionDefinition(section="home", in_nav=False, abbreviation="HM_")
+            ],
         )
-        assert len(survey_data.sections) == 1
+        assert len(survey_definition.sections) == 1
 
 
 class TestValidateRequiredFieldNames:
@@ -349,7 +351,7 @@ class TestRaiseIfCheckFails:
 class TestFormatPydanticErrors:
     def _validation_error(self, **row) -> ValidationError:
         with pytest.raises(ValidationError) as error:
-            SectionData(**row)
+            SectionDefinition(**row)
         return error.value
 
     def test_groups_every_missing_field_into_one_message(self):
