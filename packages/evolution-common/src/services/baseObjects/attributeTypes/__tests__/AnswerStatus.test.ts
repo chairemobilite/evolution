@@ -12,6 +12,7 @@ import {
     getAnswerValue,
     isAnswerStatus,
     toAnswerStatus,
+    toBooleanAnswerStatus,
     toNumberAnswerStatus,
     validateAnswerStatus
 } from '../AnswerStatus';
@@ -69,6 +70,21 @@ describe('toNumberAnswerStatus', () => {
         ['a number followed by something else', '3abc', undefined]
     ])('%s', (_description, value, expected) => {
         expect(toNumberAnswerStatus(value)).toEqual(expected);
+    });
+});
+
+describe('toBooleanAnswerStatus', () => {
+    test.each([
+        ['yes', 'yes', { status: 'answered', value: true }],
+        ['no', 'no', { status: 'answered', value: false }],
+        ['a true boolean', true, { status: 'answered', value: true }],
+        ['a false boolean, which is an answer', false, { status: 'answered', value: false }],
+        ['dontKnow', 'dontKnow', { status: 'dont_know' }],
+        ['an answer already wrapped', { status: 'answered', value: true }, { status: 'answered', value: true }],
+        ['no answer', undefined, undefined],
+        ['an empty answer', '', undefined]
+    ])('%s', (_description, value, expected) => {
+        expect(toBooleanAnswerStatus(value)).toEqual(expected);
     });
 });
 

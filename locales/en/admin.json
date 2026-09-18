@@ -158,9 +158,9 @@
             "nonProxy": "Non-proxy",
             "noWorkTripReason": "Reason for no work trip",
             "noSchoolTripReason": "Reason for no school trip",
-            "didTrips": "Made trips",
-            "noTrips": "Did not make trips",
-            "dontKnowTrips": "Don't know if made trips",
+            "didTrips": "Mobile person",
+            "noTrips": "Immobile person",
+            "dontKnowTrips": "Don't know if the person is mobile",
             "persons": "Persons",
             "segment": {
                 "vehicleOccupancy": "Occupancy",

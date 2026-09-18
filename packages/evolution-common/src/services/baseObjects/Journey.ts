@@ -6,6 +6,7 @@
  */
 
 import _omit from 'lodash/omit';
+import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 
 import { Optional } from '../../types/Optional.type';
 import { PreData } from '../../types/shared';
@@ -23,7 +24,8 @@ import { VisitedPlace, ExtendedVisitedPlaceAttributes, SerializedExtendedVisited
 import { Trip, ExtendedTripAttributes, SerializedExtendedTripAttributes } from './Trip';
 import { TripChain, ExtendedTripChainAttributes, SerializedExtendedTripChainAttributes } from './TripChain';
 import { StartEndable, startEndDateAndTimesAttributes, StartEndDateAndTimesAttributes } from './StartEndable';
-import { TimePeriod, YesNoDontKnow } from './attributeTypes/GenericAttributes';
+import { TimePeriod } from './attributeTypes/GenericAttributes';
+import { type AnswerStatus, toBooleanAnswerStatus, validateAnswerStatus } from './attributeTypes/AnswerStatus';
 import { SurveyObjectUnserializer } from './SurveyObjectUnserializer';
 import { SurveyObjectsRegistry } from './SurveyObjectsRegistry';
 import { Person } from './Person';
@@ -43,6 +45,7 @@ export const journeyAttributes = [
     'noWorkTripReason',
     'noWorkTripReasonSpecify',
     'didTrips',
+    '_skipTripDiary',
     'previousWeekRemoteWorkDays',
     'previousWeekTravelToWorkDays',
     'preData'
@@ -69,9 +72,17 @@ export type JourneyAttributes = {
     noSchoolTripReasonSpecify?: Optional<string>;
     noWorkTripReason?: Optional<string>;
     noWorkTripReasonSpecify?: Optional<string>;
-    /** Boolean indicating if the person declared doing any trips on the assigned date.
-     * This preserves the intent even if the trip list is incomplete due to an unfinished interview. */
-    didTrips?: Optional<YesNoDontKnow>;
+    /**
+     * Whether the person declared any trips on this journey's date.
+     * An empty journey with this set to false is a stay without travel, not a missing journey.
+     */
+    didTrips?: Optional<AnswerStatus<boolean>>;
+    /**
+     * When `true`, the survey skipped the trip diary for this journey and
+     * `didTrips` is `not_applicable`. Absent or `false` means the diary follows
+     * `didTrips` as usual.
+     */
+    _skipTripDiary?: Optional<boolean>;
     /** Remote work days for the complete week before the assigned date (Sunday to Saturday, excluding assigned date) */
     previousWeekRemoteWorkDays?: Optional<PAttr.WeekdaySchedule>;
     /** Travel to work days for the complete week before the assigned date (Sunday to Saturday, excluding assigned date) */
@@ -99,9 +110,12 @@ export type SerializedExtendedJourneyAttributes = {
     _tripChains?: Optional<SerializedExtendedTripChainAttributes[]>;
 };
 
-/** A journey is a sequence of visited places that form trips and trip chains.
- * They can be all the visited places for a single person for a day, part of a day,
- * a week, a weekend or a long distance trip
+/**
+ * A journey is one person's travel on an assigned date.
+ *
+ * Visited places and trips may be empty. That is still a journey: the person
+ * is immobile, or the diary was not opened. `didTrips` keeps the declaration
+ * for that day, and `startDate` is the date the survey stored on the journey.
  */
 export class Journey extends SurveyObject {
     private _surveyObjectsRegistry: SurveyObjectsRegistry;
@@ -275,17 +289,26 @@ export class Journey extends SurveyObject {
     }
 
     /**
-     * Boolean indicating if the person declared doing any trips on the assigned date.
-     * This preserves the intent even if the trip list is incomplete due to an unfinished interview.
-     * Important: This should be set based on the person's declaration, not calculated from the trip count,
-     * as incomplete interviews may have empty trips but the person did intend to report trips.
+     * Whether the person declared any trips on this journey's date.
+     * `yes` and `no` from the questionnaire become a boolean; `dontKnow` stays a non-response.
+     * Set from the declaration, not from the trip count: an unfinished interview can
+     * have an empty diary while the person did intend to report trips, and a false
+     * answer with an empty diary is a valid stay on `startDate`.
      */
-    get didTrips(): Optional<YesNoDontKnow> {
+    get didTrips(): Optional<AnswerStatus<boolean>> {
         return this._attributes.didTrips;
     }
 
-    set didTrips(value: Optional<YesNoDontKnow>) {
+    set didTrips(value: Optional<AnswerStatus<boolean>>) {
         this._attributes.didTrips = value;
+    }
+
+    get _skipTripDiary(): Optional<boolean> {
+        return this._attributes._skipTripDiary;
+    }
+
+    set _skipTripDiary(value: Optional<boolean>) {
+        this._attributes._skipTripDiary = value;
     }
 
     /**
@@ -579,7 +602,9 @@ export class Journey extends SurveyObject {
     }
 
     /**
-     * Creates a Journey object from sanitized parameters
+     * Creates a Journey object from sanitized parameters.
+     * `didTrips` is wrapped the same way as in `create`, so a value stored as
+     * `yes` / `no` / `dontKnow` becomes an `AnswerStatus<boolean>`.
      * @param {ExtendedJourneyAttributes | SerializedExtendedJourneyAttributes} params - Sanitized journey parameters
      * @returns {Journey} New Journey instance
      */
@@ -588,15 +613,40 @@ export class Journey extends SurveyObject {
         surveyObjectsRegistry: SurveyObjectsRegistry
     ): Journey {
         const flattenedParams = SurveyObjectUnserializer.flattenSerializedData(params);
-        return new Journey(flattenedParams as ExtendedJourneyAttributes, surveyObjectsRegistry);
+        const normalizedParams = Journey.wrapAnswerStatuses(flattenedParams);
+        return new Journey(normalizedParams as ExtendedJourneyAttributes, surveyObjectsRegistry);
+    }
+
+    /**
+     * Wrap `didTrips` as the questionnaire stores it (`yes`/`no`/`dontKnow` or
+     * a boolean) in its status. A blank one is omitted so that it does not
+     * read as an answer of the wrong shape. `_skipTripDiary` means the question
+     * was not asked, so `didTrips` is `not_applicable` whatever was stored.
+     *
+     * @param {Object} dirtyParams The parameters as read from the response
+     * @returns {Object} A copy of the parameters, with `didTrips` wrapped.
+     * Parameters that are not an object are returned as they are, for
+     * `validateParams` to report.
+     */
+    private static wrapAnswerStatuses(dirtyParams: { [key: string]: unknown }): { [key: string]: unknown } {
+        if (typeof dirtyParams !== 'object' || dirtyParams === null) {
+            return dirtyParams;
+        }
+        const didTrips =
+            dirtyParams._skipTripDiary === true
+                ? { status: 'not_applicable' as const }
+                : toBooleanAnswerStatus(dirtyParams.didTrips);
+        return didTrips === undefined ? _omit(dirtyParams, ['didTrips']) : { ...dirtyParams, didTrips };
     }
 
     static create(
         dirtyParams: { [key: string]: unknown },
         surveyObjectsRegistry: SurveyObjectsRegistry
     ): Result<Journey> {
-        const errors = Journey.validateParams(dirtyParams);
-        const journey = errors.length === 0 ? new Journey(dirtyParams, surveyObjectsRegistry) : undefined;
+        const params = Journey.wrapAnswerStatuses(dirtyParams);
+        const errors = Journey.validateParams(params);
+        const journey =
+            errors.length === 0 ? new Journey(params as ExtendedJourneyAttributes, surveyObjectsRegistry) : undefined;
         if (errors.length > 0) {
             return createErrors(errors);
         }
@@ -643,7 +693,11 @@ export class Journey extends SurveyObject {
                 displayName
             )
         );
-        errors.push(...ParamsValidatorUtils.isString('didTrips', dirtyParams.didTrips, displayName));
+        errors.push(
+            ...validateAnswerStatus('didTrips', dirtyParams.didTrips, displayName, ParamsValidatorUtils.isBoolean)
+        );
+
+        errors.push(...ParamsValidatorUtils.isBoolean('_skipTripDiary', dirtyParams._skipTripDiary, displayName));
 
         // Validate work schedule attributes
         errors.push(

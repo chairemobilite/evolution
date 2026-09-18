@@ -142,6 +142,24 @@ export const toNumberAnswerStatus = (value: unknown): Optional<AnswerStatus<numb
 };
 
 /**
+ * Wrap an answer to a yes/no question.
+ *
+ * Questionnaires store these as `yes`/`no` or a boolean, next to the
+ * non-response choices like `dontKnow`. Those strings become the answered
+ * boolean; a known non-response becomes its status.
+ *
+ * @param {unknown} value The answer as stored in the response
+ * @returns {Optional<AnswerStatus<boolean>>} The wrapped answer, or `undefined`
+ * when the response is blank
+ */
+export const toBooleanAnswerStatus = (value: unknown): Optional<AnswerStatus<boolean>> => {
+    if (value === 'yes' || value === 'no') {
+        return toAnswerStatus<boolean>(value === 'yes');
+    }
+    return toAnswerStatus<boolean>(value);
+};
+
+/**
  * @param {Optional<AnswerStatus<T>>} answer The answer to read
  * @returns {Optional<T>} The value that was answered, or `undefined` when there
  * is none, whatever the reason

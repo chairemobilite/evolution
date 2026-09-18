@@ -15,6 +15,15 @@ import {
     StartEndable,
     type StartEndDateAndTimesAttributes
 } from 'evolution-common/lib/services/baseObjects/StartEndable';
+import type { Journey } from 'evolution-common/lib/services/baseObjects/Journey';
+import { getAnswerValue } from 'evolution-common/lib/services/baseObjects/attributeTypes/AnswerStatus';
+
+/** Trips or visited places mean the journey holds travel that `didTrips` should justify. */
+const journeyHasDiaryContent = (journey: Journey): boolean =>
+    (journey.trips?.length ?? 0) > 0 || (journey.visitedPlaces?.length ?? 0) > 0;
+
+/** Absent or `false`: the diary follows `didTrips`. Only an explicit `true` skips it. */
+const journeySkipsTripDiary = (journey: Journey): boolean => journey._skipTripDiary === true;
 
 /**
  * Interval from one object's end (departure) to another's start (arrival).
@@ -31,7 +40,7 @@ const intervalFromEndToStart = (
 
 export const journeyAuditChecks: { [errorCode: string]: JourneyAuditCheckFunction } = {
     /**
-     * Check if journey start date is missing. The start date is taken from assignedDate
+     * Check if journey start date is missing.
      * @param context - JourneyAuditCheckContext
      * @returns AuditForObject
      */
@@ -130,6 +139,104 @@ export const journeyAuditChecks: { [errorCode: string]: JourneyAuditCheckFunctio
             version: 1,
             level: 'error',
             message: 'Journey has only one visited place',
+            ignore: false
+        };
+    },
+
+    /**
+     * Error when `didTrips` was never answered, but the journey already holds
+     * visited places or trips.
+     * @param context - JourneyAuditCheckContext
+     * @returns AuditForObject
+     */
+    J_L_MadeTripsUndefinedWithTrips: (context: JourneyAuditCheckContext): AuditForObject | undefined => {
+        const { journey } = context;
+        if (journeySkipsTripDiary(journey) || journey.didTrips !== undefined || !journeyHasDiaryContent(journey)) {
+            return undefined;
+        }
+        return {
+            objectType: 'journey',
+            objectUuid: journey._uuid!,
+            errorCode: 'J_L_MadeTripsUndefinedWithTrips',
+            version: 1,
+            level: 'error',
+            message: 'Whether the person made trips is unanswered, but the journey has trips or visited places',
+            ignore: false
+        };
+    },
+
+    /**
+     * Error when `didTrips` is answered true, but the journey has neither trips nor visited places.
+     * @param context - JourneyAuditCheckContext
+     * @returns AuditForObject
+     */
+    J_L_MadeTripsWithEmptyJourney: (context: JourneyAuditCheckContext): AuditForObject | undefined => {
+        const { journey } = context;
+        if (
+            journeySkipsTripDiary(journey) ||
+            getAnswerValue(journey.didTrips) !== true ||
+            journeyHasDiaryContent(journey)
+        ) {
+            return undefined;
+        }
+        return {
+            objectType: 'journey',
+            objectUuid: journey._uuid!,
+            errorCode: 'J_L_MadeTripsWithEmptyJourney',
+            version: 1,
+            level: 'error',
+            message: 'The person made trips, but the journey has no trips or visited places',
+            ignore: false
+        };
+    },
+
+    /**
+     * Error when `didTrips` is answered false, but the journey has trips or visited places.
+     * @param context - JourneyAuditCheckContext
+     * @returns AuditForObject
+     */
+    J_L_DidNotMakeTripsButTripsPresent: (context: JourneyAuditCheckContext): AuditForObject | undefined => {
+        const { journey } = context;
+        if (
+            journeySkipsTripDiary(journey) ||
+            getAnswerValue(journey.didTrips) !== false ||
+            !journeyHasDiaryContent(journey)
+        ) {
+            return undefined;
+        }
+        return {
+            objectType: 'journey',
+            objectUuid: journey._uuid!,
+            errorCode: 'J_L_DidNotMakeTripsButTripsPresent',
+            version: 1,
+            level: 'error',
+            message: 'The person did not make trips, but the journey has trips or visited places',
+            ignore: false
+        };
+    },
+
+    /**
+     * Error when `didTrips` is dontKnow, but the journey has trips or visited places.
+     * A dontKnow answer should not open the trip diary.
+     * @param context - JourneyAuditCheckContext
+     * @returns AuditForObject
+     */
+    J_L_MadeTripsUnknownWithTrips: (context: JourneyAuditCheckContext): AuditForObject | undefined => {
+        const { journey } = context;
+        if (
+            journeySkipsTripDiary(journey) ||
+            journey.didTrips?.status !== 'dont_know' ||
+            !journeyHasDiaryContent(journey)
+        ) {
+            return undefined;
+        }
+        return {
+            objectType: 'journey',
+            objectUuid: journey._uuid!,
+            errorCode: 'J_L_MadeTripsUnknownWithTrips',
+            version: 1,
+            level: 'error',
+            message: 'Whether the person made trips is unknown, but the journey has trips or visited places',
             ignore: false
         };
     },
