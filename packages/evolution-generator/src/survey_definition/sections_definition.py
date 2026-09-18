@@ -10,12 +10,14 @@
 # This module only defines the shape of a row; it does not read any input source. See
 # survey_definition.py for the bundle of all tables.
 
+from typing import Self
+
 from pydantic import (
     BaseModel,
     ConfigDict,
-    Field,
     ValidationInfo,
     field_validator,
+    model_validator,
 )
 
 from survey_definition import field_checks
@@ -44,10 +46,6 @@ class SectionDefinition(BaseModel):
     `parent_section` exists).
     Constructing a SectionDefinition directly only runs the per-row rules below. Validation
     is strict: no type coercion (e.g. the string "yes" is rejected for a bool field).
-
-    Field order matters: `in_nav` must stay declared before `title_fr`/`title_en`, since
-    `_titles_required_when_in_nav` reads it back through `info.data`, which Pydantic only
-    fills with earlier-declared fields.
 
     Attributes:
         section: Unique name of this section, and the value other rows use in their
@@ -88,10 +86,8 @@ class SectionDefinition(BaseModel):
     in_nav: bool
     abbreviation: str
 
-    # validate_default=True makes the validator run even when the value is blank (and
-    # the key was stripped by _strip_blanks) — the case it actually needs to catch.
-    title_fr: str | None = Field(default=None, validate_default=True)
-    title_en: str | None = Field(default=None, validate_default=True)
+    title_fr: str | None = None
+    title_en: str | None = None
 
     template: str | bool | None = None
     parent_section: str | None = None
@@ -115,15 +111,23 @@ class SectionDefinition(BaseModel):
         _raise_if_check_fails(field_checks.ends_with_underscore, value, info.data)
         return value
 
-    @field_validator("title_fr", "title_en")
-    @classmethod
-    def _titles_required_when_in_nav(
-        cls, value: str | None, info: ValidationInfo
-    ) -> str | None:
-        """Check that `title_fr`/`title_en` are set whenever this row's `in_nav` is true."""
-        if info.data.get("in_nav") and not value:
-            raise ValueError("title_fr and title_en are required when in_nav is true")
-        return value
+    # A model validator with mode="after" runs once every field above has been read and
+    # checked, and gets the finished row as `self`. That is what a rule between two
+    # fields needs (here: in_nav decides whether the titles are required), unlike a
+    # field_validator, which only sees the one field it is attached to.
+    @model_validator(mode="after")
+    def _titles_required_when_in_nav(self) -> Self:
+        """Check that `title_fr` and `title_en` are set whenever `in_nav` is true."""
+        if self.in_nav:
+            missing = [
+                name for name in ("title_fr", "title_en") if not getattr(self, name)
+            ]
+            if missing:
+                verb = "is" if len(missing) == 1 else "are"
+                raise ValueError(
+                    f"{' and '.join(missing)} {verb} required when in_nav is true"
+                )
+        return self
 
     @field_validator("enable_conditional", "completion_conditional")
     @classmethod
