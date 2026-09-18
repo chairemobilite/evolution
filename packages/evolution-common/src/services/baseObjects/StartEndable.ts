@@ -5,9 +5,17 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
+import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
+
 import { Optional } from '../../types/Optional.type';
 import { ParamsValidatorUtils } from '../../utils/ParamsValidatorUtils';
 import { TimePeriod } from './attributeTypes/GenericAttributes';
+
+/**
+ * Clock time `0` is midnight. Do not use `_isBlank` on seconds since midnight.
+ */
+const hasValidSecondsSinceMidnight = (secondsSinceMidnight: unknown): boolean =>
+    typeof secondsSinceMidnight === 'number' && secondsSinceMidnight >= 0;
 
 export const startEndDateAndTimesAttributes = [
     'startDate',
@@ -55,6 +63,32 @@ export class StartEndable {
 
         errors.push(...ParamsValidatorUtils.isString('endTimePeriod', dirtyParams.endTimePeriod, displayName));
         return errors;
+    }
+
+    /**
+     * Whether the object has a start time or a start time period.
+     * Midnight (`0`) counts; a blank period does not.
+     * @param startEndable - Object with start/end times, or undefined
+     * @returns true when startTime is a non-negative number or startTimePeriod is not blank
+     */
+    static hasStart<T extends StartEndDateAndTimesAttributes>(startEndable?: Optional<T>): boolean {
+        if (startEndable === undefined) {
+            return false;
+        }
+        return hasValidSecondsSinceMidnight(startEndable.startTime) || !_isBlank(startEndable.startTimePeriod);
+    }
+
+    /**
+     * Whether the object has an end time or an end time period.
+     * Midnight (`0`) counts; a blank period does not.
+     * @param startEndable - Object with start/end times, or undefined
+     * @returns true when endTime is a non-negative number or endTimePeriod is not blank
+     */
+    static hasEnd<T extends StartEndDateAndTimesAttributes>(startEndable?: Optional<T>): boolean {
+        if (startEndable === undefined) {
+            return false;
+        }
+        return hasValidSecondsSinceMidnight(startEndable.endTime) || !_isBlank(startEndable.endTimePeriod);
     }
 
     /**
