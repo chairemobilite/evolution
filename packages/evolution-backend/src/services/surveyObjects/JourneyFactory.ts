@@ -6,6 +6,7 @@
  */
 
 import _omit from 'lodash/omit';
+import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 
 import { Person } from 'evolution-common/lib/services/baseObjects/Person';
 import { Home } from 'evolution-common/lib/services/baseObjects/Home';
@@ -25,6 +26,31 @@ import {
     type JourneyClosureAnswers,
     type VisitedPlaceJourneyClosureAttributes
 } from './derivedFlags/journeyClosure';
+
+const QUESTIONNAIRE_JOURNEY_FIELDS_NOT_ON_OBJECT = [
+    'visitedPlaces',
+    'trips',
+    'personDidTrips',
+    'personDidTripsConfirm'
+] as const;
+
+/**
+ * Questionnaire stores `personDidTrips` / `personDidTripsConfirm`. The journey
+ * object keeps a single `didTrips`. Confirm wins when both are set.
+ */
+const didTripsFromQuestionnaire = (attributes: {
+    didTrips?: unknown;
+    personDidTrips?: unknown;
+    personDidTripsConfirm?: unknown;
+}): unknown => {
+    if (!_isBlank(attributes.didTrips)) {
+        return attributes.didTrips;
+    }
+    const fromQuestionnaire = !_isBlank(attributes.personDidTripsConfirm)
+        ? attributes.personDidTripsConfirm
+        : attributes.personDidTrips;
+    return _isBlank(fromQuestionnaire) ? undefined : fromQuestionnaire;
+};
 
 /**
  * Generate all journeys for a person
@@ -54,22 +80,28 @@ export async function populateJourneysForPerson(
         }
 
         const journeyAttributes = originalCorrectedJourneyAttributes as ExtendedJourneyAttributes;
+        const questionnaireJourney = journeyAttributes as ExtendedJourneyAttributes & {
+            personDidTrips?: unknown;
+            personDidTripsConfirm?: unknown;
+            visitedPlaces?: { [uuid: string]: VisitedPlaceJourneyClosureAttributes };
+        };
 
         const journey = Journey.create(
-            _omit(journeyAttributes as { [key: string]: unknown }, [
-                'visitedPlaces',
-                'trips'
-            ]) as ExtendedJourneyAttributes,
+            _omit(
+                {
+                    ...journeyAttributes,
+                    didTrips: didTripsFromQuestionnaire(questionnaireJourney)
+                } as { [key: string]: unknown },
+                [...QUESTIONNAIRE_JOURNEY_FIELDS_NOT_ON_OBJECT]
+            ) as ExtendedJourneyAttributes,
             surveyObjectsRegistry
         );
 
         if (isOk(journey)) {
-            const visitedPlacesByUuid = (journeyAttributes.visitedPlaces ?? {}) as {
-                [uuid: string]: VisitedPlaceJourneyClosureAttributes;
-            };
+            const visitedPlacesByUuid = questionnaireJourney.visitedPlaces ?? {};
             journey.result.isJourneyClosed = computeIsJourneyClosed(
                 visitedPlacesByUuid,
-                journeyAttributes as JourneyClosureAnswers
+                questionnaireJourney as JourneyClosureAnswers
             );
             journey.result.isJourneyClosedMoreThanOnce = computeIsJourneyClosedMoreThanOnce(visitedPlacesByUuid);
 

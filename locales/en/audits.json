@@ -45,6 +45,10 @@
     "P_W_JourneySequenceGaps": "Journey sequences are not contiguous",
     "P_I_AgeTooHigh": "Person age is too high",
     "P_W_VeryOldAge": "Person is very old, please validate",
+    "P_L_MadeTripsUndefinedWithTrips": "Person made trips unanswered, but the journey has trips or visited places",
+    "P_L_MadeTripsWithEmptyJourney": "Person made trips, but the journey has no trips or visited places",
+    "P_L_didNotMakeTripsButTripsPresent": "Person did not make trips, but the journey has trips or visited places",
+    "P_L_MadeTripsUnknownWithTrips": "Person made trips is don't know, but the journey has trips or visited places",
 
     "J_M_StartDate": "Journey start date is missing",
     "J_L_InvalidVisitedPlaceSequences": "At least one visited place sequence is invalid or duplicated",

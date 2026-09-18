@@ -237,6 +237,72 @@ describe('JourneyFactory', () => {
             expect(MockedJourney.create).toHaveBeenNthCalledWith(3, expect.objectContaining({ _sequence: 3 }), surveyObjectsRegistry);
         });
 
+        describe('didTrips from questionnaire answers', () => {
+            it.each([
+                {
+                    description: 'maps personDidTrips',
+                    questionnaire: { personDidTrips: 'yes' },
+                    expectedDidTrips: 'yes'
+                },
+                {
+                    description: 'maps personDidTripsConfirm when personDidTrips is blank',
+                    questionnaire: { personDidTripsConfirm: 'no' },
+                    expectedDidTrips: 'no'
+                },
+                {
+                    description: 'personDidTripsConfirm wins over personDidTrips',
+                    questionnaire: { personDidTrips: 'no', personDidTripsConfirm: 'yes' },
+                    expectedDidTrips: 'yes'
+                },
+                {
+                    description: 'keeps didTrips already on the object',
+                    questionnaire: { didTrips: 'dontKnow', personDidTrips: 'yes' },
+                    expectedDidTrips: 'dontKnow'
+                },
+                {
+                    description: 'leaves didTrips unset when both answers are blank',
+                    questionnaire: {},
+                    expectedDidTrips: undefined
+                },
+                {
+                    description: 'keeps _skipTripDiary when the survey set it',
+                    questionnaire: { personDidTrips: 'yes', _skipTripDiary: true },
+                    expectedDidTrips: 'yes',
+                    expectedSkipTripDiary: true
+                }
+            ])('$description', async ({ questionnaire, expectedDidTrips, expectedSkipTripDiary }) => {
+                personAttributes.journeys = {
+                    'journey-1': {
+                        _uuid: 'journey-1',
+                        _sequence: 1,
+                        ...questionnaire
+                    }
+                } as any;
+
+                (MockedJourney.create as jest.Mock).mockReturnValueOnce(createOk({ _uuid: 'journey-1' } as Journey));
+                mockedpopulateVisitedPlacesForJourney.mockResolvedValue();
+                mockedpopulateTripsForJourney.mockResolvedValue();
+
+                await populateJourneysForPerson(
+                    surveyObjectsWithErrors,
+                    person,
+                    personAttributes,
+                    home,
+                    surveyObjectsRegistry
+                );
+
+                expect(MockedJourney.create).toHaveBeenCalledWith(
+                    expect.objectContaining({
+                        didTrips: expectedDidTrips,
+                        ...(expectedSkipTripDiary !== undefined ? { _skipTripDiary: expectedSkipTripDiary } : {})
+                    }),
+                    surveyObjectsRegistry
+                );
+                expect((MockedJourney.create as jest.Mock).mock.calls[0][0].personDidTrips).toBeUndefined();
+                expect((MockedJourney.create as jest.Mock).mock.calls[0][0].personDidTripsConfirm).toBeUndefined();
+            });
+        });
+
         describe('journey closure flags', () => {
             it.each([
                 {
