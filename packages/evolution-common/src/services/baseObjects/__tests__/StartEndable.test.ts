@@ -51,6 +51,44 @@ describe('StartEndable Class', () => {
         })).toEqual([]);
     });
 
+    describe('hasStart', () => {
+        test.each([
+            { description: 'undefined object', startEndable: undefined, expected: false },
+            { description: 'empty object', startEndable: {}, expected: false },
+            { description: 'startTime is midnight', startEndable: { startTime: 0 }, expected: true },
+            { description: 'startTime is set', startEndable: { startTime: 3600 }, expected: true },
+            { description: 'startTime is negative', startEndable: { startTime: -1 }, expected: false },
+            { description: 'startTimePeriod is set', startEndable: { startTimePeriod: 'am' }, expected: true },
+            { description: 'startTimePeriod is blank', startEndable: { startTimePeriod: '   ' }, expected: false },
+            {
+                description: 'startTime and startTimePeriod are set',
+                startEndable: { startTime: 3600, startTimePeriod: 'am' },
+                expected: true
+            }
+        ])('$description', ({ startEndable, expected }) => {
+            expect(StartEndable.hasStart(startEndable)).toBe(expected);
+        });
+    });
+
+    describe('hasEnd', () => {
+        test.each([
+            { description: 'undefined object', startEndable: undefined, expected: false },
+            { description: 'empty object', startEndable: {}, expected: false },
+            { description: 'endTime is midnight', startEndable: { endTime: 0 }, expected: true },
+            { description: 'endTime is set', startEndable: { endTime: 7200 }, expected: true },
+            { description: 'endTime is negative', startEndable: { endTime: -1 }, expected: false },
+            { description: 'endTimePeriod is set', startEndable: { endTimePeriod: 'pm' }, expected: true },
+            { description: 'endTimePeriod is blank', startEndable: { endTimePeriod: '   ' }, expected: false },
+            {
+                description: 'endTime and endTimePeriod are set',
+                startEndable: { endTime: 7200, endTimePeriod: 'pm' },
+                expected: true
+            }
+        ])('$description', ({ startEndable, expected }) => {
+            expect(StartEndable.hasEnd(startEndable)).toBe(expected);
+        });
+    });
+
     describe('timesAreValid', () => {
         it('should return true for valid times with no dates (10000,10000)', () => {
             expect(StartEndable.timesAreValid({

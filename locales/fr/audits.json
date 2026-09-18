@@ -56,6 +56,8 @@
     "J_L_JourneyClosedMoreThanOnce": "Le séjour est fermé plusieurs fois",
 
     "VP_M_Geography": "La géographie du lieu visité est manquante",
+    "VP_M_StartTime": "L'heure de début du lieu visité est manquante",
+    "VP_M_EndTime": "L'heure de fin du lieu visité est manquante",
     "VP_I_Geography": "La géographie du lieu visité est invalide",
 
     "T_M_Segments": "Les segments du déplacement sont manquants",

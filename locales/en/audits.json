@@ -56,6 +56,8 @@
     "J_L_JourneyClosedMoreThanOnce": "Journey is closed more than once",
 
     "VP_M_Geography": "Visited place geography is missing",
+    "VP_M_StartTime": "Visited place start time is missing",
+    "VP_M_EndTime": "Visited place end time is missing",
     "VP_I_Geography": "Visited place geography is invalid",
 
     "T_M_Segments": "Trip segments are missing",
