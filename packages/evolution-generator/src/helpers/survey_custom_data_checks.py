@@ -37,10 +37,3 @@ def ends_with_underscore(value, row: dict) -> bool:
 def valid_conditional_name(value, row: dict) -> bool:
     """Must end with 'Conditional' or 'CustomConditional' (e.g. 'hasHouseholdSize1Conditional', 'isCompleteCustomConditional')."""
     return str(value).endswith("Conditional")
-
-
-def requires_titles_when_true(value, row: dict) -> bool:
-    """When true, this row's title_fr and title_en must also be set."""
-    if value is not True:
-        return True
-    return bool(row.get("title_fr")) and bool(row.get("title_en"))

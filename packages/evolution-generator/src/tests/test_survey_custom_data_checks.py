@@ -2,7 +2,7 @@
 # This file is licensed under the MIT License.
 # License text available at https://opensource.org/licenses/MIT
 
-# Note: Tests for helpers/survey_custom_data_checks.py (reusable per-cell checks for ColumnSpec).
+# Note: Tests for helpers/survey_custom_data_checks.py (reusable per-field checks).
 # Every check takes (value, row); these checks all ignore row, so an empty dict stands in.
 
 from helpers import survey_custom_data_checks
@@ -38,7 +38,7 @@ class TestValidPathChars:
 
     def test_accepts_curly_brace_tokens(self):
         # Widgets.path uses `{token}` placeholders (see generate_widgets.py::generate_path);
-        # the `${token}` expansion syntax is specific to the Conditionals sheet's path column.
+        # the `${token}` expansion syntax is specific to the Conditionals table's path field.
         assert (
             survey_custom_data_checks.valid_path_chars(
                 "household.persons.{personId}.age", {}
@@ -103,19 +103,3 @@ class TestValidConditionalName:
             survey_custom_data_checks.valid_conditional_name("hasHouseholdSize1", {})
             is False
         )
-
-
-class TestRequiresTitlesWhenTrue:
-    def test_ignores_a_false_value(self):
-        assert survey_custom_data_checks.requires_titles_when_true(False, {}) is True
-
-    def test_accepts_true_with_both_titles_set(self):
-        row = {"title_fr": "Accueil", "title_en": "Home"}
-        assert survey_custom_data_checks.requires_titles_when_true(True, row) is True
-
-    def test_rejects_true_with_a_missing_title(self):
-        row = {"title_fr": "Accueil", "title_en": None}
-        assert survey_custom_data_checks.requires_titles_when_true(True, row) is False
-
-    def test_rejects_true_with_both_titles_missing(self):
-        assert survey_custom_data_checks.requires_titles_when_true(True, {}) is False

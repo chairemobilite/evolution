@@ -2,448 +2,170 @@
 # This file is licensed under the MIT License.
 # License text available at https://opensource.org/licenses/MIT
 
-# Note: Defines the shape of the intermediate data layer between Generator inputs
-# (Excel today; CSV/JSON/etc. later) and the generation scripts: one dataclass per
-# sheet (SectionData, WidgetData, ChoiceData, InputRangeData, ConditionalData,
-# LabelData), bundled together as SurveyData, plus the field specs used to validate
-# a sheet's headers and row values before any script consumes the data.
+# Note: Defines the shape of the intermediate data layer between the Generator's input
+# source (spreadsheet, CSV, JSON, API, ...) and the generation scripts: one Pydantic
+# model per table (SectionData, WidgetData, ChoiceData, InputRangeData, ConditionalData,
+# LabelData), bundled together as SurveyData. Each model validates its own row on
+# construction (types, allowed values, per-field and same-row checks); a table-level
+# function alongside it (e.g. collect_sections_issues) then checks the rules a single
+# row can't check by itself, such as a field being unique across the table.
 #
-# This module only defines the shape and the validation helpers; it does not read
-# Excel files. See generator_helpers.py::load_survey_data() for that (loads a
-# workbook and builds a SurveyData instance from these specs/dataclasses).
+# This module only defines the shape and the validation helpers; it does not read any
+# input source. See generator_helpers.py::load_survey_data() for that (loads the
+# source and builds a SurveyData instance from these models).
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
-from typing import Any, Callable
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    ValidationError,
+    ValidationInfo,
+    field_validator,
+)
 
 from helpers import survey_custom_data_checks
 
 
-@dataclass
-class SurveyData:
+class SurveyData(BaseModel):
     """
     The single source of truth for the survey definition, shared by (almost) every
     Generator script.
 
-    The workbook is loaded a single time into one instance of this class, which is
-    then passed to each script, so they all work from the same already-validated
-    data rather than each re-parsing the Excel file on its own.
-
-    One list per sheet: sections, widgets, choices, input_ranges, conditionals, labels.
-    """
-
-    sections: list[SectionData] = field(default_factory=list)
-    ## widgets: list[WidgetData] = field(default_factory=list)
-    ## choices: list[ChoiceData] = field(default_factory=list)
-    ## input_ranges: list[InputRangeData] = field(default_factory=list)
-    ## conditionals: list[ConditionalData] = field(default_factory=list)
-    ## labels: list[LabelData] = field(default_factory=list)
-
-
-# A per-field check: takes the field's own (already-non-None) value, plus the full row
-# (field -> value, same shape collect_row_issues receives, for checks that depend on
-# a sibling field), and returns True when valid, False when invalid. Its docstring's
-# first line is used as the error message. Checks that only care about their own
-# value can ignore `row`.
-FieldCheck = Callable[[Any, dict], bool]
-
-
-@dataclass(frozen=True)
-class FieldReference:
-    """
-    Names another field whose non-blank values are the allowed set for a `references`
-    field (e.g. Sections.parent_section references Sections.section: every
-    parent_section must name a real section).
-
-    `sheet=None` (the default) means "the same sheet this field belongs to", resolved
-    by collect_sheet_issues. A named sheet (one of SHEET_FIELD_SPECS's keys) means a
-    different sheet, resolved by collect_survey_issues instead, since checking that
-    requires that other sheet's rows too.
-    """
-
-    field: str
-    sheet: str | None = None
-
-
-@dataclass(frozen=True)
-class FieldSpec:
-    """
-    Describes one field of a SurveyData class (e.g. SectionData.section) — a field
-    can come from an Excel column today, or a JSON key, CSV column, API response
-    field, etc. once other input sources are supported.
+    The input source is loaded a single time into one instance of this class, which is
+    then passed to each script, so they all work from the same already-validated data
+    instead of each re-reading and re-parsing the source on its own.
 
     Attributes:
-        field: python attribute name on the data class (e.g. "label_fr").
-        header: the source's name for this field (e.g. the Excel column header
-            "label::fr").
-        required: the field must exist in the source (checked by
-            validate_required_headers). A field can be required to exist while
-            still allowing a blank value on any given row (e.g. Sections.parent_section).
-        value_required: on top of `required`, every row's value must also be
-            non-blank (checked by collect_row_issues). Implies `required=True`.
-        allowed_values: set of allowed values (e.g. {"Custom", "BuiltIn"}), or
-            None to allow any value. Only evaluated for non-blank values.
-        allowed_types: tuple of allowed types (e.g. (str,)), or None to allow
-            any type. Only evaluated for non-blank values.
-        unique: value must not repeat across the sheet's non-blank values. Unlike the
-            other rules, this can't be checked one row at a time (checked by
-            collect_sheet_issues, not collect_row_issues).
-        references: a FieldReference this field's non-blank values must match, or
-            None for no such constraint. See FieldReference for same-sheet vs.
-            cross-sheet resolution.
-        custom_data_checks: extra per-field checks beyond type/allowed-value (e.g.
-            survey_custom_data_checks.valid_ts_identifier, .valid_path_chars). Only
-            evaluated for non-blank values (see FieldCheck for the (value, row)
-            signature, e.g. to enforce a same-row conditional requirement).
+        sections: Every row of the Sections table, one SectionData each, in source order.
     """
 
-    field: str
-    header: str
-    required: bool
-    value_required: bool
-    allowed_values: frozenset | None
-    allowed_types: tuple[type, ...] | None
-    unique: bool
-    references: FieldReference | None
-    custom_data_checks: tuple[FieldCheck, ...]
+    sections: list[SectionData] = Field(default_factory=list)
+    ## widgets: list[WidgetData] = Field(default_factory=list)
+    ## choices: list[ChoiceData] = Field(default_factory=list)
+    ## input_ranges: list[InputRangeData] = Field(default_factory=list)
+    ## conditionals: list[ConditionalData] = Field(default_factory=list)
+    ## labels: list[LabelData] = Field(default_factory=list)
 
 
-def _empty_to_none(value):
-    """Treat an empty string cell the same as an absent (None) cell."""
-    return None if value == "" else value
+# -------------------------------------- Sections --------------------------------------
 
-
-def validate_required_headers(
-    headers: list, specs: tuple[FieldSpec, ...], sheet_name: str
-) -> None:
-    """
-    Raise if any header required by `specs` (required=True) is missing from `headers`.
-
-    Mirrors generator_helpers.get_headers()'s checks (too-few-columns, missing header),
-    but works from an already-extracted header list instead of an openpyxl sheet, so the
-    same specs can validate headers regardless of where they came from.
-    """
-    expected_headers = [spec.header for spec in specs if spec.required]
-
-    if len(headers) < len(expected_headers):
-        raise Exception(f"Too few columns in {sheet_name} sheet")
-
-    for expected in expected_headers:
-        if expected not in headers:
-            raise Exception(
-                f"Missing expected header in {sheet_name} sheet: {expected}"
-            )
-
-
-def collect_row_issues(
-    row: dict, specs: tuple[FieldSpec, ...], sheet_name: str, row_number: int
-) -> list[str]:
-    """
-    Return every validation issue found in one data row (empty list when the row is valid).
-
-    Collects all problems in one pass (no early exit) so a single run reports every
-    issue in the row, not just the first. `row` maps each spec's `field` name to its
-    raw cell value.
-    """
-    prefix = f"Error in {sheet_name} sheet - "
-    issues: list[str] = []
-
-    missing_fields = [
-        spec.header
-        for spec in specs
-        if spec.value_required and _empty_to_none(row.get(spec.field)) is None
-    ]
-    if missing_fields:
-        issues.append(
-            f"{prefix}Required field is missing in row {row_number}. "
-            f"Missing fields: {missing_fields}"
-        )
-    missing_set = set(missing_fields)
-
-    for spec in specs:
-        if spec.header in missing_set:
-            continue
-
-        value = _empty_to_none(row.get(spec.field))
-        if value is None:
-            continue
-
-        if spec.allowed_types is not None and not isinstance(value, spec.allowed_types):
-            type_names = ", ".join(t.__name__ for t in spec.allowed_types)
-            issues.append(
-                f"{prefix}Invalid {spec.header} in row {row_number}: "
-                f"must be one of types ({type_names}), got {type(value).__name__} with value {value!r}"
-            )
-
-        if spec.allowed_values is not None and value not in spec.allowed_values:
-            allowed_display = sorted(
-                str(allowed) for allowed in spec.allowed_values if allowed is not None
-            )
-            issues.append(
-                f"{prefix}Invalid {spec.header} in row {row_number}: "
-                f"must be one of {allowed_display!r} or empty, got {value!r}"
-            )
-
-        for check in spec.custom_data_checks:
-            if not check(value, row):
-                reason = (check.__doc__ or check.__name__).strip().splitlines()[0]
-                issues.append(
-                    f"{prefix}Invalid {spec.header} in row {row_number}: {value!r} - {reason}"
-                )
-
-    return issues
-
-
-def collect_sheet_issues(
-    rows: list[dict], specs: tuple[FieldSpec, ...], sheet_name: str
-) -> list[str]:
-    """
-    Return every validation issue across an entire sheet: every row's issues (see
-    collect_row_issues), plus cross-row rules a single row can't check on its own
-    (`unique` fields, and `references` fields that point within this same sheet).
-
-    A `references` field pointing at a *different* sheet is skipped here — this
-    function only has one sheet's rows, so it can't be checked without that other
-    sheet's data too. See collect_survey_issues for that case.
-
-    `rows` is one dict per data row, in sheet order, each mapping a spec's `field`
-    name to its raw cell value (row 2 of the sheet is rows[0]).
-    """
-    prefix = f"Error in {sheet_name} sheet - "
-    issues: list[str] = []
-
-    for row_number, row in enumerate(rows, start=2):
-        issues.extend(
-            collect_row_issues(
-                row=row, specs=specs, sheet_name=sheet_name, row_number=row_number
-            )
-        )
-
-    for spec in specs:
-        if not spec.unique:
-            continue
-
-        row_numbers_by_value: dict[object, list[int]] = {}
-        for row_number, row in enumerate(rows, start=2):
-            value = _empty_to_none(row.get(spec.field))
-            if value is None:
-                continue
-            row_numbers_by_value.setdefault(value, []).append(row_number)
-
-        for value, row_numbers in row_numbers_by_value.items():
-            if len(row_numbers) > 1:
-                issues.append(
-                    f"{prefix}Duplicate {spec.header} {value!r}: found in rows {row_numbers}"
-                )
-
-    for spec in specs:
-        if spec.references is None or spec.references.sheet is not None:
-            continue  # no reference, or a cross-sheet one collect_survey_issues handles
-
-        referenced_spec = next(s for s in specs if s.field == spec.references.field)
-        referenced_values = {
-            _empty_to_none(row.get(referenced_spec.field)) for row in rows
-        } - {None}
-
-        for row_number, row in enumerate(rows, start=2):
-            value = _empty_to_none(row.get(spec.field))
-            if value is None or value in referenced_values:
-                continue
-            issues.append(
-                f"{prefix}Invalid {spec.header} in row {row_number}: {value!r} "
-                f"does not match any {referenced_spec.header} value in this sheet"
-            )
-
-    return issues
-
-
-def collect_survey_issues(rows_by_sheet: dict[str, list[dict]]) -> list[str]:
-    """
-    Validate every sheet in `rows_by_sheet` (via collect_sheet_issues: row-level rules,
-    `unique`, and same-sheet `references`), plus any `references` field that points at
-    a *different* sheet — the one thing collect_sheet_issues can't check on its own
-    since it only sees one sheet's rows at a time.
-
-    `rows_by_sheet` maps each sheet name (matching SHEET_FIELD_SPECS's keys) to that
-    sheet's rows, in the shape collect_sheet_issues expects. This is the entry point
-    load_survey_data() will use once it reads every sheet.
-    """
-    issues: list[str] = []
-
-    for sheet_name, specs in SHEET_FIELD_SPECS.items():
-        issues.extend(
-            collect_sheet_issues(
-                rows=rows_by_sheet[sheet_name], specs=specs, sheet_name=sheet_name
-            )
-        )
-
-    for sheet_name, specs in SHEET_FIELD_SPECS.items():
-        prefix = f"Error in {sheet_name} sheet - "
-
-        for spec in specs:
-            if spec.references is None or spec.references.sheet is None:
-                continue  # no reference, or a same-sheet one collect_sheet_issues already checked
-
-            referenced_sheet_name = spec.references.sheet
-            referenced_specs = SHEET_FIELD_SPECS[referenced_sheet_name]
-            referenced_spec = next(
-                s for s in referenced_specs if s.field == spec.references.field
-            )
-            referenced_values = {
-                _empty_to_none(row.get(referenced_spec.field))
-                for row in rows_by_sheet[referenced_sheet_name]
-            } - {None}
-
-            for row_number, row in enumerate(rows_by_sheet[sheet_name], start=2):
-                value = _empty_to_none(row.get(spec.field))
-                if value is None or value in referenced_values:
-                    continue
-                issues.append(
-                    f"{prefix}Invalid {spec.header} in row {row_number}: {value!r} "
-                    f"does not match any {referenced_spec.header} value in the "
-                    f"{referenced_sheet_name} sheet"
-                )
-
-    return issues
-
-
-# ----------------------------------- Sections sheet -----------------------------------
-
-SECTION_FIELD_SPECS: tuple[FieldSpec, ...] = (
-    FieldSpec(
-        field="section",
-        header="section",
-        required=True,
-        value_required=True,
-        allowed_values=None,
-        allowed_types=(str,),
-        unique=True,
-        references=None,
-        custom_data_checks=(survey_custom_data_checks.valid_ts_identifier,),
-    ),
-    FieldSpec(
-        field="title_fr",
-        header="title_fr",
-        required=True,
-        value_required=False,
-        allowed_values=None,
-        allowed_types=(str,),
-        unique=False,
-        references=None,
-        custom_data_checks=(),
-    ),
-    FieldSpec(
-        field="title_en",
-        header="title_en",
-        required=True,
-        value_required=False,
-        allowed_values=None,
-        allowed_types=(str,),
-        unique=False,
-        references=None,
-        custom_data_checks=(),
-    ),
-    FieldSpec(
-        field="in_nav",
-        header="in_nav",
-        required=True,
-        value_required=True,
-        allowed_values=None,
-        allowed_types=(bool,),
-        unique=False,
-        references=None,
-        custom_data_checks=(survey_custom_data_checks.requires_titles_when_true,),
-    ),
-    FieldSpec(
-        field="template",
-        header="template",
-        required=True,
-        value_required=False,
-        allowed_values=None,
-        # True means "this section has a custom template.tsx"; a str names a builtin
-        # template; blank means the default (no template) — see generate_section_configs.py's
-        # has_custom_template/has_builtin_template checks.
-        allowed_types=(bool, str),
-        unique=False,
-        references=None,
-        custom_data_checks=(),
-    ),
-    FieldSpec(
-        field="parent_section",
-        header="parent_section",
-        required=True,
-        value_required=False,
-        allowed_values=None,
-        allowed_types=None,
-        unique=False,
-        references=FieldReference(field="section"),
-        custom_data_checks=(),
-    ),
-    FieldSpec(
-        field="has_preload",
-        header="has_preload",
-        required=False,
-        value_required=False,
-        allowed_values=None,
-        allowed_types=(bool,),
-        unique=False,
-        references=None,
-        custom_data_checks=(),
-    ),
-    FieldSpec(
-        field="enable_conditional",
-        header="enable_conditional",
-        required=False,
-        value_required=False,
-        allowed_values=None,
-        allowed_types=(str,),
-        unique=False,
-        references=None,
-        custom_data_checks=(survey_custom_data_checks.valid_conditional_name,),
-    ),
-    FieldSpec(
-        field="completion_conditional",
-        header="completion_conditional",
-        required=False,
-        value_required=False,
-        allowed_values=None,
-        allowed_types=(str,),
-        unique=False,
-        references=None,
-        custom_data_checks=(survey_custom_data_checks.valid_conditional_name,),
-    ),
-    FieldSpec(
-        field="abbreviation",
-        header="abbreviation",
-        required=True,
-        value_required=True,
-        allowed_values=None,
-        allowed_types=(str,),
-        unique=True,
-        references=None,
-        custom_data_checks=(survey_custom_data_checks.ends_with_underscore,),
-    ),
+# Field names the Sections source must provide, even though several of them
+# (title_fr, title_en, template, parent_section) may be blank on a given row — see
+# SectionData below for which fields' *values* are actually mandatory.
+SECTION_REQUIRED_FIELD_NAMES: tuple[str, ...] = (
+    "section",
+    "title_fr",
+    "title_en",
+    "in_nav",
+    "template",
+    "parent_section",
+    "abbreviation",
 )
 
 
-@dataclass
-class SectionData:
-    # Fields with no default mirror SECTION_FIELD_SPECS's value_required=True columns
-    # (section, in_nav, abbreviation); every other field may be blank on a given row.
+class SectionData(BaseModel):
+    """
+    One row of the Sections table: a survey section (page), validated on construction.
+
+    Build instances through `collect_sections_issues`, which also runs the rules that
+    need more than one row (unique `section`/`abbreviation`, `parent_section` exists).
+    Constructing a SectionData directly only runs the per-row rules below. Validation
+    is strict: no type coercion (e.g. the string "yes" is rejected for a bool field).
+
+    Field order matters: `in_nav` must stay declared before `title_fr`/`title_en`, since
+    `_titles_required_when_in_nav` reads it back through `info.data`, which Pydantic only
+    fills with earlier-declared fields.
+
+    Attributes:
+        section: Unique name of this section, and the value other rows use in their
+            `parent_section` to nest under it. Required; must be a valid TypeScript
+            identifier and unique across the table.
+        in_nav: Whether this section appears in the navigation menu. Required. When
+            true, `title_fr` and `title_en` become required too.
+        abbreviation: Short code for this section, e.g. "h_". Required; must end with
+            an underscore and be unique across the table.
+        title_fr: French title shown for this section. Only required when `in_nav` is true.
+        title_en: English title shown for this section. Only required when `in_nav` is true.
+        template: How this section is rendered. True means it has its own custom
+            `template.tsx`, a str names a builtin template, and None uses the default
+            (no template). See `generate_section_configs.py`.
+        parent_section: Name of another row's `section` to nest this section under
+            (it then stays out of the navigation menu). If set, must name a real
+            section in this table.
+        has_preload: Whether a `customPreload` function runs before this section loads.
+            Blank is treated as true by `generate_section_configs.py`.
+        enable_conditional: Name of the conditional that decides whether this section's
+            navigation item is enabled. If set, must end with "Conditional" or
+            "CustomConditional". Blank means enabled once the previous section is complete.
+        completion_conditional: Name of the conditional that decides whether this
+            section is complete. Same naming rule as `enable_conditional`. Blank means
+            the default completion check.
+    """
+
+    model_config = ConfigDict(strict=True)
+
+    # No default: a blank value here is a genuinely missing required value.
     section: str
     in_nav: bool
     abbreviation: str
-    title_fr: str | None = None
-    title_en: str | None = None
+
+    # validate_default=True makes the validator run even when the value is blank (and
+    # the key was stripped by _strip_blanks) — the case it actually needs to catch.
+    title_fr: str | None = Field(default=None, validate_default=True)
+    title_en: str | None = Field(default=None, validate_default=True)
+
     template: str | bool | None = None
     parent_section: str | None = None
     has_preload: bool | None = None
     enable_conditional: str | None = None
     completion_conditional: str | None = None
 
+    @field_validator("section")
+    @classmethod
+    def _section_is_valid_identifier(cls, value: str, info: ValidationInfo) -> str:
+        """Check that `section` is a valid TypeScript identifier."""
+        _raise_if_check_fails(
+            survey_custom_data_checks.valid_ts_identifier, value, info.data
+        )
+        return value
 
-# ----------------------------------- Widgets sheet ------------------------------------
+    @field_validator("abbreviation")
+    @classmethod
+    def _abbreviation_ends_with_underscore(
+        cls, value: str, info: ValidationInfo
+    ) -> str:
+        """Check that `abbreviation` ends with an underscore (e.g. "h_")."""
+        _raise_if_check_fails(
+            survey_custom_data_checks.ends_with_underscore, value, info.data
+        )
+        return value
+
+    @field_validator("title_fr", "title_en")
+    @classmethod
+    def _titles_required_when_in_nav(
+        cls, value: str | None, info: ValidationInfo
+    ) -> str | None:
+        """Check that `title_fr`/`title_en` are set whenever this row's `in_nav` is true."""
+        if info.data.get("in_nav") and not value:
+            raise ValueError("title_fr and title_en are required when in_nav is true")
+        return value
+
+    @field_validator("enable_conditional", "completion_conditional")
+    @classmethod
+    def _conditional_name_is_valid(
+        cls, value: str | None, info: ValidationInfo
+    ) -> str | None:
+        """Check that a non-blank `enable_conditional`/`completion_conditional` ends with "Conditional"."""
+        if value is not None:
+            _raise_if_check_fails(
+                survey_custom_data_checks.valid_conditional_name, value, info.data
+            )
+        return value
+
+
+## # ------------------------------------- Widgets --------------------------------------
 
 ## WIDGET_COLUMN_SPECS: tuple[ColumnSpec, ...] = (
 ##     ColumnSpec(
@@ -768,7 +490,7 @@ class SectionData:
 ##     include_not_applicable: bool | None = None
 
 
-## # ----------------------------------- Choices sheet ------------------------------------
+## # ------------------------------------- Choices --------------------------------------
 
 ## CHOICE_COLUMN_SPECS: tuple[ColumnSpec, ...] = (
 ##     ColumnSpec(
@@ -886,7 +608,7 @@ class SectionData:
 ##     hidden: bool = False
 
 
-# ---------------------------------- InputRange sheet ----------------------------------
+## # ------------------------------------ InputRange ------------------------------------
 
 ## INPUT_RANGE_COLUMN_SPECS: tuple[ColumnSpec, ...] = (
 ##     ColumnSpec(
@@ -1040,7 +762,7 @@ class SectionData:
 ##     input_color: str | None = None
 
 
-# --------------------------------- Conditionals sheet ---------------------------------
+## # ----------------------------------- Conditionals -----------------------------------
 
 ## CONDITIONAL_COLUMN_SPECS: tuple[ColumnSpec, ...] = (
 ##     ColumnSpec(
@@ -1134,7 +856,7 @@ class SectionData:
 ##     value_when_hidden: bool | int | float | str | None = None
 
 
-# ------------------------------------ Labels sheet ------------------------------------
+## # -------------------------------------- Labels --------------------------------------
 
 ## LABEL_COLUMN_SPECS: tuple[ColumnSpec, ...] = (
 ##     ColumnSpec(
@@ -1216,14 +938,130 @@ class SectionData:
 ##     label_one_en: str | None = None
 
 
-# Maps each sheet name to its field specs, so a `references` field can point at a
-# different sheet (see FieldReference) and collect_survey_issues can resolve it.
-# Only Sections for now — re-add each other sheet's entry as it's built out below.
-SHEET_FIELD_SPECS: dict[str, tuple[FieldSpec, ...]] = {
-    "Sections": SECTION_FIELD_SPECS,
-    ## "Widgets": WIDGET_COLUMN_SPECS,
-    ## "Choices": CHOICE_COLUMN_SPECS,
-    ## "InputRange": INPUT_RANGE_COLUMN_SPECS,
-    ## "Conditionals": CONDITIONAL_COLUMN_SPECS,
-    ## "Labels": LABEL_COLUMN_SPECS,
-}
+## # Maps each sheet name to its field specs, so a `references` field can point at a
+## # different sheet (see FieldReference) and collect_survey_issues can resolve it.
+## SHEET_FIELD_SPECS: dict[str, tuple[FieldSpec, ...]] = {
+##     "Sections": SECTION_FIELD_SPECS,
+##     "Widgets": WIDGET_COLUMN_SPECS,
+##     "Choices": CHOICE_COLUMN_SPECS,
+##     "InputRange": INPUT_RANGE_COLUMN_SPECS,
+##     "Conditionals": CONDITIONAL_COLUMN_SPECS,
+##     "Labels": LABEL_COLUMN_SPECS,
+## }
+
+
+# ------------------------------------- Helpers --------------------------------------
+
+
+def validate_required_field_names(
+    field_names: list[str], expected_field_names: tuple[str, ...], table_name: str
+) -> None:
+    """
+    Raise if any name in `expected_field_names` is missing from `field_names`.
+
+    Separate from Pydantic's own required-field checking, since a field can be
+    required to exist in the source while still allowing a blank value (e.g. parent_section).
+    """
+    if len(field_names) < len(expected_field_names):
+        raise Exception(
+            f"Too few fields in {table_name}: expected at least "
+            f"{len(expected_field_names)} ({', '.join(expected_field_names)}), "
+            f"got {len(field_names)}"
+        )
+
+    for expected in expected_field_names:
+        if expected not in field_names:
+            raise Exception(f"Missing expected field in {table_name}: {expected}")
+
+
+def format_pydantic_errors(
+    exc: ValidationError, table_name: str, row_number: int
+) -> list[str]:
+    """Convert a ValidationError from parsing one row into our "Error in ... row N" message format."""
+    prefix = f"Error in {table_name} - "
+    errors = exc.errors(include_url=False)
+
+    missing = [str(error["loc"][0]) for error in errors if error["type"] == "missing"]
+    issues: list[str] = []
+    if missing:
+        issues.append(
+            f"{prefix}Required field is missing in row {row_number}. "
+            f"Missing fields: {missing}"
+        )
+
+    for error in errors:
+        if error["type"] == "missing":
+            continue
+        field_name = str(error["loc"][0])
+        reason = error.get("ctx", {}).get("error", error["msg"])
+        issues.append(
+            f"{prefix}Invalid {field_name} in row {row_number}: {error['input']!r} - {reason}"
+        )
+
+    return issues
+
+
+def _strip_blanks(row: dict) -> dict:
+    """Drop None/"" values, so a blank value looks like a genuinely absent key to Pydantic."""
+    return {key: value for key, value in row.items() if value not in (None, "")}
+
+
+def _raise_if_check_fails(check, value, row: dict) -> None:
+    """Run a survey_custom_data_checks-style (value, row) -> bool check; raise ValueError using its docstring on failure."""
+    if not check(value, row):
+        reason = (check.__doc__ or check.__name__).strip().splitlines()[0]
+        raise ValueError(reason)
+
+
+def collect_sections_issues(
+    rows: list[dict], table_name: str = "Sections"
+) -> tuple[list[SectionData], list[str]]:
+    """Parse every Sections row, then check table-wide rules (unique section/abbreviation, parent_section exists). Returns (parsed sections, every issue found)."""
+    issues: list[str] = []
+    parsed: list[tuple[int, SectionData]] = []
+
+    for row_number, row in enumerate(rows, start=2):
+        try:
+            section = SectionData(**_strip_blanks(row))
+        except ValidationError as exc:
+            issues.extend(format_pydantic_errors(exc, table_name, row_number))
+            continue
+        parsed.append((row_number, section))
+
+    issues.extend(_duplicate_value_issues(parsed, "section", table_name))
+    issues.extend(_duplicate_value_issues(parsed, "abbreviation", table_name))
+    issues.extend(_parent_section_issues(parsed, table_name))
+
+    return [section for _, section in parsed], issues
+
+
+def _duplicate_value_issues(
+    rows: list[tuple[int, SectionData]], field_name: str, table_name: str
+) -> list[str]:
+    """Find every value of `field_name` that repeats across `rows`."""
+    prefix = f"Error in {table_name} - "
+    row_numbers_by_value: dict[str, list[int]] = {}
+    for row_number, section in rows:
+        row_numbers_by_value.setdefault(getattr(section, field_name), []).append(
+            row_number
+        )
+    return [
+        f"{prefix}Duplicate {field_name} {value!r}: found in rows {row_numbers}"
+        for value, row_numbers in row_numbers_by_value.items()
+        if len(row_numbers) > 1
+    ]
+
+
+def _parent_section_issues(
+    rows: list[tuple[int, SectionData]], table_name: str
+) -> list[str]:
+    """Find every non-blank `parent_section` that doesn't name a real section in `rows`."""
+    prefix = f"Error in {table_name} - "
+    valid_sections = {section.section for _, section in rows}
+    return [
+        f"{prefix}Invalid parent_section in row {row_number}: "
+        f"{section.parent_section!r} does not match any section value"
+        for row_number, section in rows
+        if section.parent_section is not None
+        and section.parent_section not in valid_sections
+    ]

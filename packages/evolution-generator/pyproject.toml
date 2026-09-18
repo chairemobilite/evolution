@@ -25,8 +25,9 @@ pyyaml = "6.0.1"
 requests = "2.33.0"
 ruamel-yaml = "0.18.5"
 ruamel-yaml-clib = "0.2.8"
-typing-extensions = "4.8.0"
+typing-extensions = "^4.8.0"
 urllib3 = "2.7.0"
+pydantic = "^2.13.5"
 
 [tool.poetry.scripts]
 generateSurvey = "scripts.generate_survey:main"
