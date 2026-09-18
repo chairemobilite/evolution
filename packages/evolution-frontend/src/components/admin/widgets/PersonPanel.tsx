@@ -26,6 +26,7 @@ import { Journey } from 'evolution-common/lib/services/baseObjects/Journey';
 import { VisitedPlace } from 'evolution-common/lib/services/baseObjects/VisitedPlace';
 import { Trip } from 'evolution-common/lib/services/baseObjects/Trip';
 import { Segment } from 'evolution-common/lib/services/baseObjects/Segment';
+import { getAnswerValue } from 'evolution-common/lib/services/baseObjects/attributeTypes/AnswerStatus';
 import { getAnswerDisplayString } from '../../../services/display/answerStatusHelper';
 import { AuditForObject, AuditsByObject } from 'evolution-common/lib/services/audits/types';
 import { VisitedPlaceDecorator } from '../../../services/surveyObjectDecorators/VisitedPlaceDecorator';
@@ -303,11 +304,13 @@ export const PersonPanel = ({
             )}
 
             <br />
-            {journey?.didTrips === 'yes' && (
+            {getAnswerValue(journey?.didTrips) === true && (
                 <span className="_widget _green">{t('interviewStats.labels.didTrips')}</span>
             )}
-            {journey?.didTrips === 'no' && <span className="_widget _green">{t('interviewStats.labels.noTrips')}</span>}
-            {journey?.didTrips === 'dontKnow' && (
+            {getAnswerValue(journey?.didTrips) === false && (
+                <span className="_widget _green">{t('interviewStats.labels.noTrips')}</span>
+            )}
+            {journey?.didTrips?.status === 'dont_know' && (
                 <span className="_widget _red">{t('interviewStats.labels.dontKnowTrips')}</span>
             )}
             {person.drivingLicenseOwnership === 'yes' && (

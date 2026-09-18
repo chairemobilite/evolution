@@ -9,7 +9,12 @@ import { v4 as uuidV4 } from 'uuid';
 import type { Journey } from 'evolution-common/lib/services/baseObjects/Journey';
 import type { Person } from 'evolution-common/lib/services/baseObjects/Person';
 import type { Interview } from 'evolution-common/lib/services/baseObjects/interview/Interview';
+import type { AnswerStatus } from 'evolution-common/lib/services/baseObjects/attributeTypes/AnswerStatus';
 import type { JourneyAuditCheckContext } from '../../../AuditCheckContexts';
+
+export const didTripsYes: AnswerStatus<boolean> = { status: 'answered', value: true };
+export const didTripsNo: AnswerStatus<boolean> = { status: 'answered', value: false };
+export const didTripsDontKnow: AnswerStatus<boolean> = { status: 'dont_know' };
 
 export const createMockJourney = (overrides: Partial<Journey> = {}, validUuid = uuidV4()) => {
     return {
