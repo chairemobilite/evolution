@@ -2,9 +2,9 @@
 # This file is licensed under the MIT License.
 # License text available at https://opensource.org/licenses/MIT
 
-# Note: Reusable per-cell checks for SurveyData column specs (see scripts/generate_survey_data.py).
-# Each check takes the cell's own (already-non-None) value, plus the full row it came
-# from (for checks that depend on a sibling column; unused by most checks here), and
+# Note: Reusable per-field checks for SurveyData field specs (see scripts/generate_survey_data.py).
+# Each check takes the field's own (already-non-None) value, plus the full row it came
+# from (for checks that depend on a sibling field; unused by most checks here), and
 # returns True when the value is valid, False when it isn't. The docstring's first
 # line doubles as the error message collect_row_issues() reports on failure.
 
