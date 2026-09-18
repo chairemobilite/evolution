@@ -165,6 +165,7 @@ This analysis provides a roadmap for extending the Evolution platform's audit ca
 |------|-------------|----------------------------|---------|-------|
 | `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.activity` | Activity type | ✅ | | Present in VisitedPlace |
 | `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.activityCategory` | Activity category | ✅ | | Present in VisitedPlace |
+| `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.activityOtherSpecify` | Other activity specification | ✅ | | Present in VisitedPlace |
 | `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.startDate` | Start date | ✅ | | Present in VisitedPlace |
 | `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.startTime` | Start time | ✅ | | Present in VisitedPlace |
 | `persons.{uuid}.journeys.{uuid}.visitedPlaces.{uuid}.startTimePeriod` | Start time period | ✅ | | Present in VisitedPlace |
