@@ -6,6 +6,7 @@
  */
 
 import { isFeature, isPoint } from 'geojson-validation';
+import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 
 import type { AuditForObject } from 'evolution-common/lib/services/audits/types';
 import type { VisitedPlaceAuditCheckContext, VisitedPlaceAuditCheckFunction } from '../AuditCheckContexts';
@@ -28,6 +29,30 @@ export const visitedPlaceAuditChecks: { [errorCode: string]: VisitedPlaceAuditCh
                 version: 1,
                 level: 'error',
                 message: 'Visited place geography is missing',
+                ignore: false
+            };
+        }
+
+        return undefined; // No audit needed
+    },
+
+    /**
+     * Check if visited place activity is missing.
+     * `activityCategory` is coarser and does not replace `activity`.
+     * @param context - VisitedPlaceAuditCheckContext
+     * @returns AuditForObject
+     */
+    VP_M_Activity: (context: VisitedPlaceAuditCheckContext): AuditForObject | undefined => {
+        const { visitedPlace } = context;
+
+        if (_isBlank(visitedPlace.activity)) {
+            return {
+                objectType: 'visitedPlace',
+                objectUuid: visitedPlace._uuid!,
+                errorCode: 'VP_M_Activity',
+                version: 1,
+                level: 'error',
+                message: 'Visited place activity is missing',
                 ignore: false
             };
         }
