@@ -38,3 +38,23 @@ export const createContextWithVisitedPlace = (visitedPlaceOverrides: Partial<Vis
         interview: { _uuid: uuidV4() } as unknown as Interview
     };
 };
+
+/**
+ * Build a context whose journey lists the given places in order.
+ * First / last and loop-activity handoffs are read from that list.
+ */
+export const createContextWithVisitedPlaces = (
+    placeOverrides: Partial<VisitedPlace>[],
+    auditedIndex: number
+): VisitedPlaceAuditCheckContext => {
+    const visitedPlaces = placeOverrides.map((overrides) => createMockVisitedPlace(overrides, overrides._uuid));
+    const visitedPlace = visitedPlaces[auditedIndex];
+    return {
+        visitedPlace,
+        person: { _uuid: uuidV4() } as unknown as Person,
+        journey: { _uuid: uuidV4(), visitedPlaces } as unknown as Journey,
+        household: undefined,
+        home: undefined,
+        interview: { _uuid: uuidV4() } as unknown as Interview
+    };
+};
