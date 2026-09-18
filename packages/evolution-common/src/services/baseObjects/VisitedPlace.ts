@@ -37,6 +37,7 @@ export const visitedPlaceAttributes = [
     '_sequence',
     'activity',
     'activityCategory',
+    'activityOtherSpecify',
     'isShortcut',
     'preData'
 ];
@@ -53,6 +54,8 @@ export type VisitedPlaceAttributes = {
     _sequence?: Optional<number>;
     activity?: Optional<VPAttr.Activity>;
     activityCategory?: Optional<VPAttr.ActivityCategory>;
+    /** Free-text activity when `activity` is `other`. */
+    activityOtherSpecify?: Optional<string>;
     /** Whether this place was created from an interview shortcut */
     isShortcut?: Optional<boolean>;
     preData?: Optional<PreData>;
@@ -212,6 +215,14 @@ export class VisitedPlace extends SurveyObject {
         this._attributes.activityCategory = value;
     }
 
+    get activityOtherSpecify(): Optional<string> {
+        return this._attributes.activityOtherSpecify;
+    }
+
+    set activityOtherSpecify(value: Optional<string>) {
+        this._attributes.activityOtherSpecify = value;
+    }
+
     get geography(): Optional<GeoJSON.Feature<GeoJSON.Point>> {
         return this._place?.geography;
     }
@@ -318,6 +329,9 @@ export class VisitedPlace extends SurveyObject {
         // Validate visited place specific attributes:
         errors.push(...ParamsValidatorUtils.isString('activity', dirtyParams.activity, displayName));
         errors.push(...ParamsValidatorUtils.isString('activityCategory', dirtyParams.activityCategory, displayName));
+        errors.push(
+            ...ParamsValidatorUtils.isString('activityOtherSpecify', dirtyParams.activityOtherSpecify, displayName)
+        );
         errors.push(...ParamsValidatorUtils.isBoolean('isShortcut', dirtyParams.isShortcut, displayName));
 
         errors.push(...ParamsValidatorUtils.isRecord('preData', dirtyParams.preData, displayName, false));
