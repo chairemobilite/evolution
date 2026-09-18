@@ -34,11 +34,11 @@ class SurveyData:
     """
 
     sections: list[SectionData] = field(default_factory=list)
-    widgets: list[WidgetData] = field(default_factory=list)
-    choices: list[ChoiceData] = field(default_factory=list)
-    input_ranges: list[InputRangeData] = field(default_factory=list)
-    conditionals: list[ConditionalData] = field(default_factory=list)
-    labels: list[LabelData] = field(default_factory=list)
+    ## widgets: list[WidgetData] = field(default_factory=list)
+    ## choices: list[ChoiceData] = field(default_factory=list)
+    ## input_ranges: list[InputRangeData] = field(default_factory=list)
+    ## conditionals: list[ConditionalData] = field(default_factory=list)
+    ## labels: list[LabelData] = field(default_factory=list)
 
 
 # A per-cell check: takes the cell's own (already-non-None) value, plus the full row
@@ -442,784 +442,784 @@ class SectionData:
 
 # ----------------------------------- Widgets sheet ------------------------------------
 
-WIDGET_COLUMN_SPECS: tuple[ColumnSpec, ...] = (
-    ColumnSpec(
-        field="question_name",
-        header="questionName",
-        required=True,
-        value_required=True,
-        allowed_values=None,
-        allowed_types=None,
-        unique=False,
-        references=None,
-        custom_data_checks=(survey_custom_data_checks.valid_ts_identifier,),
-    ),
-    ColumnSpec(
-        field="input_type",
-        header="inputType",
-        required=True,
-        value_required=True,
-        allowed_values=frozenset(
-            {
-                "Custom",
-                "BuiltIn",
-                "Radio",
-                "RadioNumber",
-                "Select",
-                "String",
-                "Number",
-                "InfoText",
-                "Range",
-                "Checkbox",
-                "NextButton",
-                "Text",
-            }
-        ),
-        allowed_types=None,
-        unique=False,
-        references=None,
-        custom_data_checks=(),
-    ),
-    ColumnSpec(
-        field="section",
-        header="section",
-        required=True,
-        value_required=True,
-        allowed_values=None,
-        allowed_types=None,
-        unique=False,
-        references=None,
-        custom_data_checks=(survey_custom_data_checks.valid_ts_identifier,),
-    ),
-    ColumnSpec(
-        field="path",
-        header="path",
-        required=True,
-        value_required=True,
-        allowed_values=None,
-        allowed_types=None,
-        unique=False,
-        references=None,
-        custom_data_checks=(survey_custom_data_checks.valid_path_chars,),
-    ),
-    ColumnSpec(
-        field="active",
-        header="active",
-        required=True,
-        value_required=False,
-        allowed_values=None,
-        allowed_types=(bool,),
-        unique=False,
-        references=None,
-        custom_data_checks=(),
-    ),
-    ColumnSpec(
-        field="conditional",
-        header="conditional",
-        required=True,
-        value_required=False,
-        allowed_values=None,
-        allowed_types=None,
-        unique=False,
-        references=None,
-        custom_data_checks=(),
-    ),
-    ColumnSpec(
-        field="validation",
-        header="validation",
-        required=True,
-        value_required=False,
-        allowed_values=None,
-        allowed_types=None,
-        unique=False,
-        references=None,
-        custom_data_checks=(),
-    ),
-    ColumnSpec(
-        field="input_range",
-        header="inputRange",
-        required=True,
-        value_required=False,
-        allowed_values=None,
-        allowed_types=None,
-        unique=False,
-        references=None,
-        custom_data_checks=(),
-    ),
-    ColumnSpec(
-        field="help_popup",
-        header="help_popup",
-        required=True,
-        value_required=False,
-        allowed_values=None,
-        allowed_types=None,
-        unique=False,
-        references=None,
-        custom_data_checks=(),
-    ),
-    ColumnSpec(
-        field="choices",
-        header="choices",
-        required=True,
-        value_required=False,
-        allowed_values=None,
-        allowed_types=None,
-        unique=False,
-        references=None,
-        custom_data_checks=(),
-    ),
-    ColumnSpec(
-        field="confirm_popup",
-        header="confirm_popup",
-        required=False,
-        value_required=False,
-        allowed_values=None,
-        allowed_types=None,
-        unique=False,
-        references=None,
-        custom_data_checks=(),
-    ),
-    ColumnSpec(
-        field="comments",
-        header="comments",
-        required=False,
-        value_required=False,
-        allowed_values=None,
-        allowed_types=None,
-        unique=False,
-        references=None,
-        custom_data_checks=(),
-    ),
-    ColumnSpec(
-        field="parameters",
-        header="parameters",
-        required=False,
-        value_required=False,
-        allowed_values=None,
-        allowed_types=None,
-        unique=False,
-        references=None,
-        custom_data_checks=(),
-    ),
-    ColumnSpec(
-        field="label_fr",
-        header="label::fr",
-        required=False,
-        value_required=False,
-        allowed_values=None,
-        allowed_types=None,
-        unique=False,
-        references=None,
-        custom_data_checks=(),
-    ),
-    ColumnSpec(
-        field="label_en",
-        header="label::en",
-        required=False,
-        value_required=False,
-        allowed_values=None,
-        allowed_types=None,
-        unique=False,
-        references=None,
-        custom_data_checks=(),
-    ),
-    ColumnSpec(
-        field="label_one_fr",
-        header="label_one::fr",
-        required=False,
-        value_required=False,
-        allowed_values=None,
-        allowed_types=None,
-        unique=False,
-        references=None,
-        custom_data_checks=(),
-    ),
-    ColumnSpec(
-        field="label_one_en",
-        header="label_one::en",
-        required=False,
-        value_required=False,
-        allowed_values=None,
-        allowed_types=None,
-        unique=False,
-        references=None,
-        custom_data_checks=(),
-    ),
-    ColumnSpec(
-        field="group",
-        header="group",
-        required=False,
-        value_required=False,
-        allowed_values=None,
-        allowed_types=None,
-        unique=False,
-        references=None,
-        custom_data_checks=(),
-    ),
-    ColumnSpec(
-        field="two_columns",
-        header="twoColumns",
-        required=False,
-        value_required=False,
-        allowed_values=None,
-        allowed_types=(bool,),
-        unique=False,
-        references=None,
-        custom_data_checks=(),
-    ),
-    ColumnSpec(
-        field="contains_html",
-        header="containsHtml",
-        required=False,
-        value_required=False,
-        allowed_values=None,
-        allowed_types=(bool,),
-        unique=False,
-        references=None,
-        custom_data_checks=(),
-    ),
-    ColumnSpec(
-        field="appearance",
-        header="appearance",
-        required=False,
-        value_required=False,
-        allowed_values=None,
-        allowed_types=None,
-        unique=False,
-        references=None,
-        custom_data_checks=(),
-    ),
-    ColumnSpec(
-        field="custom_path",
-        header="customPath",
-        required=False,
-        value_required=False,
-        allowed_values=None,
-        allowed_types=None,
-        unique=False,
-        references=None,
-        custom_data_checks=(),
-    ),
-    ColumnSpec(
-        field="custom_choice",
-        header="customChoice",
-        required=False,
-        value_required=False,
-        allowed_values=None,
-        allowed_types=None,
-        unique=False,
-        references=None,
-        custom_data_checks=(),
-    ),
-    ColumnSpec(
-        field="default_value",
-        header="defaultValue",
-        required=False,
-        value_required=False,
-        allowed_values=None,
-        allowed_types=None,
-        unique=False,
-        references=None,
-        custom_data_checks=(),
-    ),
-    ColumnSpec(
-        field="include_not_applicable",
-        header="includeNotApplicable",
-        required=False,
-        value_required=False,
-        allowed_values=None,
-        allowed_types=(bool,),
-        unique=False,
-        references=None,
-        custom_data_checks=(),
-    ),
-)
+## WIDGET_COLUMN_SPECS: tuple[ColumnSpec, ...] = (
+##     ColumnSpec(
+##         field="question_name",
+##         header="questionName",
+##         required=True,
+##         value_required=True,
+##         allowed_values=None,
+##         allowed_types=None,
+##         unique=False,
+##         references=None,
+##         custom_data_checks=(survey_custom_data_checks.valid_ts_identifier,),
+##     ),
+##     ColumnSpec(
+##         field="input_type",
+##         header="inputType",
+##         required=True,
+##         value_required=True,
+##         allowed_values=frozenset(
+##             {
+##                 "Custom",
+##                 "BuiltIn",
+##                 "Radio",
+##                 "RadioNumber",
+##                 "Select",
+##                 "String",
+##                 "Number",
+##                 "InfoText",
+##                 "Range",
+##                 "Checkbox",
+##                 "NextButton",
+##                 "Text",
+##             }
+##         ),
+##         allowed_types=None,
+##         unique=False,
+##         references=None,
+##         custom_data_checks=(),
+##     ),
+##     ColumnSpec(
+##         field="section",
+##         header="section",
+##         required=True,
+##         value_required=True,
+##         allowed_values=None,
+##         allowed_types=None,
+##         unique=False,
+##         references=None,
+##         custom_data_checks=(survey_custom_data_checks.valid_ts_identifier,),
+##     ),
+##     ColumnSpec(
+##         field="path",
+##         header="path",
+##         required=True,
+##         value_required=True,
+##         allowed_values=None,
+##         allowed_types=None,
+##         unique=False,
+##         references=None,
+##         custom_data_checks=(survey_custom_data_checks.valid_path_chars,),
+##     ),
+##     ColumnSpec(
+##         field="active",
+##         header="active",
+##         required=True,
+##         value_required=False,
+##         allowed_values=None,
+##         allowed_types=(bool,),
+##         unique=False,
+##         references=None,
+##         custom_data_checks=(),
+##     ),
+##     ColumnSpec(
+##         field="conditional",
+##         header="conditional",
+##         required=True,
+##         value_required=False,
+##         allowed_values=None,
+##         allowed_types=None,
+##         unique=False,
+##         references=None,
+##         custom_data_checks=(),
+##     ),
+##     ColumnSpec(
+##         field="validation",
+##         header="validation",
+##         required=True,
+##         value_required=False,
+##         allowed_values=None,
+##         allowed_types=None,
+##         unique=False,
+##         references=None,
+##         custom_data_checks=(),
+##     ),
+##     ColumnSpec(
+##         field="input_range",
+##         header="inputRange",
+##         required=True,
+##         value_required=False,
+##         allowed_values=None,
+##         allowed_types=None,
+##         unique=False,
+##         references=None,
+##         custom_data_checks=(),
+##     ),
+##     ColumnSpec(
+##         field="help_popup",
+##         header="help_popup",
+##         required=True,
+##         value_required=False,
+##         allowed_values=None,
+##         allowed_types=None,
+##         unique=False,
+##         references=None,
+##         custom_data_checks=(),
+##     ),
+##     ColumnSpec(
+##         field="choices",
+##         header="choices",
+##         required=True,
+##         value_required=False,
+##         allowed_values=None,
+##         allowed_types=None,
+##         unique=False,
+##         references=None,
+##         custom_data_checks=(),
+##     ),
+##     ColumnSpec(
+##         field="confirm_popup",
+##         header="confirm_popup",
+##         required=False,
+##         value_required=False,
+##         allowed_values=None,
+##         allowed_types=None,
+##         unique=False,
+##         references=None,
+##         custom_data_checks=(),
+##     ),
+##     ColumnSpec(
+##         field="comments",
+##         header="comments",
+##         required=False,
+##         value_required=False,
+##         allowed_values=None,
+##         allowed_types=None,
+##         unique=False,
+##         references=None,
+##         custom_data_checks=(),
+##     ),
+##     ColumnSpec(
+##         field="parameters",
+##         header="parameters",
+##         required=False,
+##         value_required=False,
+##         allowed_values=None,
+##         allowed_types=None,
+##         unique=False,
+##         references=None,
+##         custom_data_checks=(),
+##     ),
+##     ColumnSpec(
+##         field="label_fr",
+##         header="label::fr",
+##         required=False,
+##         value_required=False,
+##         allowed_values=None,
+##         allowed_types=None,
+##         unique=False,
+##         references=None,
+##         custom_data_checks=(),
+##     ),
+##     ColumnSpec(
+##         field="label_en",
+##         header="label::en",
+##         required=False,
+##         value_required=False,
+##         allowed_values=None,
+##         allowed_types=None,
+##         unique=False,
+##         references=None,
+##         custom_data_checks=(),
+##     ),
+##     ColumnSpec(
+##         field="label_one_fr",
+##         header="label_one::fr",
+##         required=False,
+##         value_required=False,
+##         allowed_values=None,
+##         allowed_types=None,
+##         unique=False,
+##         references=None,
+##         custom_data_checks=(),
+##     ),
+##     ColumnSpec(
+##         field="label_one_en",
+##         header="label_one::en",
+##         required=False,
+##         value_required=False,
+##         allowed_values=None,
+##         allowed_types=None,
+##         unique=False,
+##         references=None,
+##         custom_data_checks=(),
+##     ),
+##     ColumnSpec(
+##         field="group",
+##         header="group",
+##         required=False,
+##         value_required=False,
+##         allowed_values=None,
+##         allowed_types=None,
+##         unique=False,
+##         references=None,
+##         custom_data_checks=(),
+##     ),
+##     ColumnSpec(
+##         field="two_columns",
+##         header="twoColumns",
+##         required=False,
+##         value_required=False,
+##         allowed_values=None,
+##         allowed_types=(bool,),
+##         unique=False,
+##         references=None,
+##         custom_data_checks=(),
+##     ),
+##     ColumnSpec(
+##         field="contains_html",
+##         header="containsHtml",
+##         required=False,
+##         value_required=False,
+##         allowed_values=None,
+##         allowed_types=(bool,),
+##         unique=False,
+##         references=None,
+##         custom_data_checks=(),
+##     ),
+##     ColumnSpec(
+##         field="appearance",
+##         header="appearance",
+##         required=False,
+##         value_required=False,
+##         allowed_values=None,
+##         allowed_types=None,
+##         unique=False,
+##         references=None,
+##         custom_data_checks=(),
+##     ),
+##     ColumnSpec(
+##         field="custom_path",
+##         header="customPath",
+##         required=False,
+##         value_required=False,
+##         allowed_values=None,
+##         allowed_types=None,
+##         unique=False,
+##         references=None,
+##         custom_data_checks=(),
+##     ),
+##     ColumnSpec(
+##         field="custom_choice",
+##         header="customChoice",
+##         required=False,
+##         value_required=False,
+##         allowed_values=None,
+##         allowed_types=None,
+##         unique=False,
+##         references=None,
+##         custom_data_checks=(),
+##     ),
+##     ColumnSpec(
+##         field="default_value",
+##         header="defaultValue",
+##         required=False,
+##         value_required=False,
+##         allowed_values=None,
+##         allowed_types=None,
+##         unique=False,
+##         references=None,
+##         custom_data_checks=(),
+##     ),
+##     ColumnSpec(
+##         field="include_not_applicable",
+##         header="includeNotApplicable",
+##         required=False,
+##         value_required=False,
+##         allowed_values=None,
+##         allowed_types=(bool,),
+##         unique=False,
+##         references=None,
+##         custom_data_checks=(),
+##     ),
+## )
 
 
-@dataclass
-class WidgetData:
-    question_name: str
-    input_type: str
-    section: str
-    path: str
-    active: bool | None = None
-    conditional: str | None = None
-    validation: str | None = None
-    input_range: str | None = None
-    help_popup: str | None = None
-    choices: str | None = None
-    confirm_popup: str | None = None
-    comments: str | None = None
-    parameters: str | None = None
-    label_fr: str | None = None
-    label_en: str | None = None
-    label_one_fr: str | None = None
-    label_one_en: str | None = None
-    group: str | None = None
-    two_columns: bool | None = None
-    contains_html: bool | None = None
-    appearance: str | None = None
-    custom_path: str | None = None
-    custom_choice: str | None = None
-    default_value: str | None = None
-    include_not_applicable: bool | None = None
+## @dataclass
+## class WidgetData:
+##     question_name: str
+##     input_type: str
+##     section: str
+##     path: str
+##     active: bool | None = None
+##     conditional: str | None = None
+##     validation: str | None = None
+##     input_range: str | None = None
+##     help_popup: str | None = None
+##     choices: str | None = None
+##     confirm_popup: str | None = None
+##     comments: str | None = None
+##     parameters: str | None = None
+##     label_fr: str | None = None
+##     label_en: str | None = None
+##     label_one_fr: str | None = None
+##     label_one_en: str | None = None
+##     group: str | None = None
+##     two_columns: bool | None = None
+##     contains_html: bool | None = None
+##     appearance: str | None = None
+##     custom_path: str | None = None
+##     custom_choice: str | None = None
+##     default_value: str | None = None
+##     include_not_applicable: bool | None = None
 
 
-# ----------------------------------- Choices sheet ------------------------------------
+## # ----------------------------------- Choices sheet ------------------------------------
 
-CHOICE_COLUMN_SPECS: tuple[ColumnSpec, ...] = (
-    ColumnSpec(
-        field="choices_name",
-        header="choicesName",
-        required=True,
-        value_required=True,
-        allowed_values=None,
-        allowed_types=None,
-        unique=False,
-        references=None,
-        custom_data_checks=(survey_custom_data_checks.valid_ts_identifier,),
-    ),
-    ColumnSpec(
-        field="value",
-        header="value",
-        required=True,
-        value_required=False,
-        allowed_values=None,
-        allowed_types=None,
-        unique=False,
-        references=None,
-        custom_data_checks=(),
-    ),
-    ColumnSpec(
-        field="label_fr",
-        header="label::fr",
-        required=True,
-        value_required=False,
-        allowed_values=None,
-        allowed_types=None,
-        unique=False,
-        references=None,
-        custom_data_checks=(),
-    ),
-    ColumnSpec(
-        field="label_en",
-        header="label::en",
-        required=True,
-        value_required=False,
-        allowed_values=None,
-        allowed_types=None,
-        unique=False,
-        references=None,
-        custom_data_checks=(),
-    ),
-    ColumnSpec(
-        field="label_one_fr",
-        header="label_one::fr",
-        required=True,
-        value_required=False,
-        allowed_values=None,
-        allowed_types=None,
-        unique=False,
-        references=None,
-        custom_data_checks=(),
-    ),
-    ColumnSpec(
-        field="label_one_en",
-        header="label_one::en",
-        required=True,
-        value_required=False,
-        allowed_values=None,
-        allowed_types=None,
-        unique=False,
-        references=None,
-        custom_data_checks=(),
-    ),
-    ColumnSpec(
-        field="spread_choices_name",
-        header="spreadChoicesName",
-        required=True,
-        value_required=False,
-        allowed_values=None,
-        allowed_types=None,
-        unique=False,
-        references=None,
-        custom_data_checks=(),
-    ),
-    ColumnSpec(
-        field="conditional",
-        header="conditional",
-        required=True,
-        value_required=False,
-        allowed_values=None,
-        allowed_types=None,
-        unique=False,
-        references=None,
-        custom_data_checks=(),
-    ),
-    ColumnSpec(
-        field="hidden",
-        header="hidden",
-        required=False,
-        value_required=False,
-        allowed_values=None,
-        allowed_types=(bool,),
-        unique=False,
-        references=None,
-        custom_data_checks=(),
-    ),
-)
+## CHOICE_COLUMN_SPECS: tuple[ColumnSpec, ...] = (
+##     ColumnSpec(
+##         field="choices_name",
+##         header="choicesName",
+##         required=True,
+##         value_required=True,
+##         allowed_values=None,
+##         allowed_types=None,
+##         unique=False,
+##         references=None,
+##         custom_data_checks=(survey_custom_data_checks.valid_ts_identifier,),
+##     ),
+##     ColumnSpec(
+##         field="value",
+##         header="value",
+##         required=True,
+##         value_required=False,
+##         allowed_values=None,
+##         allowed_types=None,
+##         unique=False,
+##         references=None,
+##         custom_data_checks=(),
+##     ),
+##     ColumnSpec(
+##         field="label_fr",
+##         header="label::fr",
+##         required=True,
+##         value_required=False,
+##         allowed_values=None,
+##         allowed_types=None,
+##         unique=False,
+##         references=None,
+##         custom_data_checks=(),
+##     ),
+##     ColumnSpec(
+##         field="label_en",
+##         header="label::en",
+##         required=True,
+##         value_required=False,
+##         allowed_values=None,
+##         allowed_types=None,
+##         unique=False,
+##         references=None,
+##         custom_data_checks=(),
+##     ),
+##     ColumnSpec(
+##         field="label_one_fr",
+##         header="label_one::fr",
+##         required=True,
+##         value_required=False,
+##         allowed_values=None,
+##         allowed_types=None,
+##         unique=False,
+##         references=None,
+##         custom_data_checks=(),
+##     ),
+##     ColumnSpec(
+##         field="label_one_en",
+##         header="label_one::en",
+##         required=True,
+##         value_required=False,
+##         allowed_values=None,
+##         allowed_types=None,
+##         unique=False,
+##         references=None,
+##         custom_data_checks=(),
+##     ),
+##     ColumnSpec(
+##         field="spread_choices_name",
+##         header="spreadChoicesName",
+##         required=True,
+##         value_required=False,
+##         allowed_values=None,
+##         allowed_types=None,
+##         unique=False,
+##         references=None,
+##         custom_data_checks=(),
+##     ),
+##     ColumnSpec(
+##         field="conditional",
+##         header="conditional",
+##         required=True,
+##         value_required=False,
+##         allowed_values=None,
+##         allowed_types=None,
+##         unique=False,
+##         references=None,
+##         custom_data_checks=(),
+##     ),
+##     ColumnSpec(
+##         field="hidden",
+##         header="hidden",
+##         required=False,
+##         value_required=False,
+##         allowed_values=None,
+##         allowed_types=(bool,),
+##         unique=False,
+##         references=None,
+##         custom_data_checks=(),
+##     ),
+## )
 
 
-@dataclass
-class ChoiceData:
-    choices_name: str
-    value: str | int | float | bool | None = None
-    label_fr: str | None = None
-    label_en: str | None = None
-    label_one_fr: str | None = None
-    label_one_en: str | None = None
-    spread_choices_name: str | None = None
-    conditional: str | None = None
-    hidden: bool = False
+## @dataclass
+## class ChoiceData:
+##     choices_name: str
+##     value: str | int | float | bool | None = None
+##     label_fr: str | None = None
+##     label_en: str | None = None
+##     label_one_fr: str | None = None
+##     label_one_en: str | None = None
+##     spread_choices_name: str | None = None
+##     conditional: str | None = None
+##     hidden: bool = False
 
 
 # ---------------------------------- InputRange sheet ----------------------------------
 
-INPUT_RANGE_COLUMN_SPECS: tuple[ColumnSpec, ...] = (
-    ColumnSpec(
-        field="input_range_name",
-        header="inputRangeName",
-        required=True,
-        value_required=True,
-        allowed_values=None,
-        allowed_types=None,
-        unique=False,
-        references=None,
-        custom_data_checks=(survey_custom_data_checks.valid_ts_identifier,),
-    ),
-    ColumnSpec(
-        field="label_fr_min",
-        header="labelFrMin",
-        required=True,
-        value_required=True,
-        allowed_values=None,
-        allowed_types=None,
-        unique=False,
-        references=None,
-        custom_data_checks=(),
-    ),
-    ColumnSpec(
-        field="label_fr_max",
-        header="labelFrMax",
-        required=True,
-        value_required=True,
-        allowed_values=None,
-        allowed_types=None,
-        unique=False,
-        references=None,
-        custom_data_checks=(),
-    ),
-    ColumnSpec(
-        field="label_en_min",
-        header="labelEnMin",
-        required=True,
-        value_required=True,
-        allowed_values=None,
-        allowed_types=None,
-        unique=False,
-        references=None,
-        custom_data_checks=(),
-    ),
-    ColumnSpec(
-        field="label_en_max",
-        header="labelEnMax",
-        required=True,
-        value_required=True,
-        allowed_values=None,
-        allowed_types=None,
-        unique=False,
-        references=None,
-        custom_data_checks=(),
-    ),
-    ColumnSpec(
-        field="min_value",
-        header="minValue",
-        required=True,
-        value_required=True,
-        allowed_values=None,
-        allowed_types=None,
-        unique=False,
-        references=None,
-        custom_data_checks=(),
-    ),
-    ColumnSpec(
-        field="max_value",
-        header="maxValue",
-        required=True,
-        value_required=True,
-        allowed_values=None,
-        allowed_types=None,
-        unique=False,
-        references=None,
-        custom_data_checks=(),
-    ),
-    ColumnSpec(
-        field="unit_fr",
-        header="unitFr",
-        required=True,
-        value_required=True,
-        allowed_values=None,
-        allowed_types=None,
-        unique=False,
-        references=None,
-        custom_data_checks=(),
-    ),
-    ColumnSpec(
-        field="unit_en",
-        header="unitEn",
-        required=True,
-        value_required=True,
-        allowed_values=None,
-        allowed_types=None,
-        unique=False,
-        references=None,
-        custom_data_checks=(),
-    ),
-    ColumnSpec(
-        field="label_fr_middle",
-        header="labelFrMiddle",
-        required=False,
-        value_required=False,
-        allowed_values=None,
-        allowed_types=None,
-        unique=False,
-        references=None,
-        custom_data_checks=(),
-    ),
-    ColumnSpec(
-        field="label_en_middle",
-        header="labelEnMiddle",
-        required=False,
-        value_required=False,
-        allowed_values=None,
-        allowed_types=None,
-        unique=False,
-        references=None,
-        custom_data_checks=(),
-    ),
-    ColumnSpec(
-        field="input_color",
-        header="input_color",
-        required=False,
-        value_required=False,
-        allowed_values=None,
-        allowed_types=None,
-        unique=False,
-        references=None,
-        custom_data_checks=(),
-    ),
-)
+## INPUT_RANGE_COLUMN_SPECS: tuple[ColumnSpec, ...] = (
+##     ColumnSpec(
+##         field="input_range_name",
+##         header="inputRangeName",
+##         required=True,
+##         value_required=True,
+##         allowed_values=None,
+##         allowed_types=None,
+##         unique=False,
+##         references=None,
+##         custom_data_checks=(survey_custom_data_checks.valid_ts_identifier,),
+##     ),
+##     ColumnSpec(
+##         field="label_fr_min",
+##         header="labelFrMin",
+##         required=True,
+##         value_required=True,
+##         allowed_values=None,
+##         allowed_types=None,
+##         unique=False,
+##         references=None,
+##         custom_data_checks=(),
+##     ),
+##     ColumnSpec(
+##         field="label_fr_max",
+##         header="labelFrMax",
+##         required=True,
+##         value_required=True,
+##         allowed_values=None,
+##         allowed_types=None,
+##         unique=False,
+##         references=None,
+##         custom_data_checks=(),
+##     ),
+##     ColumnSpec(
+##         field="label_en_min",
+##         header="labelEnMin",
+##         required=True,
+##         value_required=True,
+##         allowed_values=None,
+##         allowed_types=None,
+##         unique=False,
+##         references=None,
+##         custom_data_checks=(),
+##     ),
+##     ColumnSpec(
+##         field="label_en_max",
+##         header="labelEnMax",
+##         required=True,
+##         value_required=True,
+##         allowed_values=None,
+##         allowed_types=None,
+##         unique=False,
+##         references=None,
+##         custom_data_checks=(),
+##     ),
+##     ColumnSpec(
+##         field="min_value",
+##         header="minValue",
+##         required=True,
+##         value_required=True,
+##         allowed_values=None,
+##         allowed_types=None,
+##         unique=False,
+##         references=None,
+##         custom_data_checks=(),
+##     ),
+##     ColumnSpec(
+##         field="max_value",
+##         header="maxValue",
+##         required=True,
+##         value_required=True,
+##         allowed_values=None,
+##         allowed_types=None,
+##         unique=False,
+##         references=None,
+##         custom_data_checks=(),
+##     ),
+##     ColumnSpec(
+##         field="unit_fr",
+##         header="unitFr",
+##         required=True,
+##         value_required=True,
+##         allowed_values=None,
+##         allowed_types=None,
+##         unique=False,
+##         references=None,
+##         custom_data_checks=(),
+##     ),
+##     ColumnSpec(
+##         field="unit_en",
+##         header="unitEn",
+##         required=True,
+##         value_required=True,
+##         allowed_values=None,
+##         allowed_types=None,
+##         unique=False,
+##         references=None,
+##         custom_data_checks=(),
+##     ),
+##     ColumnSpec(
+##         field="label_fr_middle",
+##         header="labelFrMiddle",
+##         required=False,
+##         value_required=False,
+##         allowed_values=None,
+##         allowed_types=None,
+##         unique=False,
+##         references=None,
+##         custom_data_checks=(),
+##     ),
+##     ColumnSpec(
+##         field="label_en_middle",
+##         header="labelEnMiddle",
+##         required=False,
+##         value_required=False,
+##         allowed_values=None,
+##         allowed_types=None,
+##         unique=False,
+##         references=None,
+##         custom_data_checks=(),
+##     ),
+##     ColumnSpec(
+##         field="input_color",
+##         header="input_color",
+##         required=False,
+##         value_required=False,
+##         allowed_values=None,
+##         allowed_types=None,
+##         unique=False,
+##         references=None,
+##         custom_data_checks=(),
+##     ),
+## )
 
 
-@dataclass
-class InputRangeData:
-    input_range_name: str
-    label_fr_min: str
-    label_fr_max: str
-    label_en_min: str
-    label_en_max: str
-    min_value: int | float
-    max_value: int | float
-    unit_fr: str
-    unit_en: str
-    label_fr_middle: str | None = None
-    label_en_middle: str | None = None
-    input_color: str | None = None
+## @dataclass
+## class InputRangeData:
+##     input_range_name: str
+##     label_fr_min: str
+##     label_fr_max: str
+##     label_en_min: str
+##     label_en_max: str
+##     min_value: int | float
+##     max_value: int | float
+##     unit_fr: str
+##     unit_en: str
+##     label_fr_middle: str | None = None
+##     label_en_middle: str | None = None
+##     input_color: str | None = None
 
 
 # --------------------------------- Conditionals sheet ---------------------------------
 
-CONDITIONAL_COLUMN_SPECS: tuple[ColumnSpec, ...] = (
-    ColumnSpec(
-        field="conditional_name",
-        header="conditional_name",
-        required=True,
-        value_required=True,
-        allowed_values=None,
-        allowed_types=(str,),
-        unique=False,
-        references=None,
-        custom_data_checks=(),
-    ),
-    ColumnSpec(
-        field="logical_operator",
-        header="logical_operator",
-        required=False,
-        value_required=False,
-        allowed_values=frozenset({"||", "&&", None}),
-        allowed_types=None,
-        unique=False,
-        references=None,
-        custom_data_checks=(),
-    ),
-    ColumnSpec(
-        field="path",
-        header="path",
-        required=True,
-        value_required=True,
-        allowed_values=None,
-        allowed_types=(str,),
-        unique=False,
-        references=None,
-        custom_data_checks=(),
-    ),
-    ColumnSpec(
-        field="comparison_operator",
-        header="comparison_operator",
-        required=True,
-        value_required=True,
-        allowed_values=frozenset({"===", "!==", ">", "<", ">=", "<="}),
-        allowed_types=None,
-        unique=False,
-        references=None,
-        custom_data_checks=(),
-    ),
-    ColumnSpec(
-        field="value",
-        header="value",
-        required=True,
-        value_required=True,
-        allowed_values=None,
-        allowed_types=(bool, int, float, str),
-        unique=False,
-        references=None,
-        custom_data_checks=(),
-    ),
-    ColumnSpec(
-        field="parentheses",
-        header="parentheses",
-        required=False,
-        value_required=False,
-        allowed_values=frozenset({"(", ")", None}),
-        allowed_types=None,
-        unique=False,
-        references=None,
-        custom_data_checks=(),
-    ),
-    ColumnSpec(
-        field="value_when_hidden",
-        header="value_when_hidden",
-        required=False,
-        value_required=False,
-        allowed_values=None,
-        allowed_types=(bool, int, float, str),
-        unique=False,
-        references=None,
-        custom_data_checks=(),
-    ),
-)
+## CONDITIONAL_COLUMN_SPECS: tuple[ColumnSpec, ...] = (
+##     ColumnSpec(
+##         field="conditional_name",
+##         header="conditional_name",
+##         required=True,
+##         value_required=True,
+##         allowed_values=None,
+##         allowed_types=(str,),
+##         unique=False,
+##         references=None,
+##         custom_data_checks=(),
+##     ),
+##     ColumnSpec(
+##         field="logical_operator",
+##         header="logical_operator",
+##         required=False,
+##         value_required=False,
+##         allowed_values=frozenset({"||", "&&", None}),
+##         allowed_types=None,
+##         unique=False,
+##         references=None,
+##         custom_data_checks=(),
+##     ),
+##     ColumnSpec(
+##         field="path",
+##         header="path",
+##         required=True,
+##         value_required=True,
+##         allowed_values=None,
+##         allowed_types=(str,),
+##         unique=False,
+##         references=None,
+##         custom_data_checks=(),
+##     ),
+##     ColumnSpec(
+##         field="comparison_operator",
+##         header="comparison_operator",
+##         required=True,
+##         value_required=True,
+##         allowed_values=frozenset({"===", "!==", ">", "<", ">=", "<="}),
+##         allowed_types=None,
+##         unique=False,
+##         references=None,
+##         custom_data_checks=(),
+##     ),
+##     ColumnSpec(
+##         field="value",
+##         header="value",
+##         required=True,
+##         value_required=True,
+##         allowed_values=None,
+##         allowed_types=(bool, int, float, str),
+##         unique=False,
+##         references=None,
+##         custom_data_checks=(),
+##     ),
+##     ColumnSpec(
+##         field="parentheses",
+##         header="parentheses",
+##         required=False,
+##         value_required=False,
+##         allowed_values=frozenset({"(", ")", None}),
+##         allowed_types=None,
+##         unique=False,
+##         references=None,
+##         custom_data_checks=(),
+##     ),
+##     ColumnSpec(
+##         field="value_when_hidden",
+##         header="value_when_hidden",
+##         required=False,
+##         value_required=False,
+##         allowed_values=None,
+##         allowed_types=(bool, int, float, str),
+##         unique=False,
+##         references=None,
+##         custom_data_checks=(),
+##     ),
+## )
 
 
-@dataclass
-class ConditionalData:
-    conditional_name: str
-    path: str
-    comparison_operator: str
-    value: bool | int | float | str
-    logical_operator: str | None = None
-    parentheses: str | None = None
-    value_when_hidden: bool | int | float | str | None = None
+## @dataclass
+## class ConditionalData:
+##     conditional_name: str
+##     path: str
+##     comparison_operator: str
+##     value: bool | int | float | str
+##     logical_operator: str | None = None
+##     parentheses: str | None = None
+##     value_when_hidden: bool | int | float | str | None = None
 
 
 # ------------------------------------ Labels sheet ------------------------------------
 
-LABEL_COLUMN_SPECS: tuple[ColumnSpec, ...] = (
-    ColumnSpec(
-        field="namespace",
-        header="namespace",
-        required=True,
-        value_required=True,
-        allowed_values=None,
-        allowed_types=None,
-        unique=False,
-        references=None,
-        custom_data_checks=(),
-    ),
-    ColumnSpec(
-        field="key",
-        header="key",
-        required=True,
-        value_required=True,
-        allowed_values=None,
-        allowed_types=None,
-        unique=False,
-        references=None,
-        custom_data_checks=(),
-    ),
-    ColumnSpec(
-        field="label_fr",
-        header="label::fr",
-        required=True,
-        value_required=False,
-        allowed_values=None,
-        allowed_types=None,
-        unique=False,
-        references=None,
-        custom_data_checks=(),
-    ),
-    ColumnSpec(
-        field="label_en",
-        header="label::en",
-        required=True,
-        value_required=False,
-        allowed_values=None,
-        allowed_types=None,
-        unique=False,
-        references=None,
-        custom_data_checks=(),
-    ),
-    ColumnSpec(
-        field="label_one_fr",
-        header="label_one::fr",
-        required=False,
-        value_required=False,
-        allowed_values=None,
-        allowed_types=None,
-        unique=False,
-        references=None,
-        custom_data_checks=(),
-    ),
-    ColumnSpec(
-        field="label_one_en",
-        header="label_one::en",
-        required=False,
-        value_required=False,
-        allowed_values=None,
-        allowed_types=None,
-        unique=False,
-        references=None,
-        custom_data_checks=(),
-    ),
-)
+## LABEL_COLUMN_SPECS: tuple[ColumnSpec, ...] = (
+##     ColumnSpec(
+##         field="namespace",
+##         header="namespace",
+##         required=True,
+##         value_required=True,
+##         allowed_values=None,
+##         allowed_types=None,
+##         unique=False,
+##         references=None,
+##         custom_data_checks=(),
+##     ),
+##     ColumnSpec(
+##         field="key",
+##         header="key",
+##         required=True,
+##         value_required=True,
+##         allowed_values=None,
+##         allowed_types=None,
+##         unique=False,
+##         references=None,
+##         custom_data_checks=(),
+##     ),
+##     ColumnSpec(
+##         field="label_fr",
+##         header="label::fr",
+##         required=True,
+##         value_required=False,
+##         allowed_values=None,
+##         allowed_types=None,
+##         unique=False,
+##         references=None,
+##         custom_data_checks=(),
+##     ),
+##     ColumnSpec(
+##         field="label_en",
+##         header="label::en",
+##         required=True,
+##         value_required=False,
+##         allowed_values=None,
+##         allowed_types=None,
+##         unique=False,
+##         references=None,
+##         custom_data_checks=(),
+##     ),
+##     ColumnSpec(
+##         field="label_one_fr",
+##         header="label_one::fr",
+##         required=False,
+##         value_required=False,
+##         allowed_values=None,
+##         allowed_types=None,
+##         unique=False,
+##         references=None,
+##         custom_data_checks=(),
+##     ),
+##     ColumnSpec(
+##         field="label_one_en",
+##         header="label_one::en",
+##         required=False,
+##         value_required=False,
+##         allowed_values=None,
+##         allowed_types=None,
+##         unique=False,
+##         references=None,
+##         custom_data_checks=(),
+##     ),
+## )
 
 
-@dataclass
-class LabelData:
-    namespace: str
-    key: str
-    label_fr: str | None = None
-    label_en: str | None = None
-    label_one_fr: str | None = None
-    label_one_en: str | None = None
+## @dataclass
+## class LabelData:
+##     namespace: str
+##     key: str
+##     label_fr: str | None = None
+##     label_en: str | None = None
+##     label_one_fr: str | None = None
+##     label_one_en: str | None = None
 
 
 # Maps each Excel sheet name to its column specs, so a `references` column can point
 # at a different sheet (see ColumnReference) and collect_survey_issues can resolve it.
 SHEET_COLUMN_SPECS: dict[str, tuple[ColumnSpec, ...]] = {
     "Sections": SECTION_COLUMN_SPECS,
-    "Widgets": WIDGET_COLUMN_SPECS,
-    "Choices": CHOICE_COLUMN_SPECS,
-    "InputRange": INPUT_RANGE_COLUMN_SPECS,
-    "Conditionals": CONDITIONAL_COLUMN_SPECS,
-    "Labels": LABEL_COLUMN_SPECS,
+    ## "Widgets": WIDGET_COLUMN_SPECS,
+    ## "Choices": CHOICE_COLUMN_SPECS,
+    ## "InputRange": INPUT_RANGE_COLUMN_SPECS,
+    ## "Conditionals": CONDITIONAL_COLUMN_SPECS,
+    ## "Labels": LABEL_COLUMN_SPECS,
 }

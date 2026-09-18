@@ -9,22 +9,22 @@ import pytest  # pyright: ignore[reportMissingImports]
 
 from scripts import generate_survey_data
 from scripts.generate_survey_data import (
-    CHOICE_COLUMN_SPECS,
-    CONDITIONAL_COLUMN_SPECS,
-    INPUT_RANGE_COLUMN_SPECS,
-    LABEL_COLUMN_SPECS,
+    ## CHOICE_COLUMN_SPECS,
+    ## CONDITIONAL_COLUMN_SPECS,
+    ## INPUT_RANGE_COLUMN_SPECS,
+    ## LABEL_COLUMN_SPECS,
     SECTION_COLUMN_SPECS,
-    WIDGET_COLUMN_SPECS,
-    ChoiceData,
+    ## WIDGET_COLUMN_SPECS,
+    ## ChoiceData,
     ColumnReference,
     ColumnSpec,
-    ConditionalData,
-    InputRangeData,
-    LabelData,
+    ## ConditionalData,
+    ## InputRangeData,
+    ## LabelData,
     SectionData,
     SurveyData,
-    WidgetData,
-    collect_row_issues,
+    ## WidgetData,
+    ## collect_row_issues,
     collect_sheet_issues,
     collect_survey_issues,
     validate_required_headers,
@@ -37,76 +37,75 @@ class TestDataclassShapes:
         assert section.title_fr is None
         assert section.parent_section is None
 
-    def test_widget_data_required_fields_and_defaults(self):
-        widget = WidgetData(
-            question_name="householdSize",
-            input_type="Number",
-            section="home",
-            path="household.size",
-        )
-        assert widget.active is None
-        assert widget.label_fr is None
-        assert widget.two_columns is None
+    ## def test_widget_data_required_fields_and_defaults(self):
+    ##     widget = WidgetData(
+    ##         question_name="householdSize",
+    ##         input_type="Number",
+    ##         section="home",
+    ##         path="household.size",
+    ##     )
+    ##     assert widget.active is None
+    ##     assert widget.label_fr is None
+    ##     assert widget.two_columns is None
 
-    def test_choice_data_required_fields_and_defaults(self):
-        choice = ChoiceData(choices_name="yesNo")
-        assert choice.value is None
-        assert choice.hidden is False
+    ## def test_choice_data_required_fields_and_defaults(self):
+    ##     choice = ChoiceData(choices_name="yesNo")
+    ##     assert choice.value is None
+    ##     assert choice.hidden is False
 
-    def test_input_range_data_required_fields_and_defaults(self):
-        input_range = InputRangeData(
-            input_range_name="ageRange",
-            label_fr_min="Min",
-            label_fr_max="Max",
-            label_en_min="Min",
-            label_en_max="Max",
-            min_value=0,
-            max_value=100,
-            unit_fr="ans",
-            unit_en="years",
-        )
-        assert input_range.label_fr_middle is None
-        assert input_range.input_color is None
+    ## def test_input_range_data_required_fields_and_defaults(self):
+    ##     input_range = InputRangeData(
+    ##         input_range_name="ageRange",
+    ##         label_fr_min="Min",
+    ##         label_fr_max="Max",
+    ##         label_en_min="Min",
+    ##         label_en_max="Max",
+    ##         min_value=0,
+    ##         max_value=100,
+    ##         unit_fr="ans",
+    ##         unit_en="years",
+    ##     )
+    ##     assert input_range.label_fr_middle is None
+    ##     assert input_range.input_color is None
 
-    def test_conditional_data_required_fields_and_defaults(self):
-        conditional = ConditionalData(
-            conditional_name="hasHouseholdSize1",
-            path="household.size",
-            comparison_operator="===",
-            value=1,
-        )
-        assert conditional.logical_operator is None
-        assert conditional.value_when_hidden is None
+    ## def test_conditional_data_required_fields_and_defaults(self):
+    ##     conditional = ConditionalData(
+    ##         conditional_name="hasHouseholdSize1",
+    ##         path="household.size",
+    ##         comparison_operator="===",
+    ##         value=1,
+    ##     )
+    ##     assert conditional.logical_operator is None
+    ##     assert conditional.value_when_hidden is None
 
-    def test_label_data_required_fields_and_defaults(self):
-        label = LabelData(namespace="app", key="pageTitle")
-        assert label.label_fr is None
-        assert label.label_one_en is None
+    ## def test_label_data_required_fields_and_defaults(self):
+    ##     label = LabelData(namespace="app", key="pageTitle")
+    ##     assert label.label_fr is None
+    ##     assert label.label_one_en is None
 
     def test_survey_data_defaults_to_empty_lists(self):
         survey_data = SurveyData()
         assert survey_data.sections == []
-        assert survey_data.widgets == []
-        assert survey_data.choices == []
-        assert survey_data.input_ranges == []
-        assert survey_data.conditionals == []
-        assert survey_data.labels == []
+        ## assert survey_data.widgets == []
+        ## assert survey_data.choices == []
+        ## assert survey_data.input_ranges == []
+        ## assert survey_data.conditionals == []
+        ## assert survey_data.labels == []
 
     def test_survey_data_holds_parsed_rows(self):
         survey_data = SurveyData(
             sections=[SectionData(section="home", in_nav=True, abbreviation="HM_")],
-            widgets=[
-                WidgetData(
-                    question_name="q1",
-                    input_type="Text",
-                    section="home",
-                    path="home.q1",
-                )
-            ],
+            ## widgets=[
+            ##     WidgetData(
+            ##         question_name="q1",
+            ##         input_type="Text",
+            ##         section="home",
+            ##         path="home.q1",
+            ##     )
+            ## ],
         )
         assert len(survey_data.sections) == 1
-        assert len(survey_data.widgets) == 1
-        assert survey_data.choices == []
+        ## assert len(survey_data.widgets) == 1
 
 
 class TestValidateRequiredHeaders:
@@ -126,61 +125,61 @@ class TestValidateRequiredHeaders:
                     "abbreviation",
                 ],
             },
-            {
-                "sheet_name": "Widgets",
-                "specs": WIDGET_COLUMN_SPECS,
-                "headers": [
-                    "questionName",
-                    "inputType",
-                    "section",
-                    "path",
-                    "active",
-                    "conditional",
-                    "validation",
-                    "inputRange",
-                    "help_popup",
-                    "choices",
-                ],
-            },
-            {
-                "sheet_name": "Choices",
-                "specs": CHOICE_COLUMN_SPECS,
-                "headers": [
-                    "choicesName",
-                    "value",
-                    "label::fr",
-                    "label::en",
-                    "label_one::fr",
-                    "label_one::en",
-                    "spreadChoicesName",
-                    "conditional",
-                ],
-            },
-            {
-                "sheet_name": "InputRange",
-                "specs": INPUT_RANGE_COLUMN_SPECS,
-                "headers": [
-                    "inputRangeName",
-                    "labelFrMin",
-                    "labelFrMax",
-                    "labelEnMin",
-                    "labelEnMax",
-                    "minValue",
-                    "maxValue",
-                    "unitFr",
-                    "unitEn",
-                ],
-            },
-            {
-                "sheet_name": "Conditionals",
-                "specs": CONDITIONAL_COLUMN_SPECS,
-                "headers": ["conditional_name", "path", "comparison_operator", "value"],
-            },
-            {
-                "sheet_name": "Labels",
-                "specs": LABEL_COLUMN_SPECS,
-                "headers": ["namespace", "key", "label::fr", "label::en"],
-            },
+            ## {
+            ##     "sheet_name": "Widgets",
+            ##     "specs": WIDGET_COLUMN_SPECS,
+            ##     "headers": [
+            ##         "questionName",
+            ##         "inputType",
+            ##         "section",
+            ##         "path",
+            ##         "active",
+            ##         "conditional",
+            ##         "validation",
+            ##         "inputRange",
+            ##         "help_popup",
+            ##         "choices",
+            ##     ],
+            ## },
+            ## {
+            ##     "sheet_name": "Choices",
+            ##     "specs": CHOICE_COLUMN_SPECS,
+            ##     "headers": [
+            ##         "choicesName",
+            ##         "value",
+            ##         "label::fr",
+            ##         "label::en",
+            ##         "label_one::fr",
+            ##         "label_one::en",
+            ##         "spreadChoicesName",
+            ##         "conditional",
+            ##     ],
+            ## },
+            ## {
+            ##     "sheet_name": "InputRange",
+            ##     "specs": INPUT_RANGE_COLUMN_SPECS,
+            ##     "headers": [
+            ##         "inputRangeName",
+            ##         "labelFrMin",
+            ##         "labelFrMax",
+            ##         "labelEnMin",
+            ##         "labelEnMax",
+            ##         "minValue",
+            ##         "maxValue",
+            ##         "unitFr",
+            ##         "unitEn",
+            ##     ],
+            ## },
+            ## {
+            ##     "sheet_name": "Conditionals",
+            ##     "specs": CONDITIONAL_COLUMN_SPECS,
+            ##     "headers": ["conditional_name", "path", "comparison_operator", "value"],
+            ## },
+            ## {
+            ##     "sheet_name": "Labels",
+            ##     "specs": LABEL_COLUMN_SPECS,
+            ##     "headers": ["namespace", "key", "label::fr", "label::en"],
+            ## },
         ],
         ids=lambda case: case["sheet_name"],
     )
@@ -196,11 +195,11 @@ class TestValidateRequiredHeaders:
         "case",
         [
             {"sheet_name": "Sections", "specs": SECTION_COLUMN_SPECS},
-            {"sheet_name": "Widgets", "specs": WIDGET_COLUMN_SPECS},
-            {"sheet_name": "Choices", "specs": CHOICE_COLUMN_SPECS},
-            {"sheet_name": "InputRange", "specs": INPUT_RANGE_COLUMN_SPECS},
-            {"sheet_name": "Conditionals", "specs": CONDITIONAL_COLUMN_SPECS},
-            {"sheet_name": "Labels", "specs": LABEL_COLUMN_SPECS},
+            ## {"sheet_name": "Widgets", "specs": WIDGET_COLUMN_SPECS},
+            ## {"sheet_name": "Choices", "specs": CHOICE_COLUMN_SPECS},
+            ## {"sheet_name": "InputRange", "specs": INPUT_RANGE_COLUMN_SPECS},
+            ## {"sheet_name": "Conditionals", "specs": CONDITIONAL_COLUMN_SPECS},
+            ## {"sheet_name": "Labels", "specs": LABEL_COLUMN_SPECS},
         ],
         ids=lambda case: case["sheet_name"],
     )
@@ -241,151 +240,151 @@ class TestValidateRequiredHeaders:
         )
 
 
-class TestCollectRowIssues:
-    def _valid_widget_row(self) -> dict:
-        return {
-            "question_name": "householdSize",
-            "input_type": "Number",
-            "section": "home",
-            "path": "household.size",
-            "active": True,
-            "conditional": "",
-            "validation": "",
-            "input_range": "",
-            "help_popup": "",
-            "choices": "",
-        }
+## class TestCollectRowIssues:
+##     def _valid_widget_row(self) -> dict:
+##         return {
+##             "question_name": "householdSize",
+##             "input_type": "Number",
+##             "section": "home",
+##             "path": "household.size",
+##             "active": True,
+##             "conditional": "",
+##             "validation": "",
+##             "input_range": "",
+##             "help_popup": "",
+##             "choices": "",
+##         }
 
-    def test_no_issues_for_a_fully_valid_row(self):
-        issues = collect_row_issues(
-            row=self._valid_widget_row(),
-            specs=WIDGET_COLUMN_SPECS,
-            sheet_name="Widgets",
-            row_number=2,
-        )
-        assert issues == []
+##     def test_no_issues_for_a_fully_valid_row(self):
+##         issues = collect_row_issues(
+##             row=self._valid_widget_row(),
+##             specs=WIDGET_COLUMN_SPECS,
+##             sheet_name="Widgets",
+##             row_number=2,
+##         )
+##         assert issues == []
 
-    def test_blank_optional_value_required_header_is_fine(self):
-        # `conditional`/`validation`/etc. are required headers but may be blank per row.
-        row = self._valid_widget_row()
-        row["validation"] = None
-        issues = collect_row_issues(
-            row=row, specs=WIDGET_COLUMN_SPECS, sheet_name="Widgets", row_number=2
-        )
-        assert issues == []
+##     def test_blank_optional_value_required_header_is_fine(self):
+##         # `conditional`/`validation`/etc. are required headers but may be blank per row.
+##         row = self._valid_widget_row()
+##         row["validation"] = None
+##         issues = collect_row_issues(
+##             row=row, specs=WIDGET_COLUMN_SPECS, sheet_name="Widgets", row_number=2
+##         )
+##         assert issues == []
 
-    def test_reports_missing_required_value(self):
-        row = self._valid_widget_row()
-        row["path"] = None
-        issues = collect_row_issues(
-            row=row, specs=WIDGET_COLUMN_SPECS, sheet_name="Widgets", row_number=3
-        )
-        assert issues == [
-            "Error in Widgets sheet - Required field is missing in row 3. "
-            "Missing fields: ['path']"
-        ]
+##     def test_reports_missing_required_value(self):
+##         row = self._valid_widget_row()
+##         row["path"] = None
+##         issues = collect_row_issues(
+##             row=row, specs=WIDGET_COLUMN_SPECS, sheet_name="Widgets", row_number=3
+##         )
+##         assert issues == [
+##             "Error in Widgets sheet - Required field is missing in row 3. "
+##             "Missing fields: ['path']"
+##         ]
 
-    def test_reports_disallowed_value(self):
-        row = self._valid_widget_row()
-        row["input_type"] = "NotARealInputType"
-        issues = collect_row_issues(
-            row=row, specs=WIDGET_COLUMN_SPECS, sheet_name="Widgets", row_number=4
-        )
-        # The allowed-values list is long; only assert the structure and the offending value.
-        assert len(issues) == 1
-        assert issues[0].startswith(
-            "Error in Widgets sheet - Invalid inputType in row 4:"
-        )
-        assert issues[0].endswith("got 'NotARealInputType'")
+##     def test_reports_disallowed_value(self):
+##         row = self._valid_widget_row()
+##         row["input_type"] = "NotARealInputType"
+##         issues = collect_row_issues(
+##             row=row, specs=WIDGET_COLUMN_SPECS, sheet_name="Widgets", row_number=4
+##         )
+##         # The allowed-values list is long; only assert the structure and the offending value.
+##         assert len(issues) == 1
+##         assert issues[0].startswith(
+##             "Error in Widgets sheet - Invalid inputType in row 4:"
+##         )
+##         assert issues[0].endswith("got 'NotARealInputType'")
 
-    def test_reports_wrong_type(self):
-        row = self._valid_widget_row()
-        row["active"] = "yes"
-        issues = collect_row_issues(
-            row=row, specs=WIDGET_COLUMN_SPECS, sheet_name="Widgets", row_number=5
-        )
-        assert issues == [
-            "Error in Widgets sheet - Invalid active in row 5: must be one of "
-            "types (bool), got str with value 'yes'"
-        ]
+##     def test_reports_wrong_type(self):
+##         row = self._valid_widget_row()
+##         row["active"] = "yes"
+##         issues = collect_row_issues(
+##             row=row, specs=WIDGET_COLUMN_SPECS, sheet_name="Widgets", row_number=5
+##         )
+##         assert issues == [
+##             "Error in Widgets sheet - Invalid active in row 5: must be one of "
+##             "types (bool), got str with value 'yes'"
+##         ]
 
-    def test_reports_failed_custom_check(self):
-        row = self._valid_widget_row()
-        row["question_name"] = (
-            "household size"  # contains a space, not a valid TS identifier
-        )
-        issues = collect_row_issues(
-            row=row, specs=WIDGET_COLUMN_SPECS, sheet_name="Widgets", row_number=6
-        )
-        assert issues == [
-            "Error in Widgets sheet - Invalid questionName in row 6: "
-            "'household size' - Must be a valid TypeScript identifier "
-            "(letters, digits, '_' or '$', not starting with a digit)."
-        ]
+##     def test_reports_failed_custom_check(self):
+##         row = self._valid_widget_row()
+##         row["question_name"] = (
+##             "household size"  # contains a space, not a valid TS identifier
+##         )
+##         issues = collect_row_issues(
+##             row=row, specs=WIDGET_COLUMN_SPECS, sheet_name="Widgets", row_number=6
+##         )
+##         assert issues == [
+##             "Error in Widgets sheet - Invalid questionName in row 6: "
+##             "'household size' - Must be a valid TypeScript identifier "
+##             "(letters, digits, '_' or '$', not starting with a digit)."
+##         ]
 
-    def test_collects_every_issue_in_one_pass(self):
-        row = self._valid_widget_row()
-        row["path"] = None  # missing required value
-        row["input_type"] = "NotARealInputType"  # disallowed value
-        row["question_name"] = "3invalid"  # failed custom check
-        issues = collect_row_issues(
-            row=row, specs=WIDGET_COLUMN_SPECS, sheet_name="Widgets", row_number=7
-        )
-        assert len(issues) == 3
-        assert issues[0] == (
-            "Error in Widgets sheet - Required field is missing in row 7. "
-            "Missing fields: ['path']"
-        )
-        assert issues[1] == (
-            "Error in Widgets sheet - Invalid questionName in row 7: "
-            "'3invalid' - Must be a valid TypeScript identifier "
-            "(letters, digits, '_' or '$', not starting with a digit)."
-        )
-        assert issues[2].startswith(
-            "Error in Widgets sheet - Invalid inputType in row 7:"
-        )
-        assert issues[2].endswith("got 'NotARealInputType'")
+##     def test_collects_every_issue_in_one_pass(self):
+##         row = self._valid_widget_row()
+##         row["path"] = None  # missing required value
+##         row["input_type"] = "NotARealInputType"  # disallowed value
+##         row["question_name"] = "3invalid"  # failed custom check
+##         issues = collect_row_issues(
+##             row=row, specs=WIDGET_COLUMN_SPECS, sheet_name="Widgets", row_number=7
+##         )
+##         assert len(issues) == 3
+##         assert issues[0] == (
+##             "Error in Widgets sheet - Required field is missing in row 7. "
+##             "Missing fields: ['path']"
+##         )
+##         assert issues[1] == (
+##             "Error in Widgets sheet - Invalid questionName in row 7: "
+##             "'3invalid' - Must be a valid TypeScript identifier "
+##             "(letters, digits, '_' or '$', not starting with a digit)."
+##         )
+##         assert issues[2].startswith(
+##             "Error in Widgets sheet - Invalid inputType in row 7:"
+##         )
+##         assert issues[2].endswith("got 'NotARealInputType'")
 
-    def test_empty_string_is_treated_as_missing(self):
-        row = self._valid_widget_row()
-        row["question_name"] = ""
-        issues = collect_row_issues(
-            row=row, specs=WIDGET_COLUMN_SPECS, sheet_name="Widgets", row_number=8
-        )
-        assert issues == [
-            "Error in Widgets sheet - Required field is missing in row 8. "
-            "Missing fields: ['questionName']"
-        ]
+##     def test_empty_string_is_treated_as_missing(self):
+##         row = self._valid_widget_row()
+##         row["question_name"] = ""
+##         issues = collect_row_issues(
+##             row=row, specs=WIDGET_COLUMN_SPECS, sheet_name="Widgets", row_number=8
+##         )
+##         assert issues == [
+##             "Error in Widgets sheet - Required field is missing in row 8. "
+##             "Missing fields: ['questionName']"
+##         ]
 
-    def test_conditionals_row_matches_existing_conditionals_generator_rules(self):
-        row = {
-            "conditional_name": "hasHouseholdSize1",
-            "logical_operator": None,
-            "path": "household.size",
-            "comparison_operator": "===",
-            "value": 1,
-            "parentheses": None,
-            "value_when_hidden": None,
-        }
-        issues = collect_row_issues(
-            row=row,
-            specs=CONDITIONAL_COLUMN_SPECS,
-            sheet_name="Conditionals",
-            row_number=2,
-        )
-        assert issues == []
+##     def test_conditionals_row_matches_existing_conditionals_generator_rules(self):
+##         row = {
+##             "conditional_name": "hasHouseholdSize1",
+##             "logical_operator": None,
+##             "path": "household.size",
+##             "comparison_operator": "===",
+##             "value": 1,
+##             "parentheses": None,
+##             "value_when_hidden": None,
+##         }
+##         issues = collect_row_issues(
+##             row=row,
+##             specs=CONDITIONAL_COLUMN_SPECS,
+##             sheet_name="Conditionals",
+##             row_number=2,
+##         )
+##         assert issues == []
 
-        row["comparison_operator"] = "=="  # not one of the allowed comparison operators
-        issues = collect_row_issues(
-            row=row,
-            specs=CONDITIONAL_COLUMN_SPECS,
-            sheet_name="Conditionals",
-            row_number=2,
-        )
-        assert issues == [
-            "Error in Conditionals sheet - Invalid comparison_operator in row 2: "
-            "must be one of ['!==', '<', '<=', '===', '>', '>='] or empty, got '=='"
-        ]
+##         row["comparison_operator"] = "=="  # not one of the allowed comparison operators
+##         issues = collect_row_issues(
+##             row=row,
+##             specs=CONDITIONAL_COLUMN_SPECS,
+##             sheet_name="Conditionals",
+##             row_number=2,
+##         )
+##         assert issues == [
+##             "Error in Conditionals sheet - Invalid comparison_operator in row 2: "
+##             "must be one of ['!==', '<', '<=', '===', '>', '>='] or empty, got '=='"
+##         ]
 
 
 class TestCollectSheetIssues:
