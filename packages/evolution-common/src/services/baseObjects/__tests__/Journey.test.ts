@@ -48,7 +48,7 @@ describe('Journey', () => {
         noSchoolTripReasonSpecify: 'summer vacation',
         noWorkTripReason: 'remote_work',
         noWorkTripReasonSpecify: 'working from home',
-        didTrips: 'yes',
+        didTrips: { status: 'answered', value: true },
         previousWeekRemoteWorkDays: { monday: true, tuesday: true, wednesday: true },
         previousWeekTravelToWorkDays: { monday: true, tuesday: true },
         _weights: [{ weight: 1.5, method: new WeightMethod(weightMethodAttributes) }],
@@ -120,6 +120,43 @@ describe('Journey', () => {
         expect(unwrap(result)).toBeInstanceOf(Journey);
     });
 
+    // Questionnaires store didTrips as yes/no/dontKnow, so `create` wraps them
+    describe('create wraps didTrips stored as a plain value', () => {
+        test.each([
+            { description: 'yes', stored: 'yes', expected: { status: 'answered', value: true } },
+            { description: 'no', stored: 'no', expected: { status: 'answered', value: false } },
+            { description: 'a true boolean', stored: true, expected: { status: 'answered', value: true } },
+            { description: 'dontKnow', stored: 'dontKnow', expected: { status: 'dont_know' } },
+            {
+                description: 'an answer already wrapped',
+                stored: { status: 'refusal' },
+                expected: { status: 'refusal' }
+            }
+        ])('$description', ({ stored, expected }) => {
+            const result = Journey.create({ ...validAttributes, didTrips: stored }, registry);
+            expect(isOk(result)).toBe(true);
+            expect((unwrap(result) as Journey).didTrips).toEqual(expected);
+        });
+
+        test.each([
+            { description: 'yes was stored', stored: 'yes' },
+            { description: 'nothing was stored', stored: undefined }
+        ])('_skipTripDiary makes didTrips not applicable when $description', ({ stored }) => {
+            const result = Journey.create(
+                { ...validAttributes, didTrips: stored, _skipTripDiary: true },
+                registry
+            );
+            expect(isOk(result)).toBe(true);
+            expect((unwrap(result) as Journey).didTrips).toEqual({ status: 'not_applicable' });
+        });
+
+        test('a blank didTrips has no attribute at all', () => {
+            const result = Journey.create({ ...validAttributes, didTrips: '' }, registry);
+            expect(isOk(result)).toBe(true);
+            expect(Object.keys((unwrap(result) as Journey).attributes)).not.toContain('didTrips');
+        });
+    });
+
     test('should return an error for invalid params', () => {
         const invalidAttributes = 'foo' as any;
         const result = Journey.create(invalidAttributes, registry);
@@ -144,6 +181,18 @@ describe('Journey', () => {
         const journey = Journey.unserialize(validAttributes, registry);
         expect(journey).toBeInstanceOf(Journey);
         expect(journey.attributes).toEqual(validAttributes);
+    });
+
+    test.each([
+        { description: 'yes', stored: 'yes', expected: { status: 'answered', value: true } },
+        { description: 'no', stored: 'no', expected: { status: 'answered', value: false } },
+        { description: 'dontKnow', stored: 'dontKnow', expected: { status: 'dont_know' } }
+    ])('unserialize wraps a legacy didTrips stored as $description', ({ stored, expected }) => {
+        const journey = Journey.unserialize(
+            { ...validAttributes, didTrips: stored } as unknown as ExtendedJourneyAttributes,
+            registry
+        );
+        expect(journey.didTrips).toEqual(expected);
     });
 
     test('should validate Journey attributes', () => {
@@ -199,6 +248,8 @@ describe('Journey', () => {
             ['noWorkTripReason', 123],
             ['noWorkTripReasonSpecify', 123],
             ['didTrips', 123],
+            ['didTrips', 'yes'],
+            ['_skipTripDiary', 'yes'],
             ['previousWeekRemoteWorkDays', 'invalid'],
             ['previousWeekTravelToWorkDays', 'invalid'],
             ['hasMinimum', 'invalid'],
@@ -235,7 +286,8 @@ describe('Journey', () => {
             ['noSchoolTripReasonSpecify', 'winter break'],
             ['noWorkTripReason', 'sick_leave'],
             ['noWorkTripReasonSpecify', 'medical appointment'],
-            ['didTrips', 'no'],
+            ['didTrips', { status: 'answered', value: false }],
+            ['_skipTripDiary', true],
             ['previousWeekRemoteWorkDays', { friday: true, saturday: true, sunday: true }],
             ['previousWeekTravelToWorkDays', { thursday: true, friday: true }],
             ['preData', { importedJourneyData: 'value', tripCount: 5 }],

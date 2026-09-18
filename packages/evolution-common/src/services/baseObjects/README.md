@@ -79,6 +79,42 @@ A type representing an individual audit entry.
 5. **Weighting**: (If applicable) Weighting is applied to relevant objects (e.g., Household, Person) to adjust for population representation.
 6. **Export**: Processed and audited data is prepared for export and analysis. There are three types of exported data: original unmodified response data, audited interview data and admin/analysis data (including audited data, paradata and confidential attributes).
 
+## Standard trip diary process (for OD-surveys with single journey)
+
+A journey is one person's day. Visited places and trips may be empty: that is still a journey, a stay without travel (personne non mobile). The declaration and the date live on the journey, not on the person.
+
+### Where the fields are
+
+| What | Where it is stored | On the `Journey` object |
+| --- | --- | --- |
+| Journey date | `persons.{uuid}.journeys.{uuid}.startDate` | `startDate`, as the survey stored it. |
+| Did the person travel? | `persons.{uuid}.journeys.{uuid}.personDidTrips` (`yes` / `no` / `dontKnow`) | `didTrips`, an `AnswerStatus<boolean>` |
+| Confirmation | `persons.{uuid}.journeys.{uuid}.personDidTripsConfirm` | Same `didTrips`. Confirm wins when both are set. |
+| Diary skipped | `persons.{uuid}.journeys.{uuid}._skipTripDiary` | Boolean `_skipTripDiary` on the journey. `true` forces `didTrips` to `{ status: 'not_applicable' }`. |
+
+`personDidTrips` and `personDidTripsConfirm` are not kept on the object.
+
+### When a journey is created
+
+| Journeys in the response | Journey created |
+| --- | --- |
+| One or more | Each of those journeys, with its own `startDate`. `_skipTripDiary === true` sets `didTrips` to `{ status: 'not_applicable' }`. |
+| None | None |
+
+### What `didTrips` becomes
+
+`_skipTripDiary === true` is decided first. Otherwise `personDidTripsConfirm` is used when it is set, and `personDidTrips` otherwise.
+
+| `_skipTripDiary` | Answer used | `didTrips` |
+| --- | --- | --- |
+| `true` | ignored | `{ status: 'not_applicable' }` |
+| not `true` | `yes` | `{ status: 'answered', value: true }` |
+| not `true` | `no` | `{ status: 'answered', value: false }` |
+| not `true` | `dontKnow` | `{ status: 'dont_know' }` |
+| not `true` | blank | attribute omitted (`undefined`) |
+
+An empty journey with `didTrips` answered `false` is someone with no travel on `startDate`.
+
 ## Prefilled Data System
 
 Evolution supports prefilling survey objects with data from external sources before conducting interviews. This allows surveyors to import existing data about respondents and reduce the burden of data entry or detect changes, for instance household who moved. Home address is the usual example of  prefilled data.
