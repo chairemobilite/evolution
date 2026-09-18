@@ -152,7 +152,8 @@ This analysis provides a roadmap for extending the Evolution platform's audit ca
 | `persons.{uuid}.journeys.{uuid}.noWorkTripReason` | No work trip reason | ✅ | | Present in Journey |
 | `persons.{uuid}.journeys.{uuid}.noWorkTripReasonSpecify` | No work trip reason specification | ✅ | | Present in Journey |
 | `persons.{uuid}.journeys.{uuid}.personDidTrips` | Person did trips flag | ⚠️ | `didTrips` | Present in Journey (as didTrips) |
-| `persons.{uuid}.journeys.{uuid}.didTrips` | Person declared doing trips | ✅ | | Present in Journey |
+| `persons.{uuid}.journeys.{uuid}.didTrips` | Person declared doing trips | ✅ | | Present in Journey as `AnswerStatus<boolean>` |
+| `persons.{uuid}.journeys.{uuid}._skipTripDiary` | Skip the trip diary for this journey | ✅ | | Present in Journey. Absent or `false` by default |
 | `persons.{uuid}.journeys.{uuid}.personDidTripsConfirm` | Person did trips confirmation | ❌ | | Missing in Journey, used as metadata only |
 | `persons.{uuid}.journeys.{uuid}.startDate` | Journey start date | ✅ | | Present in Journey |
 | `persons.{uuid}.journeys.{uuid}.startTime` | Journey start time | ✅ | | Present in Journey |

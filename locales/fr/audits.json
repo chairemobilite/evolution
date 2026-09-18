@@ -45,6 +45,10 @@
     "P_W_JourneySequenceGaps": "Les numéros de séquence des séjours ne sont pas consécutifs",
     "P_I_AgeTooHigh": "L'âge de la personne est trop élevé",
     "P_W_VeryOldAge": "L'âge de la personne est très élevé, veuillez valider",
+    "P_L_MadeTripsUndefinedWithTrips": "Personne s'est déplacée non répondue, mais le séjour contient des déplacements ou des lieux visités",
+    "P_L_MadeTripsWithEmptyJourney": "Personne s'est déplacée, mais le séjour n'a ni déplacement ni lieu visité",
+    "P_L_didNotMakeTripsButTripsPresent": "Personne ne s'est pas déplacée, mais le séjour contient des déplacements ou des lieux visités",
+    "P_L_MadeTripsUnknownWithTrips": "Personne s'est déplacée est ne sait pas, mais le séjour contient des déplacements ou des lieux visités",
 
     "J_M_StartDate": "La date de début du séjour est manquante",
     "J_L_InvalidVisitedPlaceSequences": "Le numéro de séquence d'au moins un lieu visité est invalide ou en double",

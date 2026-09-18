@@ -12,6 +12,38 @@ import {
     hasInvalidOrDuplicateSequences,
     hasSequenceGaps
 } from 'evolution-common/lib/services/baseObjects/sequenceUtils';
+import type { Journey } from 'evolution-common/lib/services/baseObjects/Journey';
+import type { Person } from 'evolution-common/lib/services/baseObjects/Person';
+import { getAnswerValue } from 'evolution-common/lib/services/baseObjects/attributeTypes/AnswerStatus';
+
+/** Trips or visited places mean the journey holds travel that `didTrips` should justify. */
+const journeyHasDiaryContent = (journey: Journey): boolean =>
+    (journey.trips?.length ?? 0) > 0 || (journey.visitedPlaces?.length ?? 0) > 0;
+
+const journeyDidTripsIsUnanswered = (journey: Journey): boolean => journey.didTrips === undefined;
+
+/** Absent or `false`: the diary follows `didTrips`. Only an explicit `true` skips it. */
+const journeySkipsTripDiary = (journey: Journey): boolean => journey._skipTripDiary === true;
+
+const personJourneyInconsistencyAudit = (
+    person: Person,
+    errorCode: string,
+    message: string,
+    journeyIsInconsistent: (journey: Journey) => boolean
+): AuditForObject | undefined => {
+    if (!person.journeys?.some((journey) => !journeySkipsTripDiary(journey) && journeyIsInconsistent(journey))) {
+        return undefined;
+    }
+    return {
+        objectType: 'person',
+        objectUuid: person._uuid!,
+        errorCode,
+        version: 1,
+        level: 'error',
+        message,
+        ignore: false
+    };
+};
 
 export const personAuditChecks: { [errorCode: string]: PersonAuditCheckFunction } = {
     /**
@@ -140,5 +172,64 @@ export const personAuditChecks: { [errorCode: string]: PersonAuditCheckFunction 
         }
 
         return undefined; // No audit needed
+    },
+
+    /**
+     * Error when `didTrips` was never answered, but a journey already holds
+     * visited places or trips.
+     * @param context - PersonAuditCheckContext
+     * @returns AuditForObject
+     */
+    P_L_MadeTripsUndefinedWithTrips: (context: PersonAuditCheckContext): AuditForObject | undefined => {
+        // TODO: skip when the survey does not ask didTrips (`fieldIsRequired('journey', 'didTrips')`).
+        return personJourneyInconsistencyAudit(
+            context.person,
+            'P_L_MadeTripsUndefinedWithTrips',
+            'Whether the person made trips is unanswered, but the journey has trips or visited places',
+            (journey) => journeyDidTripsIsUnanswered(journey) && journeyHasDiaryContent(journey)
+        );
+    },
+
+    /**
+     * Error when `didTrips` is answered true, but the journey has neither trips nor visited places.
+     * @param context - PersonAuditCheckContext
+     * @returns AuditForObject
+     */
+    P_L_MadeTripsWithEmptyJourney: (context: PersonAuditCheckContext): AuditForObject | undefined => {
+        return personJourneyInconsistencyAudit(
+            context.person,
+            'P_L_MadeTripsWithEmptyJourney',
+            'The person made trips, but the journey has no trips or visited places',
+            (journey) => getAnswerValue(journey.didTrips) === true && !journeyHasDiaryContent(journey)
+        );
+    },
+
+    /**
+     * Error when `didTrips` is answered false, but the journey has trips or visited places.
+     * @param context - PersonAuditCheckContext
+     * @returns AuditForObject
+     */
+    P_L_didNotMakeTripsButTripsPresent: (context: PersonAuditCheckContext): AuditForObject | undefined => {
+        return personJourneyInconsistencyAudit(
+            context.person,
+            'P_L_didNotMakeTripsButTripsPresent',
+            'The person did not make trips, but the journey has trips or visited places',
+            (journey) => getAnswerValue(journey.didTrips) === false && journeyHasDiaryContent(journey)
+        );
+    },
+
+    /**
+     * Error when `didTrips` is dontKnow, but the journey has trips or visited places.
+     * A dontKnow answer should not open the trip diary.
+     * @param context - PersonAuditCheckContext
+     * @returns AuditForObject
+     */
+    P_L_MadeTripsUnknownWithTrips: (context: PersonAuditCheckContext): AuditForObject | undefined => {
+        return personJourneyInconsistencyAudit(
+            context.person,
+            'P_L_MadeTripsUnknownWithTrips',
+            'Whether the person made trips is unknown, but the journey has trips or visited places',
+            (journey) => journey.didTrips?.status === 'dont_know' && journeyHasDiaryContent(journey)
+        );
     }
 };
