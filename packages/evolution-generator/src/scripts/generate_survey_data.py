@@ -5,7 +5,7 @@
 # Note: Defines the shape of the intermediate data layer between Generator inputs
 # (Excel today; CSV/JSON/etc. later) and the generation scripts: one dataclass per
 # sheet (SectionData, WidgetData, ChoiceData, InputRangeData, ConditionalData,
-# LabelData), bundled together as SurveyData, plus the column specs used to validate
+# LabelData), bundled together as SurveyData, plus the field specs used to validate
 # a sheet's headers and row values before any script consumes the data.
 #
 # This module only defines the shape and the validation helpers; it does not read
@@ -41,23 +41,23 @@ class SurveyData:
     ## labels: list[LabelData] = field(default_factory=list)
 
 
-# A per-cell check: takes the cell's own (already-non-None) value, plus the full row
+# A per-field check: takes the field's own (already-non-None) value, plus the full row
 # (field -> value, same shape collect_row_issues receives, for checks that depend on
-# a sibling column), and returns True when valid, False when invalid. Its docstring's
+# a sibling field), and returns True when valid, False when invalid. Its docstring's
 # first line is used as the error message. Checks that only care about their own
 # value can ignore `row`.
-ColumnCheck = Callable[[Any, dict], bool]
+FieldCheck = Callable[[Any, dict], bool]
 
 
 @dataclass(frozen=True)
-class ColumnReference:
+class FieldReference:
     """
-    Names another column whose non-blank values are the allowed set for a `references`
-    column (e.g. Sections.parent_section references Sections.section: every
+    Names another field whose non-blank values are the allowed set for a `references`
+    field (e.g. Sections.parent_section references Sections.section: every
     parent_section must name a real section).
 
-    `sheet=None` (the default) means "the same sheet this column belongs to", resolved
-    by collect_sheet_issues. A named sheet (one of SHEET_COLUMN_SPECS's keys) means a
+    `sheet=None` (the default) means "the same sheet this field belongs to", resolved
+    by collect_sheet_issues. A named sheet (one of SHEET_FIELD_SPECS's keys) means a
     different sheet, resolved by collect_survey_issues instead, since checking that
     requires that other sheet's rows too.
     """
@@ -67,31 +67,34 @@ class ColumnReference:
 
 
 @dataclass(frozen=True)
-class ColumnSpec:
+class FieldSpec:
     """
-    Describes one column of a SurveyData sheet.
+    Describes one field of a SurveyData class (e.g. SectionData.section) — a field
+    can come from an Excel column today, or a JSON key, CSV column, API response
+    field, etc. once other input sources are supported.
 
     Attributes:
-        field: python attribute name on the sheet's dataclass (e.g. "label_fr").
-        header: Excel column header (e.g. "label::fr").
-        required: the column must exist as a header in the sheet (checked by
-            validate_required_headers). A column can be required to exist while
-            still allowing a blank cell on any given row (e.g. Sections.parent_section).
-        value_required: on top of `required`, every row's cell must also be
+        field: python attribute name on the data class (e.g. "label_fr").
+        header: the source's name for this field (e.g. the Excel column header
+            "label::fr").
+        required: the field must exist in the source (checked by
+            validate_required_headers). A field can be required to exist while
+            still allowing a blank value on any given row (e.g. Sections.parent_section).
+        value_required: on top of `required`, every row's value must also be
             non-blank (checked by collect_row_issues). Implies `required=True`.
         allowed_values: set of allowed values (e.g. {"Custom", "BuiltIn"}), or
-            None to allow any value. Only evaluated for non-blank cell values.
+            None to allow any value. Only evaluated for non-blank values.
         allowed_types: tuple of allowed types (e.g. (str,)), or None to allow
-            any type. Only evaluated for non-blank cell values.
-        unique: value must not repeat across the sheet's non-blank cells. Unlike the
+            any type. Only evaluated for non-blank values.
+        unique: value must not repeat across the sheet's non-blank values. Unlike the
             other rules, this can't be checked one row at a time (checked by
             collect_sheet_issues, not collect_row_issues).
-        references: a ColumnReference this column's non-blank values must match, or
-            None for no such constraint. See ColumnReference for same-sheet vs.
+        references: a FieldReference this field's non-blank values must match, or
+            None for no such constraint. See FieldReference for same-sheet vs.
             cross-sheet resolution.
-        custom_data_checks: extra per-cell checks beyond type/allowed-value (e.g.
+        custom_data_checks: extra per-field checks beyond type/allowed-value (e.g.
             survey_custom_data_checks.valid_ts_identifier, .valid_path_chars). Only
-            evaluated for non-blank cell values (see ColumnCheck for the (value, row)
+            evaluated for non-blank values (see FieldCheck for the (value, row)
             signature, e.g. to enforce a same-row conditional requirement).
     """
 
@@ -102,8 +105,8 @@ class ColumnSpec:
     allowed_values: frozenset | None
     allowed_types: tuple[type, ...] | None
     unique: bool
-    references: ColumnReference | None
-    custom_data_checks: tuple[ColumnCheck, ...]
+    references: FieldReference | None
+    custom_data_checks: tuple[FieldCheck, ...]
 
 
 def _empty_to_none(value):
@@ -112,7 +115,7 @@ def _empty_to_none(value):
 
 
 def validate_required_headers(
-    headers: list, specs: tuple[ColumnSpec, ...], sheet_name: str
+    headers: list, specs: tuple[FieldSpec, ...], sheet_name: str
 ) -> None:
     """
     Raise if any header required by `specs` (required=True) is missing from `headers`.
@@ -134,7 +137,7 @@ def validate_required_headers(
 
 
 def collect_row_issues(
-    row: dict, specs: tuple[ColumnSpec, ...], sheet_name: str, row_number: int
+    row: dict, specs: tuple[FieldSpec, ...], sheet_name: str, row_number: int
 ) -> list[str]:
     """
     Return every validation issue found in one data row (empty list when the row is valid).
@@ -193,14 +196,14 @@ def collect_row_issues(
 
 
 def collect_sheet_issues(
-    rows: list[dict], specs: tuple[ColumnSpec, ...], sheet_name: str
+    rows: list[dict], specs: tuple[FieldSpec, ...], sheet_name: str
 ) -> list[str]:
     """
     Return every validation issue across an entire sheet: every row's issues (see
     collect_row_issues), plus cross-row rules a single row can't check on its own
-    (`unique` columns, and `references` columns that point within this same sheet).
+    (`unique` fields, and `references` fields that point within this same sheet).
 
-    A `references` column pointing at a *different* sheet is skipped here — this
+    A `references` field pointing at a *different* sheet is skipped here — this
     function only has one sheet's rows, so it can't be checked without that other
     sheet's data too. See collect_survey_issues for that case.
 
@@ -258,24 +261,24 @@ def collect_sheet_issues(
 def collect_survey_issues(rows_by_sheet: dict[str, list[dict]]) -> list[str]:
     """
     Validate every sheet in `rows_by_sheet` (via collect_sheet_issues: row-level rules,
-    `unique`, and same-sheet `references`), plus any `references` column that points at
+    `unique`, and same-sheet `references`), plus any `references` field that points at
     a *different* sheet — the one thing collect_sheet_issues can't check on its own
     since it only sees one sheet's rows at a time.
 
-    `rows_by_sheet` maps each sheet name (matching SHEET_COLUMN_SPECS's keys) to that
+    `rows_by_sheet` maps each sheet name (matching SHEET_FIELD_SPECS's keys) to that
     sheet's rows, in the shape collect_sheet_issues expects. This is the entry point
     load_survey_data() will use once it reads every sheet.
     """
     issues: list[str] = []
 
-    for sheet_name, specs in SHEET_COLUMN_SPECS.items():
+    for sheet_name, specs in SHEET_FIELD_SPECS.items():
         issues.extend(
             collect_sheet_issues(
                 rows=rows_by_sheet[sheet_name], specs=specs, sheet_name=sheet_name
             )
         )
 
-    for sheet_name, specs in SHEET_COLUMN_SPECS.items():
+    for sheet_name, specs in SHEET_FIELD_SPECS.items():
         prefix = f"Error in {sheet_name} sheet - "
 
         for spec in specs:
@@ -283,7 +286,7 @@ def collect_survey_issues(rows_by_sheet: dict[str, list[dict]]) -> list[str]:
                 continue  # no reference, or a same-sheet one collect_sheet_issues already checked
 
             referenced_sheet_name = spec.references.sheet
-            referenced_specs = SHEET_COLUMN_SPECS[referenced_sheet_name]
+            referenced_specs = SHEET_FIELD_SPECS[referenced_sheet_name]
             referenced_spec = next(
                 s for s in referenced_specs if s.field == spec.references.field
             )
@@ -307,8 +310,8 @@ def collect_survey_issues(rows_by_sheet: dict[str, list[dict]]) -> list[str]:
 
 # ----------------------------------- Sections sheet -----------------------------------
 
-SECTION_COLUMN_SPECS: tuple[ColumnSpec, ...] = (
-    ColumnSpec(
+SECTION_FIELD_SPECS: tuple[FieldSpec, ...] = (
+    FieldSpec(
         field="section",
         header="section",
         required=True,
@@ -319,7 +322,7 @@ SECTION_COLUMN_SPECS: tuple[ColumnSpec, ...] = (
         references=None,
         custom_data_checks=(survey_custom_data_checks.valid_ts_identifier,),
     ),
-    ColumnSpec(
+    FieldSpec(
         field="title_fr",
         header="title_fr",
         required=True,
@@ -330,7 +333,7 @@ SECTION_COLUMN_SPECS: tuple[ColumnSpec, ...] = (
         references=None,
         custom_data_checks=(),
     ),
-    ColumnSpec(
+    FieldSpec(
         field="title_en",
         header="title_en",
         required=True,
@@ -341,7 +344,7 @@ SECTION_COLUMN_SPECS: tuple[ColumnSpec, ...] = (
         references=None,
         custom_data_checks=(),
     ),
-    ColumnSpec(
+    FieldSpec(
         field="in_nav",
         header="in_nav",
         required=True,
@@ -352,7 +355,7 @@ SECTION_COLUMN_SPECS: tuple[ColumnSpec, ...] = (
         references=None,
         custom_data_checks=(survey_custom_data_checks.requires_titles_when_true,),
     ),
-    ColumnSpec(
+    FieldSpec(
         field="template",
         header="template",
         required=True,
@@ -366,7 +369,7 @@ SECTION_COLUMN_SPECS: tuple[ColumnSpec, ...] = (
         references=None,
         custom_data_checks=(),
     ),
-    ColumnSpec(
+    FieldSpec(
         field="parent_section",
         header="parent_section",
         required=True,
@@ -374,10 +377,10 @@ SECTION_COLUMN_SPECS: tuple[ColumnSpec, ...] = (
         allowed_values=None,
         allowed_types=None,
         unique=False,
-        references=ColumnReference(field="section"),
+        references=FieldReference(field="section"),
         custom_data_checks=(),
     ),
-    ColumnSpec(
+    FieldSpec(
         field="has_preload",
         header="has_preload",
         required=False,
@@ -388,7 +391,7 @@ SECTION_COLUMN_SPECS: tuple[ColumnSpec, ...] = (
         references=None,
         custom_data_checks=(),
     ),
-    ColumnSpec(
+    FieldSpec(
         field="enable_conditional",
         header="enable_conditional",
         required=False,
@@ -399,7 +402,7 @@ SECTION_COLUMN_SPECS: tuple[ColumnSpec, ...] = (
         references=None,
         custom_data_checks=(survey_custom_data_checks.valid_conditional_name,),
     ),
-    ColumnSpec(
+    FieldSpec(
         field="completion_conditional",
         header="completion_conditional",
         required=False,
@@ -410,7 +413,7 @@ SECTION_COLUMN_SPECS: tuple[ColumnSpec, ...] = (
         references=None,
         custom_data_checks=(survey_custom_data_checks.valid_conditional_name,),
     ),
-    ColumnSpec(
+    FieldSpec(
         field="abbreviation",
         header="abbreviation",
         required=True,
@@ -426,7 +429,7 @@ SECTION_COLUMN_SPECS: tuple[ColumnSpec, ...] = (
 
 @dataclass
 class SectionData:
-    # Fields with no default mirror SECTION_COLUMN_SPECS's value_required=True columns
+    # Fields with no default mirror SECTION_FIELD_SPECS's value_required=True columns
     # (section, in_nav, abbreviation); every other field may be blank on a given row.
     section: str
     in_nav: bool
@@ -1213,10 +1216,11 @@ class SectionData:
 ##     label_one_en: str | None = None
 
 
-# Maps each Excel sheet name to its column specs, so a `references` column can point
-# at a different sheet (see ColumnReference) and collect_survey_issues can resolve it.
-SHEET_COLUMN_SPECS: dict[str, tuple[ColumnSpec, ...]] = {
-    "Sections": SECTION_COLUMN_SPECS,
+# Maps each sheet name to its field specs, so a `references` field can point at a
+# different sheet (see FieldReference) and collect_survey_issues can resolve it.
+# Only Sections for now — re-add each other sheet's entry as it's built out below.
+SHEET_FIELD_SPECS: dict[str, tuple[FieldSpec, ...]] = {
+    "Sections": SECTION_FIELD_SPECS,
     ## "Widgets": WIDGET_COLUMN_SPECS,
     ## "Choices": CHOICE_COLUMN_SPECS,
     ## "InputRange": INPUT_RANGE_COLUMN_SPECS,

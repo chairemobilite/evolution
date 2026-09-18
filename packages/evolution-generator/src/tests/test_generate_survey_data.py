@@ -3,7 +3,7 @@
 # License text available at https://opensource.org/licenses/MIT
 
 # Note: Tests for scripts/generate_survey_data.py: the SurveyData shape (per-sheet
-# dataclasses) and the shared header/row validation built on ColumnSpec.
+# dataclasses) and the shared header/row validation built on FieldSpec.
 
 import pytest  # pyright: ignore[reportMissingImports]
 
@@ -13,11 +13,11 @@ from scripts.generate_survey_data import (
     ## CONDITIONAL_COLUMN_SPECS,
     ## INPUT_RANGE_COLUMN_SPECS,
     ## LABEL_COLUMN_SPECS,
-    SECTION_COLUMN_SPECS,
+    SECTION_FIELD_SPECS,
     ## WIDGET_COLUMN_SPECS,
     ## ChoiceData,
-    ColumnReference,
-    ColumnSpec,
+    FieldReference,
+    FieldSpec,
     ## ConditionalData,
     ## InputRangeData,
     ## LabelData,
@@ -114,7 +114,7 @@ class TestValidateRequiredHeaders:
         [
             {
                 "sheet_name": "Sections",
-                "specs": SECTION_COLUMN_SPECS,
+                "specs": SECTION_FIELD_SPECS,
                 "headers": [
                     "section",
                     "title_fr",
@@ -194,7 +194,7 @@ class TestValidateRequiredHeaders:
     @pytest.mark.parametrize(
         "case",
         [
-            {"sheet_name": "Sections", "specs": SECTION_COLUMN_SPECS},
+            {"sheet_name": "Sections", "specs": SECTION_FIELD_SPECS},
             ## {"sheet_name": "Widgets", "specs": WIDGET_COLUMN_SPECS},
             ## {"sheet_name": "Choices", "specs": CHOICE_COLUMN_SPECS},
             ## {"sheet_name": "InputRange", "specs": INPUT_RANGE_COLUMN_SPECS},
@@ -235,7 +235,7 @@ class TestValidateRequiredHeaders:
                 "parent_section",
                 "abbreviation",
             ],
-            specs=SECTION_COLUMN_SPECS,
+            specs=SECTION_FIELD_SPECS,
             sheet_name="Sections",
         )
 
@@ -403,7 +403,7 @@ class TestCollectSheetIssues:
             self._valid_section_row("profile", "PR_"),
         ]
         issues = collect_sheet_issues(
-            rows=rows, specs=SECTION_COLUMN_SPECS, sheet_name="Sections"
+            rows=rows, specs=SECTION_FIELD_SPECS, sheet_name="Sections"
         )
         assert issues == []
 
@@ -413,7 +413,7 @@ class TestCollectSheetIssues:
             {**self._valid_section_row("profile", "PR_"), "section": None},
         ]
         issues = collect_sheet_issues(
-            rows=rows, specs=SECTION_COLUMN_SPECS, sheet_name="Sections"
+            rows=rows, specs=SECTION_FIELD_SPECS, sheet_name="Sections"
         )
         assert issues == [
             "Error in Sections sheet - Required field is missing in row 3. "
@@ -429,7 +429,7 @@ class TestCollectSheetIssues:
             }
         ]
         issues = collect_sheet_issues(
-            rows=rows, specs=SECTION_COLUMN_SPECS, sheet_name="Sections"
+            rows=rows, specs=SECTION_FIELD_SPECS, sheet_name="Sections"
         )
         assert issues == [
             "Error in Sections sheet - Invalid in_nav in row 2: True - "
@@ -446,7 +446,7 @@ class TestCollectSheetIssues:
             }
         ]
         issues = collect_sheet_issues(
-            rows=rows, specs=SECTION_COLUMN_SPECS, sheet_name="Sections"
+            rows=rows, specs=SECTION_FIELD_SPECS, sheet_name="Sections"
         )
         assert issues == []
 
@@ -457,7 +457,7 @@ class TestCollectSheetIssues:
             self._valid_section_row("home", "HM2_"),
         ]
         issues = collect_sheet_issues(
-            rows=rows, specs=SECTION_COLUMN_SPECS, sheet_name="Sections"
+            rows=rows, specs=SECTION_FIELD_SPECS, sheet_name="Sections"
         )
         assert issues == [
             "Error in Sections sheet - Duplicate section 'home': found in rows [2, 4]"
@@ -470,7 +470,7 @@ class TestCollectSheetIssues:
             self._valid_section_row("profile", "HM_"),
         ]
         issues = collect_sheet_issues(
-            rows=rows, specs=SECTION_COLUMN_SPECS, sheet_name="Sections"
+            rows=rows, specs=SECTION_FIELD_SPECS, sheet_name="Sections"
         )
         assert issues == [
             "Error in Sections sheet - Duplicate abbreviation 'HM_': found in rows [2, 3]"
@@ -490,7 +490,7 @@ class TestCollectSheetIssues:
             },
         ]
         issues = collect_sheet_issues(
-            rows=rows, specs=SECTION_COLUMN_SPECS, sheet_name="Sections"
+            rows=rows, specs=SECTION_FIELD_SPECS, sheet_name="Sections"
         )
         assert issues == [
             "Error in Sections sheet - Required field is missing in row 2. "
@@ -502,7 +502,7 @@ class TestCollectSheetIssues:
     def test_reports_abbreviation_not_ending_with_underscore(self):
         rows = [{**self._valid_section_row("home", "HM"), "abbreviation": "HM"}]
         issues = collect_sheet_issues(
-            rows=rows, specs=SECTION_COLUMN_SPECS, sheet_name="Sections"
+            rows=rows, specs=SECTION_FIELD_SPECS, sheet_name="Sections"
         )
         assert issues == [
             "Error in Sections sheet - Invalid abbreviation in row 2: 'HM' - "
@@ -514,7 +514,7 @@ class TestCollectSheetIssues:
             {**self._valid_section_row("home", "HM_"), "enable_conditional": "hasSize1"}
         ]
         issues = collect_sheet_issues(
-            rows=rows, specs=SECTION_COLUMN_SPECS, sheet_name="Sections"
+            rows=rows, specs=SECTION_FIELD_SPECS, sheet_name="Sections"
         )
         assert issues == [
             "Error in Sections sheet - Invalid enable_conditional in row 2: "
@@ -528,7 +528,7 @@ class TestCollectSheetIssues:
             {**self._valid_section_row("profile", "PR_"), "parent_section": "home"},
         ]
         issues = collect_sheet_issues(
-            rows=rows, specs=SECTION_COLUMN_SPECS, sheet_name="Sections"
+            rows=rows, specs=SECTION_FIELD_SPECS, sheet_name="Sections"
         )
         assert issues == []
 
@@ -541,7 +541,7 @@ class TestCollectSheetIssues:
             },
         ]
         issues = collect_sheet_issues(
-            rows=rows, specs=SECTION_COLUMN_SPECS, sheet_name="Sections"
+            rows=rows, specs=SECTION_FIELD_SPECS, sheet_name="Sections"
         )
         assert issues == [
             "Error in Sections sheet - Invalid parent_section in row 3: "
@@ -550,15 +550,15 @@ class TestCollectSheetIssues:
 
 
 class TestCollectSurveyIssues:
-    """Cross-sheet `references` (ColumnReference(sheet=...)) can only be resolved with
+    """Cross-sheet `references` (FieldReference(sheet=...)) can only be resolved with
     every sheet's rows, so these tests exercise collect_survey_issues against a small,
-    self-contained SHEET_COLUMN_SPECS (monkeypatched) instead of the real production
+    self-contained SHEET_FIELD_SPECS (monkeypatched) instead of the real production
     specs, which today have no cross-sheet reference to exercise this path with."""
 
     def _column_spec(
-        self, field: str, references: ColumnReference | None = None
-    ) -> ColumnSpec:
-        return ColumnSpec(
+        self, field: str, references: FieldReference | None = None
+    ) -> FieldSpec:
+        return FieldSpec(
             field=field,
             header=field,
             required=False,
@@ -574,12 +574,12 @@ class TestCollectSurveyIssues:
         sheet_a_specs = (self._column_spec("code"),)
         sheet_b_specs = (
             self._column_spec(
-                "parent_code", references=ColumnReference(field="code", sheet="SheetA")
+                "parent_code", references=FieldReference(field="code", sheet="SheetA")
             ),
         )
         monkeypatch.setattr(
             generate_survey_data,
-            "SHEET_COLUMN_SPECS",
+            "SHEET_FIELD_SPECS",
             {"SheetA": sheet_a_specs, "SheetB": sheet_b_specs},
         )
 
