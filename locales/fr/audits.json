@@ -54,6 +54,7 @@
     "J_L_InconsistentChronology": "La chronologie du séjour est incohérente",
     "J_L_JourneyNotClosed": "Le séjour n'est pas fermé",
     "J_L_JourneyClosedMoreThanOnce": "Le séjour est fermé plusieurs fois",
+    "J_L_OnlyOneVisitedPlace": "Le séjour ne contient qu'un seul lieu visité",
 
     "VP_M_Geography": "La géographie du lieu visité est manquante",
     "VP_M_Activity": "L'activité du lieu visité est manquante",
