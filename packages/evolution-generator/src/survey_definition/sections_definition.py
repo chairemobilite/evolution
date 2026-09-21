@@ -82,7 +82,9 @@ class SectionDefinition(BaseModel):
     # strict=True turns that off: a value must already have exactly the declared type,
     # otherwise it is reported as an error. A cell holding "yes" where a true/false
     # value is expected is most likely a mistake in the spreadsheet, so we want to
-    # point it out rather than guess what was meant.
+    # point it out rather than guess what was meant. The same goes for a TRUE that
+    # became 1 or "true" after a round trip between Excel, LibreOffice Calc and a text
+    # editor: it means the file was converted along the way, which is worth knowing.
     model_config = ConfigDict(strict=True)
 
     # No default: a blank value here is a genuinely missing required value.
@@ -123,8 +125,11 @@ class SectionDefinition(BaseModel):
     def _titles_required_when_in_nav(self) -> Self:
         """Check that `title_fr` and `title_en` are set whenever `in_nav` is true."""
         if self.in_nav:
+            # A title of only spaces counts as blank, like in field_checks.non_blank.
             missing = [
-                name for name in ("title_fr", "title_en") if not getattr(self, name)
+                name
+                for name in ("title_fr", "title_en")
+                if not (getattr(self, name) or "").strip()
             ]
             if missing:
                 verb = "is" if len(missing) == 1 else "are"
@@ -159,16 +164,27 @@ def collect_sections_issues(
 def _parent_section_issues(
     rows: Sequence[tuple[int, SectionDefinition]], table_name: str
 ) -> list[str]:
-    """Find every non-blank `parent_section` that doesn't name a real section in `rows`."""
+    """Find every non-blank `parent_section` that doesn't name a real section in `rows`, or names the row's own section."""
     prefix = f"Error in {table_name} - "
     valid_sections = {section.section for _, section in rows}
-    return [
-        f"{prefix}Invalid parent_section in row {row_number}: "
-        f"{section.parent_section!r} does not match any section value"
-        for row_number, section in rows
-        if section.parent_section is not None
-        and section.parent_section not in valid_sections
-    ]
+    issues = []
+
+    for row_number, section in rows:
+        if section.parent_section is None:
+            continue
+        # A section's own name is in valid_sections, so it needs its own check.
+        if section.parent_section == section.section:
+            issues.append(
+                f"{prefix}Invalid parent_section in row {row_number}: "
+                f"{section.parent_section!r} - A section cannot be its own parent. "
+                "Name another section, or leave it blank."
+            )
+        elif section.parent_section not in valid_sections:
+            issues.append(
+                f"{prefix}Invalid parent_section in row {row_number}: "
+                f"{section.parent_section!r} does not match any section value"
+            )
+    return issues
 
 
 class Sections(RootModel[list[SectionDefinition]]):

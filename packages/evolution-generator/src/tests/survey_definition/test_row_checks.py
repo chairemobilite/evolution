@@ -58,6 +58,9 @@ class TestStripBlanks:
     def test_drops_none_and_empty_string_values(self):
         assert _strip_blanks({"a": None, "b": "", "c": "kept"}) == {"c": "kept"}
 
+    def test_drops_whitespace_only_strings(self):
+        assert _strip_blanks({"a": "   ", "b": "\t", "c": " kept "}) == {"c": " kept "}
+
     def test_keeps_falsy_values_that_are_not_blank(self):
         # False and 0 are real answers, not blank cells.
         assert _strip_blanks({"a": False, "b": 0}) == {"a": False, "b": 0}

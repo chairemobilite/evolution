@@ -67,8 +67,12 @@ def format_pydantic_errors(
 
 
 def _strip_blanks(row: dict) -> dict:
-    """Drop None/"" values, so a blank value looks like a genuinely absent key to Pydantic."""
-    return {key: value for key, value in row.items() if value not in (None, "")}
+    """Drop None and empty/whitespace-only strings, so a blank value looks like a genuinely absent key to Pydantic."""
+    return {
+        key: value
+        for key, value in row.items()
+        if value is not None and not (isinstance(value, str) and not value.strip())
+    }
 
 
 def _raise_if_check_fails(check, value, row: dict) -> None:

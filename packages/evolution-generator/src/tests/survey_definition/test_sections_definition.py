@@ -168,6 +168,26 @@ class TestCollectSectionsIssues:
             "title_en is required when in_nav is true"
         ]
 
+    def test_reports_whitespace_only_titles_when_in_nav_is_true(self):
+        rows = [
+            {
+                **self._valid_section_row("home", "HM_"),
+                "title_fr": "   ",
+                "title_en": " ",
+            }
+        ]
+        _, issues = collect_sections_issues(rows)
+        assert issues == [
+            "Error in Sections - Invalid row 2: "
+            "title_fr and title_en are required when in_nav is true",
+        ]
+
+    def test_treats_a_whitespace_only_template_as_absent(self):
+        rows = [{**self._valid_section_row("home", "HM_"), "template": "  "}]
+        sections, issues = collect_sections_issues(rows)
+        assert issues == []
+        assert sections[0].template is None
+
     def test_allows_missing_titles_when_in_nav_is_false(self):
         rows = [
             {
@@ -233,6 +253,18 @@ class TestCollectSectionsIssues:
         assert issues == [
             "Error in Sections - Invalid parent_section in row 3: "
             "'doesNotExist' does not match any section value"
+        ]
+
+    def test_reports_parent_section_that_is_the_section_itself(self):
+        rows = [
+            self._valid_section_row("home", "HM_"),
+            {**self._valid_section_row("profile", "PR_"), "parent_section": "profile"},
+        ]
+        _, issues = collect_sections_issues(rows)
+        assert issues == [
+            "Error in Sections - Invalid parent_section in row 3: "
+            "'profile' - A section cannot be its own parent. "
+            "Name another section, or leave it blank."
         ]
 
     def test_an_invalid_row_is_not_checked_against_uniqueness_or_parent_section(self):
