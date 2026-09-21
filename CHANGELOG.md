@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased (0.6.4)]
+## [Unreleased (0.6.5)]
 
 ### Added
 
@@ -16,6 +16,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 ### Fixed
+
+### Security
+
+### Dependency updates
+
+## [0.6.4] - 2026-09-22
+
+### Added
+
+- Audits: Add the `activityOtherSpecify` field to `VisitedPlaces` (fixes [#1973](https://github.com/chairemobilite/evolution/issues/1973))
+- Audits: new audits checks: `VP_M_Activity` ([#1919](https://github.com/chairemobilite/evolution/issues/1919)), `VP_M_StartTime` and `VP_M_EndTime` ([#1918](https://github.com/chairemobilite/evolution/issues/1918)), `J_L_OnlyOneVisitedPlace`, `J_L_MadeTripsUndefinedWithTrips` ([#1914](https://github.com/chairemobilite/evolution/issues/1914)), `J_L_MadeTripsWithEmptyJourney` ([#1913](https://github.com/chairemobilite/evolution/issues/1913)), `J_L_DidNotMakeTripsButTripsPresent` ([#1912](https://github.com/chairemobilite/evolution/issues/1912)), `J_L_MadeTripsUnknownWithTrips`
+
+### Changed
+
+- Audits: Reviewer form now has a save button instead of continuous save (fixes [#2014](https://github.com/chairemobilite/evolution/issues/2014))
+- Audits: Show audits beside their respective objects in interview summary (fixes [#2015](https://github.com/chairemobilite/evolution/issues/2015))
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+- Audits: All survey objects can now appear in the `AuditFilter` dropdowns in the review list (fixes [#2017](https://github.com/chairemobilite/evolution/issues/2017))
+- Audits: Fix the `nextPlaceCategory` audits false positives (fixes [#2019](https://github.com/chairemobilite/evolution/issues/2019) and fixes [#2029](https://github.com/chairemobilite/evolution/issues/2029))
+- Audits: Accept no visited place geography when activity is a loop activity ((fixes [#2033](https://github.com/chairemobilite/evolution/issues/2033))
 
 ### Security
 
