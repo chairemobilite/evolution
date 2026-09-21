@@ -109,6 +109,32 @@ export const journeyAuditChecks: { [errorCode: string]: JourneyAuditCheckFunctio
     },
 
     /**
+     * Flag a journey that has exactly one visited place.
+     * One place is never a complete diary: the person has to leave it for
+     * another, or arrive at it from another. Closing that only place
+     * (`nextPlaceCategory === 'stayedThereUntilTheNextDay'`) does not exempt it.
+     * @param context - JourneyAuditCheckContext
+     * @returns AuditForObject
+     */
+    J_L_OnlyOneVisitedPlace: (context: JourneyAuditCheckContext): AuditForObject | undefined => {
+        const { journey } = context;
+
+        if (journey.visitedPlaces?.length !== 1) {
+            return undefined;
+        }
+
+        return {
+            objectType: 'journey',
+            objectUuid: journey._uuid!,
+            errorCode: 'J_L_OnlyOneVisitedPlace',
+            version: 1,
+            level: 'error',
+            message: 'Journey has only one visited place',
+            ignore: false
+        };
+    },
+
+    /**
      * Check for visited place sequences that cannot be ordered: missing, non-positive
      * integer, or shared by two visited places.
      * @param context - JourneyAuditCheckContext

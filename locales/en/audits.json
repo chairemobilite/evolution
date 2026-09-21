@@ -54,6 +54,7 @@
     "J_L_InconsistentChronology": "Journey chronology is inconsistent",
     "J_L_JourneyNotClosed": "Journey is not closed",
     "J_L_JourneyClosedMoreThanOnce": "Journey is closed more than once",
+    "J_L_OnlyOneVisitedPlace": "Journey has only one visited place",
 
     "VP_M_Geography": "Visited place geography is missing",
     "VP_M_Activity": "Visited place activity is missing",
