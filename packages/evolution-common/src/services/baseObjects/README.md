@@ -115,6 +115,15 @@ A journey is one person's day. Visited places and trips may be empty: that is st
 
 An empty journey with `didTrips` answered `false` is someone with no travel on `startDate`.
 
+### Loop activities
+
+A loop activity (`workOnTheRoad`, `leisureStroll`) is one visited place and two trips:
+
+1. The trip that arrives at the loop activity. Modes are collected on this trip so the trip has segment(s).
+2. The trip that leaves the loop activity for the next place. This second trip has no segments.
+
+The loop visited place has no geography. `VP_M_Geography` does not run for that place. `T_M_Segments` does not run when the trip origin is the loop activity. It still runs on the trip that arrives there.
+
 ## Prefilled Data System
 
 Evolution supports prefilling survey objects with data from external sources before conducting interviews. This allows surveyors to import existing data about respondents and reduce the burden of data entry or detect changes, for instance household who moved. Home address is the usual example of  prefilled data.

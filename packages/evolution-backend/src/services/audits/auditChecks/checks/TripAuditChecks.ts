@@ -6,17 +6,25 @@
  */
 
 import type { AuditForObject } from 'evolution-common/lib/services/audits/types';
-import type { TripAuditCheckContext, TripAuditCheckFunction } from '../AuditCheckContexts';
 import { hasInvalidOrDuplicateSequences } from 'evolution-common/lib/services/baseObjects/sequenceUtils';
+import { loopActivities } from 'evolution-common/lib/services/odSurvey/types';
+import type { TripAuditCheckContext, TripAuditCheckFunction } from '../AuditCheckContexts';
 
 export const tripAuditChecks: { [errorCode: string]: TripAuditCheckFunction } = {
     /**
-     * Check if trip segments are missing
+     * Check if trip segments are missing.
+     * The trip that arrives at a loop activity has segments, so this check still runs for it.
+     * The trip that leaves a loop activity has no segments, so this check does not run when the origin is a loop activity.
      * @param context - TripAuditCheckContext
      * @returns AuditForObject
      */
     T_M_Segments: (context: TripAuditCheckContext): AuditForObject | undefined => {
         const { trip } = context;
+
+        if (loopActivities.some((loopActivity) => loopActivity === trip.origin?.activity)) {
+            return undefined;
+        }
+
         const hasSegments = trip.segments !== undefined && trip.segments.length > 0;
 
         if (!hasSegments) {

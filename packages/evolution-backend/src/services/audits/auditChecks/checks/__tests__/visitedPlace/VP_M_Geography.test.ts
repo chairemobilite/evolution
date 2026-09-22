@@ -6,6 +6,7 @@
  */
 
 import { v4 as uuidV4 } from 'uuid';
+import { loopActivities } from 'evolution-common/lib/services/odSurvey/types';
 import { visitedPlaceAuditChecks } from '../../VisitedPlaceAuditChecks';
 import { createContextWithVisitedPlace } from './testHelper';
 
@@ -34,6 +35,14 @@ describe('VP_M_Geography audit check', () => {
             message: 'Visited place geography is missing',
             ignore: false
         });
+    });
+
+    test.each(loopActivities)('should pass when %s has no geography', (activity) => {
+        const context = createContextWithVisitedPlace({ geography: undefined, activity }, validUuid);
+
+        const result = visitedPlaceAuditChecks.VP_M_Geography(context);
+
+        expect(result).toBeUndefined();
     });
 });
 
