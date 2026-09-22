@@ -4,9 +4,9 @@
 
 # Note: The Sections table of the survey definition: SectionDefinition, one Pydantic
 # model per row, validated on construction (types, allowed values, per-field and
-# same-row checks); collect_sections_issues, which also runs the rules across rows (a
-# field unique across the table, parent_section naming a real section); and Sections,
-# the whole checked table.
+# same-row checks); and Sections, the whole checked table, whose collect_sections_issues
+# also runs the rules across rows (a field unique across the table, parent_section
+# naming a real section).
 #
 # This module only defines the shape and the checks; it does not read any input source.
 # See survey_definition.py for the bundle of all tables.
@@ -45,8 +45,8 @@ class SectionDefinition(BaseModel):
     """
     One row of the Sections table: a survey section (page), validated on construction.
 
-    Build instances through `collect_sections_issues` (below), which
-    also runs the rules that need more than one row (unique `section`/`abbreviation`,
+    Build instances through `Sections.collect_sections_issues` (below), which also runs
+    the rules that need more than one row (unique `section`/`abbreviation`,
     `parent_section` exists).
     Constructing a SectionDefinition directly only runs the per-row rules below. Validation
     is strict: no type coercion (e.g. the string "yes" is rejected for a bool field).
@@ -149,54 +149,58 @@ class SectionDefinition(BaseModel):
         return value
 
 
-def collect_sections_issues(
-    rows: list[dict | SectionDefinition], table_name: str = "Sections"
-) -> tuple[list[SectionDefinition], list[str]]:
-    """Parse every Sections row, then check table-wide rules (unique section/abbreviation, parent_section exists). Returns (parsed sections, every issue found)."""
-    return collect_sheet_issues(
-        rows,
-        SectionDefinition,
-        table_name,
-        [unique_field("section"), unique_field("abbreviation"), _parent_section_issues],
-    )
-
-
-def _parent_section_issues(
-    rows: Sequence[tuple[int, SectionDefinition]], table_name: str
-) -> list[str]:
-    """Find every non-blank `parent_section` that doesn't name a real section in `rows`, or names the row's own section."""
-    prefix = f"Error in {table_name} - "
-    valid_sections = {section.section for _, section in rows}
-    issues = []
-
-    for row_number, section in rows:
-        if section.parent_section is None:
-            continue
-        # A section's own name is in valid_sections, so it needs its own check.
-        if section.parent_section == section.section:
-            issues.append(
-                f"{prefix}Invalid parent_section in row {row_number}: "
-                f"{section.parent_section!r} - A section cannot be its own parent. "
-                "Name another section, or leave it blank."
-            )
-        elif section.parent_section not in valid_sections:
-            issues.append(
-                f"{prefix}Invalid parent_section in row {row_number}: "
-                f"{section.parent_section!r} does not match any section value"
-            )
-    return issues
-
-
 class Sections(RootModel[list[SectionDefinition]]):
     """
     The whole Sections sheet: a list of SectionDefinition that has passed every check,
-    the ones on each row and the ones across rows (see collect_sections_issues).
+    the ones on each row and the ones across rows (see `collect_sections_issues`).
 
     An instance only exists if the sheet is valid, so whatever holds one doesn't need
     to check it again. Build it from the rows as read from the source (dicts) or from
     SectionDefinition objects; when the sheet has problems, the error message lists
     every one of them, not just the first.
     """
+
+    @classmethod
+    def collect_sections_issues(
+        cls, rows: list[dict | SectionDefinition], table_name: str = "Sections"
+    ) -> tuple[list[SectionDefinition], list[str]]:
+        """Parse every Sections row, then check table-wide rules (unique section/abbreviation, parent_section exists). Returns (parsed sections, every issue found)."""
+        return collect_sheet_issues(
+            rows,
+            SectionDefinition,
+            table_name,
+            [
+                unique_field("section"),
+                unique_field("abbreviation"),
+                cls._parent_section_issues,
+            ],
+        )
+
+    @staticmethod
+    def _parent_section_issues(
+        rows: Sequence[tuple[int, SectionDefinition]], table_name: str
+    ) -> list[str]:
+        """Find every non-blank `parent_section` that doesn't name a real section in `rows`, or names the row's own section."""
+        prefix = f"Error in {table_name} - "
+        valid_sections = {section.section for _, section in rows}
+        issues = []
+
+        for row_number, section in rows:
+            if section.parent_section is None:
+                continue
+            # A section's own name is in valid_sections, so it needs its own check.
+            if section.parent_section == section.section:
+                issues.append(
+                    f"{prefix}Invalid parent_section in row {row_number}: "
+                    f"{section.parent_section!r} - A section cannot be its own parent. "
+                    "Name another section, or leave it blank."
+                )
+            elif section.parent_section not in valid_sections:
+                issues.append(
+                    f"{prefix}Invalid parent_section in row {row_number}: "
+                    f"{section.parent_section!r} does not match any section value"
+                )
+        return issues
 
     @model_validator(mode="wrap")
     @classmethod
@@ -208,7 +212,7 @@ class Sections(RootModel[list[SectionDefinition]]):
         if isinstance(rows, list) and all(
             isinstance(row, (dict, SectionDefinition)) for row in rows
         ):
-            sections, issues = collect_sections_issues(rows)
+            sections, issues = cls.collect_sections_issues(rows)
             if issues:
                 raise ValueError("\n".join(issues))
             return handler(sections)

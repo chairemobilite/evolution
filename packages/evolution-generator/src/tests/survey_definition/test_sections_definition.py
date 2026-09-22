@@ -2,18 +2,14 @@
 # This file is licensed under the MIT License.
 # License text available at https://opensource.org/licenses/MIT
 
-# Note: Tests for survey_definition/sections_definition.py: SectionDefinition,
-# collect_sections_issues (per-row rules, then the rules across the whole table) and the
-# Sections class that holds a checked sheet.
+# Note: Tests for survey_definition/sections_definition.py: SectionDefinition and the
+# Sections class that holds a checked sheet (Sections.collect_sections_issues runs the
+# per-row rules, then the rules across the whole table).
 
 import pytest  # pyright: ignore[reportMissingImports]
 from pydantic import ValidationError
 
-from survey_definition.sections_definition import (
-    Sections,
-    SectionDefinition,
-    collect_sections_issues,
-)
+from survey_definition.sections_definition import Sections, SectionDefinition
 
 
 class TestSectionDefinition:
@@ -39,7 +35,7 @@ class TestCollectSectionsIssues:
             self._valid_section_row("home", "HM_"),
             self._valid_section_row("profile", "PR_"),
         ]
-        sections, issues = collect_sections_issues(rows)
+        sections, issues = Sections.collect_sections_issues(rows)
         assert issues == []
         assert [section.section for section in sections] == ["home", "profile"]
 
@@ -48,7 +44,7 @@ class TestCollectSectionsIssues:
             self._valid_section_row("home", "HM_"),
             {**self._valid_section_row("profile", "PR_"), "section": None},
         ]
-        sections, issues = collect_sections_issues(rows)
+        sections, issues = Sections.collect_sections_issues(rows)
         assert issues == [
             "Error in Sections - Required field is missing in row 3. "
             "Missing fields: ['section']"
@@ -64,7 +60,7 @@ class TestCollectSectionsIssues:
                 "abbreviation": "",
             }
         ]
-        _, issues = collect_sections_issues(rows)
+        _, issues = Sections.collect_sections_issues(rows)
         assert issues == [
             "Error in Sections - Required field is missing in row 2. "
             "Missing fields: ['section', 'abbreviation']"
@@ -72,7 +68,7 @@ class TestCollectSectionsIssues:
 
     def test_reports_section_that_is_not_a_valid_identifier(self):
         rows = [self._valid_section_row("1bad", "HM_")]
-        _, issues = collect_sections_issues(rows)
+        _, issues = Sections.collect_sections_issues(rows)
         assert issues == [
             "Error in Sections - Invalid section in row 2: '1bad' - "
             "Must be a valid TypeScript identifier "
@@ -81,7 +77,7 @@ class TestCollectSectionsIssues:
 
     def test_reports_abbreviation_not_ending_with_underscore(self):
         rows = [{**self._valid_section_row("home", "HM"), "abbreviation": "HM"}]
-        _, issues = collect_sections_issues(rows)
+        _, issues = Sections.collect_sections_issues(rows)
         assert issues == [
             "Error in Sections - Invalid abbreviation in row 2: 'HM' - "
             "Must end with an underscore ('_'), e.g. 'h_'."
@@ -91,7 +87,7 @@ class TestCollectSectionsIssues:
         rows = [
             {**self._valid_section_row("home", "HM_"), "enable_conditional": "hasSize1"}
         ]
-        _, issues = collect_sections_issues(rows)
+        _, issues = Sections.collect_sections_issues(rows)
         assert issues == [
             "Error in Sections - Invalid enable_conditional in row 2: "
             "'hasSize1' - Must end with 'Conditional' or 'CustomConditional' "
@@ -105,7 +101,7 @@ class TestCollectSectionsIssues:
                 "completion_conditional": "isDone",
             }
         ]
-        _, issues = collect_sections_issues(rows)
+        _, issues = Sections.collect_sections_issues(rows)
         assert issues == [
             "Error in Sections - Invalid completion_conditional in row 2: "
             "'isDone' - Must end with 'Conditional' or 'CustomConditional' "
@@ -120,7 +116,7 @@ class TestCollectSectionsIssues:
                 "completion_conditional": "isDoneCustomConditional",
             }
         ]
-        sections, issues = collect_sections_issues(rows)
+        sections, issues = Sections.collect_sections_issues(rows)
         assert issues == []
         assert sections[0].enable_conditional == "hasSize1Conditional"
         assert sections[0].completion_conditional == "isDoneCustomConditional"
@@ -133,14 +129,14 @@ class TestCollectSectionsIssues:
                 "completion_conditional": None,
             }
         ]
-        sections, issues = collect_sections_issues(rows)
+        sections, issues = Sections.collect_sections_issues(rows)
         assert issues == []
         assert sections[0].enable_conditional is None
         assert sections[0].completion_conditional is None
 
     def test_reports_wrong_type(self):
         rows = [{**self._valid_section_row("home", "HM_"), "in_nav": "yes"}]
-        _, issues = collect_sections_issues(rows)
+        _, issues = Sections.collect_sections_issues(rows)
         assert issues == [
             "Error in Sections - Invalid in_nav in row 2: 'yes' - "
             "Input should be a valid boolean"
@@ -154,7 +150,7 @@ class TestCollectSectionsIssues:
                 "title_en": None,
             }
         ]
-        _, issues = collect_sections_issues(rows)
+        _, issues = Sections.collect_sections_issues(rows)
         assert issues == [
             "Error in Sections - Invalid row 2: "
             "title_fr and title_en are required when in_nav is true",
@@ -162,7 +158,7 @@ class TestCollectSectionsIssues:
 
     def test_reports_only_the_missing_title_when_in_nav_is_true(self):
         rows = [{**self._valid_section_row("home", "HM_"), "title_en": None}]
-        _, issues = collect_sections_issues(rows)
+        _, issues = Sections.collect_sections_issues(rows)
         assert issues == [
             "Error in Sections - Invalid row 2: "
             "title_en is required when in_nav is true"
@@ -176,7 +172,7 @@ class TestCollectSectionsIssues:
                 "title_en": " ",
             }
         ]
-        _, issues = collect_sections_issues(rows)
+        _, issues = Sections.collect_sections_issues(rows)
         assert issues == [
             "Error in Sections - Invalid row 2: "
             "title_fr and title_en are required when in_nav is true",
@@ -184,7 +180,7 @@ class TestCollectSectionsIssues:
 
     def test_treats_a_whitespace_only_template_as_absent(self):
         rows = [{**self._valid_section_row("home", "HM_"), "template": "  "}]
-        sections, issues = collect_sections_issues(rows)
+        sections, issues = Sections.collect_sections_issues(rows)
         assert issues == []
         assert sections[0].template is None
 
@@ -197,12 +193,12 @@ class TestCollectSectionsIssues:
                 "in_nav": False,
             }
         ]
-        _, issues = collect_sections_issues(rows)
+        _, issues = Sections.collect_sections_issues(rows)
         assert issues == []
 
     def test_collects_every_row_level_issue_in_one_pass(self):
         rows = [{**self._valid_section_row("1bad", "HM")}]
-        _, issues = collect_sections_issues(rows)
+        _, issues = Sections.collect_sections_issues(rows)
         assert issues == [
             "Error in Sections - Invalid section in row 2: '1bad' - "
             "Must be a valid TypeScript identifier "
@@ -217,7 +213,7 @@ class TestCollectSectionsIssues:
             self._valid_section_row("profile", "PR_"),
             self._valid_section_row("home", "HM2_"),
         ]
-        _, issues = collect_sections_issues(rows)
+        _, issues = Sections.collect_sections_issues(rows)
         assert issues == [
             "Error in Sections - Duplicate section 'home': found in rows [2, 4]"
         ]
@@ -228,7 +224,7 @@ class TestCollectSectionsIssues:
             self._valid_section_row("home", "HM_"),
             self._valid_section_row("profile", "HM_"),
         ]
-        _, issues = collect_sections_issues(rows)
+        _, issues = Sections.collect_sections_issues(rows)
         assert issues == [
             "Error in Sections - Duplicate abbreviation 'HM_': found in rows [2, 3]"
         ]
@@ -238,7 +234,7 @@ class TestCollectSectionsIssues:
             self._valid_section_row("home", "HM_"),
             {**self._valid_section_row("profile", "PR_"), "parent_section": "home"},
         ]
-        _, issues = collect_sections_issues(rows)
+        _, issues = Sections.collect_sections_issues(rows)
         assert issues == []
 
     def test_reports_parent_section_that_names_no_section(self):
@@ -249,7 +245,7 @@ class TestCollectSectionsIssues:
                 "parent_section": "doesNotExist",
             },
         ]
-        _, issues = collect_sections_issues(rows)
+        _, issues = Sections.collect_sections_issues(rows)
         assert issues == [
             "Error in Sections - Invalid parent_section in row 3: "
             "'doesNotExist' does not match any section value"
@@ -260,7 +256,7 @@ class TestCollectSectionsIssues:
             self._valid_section_row("home", "HM_"),
             {**self._valid_section_row("profile", "PR_"), "parent_section": "profile"},
         ]
-        _, issues = collect_sections_issues(rows)
+        _, issues = Sections.collect_sections_issues(rows)
         assert issues == [
             "Error in Sections - Invalid parent_section in row 3: "
             "'profile' - A section cannot be its own parent. "
@@ -275,7 +271,7 @@ class TestCollectSectionsIssues:
             self._valid_section_row("home", "HM_"),
             {**self._valid_section_row("home", "HM2_"), "section": None},
         ]
-        sections, issues = collect_sections_issues(rows)
+        sections, issues = Sections.collect_sections_issues(rows)
         assert issues == [
             "Error in Sections - Required field is missing in row 3. "
             "Missing fields: ['section']"
