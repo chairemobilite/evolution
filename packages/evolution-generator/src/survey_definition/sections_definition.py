@@ -24,7 +24,7 @@ from pydantic import (
 )
 
 from survey_definition import field_checks
-from survey_definition.row_checks import _raise_if_check_fails
+from survey_definition.row_checks import _raise_if_check_fails, _strip_blanks
 from survey_definition.sheet_checks import collect_sheet_issues, unique_field
 
 # Field names the Sections source must provide, even though several of them
@@ -86,6 +86,12 @@ class SectionDefinition(BaseModel):
     # became 1 or "true" after a round trip between Excel, LibreOffice Calc and a text
     # editor: it means the file was converted along the way, which is worth knowing.
     model_config = ConfigDict(strict=True)
+
+    @model_validator(mode="before")
+    @classmethod
+    def _strip_blank_cells(cls, data: Any) -> Any:
+        """Treat a blank/whitespace-only cell as an absent key, not a genuinely blank value."""
+        return _strip_blanks(data) if isinstance(data, dict) else data
 
     # No default: a blank value here is a genuinely missing required value.
     section: str
