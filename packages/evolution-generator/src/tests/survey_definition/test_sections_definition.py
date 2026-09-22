@@ -325,3 +325,11 @@ class TestSections:
             Sections.model_validate("not a list")
         with pytest.raises(ValidationError, match="valid dictionary|SectionDefinition"):
             Sections.model_validate([42])
+
+    def test_checks_a_tuple_or_set_of_rows_too(self):
+        # Pydantic accepts a tuple/set for a list field by coercing it, which would
+        # otherwise skip our own checks entirely (they only ran for an actual list).
+        row = {"section": "home", "in_nav": False, "abbreviation": "HM_"}
+        with pytest.raises(ValidationError, match="Duplicate section 'home'"):
+            Sections.model_validate((row, row))
+        assert len(Sections.model_validate((row,))) == 1

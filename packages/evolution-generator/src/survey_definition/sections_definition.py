@@ -214,14 +214,16 @@ class Sections(RootModel[list[SectionDefinition]]):
         # Pydantic stops at the first error a validator raises, so a plain validator
         # would report the problems one at a time. Running the checks ourselves and
         # raising a single error that lists all of them is what reports everything.
-        # Anything that isn't a list of rows is left to Pydantic's own error.
-        if isinstance(rows, list) and all(
-            isinstance(row, (dict, SectionDefinition)) for row in rows
-        ):
-            sections, issues = cls.collect_sections_issues(rows)
-            if issues:
-                raise ValueError("\n".join(issues))
-            return handler(sections)
+        # Pydantic also accepts a tuple/set/frozenset for a list field (coercing it
+        # without ever running our checks), so those are normalized into a real list
+        # here too. Anything else is left to Pydantic's own error.
+        if isinstance(rows, (list, tuple, set, frozenset)):
+            rows = list(rows)
+            if all(isinstance(row, (dict, SectionDefinition)) for row in rows):
+                sections, issues = cls.collect_sections_issues(rows)
+                if issues:
+                    raise ValueError("\n".join(issues))
+                return handler(sections)
         return handler(rows)
 
     def __iter__(self) -> Iterator[SectionDefinition]:  # type: ignore[override]
