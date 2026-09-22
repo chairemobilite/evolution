@@ -45,6 +45,13 @@ class SectionDefinition(BaseModel):
     """
     One row of the Sections table: a survey section (page), validated on construction.
 
+    Input: one row's fields, as keyword arguments or a dict (e.g.
+        `SectionDefinition(**row)`, one row of the "Sections" sheet). A blank or
+        whitespace-only cell is treated as an absent value.
+    Output: a validated instance if every per-row rule passes (see Attributes below
+        for what's checked); otherwise raises `pydantic.ValidationError` naming every
+        field that failed, not just the first.
+
     Build instances through `Sections.collect_sections_issues` (below), which also runs
     the rules that need more than one row (unique `section`/`abbreviation`,
     `parent_section` exists).
@@ -159,6 +166,15 @@ class Sections(RootModel[list[SectionDefinition]]):
     """
     The whole Sections sheet: a list of SectionDefinition that has passed every check,
     the ones on each row and the ones across rows (see `collect_sections_issues`).
+
+    Input: a list (or tuple/set/frozenset) of rows, each either a raw dict (e.g. every
+        row of the "Sections" sheet, as read from Excel) or an already-built
+        SectionDefinition.
+    Output: a validated instance — iterable, `len()`-able, one SectionDefinition per row
+        in source order — if the whole sheet passes every rule (each row's own rules,
+        plus unique `section`/`abbreviation` and a valid `parent_section` across rows);
+        otherwise raises `pydantic.ValidationError` listing every problem found, not
+        just the first.
 
     An instance only exists if the sheet is valid, so whatever holds one doesn't need
     to check it again. Build it from the rows as read from the source (dicts) or from
