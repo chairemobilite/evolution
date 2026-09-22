@@ -10,17 +10,23 @@ import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 
 import type { AuditForObject } from 'evolution-common/lib/services/audits/types';
 import { StartEndable } from 'evolution-common/lib/services/baseObjects/StartEndable';
+import { loopActivities } from 'evolution-common/lib/services/odSurvey/types';
 import type { VisitedPlaceAuditCheckContext, VisitedPlaceAuditCheckFunction } from '../AuditCheckContexts';
 
 export const visitedPlaceAuditChecks: { [errorCode: string]: VisitedPlaceAuditCheckFunction } = {
     /**
-     * Check if visited place geography is missing
+     * Check if visited place geography is missing.
+     * A loop activity visited place has no geography, so this check does not run for it.
      * @param context - VisitedPlaceAuditCheckContext
      * @returns AuditForObject
      */
     VP_M_Geography: (context: VisitedPlaceAuditCheckContext): AuditForObject | undefined => {
         const { visitedPlace } = context;
         const geography = visitedPlace.geography;
+
+        if (loopActivities.some((loopActivity) => loopActivity === visitedPlace.activity)) {
+            return undefined;
+        }
 
         if (!geography) {
             return {
