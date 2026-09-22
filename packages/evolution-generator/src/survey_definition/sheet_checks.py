@@ -13,7 +13,7 @@ from collections.abc import Callable, Sequence
 
 from pydantic import BaseModel, ValidationError
 
-from survey_definition.row_checks import _strip_blanks, format_pydantic_errors
+from survey_definition.row_checks import format_pydantic_errors
 
 type SheetRule[M: BaseModel] = Callable[[Sequence[tuple[int, M]], str], list[str]]
 
@@ -27,7 +27,8 @@ def collect_sheet_issues[M: BaseModel](
     """Parse every row into `model`, then run each of `sheet_rules` on the rows that parsed. Returns (parsed rows, every issue found).
 
     A row that is already a `model` instance was checked when it was built, so it is
-    kept as is; the sheet rules still apply to it.
+    kept as is; the sheet rules still apply to it. Blank-stripping isn't done here:
+    each table's own model handles that itself (see SectionDefinition._strip_blank_cells).
     """
     issues: list[str] = []
     parsed: list[tuple[int, M]] = []
@@ -37,7 +38,7 @@ def collect_sheet_issues[M: BaseModel](
             parsed.append((row_number, row))
             continue
         try:
-            definition = model(**_strip_blanks(row))
+            definition = model(**row)
         except ValidationError as exc:
             issues.extend(format_pydantic_errors(exc, table_name, row_number))
             continue

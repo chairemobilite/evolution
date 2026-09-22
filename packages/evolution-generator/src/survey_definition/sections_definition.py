@@ -172,10 +172,10 @@ class Sections(RootModel[list[SectionDefinition]]):
     ) -> tuple[list[SectionDefinition], list[str]]:
         """Parse every Sections row, then check table-wide rules (unique section/abbreviation, parent_section exists). Returns (parsed sections, every issue found)."""
         return collect_sheet_issues(
-            rows,
-            SectionDefinition,
-            table_name,
-            [
+            rows=rows,
+            model=SectionDefinition,
+            table_name=table_name,
+            sheet_rules=[
                 unique_field("section"),
                 unique_field("abbreviation"),
                 cls._parent_section_issues,
