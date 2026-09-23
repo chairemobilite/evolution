@@ -665,9 +665,7 @@ export const startSubmitObjectReview = (
                 body: { objectType, objectUuid, decision },
                 actionLabel: 'Error submitting object review',
                 onNonSuccessStatus: (response) => {
-                    // The server refuses approving an interview that still contains a rejected
-                    // or disagreed object; the admin UI hides that action, so this only happens
-                    // when another reviewer rejected something in the meantime.
+                    // A 409 on this route is shown to the reviewer.
                     if (response.status === 409) {
                         toast.error(i18n.t('admin:interviewMember.approveBlockedByObject'));
                         return true;

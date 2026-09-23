@@ -16,6 +16,8 @@ export type ObjectReviewControlsProps = {
     objectType: SurveyObjectName;
     /** Survey object uuid; nothing renders when missing. */
     objectUuid: string | undefined;
+    /** True when a rejected parent hides approving this object. */
+    approvalBlocked?: boolean;
 };
 
 /**
@@ -24,7 +26,12 @@ export type ObjectReviewControlsProps = {
  * @param props - Review state, object type, and uuid
  * @returns Review buttons, or null when the object is not reviewable
  */
-const ObjectReviewControls: React.FC<ObjectReviewControlsProps> = ({ review, objectType, objectUuid }) => {
+const ObjectReviewControls: React.FC<ObjectReviewControlsProps> = ({
+    review,
+    objectType,
+    objectUuid,
+    approvalBlocked = false
+}) => {
     if (!review.hasReviewControls) {
         return null;
     }
@@ -41,6 +48,7 @@ const ObjectReviewControls: React.FC<ObjectReviewControlsProps> = ({ review, obj
             onForceApprove={review.forceApprove}
             onClearForceApprove={review.clearForceApprove}
             onRequestReReview={review.requestReReview}
+            approvalBlocked={approvalBlocked}
         />
     );
 };

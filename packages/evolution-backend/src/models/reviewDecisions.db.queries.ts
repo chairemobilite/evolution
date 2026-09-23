@@ -13,18 +13,12 @@ import {
     type InterviewReviewStatusFilter,
     type ReviewDecisionEffectiveStatus
 } from 'evolution-common/lib/services/reviews/types';
-import {
-    computeReviewDecisionStatusForObject,
-    hasDecisionBlockingInterviewApproval
-} from '../services/reviews/ReviewDecisionUtils';
+import { computeReviewDecisionStatusForObject } from '../services/reviews/ReviewDecisionUtils';
 import {
     blocksApproval,
     getReviewDecisionEffectiveStatus
 } from 'evolution-common/lib/services/reviews/reviewDecisionStatus';
-import {
-    CANNOT_APPROVE_INTERVIEW_WITH_BLOCKING_OBJECT_ERROR_CODE,
-    CANNOT_FORCE_APPROVE_NOTHING_TO_OVERRIDE_ERROR_CODE
-} from '../services/reviews/reviewDecisionErrors';
+import { CANNOT_FORCE_APPROVE_NOTHING_TO_OVERRIDE_ERROR_CODE } from '../services/reviews/reviewDecisionErrors';
 import type { SurveyObjectName } from 'evolution-common/lib/services/baseObjects/types';
 import { Knex } from 'knex';
 
@@ -202,14 +196,7 @@ const clearForceApprove = async (
 /**
  * Upserts a reviewer decision for one survey object in an interview.
  * Clears any pending re-review request and any prior force-approve override for that reviewer.
- * Approving the interview means accepting everything it contains, so it is refused while one
- * of its objects is rejected or disagreed upon; a force approve is then the only way through.
- * That check and the upsert run in the same transaction, locking the decision rows it reads, so
- * a concurrent update of one of them waits for it. A reviewer inserting a brand new rejection
- * meanwhile is not held back, no lock covering rows that do not exist yet, so the interview may
- * end up approved over it. Serializing every review of an interview would cost more than the
- * rare stale approval, which a reviewer clears. See
- * https://github.com/chairemobilite/evolution/issues/1886
+ * An approve or a reject is stored whatever the decisions on the other objects are.
  * @param interviewId - Interview database id
  * @param userId - Reviewer user id
  * @param reviewDecision - Object type, uuid, decision and optional decision comment
@@ -222,28 +209,7 @@ const setReviewDecision = async (
     reviewDecision: ReviewerVote,
     transaction?: Knex.Transaction
 ): Promise<ReviewDecision> => {
-    // Approving the interview accepts everything it contains, so that decision alone is checked
-    // against the decisions taken on the objects below. Any other decision stands on its own and
-    // is written without reading them.
-    const guardsInterviewApproval = reviewDecision.objectType === 'interview' && reviewDecision.decision === 'approve';
-
     const runQuery = async (queryKnex: Knex | Knex.Transaction): Promise<ReviewDecision> => {
-        if (guardsInterviewApproval) {
-            // Read under lock inside the transaction of the upsert, so that a decision read here
-            // cannot change while the approval is being written.
-            const reviewDecisions = await getReviewDecisionsForInterview(
-                interviewId,
-                queryKnex as Knex.Transaction,
-                true
-            );
-            if (hasDecisionBlockingInterviewApproval(reviewDecisions)) {
-                throw new TrError(
-                    `Cannot approve interview ${interviewId}, it contains a rejected or disagreed object`,
-                    CANNOT_APPROVE_INTERVIEW_WITH_BLOCKING_OBJECT_ERROR_CODE,
-                    'CannotApproveInterviewWithBlockingObject'
-                );
-            }
-        }
         const dbObject = reviewDecisionToDbObject(interviewId, userId, reviewDecision);
         const rows = await queryKnex(tableName)
             .insert(dbObject)
@@ -264,11 +230,7 @@ const setReviewDecision = async (
     };
 
     try {
-        if (transaction) {
-            return await runQuery(transaction);
-        }
-        // Only the guarded case needs a transaction of its own; a plain upsert is atomic already.
-        return guardsInterviewApproval ? await knex.transaction(runQuery) : await runQuery(knex);
+        return await runQuery(transaction ?? knex);
     } catch (error) {
         if (error instanceof TrError) {
             throw error;
@@ -320,12 +282,11 @@ const requestReReviewFromOtherReviewers = async (
 };
 
 /**
- * Force-approves only when a decision still stands in the way of approving the object:
- * a rejection or a reviewer disagreement, on the object itself or, for the interview, on
- * any object it contains. Without one there is nothing to override, so the request is
- * rejected to avoid silently masking future conflicting reviews. The check and the upsert
- * run in the same transaction (with row locks) so a concurrent review cannot invalidate
- * the check between read and write.
+ * Force-approves only when a rejection or a reviewer disagreement stands on the object itself.
+ * A decision on another object is not something to override. Without something to override, the
+ * request is rejected to avoid silently masking future conflicting reviews. The check and the upsert
+ * run in the same transaction (with row locks) so a concurrent review cannot invalidate the check
+ * between read and write.
  * @param interviewId - Interview database id
  * @param userId - Admin user id
  * @param reviewDecision - Object type, uuid and optional force-approve comment
@@ -339,8 +300,6 @@ const setForceApproveWhenApprovalBlocked = async (
     transaction?: Knex.Transaction
 ): Promise<ReviewDecision> => {
     const runInTransaction = async (trx: Knex.Transaction): Promise<ReviewDecision> => {
-        // Every row of the interview is locked and read: force-approving the interview also
-        // overrides the decisions taken on the objects it contains.
         const reviewDecisions = await getReviewDecisionsForInterview(interviewId, trx, true);
         const status = computeReviewDecisionStatusForObject(
             reviewDecisions,
@@ -348,9 +307,7 @@ const setForceApproveWhenApprovalBlocked = async (
             reviewDecision.objectUuid,
             userId
         );
-        const overridesContainedObject =
-            reviewDecision.objectType === 'interview' && hasDecisionBlockingInterviewApproval(reviewDecisions);
-        if (!blocksApproval(status.effectiveStatus) && !overridesContainedObject) {
+        if (!blocksApproval(status.effectiveStatus)) {
             throw new TrError(
                 `Cannot force-approve ${reviewDecision.objectType}/${reviewDecision.objectUuid}, no decision to override`,
                 CANNOT_FORCE_APPROVE_NOTHING_TO_OVERRIDE_ERROR_CODE,

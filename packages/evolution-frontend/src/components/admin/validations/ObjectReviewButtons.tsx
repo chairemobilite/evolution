@@ -29,6 +29,8 @@ export type ObjectReviewButtonsProps = {
     onForceApprove?: () => void;
     onClearForceApprove?: () => void;
     onRequestReReview?: () => void;
+    /** True when a parent is rejected, so approving this object is hidden. */
+    approvalBlocked?: boolean;
 };
 
 /**
@@ -44,6 +46,7 @@ export type ObjectReviewButtonsProps = {
  * @param props.onForceApprove - Called when an admin force-approves
  * @param props.onClearForceApprove - Called when an admin toggles off their force-approve
  * @param props.onRequestReReview - Called to ask the other reviewers to look again
+ * @param props.approvalBlocked - Whether a rejected parent hides approving
  */
 const ObjectReviewButtons: React.FC<ObjectReviewButtonsProps> = ({
     objectType,
@@ -55,7 +58,8 @@ const ObjectReviewButtons: React.FC<ObjectReviewButtonsProps> = ({
     onClearReview,
     onForceApprove,
     onClearForceApprove,
-    onRequestReReview
+    onRequestReReview,
+    approvalBlocked = false
 }) => {
     const { t } = useTranslation('admin');
 
@@ -160,16 +164,18 @@ const ObjectReviewButtons: React.FC<ObjectReviewButtonsProps> = ({
                 onClear: onClearReview,
                 canClearWhenPressed: canClearDecision
             })}
-            {renderReviewToggleButton({
-                labelKey: 'interviewMember.approveObject',
-                icon: faCheck,
-                colorClass: '_green',
-                isPressed: approvePressed,
-                activeClassSuffix: 'admin__survey-object-box__review-button--active-approve',
-                onActivate: onApprove,
-                onClear: onClearReview,
-                canClearWhenPressed: canClearDecision
-            })}
+            {/* An approval already taken stays when it can be withdrawn, once a parent blocks a new one. */}
+            {(!approvalBlocked || (approvePressed && canClearDecision)) &&
+                renderReviewToggleButton({
+                    labelKey: approvalBlocked ? 'interviewMember.withdrawApprove' : 'interviewMember.approveObject',
+                    icon: faCheck,
+                    colorClass: '_green',
+                    isPressed: approvePressed,
+                    activeClassSuffix: 'admin__survey-object-box__review-button--active-approve',
+                    onActivate: approvalBlocked ? onClearReview : onApprove,
+                    onClear: onClearReview,
+                    canClearWhenPressed: canClearDecision
+                })}
             {canForceApprove &&
                 onForceApprove &&
                 showForceApprove &&

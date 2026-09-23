@@ -15,10 +15,7 @@ import { isUserAllowed } from '../../services/auth/userAuthorization';
 import { surveyObjectExistsInInterview } from '../../services/surveyObjects/surveyObjectExistsInInterview';
 import { ReviewDecisionService } from '../../services/reviews/ReviewDecisionService';
 import { SurveyObjectsAndAuditsFactory } from '../../services/audits/SurveyObjectsAndAuditsFactory';
-import {
-    CANNOT_APPROVE_INTERVIEW_WITH_BLOCKING_OBJECT_ERROR_CODE,
-    CANNOT_FORCE_APPROVE_NOTHING_TO_OVERRIDE_ERROR_CODE
-} from '../../services/reviews/reviewDecisionErrors';
+import { CANNOT_FORCE_APPROVE_NOTHING_TO_OVERRIDE_ERROR_CODE } from '../../services/reviews/reviewDecisionErrors';
 import { UserAttributes } from 'chaire-lib-backend/lib/services/users/user';
 
 // Mirrors the real interviewUserIsAuthorized behavior (services/auth/userAuthorization.ts),
@@ -439,28 +436,6 @@ describe('POST /review/decision/:interviewId', () => {
         expect(response.status).toBe(400);
         expect(response.body).toEqual({ status: 'error', error: 'Invalid review decision' });
         expect(mockSetReviewDecision).not.toHaveBeenCalled();
-    });
-
-    it('returns 409 when approving the interview over a blocking object', async () => {
-        const error = `Cannot approve interview 10, it contains a rejected or disagreed object`;
-        mockSetReviewDecision.mockRejectedValue(
-            new TrError(error, CANNOT_APPROVE_INTERVIEW_WITH_BLOCKING_OBJECT_ERROR_CODE, 'CannotApproveInterviewWithBlockingObject')
-        );
-
-        const response = await request(app)
-            .post(`/review/decision/${interviewUuid}`)
-            .send({
-                objectType: 'person',
-                objectUuid: personUuid,
-                decision: 'approve'
-            });
-
-        expect(response.status).toBe(409);
-        expect(response.body).toEqual({
-            status: 'error',
-            error,
-            errorCode: CANNOT_APPROVE_INTERVIEW_WITH_BLOCKING_OBJECT_ERROR_CODE
-        });
     });
 
     describe('validateReviewObjectMiddleware failures', () => {
