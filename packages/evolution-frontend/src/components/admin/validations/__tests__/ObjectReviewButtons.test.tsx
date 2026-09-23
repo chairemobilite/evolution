@@ -108,6 +108,31 @@ describe('ObjectReviewButtons', () => {
         expect(screen.queryByLabelText('interviewMember.forceApproveObject')).not.toBeInTheDocument();
     });
 
+    it('withdraws a blocked approval only when that approval can be cleared', () => {
+        const { rerender } = render(
+            <ObjectReviewButtons {...baseProps} approvalBlocked status={buildStatus({ currentUserDecision: 'approve' })} />
+        );
+        expect(screen.getByLabelText('interviewMember.withdrawApprove')).toBeInTheDocument();
+
+        rerender(
+            <ObjectReviewButtons
+                {...baseProps}
+                approvalBlocked
+                status={buildStatus({ currentUserDecision: 'approve', currentUserForceApproved: true })}
+            />
+        );
+        expect(screen.queryByLabelText('interviewMember.withdrawApprove')).not.toBeInTheDocument();
+        expect(screen.queryByLabelText('interviewMember.approveObject')).not.toBeInTheDocument();
+
+        rerender(
+            <ObjectReviewButtons
+                {...baseProps}
+                status={buildStatus({ currentUserDecision: 'approve', currentUserForceApproved: true })}
+            />
+        );
+        expect(screen.getByLabelText('interviewMember.approveObject')).toBeInTheDocument();
+    });
+
     it('shows the asked-to-re-review indicator without pressing the request button', () => {
         // The current user was asked to re-review by someone else: warning icon shown,
         // but the request button must not look pressed (they did not request anything).

@@ -84,6 +84,8 @@ export const SurveyObjectBox: React.FC<SurveyObjectBoxProps> = (props) => {
     const detailsOpen = isControlledDetails ? props.open : uncontrolledOpen;
 
     const review = useObjectReview(objectType, objectUuid);
+    // The panels pass the parent's decision down. A rejected parent hides approve; the server still accepts it.
+    const approvalBlocked = inheritedStatus === 'rejected';
     const className = buildSurveyObjectBoxClassName({
         objectType,
         status: review.status,
@@ -94,7 +96,12 @@ export const SurveyObjectBox: React.FC<SurveyObjectBoxProps> = (props) => {
         nested
     });
     const reviewButtons = review.hasReviewControls ? (
-        <ObjectReviewControls review={review} objectType={objectType} objectUuid={objectUuid} />
+        <ObjectReviewControls
+            review={review}
+            objectType={objectType}
+            objectUuid={objectUuid}
+            approvalBlocked={approvalBlocked}
+        />
     ) : null;
 
     if (props.as === 'details') {

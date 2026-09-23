@@ -11,6 +11,7 @@ import '@testing-library/jest-dom';
 import { v4 as uuidV4 } from 'uuid';
 import { SurveyObjectBox } from '../SurveyObjectBox';
 import { useObjectReview } from '../../../../services/admin/useObjectReview';
+import ObjectReviewControls from '../../validations/ObjectReviewControls';
 
 // Review controls are a connected component; replace it with a marker so the box
 // can be tested without a Redux store.
@@ -32,10 +33,12 @@ const defaultObjectReview = {
 };
 
 jest.mock('../../../../services/admin/useObjectReview', () => ({
-    useObjectReview: jest.fn(() => defaultObjectReview)
+    useObjectReview: jest.fn(() => defaultObjectReview),
+    useReviewDecisionStatusByObject: jest.fn(() => ({}))
 }));
 
 const mockUseObjectReview = useObjectReview as jest.MockedFunction<typeof useObjectReview>;
+const mockObjectReviewControls = ObjectReviewControls as jest.MockedFunction<typeof ObjectReviewControls>;
 
 const objectUuid = uuidV4();
 
@@ -219,6 +222,20 @@ describe('SurveyObjectBox', () => {
 
             rerender(<SurveyObjectBox {...baseProps} onClick={jest.fn()} isActive />);
             expect(screen.getByRole('button')).toHaveAttribute('aria-pressed', 'true');
+        });
+
+        it('hides approve when the parent is rejected', () => {
+            const { rerender } = render(<SurveyObjectBox {...baseProps} />);
+            expect(mockObjectReviewControls).toHaveBeenCalledWith(
+                expect.objectContaining({ approvalBlocked: false }),
+                undefined
+            );
+
+            rerender(<SurveyObjectBox {...baseProps} inheritedStatus="rejected" />);
+            expect(mockObjectReviewControls).toHaveBeenLastCalledWith(
+                expect.objectContaining({ approvalBlocked: true }),
+                undefined
+            );
         });
 
         it('applies nested and inherited-rejected styling classes', () => {

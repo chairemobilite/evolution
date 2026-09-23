@@ -69,7 +69,8 @@ describe('ObjectReviewControls', () => {
                 onClearReview: review.clearReview,
                 onForceApprove: review.forceApprove,
                 onClearForceApprove: review.clearForceApprove,
-                onRequestReReview: review.requestReReview
+                onRequestReReview: review.requestReReview,
+                approvalBlocked: false
             },
             undefined
         );
