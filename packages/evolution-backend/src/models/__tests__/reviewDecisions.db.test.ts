@@ -501,23 +501,28 @@ describe('setForceApproveWhenApprovalBlocked requires a decision to override', (
         expect(review).toMatchObject({ userId: reviewer2Id, forceApproved: true });
     });
 
-    test('force-approves the interview over a rejection in an object it contains', async () => {
+    test('does not force-approve the interview only because an object it contains is disagreed', async () => {
         await dbQueries.setReviewDecision(interviewId, reviewer1Id, {
+            objectType: 'person',
+            objectUuid: conflictPersonUuid,
+            decision: 'approve'
+        });
+        await dbQueries.setReviewDecision(interviewId, reviewer2Id, {
             objectType: 'person',
             objectUuid: conflictPersonUuid,
             decision: 'reject'
         });
 
-        const review = await dbQueries.setForceApproveWhenApprovalBlocked(interviewId, reviewer2Id, {
-            objectType: 'interview',
-            objectUuid: interviewUuid
-        });
-
-        expect(review).toMatchObject({ objectType: 'interview', forceApproved: true });
+        await expect(
+            dbQueries.setForceApproveWhenApprovalBlocked(interviewId, reviewer2Id, {
+                objectType: 'interview',
+                objectUuid: interviewUuid
+            })
+        ).rejects.toThrow(/no decision to override/);
     });
 });
 
-describe('setReviewDecision guards the approval of the interview', () => {
+describe('setReviewDecision stores an approval whatever the objects below decided', () => {
     const guardPersonUuid = uuidV4();
 
     beforeEach(async () => {
@@ -531,15 +536,15 @@ describe('setReviewDecision guards the approval of the interview', () => {
             decision: 'approve'
         });
 
-    // [title, decisions seeded on the person, one per reviewer, approval of the interview allowed]
-    const containedObjectCases: [string, ('approve' | 'reject')[], boolean][] = [
-        ['nothing was reviewed below', [], true],
-        ['the object below is approved', ['approve'], true],
-        ['the object below is rejected', ['reject'], false],
-        ['the reviewers disagree on the object below', ['approve', 'reject'], false]
+    // [title, decisions seeded on the person, one per reviewer]
+    const containedObjectCases: [string, ('approve' | 'reject')[]][] = [
+        ['nothing was reviewed below', []],
+        ['the object below is approved', ['approve']],
+        ['the only person below is rejected', ['reject']],
+        ['the reviewers disagree on the object below', ['approve', 'reject']]
     ];
 
-    test.each(containedObjectCases)('approving the interview when %s', async (_title, decisions, isAllowed) => {
+    test.each(containedObjectCases)('approving the interview when %s', async (_title, decisions) => {
         const reviewerIds = [reviewer1Id, reviewer2Id];
         for (const [index, decision] of decisions.entries()) {
             await dbQueries.setReviewDecision(interviewId, reviewerIds[index], {
@@ -549,11 +554,7 @@ describe('setReviewDecision guards the approval of the interview', () => {
             });
         }
 
-        if (isAllowed) {
-            expect(await approveInterview()).toMatchObject({ objectType: 'interview', decision: 'approve' });
-        } else {
-            await expect(approveInterview()).rejects.toThrow(/Cannot approve interview \d+/);
-        }
+        expect(await approveInterview()).toMatchObject({ objectType: 'interview', decision: 'approve' });
     });
 
     test('rejecting the interview stays possible over a rejected object', async () => {

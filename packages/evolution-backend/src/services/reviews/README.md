@@ -48,7 +48,7 @@ When reviewers disagree on an object (`hasConflict`), a user with the `confirm` 
 
 ## Related modules
 
-- Types and aggregation: `evolution-common/src/services/reviews/`
+- Types and aggregation: `evolution-common/src/services/reviews/`. The approve control hidden when a parent is rejected is described in `evolution-common/src/services/reviews/README.md`
 - Database queries: `evolution-backend/src/models/reviewDecisions.db.queries.ts`
 - API routes: `evolution-backend/src/api/survey.validation.routes.ts`
 
