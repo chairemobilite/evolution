@@ -4,14 +4,14 @@
 
 # Note: The Sections table of the survey definition: SectionDefinition, one Pydantic
 # model per row, validated on construction (types, allowed values, per-field and
-# same-row checks); and Sections, the whole checked table, whose collect_sections_issues
-# also runs the rules across rows (a field unique across the table, parent_section
-# naming a real section).
+# same-row checks); and Sections, the whole checked table, whose validation also runs
+# the rules across rows (a field unique across the table, parent_section naming a real
+# section).
 #
 # This module only defines the shape and the checks; it does not read any input source.
 # See survey_definition.py for the bundle of all tables.
 
-from collections.abc import Iterator, Sequence
+from collections.abc import Iterator
 from typing import Any, Self
 
 from pydantic import (
@@ -52,7 +52,7 @@ class SectionDefinition(BaseModel):
         for what's checked); otherwise raises `pydantic.ValidationError` naming every
         field that failed, not just the first.
 
-    Build instances through `Sections.collect_sections_issues` (below), which also runs
+    Build instances through `Sections.model_validate` (below), which also runs
     the rules that need more than one row (unique `section`/`abbreviation`,
     `parent_section` exists).
     Constructing a SectionDefinition directly only runs the per-row rules below. Validation
@@ -165,7 +165,7 @@ class SectionDefinition(BaseModel):
 class Sections(RootModel[list[SectionDefinition]]):
     """
     The whole Sections sheet: a list of SectionDefinition that has passed every check,
-    the ones on each row and the ones across rows (see `collect_sections_issues`).
+    the ones on each row and the ones across rows (see its model validators).
 
     Input: a list (or tuple/set/frozenset) of rows, each either a raw dict (e.g. every
         row of the "Sections" sheet, as read from Excel) or an already-built
@@ -182,32 +182,39 @@ class Sections(RootModel[list[SectionDefinition]]):
     every one of them, not just the first.
     """
 
+    @model_validator(mode="wrap")
     @classmethod
-    def collect_sections_issues(
-        cls, rows: list[dict | SectionDefinition], table_name: str = "Sections"
-    ) -> tuple[list[SectionDefinition], list[str]]:
-        """Parse every Sections row, then check table-wide rules (unique section/abbreviation, parent_section exists). Returns (parsed sections, every issue found)."""
-        return collect_sheet_issues(
-            rows=rows,
-            model=SectionDefinition,
-            table_name=table_name,
-            sheet_rules=[
-                unique_field("section"),
-                unique_field("abbreviation"),
-                cls._parent_section_issues,
-            ],
-        )
+    def _collect_all_issues(cls, rows: Any, handler) -> Any:
+        # Pydantic stops at the first error a validator raises, so a plain validator
+        # would report the problems one at a time. Running the checks ourselves and
+        # raising a single error that lists all of them is what reports everything.
+        # Pydantic also accepts a tuple/set/frozenset for a list field (coercing it
+        # without ever running our checks), so those are normalized into a real list
+        # here too. Anything else is left to Pydantic's own error.
+        if isinstance(rows, (list, tuple, set, frozenset)):
+            rows = list(rows)
+            if all(isinstance(row, (dict, SectionDefinition)) for row in rows):
+                sections, issues = collect_sheet_issues(
+                    rows=rows,
+                    model=SectionDefinition,
+                    table_name="Sections",
+                    sheet_rules=[unique_field("section"), unique_field("abbreviation")],
+                )
+                if issues:
+                    raise ValueError("\n".join(issues))
+                return handler(sections)
+        return handler(rows)
 
-    @staticmethod
-    def _parent_section_issues(
-        rows: Sequence[tuple[int, SectionDefinition]], table_name: str
-    ) -> list[str]:
-        """Find every non-blank `parent_section` that doesn't name a real section in `rows`, or names the row's own section."""
-        prefix = f"Error in {table_name} - "
-        valid_sections = {section.section for _, section in rows}
+    @model_validator(mode="after")
+    def _parent_sections_are_valid(self) -> Self:
+        """Check that every non-blank `parent_section` names a real section, other than the row's own."""
+        # Runs only once every row is valid and section is unique (see
+        # _collect_all_issues), so row numbers follow the source order.
+        prefix = "Error in Sections - "
+        valid_sections = {section.section for section in self.root}
         issues = []
 
-        for row_number, section in rows:
+        for row_number, section in enumerate(self.root, start=2):
             if section.parent_section is None:
                 continue
             # A section's own name is in valid_sections, so it needs its own check.
@@ -222,25 +229,9 @@ class Sections(RootModel[list[SectionDefinition]]):
                     f"{prefix}Invalid parent_section in row {row_number}: "
                     f"{section.parent_section!r} does not match any section value"
                 )
-        return issues
-
-    @model_validator(mode="wrap")
-    @classmethod
-    def _collect_all_issues(cls, rows: Any, handler) -> Any:
-        # Pydantic stops at the first error a validator raises, so a plain validator
-        # would report the problems one at a time. Running the checks ourselves and
-        # raising a single error that lists all of them is what reports everything.
-        # Pydantic also accepts a tuple/set/frozenset for a list field (coercing it
-        # without ever running our checks), so those are normalized into a real list
-        # here too. Anything else is left to Pydantic's own error.
-        if isinstance(rows, (list, tuple, set, frozenset)):
-            rows = list(rows)
-            if all(isinstance(row, (dict, SectionDefinition)) for row in rows):
-                sections, issues = cls.collect_sections_issues(rows)
-                if issues:
-                    raise ValueError("\n".join(issues))
-                return handler(sections)
-        return handler(rows)
+        if issues:
+            raise ValueError("\n".join(issues))
+        return self
 
     def __iter__(self) -> Iterator[SectionDefinition]:  # type: ignore[override]
         return iter(self.root)

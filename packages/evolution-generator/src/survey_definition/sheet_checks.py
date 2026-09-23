@@ -6,7 +6,7 @@
 # table. collect_sheet_issues parses every row into the table's definition model, then
 # runs the rules a single row can't check by itself, given as a list of "sheet rules".
 # Each table's module says which model and which rules to use (see
-# sections_definition.py::Sections.collect_sections_issues). Reports every problem
+# sections_definition.py::Sections._collect_all_issues). Reports every problem
 # found, not just the first.
 
 from collections.abc import Callable, Sequence

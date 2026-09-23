@@ -6,7 +6,7 @@
 # Each check takes the field's own (already-non-None) value, plus the full row it came
 # from (for checks that depend on a sibling field; unused by most checks here), and
 # returns True when the value is valid, False when it isn't. The docstring's first
-# line doubles as the error message Sections.collect_sections_issues() reports on failure.
+# line doubles as the error message Sections validation reports on failure.
 
 import re
 
