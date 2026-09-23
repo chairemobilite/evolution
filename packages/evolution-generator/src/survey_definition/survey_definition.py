@@ -25,9 +25,9 @@ class SurveyDefinition(BaseModel):
         object, e.g. `SurveyDefinition(sections=[...])`). Every key is optional; an
         omitted table defaults to empty.
     Output: a validated instance if every table is valid; otherwise raises
-        `pydantic.ValidationError` listing every problem found, across every table, not
-        just the first (see sections_definition.py's note on why no extra code is
-        needed here for that).
+        `pydantic.ValidationError` listing the problems of every table, each reported
+        as that table's own class does (e.g. `Sections` checks `parent_section` only
+        once its rows and duplicates pass; see sections_definition.py).
 
     The input source is loaded a single time into one instance of this class, which is
     then passed to each script, so they all work from the same already-validated data

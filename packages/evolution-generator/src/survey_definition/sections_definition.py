@@ -52,7 +52,7 @@ class SectionDefinition(BaseModel):
         for what's checked); otherwise raises `pydantic.ValidationError` naming every
         field that failed, not just the first.
 
-    Build instances through `Sections.model_validate` (below), which also runs
+    Build instances through `Sections(rows)` (below), which also runs
     the rules that need more than one row (unique `section`/`abbreviation`,
     `parent_section` exists).
     Constructing a SectionDefinition directly only runs the per-row rules below. Validation
@@ -170,16 +170,16 @@ class Sections(RootModel[list[SectionDefinition]]):
     Input: a list (or tuple/set/frozenset) of rows, each either a raw dict (e.g. every
         row of the "Sections" sheet, as read from Excel) or an already-built
         SectionDefinition.
-    Output: a validated instance — iterable, `len()`-able, one SectionDefinition per row
-        in source order — if the whole sheet passes every rule (each row's own rules,
-        plus unique `section`/`abbreviation` and a valid `parent_section` across rows);
-        otherwise raises `pydantic.ValidationError` listing every problem found, not
-        just the first.
+    Output: a validated instance — iterable, indexable, `len()`-able, one
+        SectionDefinition per row in source order — if the whole sheet passes every
+        rule (each row's own rules, plus unique `section`/`abbreviation` and a valid
+        `parent_section` across rows); otherwise raises `pydantic.ValidationError`.
+        Its message lists every row problem and duplicate at once; `parent_section`
+        is only checked once those pass.
 
     An instance only exists if the sheet is valid, so whatever holds one doesn't need
     to check it again. Build it from the rows as read from the source (dicts) or from
-    SectionDefinition objects; when the sheet has problems, the error message lists
-    every one of them, not just the first.
+    SectionDefinition objects.
     """
 
     @model_validator(mode="wrap")
@@ -238,3 +238,6 @@ class Sections(RootModel[list[SectionDefinition]]):
 
     def __len__(self) -> int:
         return len(self.root)
+
+    def __getitem__(self, index: int) -> SectionDefinition:
+        return self.root[index]

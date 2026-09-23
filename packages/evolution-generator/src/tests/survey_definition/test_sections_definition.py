@@ -3,7 +3,7 @@
 # License text available at https://opensource.org/licenses/MIT
 
 # Note: Tests for survey_definition/sections_definition.py: SectionDefinition and the
-# Sections class that holds a checked sheet (Sections.model_validate runs the per-row
+# Sections class that holds a checked sheet (constructing Sections runs the per-row
 # rules, then the rules across the whole table).
 
 import pytest  # pyright: ignore[reportMissingImports]
@@ -32,7 +32,7 @@ class TestSections:
     def _issues(self, rows: list) -> list[str]:
         """Validate `rows` as a Sections sheet, expecting it to fail; return each issue reported."""
         with pytest.raises(ValidationError) as error:
-            Sections.model_validate(rows)
+            Sections(rows)
         assert error.value.error_count() == 1
         return str(error.value.errors()[0]["ctx"]["error"]).split("\n")
 
@@ -50,7 +50,7 @@ class TestSections:
             self._valid_section_row("home", "HM_"),
             self._valid_section_row("profile", "PR_"),
         ]
-        sections = Sections.model_validate(rows)
+        sections = Sections(rows)
         assert [section.section for section in sections] == ["home", "profile"]
 
     def test_includes_each_row_s_own_issues(self):
@@ -122,9 +122,9 @@ class TestSections:
                 "completion_conditional": "isDoneCustomConditional",
             }
         ]
-        sections = Sections.model_validate(rows)
-        assert sections.root[0].enable_conditional == "hasSize1Conditional"
-        assert sections.root[0].completion_conditional == "isDoneCustomConditional"
+        sections = Sections(rows)
+        assert sections[0].enable_conditional == "hasSize1Conditional"
+        assert sections[0].completion_conditional == "isDoneCustomConditional"
 
     def test_allows_blank_conditionals(self):
         rows = [
@@ -134,9 +134,9 @@ class TestSections:
                 "completion_conditional": None,
             }
         ]
-        sections = Sections.model_validate(rows)
-        assert sections.root[0].enable_conditional is None
-        assert sections.root[0].completion_conditional is None
+        sections = Sections(rows)
+        assert sections[0].enable_conditional is None
+        assert sections[0].completion_conditional is None
 
     def test_reports_wrong_type(self):
         rows = [{**self._valid_section_row("home", "HM_"), "in_nav": "yes"}]
@@ -180,8 +180,8 @@ class TestSections:
 
     def test_treats_a_whitespace_only_template_as_absent(self):
         rows = [{**self._valid_section_row("home", "HM_"), "template": "  "}]
-        sections = Sections.model_validate(rows)
-        assert sections.root[0].template is None
+        sections = Sections(rows)
+        assert sections[0].template is None
 
     def test_allows_missing_titles_when_in_nav_is_false(self):
         rows = [
@@ -192,7 +192,7 @@ class TestSections:
                 "in_nav": False,
             }
         ]
-        Sections.model_validate(rows)
+        Sections(rows)
 
     def test_collects_every_row_level_issue_in_one_pass(self):
         rows = [{**self._valid_section_row("1bad", "HM")}]
@@ -229,7 +229,7 @@ class TestSections:
             self._valid_section_row("home", "HM_"),
             {**self._valid_section_row("profile", "PR_"), "parent_section": "home"},
         ]
-        Sections.model_validate(rows)
+        Sections(rows)
 
     def test_reports_parent_section_that_names_no_section(self):
         rows = [
@@ -269,7 +269,7 @@ class TestSections:
         ]
 
     def test_builds_from_valid_source_rows(self):
-        sections = Sections.model_validate(
+        sections = Sections(
             [self._row("home", "HM_"), self._row("intro", "IN_", parent_section="home")]
         )
         assert [s.section for s in sections] == ["home", "intro"]
@@ -282,7 +282,7 @@ class TestSections:
             self._row("home", "HM_", parent_section="nope"),
         ]
         with pytest.raises(ValidationError) as error:
-            Sections.model_validate(rows)
+            Sections(rows)
         message = str(error.value)
         assert error.value.error_count() == 1
         assert "Invalid section in row 3: 'bad name'" in message
@@ -292,25 +292,25 @@ class TestSections:
         assert "Invalid parent_section" not in message
 
     def test_treats_blank_values_as_absent(self):
-        sections = Sections.model_validate([self._row("home", "HM_", template="")])
-        assert sections.root[0].template is None
+        sections = Sections([self._row("home", "HM_", template="")])
+        assert sections[0].template is None
 
     def test_accepts_section_definition_objects_and_still_checks_the_sheet(self):
         first = SectionDefinition(section="home", in_nav=False, abbreviation="HM_")
-        assert len(Sections.model_validate([first])) == 1
+        assert len(Sections([first])) == 1
         with pytest.raises(ValidationError, match="Duplicate section 'home'"):
-            Sections.model_validate([first, first])
+            Sections([first, first])
 
     def test_leaves_input_that_is_not_a_list_of_rows_to_pydantic(self):
         with pytest.raises(ValidationError, match="valid list"):
-            Sections.model_validate("not a list")
+            Sections("not a list")
         with pytest.raises(ValidationError, match="valid dictionary|SectionDefinition"):
-            Sections.model_validate([42])
+            Sections([42])
 
     def test_checks_a_tuple_or_set_of_rows_too(self):
         # Pydantic accepts a tuple/set for a list field by coercing it, which would
         # otherwise skip our own checks entirely (they only ran for an actual list).
         row = {"section": "home", "in_nav": False, "abbreviation": "HM_"}
         with pytest.raises(ValidationError, match="Duplicate section 'home'"):
-            Sections.model_validate((row, row))
-        assert len(Sections.model_validate((row,))) == 1
+            Sections((row, row))
+        assert len(Sections((row,))) == 1
