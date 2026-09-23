@@ -12,7 +12,10 @@ import InterviewReviewLinks from '../InterviewReviewLinks';
 import { useObjectReview, useReviewDecisionStatusByObject } from '../../../../services/admin/useObjectReview';
 import type { ObjectReview } from '../../../../services/admin/useObjectReview';
 import type { ReviewDecisionStatusByObject } from 'evolution-common/lib/services/reviews/types';
-import { createRejectedReviewDecisionStatus } from '../../../../services/admin/__tests__/reviewDecisionStatusHelperTestUtils';
+import {
+    createApprovedReviewDecisionStatus,
+    createRejectedReviewDecisionStatus
+} from '../../../../services/admin/__tests__/reviewDecisionStatusHelperTestUtils';
 
 jest.mock('react-i18next', () => ({
     useTranslation: () => ({ t: (key: string) => key })
@@ -28,6 +31,8 @@ const mockUseReviewDecisionStatusByObject = useReviewDecisionStatusByObject as u
 
 const interviewUuid = '11111111-1111-4111-8111-111111111111';
 const personUuid = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+const otherPersonUuid = 'cccccccc-cccc-4ccc-8ccc-cccccccccccc';
+const householdUuid = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
 
 const buildReview = (overrides: Partial<ObjectReview> = {}): ObjectReview => ({
     status: undefined,
@@ -42,8 +47,34 @@ const buildReview = (overrides: Partial<ObjectReview> = {}): ObjectReview => ({
     ...overrides
 });
 
-const statusesWithRejectedPerson = {
-    persons: { [personUuid]: createRejectedReviewDecisionStatus('person', personUuid) }
+const statusesWithOneOfTwoPersonsRejected = {
+    persons: {
+        [personUuid]: createRejectedReviewDecisionStatus('person', personUuid),
+        [otherPersonUuid]: createApprovedReviewDecisionStatus('person', otherPersonUuid)
+    }
+} as unknown as ReviewDecisionStatusByObject;
+
+const statusesWithEveryPersonRejected = {
+    persons: {
+        [personUuid]: createRejectedReviewDecisionStatus('person', personUuid),
+        [otherPersonUuid]: createRejectedReviewDecisionStatus('person', otherPersonUuid)
+    }
+} as unknown as ReviewDecisionStatusByObject;
+
+const statusesWithRejectedHousehold = {
+    household: createRejectedReviewDecisionStatus('household', householdUuid)
+} as unknown as ReviewDecisionStatusByObject;
+
+const statusesWithDisagreedPerson = {
+    persons: {
+        [personUuid]: {
+            ...createRejectedReviewDecisionStatus('person', personUuid),
+            approvalCount: 1,
+            rejectionCount: 1,
+            hasConflict: true,
+            effectiveStatus: 'conflict'
+        }
+    }
 } as unknown as ReviewDecisionStatusByObject;
 
 beforeEach(() => {
@@ -63,30 +94,76 @@ describe('InterviewReviewLinks', () => {
         expect(container).toBeEmptyDOMElement();
     });
 
-    // [case name, can force approve, rejected object below, approve link shown, force approve link shown]
-    const approveVisibilityCases: [string, boolean, boolean, boolean, boolean][] = [
-        ['nothing rejected below', false, false, true, false],
-        ['nothing rejected below, admin', true, false, true, false],
-        ['a rejected object below', false, true, false, false],
-        ['a rejected object below, admin', true, true, false, true]
+    const approveVisibilityCases: {
+        title: string;
+        canForceApprove: boolean;
+        statusesBelow: ReviewDecisionStatusByObject;
+    }[] = [
+        {
+            title: 'nothing rejected below',
+            canForceApprove: false,
+            statusesBelow: {} as ReviewDecisionStatusByObject
+        },
+        {
+            title: 'nothing rejected below, admin',
+            canForceApprove: true,
+            statusesBelow: {} as ReviewDecisionStatusByObject
+        },
+        {
+            title: 'one of two persons rejected',
+            canForceApprove: false,
+            statusesBelow: statusesWithOneOfTwoPersonsRejected
+        },
+        {
+            title: 'one of two persons rejected, admin',
+            canForceApprove: true,
+            statusesBelow: statusesWithOneOfTwoPersonsRejected
+        },
+        {
+            title: 'every person rejected',
+            canForceApprove: false,
+            statusesBelow: statusesWithEveryPersonRejected
+        },
+        {
+            title: 'every person rejected, admin',
+            canForceApprove: true,
+            statusesBelow: statusesWithEveryPersonRejected
+        },
+        {
+            title: 'household rejected',
+            canForceApprove: false,
+            statusesBelow: statusesWithRejectedHousehold
+        },
+        {
+            title: 'household rejected, admin',
+            canForceApprove: true,
+            statusesBelow: statusesWithRejectedHousehold
+        },
+        {
+            title: 'a disagreement below',
+            canForceApprove: false,
+            statusesBelow: statusesWithDisagreedPerson
+        },
+        {
+            title: 'a disagreement below, admin',
+            canForceApprove: true,
+            statusesBelow: statusesWithDisagreedPerson
+        }
     ];
 
-    test.each(approveVisibilityCases)(
-        '%s: approve shown is %s and force approve shown is %s',
-        (_name, canForceApprove, hasRejectedObject, approveShown, forceApproveShown) => {
-            mockUseObjectReview.mockReturnValue(buildReview({ canForceApprove }));
-            mockUseReviewDecisionStatusByObject.mockReturnValue(hasRejectedObject ? statusesWithRejectedPerson : {});
+    // Approve stays available whatever was decided below. Force approve does not appear for that.
+    test.each(approveVisibilityCases)('show approval links when $title', ({ canForceApprove, statusesBelow }) => {
+        mockUseObjectReview.mockReturnValue(buildReview({ canForceApprove }));
+        mockUseReviewDecisionStatusByObject.mockReturnValue(statusesBelow);
 
-            renderLinks();
+        renderLinks();
 
-            expect(Boolean(screen.queryByLabelText('interviewMember.approveObject'))).toBe(approveShown);
-            expect(Boolean(screen.queryByLabelText('interviewMember.forceApproveObject'))).toBe(forceApproveShown);
-            // Rejecting the interview stays possible in every case.
-            expect(screen.getByLabelText('interviewMember.rejectObject')).toBeInTheDocument();
-        }
-    );
+        expect(screen.getByLabelText('interviewMember.approveObject')).toBeInTheDocument();
+        expect(screen.queryByLabelText('interviewMember.forceApproveObject')).not.toBeInTheDocument();
+        expect(screen.getByLabelText('interviewMember.rejectObject')).toBeInTheDocument();
+    });
 
-    test('an approval contradicted by a rejected object can still be withdrawn', async () => {
+    test('an approval contradicted by a disagreement can still be withdrawn', async () => {
         const clearReview = jest.fn();
         mockUseObjectReview.mockReturnValue(
             buildReview({
@@ -94,16 +171,14 @@ describe('InterviewReviewLinks', () => {
                 status: { currentUserDecision: 'approve' } as ObjectReview['status']
             })
         );
-        mockUseReviewDecisionStatusByObject.mockReturnValue(statusesWithRejectedPerson);
+        mockUseReviewDecisionStatusByObject.mockReturnValue(statusesWithDisagreedPerson);
 
         renderLinks();
 
-        // The link no longer offers to approve, only to take that approval back.
-        expect(screen.queryByLabelText('interviewMember.approveObject')).not.toBeInTheDocument();
-        const withdrawLink = screen.getByLabelText('interviewMember.withdrawApprove');
-        expect(withdrawLink).toHaveAttribute('aria-pressed', 'true');
+        const approveLink = screen.getByLabelText('interviewMember.approveObject');
+        expect(approveLink).toHaveAttribute('aria-pressed', 'true');
 
-        await userEvent.click(withdrawLink);
+        await userEvent.click(approveLink);
 
         expect(clearReview).toHaveBeenCalledTimes(1);
     });

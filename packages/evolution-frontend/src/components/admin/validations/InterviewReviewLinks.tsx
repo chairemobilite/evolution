@@ -12,9 +12,8 @@ import { faCheck } from '@fortawesome/free-solid-svg-icons/faCheck';
 import { faCheckDouble } from '@fortawesome/free-solid-svg-icons/faCheckDouble';
 import { faTriangleExclamation } from '@fortawesome/free-solid-svg-icons/faTriangleExclamation';
 import { faRotate } from '@fortawesome/free-solid-svg-icons/faRotate';
-import { useObjectReview, useReviewDecisionStatusByObject } from '../../../services/admin/useObjectReview';
+import { useObjectReview } from '../../../services/admin/useObjectReview';
 import { getReviewDecisionButtonsState } from '../../../services/admin/reviewDecisionButtonsState';
-import { hasObjectBlockingInterviewApproval } from 'evolution-common/lib/services/reviews/reviewDecisionStatus';
 
 export type InterviewReviewLinksProps = {
     /** Uuid of the reviewed interview. */
@@ -32,11 +31,7 @@ const InterviewReviewLinks: React.FC<InterviewReviewLinksProps> = ({ interviewUu
     const { t } = useTranslation('admin');
     const review = useObjectReview('interview', interviewUuid);
     const state = getReviewDecisionButtonsState(review.status);
-    // A rejected or disagreed object anywhere below contradicts approving the interview, so the
-    // approve link gives way to the force approve of the admins allowed to settle it.
-    const reviewDecisionStatusByObject = useReviewDecisionStatusByObject();
-    const hasBlockingObject = hasObjectBlockingInterviewApproval(reviewDecisionStatusByObject);
-    const canApprove = !hasBlockingObject;
+    // The interview has no parent. A rejected object below does not hide this approve link.
 
     if (!review.hasReviewControls) {
         return null;
@@ -105,23 +100,18 @@ const InterviewReviewLinks: React.FC<InterviewReviewLinksProps> = ({ interviewUu
                 onActivate: review.reject,
                 onClear: state.canClearDecision ? review.clearReview : undefined
             })}
-            {/* An approval already taken keeps its link even once contradicted, otherwise the
-                reviewer could no longer withdraw it and the interview would stay approved over a
-                rejected object. The link then only withdraws, approving again being refused. */}
-            {(canApprove || state.approvePressed) && (
-                <React.Fragment>
-                    {' '}
-                    {renderToggleLink({
-                        labelKey: canApprove ? 'interviewMember.approveObject' : 'interviewMember.withdrawApprove',
-                        icon: faCheck,
-                        colorClass: '_green',
-                        isPressed: state.approvePressed,
-                        onActivate: canApprove ? review.approve : review.clearReview,
-                        onClear: state.canClearDecision ? review.clearReview : undefined
-                    })}
-                </React.Fragment>
-            )}
-            {review.canForceApprove && (state.showForceApprove || hasBlockingObject) && (
+            <React.Fragment>
+                {' '}
+                {renderToggleLink({
+                    labelKey: 'interviewMember.approveObject',
+                    icon: faCheck,
+                    colorClass: '_green',
+                    isPressed: state.approvePressed,
+                    onActivate: review.approve,
+                    onClear: state.canClearDecision ? review.clearReview : undefined
+                })}
+            </React.Fragment>
+            {review.canForceApprove && state.showForceApprove && (
                 <React.Fragment>
                     {' '}
                     {renderToggleLink({

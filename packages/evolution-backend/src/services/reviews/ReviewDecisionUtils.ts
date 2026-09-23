@@ -14,10 +14,7 @@ import {
     type ReviewDecisionStatusForObject,
     type SingletonSurveyObjectName
 } from 'evolution-common/lib/services/reviews/types';
-import {
-    getReviewDecisionEffectiveStatus,
-    hasObjectBlockingInterviewApproval
-} from 'evolution-common/lib/services/reviews/reviewDecisionStatus';
+import { getReviewDecisionEffectiveStatus } from 'evolution-common/lib/services/reviews/reviewDecisionStatus';
 import { surveyObjectNames, type SurveyObjectName } from 'evolution-common/lib/services/baseObjects/types';
 
 // Null prototype: bucket keys are object uuids coming from external data, so
@@ -259,16 +256,6 @@ const computeReviewDecisionStatusByObject = (
 
     return reviewDecisionStatusByObject;
 };
-
-/**
- * Whether one of the objects of an interview stands in the way of approving the interview, an
- * approval meaning that everything it contains is accepted. Answered from every decision of the
- * interview, so that the caller does not have to aggregate them itself.
- * @param reviewDecisions - All review decisions for the interview
- * @returns True when an object of the interview blocks its approval
- */
-export const hasDecisionBlockingInterviewApproval = (reviewDecisions: ReviewDecision[]): boolean =>
-    hasObjectBlockingInterviewApproval(computeReviewDecisionStatusByObject(reviewDecisions));
 
 /**
  * Builds the review decisions payload returned to the admin review UI.
