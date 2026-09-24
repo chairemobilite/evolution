@@ -42,6 +42,19 @@ import { useReviewDecisionStatusByObject } from '../../../services/admin/useObje
 const ObjectAudits = ({ audits, showAuditErrorCode }: { audits?: AuditForObject[]; showAuditErrorCode?: boolean }) =>
     audits && audits.length > 0 ? <AuditDisplay audits={audits} showAuditErrorCode={showAuditErrorCode} /> : null;
 
+/**
+ * Entry station, intermediate transfers and exit station, in order.
+ * @param segment Segment being summarized
+ * @param label Translated label for the station list
+ */
+const transitStationSummary = (segment: Segment, label: string): string | undefined => {
+    const stations = segment.stations;
+    if (stations === undefined || stations.length === 0) {
+        return undefined;
+    }
+    return `(${label}: ${stations.join(' -> ')})`;
+};
+
 export interface PersonPanelProps {
     person: Person;
     journey?: Journey;
@@ -185,6 +198,14 @@ export const PersonPanel = ({
                         segmentStats.push(
                             `(${t('interviewStats.labels.segment.busLines')}: ${segment.busLines ? segment.busLines.join(',') : '?'})`
                         );
+                    } else {
+                        const stationSummary = transitStationSummary(
+                            segment,
+                            t('interviewStats.labels.segment.stations')
+                        );
+                        if (stationSummary) {
+                            segmentStats.push(stationSummary);
+                        }
                     }
                 }
                 const segmentId = segment._uuid!;
