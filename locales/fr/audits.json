@@ -70,6 +70,10 @@
     "T_L_TripSegmentsNotClosed": "La chaîne de segments du déplacement n'est pas fermée",
     "T_L_TripSegmentsClosedMoreThanOnce": "La chaîne de segments du déplacement est fermée plusieurs fois",
     "T_L_InvalidSegmentSequences": "Le numéro de séquence d'au moins un segment est invalide ou en double",
+    "T_W_SpeedNotInRange": "La vitesse à vol d'oiseau est inhabituelle pour le mode déclaré",
+    "T_L_SpeedNotInRange": "La vitesse à vol d'oiseau est impossible pour le mode déclaré",
+    "T_W_ShortTripDuration": "La durée du déplacement est longue pour cette courte distance",
+    "T_L_ShortTripDuration": "La durée du déplacement est trop longue pour cette courte distance",
 
     "S_M_Mode": "Le mode du segment est manquant",
     "S_M_HasNextMode": "L'attribut hasNextMode du segment est manquant"

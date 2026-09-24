@@ -70,6 +70,10 @@
     "T_L_TripSegmentsNotClosed": "Trip segment chain is not closed",
     "T_L_TripSegmentsClosedMoreThanOnce": "Trip segment chain is closed more than once",
     "T_L_InvalidSegmentSequences": "At least one segment sequence is invalid or duplicated",
+    "T_W_SpeedNotInRange": "Bird speed is unusual for the declared mode",
+    "T_L_SpeedNotInRange": "Bird speed is impossible for the declared mode",
+    "T_W_ShortTripDuration": "Trip duration is long for this short distance",
+    "T_L_ShortTripDuration": "Trip duration is too long for this short distance",
 
     "S_M_Mode": "Segment mode is missing",
     "S_M_HasNextMode": "Segment hasNextMode is missing"
