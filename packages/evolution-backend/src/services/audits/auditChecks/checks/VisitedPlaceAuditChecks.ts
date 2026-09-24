@@ -13,6 +13,12 @@ import { StartEndable } from 'evolution-common/lib/services/baseObjects/StartEnd
 import { loopActivities } from 'evolution-common/lib/services/odSurvey/types';
 import type { VisitedPlaceAuditCheckContext, VisitedPlaceAuditCheckFunction } from '../AuditCheckContexts';
 
+/** Activities that are not expected to last less than {@link shortStayMinutes}. */
+const activitiesWithExpectedLongerStay = ['workUsual', 'schoolUsual'];
+
+/** A stay shorter than this, for those activities, is a possible incorrect activity or start/end time. */
+const shortStayMinutes = 30;
+
 export const visitedPlaceAuditChecks: { [errorCode: string]: VisitedPlaceAuditCheckFunction } = {
     /**
      * Check if visited place geography is missing.
@@ -124,6 +130,39 @@ export const visitedPlaceAuditChecks: { [errorCode: string]: VisitedPlaceAuditCh
             version: 1,
             level: 'error',
             message: 'Visited place end time is missing',
+            ignore: false
+        };
+    },
+
+    /**
+     * A usual work or usual school stay shorter than {@link shortStayMinutes} minutes may be the wrong activity.
+     * Missing times are not a mismatch. Exactly {@link shortStayMinutes} minutes is accepted.
+     * @param context - VisitedPlaceAuditCheckContext
+     * @returns AuditForObject
+     */
+    VP_W_ActivityLessThan30MinDurationPossibleMismatch: (
+        context: VisitedPlaceAuditCheckContext
+    ): AuditForObject | undefined => {
+        const { visitedPlace } = context;
+        const durationSeconds = StartEndable.getDurationSeconds(visitedPlace);
+        const activity = visitedPlace.activity;
+
+        if (
+            durationSeconds === undefined ||
+            activity === undefined ||
+            !activitiesWithExpectedLongerStay.includes(activity) ||
+            durationSeconds >= shortStayMinutes * 60
+        ) {
+            return undefined;
+        }
+
+        return {
+            objectType: 'visitedPlace',
+            objectUuid: visitedPlace._uuid!,
+            errorCode: 'VP_W_ActivityLessThan30MinDurationPossibleMismatch',
+            version: 2,
+            level: 'warning',
+            message: 'Activity duration < 30 minutes for a usual place',
             ignore: false
         };
     },
