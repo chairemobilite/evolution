@@ -117,6 +117,13 @@ export type EvolutionProjectConfiguration = {
         lon: number;
     };
     /**
+     * Minimum zoom at which a map click or a marker drag is a precise
+     * placement. A placement below this zoom is rejected. Defaults to 15.
+     * See https://www.sciencedirect.com/science/article/pii/S2352146526004667
+     * for effect of min zoom on quality of manual placements.
+     */
+    minManualPlacementZoom: number;
+    /**
      * URL template for aerial/satellite tile layer. If provided, enables a toggle button
      * to switch between OSM and aerial tiles on maps. Should include {z}, {x}, {y} placeholders.
      * Example: 'https://URL/tiles/{z}/{y}/{x}'
@@ -308,6 +315,7 @@ const defaultConfig = {
         lat: 45.5,
         lon: -73.6
     },
+    minManualPlacementZoom: 15,
     countryCode: 'CA',
     startDateTimeWithTimezoneOffset: undefined,
     endDateTimeWithTimezoneOffset: undefined,
