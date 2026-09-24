@@ -19,18 +19,6 @@ import { type Activity, loopActivities } from '../../../odSurvey/types';
 import * as visitedPlacesHelpers from './helpers';
 import { getActivityMarkerIcon } from './activityIconMapping';
 
-// This is the minimum zoom required to avoid placement errors when selecting an
-// exact location at a micro scale.
-//
-// FIXME We need to decide where to put it though, not here: in the
-// questionnaire configuration itself, to fine-tune for different fields (they
-// may not all require the same level of precision)? in the project
-// configuration for all geographies? It should also be possible to configure it
-// for specific visited place use cases depending on the desired scale (long
-// distance surveys, where we may want a more macro scale may accept a lower
-// zoom level)
-const visitedPlacesMapClickDragDefaultZoom = 15;
-
 /**
  * Widget factory that creates a pair of widgets for a location name and geography
  */
@@ -188,7 +176,7 @@ export class VisitedPlaceGeographyWidgetFactory implements WidgetConfigFactory {
                         geography.properties.lastAction &&
                         (geography.properties.lastAction === 'mapClicked' ||
                             geography.properties.lastAction === 'markerDragged') &&
-                        geography.properties.zoom < visitedPlacesMapClickDragDefaultZoom,
+                        geography.properties.zoom < config.minManualPlacementZoom,
                     errorMessage: (t: TFunction) => t('visitedPlaces:locationIsNotPreciseError')
                 },
                 // TODO Should an inaccessible zone validation here when we support it from survey configuration
