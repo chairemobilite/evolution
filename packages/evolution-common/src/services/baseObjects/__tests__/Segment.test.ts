@@ -51,6 +51,7 @@ describe('Segment', () => {
         paidForParking: { status: 'answered', value: true },
         onDemandType: 'pickupAtOrigin',
         busLines: ['Line 1', 'Line 2'],
+        stations: ['Station A', 'Station B'],
         _weights: [{ weight: 1.2, method: new WeightMethod(weightMethodAttributes) }],
         _isValid: true
     };
@@ -268,6 +269,9 @@ describe('Segment', () => {
             ['onDemandType', 123],
             ['busLines', 'invalid'],
             ['busLines', [undefined, 'Line']],
+            ['stations', 'invalid'],
+            ['stations', null],
+            ['stations', [undefined, 'Station']],
             ['hasMinimum', 'invalid'],
             ['isCompleted', 'invalid'],
             ['isStarted', 'invalid'],
@@ -283,6 +287,15 @@ describe('Segment', () => {
 
         test('should return no errors for valid attributes', () => {
             const errors = Segment.validateParams(validAttributes);
+            expect(errors).toHaveLength(0);
+        });
+
+        test.each([
+            ['absent', undefined],
+            ['valid', ['Station A', 'Station B']]
+        ])('should accept %s stations', (_description, stations) => {
+            const { stations: _stations, ...attributesWithoutStations } = validAttributes;
+            const errors = Segment.validateParams({ ...attributesWithoutStations, stations });
             expect(errors).toHaveLength(0);
         });
     });
@@ -304,6 +317,7 @@ describe('Segment', () => {
             ['paidForParking', { status: 'refusal' }],
             ['onDemandType', 'pickupAtOrigin'],
             ['busLines', ['Line 3', 'Line 4']],
+            ['stations', ['Station C', 'Station D']],
             ['preData', { importedSegmentData: 'value', mode: 'bus' }],
             ['hasNextMode', true],
         ])('should set and get %s', (attribute, value) => {

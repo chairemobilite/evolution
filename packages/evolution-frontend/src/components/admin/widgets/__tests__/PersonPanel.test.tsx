@@ -93,6 +93,59 @@ beforeEach(() => {
     mockGetReviewDecisionStatusForObject.mockReturnValue(undefined);
 });
 
+describe('PersonPanel transit stations', () => {
+    test.each([
+        {
+            mode: 'transitRRT',
+            segment: { stations: ['guyConcordia', 'berriUqam', 'montmorency'] },
+            expected: 'interviewStats.labels.segment.stations: guyConcordia -> berriUqam -> montmorency'
+        },
+        {
+            mode: 'transitRegionalRail',
+            segment: { stations: ['Centrale', 'Lucien-L Allier'] },
+            expected: 'interviewStats.labels.segment.stations: Centrale -> Lucien-L Allier'
+        },
+        {
+            mode: 'transitLRRT',
+            segment: { stations: ['Gare Centrale', 'Brossard'] },
+            expected: 'interviewStats.labels.segment.stations: Gare Centrale -> Brossard'
+        },
+        {
+            mode: 'transitRRT',
+            segment: { stations: [] },
+            expected: undefined
+        }
+    ])('$mode', ({ mode, segment, expected }) => {
+        const journeyWithStations = {
+            ...journey,
+            trips: [
+                {
+                    _uuid: tripUuid,
+                    startPlace: { endTime: 100 },
+                    endPlace: { startTime: 200 },
+                    segments: [{ _uuid: segmentUuid, mode, ...segment }]
+                }
+            ]
+        } as unknown as Journey;
+
+        render(
+            <PersonPanel
+                person={person}
+                journey={journeyWithStations}
+                personId={personUuid}
+                selectPlace={jest.fn()}
+                selectTrip={jest.fn()}
+            />
+        );
+
+        if (expected === undefined) {
+            expect(screen.queryByText(/interviewStats\.labels\.segment\.stations/)).toBeNull();
+        } else {
+            expect(screen.getByText(new RegExp(expected.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')))).toBeTruthy();
+        }
+    });
+});
+
 describe('PersonPanel visited place times', () => {
     test('displays duration when visited place starts at midnight (0)', () => {
         const journeyWithMidnightPlace = {
