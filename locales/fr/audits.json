@@ -68,6 +68,7 @@
     "VP_M_StartTime": "L'heure de début du lieu visité est manquante",
     "VP_M_EndTime": "L'heure de fin du lieu visité est manquante",
     "VP_I_Geography": "La géographie du lieu visité est invalide",
+    "VP_W_ActivityLessThan30MinDurationPossibleMismatch": "La durée d'activité est < 30 minutes pour un lieu habituel",
 
     "T_M_Segments": "Les segments du déplacement sont manquants",
     "T_M_OriginOrDestination": "L'origine ou la destination du déplacement est manquante",
