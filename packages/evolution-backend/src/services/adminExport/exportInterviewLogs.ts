@@ -7,6 +7,7 @@
 
 import fs from 'fs';
 import { unparse } from 'papaparse';
+import { isFeature, isPoint } from 'geojson-validation';
 import { UserAction } from 'evolution-common/lib/services/questionnaire/types';
 
 import { execJob } from '../../tasks/serverWorkerPool';
@@ -21,6 +22,7 @@ const responsePrefix = 'response.';
 const correctedResponsePrefix = 'corrected_response.';
 
 type ContextData = { platform?: string; os?: string; browser?: string; language?: string };
+type WidgetInteractionUserAction = Extract<UserAction, { type: 'widgetInteraction' }>;
 type CurrentInterviewContext = {
     interviewId?: number;
     participant: { [userId: string | 'participant']: ContextData };
@@ -51,11 +53,43 @@ const rowShouldBeExported = (
     return !(_isBlank(filteredValuesByPath) && _isBlank(filteredUnsetPaths) && _isBlank(logData.user_action));
 };
 
+const getFieldsForMapWidget = (
+    widgetInteraction: WidgetInteractionUserAction
+): { mapZoom: string | number; mapAction: string } => {
+    if (widgetInteraction.widgetType === 'mapFindPlace') {
+        const value = widgetInteraction.value;
+        if (isFeature(value) && isPoint((value as GeoJSON.Feature).geometry)) {
+            const geographyValue = value as GeoJSON.Feature<GeoJSON.Point>;
+            // If there is no last action, but there is placeData in the event, the action is to select a place marker
+            // FIXME This value should not make it in the interview on the server side
+            const lastAction =
+                geographyValue.properties?.lastAction !== undefined
+                    ? geographyValue.properties.lastAction
+                    : geographyValue.properties?.placeData !== undefined
+                        ? 'placeMarkerSelected'
+                        : 'unknown';
+            return { mapZoom: geographyValue.properties?.zoom ?? '', mapAction: lastAction };
+        } else if (value === null) {
+            return { mapZoom: '', mapAction: 'reset' };
+        } else {
+            return { mapZoom: '', mapAction: 'invalidValue' };
+        }
+    }
+    return { mapZoom: '', mapAction: '' };
+};
+
 const userActionToWidgetData = (
     userAction: UserAction | undefined
-): { widgetType: string; widgetPath: string; hiddenWidgets: string; invalidWidgets: string[] } => {
+): {
+    widgetType: string;
+    widgetPath: string;
+    hiddenWidgets: string;
+    invalidWidgets: string[];
+    mapZoom: number | string;
+    mapAction: string;
+} => {
     if (userAction === undefined || _isBlank(userAction)) {
-        return { widgetType: '', widgetPath: '', hiddenWidgets: '', invalidWidgets: [] };
+        return { widgetType: '', widgetPath: '', hiddenWidgets: '', invalidWidgets: [], mapZoom: '', mapAction: '' };
     }
     switch (userAction.type) {
     case 'buttonClick':
@@ -63,15 +97,21 @@ const userActionToWidgetData = (
             widgetType: '',
             widgetPath: userAction.buttonId,
             hiddenWidgets: userAction.hiddenWidgets ? userAction.hiddenWidgets.join('|') : '',
-            invalidWidgets: userAction.invalidWidgets ? userAction.invalidWidgets : []
+            invalidWidgets: userAction.invalidWidgets ? userAction.invalidWidgets : [],
+            mapZoom: '',
+            mapAction: ''
         };
-    case 'widgetInteraction':
+    case 'widgetInteraction': {
+        const { mapZoom, mapAction } = getFieldsForMapWidget(userAction);
         return {
             widgetType: userAction.widgetType,
             widgetPath: userAction.path,
             hiddenWidgets: '',
-            invalidWidgets: []
+            invalidWidgets: [],
+            mapZoom,
+            mapAction
         };
+    }
     case 'sectionChange':
         return {
             widgetType: '',
@@ -80,21 +120,27 @@ const userActionToWidgetData = (
                 ...(userAction.targetSection.iterationContext || [])
             ].join('/'),
             hiddenWidgets: userAction.hiddenWidgets ? userAction.hiddenWidgets.join('|') : '',
-            invalidWidgets: []
+            invalidWidgets: [],
+            mapZoom: '',
+            mapAction: ''
         };
     case 'helpPopupClicked':
         return {
             widgetType: '',
             widgetPath: userAction.path,
             hiddenWidgets: '',
-            invalidWidgets: []
+            invalidWidgets: [],
+            mapZoom: '',
+            mapAction: ''
         };
     default:
         return {
             widgetType: '',
             widgetPath: '',
             hiddenWidgets: '',
-            invalidWidgets: []
+            invalidWidgets: [],
+            mapZoom: '',
+            mapAction: ''
         };
     }
 };

@@ -158,6 +158,8 @@ describe('exportInterviewLogTask', () => {
             expect(logRows[i].unsetFields).toEqual(logs[i].unset_paths !== undefined ? logs[i].unset_paths.filter((path: string) => !path.startsWith('validations.')).join('|') : '');
             expect(logRows[i].widgetType).toEqual('');
             expect(logRows[i].widgetPath).toEqual('');
+            expect(logRows[i].mapZoom).toEqual('');
+            expect(logRows[i].mapAction).toEqual('');
         }
     });
 
@@ -196,6 +198,8 @@ describe('exportInterviewLogTask', () => {
             expect(logRows[i].unsetFields).toEqual(logs[i].unset_paths !== undefined ? logs[i].unset_paths.filter((key) => key.startsWith('response.')).join('|') : '');
             expect(logRows[i].widgetType).toEqual('');
             expect(logRows[i].widgetPath).toEqual('');
+            expect(logRows[i].mapZoom).toEqual('');
+            expect(logRows[i].mapAction).toEqual('');
         }
     });
 
@@ -234,6 +238,8 @@ describe('exportInterviewLogTask', () => {
             expect(logRows[i].unsetFields).toEqual(logs[i].unset_paths !== undefined ? logs[i].unset_paths.filter((key) => key.startsWith('response.')).join('|') : '');
             expect(logRows[i].widgetType).toEqual('');
             expect(logRows[i].widgetPath).toEqual('');
+            expect(logRows[i].mapZoom).toEqual('');
+            expect(logRows[i].mapAction).toEqual('');
         }
     });
 
@@ -420,6 +426,8 @@ describe('exportInterviewLogTask', () => {
         expect(currentLog.unsetFields).toEqual(log.unset_paths !== undefined ? log.unset_paths.filter((path: string) => !path.startsWith('validations.')).join('|') : '');
         expect(currentLog.widgetType).toEqual(userAction.widgetType);
         expect(currentLog.widgetPath).toEqual(userAction.path);
+        expect(currentLog.mapZoom).toEqual('');
+        expect(currentLog.mapAction).toEqual('');
         expect(currentLog.invalidFields).toEqual('');
         expect(currentLog.validFields).toEqual('home.geography');
     });
@@ -596,8 +604,117 @@ describe('exportInterviewLogTask', () => {
                 unsetFields: unset_paths !== undefined ? unset_paths.filter((path: string) => !path.startsWith('validations.')).join('|') : '',
                 widgetType: '',
                 widgetPath: userAction.buttonId,
+                mapAction: '',
+                mapZoom: '',
                 hiddenWidgets: expectedOutput.hiddenWidgets,
                 invalidFields: expectedOutput.invalidFields,
+                validFields: '',
+                browser: '',
+                os: '',
+                platform: '',
+                language: ''
+            });
+        });
+    });
+
+    describe('Tests with mapFindPlace widget interaction events', () => {
+        const testCases = [
+            {
+                description: 'with a findPlace, without zoom',
+                userAction: { type: 'widgetInteraction', widgetType: 'mapFindPlace', path: 'geography', value: { type: 'Feature', geometry: { type: 'Point', coordinates: [0, 1] }, properties: { lastAction: 'findPlace' } } },
+                expectedOutput: {
+                    mapZoom: '',
+                    mapAction: 'findPlace'
+                }
+            },
+            {
+                description: 'invalid type',
+                userAction: { type: 'widgetInteraction', widgetType: 'mapFindPlace', path: 'geography', value: 'just a string' },
+                expectedOutput: {
+                    mapZoom: '',
+                    mapAction: 'invalidValue'
+                }
+            },
+            {
+                description: 'map value is reset',
+                userAction:  { type: 'widgetInteraction', widgetType: 'mapFindPlace', path: 'geography', value: null },
+                expectedOutput: {
+                    mapZoom: '',
+                    mapAction: 'reset'
+                }
+            },
+            {
+                description: 'with mapClicked action and zoom',
+                userAction: { type: 'widgetInteraction', widgetType: 'mapFindPlace', path: 'geography', value: { type: 'Feature', geometry: { type: 'Point', coordinates: [0, 1] }, properties: { lastAction: 'mapClicked', zoom: 13.02 } } },
+                expectedOutput: {
+                    mapZoom: '13.02',
+                    mapAction: 'mapClicked'
+                }
+            },
+            {
+                description: 'no lastAction set, no marker data',
+                userAction: { type: 'widgetInteraction', widgetType: 'mapFindPlace', path: 'geography', value: { type: 'Feature', geometry: { type: 'Point', coordinates: [0, 1] }, properties: { } } },
+                expectedOutput: {
+                    mapZoom: '',
+                    mapAction: 'unknown'
+                }
+            },
+            {
+                description: 'no lastAction set, no marker data',
+                userAction: { type: 'widgetInteraction', widgetType: 'mapFindPlace', path: 'geography', value: { type: 'Feature', geometry: { type: 'Point', coordinates: [0, 1] }, properties: { placeData: { field1: 'data' }, zoom: 12 } } },
+                expectedOutput: {
+                    mapZoom: '12',
+                    mapAction: 'placeMarkerSelected'
+                }
+            }
+        ];
+
+        test.each(testCases)('Test with $description', async ({ userAction, expectedOutput }) => {
+            // Prepare the button click log
+            const widgetLog = {
+                ...commonInterviewData,
+                event_type: 'widget_interaction',
+                timestamp_sec: 1,
+                event_date: new Date(1 * 1000),
+                values_by_path: {},
+                unset_paths: [],
+                user_action: userAction
+            };
+
+            // Add the logs to the stream
+            mockGetInterviewLogsStream.mockReturnValue(new ObjectReadableMock([widgetLog]) as any);
+
+            const fileName = await exportInterviewLogTask({});
+
+            // Check the file content of the exported logs
+            expect(mockCreateStream).toHaveBeenCalledTimes(1);
+            expect(mockGetInterviewLogsStream).toHaveBeenCalledWith({ forCorrection: undefined, interviewId: undefined });
+
+            const csvFileName = Object.keys(fileStreams).find((filename) => filename.endsWith(fileName));
+            expect(csvFileName).toBeDefined();
+
+            const csvStream = fileStreams[csvFileName as string];
+            expect(csvStream.data.length).toEqual(1);
+
+            // Get the actual row in the file data
+            const logRows = await getCsvFileRows(csvStream.data);
+            expect(logRows.length).toEqual(1);
+
+            // Test the row values
+            expect(logRows[0]).toEqual({
+                ...commonInterviewDataInRows,
+                event_type: 'widget_interaction',
+                timestampMs : String((1) * 1000),
+                event_date: new Date((1) * 1000).toISOString(),
+                modifiedFields: '',
+                initializedFields: '',
+                unsetFields: '',
+                widgetType: 'mapFindPlace',
+                widgetPath: userAction.path,
+                mapAction: expectedOutput.mapAction,
+                mapZoom: expectedOutput.mapZoom,
+                hiddenWidgets: '',
+                invalidFields: '',
                 validFields: '',
                 browser: '',
                 os: '',
@@ -661,6 +778,8 @@ describe('exportInterviewLogTask', () => {
             unsetFields: sectionChangeLogs[0].unset_paths !== undefined ? sectionChangeLogs[0].unset_paths.filter((path: string) => !path.startsWith('validations.')).join('|') : '',
             widgetType: '',
             widgetPath: userAction.targetSection.sectionShortname,
+            mapAction: '',
+            mapZoom: '',
             hiddenWidgets: '',
             invalidFields: '',
             validFields: 'home.geography',
@@ -682,6 +801,8 @@ describe('exportInterviewLogTask', () => {
             unsetFields: sectionChangeLogs[1].unset_paths !== undefined ? sectionChangeLogs[1].unset_paths.filter((path: string) => !path.startsWith('validations.')).join('|') : '',
             widgetType: '',
             widgetPath: userAction.targetSection.sectionShortname + '/' + (userActionWithHidden.targetSection.iterationContext || []).join('/'),
+            mapAction: '',
+            mapZoom: '',
             hiddenWidgets: userActionWithHidden.hiddenWidgets.join('|'),
             invalidFields: '',
             validFields: '',
@@ -739,6 +860,8 @@ describe('exportInterviewLogTask', () => {
             unsetFields: languageLogs[0].unset_paths !== undefined ? languageLogs[0].unset_paths.filter((path: string) => !path.startsWith('validations.')).join('|') : '',
             widgetType: '',
             widgetPath: '',
+            mapAction: '',
+            mapZoom: '',
             hiddenWidgets: '',
             invalidFields: '',
             validFields: 'home.geography',
@@ -795,6 +918,8 @@ describe('exportInterviewLogTask', () => {
             unsetFields: interviewOpenLogs[0].unset_paths.filter((path: string) => !path.startsWith('validations.')).join('|'),
             widgetType: '',
             widgetPath: '',
+            mapAction: '',
+            mapZoom: '',
             hiddenWidgets: '',
             invalidFields: '',
             validFields: 'home.geography',
@@ -847,6 +972,8 @@ describe('exportInterviewLogTask', () => {
             unsetFields: '',
             widgetType: '',
             widgetPath: 'path.to.widget',
+            mapAction: '',
+            mapZoom: '',
             hiddenWidgets: '',
             invalidFields: '',
             validFields: '',
@@ -917,6 +1044,8 @@ describe('exportInterviewLogTask', () => {
             unsetFields: interviewLogs[0].unset_paths !== undefined ? interviewLogs[0].unset_paths.filter((path: string) => !path.startsWith('validations.')).join('|') : '',
             widgetType: '',
             widgetPath: interviewLogs[0].user_action.buttonId,
+            mapAction: '',
+            mapZoom: '',
             hiddenWidgets: '',
             invalidFields: '',
             validFields: 'home.geography',
@@ -938,6 +1067,8 @@ describe('exportInterviewLogTask', () => {
             unsetFields: interviewLogs[1].unset_paths !== undefined ? interviewLogs[1].unset_paths.join('|') : '',
             widgetType: interviewLogs[1].user_action.widgetType,
             widgetPath: interviewLogs[1].user_action.path,
+            mapAction: '',
+            mapZoom: '',
             hiddenWidgets: '',
             invalidFields: 'home.someField',
             validFields: '',
@@ -959,6 +1090,8 @@ describe('exportInterviewLogTask', () => {
             unsetFields: interviewLogs[2].unset_paths !== undefined ? interviewLogs[2].unset_paths.join('|') : '',
             widgetType: '',
             widgetPath: interviewLogs[2].user_action.buttonId,
+            mapAction: '',
+            mapZoom: '',
             hiddenWidgets: '',
             invalidFields: ['home.household.size', 'home.someField'].join('|'),
             validFields: 'home.geography',
@@ -1014,6 +1147,8 @@ describe('exportInterviewLogTask', () => {
             unsetFields: '',
             widgetType: '',
             widgetPath: '',
+            mapAction: '',
+            mapZoom: '',
             hiddenWidgets: '',
             invalidFields: '',
             validFields: '',
@@ -1062,6 +1197,8 @@ describe('exportInterviewLogTask', () => {
                 : '',
             widgetType: '',
             widgetPath: '',
+            mapAction: '',
+            mapZoom: '',
             hiddenWidgets: '',
             invalidFields: log.values_by_path
                 ? Object.entries(log.values_by_path)
