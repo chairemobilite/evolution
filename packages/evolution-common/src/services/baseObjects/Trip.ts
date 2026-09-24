@@ -198,6 +198,16 @@ export class Trip extends SurveyObject {
     }
 
     /**
+     * Check if the trip uses exactly one mode.
+     * Several segments of the same mode will return false. An empty trip will return false too.
+     * Walking segments are implicit and excluded unless the entire trip is on foot.
+     * @returns {boolean} - Returns true when the trip has exactly one mode
+     */
+    isSingleMode(): boolean {
+        return _uniq(this.getModes()).length === 1;
+    }
+
+    /**
      * Get the modes without walking
      * @returns {Mode[]} - Returns the modes ignoring walking
      */
