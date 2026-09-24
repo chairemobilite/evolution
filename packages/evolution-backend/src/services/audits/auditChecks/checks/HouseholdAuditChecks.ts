@@ -17,6 +17,7 @@ import {
     hasInvalidOrDuplicateSequences,
     hasSequenceGaps
 } from 'evolution-common/lib/services/baseObjects/sequenceUtils';
+import { householdHasUnmatchedCarPassengerTrip } from './missingCarDriverTrips';
 
 // Above this number of cars per potential driving license holder, the car number
 // is considered suspiciously high and flagged for validation (warning only, not an error).
@@ -482,6 +483,30 @@ export const householdAuditChecks: { [errorCode: string]: HouseholdAuditCheckFun
         }
 
         return undefined; // No audit needed
+    },
+
+    /**
+     * Error when a car passenger trip has no matching car driver trip for the household member identified as the driver.
+     * Origins and destinations must be within 100 m, and departure and arrival within 30 minutes.
+     * @param context - HouseholdAuditCheckContext
+     * @returns AuditForObject
+     */
+    HH_L_missingCarDriverTrips: (context: HouseholdAuditCheckContext): AuditForObject | undefined => {
+        const { household } = context;
+
+        if (!householdHasUnmatchedCarPassengerTrip(household)) {
+            return undefined;
+        }
+
+        return {
+            objectType: 'household',
+            objectUuid: household._uuid!,
+            errorCode: 'HH_L_missingCarDriverTrips',
+            version: 1,
+            level: 'error',
+            message: 'A car passenger trip has no matching car driver trip',
+            ignore: false
+        };
     },
 
     /**
