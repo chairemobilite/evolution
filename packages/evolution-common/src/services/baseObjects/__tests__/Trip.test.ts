@@ -580,6 +580,21 @@ describe('Trip', () => {
             expect(result[1]).toBe(cyclingSegment);
         });
 
+        test.each([
+            ['car driver then walking', ['carDriver', 'walk'], ['carDriver']],
+            ['walking then car passenger', ['walk', 'carPassenger'], ['carPassenger']],
+            ['walking before and after the car', ['walk', 'carDriver', 'walk'], ['carDriver']]
+        ] as const)('drops every implicit walking segment from %s', (_title, modes, keptModes) => {
+            const trip = new Trip(validAttributes, registry);
+            modes.forEach((mode) => {
+                trip.addSegment(new Segment({ _uuid: uuidV4(), mode, _isValid: true }, registry));
+            });
+
+            const result = trip.getSegmentsWithoutWalkingInMultimode();
+
+            expect(result.map((segment) => segment.mode)).toEqual(keptModes);
+        });
+
         test('should return single non-walking segment when mixed with walking', () => {
             const trip = new Trip(validAttributes, registry);
             const walkSegment1 = new Segment({ _uuid: uuidV4(), mode: 'walk', _isValid: true }, registry);
@@ -866,6 +881,22 @@ describe('Trip', () => {
             test('should return the mode categories of the segments', () => {
                 trip.segments = [new Segment({ mode: 'walk' }, registry), new Segment({ mode: 'transitBus' }, registry), new Segment({ mode: 'bicycle' }, registry)];
                 expect(trip.getModeCategories()).toEqual(['walk', 'transit', 'bicycle']);
+            });
+        });
+
+        describe('isSingleMode', () => {
+            test.each([
+                ['undefined segments', undefined, false],
+                ['no segments', [], false],
+                ['one segment', ['carDriver'], true],
+                ['several segments of the same mode', ['carPassenger', 'carPassenger'], true],
+                ['more than one mode', ['carDriver', 'walk'], false]
+            ] as const)('%s', (_title, modes, expected) => {
+                trip.segments =
+                    modes === undefined
+                        ? undefined
+                        : modes.map((segmentMode) => new Segment({ mode: segmentMode }, registry));
+                expect(trip.isSingleMode()).toBe(expected);
             });
         });
 
