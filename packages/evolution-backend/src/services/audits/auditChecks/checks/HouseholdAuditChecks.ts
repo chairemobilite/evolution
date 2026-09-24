@@ -17,6 +17,7 @@ import {
     hasInvalidOrDuplicateSequences,
     hasSequenceGaps
 } from 'evolution-common/lib/services/baseObjects/sequenceUtils';
+import { householdHasUnmatchedCarPassengerTrip } from './missingCarDriverTrips';
 
 // Above this number of cars per potential driving license holder, the car number
 // is considered suspiciously high and flagged for validation (warning only, not an error).
@@ -482,6 +483,34 @@ export const householdAuditChecks: { [errorCode: string]: HouseholdAuditCheckFun
         }
 
         return undefined; // No audit needed
+    },
+
+    /**
+     * Error when a single-mode car passenger trip has no matching single-mode car driver trip
+     * for the household member identified as the driver.
+     * TripFactory first drops implicit walking, so a car driver or car passenger trip with walking
+     * is considered as single mode here. Trips that still have several modes are ignored.
+     * Origins and destinations must be within 100 m. Departure and arrival are seconds since
+     * midnight and must be within 15 minutes. The date is not compared.
+     * @param context - HouseholdAuditCheckContext
+     * @returns AuditForObject
+     */
+    HH_L_MissingCarDriverSingleModeTrips: (context: HouseholdAuditCheckContext): AuditForObject | undefined => {
+        const { household } = context;
+
+        if (!householdHasUnmatchedCarPassengerTrip(household)) {
+            return undefined;
+        }
+
+        return {
+            objectType: 'household',
+            objectUuid: household._uuid!,
+            errorCode: 'HH_L_MissingCarDriverSingleModeTrips',
+            version: 1,
+            level: 'error',
+            message: 'A car passenger trip has no matching car driver trip',
+            ignore: false
+        };
     },
 
     /**
