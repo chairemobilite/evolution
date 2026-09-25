@@ -103,7 +103,7 @@ mode:
         motorcycle: Motorcycle or motorized scooter/moped
         ferryWithCar: Ferry with vehicle
         plane: Airplane
-        otherActiveModes: Other active mode
+        otherActiveMode: Other active mode
         other: Other
         dontKnow: Don't know
         preferNotToAnswer: Prefer not to answer
