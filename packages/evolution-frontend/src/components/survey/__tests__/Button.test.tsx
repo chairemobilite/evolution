@@ -93,7 +93,8 @@ each([
                 interview={runtimeInterviewAttributes}
                 user={userAttributes}
                 widgetStatus={defaultWidgetStatus}
-                section={''}
+                section='home'
+                shortname='nextButton'
                 startUpdateInterview={startUpdateInterviewMock}
                 startAddGroupedObjects={startAddGroupedObjectsMock}
                 startRemoveGroupedObjects={startRemoveGroupedObjectsMock}
@@ -112,7 +113,8 @@ each([
                 interview={runtimeInterviewAttributes}
                 user={userAttributes}
                 widgetStatus={defaultWidgetStatus}
-                section={''}
+                section='home'
+                shortname='nextButton'
                 startUpdateInterview={startUpdateInterviewMock}
                 startAddGroupedObjects={startAddGroupedObjectsMock}
                 startRemoveGroupedObjects={startRemoveGroupedObjectsMock}
@@ -135,7 +137,8 @@ test('Widget invisible, should be null', () => {
             interview={runtimeInterviewAttributes}
             user={userAttributes}
             widgetStatus={widgetStatus}
-            section={''}
+            section='home'
+            shortname='nextButton'
             startUpdateInterview={startUpdateInterviewMock}
             startAddGroupedObjects={startAddGroupedObjectsMock}
             startRemoveGroupedObjects={startRemoveGroupedObjectsMock}
@@ -158,7 +161,8 @@ test('Widget loading, should be disabled', () => {
             interview={runtimeInterviewAttributes}
             user={userAttributes}
             widgetStatus={defaultWidgetStatus}
-            section={''}
+            section='home'
+            shortname='nextButton'
             startUpdateInterview={startUpdateInterviewMock}
             startAddGroupedObjects={startAddGroupedObjectsMock}
             startRemoveGroupedObjects={startRemoveGroupedObjectsMock}
@@ -174,6 +178,7 @@ describe('Button widget: behavioral tests', () => {
         render(<Button
             path='home.region'
             section='test'
+            shortname='nextButton'
             loadingState={0}
             widgetConfig={commonWidgetConfig}
             interview={runtimeInterviewAttributes}
@@ -213,6 +218,7 @@ describe('Button widget: behavioral tests', () => {
         render(<Button
             path='home.region'
             section='test'
+            shortname='nextButton'
             loadingState={0}
             widgetConfig={widgetConfig}
             interview={runtimeInterviewAttributes}
@@ -260,6 +266,7 @@ describe('Button widget: behavioral tests', () => {
         const initialProps = {
             path: 'home.region',
             section: 'test',
+            shortname: 'nextButton',
             loadingState: 0,
             widgetConfig: widgetConfig,
             interview: runtimeInterviewAttributes,
@@ -309,6 +316,7 @@ describe('Button widget: behavioral tests', () => {
         const initialProps = {
             path: 'home.region',
             section: 'test',
+            shortname: 'nextButton',
             loadingState: 0,
             widgetConfig: widgetConfig,
             interview: runtimeInterviewAttributes,
@@ -351,6 +359,7 @@ describe('Button widget: behavioral tests', () => {
         const initialProps = {
             path: 'home.region',
             section: 'test',
+            shortname: 'nextButton',
             loadingState: 0,
             widgetConfig: widgetConfig,
             interview: runtimeInterviewAttributes,

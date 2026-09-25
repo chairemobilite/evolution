@@ -16,6 +16,7 @@ exports[`Modal widget Widget is visible 1`] = `
     >
       <div
         class="apptr__form-container two-columns question-type-string question-filled question-valid"
+        data-widget-id="test-homeRegion"
         style="position: relative;"
       >
         <div
@@ -53,6 +54,7 @@ exports[`Question with widget InputButton Render widget 1`] = `
 <div>
   <div
     class="apptr__form-container two-columns question-type-button question-filled question-valid"
+    data-widget-id="test-homeRegion"
     style="position: relative;"
   >
     <div
@@ -104,6 +106,7 @@ exports[`Question with widget InputCheckbox Render widget 1`] = `
 <div>
   <div
     class="apptr__form-container two-columns question-type-checkbox question-filled question-valid"
+    data-widget-id="test-homeRegion"
     style="position: relative;"
   >
     <fieldset
@@ -184,6 +187,7 @@ exports[`Question with widget InputDatePicker Render widget 1`] = `
 <div>
   <div
     class="apptr__form-container two-columns question-type-datePicker question-filled question-valid"
+    data-widget-id="test-homeRegion"
     style="position: relative;"
   >
     <div
@@ -230,6 +234,7 @@ exports[`Question with widget InputMultiselect Render widget 1`] = `
 <div>
   <div
     class="apptr__form-container two-columns question-type-multiselect question-filled question-valid"
+    data-widget-id="test-homeRegion"
     style="position: relative;"
   >
     <div
@@ -371,6 +376,7 @@ exports[`Question with widget InputRadio Render widget 1`] = `
 <div>
   <div
     class="apptr__form-container two-columns question-type-radio question-filled question-valid"
+    data-widget-id="test-homeRegion"
     style="position: relative;"
   >
     <fieldset
@@ -451,6 +457,7 @@ exports[`Question with widget InputRadioNumber Render widget 1`] = `
 <div>
   <div
     class="apptr__form-container two-columns question-type-radioNumber question-filled question-valid"
+    data-widget-id="test-homeRegion"
     style="position: relative;"
   >
     <fieldset
@@ -596,6 +603,7 @@ exports[`Question with widget InputRange Render widget 1`] = `
 <div>
   <div
     class="apptr__form-container two-columns question-type-slider question-filled question-valid"
+    data-widget-id="test-homeRegion"
     style="position: relative;"
   >
     <div
@@ -686,6 +694,7 @@ exports[`Question with widget InputSelect Render widget 1`] = `
 <div>
   <div
     class="apptr__form-container two-columns question-type-select question-filled question-valid"
+    data-widget-id="test-homeRegion"
     style="position: relative;"
   >
     <div
@@ -739,6 +748,7 @@ exports[`Question with widget InputSelectFeature Render widget 1`] = `
 <div>
   <div
     class="apptr__form-container two-columns question-type-selectFeature question-filled question-valid"
+    data-widget-id="test-homeRegion"
     style="position: relative;"
   >
     <div
@@ -848,6 +858,7 @@ exports[`Question with widget InputString Render widget 1`] = `
 <div>
   <div
     class="apptr__form-container two-columns question-type-string question-filled question-valid"
+    data-widget-id="test-homeRegion"
     style="position: relative;"
   >
     <div
@@ -883,6 +894,7 @@ exports[`Question with widget InputText Render widget 1`] = `
 <div>
   <div
     class="apptr__form-container two-columns question-type-text question-filled question-valid"
+    data-widget-id="test-homeRegion"
     style="position: relative;"
   >
     <div
@@ -917,6 +929,7 @@ exports[`Question with widget InputTime Render widget 1`] = `
 <div>
   <div
     class="apptr__form-container two-columns question-type-time question-filled question-valid"
+    data-widget-id="test-homeRegion"
     style="position: relative;"
   >
     <div
@@ -989,6 +1002,7 @@ exports[`With error message Error message on visible widget 1`] = `
 <div>
   <div
     class="apptr__form-container two-columns question-type-string question-filled question-invalid"
+    data-widget-id="test-homeRegion"
     style="position: relative;"
   >
     <div
@@ -1071,6 +1085,7 @@ exports[`With help popup and link Test widget with help 1`] = `
 <div>
   <div
     class="apptr__form-container two-columns question-type-string question-filled question-valid"
+    data-widget-id="test-homeRegion"
     style="position: relative;"
   >
     <div
@@ -1127,6 +1142,7 @@ exports[`With joining questions Joining next 1`] = `
 <div>
   <div
     class="apptr__form-container apptr__form-join-next two-columns question-type-string question-filled question-valid"
+    data-widget-id="test-homeRegion"
     style="position: relative;"
   >
     <div

@@ -23,24 +23,23 @@ import { GroupConfig, InterviewUpdateCallbacks } from 'evolution-common/lib/serv
 import DeleteGroupedObjectButton from './widgets/DeleteGroupedObjectButton';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { InGroupWidget } from './Widget';
+import { CommonWidgetProps } from './commonWidgetProps';
 
-type GroupedObjectProps = InterviewUpdateCallbacks & {
-    interview: UserRuntimeInterviewAttributes;
-    user: CliUser;
-    path: string;
-    label?: string;
-    /** The name of the widget, to be used as key for translations */
-    shortname: string;
-    section: string;
-    widgetConfig: GroupConfig;
-    loadingState: number;
-    /** Associates a widget shortname with the parent UUID */
-    parentObjectIds: { [widgetShortname: string]: string };
-    objectId: string;
-    sequence: number;
-    /** Server-side errors FIXME Maybe they should not be passed by props, they should be better handled */
-    errors?: { [path: string]: string };
-};
+type GroupedObjectProps = InterviewUpdateCallbacks &
+    Pick<CommonWidgetProps, 'section' | 'shortname'> & {
+        interview: UserRuntimeInterviewAttributes;
+        user: CliUser;
+        path: string;
+        label?: string;
+        widgetConfig: GroupConfig;
+        loadingState: number;
+        /** Associates a widget shortname with the parent UUID */
+        parentObjectIds: { [widgetShortname: string]: string };
+        objectId: string;
+        sequence: number;
+        /** Server-side errors FIXME Maybe they should not be passed by props, they should be better handled */
+        errors?: { [path: string]: string };
+    };
 
 export const GroupedObject: React.FC<GroupedObjectProps> = (props) => {
     const { t, i18n } = useTranslation(['survey', 'main']);
@@ -126,21 +125,18 @@ export const GroupedObject: React.FC<GroupedObjectProps> = (props) => {
     );
 };
 
-type GroupProps = InterviewUpdateCallbacks & {
-    path: string;
-    /** The name of the widget, to be used as key for translations */
-    shortname: string;
-    customPath?: string;
-    interview: UserRuntimeInterviewAttributes;
-    user: CliUser;
-    widgetConfig: GroupConfig;
-    loadingState: number;
-    /** Associates a widget shortname with the parent UUID */
-    parentObjectIds: { [widgetShortname: string]: string };
-    section: string;
-    /** Server-side errors FIXME Maybe they should not be passed by props, they should be better handled */
-    errors?: { [path: string]: string };
-};
+type GroupProps = InterviewUpdateCallbacks &
+    Omit<CommonWidgetProps, 'widgetStatus'> & {
+        widgetStatus?: CommonWidgetProps['widgetStatus'];
+        widgetConfig: GroupConfig;
+        interview: UserRuntimeInterviewAttributes;
+        user: CliUser;
+        loadingState: number;
+        /** Associates a widget shortname with the parent UUID */
+        parentObjectIds: { [widgetShortname: string]: string };
+        /** Server-side errors FIXME Maybe they should not be passed by props, they should be better handled */
+        errors?: { [path: string]: string };
+    };
 
 export const Group: FunctionComponent<GroupProps> = (props) => {
     const { t, i18n } = useTranslation(['survey']);
@@ -232,7 +228,7 @@ export const Group: FunctionComponent<GroupProps> = (props) => {
     const addButtonSize = props.widgetConfig.addButtonSize || 'large';
 
     return (
-        <section className="survey-group">
+        <section className="survey-group" data-widget-id={`${props.section}-${props.shortname}`}>
             <div className="content-container">
                 <div className="survey-group__content">
                     {showTitle && (

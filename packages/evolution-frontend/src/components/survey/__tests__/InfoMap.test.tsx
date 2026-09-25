@@ -79,6 +79,8 @@ each([
         const { container } = render(
             <InfoMap
                 path='home.region'
+                section='home'
+                shortname='tripsMap'
                 widgetConfig={widgetConfig}
                 interview={interviewAttributes}
                 user={userAttributes}
@@ -92,6 +94,8 @@ each([
         const { container } = render(
             <InfoMap
                 path='home.region'
+                section='home'
+                shortname='tripsMap'
                 widgetConfig={widgetConfig}
                 interview={interviewAttributes}
                 user={userAttributes}

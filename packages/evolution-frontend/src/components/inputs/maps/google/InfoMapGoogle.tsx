@@ -275,7 +275,7 @@ const InfoMapInner: React.FC<InfoMapProps> = (props) => {
     const mapId = getGoogleMapId();
 
     return (
-        <div className="survey-info-map__map-container">
+        <div className="survey-info-map__map-container" data-widget-id={`${props.section}-${props.shortname}`}>
             <InfoMapTitle title={title} containsHtml={props.widgetConfig.containsHtml} />
             <Map
                 style={{
