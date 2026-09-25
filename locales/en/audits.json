@@ -58,6 +58,10 @@
     "J_L_JourneyNotClosed": "Journey is not closed",
     "J_L_JourneyClosedMoreThanOnce": "Journey is closed more than once",
     "J_L_OnlyOneVisitedPlace": "Journey has only one visited place",
+    "J_W_DepartureOfDayNotHomeOrCompatibleActivity": "Activity at start of journey is not home or a compatible activity",
+    "J_W_ArrivalOfDayNotHomeOrCompatibleActivity": "Activity at end of journey is not home or a compatible activity",
+    "J_W_SchoolActivityAtStartOfJourney": "School activity at the start of the journey",
+    "J_W_SchoolActivityAtEndOfJourney": "School activity at the end of the journey",
 
     "VP_M_Geography": "Visited place geography is missing",
     "VP_M_Activity": "Visited place activity is missing",

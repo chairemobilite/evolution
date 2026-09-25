@@ -17,6 +17,7 @@ import {
 } from 'evolution-common/lib/services/baseObjects/StartEndable';
 import type { Journey } from 'evolution-common/lib/services/baseObjects/Journey';
 import { getAnswerValue } from 'evolution-common/lib/services/baseObjects/attributeTypes/AnswerStatus';
+import { hasIncompatibleBoundaryActivity, hasSchoolBoundaryActivity } from './overnightStayActivities';
 
 /** Trips or visited places mean the journey holds travel that `didTrips` should justify. */
 const journeyHasDiaryContent = (journey: Journey): boolean =>
@@ -406,5 +407,102 @@ export const journeyAuditChecks: { [errorCode: string]: JourneyAuditCheckFunctio
         }
 
         return undefined; // No audit needed
+    },
+
+    /**
+     * Warning when the first visited place of the journey is not home or another overnight activity.
+     * A missing activity is not a mismatch. A school activity is handled by its own check.
+     * @param context - JourneyAuditCheckContext
+     * @returns AuditForObject
+     */
+    J_W_DepartureOfDayNotHomeOrCompatibleActivity: (context: JourneyAuditCheckContext): AuditForObject | undefined => {
+        const { journey } = context;
+
+        if (!hasIncompatibleBoundaryActivity(journey, 'first')) {
+            return undefined;
+        }
+
+        return {
+            objectType: 'journey',
+            objectUuid: journey._uuid!,
+            errorCode: 'J_W_DepartureOfDayNotHomeOrCompatibleActivity',
+            version: 1,
+            level: 'warning',
+            message: 'Activity at start of journey is not home or a compatible activity',
+            ignore: false
+        };
+    },
+
+    /**
+     * Warning when the last visited place of the journey is not home or another overnight activity.
+     * Skipped when the journey is not closed (`isJourneyClosed !== true`), same signal as `J_L_JourneyNotClosed`.
+     * A missing activity is not a mismatch. A school activity is handled by its own check.
+     * @param context - JourneyAuditCheckContext
+     * @returns AuditForObject
+     */
+    J_W_ArrivalOfDayNotHomeOrCompatibleActivity: (context: JourneyAuditCheckContext): AuditForObject | undefined => {
+        const { journey } = context;
+
+        if (journey.isJourneyClosed !== true || !hasIncompatibleBoundaryActivity(journey, 'last')) {
+            return undefined;
+        }
+
+        return {
+            objectType: 'journey',
+            objectUuid: journey._uuid!,
+            errorCode: 'J_W_ArrivalOfDayNotHomeOrCompatibleActivity',
+            version: 1,
+            level: 'warning',
+            message: 'Activity at end of journey is not home or a compatible activity',
+            ignore: false
+        };
+    },
+
+    /**
+     * Warning when the first visited place of the journey is a school activity.
+     * A school stay can be legitimate, so this stays a warning separate from the incompatible-activity checks.
+     * @param context - JourneyAuditCheckContext
+     * @returns AuditForObject
+     */
+    J_W_SchoolActivityAtStartOfJourney: (context: JourneyAuditCheckContext): AuditForObject | undefined => {
+        const { journey } = context;
+
+        if (!hasSchoolBoundaryActivity(journey, 'first')) {
+            return undefined;
+        }
+
+        return {
+            objectType: 'journey',
+            objectUuid: journey._uuid!,
+            errorCode: 'J_W_SchoolActivityAtStartOfJourney',
+            version: 1,
+            level: 'warning',
+            message: 'School activity at the start of the journey',
+            ignore: false
+        };
+    },
+
+    /**
+     * Warning when the last visited place of the journey is a school activity.
+     * Skipped when the journey is not closed (`isJourneyClosed !== true`), same signal as `J_L_JourneyNotClosed`.
+     * @param context - JourneyAuditCheckContext
+     * @returns AuditForObject
+     */
+    J_W_SchoolActivityAtEndOfJourney: (context: JourneyAuditCheckContext): AuditForObject | undefined => {
+        const { journey } = context;
+
+        if (journey.isJourneyClosed !== true || !hasSchoolBoundaryActivity(journey, 'last')) {
+            return undefined;
+        }
+
+        return {
+            objectType: 'journey',
+            objectUuid: journey._uuid!,
+            errorCode: 'J_W_SchoolActivityAtEndOfJourney',
+            version: 1,
+            level: 'warning',
+            message: 'School activity at the end of the journey',
+            ignore: false
+        };
     }
 };
