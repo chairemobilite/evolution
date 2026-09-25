@@ -32,6 +32,7 @@
         "UseAnonymousLogin": "Continuer sans se connecter"
     },
     "visitedPlace": {
+        "saveVisitedPlace": "Enregistrer ce lieu",
         "editVisitedPlaces": "Modifier, insérer ou supprimer un lieu",
         "cancelEditVisitedPlaces": "Annuler",
         "resetVisitedPlaces": "Réinitialiser les lieux visités et les déplacements de cette personne"

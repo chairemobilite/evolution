@@ -9,6 +9,8 @@ deleteVisitedPlace: Supprimer
 deleteThisGroupedObject: Supprimer ce lieu
 insertVisitedPlace: Insérer un lieu ici
 addVisitedPlace: Ajouter le prochain lieu
+addGroupedObject: Ajouter le prochain lieu
+cancelEditVisitedPlaces: Annuler
 buttonVisitedPlacesConfirmNextSection: Confirmer les lieux et continuer
 activities:
     accompanySomeone: Accompagner quelqu'un
@@ -113,6 +115,11 @@ workPlaceLocationIsRequiredError: Le positionnement du lieu de travail habituel 
 ConfirmDeleteVisitedPlace: Confirmez-vous que vous voulez retirer ce lieu?
 dayScheduleFor: Horaire de la journée de <strong>{{nickname}}</strong>
 dayScheduleFor_one: Votre horaire de la journée
+personVisitedPlacesTitle_undated: >-
+    Lieux où {{nickname}} est allé(e):<br />L'ordre chronologique doit être
+    respecté.
+personVisitedPlacesTitle_undated_one: >-
+    Lieux où vous êtes allé(e):<br />L'ordre chronologique doit être respecté.
 personVisitedPlacesTitle: >-
     Lieux où {{nickname}} est allé(e) le {{journeyDates}}:<br />L'ordre
     chronologique doit être respecté.
