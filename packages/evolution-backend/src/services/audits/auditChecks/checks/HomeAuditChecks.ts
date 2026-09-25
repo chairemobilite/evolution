@@ -11,6 +11,7 @@ import { distance as turfDistance, booleanPointInPolygon as turfBooleanPointInPo
 import type { AuditForObject } from 'evolution-common/lib/services/audits/types';
 import type { HomeAuditCheckContext, HomeAuditCheckFunction } from '../AuditCheckContexts';
 import { getSurveyArea } from '../../../../utils/surveyArea';
+import { prefilledHomeAddressWasEdited } from './prefilledHomeAddress';
 
 // Distances are arbitrary. This should only detect distances that could cause
 // change in travel behaviour.
@@ -158,5 +159,29 @@ export const homeAuditChecks: { [errorCode: string]: HomeAuditCheckFunction } = 
         }
 
         return undefined; // No audit needed
+    },
+
+    /**
+     * Warning when the respondent changed the pre-filled home address.
+     * Compares `preData` address columns with the declared `address` fields.
+     * @param context - HomeAuditCheckContext
+     * @returns AuditForObject
+     */
+    HM_W_PreAddressAndHomeAddressEdited: (context: HomeAuditCheckContext): AuditForObject | undefined => {
+        const { home } = context;
+
+        if (!prefilledHomeAddressWasEdited(home)) {
+            return undefined;
+        }
+
+        return {
+            objectType: 'home',
+            objectUuid: home._uuid!,
+            errorCode: 'HM_W_PreAddressAndHomeAddressEdited',
+            version: 1,
+            level: 'warning',
+            message: 'Pre-filled home address was edited',
+            ignore: false
+        };
     }
 };

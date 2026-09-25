@@ -36,6 +36,7 @@
 
     "HM_I_preGeographyAndHomeGeographyTooFarApartError": "Pre-filled and declared home geographies are far apart",
     "HM_W_preGeographyAndHomeGeographyTooFarApart": "Pre-filled and declared home geographies are a bit far apart",
+    "HM_W_PreAddressAndHomeAddressEdited": "Pre-filled home address was edited",
     "HM_M_Geography": "Home geography is missing",
     "HM_I_Geography": "Home geography is invalid",
     "HM_I_geographyNotInSurveyTerritory": "Home geography is outside the survey territory",
