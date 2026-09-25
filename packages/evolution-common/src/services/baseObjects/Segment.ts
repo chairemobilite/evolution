@@ -51,6 +51,7 @@ export const segmentAttributes = [
     'paidForParking',
     'onDemandType',
     'busLines',
+    'stations',
     'preData'
 ];
 
@@ -98,6 +99,11 @@ export type SegmentAttributes = {
     paidForParking?: Optional<AnswerStatus<boolean>>;
     onDemandType?: Optional<string>;
     busLines?: Optional<string[]>; // for now, the bus lines are the line slugified shortname. TODO: discuss if we want to change that.
+    /**
+     * Stations of this segment's mode, from the entry station through intermediate transfers to the exit station.
+     * TODO: replace this with the line plus the entry and exit stations, and split the segment automatically at each transfer.
+     */
+    stations?: Optional<string[]>;
     preData?: Optional<PreData>;
 } & StartEndDateAndTimesAttributes &
     UuidableAttributes &
@@ -390,6 +396,14 @@ export class Segment extends SurveyObject {
         this._attributes.busLines = value;
     }
 
+    get stations(): Optional<string[]> {
+        return this._attributes.stations;
+    }
+
+    set stations(value: Optional<string[]>) {
+        this._attributes.stations = value;
+    }
+
     get preData(): Optional<PreData> {
         return this._attributes.preData;
     }
@@ -633,6 +647,13 @@ export class Segment extends SurveyObject {
         errors.push(...ParamsValidatorUtils.isString('onDemandType', dirtyParams.onDemandType, displayName));
 
         errors.push(...ParamsValidatorUtils.isArrayOfStrings('busLines', dirtyParams.busLines, displayName));
+
+        // isArrayOfStrings treats null as absent. A present stations value must be an array of strings.
+        if (dirtyParams.stations === null) {
+            errors.push(new Error(`${displayName} validateParams: stations should be an array of strings`));
+        } else {
+            errors.push(...ParamsValidatorUtils.isArrayOfStrings('stations', dirtyParams.stations, displayName));
+        }
 
         errors.push(...ParamsValidatorUtils.isRecord('preData', dirtyParams.preData, displayName, false));
 

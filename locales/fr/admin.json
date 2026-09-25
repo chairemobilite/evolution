@@ -172,7 +172,8 @@
                 "vehicleOccupancy": "Occupants",
                 "paidForParking": "Stationnement payant?",
                 "driverType": "Qui conduisait?",
-                "busLines": "Lignes de bus"
+                "busLines": "Lignes de bus",
+                "stations": "Stations"
             },
             "unitNumber": "#Unité",
             "yearsOld": "ans",
