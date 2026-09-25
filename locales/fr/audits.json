@@ -31,6 +31,7 @@
     "HH_W_NicknameDuplicate": "Au moins deux membres du ménage ont le même surnom",
     "HH_L_CarNumberVehiclesCountMismatch": "Le nombre de véhicules automobiles et le nombre de véhicules déclarés ne correspondent pas",
     "HH_F_AtLeastOneTransitSegmentInHousehold": "Au moins un déplacement transport collectif dans le ménage",
+    "HH_L_missingCarDriverTrips": "Un déplacement auto-passager n'a pas de déplacement auto-conducteur correspondant",
     "HH_M_Home": "Le domicile est manquant",
     "HH_M_AtLeastOnePersonWithDisability": "La présence d'au moins une personne avec un handicap est manquante",
 
