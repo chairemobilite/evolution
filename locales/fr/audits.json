@@ -36,6 +36,7 @@
 
     "HM_I_preGeographyAndHomeGeographyTooFarApartError": "Les géographies pré-remplie et déclarée du domicile sont éloignées",
     "HM_W_preGeographyAndHomeGeographyTooFarApart": "Les géographies pré-remplie et déclarée du domicile sont un peu éloignées",
+    "HM_W_PreAddressAndHomeAddressEdited": "L'adresse préremplie du domicile a été modifiée",
     "HM_M_Geography": "La géographie du domicile est manquante",
     "HM_I_Geography": "La géographie du domicile est invalide",
     "HM_I_geographyNotInSurveyTerritory": "La géographie du domicile est en dehors du territoire d'enquête",
