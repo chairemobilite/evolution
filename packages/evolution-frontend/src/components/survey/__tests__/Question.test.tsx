@@ -104,6 +104,24 @@ const testFeatureCollection = {
     ]
 }
 
+test('sets a data-widget-id from the section and the widget shortname', () => {
+    const { container } = render(
+        <Question
+            path='home.region'
+            section='home'
+            shortname='homeRegion'
+            loadingState={0}
+            widgetConfig={{ ...commonWidgetConfig, inputType: 'string' }}
+            interview={interviewAttributes}
+            user={userAttributes}
+            widgetStatus={defaultWidgetStatus}
+            startUpdateInterview={() => { /* Nothing to do */}}
+        />
+    );
+
+    expect(container.querySelector('[data-widget-id="home-homeRegion"]')).toBeTruthy();
+});
+
 each([
     ['InputSelect', { ...commonWidgetConfig, inputType: 'select', choices: [{ label: 'choice 1', value: 'c1' }, { label: 'choice 2', value: 'c2' }] }, 'c2'],
     ['InputRadio', { ...commonWidgetConfig, inputType: 'radio', choices: [{ label: 'choice 1', value: 'c1' }, { label: 'choice 2', value: 'c2' }] }, 'c2'],
@@ -128,6 +146,7 @@ each([
             <Question
                 path='home.region'
                 section='test'
+                shortname='homeRegion'
                 loadingState={0}
                 widgetConfig={widgetConfig}
                 interview={interviewAttributes}
@@ -144,6 +163,7 @@ each([
             <Question
                 path='home.region'
                 section='test'
+                shortname='homeRegion'
                 loadingState={0}
                 widgetConfig={widgetConfig}
                 interview={interviewAttributes}
@@ -181,6 +201,7 @@ describe('With help popup and link', () => {
             <Question
                 path='home.region'
                 section='test'
+                shortname='homeRegion'
                 loadingState={0}
                 widgetConfig={widgetConfig as any}
                 interview={interviewAttributes}
@@ -199,6 +220,7 @@ describe('With help popup and link', () => {
         render(<Question
             path='home.region'
             section='test'
+                shortname='homeRegion'
             loadingState={0}
             widgetConfig={widgetConfig as any}
             interview={interviewAttributes}
@@ -236,6 +258,7 @@ describe('With error message', () => {
             <Question
                 path='home.region'
                 section='test'
+                shortname='homeRegion'
                 loadingState={0}
                 widgetConfig={widgetConfig as any}
                 interview={interviewAttributes}
@@ -262,6 +285,7 @@ describe('With joining questions', () => {
             <Question
                 path='home.region'
                 section='test'
+                shortname='homeRegion'
                 loadingState={0}
                 widgetConfig={widgetConfig as any}
                 interview={interviewAttributes}
@@ -291,6 +315,7 @@ describe('Modal widget', () => {
             <Question
                 path='home.region'
                 section='test'
+                shortname='homeRegion'
                 loadingState={0}
                 widgetConfig={widgetConfig as any}
                 interview={interviewAttributes}
@@ -311,6 +336,7 @@ describe('Modal widget', () => {
             <Question
                 path='home.region'
                 section='test'
+                shortname='homeRegion'
                 loadingState={0}
                 widgetConfig={widgetConfig as any}
                 interview={interviewAttributes}

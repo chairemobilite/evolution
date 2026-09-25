@@ -4,6 +4,7 @@ exports[`Group Add button top, default label, medium Render widget 1`] = `
 <div>
   <section
     class="survey-group"
+    data-widget-id="household-myGroup"
   >
     <div
       class="content-container"
@@ -50,6 +51,7 @@ exports[`Group Add button top, default label, medium Render widget 1`] = `
             >
               <div
                 class="survey-section__text"
+                data-widget-id="household-widgetText"
               >
                 <div
                   class="left "
@@ -63,6 +65,7 @@ exports[`Group Add button top, default label, medium Render widget 1`] = `
               </div>
               <div
                 class="apptr__form-container question-type-string question-filled"
+                data-widget-id="household-widgetQuestion"
                 style="position: relative;"
               >
                 <div
@@ -109,6 +112,7 @@ exports[`Group Add button top, default label, medium Render widget 1`] = `
             >
               <div
                 class="survey-section__text"
+                data-widget-id="household-widgetText"
               >
                 <div
                   class="left "
@@ -122,6 +126,7 @@ exports[`Group Add button top, default label, medium Render widget 1`] = `
               </div>
               <div
                 class="apptr__form-container question-type-string question-filled"
+                data-widget-id="household-widgetQuestion"
                 style="position: relative;"
               >
                 <div
@@ -168,6 +173,7 @@ exports[`Group Add button top, default label, medium Render widget 1`] = `
             >
               <div
                 class="survey-section__text"
+                data-widget-id="household-widgetText"
               >
                 <div
                   class="left "
@@ -181,6 +187,7 @@ exports[`Group Add button top, default label, medium Render widget 1`] = `
               </div>
               <div
                 class="apptr__form-container question-type-string question-filled"
+                data-widget-id="household-widgetQuestion"
                 style="position: relative;"
               >
                 <div
@@ -226,6 +233,7 @@ exports[`Group All values set, all true, add button default data, filter show al
 <div>
   <section
     class="survey-group"
+    data-widget-id="household-myGroup"
   >
     <div
       class="content-container"
@@ -304,6 +312,7 @@ exports[`Group All values set, all true, add button default data, filter show al
               </div>
               <div
                 class="survey-section__text"
+                data-widget-id="household-widgetText"
               >
                 <div
                   class="left "
@@ -317,6 +326,7 @@ exports[`Group All values set, all true, add button default data, filter show al
               </div>
               <div
                 class="apptr__form-container question-type-string question-filled"
+                data-widget-id="household-widgetQuestion"
                 style="position: relative;"
               >
                 <div
@@ -395,6 +405,7 @@ exports[`Group All values set, all true, add button default data, filter show al
               </div>
               <div
                 class="survey-section__text"
+                data-widget-id="household-widgetText"
               >
                 <div
                   class="left "
@@ -408,6 +419,7 @@ exports[`Group All values set, all true, add button default data, filter show al
               </div>
               <div
                 class="apptr__form-container question-type-string question-filled"
+                data-widget-id="household-widgetQuestion"
                 style="position: relative;"
               >
                 <div
@@ -486,6 +498,7 @@ exports[`Group All values set, all true, add button default data, filter show al
               </div>
               <div
                 class="survey-section__text"
+                data-widget-id="household-widgetText"
               >
                 <div
                   class="left "
@@ -499,6 +512,7 @@ exports[`Group All values set, all true, add button default data, filter show al
               </div>
               <div
                 class="apptr__form-container question-type-string question-filled"
+                data-widget-id="household-widgetQuestion"
                 style="position: relative;"
               >
                 <div
@@ -567,6 +581,7 @@ exports[`Group All values set, false when possible Render widget 1`] = `
 <div>
   <section
     class="survey-group"
+    data-widget-id="household-myGroup"
   >
     <div
       class="content-container"
@@ -594,6 +609,7 @@ exports[`Group All values set, false when possible Render widget 1`] = `
               </h3>
               <div
                 class="survey-section__text"
+                data-widget-id="household-widgetText"
               >
                 <div
                   class="left "
@@ -607,6 +623,7 @@ exports[`Group All values set, false when possible Render widget 1`] = `
               </div>
               <div
                 class="apptr__form-container question-type-string question-filled"
+                data-widget-id="household-widgetQuestion"
                 style="position: relative;"
               >
                 <div
@@ -662,6 +679,7 @@ exports[`Group All values set, false when possible Render widget 1`] = `
               </h3>
               <div
                 class="survey-section__text"
+                data-widget-id="household-widgetText"
               >
                 <div
                   class="left "
@@ -675,6 +693,7 @@ exports[`Group All values set, false when possible Render widget 1`] = `
               </div>
               <div
                 class="apptr__form-container question-type-string question-filled"
+                data-widget-id="household-widgetQuestion"
                 style="position: relative;"
               >
                 <div
@@ -730,6 +749,7 @@ exports[`Group All values set, false when possible Render widget 1`] = `
               </h3>
               <div
                 class="survey-section__text"
+                data-widget-id="household-widgetText"
               >
                 <div
                   class="left "
@@ -743,6 +763,7 @@ exports[`Group All values set, false when possible Render widget 1`] = `
               </div>
               <div
                 class="apptr__form-container question-type-string question-filled"
+                data-widget-id="household-widgetQuestion"
                 style="position: relative;"
               >
                 <div
@@ -790,6 +811,7 @@ exports[`Group Default values Render widget 1`] = `
 <div>
   <section
     class="survey-group"
+    data-widget-id="household-myGroup"
   >
     <div
       class="content-container"
@@ -813,6 +835,7 @@ exports[`Group Default values Render widget 1`] = `
             >
               <div
                 class="survey-section__text"
+                data-widget-id="household-widgetText"
               >
                 <div
                   class="left "
@@ -826,6 +849,7 @@ exports[`Group Default values Render widget 1`] = `
               </div>
               <div
                 class="apptr__form-container question-type-string question-filled"
+                data-widget-id="household-widgetQuestion"
                 style="position: relative;"
               >
                 <div
@@ -872,6 +896,7 @@ exports[`Group Default values Render widget 1`] = `
             >
               <div
                 class="survey-section__text"
+                data-widget-id="household-widgetText"
               >
                 <div
                   class="left "
@@ -885,6 +910,7 @@ exports[`Group Default values Render widget 1`] = `
               </div>
               <div
                 class="apptr__form-container question-type-string question-filled"
+                data-widget-id="household-widgetQuestion"
                 style="position: relative;"
               >
                 <div
@@ -931,6 +957,7 @@ exports[`Group Default values Render widget 1`] = `
             >
               <div
                 class="survey-section__text"
+                data-widget-id="household-widgetText"
               >
                 <div
                   class="left "
@@ -944,6 +971,7 @@ exports[`Group Default values Render widget 1`] = `
               </div>
               <div
                 class="apptr__form-container question-type-string question-filled"
+                data-widget-id="household-widgetQuestion"
                 style="position: relative;"
               >
                 <div
@@ -1012,6 +1040,7 @@ exports[`Group Nested groups, should display widgets with right path 1`] = `
 <div>
   <section
     class="survey-group"
+    data-widget-id="household-myGroup"
   >
     <div
       class="content-container"
@@ -1044,6 +1073,7 @@ exports[`Group Nested groups, should display widgets with right path 1`] = `
               </h3>
               <section
                 class="survey-group"
+                data-widget-id="household-widgetGroups"
               >
                 <div
                   class="content-container"
@@ -1076,6 +1106,7 @@ exports[`Group Nested groups, should display widgets with right path 1`] = `
                           </h3>
                           <div
                             class="survey-section__text"
+                            data-widget-id="household-widgetText"
                           >
                             <div
                               class="left "
@@ -1089,6 +1120,7 @@ exports[`Group Nested groups, should display widgets with right path 1`] = `
                           </div>
                           <div
                             class="apptr__form-container question-type-string question-filled"
+                            data-widget-id="household-widgetQuestion"
                             style="position: relative;"
                           >
                             <div
@@ -1144,6 +1176,7 @@ exports[`Group Nested groups, should display widgets with right path 1`] = `
                           </h3>
                           <div
                             class="survey-section__text"
+                            data-widget-id="household-widgetText"
                           >
                             <div
                               class="left "
@@ -1157,6 +1190,7 @@ exports[`Group Nested groups, should display widgets with right path 1`] = `
                           </div>
                           <div
                             class="apptr__form-container question-type-string question-filled"
+                            data-widget-id="household-widgetQuestion"
                             style="position: relative;"
                           >
                             <div
@@ -1241,6 +1275,7 @@ exports[`Group Nested groups, should display widgets with right path 1`] = `
               </h3>
               <section
                 class="survey-group"
+                data-widget-id="household-widgetGroups"
               >
                 <div
                   class="content-container"
@@ -1302,6 +1337,7 @@ exports[`Group Nested groups, should display widgets with right path 1`] = `
               </h3>
               <section
                 class="survey-group"
+                data-widget-id="household-widgetGroups"
               >
                 <div
                   class="content-container"
@@ -1376,6 +1412,7 @@ exports[`Group With grouped object conditional filter, show only object 1 Render
 <div>
   <section
     class="survey-group"
+    data-widget-id="household-myGroup"
   >
     <div
       class="content-container"
@@ -1408,6 +1445,7 @@ exports[`Group With grouped object conditional filter, show only object 1 Render
               </h3>
               <div
                 class="survey-section__text"
+                data-widget-id="household-widgetText"
               >
                 <div
                   class="left "
@@ -1421,6 +1459,7 @@ exports[`Group With grouped object conditional filter, show only object 1 Render
               </div>
               <div
                 class="apptr__form-container question-type-string question-filled"
+                data-widget-id="household-widgetQuestion"
                 style="position: relative;"
               >
                 <div
@@ -1489,6 +1528,7 @@ exports[`Group With object filter, show even sequenced objects Render widget 1`]
 <div>
   <section
     class="survey-group"
+    data-widget-id="household-myGroup"
   >
     <div
       class="content-container"
@@ -1521,6 +1561,7 @@ exports[`Group With object filter, show even sequenced objects Render widget 1`]
               </h3>
               <div
                 class="survey-section__text"
+                data-widget-id="household-widgetText"
               >
                 <div
                   class="left "
@@ -1534,6 +1575,7 @@ exports[`Group With object filter, show even sequenced objects Render widget 1`]
               </div>
               <div
                 class="apptr__form-container question-type-string question-filled"
+                data-widget-id="household-widgetQuestion"
                 style="position: relative;"
               >
                 <div
@@ -1589,6 +1631,7 @@ exports[`Group With object filter, show even sequenced objects Render widget 1`]
               </h3>
               <div
                 class="survey-section__text"
+                data-widget-id="household-widgetText"
               >
                 <div
                   class="left "
@@ -1602,6 +1645,7 @@ exports[`Group With object filter, show even sequenced objects Render widget 1`]
               </div>
               <div
                 class="apptr__form-container question-type-string question-filled"
+                data-widget-id="household-widgetQuestion"
                 style="position: relative;"
               >
                 <div
@@ -1688,6 +1732,7 @@ exports[`Grouped Object All values set, add/delete button false Render widget 1`
         </h3>
         <div
           class="survey-section__text"
+          data-widget-id="household-widgetText"
         >
           <div
             class="left "
@@ -1701,6 +1746,7 @@ exports[`Grouped Object All values set, add/delete button false Render widget 1`
         </div>
         <div
           class="apptr__form-container question-type-string question-filled"
+          data-widget-id="household-widgetQuestion"
           style="position: relative;"
         >
           <div
@@ -1784,6 +1830,7 @@ exports[`Grouped Object All values set, all true, add button default label, filt
         </div>
         <div
           class="survey-section__text"
+          data-widget-id="household-widgetText"
         >
           <div
             class="left "
@@ -1797,6 +1844,7 @@ exports[`Grouped Object All values set, all true, add button default label, filt
         </div>
         <div
           class="apptr__form-container question-type-string question-filled"
+          data-widget-id="household-widgetQuestion"
           style="position: relative;"
         >
           <div
@@ -1848,6 +1896,7 @@ exports[`Grouped Object Default values Render widget 1`] = `
       >
         <div
           class="survey-section__text"
+          data-widget-id="household-widgetText"
         >
           <div
             class="left "
@@ -1861,6 +1910,7 @@ exports[`Grouped Object Default values Render widget 1`] = `
         </div>
         <div
           class="apptr__form-container question-type-string question-filled"
+          data-widget-id="household-widgetQuestion"
           style="position: relative;"
         >
           <div

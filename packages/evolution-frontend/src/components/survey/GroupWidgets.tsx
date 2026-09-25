@@ -23,6 +23,7 @@ import { GroupConfig, InterviewUpdateCallbacks } from 'evolution-common/lib/serv
 import DeleteGroupedObjectButton from './widgets/DeleteGroupedObjectButton';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { InGroupWidget } from './Widget';
+import { widgetHtmlId } from './widgetHtmlId';
 
 type GroupedObjectProps = InterviewUpdateCallbacks & {
     interview: UserRuntimeInterviewAttributes;
@@ -232,7 +233,7 @@ export const Group: FunctionComponent<GroupProps> = (props) => {
     const addButtonSize = props.widgetConfig.addButtonSize || 'large';
 
     return (
-        <section className="survey-group">
+        <section className="survey-group" data-widget-id={widgetHtmlId(props.section, props.shortname)}>
             <div className="content-container">
                 <div className="survey-group__content">
                     {showTitle && (

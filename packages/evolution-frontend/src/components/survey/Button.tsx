@@ -20,6 +20,7 @@ import { WidgetStatus } from 'evolution-common/lib/services/questionnaire/types'
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import { InterviewUpdateCallbacks } from 'evolution-common/lib/services/questionnaire/types';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
+import { widgetHtmlId } from './widgetHtmlId';
 
 type ButtonProps = InterviewUpdateCallbacks & {
     widgetConfig: ButtonWidgetConfig;
@@ -30,6 +31,8 @@ type ButtonProps = InterviewUpdateCallbacks & {
     path: string;
     label?: string;
     section: string;
+    /** Widget key already passed by Widget. Not a widget configuration field. */
+    shortname: string;
 };
 
 const Button: React.FC<ButtonProps & WithSurveyContextProps> = (props: ButtonProps & WithSurveyContextProps) => {
@@ -142,7 +145,10 @@ const Button: React.FC<ButtonProps & WithSurveyContextProps> = (props: ButtonPro
     }
 
     return (
-        <div className={props.widgetConfig.align || 'center'}>
+        <div
+            className={props.widgetConfig.align || 'center'}
+            data-widget-id={widgetHtmlId(props.section, props.shortname)}
+        >
             <button
                 type="button"
                 className={`survey-section__button button ${buttonColor} ${props.widgetConfig.size || 'large'} ${

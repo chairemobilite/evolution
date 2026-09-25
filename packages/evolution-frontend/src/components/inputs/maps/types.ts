@@ -108,6 +108,10 @@ export type InfoMapProps = {
     interview: UserInterviewAttributes;
     user?: CliUser;
     path: string;
+    /** Section shortname, already passed by Widget. */
+    section: string;
+    /** Widget key already passed by Widget. Not a widget configuration field. */
+    shortname: string;
 };
 
 /**

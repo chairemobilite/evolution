@@ -4,6 +4,7 @@ exports[`Button widget: All values set Render widget 1`] = `
 <div>
   <div
     class="right"
+    data-widget-id="home-nextButton"
   >
     <button
       class="survey-section__button button red small "
@@ -19,6 +20,7 @@ exports[`Button widget: Default values Render widget 1`] = `
 <div>
   <div
     class="center"
+    data-widget-id="home-nextButton"
   >
     <button
       class="survey-section__button button green large "
@@ -91,6 +93,7 @@ exports[`Widget loading, should be disabled 1`] = `
 <div>
   <div
     class="center"
+    data-widget-id="home-nextButton"
   >
     <button
       class="survey-section__button button green large disabled"
