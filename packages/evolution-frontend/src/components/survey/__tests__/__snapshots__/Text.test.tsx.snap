@@ -6,6 +6,7 @@ exports[`Text widget: Contains html Render widget 1`] = `
 <div>
   <div
     class="survey-section__text"
+    data-widget-id="home-homeRegion"
   >
     <div>
       strippedUnsafe:(
@@ -22,6 +23,7 @@ exports[`Text widget: Default values Render widget 1`] = `
 <div>
   <div
     class="survey-section__text"
+    data-widget-id="home-homeRegion"
   >
     <div
       class="left "
@@ -40,6 +42,7 @@ exports[`Text widget: No html Render widget 1`] = `
 <div>
   <div
     class="survey-section__text"
+    data-widget-id="home-homeRegion"
   >
     <div
       class="left "
@@ -58,6 +61,7 @@ exports[`Text widget: No html, with classes and alignment Render widget 1`] = `
 <div>
   <div
     class="survey-section__text"
+    data-widget-id="home-homeRegion"
   >
     <div
       class="right my-class"

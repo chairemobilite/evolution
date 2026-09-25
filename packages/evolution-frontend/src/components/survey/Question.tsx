@@ -40,10 +40,13 @@ import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { QuestionWidgetConfig, isInputTypeWithArrayValue } from 'evolution-common/lib/services/questionnaire/types';
 import { WidgetStatus } from 'evolution-common/lib/services/questionnaire/types';
 import InputWidgetWrapper from './widgets/InputWidgetWrapper';
+import { widgetHtmlId } from './widgetHtmlId';
 
 interface QuestionProps {
     path: string;
     customPath?: string;
+    /** Widget key already passed by Widget (`currentWidgetShortname`). Not a question configuration field. */
+    shortname: string;
     section: string;
     loadingState: number;
     widgetConfig: QuestionWidgetConfig;
@@ -347,6 +350,7 @@ export class Question extends React.Component<QuestionProps & WithSurveyContextP
             <div
                 key={'content_' + this.props.path}
                 style={{ position: 'relative' }}
+                data-widget-id={widgetHtmlId(this.props.section, this.props.shortname)}
                 className={`apptr__form-container${this.props.join ? ' apptr__form-join-next' : ''}${
                     twoColumns ? ' two-columns' : ''
                 }${widgetStatus.isDisabled || disabled ? ' disabled' : ''} question-type-${inputType}${

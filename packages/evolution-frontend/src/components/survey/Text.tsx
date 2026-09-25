@@ -16,6 +16,7 @@ import { TextWidgetConfig } from 'evolution-common/lib/services/questionnaire/ty
 import { UserInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { stripUnsafeHtml } from '../../services/display/frontendHelper';
+import { widgetHtmlId } from './widgetHtmlId';
 
 type TextProps = {
     widgetConfig: TextWidgetConfig;
@@ -23,6 +24,10 @@ type TextProps = {
     user: CliUser;
     widgetStatus: WidgetStatus;
     path: string;
+    /** Section shortname, already passed by Widget. */
+    section: string;
+    /** Widget key already passed by Widget. Not a widget configuration field. */
+    shortname: string;
 };
 
 export const Text: React.FunctionComponent<TextProps & WithTranslation> = ({
@@ -31,7 +36,9 @@ export const Text: React.FunctionComponent<TextProps & WithTranslation> = ({
     i18n,
     interview,
     path,
-    user
+    user,
+    section,
+    shortname
 }) => {
     if (!widgetStatus.isVisible) {
         return null;
@@ -43,7 +50,7 @@ export const Text: React.FunctionComponent<TextProps & WithTranslation> = ({
     }
 
     return (
-        <div className="survey-section__text">
+        <div className="survey-section__text" data-widget-id={widgetHtmlId(section, shortname)}>
             {widgetConfig.containsHtml && (
                 <div dangerouslySetInnerHTML={{ __html: stripUnsafeHtml(content as string) }} />
             )}

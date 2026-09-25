@@ -21,6 +21,7 @@ import InputLoading from '../../InputLoading';
 import { InfoMapProps } from '../types';
 import { MapPolygon, MapPolyline } from './GoogleMapOverlays';
 import { InfoMapTitle } from '../infoMapTitle';
+import { widgetHtmlId } from '../../../survey/widgetHtmlId';
 
 const coordinatesToLatLng = (coordinates: number[]) => ({
     lat: coordinates[1],
@@ -275,7 +276,7 @@ const InfoMapInner: React.FC<InfoMapProps> = (props) => {
     const mapId = getGoogleMapId();
 
     return (
-        <div className="survey-info-map__map-container">
+        <div className="survey-info-map__map-container" data-widget-id={widgetHtmlId(props.section, props.shortname)}>
             <InfoMapTitle title={title} containsHtml={props.widgetConfig.containsHtml} />
             <Map
                 style={{
