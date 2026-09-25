@@ -66,6 +66,8 @@ each([
         const { container } = render(
             <Text
                 path='home.region'
+                section='home'
+                shortname='homeRegion'
                 widgetConfig={widgetConfig}
                 interview={interviewAttributes}
                 user={userAttributes}
@@ -79,6 +81,8 @@ each([
         const { container } = render(
             <Text
                 path='home.region'
+                section='home'
+                shortname='homeRegion'
                 widgetConfig={widgetConfig}
                 interview={interviewAttributes}
                 user={userAttributes}
@@ -96,6 +100,8 @@ test('Widget invisible, should be null', () => {
     const { container } = render(
         <Text
             path='home.region'
+            section='home'
+            shortname='homeRegion'
             widgetConfig={commonWidgetConfig}
             interview={interviewAttributes}
             user={userAttributes}
@@ -111,6 +117,8 @@ test('Blank text on widget, should be null', () => {
     const { container } = render(
         <Text
             path='home.region'
+            section='home'
+            shortname='homeRegion'
             widgetConfig={widgetConfig}
             interview={interviewAttributes}
             user={userAttributes}

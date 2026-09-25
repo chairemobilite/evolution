@@ -16,21 +16,17 @@ import {
     StartUpdateInterview,
     UserRuntimeInterviewAttributes
 } from 'evolution-common/lib/services/questionnaire/types';
-import { WidgetStatus } from 'evolution-common/lib/services/questionnaire/types';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import { InterviewUpdateCallbacks } from 'evolution-common/lib/services/questionnaire/types';
-import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
+import { CommonWidgetProps } from './commonWidgetProps';
 
-type ButtonProps = InterviewUpdateCallbacks & {
-    widgetConfig: ButtonWidgetConfig;
-    widgetStatus: WidgetStatus;
-    loadingState: number;
-    interview: UserRuntimeInterviewAttributes;
-    user?: CliUser;
-    path: string;
-    label?: string;
-    section: string;
-};
+type ButtonProps = InterviewUpdateCallbacks &
+    CommonWidgetProps & {
+        widgetConfig: ButtonWidgetConfig;
+        loadingState: number;
+        interview: UserRuntimeInterviewAttributes;
+        label?: string;
+    };
 
 const Button: React.FC<ButtonProps & WithSurveyContextProps> = (props: ButtonProps & WithSurveyContextProps) => {
     const { i18n } = useTranslation();
@@ -142,7 +138,7 @@ const Button: React.FC<ButtonProps & WithSurveyContextProps> = (props: ButtonPro
     }
 
     return (
-        <div className={props.widgetConfig.align || 'center'}>
+        <div className={props.widgetConfig.align || 'center'} data-widget-id={`${props.section}-${props.shortname}`}>
             <button
                 type="button"
                 className={`survey-section__button button ${buttonColor} ${props.widgetConfig.size || 'large'} ${

@@ -6,12 +6,8 @@
  */
 import * as React from 'react';
 import GeoJSON from 'geojson';
-import type { CliUser } from 'chaire-lib-common/lib/services/user/userType';
-import type {
-    InfoMapWidgetConfig,
-    UserInterviewAttributes,
-    WidgetStatus
-} from 'evolution-common/lib/services/questionnaire/types';
+import type { InfoMapWidgetConfig } from 'evolution-common/lib/services/questionnaire/types';
+import type { CommonWidgetProps } from '../../survey/commonWidgetProps';
 
 export type FeatureGeocodedProperties = {
     lastAction?: string;
@@ -102,12 +98,8 @@ export type GeocodeMultipleOptions = {
  * in (`widgetConfig.geojsons`) is already standard GeoJSON, so the adapter
  * only needs to translate it to its own render primitives.
  */
-export type InfoMapProps = {
+export type InfoMapProps = CommonWidgetProps & {
     widgetConfig: InfoMapWidgetConfig;
-    widgetStatus: WidgetStatus;
-    interview: UserInterviewAttributes;
-    user?: CliUser;
-    path: string;
 };
 
 /**

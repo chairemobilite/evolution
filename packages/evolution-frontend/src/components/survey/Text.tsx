@@ -11,18 +11,14 @@ import remarkGfm from 'remark-gfm';
 
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { translateString } from 'evolution-common/lib/utils/helpers';
-import { WidgetStatus } from 'evolution-common/lib/services/questionnaire/types';
 import { TextWidgetConfig } from 'evolution-common/lib/services/questionnaire/types';
-import { UserInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { stripUnsafeHtml } from '../../services/display/frontendHelper';
+import { CommonWidgetProps } from './commonWidgetProps';
 
-type TextProps = {
+type TextProps = CommonWidgetProps & {
     widgetConfig: TextWidgetConfig;
-    interview: UserInterviewAttributes;
     user: CliUser;
-    widgetStatus: WidgetStatus;
-    path: string;
 };
 
 export const Text: React.FunctionComponent<TextProps & WithTranslation> = ({
@@ -31,7 +27,9 @@ export const Text: React.FunctionComponent<TextProps & WithTranslation> = ({
     i18n,
     interview,
     path,
-    user
+    user,
+    section,
+    shortname
 }) => {
     if (!widgetStatus.isVisible) {
         return null;
@@ -43,7 +41,7 @@ export const Text: React.FunctionComponent<TextProps & WithTranslation> = ({
     }
 
     return (
-        <div className="survey-section__text">
+        <div className="survey-section__text" data-widget-id={`${section}-${shortname}`}>
             {widgetConfig.containsHtml && (
                 <div dangerouslySetInnerHTML={{ __html: stripUnsafeHtml(content as string) }} />
             )}

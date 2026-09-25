@@ -139,17 +139,14 @@ const SingleWidget: React.FC<SingleWidgetProps & InterviewUpdateCallbacks> = (
         widgetStatus.errorMessage = widgetStatus.errorMessage || serverErrorMessage;
     }
 
-    const widgetProps: any = {
-        // TODO: type default props
-        path: path,
-        customPath: customPath,
-        key: path,
+    const widgetProps = {
+        path,
+        customPath,
+        section: props.sectionName,
         shortname: widgetShortname,
         loadingState: props.loadingState,
         groupedObjectId: props.groupedObjectId,
-        widgetConfig: widgetConfig,
-        widgetStatus: widgetStatus,
-        section: props.sectionName,
+        widgetStatus,
         interview: props.interview,
         user: props.user,
         startUpdateInterview: props.startUpdateInterview,
@@ -160,11 +157,11 @@ const SingleWidget: React.FC<SingleWidgetProps & InterviewUpdateCallbacks> = (
 
     switch (widgetConfig.type) {
     case 'text':
-        return <Text {...widgetProps} />;
+        return <Text key={path} {...widgetProps} widgetConfig={widgetConfig} />;
     case 'infoMap':
-        return <InfoMap {...widgetProps} />;
+        return <InfoMap key={path} {...widgetProps} widgetConfig={widgetConfig} />;
     case 'button':
-        return <Button {...widgetProps} />;
+        return <Button key={path} {...widgetProps} widgetConfig={widgetConfig} />;
     case 'question': {
         // check for joined widgets:
         const nextWidgetConfig = props.nextWidgetShortname
@@ -174,21 +171,25 @@ const SingleWidget: React.FC<SingleWidgetProps & InterviewUpdateCallbacks> = (
         // `widgets` outside a group, but `groups.<shortname>.<id>` inside a group
         // (otherwise widgets within a group are never joined, see issue #1621).
         const nextWidgetStatus = nextWidgetConfig
-            ? (_get(props.interview, `${props.widgetStatusPath}.${props.nextWidgetShortname}`, {}) as any)
+            ? (_get(props.interview, `${props.widgetStatusPath}.${props.nextWidgetShortname}`, {}) as WidgetStatus)
             : undefined;
+        const nextWidgetJoinsThisOne =
+                nextWidgetConfig !== undefined &&
+                'joinWith' in nextWidgetConfig &&
+                nextWidgetConfig.joinWith === widgetShortname;
         const join =
-                nextWidgetStatus &&
-                ((nextWidgetConfig.joinWith === widgetShortname && nextWidgetStatus.isVisible) ||
+                nextWidgetStatus !== undefined &&
+                ((nextWidgetJoinsThisOne && nextWidgetStatus.isVisible) ||
                     (widgetConfig.joinWith === props.nextWidgetShortname && nextWidgetStatus.isVisible));
-        widgetProps.join = join;
-        return <Question {...widgetProps} />;
+        return <Question key={path} {...widgetProps} widgetConfig={widgetConfig} join={join} />;
     }
     case 'group':
         return (
             <Group
+                key={path}
                 {...widgetProps}
+                widgetConfig={widgetConfig}
                 parentObjectIds={props.parentObjectIds}
-                shortname={widgetShortname}
                 errors={props.errors}
             />
         );

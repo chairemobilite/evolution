@@ -30,29 +30,19 @@ import InputSelectFeature from '../inputs/InputSelectFeature';
 import Modal from 'react-modal';
 import { checkValidations } from '../../actions/utils';
 import { withSurveyContext, WithSurveyContextProps } from '../hoc/WithSurveyContextHoc';
-import {
-    isWidgetModal,
-    StartUpdateInterview,
-    UserAction,
-    UserInterviewAttributes
-} from 'evolution-common/lib/services/questionnaire/types';
+import { isWidgetModal, StartUpdateInterview, UserAction } from 'evolution-common/lib/services/questionnaire/types';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { QuestionWidgetConfig, isInputTypeWithArrayValue } from 'evolution-common/lib/services/questionnaire/types';
-import { WidgetStatus } from 'evolution-common/lib/services/questionnaire/types';
 import InputWidgetWrapper from './widgets/InputWidgetWrapper';
+import { CommonWidgetProps } from './commonWidgetProps';
 
-interface QuestionProps {
-    path: string;
-    customPath?: string;
-    section: string;
+type QuestionProps = CommonWidgetProps & {
     loadingState: number;
     widgetConfig: QuestionWidgetConfig;
     join?: boolean;
-    interview: UserInterviewAttributes;
     user: CliUser;
-    widgetStatus: WidgetStatus;
     startUpdateInterview: StartUpdateInterview;
-}
+};
 
 // Make sure Modal knows what DOM element is the app container. Available examples in the package documentation all put this line outside the component.
 if (!process.env.IS_TESTING) {
@@ -347,6 +337,7 @@ export class Question extends React.Component<QuestionProps & WithSurveyContextP
             <div
                 key={'content_' + this.props.path}
                 style={{ position: 'relative' }}
+                data-widget-id={`${this.props.section}-${this.props.shortname}`}
                 className={`apptr__form-container${this.props.join ? ' apptr__form-join-next' : ''}${
                     twoColumns ? ' two-columns' : ''
                 }${widgetStatus.isDisabled || disabled ? ' disabled' : ''} question-type-${inputType}${
