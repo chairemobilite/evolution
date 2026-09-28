@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased (0.6.5)]
+## [Unreleased (0.6.6)]
 
 ### Added
 
@@ -20,6 +20,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Security
 
 ### Dependency updates
+
+
+## [0.6.5] - 2026-09-28
+
+### Added
+
+- Audits: new audit checks: `HM_W_PreAddressAndHomeAddressEdited` ([#1976](https://github.com/chairemobilite/evolution/issues/1976)), `VP_W_ActivityLessThan30MinDurationPossibleMismatch` ([#1978](https://github.com/chairemobilite/evolution/issues/1978)), `J_W_DepartureOfDayNotHomeOrCompatibleActivity`, `J_W_ArrivalOfDayNotHomeOrCompatibleActivity`, `J_W_SchoolActivityAtStartOfJourney` and `J_W_SchoolActivityAtEndOfJourney` ([#1981](https://github.com/chairemobilite/evolution/issues/1981))
+- Audits: Segment: add a `stations` array for start, transfer and end stations, and display it in the Person panel (fixes [#1989](https://github.com/chairemobilite/evolution/issues/1989))
+- Map widgets: configure the minimum zoom level for manual placement; defaults to 15. Can be overridden by setting the `minManualPlacementZoom` configuration property.
+- Paradata: add `mapAction` and `mapZoom` columns to exported logs (fixes [#1374](https://github.com/chairemobilite/evolution/issues/1374))
+- Generator: add `SurveyDefinition` and `SectionDefinition` models to validate the Sections sheet with Pydantic ([e50a1386](https://github.com/chairemobilite/evolution/commit/e50a1386825d6bfe303796ce5ea7c87c7f99718d))
+
+### Changed
+
+- Admin: block interview approval only when a _parent_ object is rejected (fixes [#2055](https://github.com/chairemobilite/evolution/issues/2055))
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+- Fix missing i18n labels (fixes [#2057](https://github.com/chairemobilite/evolution/issues/2057))
+
+### Security
+
+### Dependency updates
+
+- Generator: add Pydantic 2.13.5
 
 ## [0.6.4] - 2026-09-22
 
