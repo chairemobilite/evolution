@@ -2,16 +2,13 @@
 # This file is licensed under the MIT License.
 # License text available at https://opensource.org/licenses/MIT
 
-# Note: The Conditionals table of the survey definition: ConditionalDefinition, one
-# Pydantic model per row, validated on construction (types, allowed values, per-field
-# checks); and Conditionals, the whole checked table, whose validation also runs the
-# rules that depend on grouping rows by conditional_name (several rows together make
-# one conditional's logical expression): balanced parentheses, only the first row of a
-# group may omit logical_operator, and value_when_hidden must agree within a group.
+# Note: The Conditionals table of the survey definition. Several rows share one
+# conditional_name: together they are that conditional's logical expression, so
+# Conditionals checks those rows as a group (balanced parentheses, only the first row
+# may omit logical_operator, value_when_hidden must agree).
 #
-# This module only defines the shape and the checks; it does not read any input source
-# or generate TypeScript. See survey_definition.py for the bundle of all tables, and
-# scripts/conditionals_generator.py for TypeScript generation from a built Conditionals.
+# This module only defines the shape and the checks. See survey_definition.py for the
+# bundle of all tables, and scripts/conditionals_generator.py for TypeScript generation.
 
 from collections.abc import Iterator
 from typing import Literal, Self
@@ -29,8 +26,9 @@ from survey_definition import field_checks
 from survey_definition.row_checks import _raise_if_check_fails, _strip_blanks
 from survey_definition.sheet_checks import collect_sheet_issues
 
-# Field names the Conditionals source must provide, even though logical_operator,
-# parentheses and value_when_hidden may be blank on a given row.
+# Field names the Conditionals source must provide, even though logical_operator and
+# parentheses may be blank on a given row. value_when_hidden is left out: unlike those
+# two, its column doesn't need to exist at all in a sheet that never overrides it.
 CONDITIONAL_REQUIRED_FIELD_NAMES: tuple[str, ...] = (
     "conditional_name",
     "logical_operator",
@@ -38,7 +36,6 @@ CONDITIONAL_REQUIRED_FIELD_NAMES: tuple[str, ...] = (
     "comparison_operator",
     "value",
     "parentheses",
-    "value_when_hidden",
 )
 
 # Tokens a path may expand to (see ConditionalsGenerator.CONDITIONALS_CURRENT_CONTEXT_SPECS,
@@ -59,9 +56,9 @@ class ConditionalDefinition(BaseModel):
     One row of the Conditionals table: one term of a conditional's logical expression,
     validated on construction.
 
-    Input: one row's fields, as keyword arguments or a dict (e.g.
-        `ConditionalDefinition(**row)`, one row of the "Conditionals" sheet). A blank or
-        whitespace-only cell is treated as an absent value.
+    Input: one row's fields, e.g. `ConditionalDefinition(**row)`. A blank cell is
+        treated as an absent value.
+
     Output: a validated instance if every per-row rule passes; otherwise raises
         `pydantic.ValidationError` naming every field that failed, not just the first.
 
