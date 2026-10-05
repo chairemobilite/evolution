@@ -2,11 +2,20 @@
 # This file is licensed under the MIT License.
 # License text available at https://opensource.org/licenses/MIT
 
+import pytest  # pyright: ignore[reportMissingImports]
+from pydantic import ValidationError
+
 from helpers.generator_helpers import (
     INDENT,
+    add_mocked_excel_sheet,
+    create_mocked_excel_data,
+    delete_file_if_exists,
     generate_label_typescript_with_context,
     get_label_context_flags,
+    load_survey_definition,
 )
+
+MOCKED_EXCEL_FILE = "src/tests/references/test.xlsx"
 
 
 class TestGetLabelContextFlags:
@@ -142,3 +151,130 @@ class TestGenerateLabelTypescriptWithContext:
             in result
         )
         assert "context: activePerson?.gender," in result
+
+
+class TestLoadSurveyDefinition:
+    """Tests for load_survey_definition (builds a SurveyDefinition from the Sections and Conditionals sheets)."""
+
+    VALID_SECTIONS_HEADERS = [
+        "section",
+        "title_fr",
+        "title_en",
+        "in_nav",
+        "template",
+        "parent_section",
+        "abbreviation",
+    ]
+    VALID_SECTIONS_ROWS = [["home", "Accueil", "Home", True, "", "", "HM_"]]
+
+    VALID_CONDITIONALS_HEADERS = [
+        "conditional_name",
+        "logical_operator",
+        "path",
+        "comparison_operator",
+        "value",
+        "parentheses",
+        "value_when_hidden",
+    ]
+    VALID_CONDITIONALS_ROWS = [["cond1", "", "household.size", "===", 1, "", ""]]
+
+    def test_valid_file_returns_a_survey_definition(self):
+        workbook = create_mocked_excel_data(
+            "Sections", self.VALID_SECTIONS_HEADERS, self.VALID_SECTIONS_ROWS
+        )
+        add_mocked_excel_sheet(
+            workbook,
+            "Conditionals",
+            self.VALID_CONDITIONALS_HEADERS,
+            self.VALID_CONDITIONALS_ROWS,
+        )
+        try:
+            survey_definition = load_survey_definition(MOCKED_EXCEL_FILE)
+            assert [section.section for section in survey_definition.sections] == [
+                "home"
+            ]
+            assert [
+                conditional.conditional_name
+                for conditional in survey_definition.conditionals
+            ] == ["cond1"]
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+    def test_conditionals_sheet_without_value_when_hidden_column_is_valid(self):
+        """value_when_hidden is optional: its column doesn't need to exist at all."""
+        workbook = create_mocked_excel_data(
+            "Sections", self.VALID_SECTIONS_HEADERS, self.VALID_SECTIONS_ROWS
+        )
+        add_mocked_excel_sheet(
+            workbook,
+            "Conditionals",
+            self.VALID_CONDITIONALS_HEADERS[:-1],  # drop value_when_hidden
+            [row[:-1] for row in self.VALID_CONDITIONALS_ROWS],
+        )
+        try:
+            survey_definition = load_survey_definition(MOCKED_EXCEL_FILE)
+            assert survey_definition.conditionals[0].value_when_hidden is None
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+    def test_missing_sections_sheet_raises(self):
+        create_mocked_excel_data(
+            "OtherSheet",
+            self.VALID_SECTIONS_HEADERS,
+            self.VALID_SECTIONS_ROWS,
+        )
+        try:
+            with pytest.raises(
+                Exception, match="Sheet with name Sections does not exist"
+            ):
+                load_survey_definition(MOCKED_EXCEL_FILE)
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+    def test_missing_conditionals_sheet_raises(self):
+        create_mocked_excel_data(
+            "Sections",
+            self.VALID_SECTIONS_HEADERS,
+            self.VALID_SECTIONS_ROWS,
+        )
+        try:
+            with pytest.raises(
+                Exception, match="Sheet with name Conditionals does not exist"
+            ):
+                load_survey_definition(MOCKED_EXCEL_FILE)
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+    def test_invalid_sections_row_raises_validation_error(self):
+        workbook = create_mocked_excel_data(
+            "Sections",
+            self.VALID_SECTIONS_HEADERS,
+            [[None, "Accueil", "Home", True, "", "", "HM_"]],
+        )
+        add_mocked_excel_sheet(
+            workbook,
+            "Conditionals",
+            self.VALID_CONDITIONALS_HEADERS,
+            self.VALID_CONDITIONALS_ROWS,
+        )
+        try:
+            with pytest.raises(ValidationError):
+                load_survey_definition(MOCKED_EXCEL_FILE)
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+    def test_invalid_conditionals_row_raises_validation_error(self):
+        workbook = create_mocked_excel_data(
+            "Sections", self.VALID_SECTIONS_HEADERS, self.VALID_SECTIONS_ROWS
+        )
+        add_mocked_excel_sheet(
+            workbook,
+            "Conditionals",
+            self.VALID_CONDITIONALS_HEADERS,
+            [[None, "", "household.size", "===", 1, "", ""]],
+        )
+        try:
+            with pytest.raises(ValidationError):
+                load_survey_definition(MOCKED_EXCEL_FILE)
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)

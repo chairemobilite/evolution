@@ -9,6 +9,10 @@ import openpyxl  # Read data from Excel
 from openpyxl import Workbook  # Read data from Excel, File system operations
 from typing import List, Optional, Tuple, Union  # Types for Python
 
+from survey_definition.conditionals_definition import CONDITIONAL_REQUIRED_FIELD_NAMES
+from survey_definition.sections_definition import SECTION_REQUIRED_FIELD_NAMES
+from survey_definition.survey_definition import SurveyDefinition
+
 # Define constants
 MOCKER_EXCEL_FILE = "src/tests/references/test.xlsx"
 INDENT = "    "  # 4-space indentation
@@ -129,6 +133,17 @@ def generate_output_file(ts_code: str, output_file: str):
         raise e
 
 
+def _escape_formula_looking_values(workbook: Workbook) -> None:
+    """Force string type for cell values that start with "=" (e.g. "===", "!=="), so they
+    are stored as text, not formulas, and are read back correctly with data_only=True.
+    """
+    for sheet in workbook.worksheets:
+        for row in sheet.iter_rows(min_row=1, max_row=sheet.max_row):
+            for cell in row:
+                if isinstance(cell.value, str) and cell.value.startswith("="):
+                    cell.data_type = "s"
+
+
 # Create mocked Excel data for testing
 def create_mocked_excel_data(
     sheet_name: str, headers: List[str], rows_data: List[List[Union[str, int, float]]]
@@ -143,11 +158,7 @@ def create_mocked_excel_data(
 
     Returns:
         The openpyxl Workbook (after save). The file is written to MOCKER_EXCEL_FILE.
-
-    Note:
-        Values that start with "=" (e.g. "===", "!==") are forced to string type so they
-        are not stored as formulas and are read back correctly when the file is loaded
-        with data_only=True.
+        Add another sheet to it with add_mocked_excel_sheet.
     """
     workbook: Workbook = openpyxl.Workbook()  # Create a workbook
     sheet = workbook.active  # Get the active sheet
@@ -160,19 +171,36 @@ def create_mocked_excel_data(
     for row_data in rows_data:
         sheet.append(row_data)  # Add row data
 
-    # Force string type for values that start with "=" so they are not stored as formulas
-    # (e.g. comparison_operator "===" or "!==" must be read back as text, not formula).
-    for row_idx, row in enumerate(
-        sheet.iter_rows(min_row=1, max_row=sheet.max_row), start=1
-    ):
-        for cell in row:
-            if isinstance(cell.value, str) and cell.value.startswith("="):
-                cell.data_type = "s"
+    _escape_formula_looking_values(workbook)
 
     # Create the excel file
     workbook.save(MOCKER_EXCEL_FILE)
 
     # Return the workbook
+    return workbook
+
+
+def add_mocked_excel_sheet(
+    workbook: Workbook,
+    sheet_name: str,
+    headers: List[str],
+    rows_data: List[List[Union[str, int, float]]],
+) -> Workbook:
+    """
+    Add another sheet to a workbook built by create_mocked_excel_data and re-save it
+    (e.g. a valid "Sections" sheet alongside "Conditionals", for a check that reads
+    more than one sheet).
+
+    Returns: the same Workbook, for chaining.
+    """
+    sheet = workbook.create_sheet(sheet_name)
+    sheet.append(headers)
+    for row_data in rows_data:
+        sheet.append(row_data)
+
+    _escape_formula_looking_values(workbook)
+    workbook.save(MOCKER_EXCEL_FILE)
+
     return workbook
 
 
@@ -221,10 +249,6 @@ def get_headers(sheet, expected_headers: List[str], sheet_name: str) -> List[str
     # Get headers from the first row
     current_headers = [cell.value for cell in list(sheet.rows)[0]]
 
-    # Check if the right numbers of headers
-    if len(current_headers) < len(expected_headers):
-        raise Exception(f"Too few columns in {sheet_name} sheet")
-
     # Check if the headers are valid
     for expected in expected_headers:
         if not expected in current_headers:
@@ -233,6 +257,42 @@ def get_headers(sheet, expected_headers: List[str], sheet_name: str) -> List[str
             )
 
     return current_headers
+
+
+def _read_sheet_rows(
+    workbook: Workbook, sheet_name: str, expected_headers
+) -> List[dict]:
+    """Read every data row of `sheet_name` (row 1 is the header) as a dict keyed by its headers."""
+    sheet_exists(workbook, sheet_name)
+    sheet = workbook[sheet_name]
+    headers = get_headers(
+        sheet, expected_headers=expected_headers, sheet_name=sheet_name
+    )
+    return [
+        dict(zip(headers, get_values_from_row(row, headers), strict=True))
+        for row in list(sheet.rows)[1:]
+    ]
+
+
+def load_survey_definition(excel_file_path: str) -> SurveyDefinition:
+    """
+    Build a SurveyDefinition from an Excel file's Sections and Conditionals sheets.
+
+    Raises on the same problems as get_data_from_excel/get_headers (invalid file,
+    missing sheet, missing/too few headers), and `pydantic.ValidationError` when a
+    sheet's rows don't pass its table's own checks (see sections_definition.py,
+    conditionals_definition.py). The returned instance is already validated; callers
+    don't need to check it again.
+    """
+    is_excel_file(excel_file_path)
+    workbook = get_workbook(excel_file_path)
+
+    return SurveyDefinition(
+        sections=_read_sheet_rows(workbook, "Sections", SECTION_REQUIRED_FIELD_NAMES),
+        conditionals=_read_sheet_rows(
+            workbook, "Conditionals", CONDITIONAL_REQUIRED_FIELD_NAMES
+        ),
+    )
 
 
 # Function to clean text of markdown characters
