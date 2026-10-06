@@ -6,7 +6,7 @@
  */
 
 import { v4 as uuidV4 } from 'uuid';
-import { homeAuditChecks, MAX_DISTANCE_PRE_AND_GEOGRAPHY_ERROR, MIN_DISTANCE_PRE_AND_GEOGRAPHY_WARNING } from '../../HomeAuditChecks';
+import { homeAuditChecks, MAX_DISTANCE_PRE_AND_GEOGRAPHY_ERROR } from '../../HomeAuditChecks';
 import { createContextWithHome } from './testHelper';
 
 jest.mock('@turf/distance', () => ({
@@ -15,7 +15,7 @@ jest.mock('@turf/distance', () => ({
 
 import { distance as turfDistance } from '@turf/distance';
 
-describe('HM_W_preGeographyAndHomeGeographyTooFarApart audit check', () => {
+describe('HM_I_PreGeographyAndHomeGeographyTooFarApartError audit check', () => {
     const validUuid = uuidV4();
 
     beforeEach(() => {
@@ -56,55 +56,16 @@ describe('HM_W_preGeographyAndHomeGeographyTooFarApart audit check', () => {
                 validUuid
             );
 
-            const result = homeAuditChecks.HM_W_preGeographyAndHomeGeographyTooFarApart(context);
+            const result = homeAuditChecks.HM_I_PreGeographyAndHomeGeographyTooFarApartError(context);
 
             expect(result).toBeUndefined();
         });
     });
 
-    describe(`should pass when distance is < ${MIN_DISTANCE_PRE_AND_GEOGRAPHY_WARNING} meters or >= ${MAX_DISTANCE_PRE_AND_GEOGRAPHY_ERROR} meters`, () => {
+    describe('should pass when distance is < threshold', () => {
         it.each([
             {
-                name: `distance < ${MIN_DISTANCE_PRE_AND_GEOGRAPHY_WARNING} meters (exactly ${MIN_DISTANCE_PRE_AND_GEOGRAPHY_WARNING - 1} meters)`,
-                distance: MIN_DISTANCE_PRE_AND_GEOGRAPHY_WARNING - 1
-            },
-            {
-                name: `distance >= ${MAX_DISTANCE_PRE_AND_GEOGRAPHY_ERROR} meters (exactly ${MAX_DISTANCE_PRE_AND_GEOGRAPHY_ERROR} meters)`,
-                distance: MAX_DISTANCE_PRE_AND_GEOGRAPHY_ERROR
-            }
-        ])('$name', ({ distance }) => {
-            (turfDistance as jest.Mock).mockReturnValue(distance);
-
-            const context = createContextWithHome(
-                {
-                    preGeography: {
-                        type: 'Feature' as const,
-                        properties: {},
-                        geometry: { type: 'Point' as const, coordinates: [-73.5, 45.5] }
-                    },
-                    geography: {
-                        type: 'Feature' as const,
-                        properties: {},
-                        geometry: { type: 'Point' as const, coordinates: [-73.5, 45.5] }
-                    }
-                },
-                validUuid
-            );
-
-            const result = homeAuditChecks.HM_W_preGeographyAndHomeGeographyTooFarApart(context);
-
-            expect(result).toBeUndefined();
-        });
-    });
-
-    describe(`should warn when distance is >= ${MIN_DISTANCE_PRE_AND_GEOGRAPHY_WARNING} and < ${MAX_DISTANCE_PRE_AND_GEOGRAPHY_ERROR} meters`, () => {
-        it.each([
-            {
-                name: `distance exactly ${MIN_DISTANCE_PRE_AND_GEOGRAPHY_WARNING} meters`,
-                distance: MIN_DISTANCE_PRE_AND_GEOGRAPHY_WARNING
-            },
-            {
-                name: `distance exactly ${MAX_DISTANCE_PRE_AND_GEOGRAPHY_ERROR - 1} meters`,
+                name: `distance < ${MAX_DISTANCE_PRE_AND_GEOGRAPHY_ERROR} meters (exactly ${MAX_DISTANCE_PRE_AND_GEOGRAPHY_ERROR - 1} meters)`,
                 distance: MAX_DISTANCE_PRE_AND_GEOGRAPHY_ERROR - 1
             }
         ])('$name', ({ distance }) => {
@@ -126,14 +87,50 @@ describe('HM_W_preGeographyAndHomeGeographyTooFarApart audit check', () => {
                 validUuid
             );
 
-            const result = homeAuditChecks.HM_W_preGeographyAndHomeGeographyTooFarApart(context);
+            const result = homeAuditChecks.HM_I_PreGeographyAndHomeGeographyTooFarApartError(context);
+
+            expect(result).toBeUndefined();
+        });
+    });
+
+    describe(`should error when distance is >= ${MAX_DISTANCE_PRE_AND_GEOGRAPHY_ERROR} meters`, () => {
+        it.each([
+            {
+                name: `distance exactly ${MAX_DISTANCE_PRE_AND_GEOGRAPHY_ERROR} meters`,
+                distance: MAX_DISTANCE_PRE_AND_GEOGRAPHY_ERROR // Mocked: 200 meters
+            },
+            {
+                name: `distance > ${MAX_DISTANCE_PRE_AND_GEOGRAPHY_ERROR} meters (exactly ${MAX_DISTANCE_PRE_AND_GEOGRAPHY_ERROR + 1} meters)`,
+                distance: MAX_DISTANCE_PRE_AND_GEOGRAPHY_ERROR + 1 // Mocked: 201 meters
+            }
+        ])('$name', ({ distance }) => {
+            (turfDistance as jest.Mock).mockReturnValue(distance);
+
+            const context = createContextWithHome(
+                {
+                    preGeography: {
+                        type: 'Feature' as const,
+                        properties: {},
+                        geometry: { type: 'Point' as const, coordinates: [-73.5, 45.5] }
+                    },
+                    geography: {
+                        type: 'Feature' as const,
+                        properties: {},
+                        geometry: { type: 'Point' as const, coordinates: [-73.5, 45.5] }
+                    }
+                },
+                validUuid
+            );
+
+            const result = homeAuditChecks.HM_I_PreGeographyAndHomeGeographyTooFarApartError(context);
 
             expect(result).toMatchObject({
                 objectType: 'home',
                 objectUuid: validUuid,
-                errorCode: 'HM_W_preGeographyAndHomeGeographyTooFarApart',
-                level: 'warning',
-                message: 'Pre-filled and declared home geography are a bit far apart',
+                errorCode: 'HM_I_PreGeographyAndHomeGeographyTooFarApartError',
+                version: 1,
+                level: 'error',
+                message: 'Pre-filled and declared home geography are far apart',
                 ignore: false
             });
         });

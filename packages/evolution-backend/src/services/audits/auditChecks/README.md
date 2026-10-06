@@ -108,13 +108,13 @@ All contexts are defined in [`./AuditCheckContexts.ts`](./AuditCheckContexts.ts)
 
 > **TODO:** The prefixes below mix audit *type* (missing, invalid, logical) with *severity* (info, warning). This is historical (`M`/`I`/`L` from 2023; `W` and `F` were added later). A cleaner split is tracked in [#1771](https://github.com/chairemobilite/evolution/issues/1771).
 
-Follow the existing prefix convention (see the checks folder README):
+Follow the existing prefix convention (see the checks folder README). The description after the type prefix starts with a capital letter.
 
 - `_M_` — **Missing** required data (`HH_M_Size`).
 - `_I_` — **Invalid** data (`HH_I_Size` — out of range, malformed, wrong type).
 - `_L_` — **Logical** inconsistency between fields or objects (`HH_L_SizeMembersCountMismatch`).
 - `_F_` — **Info** — informational flag, not an error or warning (`HH_F_AtLeastOneTransitSegmentInHousehold`).
-- `_W_` — **Warning** — suspicious data that may be fine but needs reviewer attention (`HH_W_CarNumberPerPotentialDrivingLicenseTooHigh`, `HM_W_preGeographyAndHomeGeographyTooFarApart`).
+- `_W_` — **Warning** — suspicious data that may be fine but needs reviewer attention (`HH_W_CarNumberPerPotentialDrivingLicenseTooHigh`, `HM_W_PreGeographyAndHomeGeographyTooFarApart`).
 
 Pick `_M_` only if the field should always be present. If "required" depends on survey configuration, use `fieldIsRequired(...)` (see §5.1) and still prefix with `_M_`.
 
@@ -195,13 +195,13 @@ import * as turf from '@turf/turf';
 
 const surveyArea = getSurveyArea(); // cached, reads projectConfig.surveyAreaGeojsonPath
 if (surveyArea && !turf.booleanPointInPolygon(point, surveyArea)) {
-    return { /* ... HM_I_geographyNotInSurveyTerritory ... */ };
+    return { /* ... HM_I_GeographyNotInSurveyTerritory ... */ };
 }
 ```
 
 If no survey area is configured, `getSurveyArea()` returns `undefined`. Your check must no-op in that case (do not fail the audit because the survey did not configure territorial validation).
 
-See the live example at `HomeAuditChecks.ts` → `HM_I_geographyNotInSurveyTerritory`.
+See the live example at `HomeAuditChecks.ts` → `HM_I_GeographyNotInSurveyTerritory`.
 
 ### 5.3 Survey dates
 
