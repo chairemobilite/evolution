@@ -9,7 +9,7 @@ import { v4 as uuidV4 } from 'uuid';
 import { homeAuditChecks } from '../../HomeAuditChecks';
 import { createContextWithHome } from './testHelper';
 
-describe('HM_I_preGeographyAndHomeGeographyTooFarApartError audit check - Integration tests with real turfDistance', () => {
+describe('HM_I_PreGeographyAndHomeGeographyTooFarApartError audit check - Integration tests with real turfDistance', () => {
     const validUuid = uuidV4();
 
     it('should error when coordinates are far apart (Montreal to Quebec City, ~250km)', () => {
@@ -29,11 +29,11 @@ describe('HM_I_preGeographyAndHomeGeographyTooFarApartError audit check - Integr
             validUuid
         );
 
-        const result = homeAuditChecks.HM_I_preGeographyAndHomeGeographyTooFarApartError(context);
+        const result = homeAuditChecks.HM_I_PreGeographyAndHomeGeographyTooFarApartError(context);
 
         expect(result).toBeDefined();
         expect(result).toMatchObject({
-            errorCode: 'HM_I_preGeographyAndHomeGeographyTooFarApartError',
+            errorCode: 'HM_I_PreGeographyAndHomeGeographyTooFarApartError',
             level: 'error',
             objectType: 'home',
             objectUuid: validUuid
@@ -57,7 +57,7 @@ describe('HM_I_preGeographyAndHomeGeographyTooFarApartError audit check - Integr
             validUuid
         );
 
-        const result = homeAuditChecks.HM_I_preGeographyAndHomeGeographyTooFarApartError(context);
+        const result = homeAuditChecks.HM_I_PreGeographyAndHomeGeographyTooFarApartError(context);
 
         expect(result).toBeUndefined();
     });
