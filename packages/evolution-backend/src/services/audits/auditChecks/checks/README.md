@@ -8,6 +8,8 @@ This directory contains the actual audit check functions organized by survey obj
 
 All audit check functions follow the pattern: `[OBJECTPREFIX]_[AUDITCHECKTYPE]_[Description]`
 
+The audit description (after the prefixes) always starts with a capital lette: `T_W_SpeedNotInRange`, not `T_W_speedNotInRange`.
+
 ### Survey Object Prefixes
 - `I` - Interview
 - `HH` - Household  

@@ -304,18 +304,18 @@ export const interviewAuditChecks: { [errorCode: string]: InterviewAuditCheckFun
         return undefined;
     },
 
-    I_F_loginMethodIsEmail: loginMethodInfoAudit('email', 'I_F_loginMethodIsEmail', 'Login method is email'),
-    I_F_loginMethodIsAnonymous: loginMethodInfoAudit(
+    I_F_LoginMethodIsEmail: loginMethodInfoAudit('email', 'I_F_LoginMethodIsEmail', 'Login method is email'),
+    I_F_LoginMethodIsAnonymous: loginMethodInfoAudit(
         'anonymous',
-        'I_F_loginMethodIsAnonymous',
+        'I_F_LoginMethodIsAnonymous',
         'Login method is anonymous'
     ),
-    I_F_loginMethodIsGoogle: loginMethodInfoAudit('google', 'I_F_loginMethodIsGoogle', 'Login method is Google'),
-    I_F_loginMethodIsInterviewer: loginMethodInfoAudit(
+    I_F_LoginMethodIsGoogle: loginMethodInfoAudit('google', 'I_F_LoginMethodIsGoogle', 'Login method is Google'),
+    I_F_LoginMethodIsInterviewer: loginMethodInfoAudit(
         'interviewer',
-        'I_F_loginMethodIsInterviewer',
+        'I_F_LoginMethodIsInterviewer',
         'The interview was started by an interviewer'
     ),
-    I_F_loginMethodIsByField: loginMethodInfoAudit('byField', 'I_F_loginMethodIsByField', 'Login method is by field'),
-    I_F_loginMethodIsUnknown: loginMethodInfoAudit('unknown', 'I_F_loginMethodIsUnknown', 'Login method is unknown')
+    I_F_LoginMethodIsByField: loginMethodInfoAudit('byField', 'I_F_LoginMethodIsByField', 'Login method is by field'),
+    I_F_LoginMethodIsUnknown: loginMethodInfoAudit('unknown', 'I_F_LoginMethodIsUnknown', 'Login method is unknown')
 };

@@ -78,7 +78,7 @@ export const homeAuditChecks: { [errorCode: string]: HomeAuditCheckFunction } = 
      * @param context - HomeAuditCheckContext
      * @returns AuditForObject
      */
-    HM_I_preGeographyAndHomeGeographyTooFarApartError: (context: HomeAuditCheckContext): AuditForObject | undefined => {
+    HM_I_PreGeographyAndHomeGeographyTooFarApartError: (context: HomeAuditCheckContext): AuditForObject | undefined => {
         const home = context.home;
         const preGeography = home.preGeography;
         const geography = home.geography;
@@ -92,7 +92,7 @@ export const homeAuditChecks: { [errorCode: string]: HomeAuditCheckFunction } = 
                 return {
                     objectType: 'home',
                     objectUuid: home._uuid!,
-                    errorCode: 'HM_I_preGeographyAndHomeGeographyTooFarApartError',
+                    errorCode: 'HM_I_PreGeographyAndHomeGeographyTooFarApartError',
                     version: 1,
                     level: 'error',
                     message: 'Pre-filled and declared home geography are far apart',
@@ -105,11 +105,11 @@ export const homeAuditChecks: { [errorCode: string]: HomeAuditCheckFunction } = 
 
     /**
      * Check if home has a preGeography and home geography are more than MIN_DISTANCE_PRE_AND_GEOGRAPHY_WARNING meters apart but less than MAX_DISTANCE_PRE_AND_GEOGRAPHY_ERROR meters apart
-     * See HM_I_preGeographyAndHomeGeographyTooFarApartError for more than MAX_DISTANCE_PRE_AND_GEOGRAPHY_ERROR meters apart
+     * See HM_I_PreGeographyAndHomeGeographyTooFarApartError for more than MAX_DISTANCE_PRE_AND_GEOGRAPHY_ERROR meters apart
      * @param context - HomeAuditCheckContext
      * @returns AuditForObject
      */
-    HM_W_preGeographyAndHomeGeographyTooFarApart: (context: HomeAuditCheckContext): AuditForObject | undefined => {
+    HM_W_PreGeographyAndHomeGeographyTooFarApart: (context: HomeAuditCheckContext): AuditForObject | undefined => {
         const home = context.home;
         const preGeography = home.preGeography;
         const geography = home.geography;
@@ -123,7 +123,7 @@ export const homeAuditChecks: { [errorCode: string]: HomeAuditCheckFunction } = 
                 return {
                     objectType: 'home',
                     objectUuid: home._uuid!,
-                    errorCode: 'HM_W_preGeographyAndHomeGeographyTooFarApart',
+                    errorCode: 'HM_W_PreGeographyAndHomeGeographyTooFarApart',
                     version: 1,
                     level: 'warning',
                     message: 'Pre-filled and declared home geography are a bit far apart',
@@ -139,7 +139,7 @@ export const homeAuditChecks: { [errorCode: string]: HomeAuditCheckFunction } = 
      * @param context - HomeAuditCheckContext
      * @returns AuditForObject
      */
-    HM_I_geographyNotInSurveyTerritory: (context: HomeAuditCheckContext): AuditForObject | undefined => {
+    HM_I_GeographyNotInSurveyTerritory: (context: HomeAuditCheckContext): AuditForObject | undefined => {
         const { home } = context;
         const geography = home.geography;
 
@@ -149,7 +149,7 @@ export const homeAuditChecks: { [errorCode: string]: HomeAuditCheckFunction } = 
                 return {
                     objectType: 'home',
                     objectUuid: home._uuid!,
-                    errorCode: 'HM_I_geographyNotInSurveyTerritory',
+                    errorCode: 'HM_I_GeographyNotInSurveyTerritory',
                     version: 1, // Start with version 1 for the new infrastructure
                     level: 'error',
                     message: 'Home geography is outside of the survey territory',
