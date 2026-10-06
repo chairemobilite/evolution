@@ -16,7 +16,7 @@ jest.mock('../../../../../../utils/surveyArea', () => ({
 
 const mockGetSurveyArea = surveyArea.getSurveyArea as jest.Mock;
 
-describe('HM_I_geographyNotInSurveyTerritory audit check', () => {
+describe('HM_I_GeographyNotInSurveyTerritory audit check', () => {
     const validUuid = uuidV4();
     const surveyArea: GeoJSON.Feature<GeoJSON.Polygon> = {
         type: 'Feature',
@@ -52,7 +52,7 @@ describe('HM_I_geographyNotInSurveyTerritory audit check', () => {
             }
         });
 
-        const result = homeAuditChecks.HM_I_geographyNotInSurveyTerritory(context);
+        const result = homeAuditChecks.HM_I_GeographyNotInSurveyTerritory(context);
 
         expect(result).toBeUndefined();
     });
@@ -70,12 +70,12 @@ describe('HM_I_geographyNotInSurveyTerritory audit check', () => {
             }
         }, validUuid);
 
-        const result = homeAuditChecks.HM_I_geographyNotInSurveyTerritory(context);
+        const result = homeAuditChecks.HM_I_GeographyNotInSurveyTerritory(context);
 
         expect(result).toMatchObject({
             objectType: 'home',
             objectUuid: validUuid,
-            errorCode: 'HM_I_geographyNotInSurveyTerritory',
+            errorCode: 'HM_I_GeographyNotInSurveyTerritory',
             version: 1,
             level: 'error',
             message: 'Home geography is outside of the survey territory',
@@ -96,7 +96,7 @@ describe('HM_I_geographyNotInSurveyTerritory audit check', () => {
             }
         });
 
-        const result = homeAuditChecks.HM_I_geographyNotInSurveyTerritory(context);
+        const result = homeAuditChecks.HM_I_GeographyNotInSurveyTerritory(context);
 
         expect(result).toBeUndefined();
     });
@@ -105,7 +105,7 @@ describe('HM_I_geographyNotInSurveyTerritory audit check', () => {
         mockGetSurveyArea.mockReturnValue(surveyArea);
         const context = createContextWithHome({ geography: undefined });
 
-        const result = homeAuditChecks.HM_I_geographyNotInSurveyTerritory(context);
+        const result = homeAuditChecks.HM_I_GeographyNotInSurveyTerritory(context);
 
         expect(result).toBeUndefined();
     });
@@ -123,7 +123,7 @@ describe('HM_I_geographyNotInSurveyTerritory audit check', () => {
             }
         });
 
-        const result = homeAuditChecks.HM_I_geographyNotInSurveyTerritory(context);
+        const result = homeAuditChecks.HM_I_GeographyNotInSurveyTerritory(context);
 
         expect(result).toBeUndefined();
     });
