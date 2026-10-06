@@ -1,0 +1,17 @@
+{
+    "version": "0.0.1",
+    "configurations": [
+        {
+            "name": "evolution-survey",
+            "runtimeExecutable": "yarn",
+            "runtimeArgs": ["start"],
+            "port": 8080
+        },
+        {
+            "name": "evolution-admin",
+            "runtimeExecutable": "yarn",
+            "runtimeArgs": ["start:admin", "--port", "8082"],
+            "port": 8082
+        }
+    ]
+}

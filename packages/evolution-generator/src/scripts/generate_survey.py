@@ -10,6 +10,9 @@ import argparse  # For command-line arguments
 from dotenv import load_dotenv  # For environment variables
 import os  # For file operations
 import yaml  # For reading the yaml file
+from pydantic import ValidationError
+from helpers.generator_helpers import load_survey_definition
+from survey_definition.survey_definition import SurveyDefinition
 from scripts.excel_to_csv_generator import ExcelToCsvGenerator
 from scripts.generate_excel import generate_excel
 from scripts.generate_folders import generate_folders
@@ -158,11 +161,7 @@ def generate_survey(config_path, only_scripts=None):
         )
 
     # Check the integrity of the Excel file to avoid generating the survey with invalid data
-    integrity_ok = check_excel_integrity(excel_file_path)
-    if not integrity_ok:
-        raise Exception(
-            f"Excel integrity check failed for {excel_file_path}. Aborting generation."
-        )
+    survey_definition = load_survey_definition_or_raise(excel_file_path)
 
     # Copy every Excel sheet to CSV if script enabled, so changes are easier to review in git diffs.
     if enabled_copy_excel_to_csv:
@@ -300,10 +299,47 @@ def main():
     generate_survey(config_path, only_scripts=only_scripts)
 
 
+def load_survey_definition_with_messages(
+    excel_file_path: str,
+) -> tuple[SurveyDefinition | None, list[str]]:
+    """
+    Load a SurveyDefinition from the Excel file's Sections and Conditionals sheets
+    (see load_survey_definition).
+
+    Returns (survey_definition, []) when valid, or (None, messages) with
+    human-readable issues.
+    """
+    try:
+        return load_survey_definition(excel_file_path), []
+    except ValidationError as exc:
+        # Sections and Conditionals are independent fields of SurveyDefinition, so a
+        # bad sheet in each produces its own error here; collect every one of them.
+        messages: list[str] = []
+        for error in exc.errors():
+            reason = error.get("ctx", {}).get("error")
+            messages.extend(
+                str(reason).split("\n") if reason is not None else [error["msg"]]
+            )
+        return None, messages
+    except Exception as e:
+        return None, [str(e)]
+
+
+def check_excel_integrity_with_messages(excel_file_path: str) -> tuple[bool, list[str]]:
+    """
+    Check the integrity of the Excel file's Sections and Conditionals sheets. Entry
+    point for scripts and UI (see check_excel_integrity_cli.py).
+
+    Returns (True, []) when valid, or (False, messages) with human-readable issues.
+    """
+    survey_definition, messages = load_survey_definition_with_messages(excel_file_path)
+    return survey_definition is not None, messages
+
+
 # Check the integrity of the Excel file to avoid generating the survey with invalid data
 def check_excel_integrity(excel_file_path: str) -> bool:
     """Check the integrity of the Excel file. Entry point for scripts and UI."""
-    ok, messages = ConditionalsGenerator().check_with_messages(excel_file_path)
+    ok, messages = check_excel_integrity_with_messages(excel_file_path)
     if ok:
         print(f"Excel integrity check passed for {excel_file_path}")
     else:
@@ -311,6 +347,27 @@ def check_excel_integrity(excel_file_path: str) -> bool:
         for message in messages:
             print(message)
     return ok
+
+
+def load_survey_definition_or_raise(excel_file_path: str) -> SurveyDefinition:
+    """
+    Load a SurveyDefinition, printing the same pass/fail messages as
+    check_excel_integrity, and raise if invalid.
+
+    For a caller (generate_survey) that needs the loaded SurveyDefinition itself, not
+    just a pass/fail bool, so it can check integrity and keep the result in one step
+    instead of re-reading the Excel file again afterwards.
+    """
+    survey_definition, messages = load_survey_definition_with_messages(excel_file_path)
+    if survey_definition is None:
+        print(f"Excel integrity check FAILED for {excel_file_path}")
+        for message in messages:
+            print(message)
+        raise Exception(
+            f"Excel integrity check failed for {excel_file_path}. Aborting generation."
+        )
+    print(f"Excel integrity check passed for {excel_file_path}")
+    return survey_definition
 
 
 def verify_excel_cli_main() -> int:
