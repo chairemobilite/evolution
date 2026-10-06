@@ -264,7 +264,7 @@ class Conditionals(RootModel[list[ConditionalDefinition]]):
             if len(values_when_hidden) > 1:
                 issues.append(
                     f"{prefix}Multiple value_when_hidden for conditional_name {name!r}: "
-                    f"{sorted(values_when_hidden)}"
+                    f"{sorted(values_when_hidden, key=repr)}"
                 )
         return issues
 

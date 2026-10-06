@@ -4,6 +4,8 @@
 
 # Note: Tests for scripts/generate_survey.py's Excel integrity/loading entry points.
 
+import pytest  # pyright: ignore[reportMissingImports]
+
 from helpers.generator_helpers import (
     add_mocked_excel_sheet,
     create_mocked_excel_data,
@@ -107,8 +109,5 @@ class TestLoadSurveyDefinitionOrRaise:
             delete_file_if_exists(MOCKED_EXCEL_FILE)
 
     def test_invalid_file_raises(self):
-        try:
+        with pytest.raises(Exception, match="Excel integrity check failed"):
             load_survey_definition_or_raise("nonexistent.xlsx")
-            assert False, "should have raised"
-        except Exception as e:
-            assert "Excel integrity check failed" in str(e)

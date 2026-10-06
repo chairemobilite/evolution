@@ -194,6 +194,20 @@ class TestConditionals:
             "'cond1': ['defaultA', 'defaultB']"
         ]
 
+    def test_multiple_value_when_hidden_with_mixed_types_does_not_raise_type_error(
+        self,
+    ):
+        """sorted() on mixed int/str values_when_hidden must not crash the check itself."""
+        rows = [
+            self._row("cond1", value_when_hidden=1),
+            self._row(
+                "cond1", logical_operator="&&", value=2, value_when_hidden="defaultB"
+            ),
+        ]
+        issues = self._issues(rows)
+        assert len(issues) == 1
+        assert "Multiple value_when_hidden for conditional_name 'cond1'" in issues[0]
+
     def test_repeating_the_same_value_when_hidden_is_allowed(self):
         rows = [
             self._row("cond1", value_when_hidden="defaultA"),

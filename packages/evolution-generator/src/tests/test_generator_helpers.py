@@ -3,15 +3,18 @@
 # License text available at https://opensource.org/licenses/MIT
 
 import pytest  # pyright: ignore[reportMissingImports]
+from openpyxl.styles import PatternFill
 from pydantic import ValidationError
 
 from helpers.generator_helpers import (
     INDENT,
+    _read_sheet_rows,
     add_mocked_excel_sheet,
     create_mocked_excel_data,
     delete_file_if_exists,
     generate_label_typescript_with_context,
     get_label_context_flags,
+    get_workbook,
     load_survey_definition,
 )
 
@@ -153,6 +156,91 @@ class TestGenerateLabelTypescriptWithContext:
         assert "context: activePerson?.gender," in result
 
 
+class TestReadSheetRows:
+    """
+    Tests for _read_sheet_rows, in particular its trim_trailing_empty_rows option.
+
+    A row with no cell value and no style isn't written to the saved .xlsx at all,
+    so it can't reproduce the bug trim_trailing_empty_rows guards against. A row
+    that has a style but no value (e.g. from selecting extra rows and applying
+    formatting in a spreadsheet editor) IS written, and openpyxl reads it back as a
+    row of all-None values — that's what these tests build, via a styled blank row.
+    """
+
+    HEADERS = ["section", "in_nav", "abbreviation"]
+
+    def _style_blank_row(self, workbook, row_number: int) -> None:
+        """Give a row a fill (no cell value) and re-save, so it survives the reload."""
+        sheet = workbook["Sections"]
+        for column in range(1, len(self.HEADERS) + 1):
+            sheet.cell(row=row_number, column=column).fill = PatternFill(
+                fill_type="solid", fgColor="FFFF00"
+            )
+        workbook.save(MOCKED_EXCEL_FILE)
+
+    def _read(self, *, trim_trailing_empty_rows: bool) -> list[dict]:
+        try:
+            return _read_sheet_rows(
+                get_workbook(MOCKED_EXCEL_FILE),
+                "Sections",
+                self.HEADERS,
+                trim_trailing_empty_rows=trim_trailing_empty_rows,
+            )
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+    def test_keeps_rows_when_none_are_blank(self):
+        create_mocked_excel_data(
+            "Sections", self.HEADERS, [["home", True, "HM_"], ["profile", True, "PR_"]]
+        )
+        rows = self._read(trim_trailing_empty_rows=True)
+        assert [row["section"] for row in rows] == ["home", "profile"]
+
+    def test_drops_a_trailing_styled_blank_row(self):
+        workbook = create_mocked_excel_data(
+            "Sections", self.HEADERS, [["home", True, "HM_"]]
+        )
+        self._style_blank_row(workbook, row_number=3)
+        rows = self._read(trim_trailing_empty_rows=True)
+        assert [row["section"] for row in rows] == ["home"]
+
+    def test_drops_more_than_one_trailing_styled_blank_row(self):
+        workbook = create_mocked_excel_data(
+            "Sections", self.HEADERS, [["home", True, "HM_"]]
+        )
+        self._style_blank_row(workbook, row_number=3)
+        self._style_blank_row(workbook, row_number=4)
+        rows = self._read(trim_trailing_empty_rows=True)
+        assert [row["section"] for row in rows] == ["home"]
+
+    def test_keeps_an_interior_styled_blank_row(self):
+        """Only trailing blank rows are dropped; a blank row in the middle is kept
+        (and still invalid, so Sections validation still reports it)."""
+        workbook = create_mocked_excel_data(
+            "Sections", self.HEADERS, [["home", True, "HM_"]]
+        )
+        self._style_blank_row(workbook, row_number=3)
+        workbook["Sections"].append(["profile", True, "PR_"])
+        workbook.save(MOCKED_EXCEL_FILE)
+        rows = self._read(trim_trailing_empty_rows=True)
+        assert [row["section"] for row in rows] == ["home", None, "profile"]
+
+    def test_keeps_a_lone_styled_blank_row(self):
+        """Never trims down to zero rows: a single blank row is left as-is."""
+        workbook = create_mocked_excel_data("Sections", self.HEADERS, [])
+        self._style_blank_row(workbook, row_number=2)
+        rows = self._read(trim_trailing_empty_rows=True)
+        assert len(rows) == 1
+
+    def test_does_not_trim_when_disabled(self):
+        workbook = create_mocked_excel_data(
+            "Sections", self.HEADERS, [["home", True, "HM_"]]
+        )
+        self._style_blank_row(workbook, row_number=3)
+        rows = self._read(trim_trailing_empty_rows=False)
+        assert [row["section"] for row in rows] == ["home", None]
+
+
 class TestLoadSurveyDefinition:
     """Tests for load_survey_definition (builds a SurveyDefinition from the Sections and Conditionals sheets)."""
 
@@ -197,6 +285,34 @@ class TestLoadSurveyDefinition:
                 conditional.conditional_name
                 for conditional in survey_definition.conditionals
             ] == ["cond1"]
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+    def test_sections_sheet_ignores_trailing_blank_row(self):
+        """A trailing row with no value but a style (e.g. from formatting applied past
+        the real data in a spreadsheet editor) is dropped, not reported as a row
+        missing every required field. A plain unstyled blank row wouldn't reproduce
+        this: openpyxl doesn't even persist it, so the style is what makes the row
+        survive the save/reload round trip as a row of None values."""
+        workbook = create_mocked_excel_data(
+            "Sections", self.VALID_SECTIONS_HEADERS, self.VALID_SECTIONS_ROWS
+        )
+        sections_sheet = workbook["Sections"]
+        for column in range(1, len(self.VALID_SECTIONS_HEADERS) + 1):
+            sections_sheet.cell(row=3, column=column).fill = PatternFill(
+                fill_type="solid", fgColor="FFFF00"
+            )
+        add_mocked_excel_sheet(
+            workbook,
+            "Conditionals",
+            self.VALID_CONDITIONALS_HEADERS,
+            self.VALID_CONDITIONALS_ROWS,
+        )
+        try:
+            survey_definition = load_survey_definition(MOCKED_EXCEL_FILE)
+            assert [section.section for section in survey_definition.sections] == [
+                "home"
+            ]
         finally:
             delete_file_if_exists(MOCKED_EXCEL_FILE)
 

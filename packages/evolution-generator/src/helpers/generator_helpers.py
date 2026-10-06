@@ -260,17 +260,31 @@ def get_headers(sheet, expected_headers: List[str], sheet_name: str) -> List[str
 
 
 def _read_sheet_rows(
-    workbook: Workbook, sheet_name: str, expected_headers
+    workbook: Workbook,
+    sheet_name: str,
+    expected_headers,
+    *,
+    trim_trailing_empty_rows: bool = False,
 ) -> List[dict]:
-    """Read every data row of `sheet_name` (row 1 is the header) as a dict keyed by its headers."""
+    """Read every data row of `sheet_name` (row 1 is the header) as a dict keyed by its headers.
+
+    trim_trailing_empty_rows: drop trailing rows whose cells are all blank. openpyxl's
+    row count can include a styled-but-otherwise-empty row past the real data, which
+    would otherwise be read as a row missing every required field. Interior blank
+    rows are kept either way (still invalid if the sheet requires values).
+    """
     sheet_exists(workbook, sheet_name)
     sheet = workbook[sheet_name]
     headers = get_headers(
         sheet, expected_headers=expected_headers, sheet_name=sheet_name
     )
+    rows = list(sheet.rows)[1:]
+    if trim_trailing_empty_rows:
+        while len(rows) > 1 and all(cell.value is None for cell in rows[-1]):
+            rows.pop()
     return [
         dict(zip(headers, get_values_from_row(row, headers), strict=True))
-        for row in list(sheet.rows)[1:]
+        for row in rows
     ]
 
 
@@ -288,7 +302,12 @@ def load_survey_definition(excel_file_path: str) -> SurveyDefinition:
     workbook = get_workbook(excel_file_path)
 
     return SurveyDefinition(
-        sections=_read_sheet_rows(workbook, "Sections", SECTION_REQUIRED_FIELD_NAMES),
+        sections=_read_sheet_rows(
+            workbook,
+            "Sections",
+            SECTION_REQUIRED_FIELD_NAMES,
+            trim_trailing_empty_rows=True,
+        ),
         conditionals=_read_sheet_rows(
             workbook, "Conditionals", CONDITIONAL_REQUIRED_FIELD_NAMES
         ),
