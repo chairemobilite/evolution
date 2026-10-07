@@ -179,6 +179,39 @@ describe('InterviewStats rejection inheritance', () => {
     });
 });
 
+describe('InterviewStats person index', () => {
+    test('the driver lookup receives the same index as each person panel', () => {
+        const secondPersonUuid = uuidV4();
+        const props = {
+            ...baseProps,
+            surveyObjectsAndAudits: {
+                ...baseProps.surveyObjectsAndAudits,
+                household: {
+                    _uuid: householdUuid,
+                    members: [
+                        { _uuid: personUuid, journeys: [] },
+                        { _uuid: secondPersonUuid, journeys: [] }
+                    ]
+                }
+            }
+        } as unknown as InterviewStatsProps;
+
+        render(<InterviewStats {...props} />);
+
+        const personIndexByUuid = { [personUuid]: 1, [secondPersonUuid]: 2 };
+        expect(mockPersonPanel).toHaveBeenNthCalledWith(
+            1,
+            expect.objectContaining({ personIndex: 1, personIndexByUuid }),
+            undefined
+        );
+        expect(mockPersonPanel).toHaveBeenNthCalledWith(
+            2,
+            expect.objectContaining({ personIndex: 2, personIndexByUuid }),
+            undefined
+        );
+    });
+});
+
 describe('InterviewStats when a survey object failed to create', () => {
     const householdCreationAudit = {
         version: 1,
