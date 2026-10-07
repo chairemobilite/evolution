@@ -6,6 +6,7 @@
  */
 
 import type { AuditForObject } from 'evolution-common/lib/services/audits/types';
+import { getAnswerValue } from 'evolution-common/lib/services/baseObjects/attributeTypes/AnswerStatus';
 import projectConfig from 'evolution-common/lib/config/project.config';
 import type { HouseholdAuditCheckContext, HouseholdAuditCheckFunction } from '../AuditCheckContexts';
 import {
@@ -483,6 +484,35 @@ export const householdAuditChecks: { [errorCode: string]: HouseholdAuditCheckFun
         }
 
         return undefined; // No audit needed
+    },
+
+    /**
+     * Info flag when at least one household member declared trips.
+     * The questionnaire fields `personDidTrips` and `personDidTripsConfirm` are
+     * already folded into `journey.didTrips` before audits run. Confirm wins.
+     * @param context - HouseholdAuditCheckContext
+     * @returns AuditForObject
+     */
+    HH_F_AtLeastOnePersonDidTrips: (context: HouseholdAuditCheckContext): AuditForObject | undefined => {
+        const { household } = context;
+
+        const someoneDidTrips = (household.members ?? []).some((person) =>
+            (person.journeys ?? []).some((journey) => getAnswerValue(journey.didTrips) === true)
+        );
+
+        if (someoneDidTrips) {
+            return {
+                objectType: 'household',
+                objectUuid: household._uuid!,
+                errorCode: 'HH_F_AtLeastOnePersonDidTrips',
+                version: 1,
+                level: 'info',
+                message: 'At least one household member did trips',
+                ignore: false
+            };
+        }
+
+        return undefined;
     },
 
     /**
