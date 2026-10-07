@@ -55,11 +55,41 @@ const transitStationSummary = (segment: Segment, label: string): string | undefi
     return `(${label}: ${stations.join(' -> ')})`;
 };
 
+/**
+ * Who was driving, for a car passenger segment.
+ * A household member is shown with the same person index as that person's panel.
+ * The title is the person id.
+ * @param segment Segment being summarized
+ * @param driverLabel Translated label for the driver question
+ * @param personIndexByUuid Person index shown on each person panel, keyed by person id
+ */
+const carPassengerDriverSummary = (
+    segment: Segment,
+    driverLabel: string,
+    personIndexByUuid: { [personUuid: string]: number } | undefined
+): JSX.Element => {
+    if (segment.driverType !== 'householdMember') {
+        const driverType = segment.driverType ? segment.driverType.toString() : '?';
+        return <>({`${driverLabel}: ${driverType}`})</>;
+    }
+    const personIndex = segment.driverUuid !== undefined ? personIndexByUuid?.[segment.driverUuid] : undefined;
+    const personNumber = personIndex !== undefined ? personIndex : '?';
+    return (
+        <>
+            {`(${driverLabel}: `}
+            <span title={segment.driverUuid}>{personNumber}</span>
+            {')'}
+        </>
+    );
+};
+
 export interface PersonPanelProps {
     person: Person;
     journey?: Journey;
     personId: string;
     personIndex?: number;
+    /** Person index shown on each person panel, keyed by person id. */
+    personIndexByUuid?: { [personUuid: string]: number };
     audits?: AuditForObject[];
     auditsByObject?: Partial<AuditsByObject>;
     activeTripUuid?: string;
@@ -76,6 +106,7 @@ export const PersonPanel = ({
     journey,
     personId,
     personIndex,
+    personIndexByUuid,
     audits,
     auditsByObject,
     activeTripUuid,
@@ -184,7 +215,8 @@ export const PersonPanel = ({
 
             for (let j = 0, countJ = segmentsArray.length; j < countJ; j++) {
                 const segment: Segment = segmentsArray[j];
-                const segmentStats: string[] = [];
+                const segmentId = segment._uuid!;
+                const segmentStats: React.ReactNode[] = [];
                 if (!_isBlank(segment.mode)) {
                     if (segment.mode === 'carDriver') {
                         segmentStats.push(
@@ -192,7 +224,13 @@ export const PersonPanel = ({
                         );
                     } else if (segment.mode === 'carPassenger') {
                         segmentStats.push(
-                            `(${t('interviewStats.labels.segment.driverType')}: ${segment.driverType ? segment.driverType.toString() : '?'})`
+                            <span key={`${segmentId}-driver`}>
+                                {carPassengerDriverSummary(
+                                    segment,
+                                    t('interviewStats.labels.segment.driverType'),
+                                    personIndexByUuid
+                                )}
+                            </span>
                         );
                     } else if (segment.mode === 'transitBus') {
                         segmentStats.push(
@@ -208,7 +246,6 @@ export const PersonPanel = ({
                         }
                     }
                 }
-                const segmentId = segment._uuid!;
                 segmentsStats.push(
                     <SurveyObjectBox
                         key={segmentId}
