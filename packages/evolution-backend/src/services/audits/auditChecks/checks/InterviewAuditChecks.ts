@@ -304,6 +304,28 @@ export const interviewAuditChecks: { [errorCode: string]: InterviewAuditCheckFun
         return undefined;
     },
 
+    /**
+     * Info flag when the respondent accepted to be contacted for help.
+     * Lets reviewers filter interviews they can call back.
+     * @param context - InterviewAuditCheckContext
+     * @returns {AuditForObject | undefined}
+     */
+    I_F_AcceptToBeContactedForHelp: (context: InterviewAuditCheckContext): AuditForObject | undefined => {
+        const { interview } = context;
+        if (interview.acceptToBeContactedForHelp !== true) {
+            return undefined;
+        }
+        return {
+            objectType: 'interview',
+            objectUuid: interview.uuid!,
+            errorCode: 'I_F_AcceptToBeContactedForHelp',
+            version: 1,
+            level: 'info',
+            message: 'Respondent household accepts to be contacted for help',
+            ignore: false
+        };
+    },
+
     I_F_LoginMethodIsEmail: loginMethodInfoAudit('email', 'I_F_LoginMethodIsEmail', 'Login method is email'),
     I_F_LoginMethodIsAnonymous: loginMethodInfoAudit(
         'anonymous',
