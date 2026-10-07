@@ -8,6 +8,8 @@ Each check declares a `level` (defaults to `error` if omitted):
 - **`warning`** — worth a look; can be corrected, ignored, or (occasionally) cause rejection.
 - **`info`** — informational tag only; classifies an interview without requiring action (e.g. *has at least one transit trip*).
 
+Bird speed and short-trip duration thresholds, including multimodal trips: [birdSpeedAndShortTripDuration.md](birdSpeedAndShortTripDuration.md).
+
 ## Adding a new audit check
 
 See the practical guide in [`auditChecks/README.md`](auditChecks/README.md) — where a check fits in the pipeline, what choices you have, and what to touch to ship one.

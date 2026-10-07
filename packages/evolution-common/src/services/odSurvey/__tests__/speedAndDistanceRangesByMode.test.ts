@@ -5,20 +5,16 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import {
-    birdDistanceMRangeByMode,
-    birdSpeedKphRangeByMode,
-    isBirdDistanceInRangeForMode,
-    isBirdSpeedInRangeForMode,
+    minBirdDistanceMetersByMode,
     isModeOfferedForBirdDistance,
     isModePreOfferedForBirdDistance,
     modesAlwaysOfferedForBirdDistance
 } from '../speedAndDistanceRangesByMode';
 import { defaultModePreToModeMap, modeValues, type Mode } from '../types';
 
-describe('range tables cover all questionnaire modes', () => {
-    test.each(modeValues)('%s has distance and speed ranges', (mode) => {
-        expect(birdDistanceMRangeByMode[mode]).toBeDefined();
-        expect(birdSpeedKphRangeByMode[mode]).toBeDefined();
+describe('minimum bird distance covers all questionnaire modes', () => {
+    test.each(modeValues)('%s has a minimum bird distance', (mode) => {
+        expect(minBirdDistanceMetersByMode[mode]).toEqual(expect.any(Number));
     });
 });
 
@@ -28,11 +24,10 @@ describe('isModeOfferedForBirdDistance', () => {
     });
 
     const modesWithMinDistance = modeValues.filter(
-        (mode) =>
-            (birdDistanceMRangeByMode[mode]?.[0] ?? 0) > 0 && !modesAlwaysOfferedForBirdDistance.includes(mode)
+        (mode) => (minBirdDistanceMetersByMode[mode] ?? 0) > 0 && !modesAlwaysOfferedForBirdDistance.includes(mode)
     );
     test.each(modesWithMinDistance)('hides %s just below min and offers at min', (mode) => {
-        const [min] = birdDistanceMRangeByMode[mode] as [number, number];
+        const min = minBirdDistanceMetersByMode[mode] as number;
         expect(isModeOfferedForBirdDistance(mode, min - 1)).toBe(false);
         expect(isModeOfferedForBirdDistance(mode, min)).toBe(true);
     });
@@ -43,36 +38,10 @@ describe('isModeOfferedForBirdDistance', () => {
         expect(isModeOfferedForBirdDistance(mode, Number.MAX_SAFE_INTEGER)).toBe(true);
     });
 
-    const modesWithZeroMin = modeValues.filter((mode) => birdDistanceMRangeByMode[mode]?.[0] === 0);
+    const modesWithZeroMin = modeValues.filter((mode) => minBirdDistanceMetersByMode[mode] === 0);
     test.each(modesWithZeroMin)('offers %s regardless of distance', (mode) => {
         expect(isModeOfferedForBirdDistance(mode, 0)).toBe(true);
         expect(isModeOfferedForBirdDistance(mode, Number.MAX_SAFE_INTEGER)).toBe(true);
-    });
-});
-
-describe('isBirdDistanceInRangeForMode', () => {
-    test.each(modeValues)('%s respects the table min and max', (mode: Mode) => {
-        const [min, max] = birdDistanceMRangeByMode[mode] as [number, number];
-        expect(isBirdDistanceInRangeForMode(mode, min)).toBe(true);
-        if (min > 0) {
-            expect(isBirdDistanceInRangeForMode(mode, min - 1)).toBe(false);
-        }
-        if (Number.isFinite(max)) {
-            expect(isBirdDistanceInRangeForMode(mode, max)).toBe(true);
-            expect(isBirdDistanceInRangeForMode(mode, max + 1)).toBe(false);
-        } else {
-            expect(isBirdDistanceInRangeForMode(mode, min + 1e12)).toBe(true);
-        }
-    });
-});
-
-describe('isBirdSpeedInRangeForMode', () => {
-    test.each(modeValues)('%s respects the table min and max', (mode: Mode) => {
-        const [min, max] = birdSpeedKphRangeByMode[mode] as [number, number];
-        expect(isBirdSpeedInRangeForMode(mode, min)).toBe(true);
-        expect(isBirdSpeedInRangeForMode(mode, min - 0.1)).toBe(false);
-        expect(isBirdSpeedInRangeForMode(mode, max)).toBe(true);
-        expect(isBirdSpeedInRangeForMode(mode, max + 0.1)).toBe(false);
     });
 });
 
@@ -92,7 +61,7 @@ describe('isModePreOfferedForBirdDistance', () => {
         modePreEntries.map(([modePre, modes]) => {
             const categoryMin = Math.min(
                 ...modes.map((mode) =>
-                    modesAlwaysOfferedForBirdDistance.includes(mode) ? 0 : (birdDistanceMRangeByMode[mode]?.[0] ?? 0)
+                    modesAlwaysOfferedForBirdDistance.includes(mode) ? 0 : (minBirdDistanceMetersByMode[mode] ?? 0)
                 )
             );
             return [modePre, categoryMin, modes] as const;
