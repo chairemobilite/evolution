@@ -156,7 +156,8 @@ describe('SurveyObjectAuditor', () => {
 
             expect(runInterviewAuditChecks).toHaveBeenCalledWith(
                 {
-                    interview: surveyObjects.interview
+                    interview: surveyObjects.interview,
+                    home: surveyObjects.home
                 },
                 expect.any(Object)
             );
