@@ -184,7 +184,8 @@ export const interviewAuditChecks: { [errorCode: string]: InterviewAuditCheckFun
      * Check if interview access code format is invalid
      * Only validates the format if access code is present.
      * It does not verify that the access code is valid
-     * (for instance it does not check if a letter has been sent with this access code)
+     * (for instance it does not check if a letter has been sent with this access code;
+     * that is `I_I_AccessCodeFromList`)
      * Some surveys may not implement access codes at all.
      * The format is validated against the configured accessCodeFormat; surveys
      * can register an additional check for survey-specific validation.
@@ -211,6 +212,35 @@ export const interviewAuditChecks: { [errorCode: string]: InterviewAuditCheckFun
             }
         }
         return undefined;
+    },
+
+    /**
+     * Check that a present access code was on the issued list.
+     * The prefill import copies the CSV row into `home.preData`. That record is
+     * the proof the code was on the list and data was prefilled from it. No query to `sv_interviews_prefill`.
+     * Silent when the access code is blank. An empty `preData` does not count.
+     * A survey that uses access codes without a prefill list flags every coded interview.
+     * @param context - InterviewAuditCheckContext
+     * @returns {AuditForObject | undefined}
+     */
+    I_I_AccessCodeFromList: (context: InterviewAuditCheckContext): AuditForObject | undefined => {
+        const { interview, home } = context;
+        if (_isBlank(interview.accessCode)) {
+            return undefined;
+        }
+        const preData = home?.preData;
+        if (preData !== undefined && Object.keys(preData).length > 0) {
+            return undefined;
+        }
+        return {
+            objectType: 'interview',
+            objectUuid: interview.uuid!,
+            errorCode: 'I_I_AccessCodeFromList',
+            version: 1,
+            level: 'error',
+            message: 'Access code has no associated address in the sample (might be wrong)',
+            ignore: false
+        };
     },
 
     /**
