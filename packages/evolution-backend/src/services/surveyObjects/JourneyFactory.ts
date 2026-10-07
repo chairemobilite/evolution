@@ -26,14 +26,15 @@ import type { Journey as QuestionnaireJourney } from 'evolution-common/lib/servi
 /** Questionnaire fields that `Journey.create` must not receive. */
 type QuestionnaireJourneyOnly = Pick<
     QuestionnaireJourney,
-    'visitedPlaces' | 'trips' | 'personDidTrips' | 'personDidTripsConfirm'
+    'visitedPlaces' | 'trips' | 'personDidTrips' | 'personDidTripsConfirm' | 'departurePlaceOther'
 >;
 
 const QUESTIONNAIRE_JOURNEY_ONLY_KEYS = [
     'visitedPlaces',
     'trips',
     'personDidTrips',
-    'personDidTripsConfirm'
+    'personDidTripsConfirm',
+    'departurePlaceOther'
 ] as const satisfies readonly (keyof QuestionnaireJourneyOnly)[];
 
 type QuestionnaireJourneyForFactory = ExtendedJourneyAttributes &
@@ -61,6 +62,19 @@ const didTripsFromQuestionnaire = (
         ? attributes.personDidTripsConfirm
         : attributes.personDidTrips;
     return _isBlank(fromQuestionnaire) ? undefined : fromQuestionnaire;
+};
+
+/**
+ * Copies the questionnaire `departurePlaceOther` onto the journey.
+ * A blank answer stays unset.
+ * @param attributes Journey fields from the response
+ * @returns The departure place type, or `undefined` when it is blank
+ */
+const originalDeparturePlaceOtherFromQuestionnaire = (
+    attributes: Pick<QuestionnaireJourney, 'departurePlaceOther'>
+): string | undefined => {
+    const value = attributes.departurePlaceOther;
+    return _isBlank(value) ? undefined : value;
 };
 
 /**
@@ -101,6 +115,7 @@ export async function populateJourneysForPerson(
                 {
                     ...questionnaireJourney,
                     _skipTripDiary: skipTripDiary,
+                    _originalDeparturePlaceOther: originalDeparturePlaceOtherFromQuestionnaire(questionnaireJourney),
                     didTrips: didTripsFromQuestionnaire(questionnaireJourney, skipTripDiary)
                 },
                 QUESTIONNAIRE_JOURNEY_ONLY_KEYS
