@@ -146,6 +146,83 @@ describe('PersonPanel transit stations', () => {
     });
 });
 
+describe('PersonPanel car passenger driver', () => {
+    const driverUuid = 'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee';
+    const otherUuid = 'ffffffff-ffff-4fff-8fff-ffffffffffff';
+
+    const renderPassenger = (
+        segment: { driverType?: string; driverUuid?: string },
+        personIndexByUuid: { [personUuid: string]: number }
+    ) => {
+        const journeyWithPassenger = {
+            ...journey,
+            trips: [
+                {
+                    _uuid: tripUuid,
+                    startPlace: { endTime: 100 },
+                    endPlace: { startTime: 200 },
+                    segments: [{ _uuid: segmentUuid, mode: 'carPassenger', ...segment }]
+                }
+            ]
+        } as unknown as Journey;
+
+        render(
+            <PersonPanel
+                person={person}
+                journey={journeyWithPassenger}
+                personId={personUuid}
+                personIndexByUuid={personIndexByUuid}
+                selectPlace={jest.fn()}
+                selectTrip={jest.fn()}
+            />
+        );
+    };
+
+    test.each([
+        {
+            description: 'household member uses the person panel index',
+            segment: { driverType: 'householdMember', driverUuid },
+            personIndexByUuid: { [otherUuid]: 1, [driverUuid]: 2 },
+            expected: 'interviewStats.labels.segment.driverType: 2',
+            title: driverUuid,
+            shown: '2'
+        },
+        {
+            description: 'unknown household member stays unknown',
+            segment: { driverType: 'householdMember', driverUuid },
+            personIndexByUuid: { [otherUuid]: 1 },
+            expected: 'interviewStats.labels.segment.driverType: ?',
+            title: driverUuid,
+            shown: '?'
+        },
+        {
+            description: 'another driver type keeps its value',
+            segment: { driverType: 'colleague' },
+            personIndexByUuid: { [driverUuid]: 1 },
+            expected: 'interviewStats.labels.segment.driverType: colleague',
+            title: undefined,
+            shown: undefined
+        },
+        {
+            description: 'missing driver type stays unknown',
+            segment: {},
+            personIndexByUuid: {},
+            expected: 'interviewStats.labels.segment.driverType: ?',
+            title: undefined,
+            shown: undefined
+        }
+    ])('$description', ({ segment, personIndexByUuid, expected, title, shown }) => {
+        renderPassenger(segment, personIndexByUuid as { [personUuid: string]: number });
+
+        expect(document.body.textContent).toContain(`(${expected})`);
+        if (title === undefined || shown === undefined) {
+            expect(screen.queryByTitle(driverUuid)).toBeNull();
+        } else {
+            expect(screen.getByTitle(title)).toHaveTextContent(shown);
+        }
+    });
+});
+
 describe('PersonPanel visited place times', () => {
     test('displays duration when visited place starts at midnight (0)', () => {
         const journeyWithMidnightPlace = {

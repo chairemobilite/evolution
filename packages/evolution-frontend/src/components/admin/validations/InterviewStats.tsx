@@ -89,6 +89,12 @@ const InterviewStats = (props: InterviewStatsProps) => {
               {} as { [key: string]: Person }
         )
         : {};
+    // Same index as the number on each person panel. A household driver reads it from here.
+    const personIds = Object.keys(persons);
+    const personIndexByUuid: { [personUuid: string]: number } = {};
+    personIds.forEach((personId, index) => {
+        personIndexByUuid[personId] = index + 1;
+    });
 
     // Check if there are any audits in the interview
     const hasAudits = Boolean(
@@ -156,7 +162,7 @@ const InterviewStats = (props: InterviewStatsProps) => {
             />
             <div className="admin__interview-stats" key="persons">
                 <h4>{t('interviewStats.labels.persons')}</h4>
-                {Object.keys(persons).map((personId, index) => {
+                {personIds.map((personId) => {
                     const person: Person = persons[personId];
                     const unserializedPerson = household?.members?.find((p) => p._uuid === personId);
                     let journey: Optional<Journey>;
@@ -170,7 +176,8 @@ const InterviewStats = (props: InterviewStatsProps) => {
                             person={person}
                             journey={journey}
                             personId={personId}
-                            personIndex={index + 1}
+                            personIndex={personIndexByUuid[personId]}
+                            personIndexByUuid={personIndexByUuid}
                             audits={surveyObjects?.auditsByObject?.persons?.[personId]}
                             auditsByObject={surveyObjects?.auditsByObject}
                             activeTripUuid={props.activeTripUuid}
