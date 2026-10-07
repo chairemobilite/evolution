@@ -61,6 +61,7 @@
     "J_L_JourneyNotClosed": "Le séjour n'est pas fermé",
     "J_L_JourneyClosedMoreThanOnce": "Le séjour est fermé plusieurs fois",
     "J_L_OnlyOneVisitedPlace": "Le séjour ne contient qu'un seul lieu visité",
+    "J_W_JourneyNonHomeDeparturePlaceTypeIsInconsistent": "Le type de lieu de départ est incohérent avec le premier lieu",
     "J_W_DepartureOfDayNotHomeOrCompatibleActivity": "L'activité au début du séjour n'est pas le domicile ou une activité compatible",
     "J_W_ArrivalOfDayNotHomeOrCompatibleActivity": "L'activité à la fin du séjour n'est pas le domicile ou une activité compatible",
     "J_W_SchoolActivityAtStartOfJourney": "Activité d'études au début du séjour",

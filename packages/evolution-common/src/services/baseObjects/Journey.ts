@@ -46,6 +46,7 @@ export const journeyAttributes = [
     'noWorkTripReasonSpecify',
     'didTrips',
     '_skipTripDiary',
+    '_originalDeparturePlaceOther',
     'previousWeekRemoteWorkDays',
     'previousWeekTravelToWorkDays',
     'preData'
@@ -83,6 +84,11 @@ export type JourneyAttributes = {
      * `didTrips` as usual.
      */
     _skipTripDiary?: Optional<boolean>;
+    /**
+     * `departurePlaceOther` from the questionnaire, copied as given.
+     * Blank stays unset.
+     */
+    _originalDeparturePlaceOther?: Optional<string>;
     /** Remote work days for the complete week before the assigned date (Sunday to Saturday, excluding assigned date) */
     previousWeekRemoteWorkDays?: Optional<PAttr.WeekdaySchedule>;
     /** Travel to work days for the complete week before the assigned date (Sunday to Saturday, excluding assigned date) */
@@ -309,6 +315,15 @@ export class Journey extends SurveyObject {
 
     set _skipTripDiary(value: Optional<boolean>) {
         this._attributes._skipTripDiary = value;
+    }
+
+    /** `departurePlaceOther` from the questionnaire. Blank stays unset. */
+    get _originalDeparturePlaceOther(): Optional<string> {
+        return this._attributes._originalDeparturePlaceOther;
+    }
+
+    set _originalDeparturePlaceOther(value: Optional<string>) {
+        this._attributes._originalDeparturePlaceOther = value;
     }
 
     /**
@@ -698,6 +713,13 @@ export class Journey extends SurveyObject {
         );
 
         errors.push(...ParamsValidatorUtils.isBoolean('_skipTripDiary', dirtyParams._skipTripDiary, displayName));
+        errors.push(
+            ...ParamsValidatorUtils.isString(
+                '_originalDeparturePlaceOther',
+                dirtyParams._originalDeparturePlaceOther,
+                displayName
+            )
+        );
 
         // Validate work schedule attributes
         errors.push(
