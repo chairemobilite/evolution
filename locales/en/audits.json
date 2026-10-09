@@ -9,7 +9,7 @@
     "I_I_ContactEmail": "Contact email is invalid",
     "I_M_ContactEmailButWouldLikeToParticipateInOtherSurveys": "Contact email is missing but respondent would like to participate in other surveys",
     "I_I_HelpContactEmail": "Help contact email is invalid",
-    "I_F_AcceptToBeContactedForHelp": "Respondent household accepts to be contacted for help",
+    "I_F_AcceptToBeContactedForHelp": "Household accepts to be contacted for help",
     "I_F_LoginMethodIsEmail": "Login method is email",
     "I_F_LoginMethodIsAnonymous": "Login method is anonymous",
     "I_F_LoginMethodIsGoogle": "Login method is Google",
