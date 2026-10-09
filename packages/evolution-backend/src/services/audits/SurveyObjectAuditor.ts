@@ -31,7 +31,8 @@ export class SurveyObjectAuditor {
         // Run interview audit checks
         if (surveyObjectsWithAudits.interview) {
             const interviewContext: auditChecks.InterviewAuditCheckContext = {
-                interview: surveyObjectsWithAudits.interview
+                interview: surveyObjectsWithAudits.interview,
+                home: surveyObjectsWithAudits.home
             };
             const interviewAudits = await auditChecks.runInterviewAuditChecks(
                 interviewContext,

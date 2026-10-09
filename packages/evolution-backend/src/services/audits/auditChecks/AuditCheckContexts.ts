@@ -21,6 +21,8 @@ import { AuditForObject } from 'evolution-common/lib/services/audits/types';
  */
 export type InterviewAuditCheckContext = {
     interview: Interview;
+    /** Present when the interview has a home. `home.preData` is the issued-code proof for `I_I_AccessCodeFromList`. */
+    home?: Optional<Home>;
 };
 
 /**
