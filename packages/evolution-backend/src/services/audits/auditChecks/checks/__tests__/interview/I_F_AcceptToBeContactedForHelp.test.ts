@@ -17,7 +17,7 @@ const infoAudit = {
     errorCode: 'I_F_AcceptToBeContactedForHelp',
     version: 1,
     level: 'info',
-    message: 'Respondent household accepts to be contacted for help',
+    message: 'Household accepts to be contacted for help',
     ignore: false
 };
 
