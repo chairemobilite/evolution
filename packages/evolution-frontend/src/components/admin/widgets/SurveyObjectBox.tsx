@@ -71,6 +71,9 @@ export type SurveyObjectBoxProps = SurveyObjectBoxDivProps | SurveyObjectBoxDeta
  * Renders a reviewable survey object box with status styling and approve/reject controls.
  * Review status is read from the `reviewDecisions` Redux slice; the controls dispatch
  * the review thunks themselves (see `ObjectReviewControls`).
+ * On a div, the buttons sit on the first line, in a column sized to the icons, and
+ * the content below uses the full width. On a details element the buttons are
+ * anchored to the summary line, because that element cannot be a flex row.
  * @param props - Object identity, layout, and child content
  * @returns A `div` or `details` element with review UI wired consistently
  */
@@ -121,11 +124,12 @@ export const SurveyObjectBox: React.FC<SurveyObjectBoxProps> = (props) => {
 
         // Review buttons are rendered as a sibling of the summary (not inside it) so
         // interactive controls are not nested in the disclosure button (accessibility).
+        // The body keeps the summary a direct child of details, which the disclosure needs.
         return (
             <details open={detailsOpen} onToggle={handleDetailsToggle} className={className}>
                 {summaryElement}
                 {reviewButtons}
-                {children}
+                <div className="admin__survey-object-box__body">{children}</div>
             </details>
         );
     }
@@ -141,26 +145,30 @@ export const SurveyObjectBox: React.FC<SurveyObjectBoxProps> = (props) => {
         event.stopPropagation();
     };
 
+    // The first block shares the row with the buttons. The rest goes underneath, full width.
+    const staticNodes = onClick ? [] : React.Children.toArray(children);
+    const header = onClick ? (
+        <div
+            role="button"
+            tabIndex={0}
+            className={selectableControlClassName || undefined}
+            aria-pressed={isActive}
+            onClick={handleSelectableClick}
+            onKeyDown={createKeyboardActivateHandler(() => onClick(), { stopPropagation: true })}
+        >
+            {selectableInner}
+        </div>
+    ) : (
+        staticNodes[0]
+    );
+    const body = onClick ? trailingContent : staticNodes.slice(1);
+    const hasBody = onClick ? trailingContent !== null : staticNodes.length > 1;
+
     return (
         <div className={className}>
+            {header !== null && <div className="admin__survey-object-box__main">{header}</div>}
             {reviewButtons}
-            {onClick ? (
-                <>
-                    <div
-                        role="button"
-                        tabIndex={0}
-                        className={selectableControlClassName || undefined}
-                        aria-pressed={isActive}
-                        onClick={handleSelectableClick}
-                        onKeyDown={createKeyboardActivateHandler(() => onClick(), { stopPropagation: true })}
-                    >
-                        {selectableInner}
-                    </div>
-                    {trailingContent}
-                </>
-            ) : (
-                children
-            )}
+            {hasBody && <div className="admin__survey-object-box__body">{body}</div>}
         </div>
     );
 };
