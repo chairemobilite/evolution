@@ -254,7 +254,10 @@ export const PersonPanel = ({
                         inheritedStatus={tripSubtreeInheritedStatus}
                         nested
                     >
-                        <strong>{segment.mode || '?'}</strong>: {segmentStats}
+                        {/* One block, so the mode line stays on the same row as the review buttons. */}
+                        <div>
+                            <strong>{segment.mode || '?'}</strong>: {segmentStats}
+                        </div>
                         <ObjectAudits
                             audits={auditsByObject?.segments?.[segmentId]}
                             showAuditErrorCode={showAuditErrorCode}
@@ -286,7 +289,10 @@ export const PersonPanel = ({
                     }
                 >
                     <ObjectAudits audits={auditsByObject?.trips?.[tripId]} showAuditErrorCode={showAuditErrorCode} />
-                    <div key="segments" className={`_widget${isTripActive ? ' _active' : ''}`}>
+                    <div
+                        key="segments"
+                        className={`admin__survey-object-box__segments${isTripActive ? ' _active' : ''}`}
+                    >
                         {segmentsStats}
                     </div>
                 </SurveyObjectBox>

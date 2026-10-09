@@ -37,10 +37,13 @@
 }
 
 // Boxed survey object in the admin review column. Nested boxes get a slightly
-// darker background for visual depth. position:relative leaves room for controls
-// (e.g. review buttons) in the top-right corner.
+// darker background for visual depth. A div with review buttons is a flex row:
+// the first line and the buttons are two columns sized to their content, and
+// everything under that line is full width. A details element cannot be that
+// flex row: the browser wraps every non-summary child in one box, which packs
+// the content against the buttons.
 .admin__survey-object-box {
-    position: relative;
+    width: 100%;
     margin: 0.35rem 0;
     padding: 0.4rem 0.5rem;
     border: 1px solid rgba(0, 0, 0, 0.15);
@@ -62,9 +65,49 @@
         box-shadow: 0 0 0 2px rgba(37, 95, 255, 0.45);
     }
 
-    &--has-review {
-        // Reserve top-right space for review controls; shrink on narrow/nested layouts.
-        padding-right: calc(0.5rem + clamp(4rem, 20vw, 10.5rem));
+    &--has-review:not(details) {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-start;
+        column-gap: 0.35rem;
+
+        // Basis 0 so a long label shrinks and wraps, instead of pushing the buttons
+        // onto the next line at the left.
+        > .admin__survey-object-box__main {
+            flex: 1 1 0%;
+            min-width: 0;
+        }
+
+        // The selectable row fills the content column, so an audit inside it stops at the buttons.
+        > .admin__survey-object-box__main > [role='button'] {
+            display: block;
+        }
+
+        > .admin__survey-object-box__review-controls {
+            flex: 0 0 auto;
+        }
+
+        > .admin__survey-object-box__body {
+            flex: 1 1 100%;
+            min-width: 0;
+        }
+    }
+
+    // Buttons stay on the summary line. The inset is only there, so the content
+    // below keeps the full width and stays on the left.
+    &--has-review:is(details) {
+        position: relative;
+
+        > summary {
+            padding-right: 7.5rem;
+        }
+
+        > .admin__survey-object-box__review-controls {
+            position: absolute;
+            top: 0.25rem;
+            right: 0.25rem;
+            z-index: 1;
+        }
     }
 
     &--rejected {
@@ -82,14 +125,22 @@
         border-color: rgba(settings.$yellow, 0.45);
     }
 
+    // Segments sit under the trip header. A plain `._widget` is inline-block and
+    // shrinks to the text, so the segment boxes would not fill the trip box.
+    &__segments {
+        display: block;
+        width: 100%;
+
+        &._active {
+            color: blue !important;
+            font-weight: 700;
+        }
+    }
+
     &__review-controls {
-        position: absolute;
-        top: 0.25rem;
-        right: 0.25rem;
         display: flex;
         align-items: center;
         gap: 0.15rem;
-        z-index: 1;
     }
 
     &__review-warning {
