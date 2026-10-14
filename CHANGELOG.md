@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased (0.6.6)]
+## [Unreleased (0.6.7)]
 
 ### Added
 
@@ -21,6 +21,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Dependency updates
 
+
+## [0.6.6] - 2026-10-14
+
+### Added
+
+- Audits: new audit checks: `HH_L_MissingSingleModeCarDriverTrips` ([#1982](https://github.com/chairemobilite/evolution/issues/1982)), `I_F_AcceptToBeContactedForHelp` ([#1990](https://github.com/chairemobilite/evolution/issues/1990)), `J_W_JourneyNonHomeDeparturePlaceTypeIsInconsistent` ([#2105](https://github.com/chairemobilite/evolution/issues/2105)), `I_I_AccessCodeFromList` ([#1908](https://github.com/chairemobilite/evolution/issues/1908)), `HH_F_AtLeastOnePersonDidTrips` ([#2091](https://github.com/chairemobilite/evolution/issues/2091))
+- Add unique ID to all widgets (fixes [#1875](https://github.com/chairemobilite/evolution/issues/1875))
+- Show household driver number on person panel (fixes [#1986](https://github.com/chairemobilite/evolution/issues/1986))
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+- Rename audits to capitalize first char (fixes [#2077](https://github.com/chairemobilite/evolution/issues/2077))
+
+### Security
+
+### Dependency updates
+
+Nodejs:
+
+* Morgan: 1.12.0 => 1.12.1
+* dompurify: 3.4.13 => 3.4.16
+
+Python: 
+
+* pyjwt: 2.13.0 => 2.15.0
+* urllib3: 2.7.0 => 2.8.0
 
 ## [0.6.5] - 2026-09-28
 
@@ -303,11 +335,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - In the root `package.json` add a resolution of `kdbush` to 3.0.0 to avoid compilation errors with some packages depending on a more recent version. This requirement comes from Transition, who does the same (see https://github.com/chairemobilite/transition/issues/921 to track issue to upgrade/remove `kdbush`).
 - Added dependency to `i18next-intervalplural-postprocessor` 3.0.0 to support i18next [interval pluralization](https://www.i18next.com/translation-function/plurals#interval-plurals)
 
-## [Unreleased (0.5.1)] - YYYY-MM-DD
+## [Unreleased (0.5.3)] - YYYY-MM-DD
 
 ### Added
-
-- Added `platform`, `os`, `browser` and `language` fields to each record of the exported paradata (#1395)
 
 ### Changed
 
@@ -320,6 +350,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Security
 
 ### Dependency updates
+
+## [0.5.2] - 2026-09-29
+
+Audits: This version of the 0.5.x branch has feature parity with Evolution's [`0.6.5` version](https://github.com/chairemobilite/evolution/blob/main/CHANGELOG.md).
+
+
+## [0.5.1] - 2026-09-14
+
+Audits: This version of the 0.5.x branch has feature parity with Evolution's [`0.6.3` version](https://github.com/chairemobilite/evolution/blob/main/CHANGELOG.md).
+
+### Added
+- Added `platform`, `os`, `browser` and `language` fields to each record of the exported paradata (#1395)
+
+### Changed
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+
+- Require admin access to verify new user accounts
+
+### Dependency updates
+
+- Morgan: 1.10.0 => 1.12.0
+
 
 ## [0.5.0] - 2026-01-30
 
