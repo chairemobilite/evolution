@@ -9,9 +9,9 @@ from typing import List, Union, Optional  # Types for Python
 
 from scripts.generate_input_range import generate_input_range
 from helpers.generator_helpers import (
-    create_mocked_excel_data,
     delete_file_if_exists,
 )
+from tests.mocked_excel import create_mocked_excel_data
 
 # Define constants
 MOCKED_EXCEL_FILE = "src/tests/references/test.xlsx"

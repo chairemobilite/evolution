@@ -5,9 +5,10 @@
 from typing import NamedTuple
 
 from helpers.generator_helpers import add_generator_yaml_header
+from tests.mocked_excel import create_mocked_excel_data
 from scripts.labels_generator import LabelsGenerator, LabelFormatter
 import pytest
-from helpers.generator_helpers import create_mocked_excel_data, delete_file_if_exists
+from helpers.generator_helpers import delete_file_if_exists
 
 
 def test_label_formatter_bold():

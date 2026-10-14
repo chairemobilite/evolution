@@ -8,9 +8,9 @@ from typing import NamedTuple
 from helpers.generator_helpers import (
     INDENT,
     add_generator_comment,
-    create_mocked_excel_data,
     delete_file_if_exists,
 )
+from tests.mocked_excel import create_mocked_excel_data
 from scripts.generate_section_configs import (
     _section_conditional_ts_expression,
     generate_section_configs,

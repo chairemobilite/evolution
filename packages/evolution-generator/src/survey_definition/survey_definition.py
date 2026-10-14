@@ -12,6 +12,7 @@
 
 from pydantic import BaseModel, Field
 
+from survey_definition.conditionals_definition import Conditionals
 from survey_definition.sections_definition import Sections
 
 
@@ -36,6 +37,9 @@ class SurveyDefinition(BaseModel):
     Attributes:
         sections: The Sections table, already checked: one SectionDefinition per row, in
             source order.
+        conditionals: The Conditionals table, already checked: one ConditionalDefinition
+            per row, in source order.
     """
 
     sections: Sections = Field(default_factory=lambda: Sections([]))
+    conditionals: Conditionals = Field(default_factory=lambda: Conditionals([]))
