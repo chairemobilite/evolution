@@ -152,3 +152,6 @@ example/demo_generator/tests/common-UI-tests-helpers-template.ts
 
 ## JSDoc Internal API Documentations
 /docs/internalApi/
+
+## Claude Code local launch config (copy from .claude/launch.json.example)
+.claude/launch.json
