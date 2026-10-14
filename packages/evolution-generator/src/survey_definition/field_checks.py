@@ -37,3 +37,8 @@ def ends_with_underscore(value, row: dict) -> bool:
 def valid_conditional_name(value, row: dict) -> bool:
     """Must end with 'Conditional' or 'CustomConditional' (e.g. 'hasHouseholdSize1Conditional', 'isCompleteCustomConditional')."""
     return str(value).endswith("Conditional")
+
+
+def primitive_value(value, row: dict) -> bool:
+    """Must be a bool, int, float, or str."""
+    return isinstance(value, (bool, int, float, str))

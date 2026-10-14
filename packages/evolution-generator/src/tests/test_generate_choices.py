@@ -7,7 +7,8 @@
 import os
 import pytest
 
-from helpers.generator_helpers import create_mocked_excel_data, delete_file_if_exists
+from helpers.generator_helpers import delete_file_if_exists
+from tests.mocked_excel import create_mocked_excel_data
 from scripts.generate_choices import (
     generate_choices,
     _generate_choices_yaml_locales,
