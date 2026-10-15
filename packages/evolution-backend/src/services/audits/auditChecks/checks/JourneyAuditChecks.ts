@@ -18,6 +18,7 @@ import {
 import type { Journey } from 'evolution-common/lib/services/baseObjects/Journey';
 import { getAnswerValue } from 'evolution-common/lib/services/baseObjects/attributeTypes/AnswerStatus';
 import { hasIncompatibleBoundaryActivity, hasSchoolBoundaryActivity } from './overnightStayActivities';
+import { departurePlaceTypeIsInconsistent } from './departurePlaceTypeConsistency';
 
 /** Trips or visited places mean the journey holds travel that `didTrips` should justify. */
 const journeyHasDiaryContent = (journey: Journey): boolean =>
@@ -407,6 +408,31 @@ export const journeyAuditChecks: { [errorCode: string]: JourneyAuditCheckFunctio
         }
 
         return undefined; // No audit needed
+    },
+
+    /**
+     * Warning when the first place has an activity other than home and
+     * `departurePlaceOther` is missing or does not match that activity.
+     * Home and a missing activity are ignored.
+     * @param context - JourneyAuditCheckContext
+     * @returns {AuditForObject | undefined}
+     */
+    J_W_JourneyNonHomeDeparturePlaceTypeIsInconsistent: (
+        context: JourneyAuditCheckContext
+    ): AuditForObject | undefined => {
+        const { journey } = context;
+        if (!departurePlaceTypeIsInconsistent(journey)) {
+            return undefined;
+        }
+        return {
+            objectType: 'journey',
+            objectUuid: journey._uuid!,
+            errorCode: 'J_W_JourneyNonHomeDeparturePlaceTypeIsInconsistent',
+            version: 1,
+            level: 'warning',
+            message: 'Departure place type is inconsistent with the first place',
+            ignore: false
+        };
     },
 
     /**

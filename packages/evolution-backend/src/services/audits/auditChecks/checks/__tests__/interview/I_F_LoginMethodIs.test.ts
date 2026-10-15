@@ -15,19 +15,19 @@ const loginMethodChecks: {
     errorCode: string;
     message: string;
 }[] = [
-    { method: 'email', errorCode: 'I_F_loginMethodIsEmail', message: 'Login method is email' },
-    { method: 'anonymous', errorCode: 'I_F_loginMethodIsAnonymous', message: 'Login method is anonymous' },
-    { method: 'google', errorCode: 'I_F_loginMethodIsGoogle', message: 'Login method is Google' },
+    { method: 'email', errorCode: 'I_F_LoginMethodIsEmail', message: 'Login method is email' },
+    { method: 'anonymous', errorCode: 'I_F_LoginMethodIsAnonymous', message: 'Login method is anonymous' },
+    { method: 'google', errorCode: 'I_F_LoginMethodIsGoogle', message: 'Login method is Google' },
     {
         method: 'interviewer',
-        errorCode: 'I_F_loginMethodIsInterviewer',
+        errorCode: 'I_F_LoginMethodIsInterviewer',
         message: 'The interview was started by an interviewer'
     },
-    { method: 'byField', errorCode: 'I_F_loginMethodIsByField', message: 'Login method is by field' },
-    { method: 'unknown', errorCode: 'I_F_loginMethodIsUnknown', message: 'Login method is unknown' }
+    { method: 'byField', errorCode: 'I_F_LoginMethodIsByField', message: 'Login method is by field' },
+    { method: 'unknown', errorCode: 'I_F_LoginMethodIsUnknown', message: 'Login method is unknown' }
 ];
 
-describe('I_F_loginMethodIs[LOGIN_METHOD] audit checks', () => {
+describe('I_F_LoginMethodIs[LOGIN_METHOD] audit checks', () => {
     const validUuid = uuidV4();
 
     test.each([

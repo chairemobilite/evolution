@@ -257,6 +257,45 @@ describe('JourneyFactory', () => {
             );
         });
 
+        it.each([
+            {
+                description: 'copies departurePlaceOther onto the journey',
+                departurePlaceOther: 'sleptAtFriends',
+                expected: 'sleptAtFriends'
+            },
+            {
+                description: 'leaves a blank departurePlaceOther unset',
+                departurePlaceOther: '',
+                expected: undefined
+            },
+            {
+                description: 'leaves a missing departurePlaceOther unset',
+                departurePlaceOther: undefined,
+                expected: undefined
+            }
+        ])('$description', async ({ departurePlaceOther, expected }) => {
+            personAttributes.journeys = {
+                'journey-1': { _uuid: 'journey-1', _sequence: 1, departurePlaceOther }
+            } as ExtendedPersonAttributes['journeys'];
+            (MockedJourney.create as jest.Mock).mockReturnValueOnce(createOk({ _uuid: 'journey-1' } as Journey));
+            mockedpopulateVisitedPlacesForJourney.mockResolvedValue();
+            mockedpopulateTripsForJourney.mockResolvedValue();
+
+            await populateJourneysForPerson(
+                surveyObjectsWithErrors,
+                person,
+                personAttributes,
+                home,
+                surveyObjectsRegistry
+            );
+
+            expect(MockedJourney.create).toHaveBeenCalledWith(
+                expect.objectContaining({ _originalDeparturePlaceOther: expected }),
+                surveyObjectsRegistry
+            );
+            expect((MockedJourney.create as jest.Mock).mock.calls[0][0].departurePlaceOther).toBeUndefined();
+        });
+
         describe('didTrips from questionnaire answers', () => {
             it.each([
                 {
