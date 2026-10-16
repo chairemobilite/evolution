@@ -8,31 +8,44 @@ import os
 import csv
 from typing import Literal
 from helpers.generator_helpers import get_data_from_excel, clean_text
+from helpers.questionnaire_reference_helpers import (
+    describe_conditionals,
+    get_abbreviation_by_section,
+    transform_path,
+)
 from scripts.generate_widgets import get_radio_number_parameters
+from survey_definition.survey_definition import SurveyDefinition
 
 
 # Function to generate questionnaire_test for each section
 def generate_questionnaire_dictionary(
+    # TODO: Remove excel_file_path once every sheet read here is migrated to the survey definition.
     excel_file_path: str,
+    survey_definition: SurveyDefinition,
     questionnaire_dictionary_output_folder: str,
     language: Literal["en", "fr"],
 ):
+    """
+    Write questionnaire_dictionary_<language>.csv: every active question, by section,
+    with its path, conditional, input type and possible values.
+
+    Args:
+        excel_file_path: Excel file to read the sheets not yet migrated to the
+            survey definition from.
+        survey_definition: Already-validated survey definition to describe.
+        questionnaire_dictionary_output_folder: Folder to write the CSV file to.
+        language: Language of the labels, 'en' or 'fr'.
+    """
     try:
         # Read data from Excel and return rows and headers
         widgets_rows, widgets_headers = get_data_from_excel(
             excel_file_path, sheet_name="Widgets"
-        )
-        sections_rows, sections_headers = get_data_from_excel(
-            excel_file_path, sheet_name="Sections"
         )
         choices_rows, choices_headers = get_data_from_excel(
             excel_file_path, sheet_name="Choices"
         )
         ranges_rows, ranges_headers = get_data_from_excel(
             excel_file_path, sheet_name="InputRange"
-        )
-        conditionals_rows, conditionals_headers = get_data_from_excel(
-            excel_file_path, sheet_name="Conditionals"
         )
 
         # Find the index
@@ -50,27 +63,18 @@ def generate_questionnaire_dictionary(
             if "parameters" in widgets_headers
             else None
         )
-        section_name_index = sections_headers.index("section")
-        section_title_language_index = sections_headers.index(f"title_{language}")
-        section_title_abbreviation_index = sections_headers.index("abbreviation")
 
-        # Map section names to their titles and abbreviations
-        sections = {
-            row[section_name_index].value: {
-                "title": row[section_title_language_index].value,
-                "abbreviation": (
-                    row[section_title_abbreviation_index].value
-                    if row[section_title_abbreviation_index].value
-                    else ""
-                ),
-            }
-            for row in sections_rows[1:]
+        # Map section names to their definitions
+        section_by_name = {
+            section.section: section for section in survey_definition.sections
         }
 
-        # Process conditionals and get the conditionals_map
-        conditionals_map = process_conditionals(
-            conditionals_rows, conditionals_headers, sections
+        abbreviation_by_section = get_abbreviation_by_section(
+            survey_definition.sections
         )
+
+        # Describe each conditional, by conditional_name
+        conditionals_map = describe_conditionals(survey_definition)
 
         # Process choices and get the choices_map
         choices_map = process_choices(
@@ -115,7 +119,9 @@ def generate_questionnaire_dictionary(
                     radio_number_text = process_radio_number_values(
                         parameters, language
                     )
-                transformed_path = transform_path(question_path, sections)
+                transformed_path = transform_path(
+                    question_path, abbreviation_by_section
+                )
                 # Get conditional text or the name if it contains 'CustomConditional'
                 conditional_text = (
                     conditional
@@ -141,8 +147,9 @@ def generate_questionnaire_dictionary(
 
         # Generate questionnaire data with sections
         for section_name, questions in sections_questions.items():
-            section_title = sections[section_name]["title"]
-            section_abbreviation = sections[section_name]["abbreviation"]
+            section = section_by_name[section_name]
+            section_title = getattr(section, f"title_{language}")
+            section_abbreviation = section.abbreviation
 
             if not first_section:
                 # Add triple line break before section information
@@ -431,84 +438,6 @@ def process_range(ranges_rows, ranges_headers, language):
             ranges_map[input_range_name] = range_entry
 
     return ranges_map
-
-
-def process_conditionals(conditionals_rows, conditionals_headers, sections):
-    """
-    Process the conditionals from the Excel sheet and group them by conditional_name.
-    Concatenate their logical operators, paths, comparison operators, and values.
-
-    Args:
-        conditionals_rows (list): Rows from the Conditionals sheet.
-        conditionals_headers (list): Headers from the Conditionals sheet.
-        sections (dict): A dictionary mapping section names to their titles and abbreviations.
-
-    Returns:
-        dict: A dictionary mapping conditional_name to their concatenated conditionals.
-    """
-    conditional_name_index = conditionals_headers.index("conditional_name")
-    logical_operator_index = conditionals_headers.index("logical_operator")
-    path_index = conditionals_headers.index("path")
-    comparison_operator_index = conditionals_headers.index("comparison_operator")
-    value_index = conditionals_headers.index("value")
-    parentheses_index = conditionals_headers.index("parentheses")
-
-    conditionals_map = {}
-    for row in conditionals_rows[1:]:
-        conditional_name = row[conditional_name_index].value
-        logical_operator = row[logical_operator_index].value
-        path = row[path_index].value
-        comparison_operator = row[comparison_operator_index].value
-        value = row[value_index].value
-        parentheses = row[parentheses_index].value
-        transformed_path = transform_path(path, sections)
-
-        # Construct the conditional string
-        conditional_string = f"{transformed_path} {comparison_operator} {value}"
-
-        # Add parentheses if they exist, and place them around the conditional string depending on the parentheses
-        if parentheses == "(":
-            conditional_string = f"{parentheses}{conditional_string}"
-        elif parentheses == ")":
-            conditional_string = f"{conditional_string}{parentheses}"
-
-        # Add logical operator if it exists
-        if logical_operator:
-            conditional_string = f"{logical_operator} {conditional_string}"
-
-        # Add Conditional name to conditional_string only if it's the first occurrence
-        if conditional_name not in conditionals_map:
-            conditional_string = f"{conditional_name} : {conditional_string}"
-
-        # Add conditional to conditionals_map
-        if conditional_name in conditionals_map:
-            conditionals_map[conditional_name] += f" {conditional_string}"
-        else:
-            conditionals_map[conditional_name] = conditional_string
-
-    return conditionals_map
-
-
-# Function to transform the path to the format of the questionnaire.
-# We change '.' to '_' because it's simpler for Python or R to read the file.
-def transform_path(path: str, sections: dict) -> str:
-    # If the path contains the relativePath, we don't change it
-    if "${relativePath}." in path:
-        return path
-
-    # If the path contains '.', we change it to 'abreviation_fieldName'
-    if "." in path:
-        if path.count(".") > 1:
-            print(
-                f"Warning: The path '{path}' contains multiple dots, which may lead to incorrect section attribution. See issue #1058 in Evolution for details."
-            )
-        # limit the split to 1 to avoid too many values to unpack
-        # FIXME This does not handle correctly cases of complex paths with multiple dots. See https://github.com/chairemobilite/evolution/issues/1058 for more details
-        section_name, field_name = path.split(".", 1)
-        abbreviation = sections.get(section_name, {}).get("abbreviation", "")
-        return f"{abbreviation}{field_name}"
-    else:
-        return path
 
 
 def rename_input_type(input_type: str, language: Literal["en", "fr"]) -> str:

@@ -107,6 +107,18 @@ def _override_enabled_scripts(only_scripts):
 # TODO: Add some validation for the config file
 # Generate the survey from the config file
 def generate_survey(config_path, only_scripts=None):
+    """
+    Generate the survey from the Generator config file.
+
+    Loads and validates the survey definition once (aborting if the Excel file is
+    invalid), then runs every script enabled in the config and passes it the
+    definition when it needs one.
+
+    Args:
+        config_path: Path to the Generator config YAML file.
+        only_scripts: Set of script keys to run instead of the config's
+            enabled_scripts (see _parse_only_scripts), or None to use the config.
+    """
     # Load environment variables from .env file
     load_dotenv()
 
@@ -168,28 +180,28 @@ def generate_survey(config_path, only_scripts=None):
         ExcelToCsvGenerator.generate_csv_copy(excel_file_path=excel_file_path)
 
     # Call the generate_folders function to generate the folders for the survey
-    generate_folders(excel_file_path, survey_folder_path, enabled_scripts)
+    generate_folders(survey_definition, survey_folder_path, enabled_scripts)
 
     # Call the generate_section_configs function to generate sectionConfigs.ts if script enabled
     if enabled_generate_section_configs:
         section_config_output_folder = os.path.join(
             survey_folder_path, "src", "survey", "sections"
         )
-        generate_section_configs(excel_file_path, section_config_output_folder)
+        generate_section_configs(survey_definition, section_config_output_folder)
 
     # Call the generate_sections function to generate sections.tsx if script enabled
     if enabled_generate_sections:
         sections_output_file_path = os.path.join(
             survey_folder_path, "src", "survey", "sections.ts"
         )
-        generate_sections(excel_file_path, sections_output_file_path)
+        generate_sections(survey_definition, sections_output_file_path)
 
     # Call the generate_widgets_config function to generate widgetsConfigs.tsx if script enabled
     if enabled_generate_widgets_configs:
         widgets_configs_output_file_path = os.path.join(
             survey_folder_path, "src", "survey", "widgetsConfigs.tsx"
         )
-        generate_widgets_configs(excel_file_path, widgets_configs_output_file_path)
+        generate_widgets_configs(survey_definition, widgets_configs_output_file_path)
 
     # Call the generate_widgets function to generate widgets.tsx for each section if script enabled
     if enabled_generate_widgets:
@@ -204,7 +216,7 @@ def generate_survey(config_path, only_scripts=None):
             survey_folder_path, "src", "survey", "common", "conditionals.tsx"
         )
         ConditionalsGenerator.generate_conditionals(
-            excel_file_path, conditionals_output_file_path
+            survey_definition, conditionals_output_file_path
         )
 
     # Call the generate_choices function to generate choices.tsx if script enabled
@@ -257,10 +269,16 @@ def generate_survey(config_path, only_scripts=None):
             survey_folder_path, "references"
         )
         generate_questionnaire_list(
-            excel_file_path, questionnaire_list_output_folder, language="en"
+            excel_file_path,
+            survey_definition,
+            questionnaire_list_output_folder,
+            language="en",
         )
         generate_questionnaire_list(
-            excel_file_path, questionnaire_list_output_folder, language="fr"
+            excel_file_path,
+            survey_definition,
+            questionnaire_list_output_folder,
+            language="fr",
         )
 
     # Call the generate_questionnaire_dictionary function to generate the questionnaire_dictionary_en.txt if script enabled
@@ -269,10 +287,16 @@ def generate_survey(config_path, only_scripts=None):
             survey_folder_path, "references"
         )
         generate_questionnaire_dictionary(
-            excel_file_path, questionnaire_dictionary_output_folder, language="en"
+            excel_file_path,
+            survey_definition,
+            questionnaire_dictionary_output_folder,
+            language="en",
         )
         generate_questionnaire_dictionary(
-            excel_file_path, questionnaire_dictionary_output_folder, language="fr"
+            excel_file_path,
+            survey_definition,
+            questionnaire_dictionary_output_folder,
+            language="fr",
         )
 
 

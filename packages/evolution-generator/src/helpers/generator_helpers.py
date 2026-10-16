@@ -36,20 +36,6 @@ def add_generator_yaml_header() -> str:
     return _format_generator_header("# ")
 
 
-# Get sections names of Sections sheet
-def get_sections_names(rows: List, headers: List) -> List[str]:
-    # Find the index of 'section' in headers
-    section_index = headers.index("section")
-
-    # Get all unique section names
-    sections_names = []
-    for row in rows[1:]:
-        section_name = row[section_index].value
-        if section_name not in sections_names:
-            sections_names.append(section_name)
-    return sections_names
-
-
 # Read data from Excel and return rows and headers
 def get_data_from_excel(excel_file_path: str, sheet_name: str) -> tuple:
     try:
