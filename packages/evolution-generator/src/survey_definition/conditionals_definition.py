@@ -271,6 +271,16 @@ class Conditionals(RootModel[list[ConditionalDefinition]]):
                 )
         return issues
 
+    def by_name(self) -> dict[str, list[ConditionalDefinition]]:
+        """
+        Group the rows by conditional_name: each group is that conditional's logical
+        expression, rows in source order. Groups are in order of first appearance.
+        """
+        groups: dict[str, list[ConditionalDefinition]] = {}
+        for conditional in self.root:
+            groups.setdefault(conditional.conditional_name, []).append(conditional)
+        return groups
+
     def __iter__(self) -> Iterator[ConditionalDefinition]:  # type: ignore[override]
         return iter(self.root)
 

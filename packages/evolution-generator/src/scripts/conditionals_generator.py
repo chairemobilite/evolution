@@ -11,14 +11,14 @@ import json
 from helpers.generator_helpers import (
     INDENT,
     add_generator_comment,
-    get_values_from_row,
-    get_data_from_excel,
     generate_output_file,
 )
+from survey_definition.conditionals_definition import Conditionals
+from survey_definition.survey_definition import SurveyDefinition
 
 
 class ConditionalsGenerator:
-    """Generate TypeScript (conditionals.tsx) output from the Conditionals Excel sheet."""
+    """Generate TypeScript (conditionals.tsx) output from the SurveyDefinition's Conditionals table."""
 
     # Tokens used when expanding conditional paths in generated TypeScript (see ``generate_typescript_code``).
     CONDITIONALS_CURRENT_CONTEXT_SPECS: tuple[dict, ...] = (
@@ -63,11 +63,6 @@ class ConditionalsGenerator:
             "comment": "Get the current visited place id",
         },
     )
-
-    @staticmethod
-    def _empty_to_none(value) -> str | None:
-        """Treat empty string as None for optional Excel cells (e.g. logical_operator, parentheses)."""
-        return None if value == "" else value
 
     @staticmethod
     def _expand_tokenized_path(
@@ -137,42 +132,28 @@ class ConditionalsGenerator:
         return str(value)
 
     @staticmethod
-    def extract_conditionals_from_data(rows, headers) -> defaultdict:
-        """Extract conditionals from rows and group them by conditional_name."""
+    def _group_conditionals_by_name(conditionals: Conditionals) -> defaultdict:
+        """Turn the validated Conditionals table, grouped by conditional_name, into the dicts generate_typescript_code expects."""
+        # FIXME: These dicts hold the same data as the ConditionalDefinition objects
+        # from conditionals.by_name(). They only exist because generate_typescript_code
+        # (and its tests) still take the dict format that was read from the Excel file.
+        # Make generate_typescript_code take conditionals.by_name() directly, then
+        # remove this function.
         conditional_by_name = defaultdict(list)
 
-        try:
-            for row_number, row in enumerate(rows[1:], start=2):
-                values = get_values_from_row(row, headers)
-                row_dict = dict(zip(headers, values, strict=True))
-
-                # Get values from the row dictionary
-                conditional_name = row_dict.get("conditional_name")
-                logical_operator = row_dict.get("logical_operator")
-                path = row_dict.get("path")
-                comparison_operator = row_dict.get("comparison_operator")
-                value = row_dict.get("value")
-                parentheses = row_dict.get("parentheses")
-                value_when_hidden = row_dict.get("value_when_hidden")
-
+        for conditional_name, definitions in conditionals.by_name().items():
+            for definition in definitions:
                 conditional = {
-                    "logical_operator": logical_operator,
-                    "path": path,
-                    "comparison_operator": comparison_operator,
-                    "value": value,
-                    "parentheses": parentheses,
+                    "logical_operator": definition.logical_operator,
+                    "path": definition.path,
+                    "comparison_operator": definition.comparison_operator,
+                    "value": definition.value,
+                    "parentheses": definition.parentheses,
                 }
-                value_when_hidden = ConditionalsGenerator._empty_to_none(
-                    value_when_hidden
-                )
-                if value_when_hidden is not None:
-                    conditional["value_when_hidden"] = value_when_hidden
+                if definition.value_when_hidden is not None:
+                    conditional["value_when_hidden"] = definition.value_when_hidden
 
                 conditional_by_name[conditional_name].append(conditional)
-
-        except Exception as e:
-            print(f"Error extracting conditionals from Excel data: {e}")
-            raise e
 
         return conditional_by_name
 
@@ -336,9 +317,12 @@ class ConditionalsGenerator:
         return ts_code
 
     @classmethod
-    def generate_conditionals(cls, input_file: str, output_file: str) -> None:
-        """Read the Conditionals sheet from ``input_file`` and write generated TypeScript to ``output_file`` (e.g. conditionals.tsx)."""
-        rows, headers = get_data_from_excel(input_file, sheet_name="Conditionals")
-        conditional_by_name = cls.extract_conditionals_from_data(rows, headers)
+    def generate_conditionals(
+        cls, survey_definition: SurveyDefinition, output_file: str
+    ) -> None:
+        """Write TypeScript generated from ``survey_definition.conditionals`` to ``output_file`` (e.g. conditionals.tsx)."""
+        conditional_by_name = cls._group_conditionals_by_name(
+            survey_definition.conditionals
+        )
         ts_code = cls.generate_typescript_code(conditional_by_name)
         generate_output_file(ts_code, output_file)

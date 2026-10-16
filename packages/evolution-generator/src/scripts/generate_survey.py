@@ -107,6 +107,18 @@ def _override_enabled_scripts(only_scripts):
 # TODO: Add some validation for the config file
 # Generate the survey from the config file
 def generate_survey(config_path, only_scripts=None):
+    """
+    Generate the survey from the Generator config file.
+
+    Loads and validates the survey definition once (aborting if the Excel file is
+    invalid), then runs every script enabled in the config and passes it the
+    definition when it needs one.
+
+    Args:
+        config_path: Path to the Generator config YAML file.
+        only_scripts: Set of script keys to run instead of the config's
+            enabled_scripts (see _parse_only_scripts), or None to use the config.
+    """
     # Load environment variables from .env file
     load_dotenv()
 
@@ -204,7 +216,7 @@ def generate_survey(config_path, only_scripts=None):
             survey_folder_path, "src", "survey", "common", "conditionals.tsx"
         )
         ConditionalsGenerator.generate_conditionals(
-            excel_file_path, conditionals_output_file_path
+            survey_definition, conditionals_output_file_path
         )
 
     # Call the generate_choices function to generate choices.tsx if script enabled
@@ -269,10 +281,16 @@ def generate_survey(config_path, only_scripts=None):
             survey_folder_path, "references"
         )
         generate_questionnaire_dictionary(
-            excel_file_path, questionnaire_dictionary_output_folder, language="en"
+            excel_file_path,
+            survey_definition,
+            questionnaire_dictionary_output_folder,
+            language="en",
         )
         generate_questionnaire_dictionary(
-            excel_file_path, questionnaire_dictionary_output_folder, language="fr"
+            excel_file_path,
+            survey_definition,
+            questionnaire_dictionary_output_folder,
+            language="fr",
         )
 
 
