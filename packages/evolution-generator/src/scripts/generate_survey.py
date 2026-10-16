@@ -180,28 +180,28 @@ def generate_survey(config_path, only_scripts=None):
         ExcelToCsvGenerator.generate_csv_copy(excel_file_path=excel_file_path)
 
     # Call the generate_folders function to generate the folders for the survey
-    generate_folders(excel_file_path, survey_folder_path, enabled_scripts)
+    generate_folders(survey_definition, survey_folder_path, enabled_scripts)
 
     # Call the generate_section_configs function to generate sectionConfigs.ts if script enabled
     if enabled_generate_section_configs:
         section_config_output_folder = os.path.join(
             survey_folder_path, "src", "survey", "sections"
         )
-        generate_section_configs(excel_file_path, section_config_output_folder)
+        generate_section_configs(survey_definition, section_config_output_folder)
 
     # Call the generate_sections function to generate sections.tsx if script enabled
     if enabled_generate_sections:
         sections_output_file_path = os.path.join(
             survey_folder_path, "src", "survey", "sections.ts"
         )
-        generate_sections(excel_file_path, sections_output_file_path)
+        generate_sections(survey_definition, sections_output_file_path)
 
     # Call the generate_widgets_config function to generate widgetsConfigs.tsx if script enabled
     if enabled_generate_widgets_configs:
         widgets_configs_output_file_path = os.path.join(
             survey_folder_path, "src", "survey", "widgetsConfigs.tsx"
         )
-        generate_widgets_configs(excel_file_path, widgets_configs_output_file_path)
+        generate_widgets_configs(survey_definition, widgets_configs_output_file_path)
 
     # Call the generate_widgets function to generate widgets.tsx for each section if script enabled
     if enabled_generate_widgets:
