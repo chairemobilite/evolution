@@ -107,6 +107,18 @@ def _override_enabled_scripts(only_scripts):
 # TODO: Add some validation for the config file
 # Generate the survey from the config file
 def generate_survey(config_path, only_scripts=None):
+    """
+    Generate the survey from the Generator config file.
+
+    Loads and validates the survey definition once (aborting if the Excel file is
+    invalid), then runs every script enabled in the config and passes it the
+    definition when it needs one.
+
+    Args:
+        config_path: Path to the Generator config YAML file.
+        only_scripts: Set of script keys to run instead of the config's
+            enabled_scripts (see _parse_only_scripts), or None to use the config.
+    """
     # Load environment variables from .env file
     load_dotenv()
 

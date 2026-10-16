@@ -8,11 +8,9 @@ from scripts.generate_questionnaire_dictionary import (
     combine_values_text,
     get_choices_text,
     process_choices,
-    process_conditionals,
     process_radio_number_values,
     rename_input_type,
 )
-from survey_definition.conditionals_definition import Conditionals
 
 CHOICES_HEADERS = [
     "choicesName",
@@ -235,54 +233,3 @@ class TestCombineValuesText:
     def test_returns_empty_string_when_all_parts_are_empty(self):
         assert combine_values_text("", "", "") == ""
         assert combine_values_text() == ""
-
-
-class TestProcessConditionals:
-    """process_conditionals builds one readable expression per conditional_name from the Conditionals table."""
-
-    SECTIONS = {"household": {"title": "Household", "abbreviation": "HH_"}}
-
-    def test_concatenates_rows_of_each_conditional(self):
-        conditionals = Conditionals(
-            [
-                {
-                    "conditional_name": "cond1",
-                    "path": "household.size",
-                    "comparison_operator": ">",
-                    "value": 1,
-                },
-                {
-                    "conditional_name": "cond1",
-                    "logical_operator": "&&",
-                    "path": "household.carNumber",
-                    "comparison_operator": "===",
-                    "value": 0,
-                    "parentheses": "(",
-                },
-                {
-                    "conditional_name": "cond1",
-                    "logical_operator": "||",
-                    "path": "${relativePath}.age",
-                    "comparison_operator": "<",
-                    "value": 18,
-                    "parentheses": ")",
-                },
-                {
-                    "conditional_name": "cond2",
-                    "path": "acceptToBeContacted",
-                    "comparison_operator": "===",
-                    "value": "yes",
-                },
-            ]
-        )
-
-        assert process_conditionals(conditionals, self.SECTIONS) == {
-            "cond1": (
-                "cond1 : HH_size > 1 && (HH_carNumber === 0 "
-                "|| ${relativePath}.age < 18)"
-            ),
-            "cond2": "cond2 : acceptToBeContacted === yes",
-        }
-
-    def test_empty_table_gives_empty_map(self):
-        assert process_conditionals(Conditionals([]), self.SECTIONS) == {}
