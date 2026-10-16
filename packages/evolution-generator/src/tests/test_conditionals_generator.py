@@ -8,16 +8,10 @@ from collections import defaultdict
 import pytest  # pyright: ignore[reportMissingImports]
 
 from scripts.conditionals_generator import ConditionalsGenerator
-from helpers.generator_helpers import delete_file_if_exists
-from tests.mocked_excel import create_mocked_excel_data
+from survey_definition.survey_definition import SurveyDefinition
 
 # TODO: Add tests for the remaining ConditionalsGenerator class methods:
-# - ConditionalsGenerator.extract_conditionals_from_data (grouping logic for raw rows/headers).
 # - ConditionalsGenerator.generate_typescript_code (shape and content of generated TS code).
-# - ConditionalsGenerator.generate_conditionals (end-to-end generation from Excel to file).
-
-# Path where create_mocked_excel_data writes the workbook; we delete it after each test.
-MOCKED_EXCEL_FILE = "src/tests/references/test.xlsx"
 
 
 class TestConditionalCellToPrimitive:
@@ -240,75 +234,31 @@ class TestGenerateTypescriptCode:
         assert case["expected_path_snippet"] in ts_code
 
 
-class TestExtractConditionalsFromData:
-    """
-    Regression test: extract_conditionals_from_data must not depend on column order.
-    """
+class TestGenerateConditionals:
+    """generate_conditionals writes the TypeScript generated from survey_definition.conditionals."""
 
-    def test_extract_conditionals_works_with_reordered_headers(self):
-        """
-        When the Conditionals sheet columns are reordered, extraction still picks values by header name.
-        """
-        # Reorder columns compared to the default spec order.
-        headers = [
-            "path",
-            "conditional_name",
-            "value",
-            "comparison_operator",
-            "parentheses",
-            "logical_operator",
-        ]
-        rows = [
-            ["some.path", "cond1", "42", "===", "", ""],
-            ["some.path", "cond1", "40", "!==", "(", "&&"],
-        ]
-        try:
-            workbook = create_mocked_excel_data("Conditionals", headers, rows)
-            sheet = workbook["Conditionals"]
-            extracted = ConditionalsGenerator.extract_conditionals_from_data(
-                list(sheet.rows), headers
-            )
-            assert extracted["cond1"] == [
+    def test_writes_generated_code_to_output_file(self, tmp_path):
+        survey_definition = SurveyDefinition(
+            conditionals=[
                 {
-                    "logical_operator": "",
-                    "path": "some.path",
-                    "comparison_operator": "===",
-                    "value": "42",
-                    "parentheses": "",
-                },
-                {
-                    "logical_operator": "&&",
-                    "path": "some.path",
-                    "comparison_operator": "!==",
-                    "value": "40",
-                    "parentheses": "(",
-                },
+                    "conditional_name": "hasChildren",
+                    "path": "household.size",
+                    "comparison_operator": ">",
+                    "value": 1,
+                    "value_when_hidden": False,
+                }
             ]
-        finally:
-            delete_file_if_exists(MOCKED_EXCEL_FILE)
+        )
+        output_file = tmp_path / "conditionals.tsx"
 
+        ConditionalsGenerator.generate_conditionals(survey_definition, str(output_file))
 
-class TestEmptyToNone:
-    """Tests for the _empty_to_none helper."""
-
-    def test_empty_string_returns_none(self):
-        """
-        Empty string should be converted to None.
-        """
-        assert ConditionalsGenerator._empty_to_none("") is None
-
-    def test_none_stays_none(self):
-        """
-        None should remain None.
-        """
-        assert ConditionalsGenerator._empty_to_none(None) is None
-
-    def test_non_empty_string_unchanged(self):
-        """
-        Non-empty strings should be returned unchanged.
-        """
-        assert ConditionalsGenerator._empty_to_none("foo") == "foo"
-        assert ConditionalsGenerator._empty_to_none(" ") == " "
+        ts_code = output_file.read_text()
+        assert (
+            "export const hasChildren: WidgetConditional = (interview) => {" in ts_code
+        )
+        assert "valueWhenHidden: false," in ts_code
+        assert "path: 'household.size'," in ts_code
 
 
 class TestExpandTokenizedPath:

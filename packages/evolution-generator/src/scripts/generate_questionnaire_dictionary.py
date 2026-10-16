@@ -9,11 +9,14 @@ import csv
 from typing import Literal
 from helpers.generator_helpers import get_data_from_excel, clean_text
 from scripts.generate_widgets import get_radio_number_parameters
+from survey_definition.conditionals_definition import Conditionals
+from survey_definition.survey_definition import SurveyDefinition
 
 
 # Function to generate questionnaire_test for each section
 def generate_questionnaire_dictionary(
     excel_file_path: str,
+    survey_definition: SurveyDefinition,
     questionnaire_dictionary_output_folder: str,
     language: Literal["en", "fr"],
 ):
@@ -30,9 +33,6 @@ def generate_questionnaire_dictionary(
         )
         ranges_rows, ranges_headers = get_data_from_excel(
             excel_file_path, sheet_name="InputRange"
-        )
-        conditionals_rows, conditionals_headers = get_data_from_excel(
-            excel_file_path, sheet_name="Conditionals"
         )
 
         # Find the index
@@ -69,7 +69,7 @@ def generate_questionnaire_dictionary(
 
         # Process conditionals and get the conditionals_map
         conditionals_map = process_conditionals(
-            conditionals_rows, conditionals_headers, sections
+            survey_definition.conditionals, sections
         )
 
         # Process choices and get the choices_map
@@ -433,34 +433,26 @@ def process_range(ranges_rows, ranges_headers, language):
     return ranges_map
 
 
-def process_conditionals(conditionals_rows, conditionals_headers, sections):
+def process_conditionals(conditionals: Conditionals, sections):
     """
-    Process the conditionals from the Excel sheet and group them by conditional_name.
+    Process the conditionals of the survey definition and group them by conditional_name.
     Concatenate their logical operators, paths, comparison operators, and values.
 
     Args:
-        conditionals_rows (list): Rows from the Conditionals sheet.
-        conditionals_headers (list): Headers from the Conditionals sheet.
+        conditionals (Conditionals): The validated Conditionals table of the survey definition.
         sections (dict): A dictionary mapping section names to their titles and abbreviations.
 
     Returns:
         dict: A dictionary mapping conditional_name to their concatenated conditionals.
     """
-    conditional_name_index = conditionals_headers.index("conditional_name")
-    logical_operator_index = conditionals_headers.index("logical_operator")
-    path_index = conditionals_headers.index("path")
-    comparison_operator_index = conditionals_headers.index("comparison_operator")
-    value_index = conditionals_headers.index("value")
-    parentheses_index = conditionals_headers.index("parentheses")
-
     conditionals_map = {}
-    for row in conditionals_rows[1:]:
-        conditional_name = row[conditional_name_index].value
-        logical_operator = row[logical_operator_index].value
-        path = row[path_index].value
-        comparison_operator = row[comparison_operator_index].value
-        value = row[value_index].value
-        parentheses = row[parentheses_index].value
+    for conditional in conditionals:
+        conditional_name = conditional.conditional_name
+        logical_operator = conditional.logical_operator
+        path = conditional.path
+        comparison_operator = conditional.comparison_operator
+        value = conditional.value
+        parentheses = conditional.parentheses
         transformed_path = transform_path(path, sections)
 
         # Construct the conditional string

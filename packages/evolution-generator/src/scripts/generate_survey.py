@@ -204,7 +204,7 @@ def generate_survey(config_path, only_scripts=None):
             survey_folder_path, "src", "survey", "common", "conditionals.tsx"
         )
         ConditionalsGenerator.generate_conditionals(
-            excel_file_path, conditionals_output_file_path
+            survey_definition, conditionals_output_file_path
         )
 
     # Call the generate_choices function to generate choices.tsx if script enabled
@@ -269,10 +269,16 @@ def generate_survey(config_path, only_scripts=None):
             survey_folder_path, "references"
         )
         generate_questionnaire_dictionary(
-            excel_file_path, questionnaire_dictionary_output_folder, language="en"
+            excel_file_path,
+            survey_definition,
+            questionnaire_dictionary_output_folder,
+            language="en",
         )
         generate_questionnaire_dictionary(
-            excel_file_path, questionnaire_dictionary_output_folder, language="fr"
+            excel_file_path,
+            survey_definition,
+            questionnaire_dictionary_output_folder,
+            language="fr",
         )
 
 
