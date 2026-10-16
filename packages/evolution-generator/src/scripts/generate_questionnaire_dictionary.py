@@ -41,9 +41,6 @@ def generate_questionnaire_dictionary(
         widgets_rows, widgets_headers = get_data_from_excel(
             excel_file_path, sheet_name="Widgets"
         )
-        sections_rows, sections_headers = get_data_from_excel(
-            excel_file_path, sheet_name="Sections"
-        )
         choices_rows, choices_headers = get_data_from_excel(
             excel_file_path, sheet_name="Choices"
         )
@@ -66,21 +63,10 @@ def generate_questionnaire_dictionary(
             if "parameters" in widgets_headers
             else None
         )
-        section_name_index = sections_headers.index("section")
-        section_title_language_index = sections_headers.index(f"title_{language}")
-        section_title_abbreviation_index = sections_headers.index("abbreviation")
 
-        # Map section names to their titles and abbreviations
-        sections = {
-            row[section_name_index].value: {
-                "title": row[section_title_language_index].value,
-                "abbreviation": (
-                    row[section_title_abbreviation_index].value
-                    if row[section_title_abbreviation_index].value
-                    else ""
-                ),
-            }
-            for row in sections_rows[1:]
+        # Map section names to their definitions
+        section_by_name = {
+            section.section: section for section in survey_definition.sections
         }
 
         abbreviation_by_section = get_abbreviation_by_section(
@@ -161,8 +147,9 @@ def generate_questionnaire_dictionary(
 
         # Generate questionnaire data with sections
         for section_name, questions in sections_questions.items():
-            section_title = sections[section_name]["title"]
-            section_abbreviation = sections[section_name]["abbreviation"]
+            section = section_by_name[section_name]
+            section_title = getattr(section, f"title_{language}")
+            section_abbreviation = section.abbreviation
 
             if not first_section:
                 # Add triple line break before section information

@@ -269,10 +269,16 @@ def generate_survey(config_path, only_scripts=None):
             survey_folder_path, "references"
         )
         generate_questionnaire_list(
-            excel_file_path, questionnaire_list_output_folder, language="en"
+            excel_file_path,
+            survey_definition,
+            questionnaire_list_output_folder,
+            language="en",
         )
         generate_questionnaire_list(
-            excel_file_path, questionnaire_list_output_folder, language="fr"
+            excel_file_path,
+            survey_definition,
+            questionnaire_list_output_folder,
+            language="fr",
         )
 
     # Call the generate_questionnaire_dictionary function to generate the questionnaire_dictionary_en.txt if script enabled
