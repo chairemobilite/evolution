@@ -7,13 +7,8 @@
 from helpers.generator_helpers import (
     INDENT,
     add_generator_comment,
-    is_excel_file,
-    get_workbook,
-    sheet_exists,
-    get_headers,
-    get_data_from_excel,
-    get_values_from_row,
 )
+from survey_definition.survey_definition import SurveyDefinition
 import os
 import shutil
 
@@ -32,59 +27,26 @@ def _section_conditional_ts_expression(name: str) -> str:
 
 
 # Function to generate sectionConfigs.ts for each section
-def generate_section_configs(excel_file_path: str, section_config_output_folder: str):
+def generate_section_configs(
+    survey_definition: SurveyDefinition, section_config_output_folder: str
+):
     try:
-        is_excel_file(excel_file_path)  # Check if the input file path is an Excel file
-        workbook = get_workbook(excel_file_path)  # Get workbook from Excel file
-        sheet_exists(workbook, "Sections")  # Check if the sheet exists
-        sheet = workbook["Sections"]  # Get Sections sheet
+        sections = survey_definition.sections
         previousSection = None  # Initialize previousSection as None
         nextSection = None  # Initialize nextSection as None
 
-        # Read data from Excel and return rows and headers
-        rows, headers = get_data_from_excel(excel_file_path, sheet_name="Sections")
-
-        # Test headers
-        get_headers(
-            sheet,
-            expected_headers=[
-                "section",
-                "title_fr",
-                "title_en",
-                "in_nav",
-                "template",
-                "parent_section",
-            ],
-            sheet_name="Sections",
-        )
-
-        # Find the index of 'section' in headers
-        section_index = headers.index("section")
-
-        # Iterate through each row in the sheet, starting from the second row
-        for row_number, row in enumerate(rows[1:], start=2):
-            # Get values from the row
-            row_dict = dict(zip(headers, (cell.value for cell in row)))
-            section = row_dict.get("section")
-            title_fr = row_dict.get("title_fr")
-            title_en = row_dict.get("title_en")
-            in_nav = row_dict.get("in_nav")
-            template = row_dict.get("template")
-            parent_section = row_dict.get("parent_section")
-            section_has_preload = row_dict.get("has_preload")
-            has_preload = section_has_preload is None or section_has_preload == True
-            enable_conditional = row_dict.get("enable_conditional", None)
-            enable_conditional_name = (
-                (str(enable_conditional).strip() or None)
-                if enable_conditional is not None
-                else None
-            )
-            completion_conditional = row_dict.get("completion_conditional", None)
-            completion_conditional_name = (
-                (str(completion_conditional).strip() or None)
-                if completion_conditional is not None
-                else None
-            )
+        # Iterate through each section, in source order
+        for section_index, section_definition in enumerate(sections):
+            section = section_definition.section
+            title_fr = section_definition.title_fr
+            title_en = section_definition.title_en
+            in_nav = section_definition.in_nav
+            template = section_definition.template
+            parent_section = section_definition.parent_section
+            # A blank has_preload means the section has a preload function
+            has_preload = section_definition.has_preload is not False
+            enable_conditional_name = section_definition.enable_conditional
+            completion_conditional_name = section_definition.completion_conditional
 
             # Generate code for section
             def generate_section_code(previousSection, nextSection):
@@ -188,11 +150,9 @@ def generate_section_configs(excel_file_path: str, section_config_output_folder:
                     ts_section_code += "const previousSectionName: SectionConfig['previousSection'] = null;\n"
 
                 # Generate nextSectionName
-                # Check if there is a next row
-                if row_number <= len(rows) - 1:
-                    next_row = rows[row_number]  # Get the next row
-                    # Get the next section from the next row
-                    nextSection = get_values_from_row(next_row, headers)[section_index]
+                # Check if there is a next section
+                if section_index < len(sections) - 1:
+                    nextSection = sections[section_index + 1].section
                     ts_section_code += f"const nextSectionName: SectionConfig['nextSection'] = '{nextSection}';\n"
                 else:
                     ts_section_code += (

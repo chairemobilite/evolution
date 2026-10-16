@@ -8,39 +8,14 @@ from typing import NamedTuple
 from helpers.generator_helpers import (
     INDENT,
     add_generator_comment,
-    delete_file_if_exists,
 )
-from tests.mocked_excel import create_mocked_excel_data
 from scripts.generate_section_configs import (
     _section_conditional_ts_expression,
     generate_section_configs,
 )
-
-MOCKED_EXCEL_FILE = "src/tests/references/test.xlsx"
+from survey_definition.survey_definition import SurveyDefinition
 
 IND = INDENT
-
-HEADERS_MINIMAL = (
-    "section",
-    "title_fr",
-    "title_en",
-    "in_nav",
-    "template",
-    "parent_section",
-    "has_preload",
-)
-
-HEADERS_WITH_CONDITIONALS = HEADERS_MINIMAL + (
-    "enable_conditional",
-    "completion_conditional",
-)
-
-
-def _sections_excel_row(
-    headers: tuple[str, ...] | list[str], row_by_header: dict
-) -> list:
-    """Build one data row in sheet column order (each header key must be present in the dict)."""
-    return [row_by_header[h] for h in headers]
 
 
 def _expected_header_and_core_imports(*, is_section_completed: bool) -> str:
@@ -66,14 +41,13 @@ def test_section_conditional_ts_expression_generated_conditional():
     )
 
 
-def test_generate_section_configs_from_excel(tmp_path: Path) -> None:
+def test_generate_section_configs_from_survey_definition(tmp_path: Path) -> None:
     class SectionConfigCase(NamedTuple):
-        """One Sections sheet row and the expected sectionConfigs.ts tail (after shared imports)."""
+        """The Sections table rows and the expected sectionConfigs.ts tail of `section` (after shared imports)."""
 
         id: str
         section: str
-        headers: tuple[str, ...]
-        row: dict[str, object | None]
+        rows: list[dict[str, object | None]]
         is_section_completed: bool
         extra_imports: str
         file_tail: str
@@ -82,16 +56,14 @@ def test_generate_section_configs_from_excel(tmp_path: Path) -> None:
         SectionConfigCase(
             id="minimal_first_section",
             section="home",
-            headers=HEADERS_MINIMAL,
-            row={
-                "section": "home",
-                "title_fr": None,
-                "title_en": None,
-                "in_nav": False,
-                "template": None,
-                "parent_section": None,
-                "has_preload": False,
-            },
+            rows=[
+                {
+                    "section": "home",
+                    "in_nav": False,
+                    "abbreviation": "HM_",
+                    "has_preload": False,
+                }
+            ],
             is_section_completed=True,
             extra_imports="",
             file_tail=(
@@ -117,22 +89,23 @@ def test_generate_section_configs_from_excel(tmp_path: Path) -> None:
         SectionConfigCase(
             id="parent_section_hidden_nav",
             section="personTrips",
-            headers=HEADERS_MINIMAL,
-            row={
-                "section": "personTrips",
-                "title_fr": None,
-                "title_en": None,
-                "in_nav": False,
-                "template": None,
-                "parent_section": "household",
-                "has_preload": False,
-            },
+            rows=[
+                {
+                    "section": "personTrips",
+                    "in_nav": False,
+                    "abbreviation": "PT_",
+                    "parent_section": "household",
+                    "has_preload": False,
+                },
+                # The parent section must exist in the Sections table
+                {"section": "household", "in_nav": False, "abbreviation": "HH_"},
+            ],
             is_section_completed=True,
             extra_imports="",
             file_tail=(
                 "\nexport const currentSectionName: string = 'personTrips';\n"
                 "const previousSectionName: SectionConfig['previousSection'] = null;\n"
-                "const nextSectionName: SectionConfig['nextSection'] = null;\n"
+                "const nextSectionName: SectionConfig['nextSection'] = 'household';\n"
                 "\n// Config for the section\n"
                 "export const sectionConfig: SectionConfig = {\n"
                 f"{IND}previousSection: previousSectionName,\n"
@@ -156,18 +129,19 @@ def test_generate_section_configs_from_excel(tmp_path: Path) -> None:
         SectionConfigCase(
             id="titles_template_preload_conditionals",
             section="trips",
-            headers=HEADERS_WITH_CONDITIONALS,
-            row={
-                "section": "trips",
-                "title_fr": "Voyages",
-                "title_en": "Trips",
-                "in_nav": True,
-                "template": "visitedPlaces",
-                "parent_section": None,
-                "has_preload": True,
-                "enable_conditional": "visitedPlacesForPersonIsCompleteCustomConditional",
-                "completion_conditional": "hasHouseholdSize1Conditional",
-            },
+            rows=[
+                {
+                    "section": "trips",
+                    "title_fr": "Voyages",
+                    "title_en": "Trips",
+                    "in_nav": True,
+                    "abbreviation": "TR_",
+                    "template": "visitedPlaces",
+                    "has_preload": True,
+                    "enable_conditional": "visitedPlacesForPersonIsCompleteCustomConditional",
+                    "completion_conditional": "hasHouseholdSize1Conditional",
+                }
+            ],
             is_section_completed=False,
             extra_imports=(
                 "import * as customConditionals from '../../common/customConditionals';\n"
@@ -209,26 +183,47 @@ def test_generate_section_configs_from_excel(tmp_path: Path) -> None:
     )
 
     for case in SECTION_CONFIG_CASES:
-        create_mocked_excel_data(
-            "Sections",
-            list(case.headers),
-            [_sections_excel_row(case.headers, case.row)],
-        )
-        try:
-            out_dir = tmp_path / "sections"
-            (out_dir / case.section).mkdir(parents=True, exist_ok=True)
-            generate_section_configs(MOCKED_EXCEL_FILE, str(out_dir))
+        survey_definition = SurveyDefinition(sections=case.rows)
+        out_dir = tmp_path / case.id
+        for row in case.rows:
+            (out_dir / row["section"]).mkdir(parents=True, exist_ok=True)
+        generate_section_configs(survey_definition, str(out_dir))
 
-            generated = (out_dir / case.section / "sectionConfigs.ts").read_text(
-                encoding="utf-8"
+        generated = (out_dir / case.section / "sectionConfigs.ts").read_text(
+            encoding="utf-8"
+        )
+        expected = (
+            _expected_header_and_core_imports(
+                is_section_completed=case.is_section_completed
             )
-            expected = (
-                _expected_header_and_core_imports(
-                    is_section_completed=case.is_section_completed
-                )
-                + case.extra_imports
-                + case.file_tail
-            )
-            assert generated == expected, case.id
-        finally:
-            delete_file_if_exists(MOCKED_EXCEL_FILE)
+            + case.extra_imports
+            + case.file_tail
+        )
+        assert generated == expected, case.id
+
+
+def test_generate_section_configs_links_sections_in_source_order(
+    tmp_path: Path,
+) -> None:
+    """Each section's previous and next sections are its neighbours in the Sections table."""
+    survey_definition = SurveyDefinition(
+        sections=[
+            {"section": "home", "in_nav": False, "abbreviation": "HM_"},
+            {"section": "household", "in_nav": False, "abbreviation": "HH_"},
+            {"section": "end", "in_nav": False, "abbreviation": "EN_"},
+        ]
+    )
+    for section in ("home", "household", "end"):
+        (tmp_path / section).mkdir()
+
+    generate_section_configs(survey_definition, str(tmp_path))
+
+    def previous_and_next(section: str) -> tuple[str, str]:
+        lines = (tmp_path / section / "sectionConfigs.ts").read_text().splitlines()
+        previous_line = next(l for l in lines if "previousSectionName:" in l)
+        next_line = next(l for l in lines if "nextSectionName:" in l)
+        return previous_line.split(" = ")[1], next_line.split(" = ")[1]
+
+    assert previous_and_next("home") == ("null;", "'household';")
+    assert previous_and_next("household") == ("'home';", "'end';")
+    assert previous_and_next("end") == ("'household';", "null;")
