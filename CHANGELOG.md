@@ -21,6 +21,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Dependency updates
 
+Python:
+
+* cryptography: 44.0.1 => 50.0.2 (fixes Dependabot alert [#373](https://github.com/chairemobilite/evolution/security/dependabot/373))
+* msal: 1.31.1 => 1.39.0
 
 ## [0.6.6] - 2026-10-14
 
