@@ -7,20 +7,18 @@
 
 from helpers.generator_helpers import (
     INDENT,
-    get_data_from_excel,
-    get_sections_names,
     add_generator_comment,
 )
+from survey_definition.survey_definition import SurveyDefinition
 
 
 # Function to generate sections.ts
-def generate_sections(excel_file_path: str, sections_output_file_path: str):
+def generate_sections(
+    survey_definition: SurveyDefinition, sections_output_file_path: str
+):
     try:
-        # Read data from Excel and return rows and headers
-        rows, headers = get_data_from_excel(excel_file_path, sheet_name="Sections")
-
-        # Get sections names of Sections sheet
-        sections_names = get_sections_names(rows, headers)
+        # Get the sections names, in source order
+        sections_names = [section.section for section in survey_definition.sections]
 
         ts_code: str = ""  # TypeScript code to be written to file
 
