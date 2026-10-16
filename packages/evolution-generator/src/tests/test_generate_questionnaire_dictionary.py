@@ -2,14 +2,24 @@
 # This file is licensed under the MIT License.
 # License text available at https://opensource.org/licenses/MIT
 
+import csv
+
 import pytest
+from helpers.generator_helpers import delete_file_if_exists
 from scripts.generate_questionnaire_dictionary import (
     MAX_RADIO_NUMBER_VALUES,
     combine_values_text,
+    generate_questionnaire_dictionary,
     get_choices_text,
     process_choices,
     process_radio_number_values,
     rename_input_type,
+)
+from survey_definition.survey_definition import SurveyDefinition
+from tests.mocked_excel import (
+    MOCKED_EXCEL_FILE,
+    add_mocked_excel_sheet,
+    create_mocked_excel_data,
 )
 
 CHOICES_HEADERS = [
@@ -233,3 +243,81 @@ class TestCombineValuesText:
     def test_returns_empty_string_when_all_parts_are_empty(self):
         assert combine_values_text("", "", "") == ""
         assert combine_values_text() == ""
+
+
+class TestGenerateQuestionnaireDictionary:
+    def test_describes_each_section_with_its_title_and_abbreviation(self, tmp_path):
+        """Each section is introduced by its title, in the requested language, and its abbreviation, from the survey definition."""
+        survey_definition = SurveyDefinition(
+            sections=[
+                {
+                    "section": "household",
+                    "in_nav": True,
+                    "abbreviation": "HH_",
+                    "title_fr": "Ménage",
+                    "title_en": "Household",
+                }
+            ]
+        )
+        workbook = create_mocked_excel_data(
+            "Widgets",
+            [
+                "section",
+                "label::fr",
+                "label::en",
+                "inputType",
+                "active",
+                "path",
+                "conditional",
+                "choices",
+                "inputRange",
+            ],
+            [
+                [
+                    "household",
+                    "Taille?",
+                    "Size?",
+                    "String",
+                    True,
+                    "household.size",
+                    None,
+                    None,
+                    None,
+                ]
+            ],
+        )
+        add_mocked_excel_sheet(workbook, "Choices", CHOICES_HEADERS, [])
+        add_mocked_excel_sheet(
+            workbook,
+            "InputRange",
+            [
+                "inputRangeName",
+                "minValue",
+                "maxValue",
+                "labelFrMin",
+                "labelFrMiddle",
+                "labelFrMax",
+                "labelEnMin",
+                "labelEnMiddle",
+                "labelEnMax",
+            ],
+            [],
+        )
+        try:
+            for language, title, abbreviation_label in (
+                ("en", "Household", "Abbreviation"),
+                ("fr", "Ménage", "Abréviation"),
+            ):
+                generate_questionnaire_dictionary(
+                    MOCKED_EXCEL_FILE, survey_definition, str(tmp_path), language
+                )
+                with open(
+                    tmp_path / f"questionnaire_dictionary_{language}.csv",
+                    encoding="utf-8",
+                ) as csv_file:
+                    rows = list(csv.reader(csv_file))
+                assert ["Section", title] in rows
+                assert [abbreviation_label, "HH_"] in rows
+                assert any("HH_size" in row for row in rows)
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)

@@ -7,21 +7,32 @@
 import os
 from typing import Literal
 from helpers.generator_helpers import get_data_from_excel, clean_text
+from survey_definition.survey_definition import SurveyDefinition
 
 
 # Function to generate questionnaire_test for each section
 def generate_questionnaire_list(
+    # TODO: Remove excel_file_path once every sheet read here is migrated to the survey definition.
     excel_file_path: str,
+    survey_definition: SurveyDefinition,
     questionnaire_list_output_folder: str,
     language: Literal["en", "fr"],
 ):
+    """
+    Write questionnaire_list_<language>.txt: every active question, by section, with
+    its choices.
+
+    Args:
+        excel_file_path: Excel file to read the sheets not yet migrated to the
+            survey definition from.
+        survey_definition: Already-validated survey definition to describe.
+        questionnaire_list_output_folder: Folder to write the text file to.
+        language: Language of the labels, 'en' or 'fr'.
+    """
     try:
         # Read data from Excel and return rows and headers
         widgets_rows, widgets_headers = get_data_from_excel(
             excel_file_path, sheet_name="Widgets"
-        )
-        sections_rows, sections_headers = get_data_from_excel(
-            excel_file_path, sheet_name="Sections"
         )
         choices_rows, choices_headers = get_data_from_excel(
             excel_file_path, sheet_name="Choices"
@@ -32,16 +43,14 @@ def generate_questionnaire_list(
         widgets_section_index = widgets_headers.index("section")
         widgets_active_index = widgets_headers.index("active")
         widgets_choices_index = widgets_headers.index("choices")
-        section_name_index = sections_headers.index("section")
-        section_title_language_index = sections_headers.index(f"title_{language}")
         choices_name_index = choices_headers.index("choicesName")
         choices_language_index = choices_headers.index("label::" + language)
         choices_spread_choices_name_index = choices_headers.index("spreadChoicesName")
 
         # Map section names to their titles
         section_titles = {
-            row[section_name_index].value: row[section_title_language_index].value
-            for row in sections_rows[1:]
+            section.section: getattr(section, f"title_{language}")
+            for section in survey_definition.sections
         }
 
         # Group choices by choicesName and concatenate their 'en' values
