@@ -222,3 +222,19 @@ class TestConditionals:
             ),
         ]
         assert len(Conditionals(rows)) == 2
+
+    def test_by_name_groups_rows_in_source_order(self):
+        """by_name keeps each conditional's rows together, in source order, with names in order of first appearance."""
+        rows = [
+            self._row("cond1"),
+            self._row("cond2"),
+            self._row("cond1", logical_operator="&&", value=2),
+        ]
+        groups = Conditionals(rows).by_name()
+        assert list(groups.keys()) == ["cond1", "cond2"]
+        assert [c.value for c in groups["cond1"]] == [1, 2]
+        assert [c.value for c in groups["cond2"]] == [1]
+
+    def test_by_name_of_an_empty_table_is_empty(self):
+        """An empty Conditionals table has no groups."""
+        assert Conditionals([]).by_name() == {}

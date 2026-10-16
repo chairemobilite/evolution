@@ -133,26 +133,27 @@ class ConditionalsGenerator:
 
     @staticmethod
     def _group_conditionals_by_name(conditionals: Conditionals) -> defaultdict:
-        """Group the validated Conditionals rows by conditional_name, in source order."""
-        # FIXME: These dicts hold the same data as the ConditionalDefinition rows.
-        # They only exist because generate_typescript_code (and its tests) still take
-        # the dict format that was read from the Excel file. Make
-        # generate_typescript_code take the Conditionals table directly, then remove
-        # this function.
+        """Turn the validated Conditionals table, grouped by conditional_name, into the dicts generate_typescript_code expects."""
+        # FIXME: These dicts hold the same data as the ConditionalDefinition objects
+        # from conditionals.by_name(). They only exist because generate_typescript_code
+        # (and its tests) still take the dict format that was read from the Excel file.
+        # Make generate_typescript_code take conditionals.by_name() directly, then
+        # remove this function.
         conditional_by_name = defaultdict(list)
 
-        for definition in conditionals:
-            conditional = {
-                "logical_operator": definition.logical_operator,
-                "path": definition.path,
-                "comparison_operator": definition.comparison_operator,
-                "value": definition.value,
-                "parentheses": definition.parentheses,
-            }
-            if definition.value_when_hidden is not None:
-                conditional["value_when_hidden"] = definition.value_when_hidden
+        for conditional_name, definitions in conditionals.by_name().items():
+            for definition in definitions:
+                conditional = {
+                    "logical_operator": definition.logical_operator,
+                    "path": definition.path,
+                    "comparison_operator": definition.comparison_operator,
+                    "value": definition.value,
+                    "parentheses": definition.parentheses,
+                }
+                if definition.value_when_hidden is not None:
+                    conditional["value_when_hidden"] = definition.value_when_hidden
 
-            conditional_by_name[definition.conditional_name].append(conditional)
+                conditional_by_name[conditional_name].append(conditional)
 
         return conditional_by_name
 

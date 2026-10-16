@@ -238,6 +238,7 @@ class TestGenerateConditionals:
     """generate_conditionals writes the TypeScript generated from survey_definition.conditionals."""
 
     def test_writes_generated_code_to_output_file(self, tmp_path):
+        """The TypeScript generated from survey_definition.conditionals is written to the output file."""
         survey_definition = SurveyDefinition(
             conditionals=[
                 {
