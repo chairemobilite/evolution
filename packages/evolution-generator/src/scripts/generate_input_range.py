@@ -32,6 +32,9 @@ def generate_input_range(input_file: str, output_file: str):
         sheet = workbook["InputRange"]  # Get InputRange sheet
 
         # Get headers from the first row
+        # TODO: Use survey_definition.languages instead of fr/en once the InputRange
+        # sheet is migrated to the survey definition (see #2035). Its columns don't
+        # follow the <field>::<language> naming (e.g. labelFrMin, unitFr).
         headers = get_headers(
             sheet,
             expected_headers=[
@@ -116,6 +119,7 @@ def generate_input_range(input_file: str, output_file: str):
             ts_code += f"{INDENT}],\n"
             ts_code += f"{INDENT}minValue: {min_value},\n"
             ts_code += f"{INDENT}maxValue: {max_value},\n"
+            # TODO: Write the unit of every survey language, not just fr/en (see #2035).
             ts_code += f"{INDENT}formatLabel: (value, language) => {{\n"
             ts_code += f"{INDENT}{INDENT}return value < 0 ? '' : `${{value}} ${{language === 'fr' ? '{unit_fr}' : language === 'en' ? '{unit_en}' : ''}}`;\n"
             ts_code += f"{INDENT}}},\n"

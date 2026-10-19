@@ -292,6 +292,50 @@ class TestAddTranslationsFromExcel:
             case["expected_translations_en"],
         ) in calls
 
+    def test_generates_a_translation_per_survey_language(self, monkeypatch, tmp_path):
+        """Each survey language reads its own label::<language> column."""
+        calls = []
+        monkeypatch.setattr(
+            "scripts.labels_generator.LabelsGenerator.save_translations",
+            lambda language, section, folder, translations: calls.append(
+                (language, section, translations)
+            ),
+        )
+        create_mocked_excel_data(
+            "Widgets",
+            ["section", "questionName", "label::es", "label::en", "label_one::es"],
+            [["home", "carCount", "¿Cuántos?", "How many?", "¿Cuántos tienes?"]],
+        )
+        try:
+            LabelsGenerator.generate_labels(
+                MOCKED_EXCEL_FILE,
+                str(tmp_path / "locales"),
+                sheets_with_labels=[
+                    {
+                        "sheetName": "Widgets",
+                        "namespaceHeader": "section",
+                        "keyHeader": "questionName",
+                    }
+                ],
+                languages=("es", "en"),
+            )
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+        assert sorted(calls, key=lambda call: call[0]) == [
+            ("en", "home", {"home": {"carCount": "How many?"}}),
+            (
+                "es",
+                "home",
+                {
+                    "home": {
+                        "carCount": "¿Cuántos?",
+                        "carCount_one": "¿Cuántos tienes?",
+                    }
+                },
+            ),
+        ]
+
 
 class TestAddGenderOrBaseTranslations:
     """Tests for add_gender_or_base_translations function"""

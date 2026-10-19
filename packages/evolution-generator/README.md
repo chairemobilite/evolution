@@ -174,6 +174,10 @@ If you want to start your own survey, you can use the following steps:
         copy_excel_to_csv: true
     ```
 
+    The survey languages are read from the Excel file: one per `label::<language>` column of the Widgets sheet (e.g. `label::fr`, `label::en`). Every translated value is then required in each language where it is needed, e.g. `title_fr` and `title_en` in the Sections sheet for a section in the navigation menu, and a translated column in another language (e.g. a typo such as `title_fe`) is reported.
+
+    TODO: The choices, input range, widgets and questionnaire scripts still use the `fr` and `en` columns only.
+
 5.  Navigate to the root folder of your project and run the following command:
 
     ```bash

@@ -709,6 +709,8 @@ def generate_label(
 
     # Initialize gender_fields to a default class if none is provided
     gender_fields = gender_fields or GenderFields()
+    # TODO: Use survey_definition.languages instead of fr/en once the Widgets sheet is
+    # migrated to the survey definition (see #2035).
     label_fr = row.get("label::fr", "")  # French label
     label_en = row.get("label::en", "")  # English label
     label_one_fr = row.get("label_one::fr", "")  # French label for one person
@@ -1339,6 +1341,8 @@ def get_widgets_file_import_flags(section_rows) -> ImportFlags:
             import_flags.has_help_popup_import = True
 
         # Check all rows for label context
+        # TODO: Use survey_definition.languages instead of fr/en once the Widgets sheet is
+        # migrated to the survey definition (see #2035).
         label_fr = row.get("label::fr", "")
         label_en = row.get("label::en", "")
         label_one_en = row.get("label_one::en", "")

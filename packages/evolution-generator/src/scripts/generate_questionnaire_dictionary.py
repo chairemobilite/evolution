@@ -148,7 +148,7 @@ def generate_questionnaire_dictionary(
         # Generate questionnaire data with sections
         for section_name, questions in sections_questions.items():
             section = section_by_name[section_name]
-            section_title = getattr(section, f"title_{language}")
+            section_title = section.title.get(language)
             section_abbreviation = section.abbreviation
 
             if not first_section:
@@ -163,6 +163,8 @@ def generate_questionnaire_dictionary(
 
             # Determine labels based on language
             section_label = "Section"
+            # TODO: Translate these headers in every survey language, not just fr/en
+            # (see #2035).
             field_label = "Field" if language == "en" else "Champ"
             abbreviation_label = "Abbreviation" if language == "en" else "Abréviation"
             question_type_label = (

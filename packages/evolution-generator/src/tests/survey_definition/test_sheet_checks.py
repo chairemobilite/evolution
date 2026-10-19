@@ -5,7 +5,7 @@
 # Note: Tests for survey_definition/sheet_checks.py: collect_sheet_issues and unique_field,
 # the checks shared by every table (see test_sections_definition.py for the Sections ones).
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationInfo, model_validator
 
 from survey_definition.sheet_checks import collect_sheet_issues, unique_field
 
@@ -41,3 +41,25 @@ class TestCollectSheetIssues:
             "Error in Items - Duplicate name 'a': found in rows [2, 3]",
             "Error in Items - Duplicate code 2: found in rows [3, 4]",
         ]
+
+
+class TestCollectSheetIssuesContext:
+    def test_passes_the_context_to_each_row(self):
+        class Row(BaseModel):
+            value: int
+
+            @model_validator(mode="after")
+            def _below_the_limit(self, info: ValidationInfo):
+                if self.value > info.context["limit"]:
+                    raise ValueError("above the limit")
+                return self
+
+        rows, issues = collect_sheet_issues(
+            rows=[{"value": 1}, {"value": 5}],
+            model=Row,
+            table_name="Rows",
+            sheet_rules=[],
+            context={"limit": 3},
+        )
+        assert [row.value for row in rows] == [1]
+        assert issues == ["Error in Rows - Invalid row 3: above the limit"]

@@ -256,8 +256,16 @@ class TestLoadSurveyDefinition:
     ]
     VALID_CONDITIONALS_ROWS = [["cond1", "", "household.size", "===", 1, "", ""]]
 
+    def _create_workbook(self, sheet_name, headers, rows):
+        """Like create_mocked_excel_data, plus a Widgets sheet holding the survey languages (fr, en)."""
+        workbook = create_mocked_excel_data(sheet_name, headers, rows)
+        add_mocked_excel_sheet(
+            workbook, "Widgets", ["questionName", "label::fr", "label::en"], []
+        )
+        return workbook
+
     def test_valid_file_returns_a_survey_definition(self):
-        workbook = create_mocked_excel_data(
+        workbook = self._create_workbook(
             "Sections", self.VALID_SECTIONS_HEADERS, self.VALID_SECTIONS_ROWS
         )
         add_mocked_excel_sheet(
@@ -284,7 +292,7 @@ class TestLoadSurveyDefinition:
         missing every required field. A plain unstyled blank row wouldn't reproduce
         this: openpyxl doesn't even persist it, so the style is what makes the row
         survive the save/reload round trip as a row of None values."""
-        workbook = create_mocked_excel_data(
+        workbook = self._create_workbook(
             "Sections", self.VALID_SECTIONS_HEADERS, self.VALID_SECTIONS_ROWS
         )
         sections_sheet = workbook["Sections"]
@@ -308,7 +316,7 @@ class TestLoadSurveyDefinition:
 
     def test_conditionals_sheet_ignores_trailing_blank_row(self):
         """Same as the Sections sheet: a styled trailing blank row is dropped."""
-        workbook = create_mocked_excel_data(
+        workbook = self._create_workbook(
             "Sections", self.VALID_SECTIONS_HEADERS, self.VALID_SECTIONS_ROWS
         )
         add_mocked_excel_sheet(
@@ -334,7 +342,7 @@ class TestLoadSurveyDefinition:
 
     def test_conditionals_sheet_without_value_when_hidden_column_is_valid(self):
         """value_when_hidden is optional: its column doesn't need to exist at all."""
-        workbook = create_mocked_excel_data(
+        workbook = self._create_workbook(
             "Sections", self.VALID_SECTIONS_HEADERS, self.VALID_SECTIONS_ROWS
         )
         add_mocked_excel_sheet(
@@ -350,7 +358,7 @@ class TestLoadSurveyDefinition:
             delete_file_if_exists(MOCKED_EXCEL_FILE)
 
     def test_missing_sections_sheet_raises(self):
-        create_mocked_excel_data(
+        self._create_workbook(
             "OtherSheet",
             self.VALID_SECTIONS_HEADERS,
             self.VALID_SECTIONS_ROWS,
@@ -364,7 +372,7 @@ class TestLoadSurveyDefinition:
             delete_file_if_exists(MOCKED_EXCEL_FILE)
 
     def test_missing_conditionals_sheet_raises(self):
-        create_mocked_excel_data(
+        self._create_workbook(
             "Sections",
             self.VALID_SECTIONS_HEADERS,
             self.VALID_SECTIONS_ROWS,
@@ -378,7 +386,7 @@ class TestLoadSurveyDefinition:
             delete_file_if_exists(MOCKED_EXCEL_FILE)
 
     def test_invalid_sections_row_raises_validation_error(self):
-        workbook = create_mocked_excel_data(
+        workbook = self._create_workbook(
             "Sections",
             self.VALID_SECTIONS_HEADERS,
             [[None, "Accueil", "Home", True, "", "", "HM_"]],
@@ -396,7 +404,7 @@ class TestLoadSurveyDefinition:
             delete_file_if_exists(MOCKED_EXCEL_FILE)
 
     def test_invalid_conditionals_row_raises_validation_error(self):
-        workbook = create_mocked_excel_data(
+        workbook = self._create_workbook(
             "Sections", self.VALID_SECTIONS_HEADERS, self.VALID_SECTIONS_ROWS
         )
         add_mocked_excel_sheet(
@@ -407,6 +415,54 @@ class TestLoadSurveyDefinition:
         )
         try:
             with pytest.raises(ValidationError):
+                load_survey_definition(MOCKED_EXCEL_FILE)
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+    def test_reads_the_survey_languages_from_the_widgets_sheet(self):
+        workbook = create_mocked_excel_data(
+            "Sections",
+            [
+                "section",
+                "title_es",
+                "title_en",
+                "in_nav",
+                "template",
+                "parent_section",
+                "abbreviation",
+            ],
+            [["home", "Inicio", "Home", True, "", "", "HM_"]],
+        )
+        add_mocked_excel_sheet(
+            workbook,
+            "Conditionals",
+            self.VALID_CONDITIONALS_HEADERS,
+            self.VALID_CONDITIONALS_ROWS,
+        )
+        add_mocked_excel_sheet(
+            workbook, "Widgets", ["questionName", "label::es", "label::en"], []
+        )
+        try:
+            survey_definition = load_survey_definition(MOCKED_EXCEL_FILE)
+            assert survey_definition.languages == ("es", "en")
+            assert survey_definition.sections[0].title == {"es": "Inicio", "en": "Home"}
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+    def test_missing_widgets_sheet_raises(self):
+        workbook = create_mocked_excel_data(
+            "Sections", self.VALID_SECTIONS_HEADERS, self.VALID_SECTIONS_ROWS
+        )
+        add_mocked_excel_sheet(
+            workbook,
+            "Conditionals",
+            self.VALID_CONDITIONALS_HEADERS,
+            self.VALID_CONDITIONALS_ROWS,
+        )
+        try:
+            with pytest.raises(
+                Exception, match="Sheet with name Widgets does not exist"
+            ):
                 load_survey_definition(MOCKED_EXCEL_FILE)
         finally:
             delete_file_if_exists(MOCKED_EXCEL_FILE)

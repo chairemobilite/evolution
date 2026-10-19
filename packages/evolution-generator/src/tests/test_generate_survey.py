@@ -4,6 +4,8 @@
 
 # Note: Tests for scripts/generate_survey.py's Excel integrity/loading entry points.
 
+import os
+
 import pytest  # pyright: ignore[reportMissingImports]
 
 from helpers.generator_helpers import (
@@ -41,15 +43,21 @@ VALID_CONDITIONALS_HEADERS = [
 VALID_CONDITIONALS_ROWS = [["cond1", "", "household.size", "===", 1, "", ""]]
 
 
+VALID_WIDGETS_HEADERS = ["questionName", "label::fr", "label::en"]
+
+
 def _create_workbook(
-    sections_rows=VALID_SECTIONS_ROWS, conditionals_rows=VALID_CONDITIONALS_ROWS
+    sections_rows=VALID_SECTIONS_ROWS,
+    conditionals_rows=VALID_CONDITIONALS_ROWS,
+    widgets_headers=VALID_WIDGETS_HEADERS,
+    sections_headers=VALID_SECTIONS_HEADERS,
 ):
-    workbook = create_mocked_excel_data(
-        "Sections", VALID_SECTIONS_HEADERS, sections_rows
-    )
+    """Write a workbook whose Widgets sheet holds the survey languages (its label::<language> columns)."""
+    workbook = create_mocked_excel_data("Sections", sections_headers, sections_rows)
     add_mocked_excel_sheet(
         workbook, "Conditionals", VALID_CONDITIONALS_HEADERS, conditionals_rows
     )
+    add_mocked_excel_sheet(workbook, "Widgets", widgets_headers, [])
 
 
 class TestCheckExcelIntegrityWithMessages:
@@ -67,15 +75,85 @@ class TestCheckExcelIntegrityWithMessages:
 
     def test_invalid_rows_in_both_sheets_return_every_message(self):
         _create_workbook(
-            sections_rows=[["home", "", "Home", True, "", "", "HM_"]],
+            sections_rows=[["home", "Accueil", "Home", True, "", "", ""]],
             conditionals_rows=[["cond1", "", "", "===", 1, "", ""]],
         )
         try:
             ok, messages = check_excel_integrity_with_messages(MOCKED_EXCEL_FILE)
             assert ok is False
+            # Conditionals first: the tables are validated in dependency order
             assert messages == [
-                "Error in Sections - Invalid row 2: title_fr is required when in_nav is true",
                 "Error in Conditionals - Required field is missing in row 2. Missing fields: ['path']",
+                "Error in Sections - Required field is missing in row 2. Missing fields: ['abbreviation']",
+            ]
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+    def test_missing_title_is_reported_with_the_other_sheets_errors(self):
+        """The rule that needs the survey languages runs with each sheet's other checks."""
+        _create_workbook(
+            sections_rows=[["home", "", "Home", True, "", "", "HM_"]],
+            conditionals_rows=[["cond1", "", "", "===", 1, "", ""]],
+        )
+        try:
+            assert check_excel_integrity_with_messages(MOCKED_EXCEL_FILE) == (
+                False,
+                [
+                    "Error in Conditionals - Required field is missing in row 2. Missing fields: ['path']",
+                    "Error in Sections - Invalid row 2: title_fr is required when in_nav is true",
+                ],
+            )
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+    def test_checks_the_languages_of_the_widgets_sheet(self):
+        # The Widgets sheet has label::es, but the Sections sheet has no title_es column
+        _create_workbook(widgets_headers=["questionName", "label::fr", "label::es"])
+        try:
+            assert check_excel_integrity_with_messages(MOCKED_EXCEL_FILE) == (
+                False,
+                [
+                    "Error in Sections - Invalid row 2: title_es is required when in_nav is true"
+                ],
+            )
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+    def test_reports_a_title_column_in_another_language(self):
+        """A title_<language> column for a language of no label:: column, e.g. a typo, is reported."""
+        _create_workbook(
+            widgets_headers=["questionName", "label::fr"],
+        )
+        try:
+            ok, messages = check_excel_integrity_with_messages(MOCKED_EXCEL_FILE)
+            assert ok is False
+            assert messages == [
+                "Error in Sections - Unexpected columns: ['title_en']. The survey "
+                "languages are ['fr']."
+            ]
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+    def test_reports_a_widgets_sheet_without_label_columns(self):
+        _create_workbook(widgets_headers=["questionName", "label"])
+        try:
+            ok, messages = check_excel_integrity_with_messages(MOCKED_EXCEL_FILE)
+            assert ok is False
+            assert messages == [
+                "Missing label::<language> columns in Widgets sheet: the survey "
+                "languages are read from them, e.g. label::fr and label::en."
+            ]
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+    def test_reports_invalid_languages(self):
+        _create_workbook(widgets_headers=["questionName", "label::French"])
+        try:
+            ok, messages = check_excel_integrity_with_messages(MOCKED_EXCEL_FILE)
+            assert ok is False
+            assert messages == [
+                "Invalid survey languages ['French']: each must be a language code "
+                "like 'fr' or 'en-CA'."
             ]
         finally:
             delete_file_if_exists(MOCKED_EXCEL_FILE)
@@ -105,3 +183,21 @@ class TestGenerateSurvey:
             generate_survey(str(config_path))
         # Nothing was generated in the survey folder
         assert list(tmp_path.iterdir()) == [config_path]
+
+    def test_creates_a_locales_folder_per_survey_language(self, tmp_path):
+        _create_workbook(
+            widgets_headers=["questionName", "label::en"],
+            sections_headers=[h for h in VALID_SECTIONS_HEADERS if h != "title_fr"],
+            sections_rows=[["home", "Home", True, "", "", "HM_"]],
+        )
+        config_path = tmp_path / "generatorConfigs.yaml"
+        config_path.write_text(
+            f"survey_folder_path: {tmp_path}\n"
+            f"excel_file_path: {MOCKED_EXCEL_FILE}\n"
+            "enabled_scripts: {}\n"
+        )
+        try:
+            generate_survey(str(config_path))
+            assert sorted(os.listdir(tmp_path / "locales")) == ["en"]
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)

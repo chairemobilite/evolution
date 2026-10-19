@@ -49,7 +49,7 @@ def generate_questionnaire_list(
 
         # Map section names to their titles
         section_titles = {
-            section.section: getattr(section, f"title_{language}")
+            section.section: section.title.get(language)
             for section in survey_definition.sections
         }
 

@@ -254,6 +254,7 @@ def generate_survey(config_path, only_scripts=None):
             excel_file_path,
             labels_output_folder_path,
             sheets_with_labels=sheets_with_labels,
+            languages=survey_definition.languages,
         )
 
     # Call the generate_UI_tests function to generate the common-UI-tests-helpers-template.ts.ts if script enabled
@@ -263,6 +264,8 @@ def generate_survey(config_path, only_scripts=None):
         )
         generate_UI_tests(excel_file_path, UI_tests_output_file_path)
 
+    # TODO: Write questionnaire_list files for survey_definition.languages
+    # instead of en/fr once the script supports any language (see #2035).
     # Call the generate_questionnaire_list function to generate the questionnaire_list_en.txt if script enabled
     if enabled_generate_questionnaire_list:
         questionnaire_list_output_folder = os.path.join(
@@ -281,6 +284,8 @@ def generate_survey(config_path, only_scripts=None):
             language="fr",
         )
 
+    # TODO: Write questionnaire_dictionary files for survey_definition.languages
+    # instead of en/fr once the script supports any language (see #2035).
     # Call the generate_questionnaire_dictionary function to generate the questionnaire_dictionary_en.txt if script enabled
     if enabled_generate_questionnaire_dictionary:
         questionnaire_dictionary_output_folder = os.path.join(
@@ -336,8 +341,8 @@ def _load_survey_definition_with_messages(
     try:
         return load_survey_definition(excel_file_path), []
     except ValidationError as exc:
-        # Sections and Conditionals are independent fields of SurveyDefinition, so a
-        # bad sheet in each produces its own error here; collect every one of them.
+        # SurveyDefinition reports every table's problems in one error, one problem
+        # per line; collect every line of every error.
         messages: list[str] = []
         for error in exc.errors():
             reason = error.get("ctx", {}).get("error")

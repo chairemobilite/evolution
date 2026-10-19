@@ -223,6 +223,8 @@ def _generate_choices_yaml_locales(choices_by_name, labels_output_folder_path: s
     # Delete existing files first to avoid stale keys if some choices are removed
     LabelsGenerator.delete_all_labels_yaml_files(
         labels_output_folder_path=labels_output_folder_path,
+        # TODO: Use survey_definition.languages once the Choices sheet is migrated to
+        # the survey definition (see #2035).
         languages=["fr", "en"],
         sections=["choices"],
     )
@@ -281,6 +283,8 @@ def generate_choices(
             # Get values from the row dictionary
             choice_name = row_dict["choicesName"]
             value = row_dict["value"]
+            # TODO: Use survey_definition.languages instead of fr/en once the Choices sheet is
+            # migrated to the survey definition (see #2035).
             label_fr_yaml = _process_label(row_dict["label::fr"])
             label_en_yaml = _process_label(row_dict["label::en"])
             label_fr_one_yaml = _process_label(row_dict.get("label_one::fr"))

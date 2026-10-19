@@ -10,7 +10,9 @@ from openpyxl import Workbook  # Read data from Excel, File system operations
 from typing import List, Optional, Tuple  # Types for Python
 
 from survey_definition.conditionals_definition import CONDITIONAL_REQUIRED_FIELD_NAMES
-from survey_definition.sections_definition import SECTION_REQUIRED_FIELD_NAMES
+from survey_definition.sections_definition import (
+    SECTION_REQUIRED_FIELD_NAMES,
+)
 from survey_definition.survey_definition import SurveyDefinition
 
 # Define constants
@@ -197,20 +199,50 @@ def _read_sheet_rows(
     ]
 
 
+# Prefix of the translated columns the survey languages are read from, in the Widgets
+# sheet: one column per language, e.g. label::fr, label::en.
+LANGUAGE_COLUMN_PREFIX = "label::"
+
+
+def read_survey_languages(workbook: Workbook) -> tuple[str, ...]:
+    """
+    Read the survey languages from the Widgets sheet: one per `label::<language>`
+    column, in column order, e.g. ("fr", "en") for label::fr and label::en.
+
+    The workbook carries its own languages, so a survey is checked the same way from
+    any app or config. Raises if the sheet has no such column.
+    """
+    sheet_exists(workbook, "Widgets")
+    headers = [cell.value for cell in next(workbook["Widgets"].iter_rows(max_row=1))]
+    languages = tuple(
+        header.removeprefix(LANGUAGE_COLUMN_PREFIX)
+        for header in headers
+        if isinstance(header, str) and header.startswith(LANGUAGE_COLUMN_PREFIX)
+    )
+    if not languages:
+        raise Exception(
+            "Missing label::<language> columns in Widgets sheet: the survey languages "
+            "are read from them, e.g. label::fr and label::en."
+        )
+    return languages
+
+
 def load_survey_definition(excel_file_path: str) -> SurveyDefinition:
     """
-    Build a SurveyDefinition from an Excel file's Sections and Conditionals sheets.
+    Build a SurveyDefinition from an Excel file's Sections and Conditionals sheets, in
+    the survey languages read from the Widgets sheet (see read_survey_languages).
 
     Raises on the same problems as get_data_from_excel/get_headers (invalid file,
-    missing sheet, missing/too few headers), and `pydantic.ValidationError` when a
-    sheet's rows don't pass its table's own checks (see sections_definition.py,
-    conditionals_definition.py). The returned instance is already validated; callers
-    don't need to check it again.
+    missing sheet, missing/too few headers), and `pydantic.ValidationError` when the
+    languages or a sheet's rows don't pass their checks (see survey_definition.py,
+    sections_definition.py, conditionals_definition.py).
+    The returned instance is already validated; callers don't need to check it again.
     """
     is_excel_file(excel_file_path)
     workbook = get_workbook(excel_file_path)
 
     return SurveyDefinition(
+        languages=read_survey_languages(workbook),
         sections=_read_sheet_rows(workbook, "Sections", SECTION_REQUIRED_FIELD_NAMES),
         conditionals=_read_sheet_rows(
             workbook, "Conditionals", CONDITIONAL_REQUIRED_FIELD_NAMES

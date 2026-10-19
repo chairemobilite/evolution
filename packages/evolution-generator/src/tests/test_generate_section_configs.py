@@ -227,3 +227,37 @@ def test_generate_section_configs_links_sections_in_source_order(
     assert previous_and_next("home") == ("null;", "'household';")
     assert previous_and_next("household") == ("'home';", "'end';")
     assert previous_and_next("end") == ("'household';", "null;")
+
+
+def test_generate_section_configs_writes_a_title_per_survey_language(
+    tmp_path: Path,
+) -> None:
+    survey_definition = SurveyDefinition(
+        languages=["es", "en"],
+        sections=[
+            {
+                "section": "home",
+                "in_nav": True,
+                "abbreviation": "HM_",
+                "title_es": "Inicio",
+                "title_en": "Home",
+            }
+        ],
+    )
+    (tmp_path / "home").mkdir()
+
+    generate_section_configs(survey_definition, str(tmp_path))
+
+    generated = (tmp_path / "home" / "sectionConfigs.ts").read_text(encoding="utf-8")
+    assert (
+        f"{IND}title: {{\n"
+        f"{IND}{IND}es: 'Inicio',\n"
+        f"{IND}{IND}en: 'Home'\n"
+        f"{IND}}},\n"
+    ) in generated
+    assert (
+        f"{IND}{IND}menuName: {{\n"
+        f"{IND}{IND}{IND}es: 'Inicio',\n"
+        f"{IND}{IND}{IND}en: 'Home'\n"
+        f"{IND}{IND}}}\n"
+    ) in generated
