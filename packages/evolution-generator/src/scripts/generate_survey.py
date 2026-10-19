@@ -187,7 +187,11 @@ def generate_survey(config_path, only_scripts=None):
         section_config_output_folder = os.path.join(
             survey_folder_path, "src", "survey", "sections"
         )
-        generate_section_configs(survey_definition, section_config_output_folder)
+        generate_section_configs(
+            survey_definition,
+            section_config_output_folder,
+            labels_output_folder_path=labels_output_folder_path,
+        )
 
     # Call the generate_sections function to generate sections.tsx if script enabled
     if enabled_generate_sections:

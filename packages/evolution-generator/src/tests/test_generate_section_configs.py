@@ -18,8 +18,12 @@ from survey_definition.survey_definition import SurveyDefinition
 IND = INDENT
 
 
-def _expected_header_and_core_imports(*, is_section_completed: bool) -> str:
+def _expected_header_and_core_imports(
+    *, is_section_completed: bool, has_titles: bool = False
+) -> str:
     out = add_generator_comment()
+    if has_titles:
+        out += "import { TFunction } from 'i18next';\n"
     if is_section_completed:
         out += "import { isSectionCompleted } from 'evolution-common/lib/services/questionnaire/sections/navigationHelpers';\n"
     out += "import { SectionConfig } from 'evolution-common/lib/services/questionnaire/types';\n"
@@ -51,6 +55,7 @@ def test_generate_section_configs_from_survey_definition(tmp_path: Path) -> None
         is_section_completed: bool
         extra_imports: str
         file_tail: str
+        has_titles: bool = False
 
     SECTION_CONFIG_CASES: tuple[SectionConfigCase, ...] = (
         SectionConfigCase(
@@ -128,6 +133,7 @@ def test_generate_section_configs_from_survey_definition(tmp_path: Path) -> None
         ),
         SectionConfigCase(
             id="titles_template_preload_conditionals",
+            has_titles=True,
             section="trips",
             rows=[
                 {
@@ -156,16 +162,10 @@ def test_generate_section_configs_from_survey_definition(tmp_path: Path) -> None
                 "export const sectionConfig: SectionConfig = {\n"
                 f"{IND}previousSection: previousSectionName,\n"
                 f"{IND}nextSection: nextSectionName,\n"
-                f"{IND}title: {{\n"
-                f"{IND}{IND}fr: 'Voyages',\n"
-                f"{IND}{IND}en: 'Trips'\n"
-                f"{IND}}},\n"
+                f"{IND}title: (t: TFunction) => t('sectionConfigs:trips.title'),\n"
                 f"{IND}navMenu: {{\n"
                 f"{IND}{IND}type: 'inNav',\n"
-                f"{IND}{IND}menuName: {{\n"
-                f"{IND}{IND}{IND}fr: 'Voyages',\n"
-                f"{IND}{IND}{IND}en: 'Trips'\n"
-                f"{IND}{IND}}}\n"
+                f"{IND}{IND}menuName: (t: TFunction) => t('sectionConfigs:trips.title')\n"
                 f"{IND}}},\n"
                 f"{IND}template: 'visitedPlaces',\n"
                 f"{IND}widgets: widgetsNames,\n"
@@ -194,7 +194,8 @@ def test_generate_section_configs_from_survey_definition(tmp_path: Path) -> None
         )
         expected = (
             _expected_header_and_core_imports(
-                is_section_completed=case.is_section_completed
+                is_section_completed=case.is_section_completed,
+                has_titles=case.has_titles,
             )
             + case.extra_imports
             + case.file_tail
@@ -229,9 +230,10 @@ def test_generate_section_configs_links_sections_in_source_order(
     assert previous_and_next("end") == ("'household';", "null;")
 
 
-def test_generate_section_configs_writes_a_title_per_survey_language(
+def test_generate_section_configs_writes_the_titles_as_translations(
     tmp_path: Path,
 ) -> None:
+    """The titles go in locales/<language>/sectionConfigs.yaml, one file per survey language."""
     survey_definition = SurveyDefinition(
         languages=["es", "en"],
         sections=[
@@ -241,23 +243,72 @@ def test_generate_section_configs_writes_a_title_per_survey_language(
                 "abbreviation": "HM_",
                 "title_es": "Inicio",
                 "title_en": "Home",
-            }
+            },
+            # No title: not in the translations
+            {"section": "end", "in_nav": False, "abbreviation": "EN_"},
         ],
     )
+    for section in ("home", "end"):
+        (tmp_path / "sections" / section).mkdir(parents=True)
+    locales = tmp_path / "locales"
+
+    generate_section_configs(
+        survey_definition,
+        str(tmp_path / "sections"),
+        labels_output_folder_path=str(locales),
+    )
+
+    generated = (tmp_path / "sections" / "home" / "sectionConfigs.ts").read_text(
+        encoding="utf-8"
+    )
+    assert "import { TFunction } from 'i18next';\n" in generated
+    assert (
+        f"{IND}title: (t: TFunction) => t('sectionConfigs:home.title'),\n" in generated
+    )
+    assert (
+        f"{IND}{IND}menuName: (t: TFunction) => t('sectionConfigs:home.title')\n"
+        in generated
+    )
+    end = (tmp_path / "sections" / "end" / "sectionConfigs.ts").read_text(
+        encoding="utf-8"
+    )
+    assert "TFunction" not in end
+    assert sorted(path.name for path in locales.iterdir()) == ["en", "es"]
+    assert (
+        (locales / "es" / "sectionConfigs.yaml")
+        .read_text(encoding="utf-8")
+        .endswith("home:\n    title: Inicio\n")
+    )
+    assert (
+        (locales / "en" / "sectionConfigs.yaml")
+        .read_text(encoding="utf-8")
+        .endswith("home:\n    title: Home\n")
+    )
+
+
+def test_generate_section_configs_replaces_stale_section_titles(tmp_path: Path) -> None:
+    locales = tmp_path / "locales"
+    (locales / "fr").mkdir(parents=True)
+    (locales / "fr" / "sectionConfigs.yaml").write_text(
+        "removed:\n    title: Supprimée\n"
+    )
     (tmp_path / "home").mkdir()
+    survey_definition = SurveyDefinition(
+        sections=[
+            {
+                "section": "home",
+                "in_nav": True,
+                "abbreviation": "HM_",
+                "title_fr": "Accueil",
+                "title_en": "Home",
+            }
+        ]
+    )
 
-    generate_section_configs(survey_definition, str(tmp_path))
+    generate_section_configs(
+        survey_definition, str(tmp_path), labels_output_folder_path=str(locales)
+    )
 
-    generated = (tmp_path / "home" / "sectionConfigs.ts").read_text(encoding="utf-8")
-    assert (
-        f"{IND}title: {{\n"
-        f"{IND}{IND}es: 'Inicio',\n"
-        f"{IND}{IND}en: 'Home'\n"
-        f"{IND}}},\n"
-    ) in generated
-    assert (
-        f"{IND}{IND}menuName: {{\n"
-        f"{IND}{IND}{IND}es: 'Inicio',\n"
-        f"{IND}{IND}{IND}en: 'Home'\n"
-        f"{IND}{IND}}}\n"
-    ) in generated
+    french = (locales / "fr" / "sectionConfigs.yaml").read_text(encoding="utf-8")
+    assert "removed" not in french
+    assert french.endswith("home:\n    title: Accueil\n")

@@ -8,6 +8,7 @@ from helpers.generator_helpers import (
     INDENT,
     add_generator_comment,
 )
+from scripts.labels_generator import LabelsGenerator
 from survey_definition.survey_definition import SurveyDefinition
 import os
 import shutil
@@ -26,32 +27,79 @@ def _section_conditional_ts_expression(name: str) -> str:
     return f"conditionals.{name}"
 
 
-# TODO: Write the section titles as translations (locales files) read with the `t`
-# function, like the other labels, instead of one inline text per language.
-def _generate_titles_code(titles: dict[str, str], indent: str) -> str:
+# Translations namespace of the section titles, named after the sectionConfigs.ts files
+# that read them so no other namespace reuses it: locales/<language>/sectionConfigs.yaml,
+# holding `<section>.title` for each section that has a title.
+SECTION_TITLES_NAMESPACE = "sectionConfigs"
+
+
+def _section_has_titles(section_definition, languages: tuple[str, ...]) -> bool:
     """
-    The `<language>: '<title>'` lines of a section title object, one per language, in
-    the survey languages' order, e.g. "fr: 'Accueil',\nen: 'Home'\n".
+    Whether a section has a title in every survey language: only then does it get a
+    title (and a navigation menu item).
     """
-    return (
-        ",\n".join(
-            f"{indent}{language}: '{title}'" for language, title in titles.items()
-        )
-        + "\n"
+    return all(section_definition.title.get(language) for language in languages)
+
+
+def _section_title_ts(section: str) -> str:
+    """The TypeScript translated title of a section, e.g. (t: TFunction) => t('sectionConfigs:home.title')."""
+    return f"(t: TFunction) => t('{SECTION_TITLES_NAMESPACE}:{section}.title')"
+
+
+def _generate_section_titles_locales(
+    survey_definition: SurveyDefinition, labels_output_folder_path: str
+):
+    """
+    Write locales/<language>/sectionConfigs.yaml for each survey language, with the title of
+    every section that has one:
+
+        <section>:
+            title: <title>
+    """
+    languages = survey_definition.languages
+    translations_dict = {
+        language: {SECTION_TITLES_NAMESPACE: {}} for language in languages
+    }
+    for section_definition in survey_definition.sections:
+        if not _section_has_titles(section_definition, languages):
+            continue
+        for language in languages:
+            translations_dict[language][SECTION_TITLES_NAMESPACE][
+                f"{section_definition.section}.title"
+            ] = LabelsGenerator.string_to_yaml(section_definition.title[language])
+
+    # Delete existing files first to avoid stale keys if some sections are removed
+    LabelsGenerator.delete_all_labels_yaml_files(
+        labels_output_folder_path=labels_output_folder_path,
+        languages=list(languages),
+        sections=[SECTION_TITLES_NAMESPACE],
     )
+    for language, translations in translations_dict.items():
+        LabelsGenerator.save_translations(
+            language,
+            SECTION_TITLES_NAMESPACE,
+            labels_output_folder_path,
+            translations,
+        )
 
 
 # Function to generate sectionConfigs.ts for each section
 def generate_section_configs(
-    survey_definition: SurveyDefinition, section_config_output_folder: str
+    survey_definition: SurveyDefinition,
+    section_config_output_folder: str,
+    labels_output_folder_path: str | None = None,
 ):
     """
-    Write sectionConfigs.ts in each section's folder.
+    Write sectionConfigs.ts in each section's folder and, when
+    `labels_output_folder_path` is given, the section titles in
+    locales/<language>/sectionConfigs.yaml (read by the titles of sectionConfigs.ts).
 
     Args:
         survey_definition: Already-validated survey definition, read for its
             Sections table and its languages.
         section_config_output_folder: Folder holding one folder per section.
+        labels_output_folder_path: The survey's locales folder, or None to skip the
+            titles' translations.
     """
     try:
         sections = survey_definition.sections
@@ -61,14 +109,9 @@ def generate_section_configs(
         # Iterate through each section, in source order
         for section_index, section_definition in enumerate(sections):
             section = section_definition.section
-            # The title in each survey language, in the languages' order
-            titles = {
-                language: section_definition.title.get(language)
-                for language in survey_definition.languages
-            }
-            # A section only gets a title (and a navigation menu item) when it has one
-            # in every language.
-            has_titles = all(titles.values())
+            has_titles = _section_has_titles(
+                section_definition, survey_definition.languages
+            )
             in_nav = section_definition.in_nav
             template = section_definition.template
             parent_section = section_definition.parent_section
@@ -108,6 +151,8 @@ def generate_section_configs(
                 ts_section_code += add_generator_comment()
 
                 # Add imports
+                if has_titles:
+                    ts_section_code += "import { TFunction } from 'i18next';\n"
                 if needs_is_section_completed:
                     ts_section_code += "import { isSectionCompleted } from 'evolution-common/lib/services/questionnaire/sections/navigationHelpers';\n"
                 ts_section_code += "import { SectionConfig } from 'evolution-common/lib/services/questionnaire/types';\n"
@@ -200,16 +245,14 @@ def generate_section_configs(
                 ts_section_code += f"{INDENT}previousSection: previousSectionName,\n"
                 ts_section_code += f"{INDENT}nextSection: nextSectionName,\n"
                 if has_titles:
-                    ts_section_code += f"{INDENT}title: {{\n"
-                    ts_section_code += _generate_titles_code(titles, INDENT * 2)
-                    ts_section_code += f"{INDENT}}},\n"
+                    ts_section_code += f"{INDENT}title: {_section_title_ts(section)},\n"
                 # Generate the navigation menu item, either in nav with title or hidden with parent
                 if has_titles and in_nav == True:
                     ts_section_code += f"{INDENT}navMenu: {{\n"
                     ts_section_code += f"{INDENT}{INDENT}type: 'inNav',\n"
-                    ts_section_code += f"{INDENT}{INDENT}menuName: {{\n"
-                    ts_section_code += _generate_titles_code(titles, INDENT * 3)
-                    ts_section_code += f"{INDENT}{INDENT}}}\n"
+                    ts_section_code += (
+                        f"{INDENT}{INDENT}menuName: {_section_title_ts(section)}\n"
+                    )
                     ts_section_code += f"{INDENT}}},\n"
                 elif parent_section is not None:
                     ts_section_code += f"{INDENT}navMenu: {{\n"
@@ -274,6 +317,12 @@ def generate_section_configs(
 
             # Update previousSection with the current section
             previousSection = section
+
+        # Generate locales/<language>/sectionConfigs.yaml with the section titles
+        if labels_output_folder_path is not None:
+            _generate_section_titles_locales(
+                survey_definition, labels_output_folder_path
+            )
 
     except Exception as e:
         # Handle any other exceptions that might occur during script execution
