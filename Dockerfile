@@ -1,5 +1,8 @@
 # Build Node app
 FROM node:24-trixie
+# Corepack runs the Yarn version set in the packageManager field of package.json, in place of the image's Yarn 1.
+# Make sure to install from npm since Node.js 25+ no longer bundles it.
+RUN npm install -g corepack
 WORKDIR /app
 
 # TODO split package.json copy and yarn install to have some intermediary images

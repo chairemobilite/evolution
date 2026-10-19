@@ -54,10 +54,10 @@
         "generateSurvey:generator": "yarn workspace evolution-generator run generateSurvey --config_path ../../example/demo_generator/references/generatorConfigs.yaml",
         "jsdoc": "yarn workspace evolution-common run jsdoc"
     },
-    "dependencies": {},
     "devDependencies": {
         "depcheck": "^1.4.3",
         "rimraf": "^6.1.2",
         "wsrun": "^5.2.4"
-    }
+    },
+    "packageManager": "yarn@1.22.22"
 }
