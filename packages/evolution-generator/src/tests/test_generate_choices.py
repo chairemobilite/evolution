@@ -7,16 +7,22 @@
 import os
 import pytest
 
-from helpers.generator_helpers import delete_file_if_exists
-from tests.mocked_excel import create_mocked_excel_data
+from helpers.generator_helpers import load_survey_definition
 from scripts.generate_choices import (
     generate_choices,
     _generate_choices_yaml_locales,
     _generate_import_statements,
 )
+from survey_definition.choices_definition import Choices
+from survey_definition.survey_definition import SurveyDefinition
 
-# Path where create_mocked_excel_data writes the workbook; we delete it after each test.
-MOCKED_EXCEL_FILE = "src/tests/references/test.xlsx"
+# A conditional the choices of these tests can name, as in the Conditionals table.
+IS_ADULT_CONDITIONAL_ROW = {
+    "conditional_name": "isAdultConditional",
+    "path": "person.age",
+    "comparison_operator": ">=",
+    "value": 18,
+}
 
 
 def choices_row(
@@ -29,28 +35,28 @@ def choices_row(
     label_one_en=None,
     spreadChoicesName=None,
     conditional=None,
-):
+    hidden=None,
+) -> dict:
     """
-    Build a mocked Excel row for the `Choices` sheet using named parameters so
-    the test data is easy to review.
+    Build a `Choices` row, keyed by the sheet's column names, using named parameters
+    so the test data is easy to review.
     """
-    return [
-        choicesName,
-        value,
-        label_fr,
-        label_en,
-        label_one_fr,
-        label_one_en,
-        spreadChoicesName,
-        conditional,
-    ]
+    return {
+        "choicesName": choicesName,
+        "value": value,
+        "label::fr": label_fr,
+        "label::en": label_en,
+        "label_one::fr": label_one_fr,
+        "label_one::en": label_one_en,
+        "spreadChoicesName": spreadChoicesName,
+        "conditional": conditional,
+        "hidden": hidden,
+    }
 
 
-def choices_row_with_hidden(*, hidden, **kwargs):
-    """
-    Same as `choices_row`, but appends the `hidden` column (when tests include it).
-    """
-    return [*choices_row(**kwargs), hidden]
+def survey_definition_with_choices(*rows: dict) -> SurveyDefinition:
+    """A SurveyDefinition holding these Choices rows (and a conditional they may name)."""
+    return SurveyDefinition(conditionals=[IS_ADULT_CONDITIONAL_ROW], choices=list(rows))
 
 
 @pytest.fixture()
@@ -73,34 +79,13 @@ def output_paths(tmp_path):
     }
 
 
-# Cleanup the mocked workbook (fixed path) and any output artifacts automatically after each test.
-@pytest.fixture(autouse=True)
-def cleanup_mocked_excel_file():
-    """
-    Ensure the mocked workbook written by create_mocked_excel_data (fixed path)
-    is deleted after each test.
-    """
-    # In a pytest "yield fixture", code before `yield` runs before the test
-    # (setup) and code after `yield` runs after the test (teardown), even if the
-    # test fails.
-    yield
-    delete_file_if_exists(MOCKED_EXCEL_FILE)
+def read_file(path: str) -> str:
+    with open(path, mode="r", encoding="utf-8") as file:
+        return file.read()
 
 
 class TestGenerateChoices:
-    """Tests for the public entry point generate_choices(input_file, output_file, ...)."""
-
-    SHEET_NAME = "Choices"
-    EXPECTED_HEADERS = [
-        "choicesName",
-        "value",
-        "label::fr",
-        "label::en",
-        "label_one::fr",
-        "label_one::en",
-        "spreadChoicesName",
-        "conditional",
-    ]
+    """Tests for the public entry point generate_choices(survey_definition, output_file, ...)."""
 
     def test_generates_choices_from_demo_excel_if_present(self, output_paths):
         """
@@ -119,7 +104,7 @@ class TestGenerateChoices:
             pytest.skip(f"Demo generator file not found: {demo_input}")
 
         generate_choices(
-            demo_input,
+            load_survey_definition(demo_input),
             output_paths["choices_tsx_path"],
             labels_output_folder_path=output_paths["locales_dir_path"],
         )
@@ -131,7 +116,7 @@ class TestGenerateChoices:
     def test_generates_typescript_and_locales_yaml_and_preserves_order(
         self, output_paths
     ):
-        rows = [
+        survey_definition = survey_definition_with_choices(
             choices_row(
                 choicesName="yesNoChoices", value="yes", label_fr="Oui", label_en="Yes"
             ),
@@ -161,11 +146,10 @@ class TestGenerateChoices:
                 label_fr="Métro",
                 label_en="Metro",
             ),
-        ]
-        create_mocked_excel_data(self.SHEET_NAME, self.EXPECTED_HEADERS, rows)
+        )
 
         generate_choices(
-            MOCKED_EXCEL_FILE,
+            survey_definition,
             output_paths["choices_tsx_path"],
             labels_output_folder_path=output_paths["locales_dir_path"],
         )
@@ -174,10 +158,7 @@ class TestGenerateChoices:
         assert os.path.isfile(output_paths["en_choices_yaml_path"])
         assert os.path.isfile(output_paths["fr_choices_yaml_path"])
 
-        with open(
-            output_paths["choices_tsx_path"], mode="r", encoding="utf-8"
-        ) as ts_file:
-            ts_code = ts_file.read()
+        ts_code = read_file(output_paths["choices_tsx_path"])
         assert (
             "import { type ChoiceType } from 'evolution-common/lib/services/questionnaire/types';"
             in ts_code
@@ -186,20 +167,22 @@ class TestGenerateChoices:
         # Labels should use i18n translations (choices namespace)
         assert "label: (t: TFunction) => t('choices:yesNoChoices.yes')" in ts_code
         assert "label: (t: TFunction) => t('choices:yesNoChoices.no')" in ts_code
+        # Without any conditional, both imports stay commented out
+        assert "// import * as conditionals from './conditionals';" in ts_code
+        assert (
+            "// import * as customConditionals from './customConditionals';" in ts_code
+        )
 
-        with open(
-            output_paths["en_choices_yaml_path"], mode="r", encoding="utf-8"
-        ) as f:
-            en_yaml = f.read()
+        en_yaml = read_file(output_paths["en_choices_yaml_path"])
 
-        # YAML order should follow Excel row order (choicesName first appearance)
+        # YAML order should follow source row order (choicesName first appearance)
         idx_yes_no = en_yaml.find("\nyesNoChoices:\n")
         idx_bus_car = en_yaml.find("\nbusCarTransport:\n")
         idx_transport_modes = en_yaml.find("\ntransportModesChoices:\n")
         assert idx_yes_no != -1 and idx_bus_car != -1 and idx_transport_modes != -1
         assert idx_yes_no < idx_bus_car < idx_transport_modes
 
-        # Values within a group should follow Excel row order
+        # Values within a group should follow source row order
         idx_yes = en_yaml.find("\n    yes: Yes\n")
         idx_no = en_yaml.find("\n    no: No\n")
         assert idx_yes != -1 and idx_no != -1 and idx_yes < idx_no
@@ -210,17 +193,16 @@ class TestGenerateChoices:
         - hidden => hidden: true in TS output
         - conditional => correct namespace prefix (conditionals vs customConditionals)
         """
-        headers = [*self.EXPECTED_HEADERS, "hidden"]
-        rows = [
-            choices_row_with_hidden(
+        survey_definition = survey_definition_with_choices(
+            choices_row(
                 choicesName="aChoices",
                 value="a",
                 label_fr="A fr",
                 label_en="A en",
-                conditional="isAdult",
+                conditional="isAdultConditional",
                 hidden=True,
             ),
-            choices_row_with_hidden(
+            choices_row(
                 choicesName="aChoices",
                 value="b",
                 label_fr="B fr",
@@ -228,19 +210,21 @@ class TestGenerateChoices:
                 conditional="fooCustomConditional",
                 hidden=False,
             ),
-        ]
-        create_mocked_excel_data(self.SHEET_NAME, headers, rows)
+        )
 
-        generate_choices(MOCKED_EXCEL_FILE, output_paths["choices_tsx_path"])
+        generate_choices(survey_definition, output_paths["choices_tsx_path"])
 
-        with open(
-            output_paths["choices_tsx_path"], mode="r", encoding="utf-8"
-        ) as ts_file:
-            ts_code = ts_file.read()
-
-        assert "hidden: true" in ts_code
-        assert "conditional: conditionals.isAdult" in ts_code
+        ts_code = read_file(output_paths["choices_tsx_path"])
+        assert ts_code.count("hidden: true") == 1
+        assert "conditional: conditionals.isAdultConditional" in ts_code
         assert "conditional: customConditionals.fooCustomConditional" in ts_code
+        assert "import * as conditionals from './conditionals';" in ts_code
+        assert "// import * as conditionals from './conditionals';" not in ts_code
+        assert "import * as customConditionals from './customConditionals';" in ts_code
+        assert (
+            "// import * as customConditionals from './customConditionals';"
+            not in ts_code
+        )
 
     def test_typescript_label_supports_nickname_count_and_gender_context(
         self, output_paths
@@ -252,7 +236,7 @@ class TestGenerateChoices:
         - generate a TranslatableStringFunction label (t, interview, path) => ...
         - pass nickname / count / context to t(...)
         """
-        rows = [
+        survey_definition = survey_definition_with_choices(
             choices_row(
                 choicesName="greetingChoices",
                 value="hello",
@@ -261,16 +245,11 @@ class TestGenerateChoices:
                 label_one_fr="Salut **{{nickname}}**",
                 label_one_en="Hi **{{nickname}}**",
             )
-        ]
-        create_mocked_excel_data(self.SHEET_NAME, self.EXPECTED_HEADERS, rows)
+        )
 
-        generate_choices(MOCKED_EXCEL_FILE, output_paths["choices_tsx_path"])
+        generate_choices(survey_definition, output_paths["choices_tsx_path"])
 
-        with open(
-            output_paths["choices_tsx_path"], mode="r", encoding="utf-8"
-        ) as ts_file:
-            ts_code = ts_file.read()
-
+        ts_code = read_file(output_paths["choices_tsx_path"])
         assert (
             "import * as odSurveyHelpers from 'evolution-common/lib/services/odSurvey/helpers';"
             in ts_code
@@ -292,19 +271,8 @@ class TestGenerateChoices:
         assert "count: countPersons" in ts_code
         assert "nickname," in ts_code
 
-    def test_invalid_row_with_missing_choices_name_raises(self, output_paths):
-        rows = [
-            choices_row(choicesName="", value="yes", label_fr="Oui", label_en="Yes"),
-            choices_row(choicesName=None, value="no", label_fr="Non", label_en="No"),
-        ]
-        create_mocked_excel_data(self.SHEET_NAME, self.EXPECTED_HEADERS, rows)
-
-        with pytest.raises(Exception) as e_info:
-            generate_choices(MOCKED_EXCEL_FILE, output_paths["choices_tsx_path"])
-        assert str(e_info.value) == "Invalid row data in Choices sheet"
-
     def test_generates_spread_rows_into_typescript_array(self, output_paths):
-        rows = [
+        survey_definition = survey_definition_with_choices(
             choices_row(
                 choicesName="baseChoices", value="a", label_fr="A fr", label_en="A en"
             ),
@@ -315,269 +283,117 @@ class TestGenerateChoices:
                 label_fr="B fr",
                 label_en="B en",
             ),
-        ]
-        create_mocked_excel_data(self.SHEET_NAME, self.EXPECTED_HEADERS, rows)
+        )
 
-        generate_choices(MOCKED_EXCEL_FILE, output_paths["choices_tsx_path"])
+        generate_choices(survey_definition, output_paths["choices_tsx_path"])
 
-        with open(
-            output_paths["choices_tsx_path"], mode="r", encoding="utf-8"
-        ) as ts_file:
-            ts_code = ts_file.read()
-
+        ts_code = read_file(output_paths["choices_tsx_path"])
         assert "export const combinedChoices: ChoiceType[] = [" in ts_code
         assert "...baseChoices" in ts_code
 
-    def test_imports_are_uncommented_when_any_choice_has_conditional(
-        self, output_paths
-    ):
-        rows = [
+    def test_writes_a_non_string_value_as_a_string(self, output_paths):
+        survey_definition = survey_definition_with_choices(
             choices_row(
-                choicesName="aChoices",
-                value="a",
-                label_fr="A fr",
-                label_en="A en",
-                conditional="isAdult",
-            )
-        ]
-        create_mocked_excel_data(self.SHEET_NAME, self.EXPECTED_HEADERS, rows)
-
-        generate_choices(MOCKED_EXCEL_FILE, output_paths["choices_tsx_path"])
-
-        with open(
-            output_paths["choices_tsx_path"], mode="r", encoding="utf-8"
-        ) as ts_file:
-            ts_code = ts_file.read()
-
-        assert "import * as conditionals from './conditionals';" in ts_code
-        assert "// import * as conditionals from './conditionals';" not in ts_code
-
-    def test_imports_are_uncommented_when_any_choice_has_custom_conditional(
-        self, output_paths
-    ):
-        rows = [
-            choices_row(
-                choicesName="aChoices",
-                value="a",
-                label_fr="A fr",
-                label_en="A en",
-                conditional="fooCustomConditional",
-            )
-        ]
-        create_mocked_excel_data(self.SHEET_NAME, self.EXPECTED_HEADERS, rows)
-
-        generate_choices(MOCKED_EXCEL_FILE, output_paths["choices_tsx_path"])
-
-        with open(
-            output_paths["choices_tsx_path"], mode="r", encoding="utf-8"
-        ) as ts_file:
-            ts_code = ts_file.read()
-
-        assert "import * as customConditionals from './customConditionals';" in ts_code
-        assert (
-            "// import * as customConditionals from './customConditionals';"
-            not in ts_code
-        )
-
-    @pytest.mark.parametrize(
-        "case",
-        [
-            pytest.param(
-                {
-                    "input_file": "src/tests/references/test.csv",
-                    "output_file": "choices.tsx",
-                    "expected_error": "Invalid input file extension for src/tests/references/test.csv : must be an Excel 2010+ .xlsx, .xlsm, .xltx or .xltm file",
-                },
-                id="invalid_input_extension",
+                choicesName="countChoices", value=1, label_fr="1", label_en="1"
             ),
-            pytest.param(
-                {
-                    "input_file": MOCKED_EXCEL_FILE,
-                    "output_file": "choices.txt",
-                    "expected_error": "Invalid output file extension for choices.txt : must be an TypeScript .ts or .tsx file",
-                },
-                id="invalid_output_extension",
-            ),
-        ],
-    )
-    def test_rejects_invalid_file_extensions(self, case):
-        with pytest.raises(Exception) as e_info:
-            generate_choices(case["input_file"], case["output_file"])
-        assert str(e_info.value) == case["expected_error"]
-
-    def test_missing_sheet_raises(self, output_paths):
-        create_mocked_excel_data(
-            self.SHEET_NAME + "Bad", self.EXPECTED_HEADERS, [["x"]]
-        )
-        with pytest.raises(Exception) as e_info:
-            generate_choices(MOCKED_EXCEL_FILE, output_paths["choices_tsx_path"])
-        assert str(e_info.value) == "Sheet with name Choices does not exist"
-
-    def test_missing_expected_header_raises(self, output_paths):
-        bad_headers = [
-            "choicesNameBad",  # Bad header name, it should be choicesName
-            "value",
-            "label::fr",
-            "label::en",
-            "label_one::fr",
-            "label_one::en",
-            "spreadChoicesName",
-            "conditional",
-        ]
-        rows = [
             choices_row(
-                choicesName="yesNoChoices", value="yes", label_fr="Oui", label_en="Yes"
-            )
-        ]
-        create_mocked_excel_data(self.SHEET_NAME, bad_headers, rows)
-        with pytest.raises(Exception) as e_info:
-            generate_choices(MOCKED_EXCEL_FILE, output_paths["choices_tsx_path"])
-        assert (
-            str(e_info.value) == "Missing expected header in Choices sheet: choicesName"
+                choicesName="countChoices", value=True, label_fr="Oui", label_en="Yes"
+            ),
         )
 
-    def test_invalid_row_data_raises(self, output_paths):
-        # Invalid: missing both value and spreadChoicesName
-        rows = [choices_row(choicesName="yesNoChoices", label_fr="Oui", label_en="Yes")]
-        create_mocked_excel_data(self.SHEET_NAME, self.EXPECTED_HEADERS, rows)
+        generate_choices(survey_definition, output_paths["choices_tsx_path"])
+
+        ts_code = read_file(output_paths["choices_tsx_path"])
+        assert "value: '1'," in ts_code
+        assert "value: 'True'," in ts_code
+
+    def test_rejects_invalid_output_file_extension(self):
         with pytest.raises(Exception) as e_info:
-            generate_choices(MOCKED_EXCEL_FILE, output_paths["choices_tsx_path"])
-        assert str(e_info.value) == "Invalid row data in Choices sheet"
+            generate_choices(SurveyDefinition(), "choices.txt")
+        assert (
+            str(e_info.value)
+            == "Invalid output file extension for choices.txt : must be an TypeScript .ts or .tsx file"
+        )
 
 
 class TestGenerateChoicesYamlLocales:
-    """Tests for _generate_choices_yaml_locales(choices_by_name, labels_output_folder_path)."""
+    """Tests for _generate_choices_yaml_locales(choices_by_name, languages, labels_output_folder_path)."""
+
+    def _generate(self, output_paths, *rows: dict, languages=("fr", "en")):
+        _generate_choices_yaml_locales(
+            Choices(list(rows)).by_name(),
+            languages=languages,
+            labels_output_folder_path=output_paths["locales_dir_path"],
+        )
 
     def test_skips_spread_only_groups(self, output_paths):
         """
         If a choicesName only spreads another group and has no concrete values, it should
         not appear in locales/*/choices.yaml (no empty {} blocks).
         """
-        choices_by_name = {
-            "baseChoices": [
-                {
-                    "value": "a",
-                    "label_yaml": {"fr": "A fr", "en": "A en"},
-                    "spread_choices_name": None,
-                    "hidden": False,
-                }
-            ],
+        self._generate(
+            output_paths,
+            choices_row(
+                choicesName="baseChoices", value="a", label_fr="A fr", label_en="A en"
+            ),
             # spread-only: should be skipped from YAML output
-            "spreadOnlyChoices": [
-                {
-                    "value": None,
-                    "label_yaml": {"fr": None, "en": None},
-                    "spread_choices_name": "baseChoices",
-                    "hidden": False,
-                }
-            ],
-        }
-
-        _generate_choices_yaml_locales(
-            choices_by_name,
-            labels_output_folder_path=output_paths["locales_dir_path"],
+            choices_row(
+                choicesName="spreadOnlyChoices", spreadChoicesName="baseChoices"
+            ),
         )
 
-        with open(
-            output_paths["en_choices_yaml_path"], mode="r", encoding="utf-8"
-        ) as f:
-            en_yaml = f.read()
-
+        en_yaml = read_file(output_paths["en_choices_yaml_path"])
         assert "\nbaseChoices:\n" in en_yaml
         assert "\nspreadOnlyChoices:\n" not in en_yaml
 
     def test_writes_only_languages_with_non_empty_values(self, output_paths):
-        choices_by_name = {
-            "onlyFrench": [
-                {
-                    "value": "a",
-                    "label_yaml": {"fr": "Bonjour", "en": None},
-                    "spread_choices_name": None,
-                    "hidden": False,
-                }
-            ]
-        }
-
-        _generate_choices_yaml_locales(
-            choices_by_name,
-            labels_output_folder_path=output_paths["locales_dir_path"],
+        self._generate(
+            output_paths,
+            choices_row(choicesName="onlyFrench", value="a", label_fr="Bonjour"),
         )
 
         assert os.path.isfile(output_paths["fr_choices_yaml_path"])
         assert not os.path.isfile(output_paths["en_choices_yaml_path"])
 
-        with open(
-            output_paths["fr_choices_yaml_path"], mode="r", encoding="utf-8"
-        ) as f:
-            fr_yaml = f.read()
+        fr_yaml = read_file(output_paths["fr_choices_yaml_path"])
         assert "\nonlyFrench:\n" in fr_yaml
         assert "\n    a:" in fr_yaml
 
-    def test_omits_values_with_none_value_cell(self, output_paths):
-        choices_by_name = {
-            "mixed": [
-                {
-                    "value": None,
-                    "label_yaml": {
-                        "fr": "Should not appear",
-                        "en": "Should not appear",
-                    },
-                    "spread_choices_name": None,
-                    "hidden": False,
-                },
-                {
-                    "value": "ok",
-                    "label_yaml": {"fr": "OK", "en": "OK"},
-                    "spread_choices_name": None,
-                    "hidden": False,
-                },
-            ]
-        }
-
-        _generate_choices_yaml_locales(
-            choices_by_name,
-            labels_output_folder_path=output_paths["locales_dir_path"],
+    def test_writes_one_file_per_language(self, output_paths):
+        self._generate(
+            output_paths,
+            choices_row(
+                choicesName="yesNo", value="yes", label_fr="Oui", label_en="Yes"
+            ),
+            languages=("fr",),
         )
 
-        with open(
-            output_paths["en_choices_yaml_path"], mode="r", encoding="utf-8"
-        ) as f:
-            en_yaml = f.read()
-
-        assert "\nmixed:\n" in en_yaml
-        assert "\n    ok: OK\n" in en_yaml
-        assert "\n    null:" not in en_yaml
-        assert "\n    None:" not in en_yaml
+        assert os.path.isfile(output_paths["fr_choices_yaml_path"])
+        assert not os.path.isfile(output_paths["en_choices_yaml_path"])
 
     def test_choices_yaml_applies_label_formatter_bold_and_keeps_interpolation_tokens(
         self, output_paths
     ):
         """
-        End-to-end: labels in Excel go through LabelFormatter (e.g. **Hello** -> <strong>Hello</strong>)
+        End-to-end: labels go through LabelFormatter (e.g. **Hello** -> <strong>Hello</strong>)
         and i18next interpolation tokens like {{nickname}} stay readable.
         """
-        headers = TestGenerateChoices.EXPECTED_HEADERS
-        rows = [
+        survey_definition = survey_definition_with_choices(
             choices_row(
                 choicesName="greetingChoices",
                 value="hello",
                 label_fr="**Hello** {{nickname}}",
                 label_en="**Hello** {{nickname}}",
             )
-        ]
-        create_mocked_excel_data(TestGenerateChoices.SHEET_NAME, headers, rows)
+        )
 
         generate_choices(
-            MOCKED_EXCEL_FILE,
+            survey_definition,
             output_paths["choices_tsx_path"],
             labels_output_folder_path=output_paths["locales_dir_path"],
         )
 
-        with open(
-            output_paths["fr_choices_yaml_path"], mode="r", encoding="utf-8"
-        ) as f:
-            fr_yaml = f.read()
-
+        fr_yaml = read_file(output_paths["fr_choices_yaml_path"])
         assert "\ngreetingChoices:\n" in fr_yaml
         assert "hello: <strong>Hello</strong> {{nickname}}" in fr_yaml
 
@@ -587,31 +403,19 @@ class TestGenerateChoicesYamlLocales:
         - the base key using the "other" form
         - gender-specific keys only when they differ from "other"
         """
-        choices_by_name = {
-            "studentChoices": [
-                {
-                    "value": "student",
-                    # male: Étudiant, female: Étudiante, custom/other: Étudiant·e
-                    "label_yaml": {
-                        "fr": "Étudian{{gender:t/te/t·e}}",
-                        "en": "Student{{gender:/ess/}}",  # I know it's not grammatically correct, but it's just a test
-                    },
-                    "spread_choices_name": None,
-                    "hidden": False,
-                }
-            ]
-        }
-
-        _generate_choices_yaml_locales(
-            choices_by_name,
-            labels_output_folder_path=output_paths["locales_dir_path"],
+        self._generate(
+            output_paths,
+            choices_row(
+                choicesName="studentChoices",
+                value="student",
+                # male: Étudiant, female: Étudiante, custom/other: Étudiant·e
+                label_fr="Étudian{{gender:t/te/t·e}}",
+                # I know it's not grammatically correct, but it's just a test
+                label_en="Student{{gender:/ess/}}",
+            ),
         )
 
-        with open(
-            output_paths["fr_choices_yaml_path"], mode="r", encoding="utf-8"
-        ) as f:
-            fr_yaml = f.read()
-
+        fr_yaml = read_file(output_paths["fr_choices_yaml_path"])
         assert "\nstudentChoices:\n" in fr_yaml
         # base key is the "other" form
         assert "\n    student: Étudiant·e\n" in fr_yaml
@@ -620,11 +424,7 @@ class TestGenerateChoicesYamlLocales:
         assert "\n    student_female: Étudiante\n" in fr_yaml
         assert "\n    student_custom:" not in fr_yaml
 
-        with open(
-            output_paths["en_choices_yaml_path"], mode="r", encoding="utf-8"
-        ) as f:
-            en_yaml = f.read()
-
+        en_yaml = read_file(output_paths["en_choices_yaml_path"])
         assert "\nstudentChoices:\n" in en_yaml
         # male/custom/other are "" for a 1-part gender expression, female is "ess"
         assert "\n    student: Student\n" in en_yaml
@@ -633,28 +433,19 @@ class TestGenerateChoicesYamlLocales:
         assert "\n    student_custom:" not in en_yaml
 
     def test_choices_yaml_supports_label_one(self, output_paths):
-        choices_by_name = {
-            "greetingChoices": [
-                {
-                    "value": "hello",
-                    "label_yaml": {"fr": "Bonjour", "en": "Hello"},
-                    "label_one_yaml": {"fr": "Salut", "en": "Hi"},
-                    "spread_choices_name": None,
-                    "hidden": False,
-                }
-            ]
-        }
-
-        _generate_choices_yaml_locales(
-            choices_by_name,
-            labels_output_folder_path=output_paths["locales_dir_path"],
+        self._generate(
+            output_paths,
+            choices_row(
+                choicesName="greetingChoices",
+                value="hello",
+                label_fr="Bonjour",
+                label_en="Hello",
+                label_one_fr="Salut",
+                label_one_en="Hi",
+            ),
         )
 
-        with open(
-            output_paths["en_choices_yaml_path"], mode="r", encoding="utf-8"
-        ) as f:
-            en_yaml = f.read()
-
+        en_yaml = read_file(output_paths["en_choices_yaml_path"])
         assert "\ngreetingChoices:\n" in en_yaml
         assert "\n    hello: Hello\n" in en_yaml
         assert "\n    hello_one: Hi\n" in en_yaml
