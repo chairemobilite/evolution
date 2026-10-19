@@ -29,6 +29,9 @@ jobs:
     - name: Run Poetry
       working-directory: packages/evolution-generator
       run: poetry install
+    - name: Enable Corepack
+      # Corepack runs the Yarn version set in package.json. Node.js 25+ no longer bundles it.
+      run: npm install -g corepack
     - name: Run Python unit tests
       working-directory: packages/evolution-generator
       run: |
