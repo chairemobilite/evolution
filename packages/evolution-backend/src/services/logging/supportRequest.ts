@@ -129,7 +129,7 @@ export const sendSupportRequestEmail = async ({
             throw new Error('Mail transport configuration error. Support email cannot be sent');
         }
 
-        const promises: Promise<void>[] = [];
+        const promises: Promise<unknown>[] = [];
 
         for (const lang in supportEmails) {
             const emailMessage = prepareSupportRequestEmail(lang, { message, userEmail, interviewId, currentUrl });

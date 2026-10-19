@@ -43,7 +43,7 @@
         "i18next": "^26.0.6",
         "json2csv": "^5.0.7",
         "lodash": "^4.18.1",
-        "moment": "^2.30.1",
+        "moment": "^2.31.0",
         "moment-business-days": "^1.2.0",
         "moment-timezone": "^0.5.46",
         "react": "^19.2.3",
