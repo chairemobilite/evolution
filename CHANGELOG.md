@@ -13,6 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- Generator: the section titles of the generated `sectionConfigs.ts` are translations, written in `locales/<language>/sectionConfigs.yaml` and read with the `t` function, instead of one inline text per language
+
 ### Deprecated
 
 ### Removed
