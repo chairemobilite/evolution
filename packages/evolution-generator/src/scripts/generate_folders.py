@@ -34,10 +34,9 @@ def generate_folders(
         tests_folder_path = os.path.join(survey_folder_path, "tests")
         generate_folder(tests_folder_path)
 
-        # Create the locales folder
-        # TODO Find the supported locales from the excel file
-        generate_folder(os.path.join(survey_folder_path, "locales", "fr"))
-        generate_folder(os.path.join(survey_folder_path, "locales", "en"))
+        # Create one locales folder per survey language
+        for language in survey_definition.languages:
+            generate_folder(os.path.join(survey_folder_path, "locales", language))
 
         # Create the references folder
         if enabled_generate_questionnaire_list:

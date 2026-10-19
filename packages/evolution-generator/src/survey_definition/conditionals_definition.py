@@ -161,7 +161,7 @@ class Conditionals(RootModel[list[ConditionalDefinition]]):
 
     @model_validator(mode="wrap")
     @classmethod
-    def _collect_all_issues(cls, rows: object, handler) -> object:
+    def _collect_all_issues(cls, rows: object, handler, info: ValidationInfo) -> object:
         # See Sections._collect_all_issues: this runs every row's checks up front and
         # raises one error listing every problem, instead of stopping at the first.
         if isinstance(rows, (list, tuple, set, frozenset)):
@@ -171,6 +171,7 @@ class Conditionals(RootModel[list[ConditionalDefinition]]):
                     rows=rows,
                     model=ConditionalDefinition,
                     table_name="Conditionals",
+                    context=info.context,
                     sheet_rules=[],
                 )
                 if issues:

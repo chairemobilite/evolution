@@ -26,10 +26,33 @@ def _section_conditional_ts_expression(name: str) -> str:
     return f"conditionals.{name}"
 
 
+# TODO: Write the section titles as translations (locales files) read with the `t`
+# function, like the other labels, instead of one inline text per language.
+def _generate_titles_code(titles: dict[str, str], indent: str) -> str:
+    """
+    The `<language>: '<title>'` lines of a section title object, one per language, in
+    the survey languages' order, e.g. "fr: 'Accueil',\nen: 'Home'\n".
+    """
+    return (
+        ",\n".join(
+            f"{indent}{language}: '{title}'" for language, title in titles.items()
+        )
+        + "\n"
+    )
+
+
 # Function to generate sectionConfigs.ts for each section
 def generate_section_configs(
     survey_definition: SurveyDefinition, section_config_output_folder: str
 ):
+    """
+    Write sectionConfigs.ts in each section's folder.
+
+    Args:
+        survey_definition: Already-validated survey definition, read for its
+            Sections table and its languages.
+        section_config_output_folder: Folder holding one folder per section.
+    """
     try:
         sections = survey_definition.sections
         previousSection = None  # Initialize previousSection as None
@@ -38,8 +61,14 @@ def generate_section_configs(
         # Iterate through each section, in source order
         for section_index, section_definition in enumerate(sections):
             section = section_definition.section
-            title_fr = section_definition.title_fr
-            title_en = section_definition.title_en
+            # The title in each survey language, in the languages' order
+            titles = {
+                language: section_definition.title.get(language)
+                for language in survey_definition.languages
+            }
+            # A section only gets a title (and a navigation menu item) when it has one
+            # in every language.
+            has_titles = all(titles.values())
             in_nav = section_definition.in_nav
             template = section_definition.template
             parent_section = section_definition.parent_section
@@ -170,18 +199,16 @@ def generate_section_configs(
                 ts_section_code += f"export const sectionConfig: SectionConfig = {{\n"
                 ts_section_code += f"{INDENT}previousSection: previousSectionName,\n"
                 ts_section_code += f"{INDENT}nextSection: nextSectionName,\n"
-                if title_en and title_fr is not None:
+                if has_titles:
                     ts_section_code += f"{INDENT}title: {{\n"
-                    ts_section_code += f"{INDENT}{INDENT}fr: '{title_fr}',\n"
-                    ts_section_code += f"{INDENT}{INDENT}en: '{title_en}'\n"
+                    ts_section_code += _generate_titles_code(titles, INDENT * 2)
                     ts_section_code += f"{INDENT}}},\n"
                 # Generate the navigation menu item, either in nav with title or hidden with parent
-                if title_en and title_fr is not None and in_nav == True:
+                if has_titles and in_nav == True:
                     ts_section_code += f"{INDENT}navMenu: {{\n"
                     ts_section_code += f"{INDENT}{INDENT}type: 'inNav',\n"
                     ts_section_code += f"{INDENT}{INDENT}menuName: {{\n"
-                    ts_section_code += f"{INDENT}{INDENT}{INDENT}fr: '{title_fr}',\n"
-                    ts_section_code += f"{INDENT}{INDENT}{INDENT}en: '{title_en}'\n"
+                    ts_section_code += _generate_titles_code(titles, INDENT * 3)
                     ts_section_code += f"{INDENT}{INDENT}}}\n"
                     ts_section_code += f"{INDENT}}},\n"
                 elif parent_section is not None:

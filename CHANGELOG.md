@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Generator: the survey languages are read from the Excel file (the `label::<language>` columns of the Widgets sheet), instead of always French and English (fixes [#2035](https://github.com/chairemobilite/evolution/issues/2035))
+
 ### Changed
 
 ### Deprecated

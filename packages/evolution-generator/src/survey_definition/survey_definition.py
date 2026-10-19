@@ -2,18 +2,36 @@
 # This file is licensed under the MIT License.
 # License text available at https://opensource.org/licenses/MIT
 
-# Note: The survey definition: the survey as authored (sections, and later widgets,
-# choices, ...), bundled in one object. Each table has its own module in this package
-# (sections_definition.py, ...) that defines and validates its rows.
+# Note: The survey definition: the survey as authored (its languages, sections,
+# conditionals, and later widgets, choices, ...), bundled in one object. Each table has
+# its own module in this package (sections_definition.py, ...) that defines and
+# validates its rows, and holds every rule about that table. This module only holds
+# the rules about the survey languages: it validates them, then each table, passing
+# each one, through Pydantic's validation context, what its rules need but the table
+# doesn't have by itself, e.g. the survey languages (see validation_context.py).
 #
 # This module only defines the shape; it does not read any input source. See
 # generator_helpers.py::load_survey_definition() for that (loads the source and
 # builds a SurveyDefinition instance from the table models).
 
-from pydantic import BaseModel, Field
+import re
+from typing import Any
+
+from pydantic import (
+    BaseModel,
+    Field,
+    ValidationError,
+    ValidationInfo,
+    field_validator,
+)
 
 from survey_definition.conditionals_definition import Conditionals
 from survey_definition.sections_definition import Sections
+from survey_definition.validation_context import DEFAULT_SURVEY_LANGUAGES
+
+# A language code: two lowercase letters, optionally followed by a region, e.g. 'fr' or
+# 'en-CA'. It names the translated columns (title_fr) and the locales folders (locales/fr).
+_LANGUAGE_CODE_PATTERN = re.compile(r"[a-z]{2}(-[A-Z]{2})?")
 
 
 class SurveyDefinition(BaseModel):
@@ -21,25 +39,91 @@ class SurveyDefinition(BaseModel):
     The single source of truth for the survey definition, shared by (almost) every
     Generator script.
 
-    Input: a dict with one key per table (currently just `sections`, later `widgets`,
-        `choices`, ...), each holding that table's raw rows (or an already-built table
-        object, e.g. `SurveyDefinition(sections=[...])`). Every key is optional; an
-        omitted table defaults to empty.
-    Output: a validated instance if every table is valid; otherwise raises
-        `pydantic.ValidationError` listing the problems of every table, each reported
-        as that table's own class does (e.g. `Sections` checks `parent_section` only
-        once its rows and duplicates pass; see sections_definition.py).
+    Input: a dict with the survey `languages` and one key per table (`sections`,
+        `conditionals`, later `widgets`, `choices`, ...), each holding that table's raw
+        rows (or an already-built table object, e.g. `SurveyDefinition(sections=[...])`).
+        Every key is optional; an omitted table defaults to empty, and omitted
+        languages default to DEFAULT_SURVEY_LANGUAGES.
+    Output: a validated instance if the languages and every table are valid;
+        otherwise raises `pydantic.ValidationError` with one error per invalid field,
+        a table's listing all its problems as that table's own class does (e.g.
+        `Sections` checks `parent_section` only once its rows and duplicates pass;
+        see sections_definition.py).
+
+    An already-built table object is kept as is: its rows were checked when it was
+    built, with the context it was built with (e.g. the default languages).
 
     The input source is loaded a single time into one instance of this class, which is
     then passed to each script, so they all work from the same already-validated data
     instead of each re-reading and re-parsing the source on its own.
 
     Attributes:
-        sections: The Sections table, already checked: one SectionDefinition per row, in
-            source order.
+        languages: The survey languages, e.g. ('fr', 'en'), read from the workbook (see
+            generator_helpers.py::read_survey_languages).
+            Every translated field (e.g. a section title) must be set in each of them,
+            and none in another language.
         conditionals: The Conditionals table, already checked: one ConditionalDefinition
             per row, in source order.
+        sections: The Sections table, already checked: one SectionDefinition per row, in
+            source order.
     """
 
-    sections: Sections = Field(default_factory=lambda: Sections([]))
+    # Pydantic validates a table field with the table's own validators (e.g.
+    # Conditionals), so a table needing nothing from the other fields needs no
+    # validator here. Fields are validated in the order they are declared, and a
+    # field's validator can read the fields before it (info.data). So the languages
+    # come first, and the tables follow in dependency order: a table only gets
+    # information from the fields before it.
+    languages: tuple[str, ...] = DEFAULT_SURVEY_LANGUAGES
     conditionals: Conditionals = Field(default_factory=lambda: Conditionals([]))
+    sections: Sections = Field(default_factory=lambda: Sections([]))
+
+    @field_validator("languages")
+    @classmethod
+    def _languages_are_valid(cls, languages: tuple[str, ...]) -> tuple[str, ...]:
+        """Check that there is at least one language, each a valid code, none repeated."""
+        if not languages:
+            raise ValueError("At least one survey language is required.")
+        invalid = [
+            language
+            for language in languages
+            if not _LANGUAGE_CODE_PATTERN.fullmatch(language)
+        ]
+        if invalid:
+            raise ValueError(
+                f"Invalid survey languages {invalid}: each must be a language code "
+                "like 'fr' or 'en-CA'."
+            )
+        repeated = sorted({lang for lang in languages if languages.count(lang) > 1})
+        if repeated:
+            raise ValueError(f"Repeated survey languages: {repeated}")
+        return languages
+
+    @field_validator("sections", mode="before")
+    @classmethod
+    def _sections_are_valid(cls, rows: Any, info: ValidationInfo) -> Any:
+        """Validate the Sections table with the survey languages in its context."""
+        # The languages are missing from info.data when they are invalid. That problem
+        # is already reported, so check the sections with no language at all: their
+        # other problems are still reported, without a title error for each language.
+        languages = info.data.get("languages", ())
+        return _validated_table(Sections, rows, context={"languages": languages})
+
+
+def _validated_table[T: BaseModel](
+    table: type[T], rows: Any, context: dict | None
+) -> T:
+    """
+    Validate `rows` into `table` with its validation `context`, for a table field whose
+    validator passes it a context. The table's error (all its problems, one per line)
+    is raised as is, the same as for a field Pydantic validates by itself, rather than
+    nested in the error of the SurveyDefinition field holding the table.
+    """
+    try:
+        return table.model_validate(rows, context=context)
+    except ValidationError as exc:
+        issues = []
+        for error in exc.errors():
+            reason = error.get("ctx", {}).get("error", error["msg"])
+            issues.extend(str(reason).split("\n"))
+        raise ValueError("\n".join(issues)) from exc

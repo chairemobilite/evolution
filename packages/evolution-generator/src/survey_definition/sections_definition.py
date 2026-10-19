@@ -11,7 +11,7 @@
 # This module only defines the shape and the checks; it does not read any input source.
 # See survey_definition.py for the bundle of all tables.
 
-from collections.abc import Iterator
+from collections.abc import Iterator, Sequence
 from typing import Any, Self
 
 from pydantic import (
@@ -24,21 +24,32 @@ from pydantic import (
 )
 
 from survey_definition import field_checks
-from survey_definition.row_checks import _raise_if_check_fails, _strip_blanks
-from survey_definition.sheet_checks import collect_sheet_issues, unique_field
+from survey_definition.row_checks import (
+    _collect_language_columns,
+    _raise_if_check_fails,
+    _strip_blanks,
+)
+from survey_definition.sheet_checks import (
+    SheetRule,
+    collect_sheet_issues,
+    unique_field,
+)
+from survey_definition.validation_context import context_languages
 
 # Field names the Sections source must provide, even though several of them
-# (title_fr, title_en, template, parent_section) may be blank on a given row — see
-# SectionDefinition below for which fields' *values* are actually mandatory.
+# (template, parent_section) may be blank on a given row — see SectionDefinition below
+# for which fields' *values* are actually mandatory. The title columns (one per survey
+# language) aren't listed: a missing one is reported by the rows that need a title.
 SECTION_REQUIRED_FIELD_NAMES: tuple[str, ...] = (
     "section",
-    "title_fr",
-    "title_en",
     "in_nav",
     "template",
     "parent_section",
     "abbreviation",
 )
+
+# Prefix of the title columns: one per survey language, e.g. title_fr, title_en.
+SECTION_TITLE_COLUMN_PREFIX = "title_"
 
 
 class SectionDefinition(BaseModel):
@@ -54,7 +65,9 @@ class SectionDefinition(BaseModel):
 
     Build instances through `Sections(rows)` (below), which also runs
     the rules that need more than one row (unique `section`/`abbreviation`,
-    `parent_section` exists).
+    `parent_section` exists). The survey languages come from the validation context
+    (see validation_context.py), e.g. `Sections.model_validate(rows,
+    context={"languages": ("fr", "es")})`; without one, fr and en are used.
     Constructing a SectionDefinition directly only runs the per-row rules below. Validation
     is strict: no type coercion (e.g. the string "yes" is rejected for a bool field).
 
@@ -63,11 +76,12 @@ class SectionDefinition(BaseModel):
             `parent_section` to nest under it. Required; must be a valid TypeScript
             identifier and unique across the table.
         in_nav: Whether this section appears in the navigation menu. Required. When
-            true, `title_fr` and `title_en` become required too.
+            true, a title in every survey language becomes required too.
         abbreviation: Short code for this section, e.g. "h_". Required; must end with
             an underscore and be unique across the table.
-        title_fr: French title shown for this section. Only required when `in_nav` is true.
-        title_en: English title shown for this section. Only required when `in_nav` is true.
+        title: Title shown for this section, by language, read from the `title_<language>`
+            columns (e.g. {"fr": "Accueil", "en": "Home"}). Only required, in every
+            survey language, when `in_nav` is true.
         template: How this section is rendered. True means it has its own custom
             `template.tsx`, a str names a builtin template, and None uses the default
             (no template). See `generate_section_configs.py`.
@@ -97,16 +111,19 @@ class SectionDefinition(BaseModel):
     @model_validator(mode="before")
     @classmethod
     def _strip_blank_cells(cls, data: Any) -> Any:
-        """Treat a blank/whitespace-only cell as an absent key, not a genuinely blank value."""
-        return _strip_blanks(data) if isinstance(data, dict) else data
+        """Treat a blank/whitespace-only cell as an absent key, and gather the title_<language> columns into `title`."""
+        if not isinstance(data, dict):
+            return data
+        return _collect_language_columns(
+            _strip_blanks(data), "title", SECTION_TITLE_COLUMN_PREFIX
+        )
 
     # No default: a blank value here is a genuinely missing required value.
     section: str
     in_nav: bool
     abbreviation: str
 
-    title_fr: str | None = None
-    title_en: str | None = None
+    title: dict[str, str] = {}
 
     template: str | bool | None = None
     parent_section: str | None = None
@@ -130,27 +147,6 @@ class SectionDefinition(BaseModel):
         _raise_if_check_fails(field_checks.ends_with_underscore, value, info.data)
         return value
 
-    # A model validator with mode="after" runs once every field above has been read and
-    # checked, and gets the finished row as `self`. That is what a rule between two
-    # fields needs (here: in_nav decides whether the titles are required), unlike a
-    # field_validator, which only sees the one field it is attached to.
-    @model_validator(mode="after")
-    def _titles_required_when_in_nav(self) -> Self:
-        """Check that `title_fr` and `title_en` are set whenever `in_nav` is true."""
-        if self.in_nav:
-            # A title of only spaces counts as blank, like in field_checks.non_blank.
-            missing = [
-                name
-                for name in ("title_fr", "title_en")
-                if not (getattr(self, name) or "").strip()
-            ]
-            if missing:
-                verb = "is" if len(missing) == 1 else "are"
-                raise ValueError(
-                    f"{' and '.join(missing)} {verb} required when in_nav is true"
-                )
-        return self
-
     @field_validator("enable_conditional", "completion_conditional")
     @classmethod
     def _conditional_name_is_valid(
@@ -160,6 +156,60 @@ class SectionDefinition(BaseModel):
         if value is not None:
             _raise_if_check_fails(field_checks.valid_conditional_name, value, info.data)
         return value
+
+    # A model validator with mode="after" runs once every field above has been read and
+    # checked, and gets the finished row as `self`. That is what a rule between two
+    # fields needs (here: in_nav decides whether the titles are required), unlike a
+    # field_validator, which only sees the one field it is attached to.
+    @model_validator(mode="after")
+    def _titles_required_when_in_nav(self, info: ValidationInfo) -> Self:
+        """Check that `title` is set in every survey language whenever `in_nav` is true."""
+        if self.in_nav:
+            missing = [
+                f"title_{language}"
+                for language in context_languages(info)
+                if language not in self.title
+            ]
+            if missing:
+                verb = "is" if len(missing) == 1 else "are"
+                raise ValueError(
+                    f"{' and '.join(missing)} {verb} required when in_nav is true"
+                )
+        return self
+
+
+def _titles_in_survey_languages(
+    languages: tuple[str, ...],
+) -> SheetRule[SectionDefinition]:
+    """
+    Build a sheet rule: no row has a title in a language that isn't one of `languages`,
+    e.g. from a typo such as title_fe. Reported once for the table, not on each row.
+    Without any language (they were invalid, and reported as such), there is nothing
+    to compare to.
+    """
+
+    def rule(
+        rows: Sequence[tuple[int, SectionDefinition]], table_name: str
+    ) -> list[str]:
+        if not languages:
+            return []
+        other_languages = sorted(
+            {
+                language
+                for _, section in rows
+                for language in section.title
+                if language not in languages
+            }
+        )
+        if not other_languages:
+            return []
+        return [
+            f"Error in {table_name} - Unexpected columns: "
+            f"{[SECTION_TITLE_COLUMN_PREFIX + language for language in other_languages]}. "
+            f"The survey languages are {list(languages)}."
+        ]
+
+    return rule
 
 
 class Sections(RootModel[list[SectionDefinition]]):
@@ -172,10 +222,11 @@ class Sections(RootModel[list[SectionDefinition]]):
         SectionDefinition.
     Output: a validated instance — iterable, indexable, `len()`-able, one
         SectionDefinition per row in source order — if the whole sheet passes every
-        rule (each row's own rules, plus unique `section`/`abbreviation` and a valid
-        `parent_section` across rows); otherwise raises `pydantic.ValidationError`.
-        Its message lists every row problem and duplicate at once; `parent_section`
-        is only checked once those pass.
+        rule (each row's own rules, plus unique `section`/`abbreviation`, titles only
+        in the survey languages and a valid `parent_section` across rows); otherwise
+        raises `pydantic.ValidationError`. Its message lists every row problem,
+        duplicate and title in another language at once; `parent_section` is only
+        checked once those pass.
 
     An instance only exists if the sheet is valid, so whatever holds one doesn't need
     to check it again. Build it from the rows as read from the source (dicts) or from
@@ -184,7 +235,7 @@ class Sections(RootModel[list[SectionDefinition]]):
 
     @model_validator(mode="wrap")
     @classmethod
-    def _collect_all_issues(cls, rows: Any, handler) -> Any:
+    def _collect_all_issues(cls, rows: Any, handler, info: ValidationInfo) -> Any:
         # Pydantic stops at the first error a validator raises, so a plain validator
         # would report the problems one at a time. Running the checks ourselves and
         # raising a single error that lists all of them is what reports everything.
@@ -198,7 +249,12 @@ class Sections(RootModel[list[SectionDefinition]]):
                     rows=rows,
                     model=SectionDefinition,
                     table_name="Sections",
-                    sheet_rules=[unique_field("section"), unique_field("abbreviation")],
+                    context=info.context,
+                    sheet_rules=[
+                        unique_field("section"),
+                        unique_field("abbreviation"),
+                        _titles_in_survey_languages(context_languages(info)),
+                    ],
                 )
                 if issues:
                     raise ValueError("\n".join(issues))

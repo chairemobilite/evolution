@@ -14,9 +14,8 @@ from survey_definition.sections_definition import Sections, SectionDefinition
 
 class TestSectionDefinition:
     def test_section_definition_required_fields_and_defaults(self):
-        # in_nav=False so title_fr/title_en aren't required for this minimal example.
         section = SectionDefinition(section="home", in_nav=False, abbreviation="HM_")
-        assert section.title_fr is None
+        assert section.title == {}
         assert section.parent_section is None
 
 
@@ -145,6 +144,31 @@ class TestSections:
             "Input should be a valid boolean"
         ]
 
+    def test_gathers_the_title_of_each_language(self):
+        rows = [{**self._valid_section_row("home", "HM_"), "title_es": "Inicio"}]
+        sections = Sections.model_validate(
+            rows, context={"languages": ("fr", "en", "es")}
+        )
+        assert sections[0].title == {"fr": "Accueil", "en": "Home", "es": "Inicio"}
+
+    def test_reports_a_title_in_another_language_once(self):
+        """A title_<language> column for a language that isn't a survey language, e.g. a typo."""
+        rows = [
+            {**self._valid_section_row("home", "HM_"), "title_fe": "Accueil"},
+            {**self._valid_section_row("end", "EN_"), "title_fe": "Fin"},
+        ]
+        with pytest.raises(ValidationError) as error:
+            Sections(rows)
+        assert error.value.errors()[0]["ctx"]["error"].args[0] == (
+            "Error in Sections - Unexpected columns: ['title_fe']. "
+            "The survey languages are ['fr', 'en']."
+        )
+
+    def test_leaves_out_a_blank_title(self):
+        rows = [{**self._valid_section_row("home", "HM_"), "title_en": "  "}]
+        sections = Sections.model_validate(rows, context={"languages": ("fr",)})
+        assert sections[0].title == {"fr": "Accueil"}
+
     def test_reports_missing_titles_when_in_nav_is_true(self):
         rows = [
             {
@@ -178,11 +202,6 @@ class TestSections:
             "title_fr and title_en are required when in_nav is true",
         ]
 
-    def test_treats_a_whitespace_only_template_as_absent(self):
-        rows = [{**self._valid_section_row("home", "HM_"), "template": "  "}]
-        sections = Sections(rows)
-        assert sections[0].template is None
-
     def test_allows_missing_titles_when_in_nav_is_false(self):
         rows = [
             {
@@ -193,6 +212,26 @@ class TestSections:
             }
         ]
         Sections(rows)
+
+    def test_requires_a_title_in_each_language_of_the_context(self):
+        rows = [self._valid_section_row("home", "HM_")]
+        with pytest.raises(ValidationError) as error:
+            Sections.model_validate(rows, context={"languages": ("fr", "es")})
+        assert str(error.value.errors()[0]["ctx"]["error"]) == (
+            "Error in Sections - Invalid row 2: title_es is required when in_nav is true"
+        )
+
+    def test_uses_french_and_english_without_a_context(self):
+        rows = [{**self._valid_section_row("home", "HM_"), "title_es": "Inicio"}]
+        rows[0].pop("title_en")
+        assert self._issues(rows) == [
+            "Error in Sections - Invalid row 2: title_en is required when in_nav is true"
+        ]
+
+    def test_treats_a_whitespace_only_template_as_absent(self):
+        rows = [{**self._valid_section_row("home", "HM_"), "template": "  "}]
+        sections = Sections(rows)
+        assert sections[0].template is None
 
     def test_collects_every_row_level_issue_in_one_pass(self):
         rows = [{**self._valid_section_row("1bad", "HM")}]

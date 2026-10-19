@@ -6,9 +6,10 @@
 # row-parsing helpers shared by every table's definition module.
 
 import pytest  # pyright: ignore[reportMissingImports]
-from pydantic import ValidationError
+from pydantic import BaseModel, ValidationError, model_validator
 
 from survey_definition.row_checks import (
+    _collect_language_columns,
     _raise_if_check_fails,
     _strip_blanks,
     format_pydantic_errors,
@@ -150,14 +151,53 @@ class TestFormatPydanticErrors:
         ]
 
     def test_reports_a_rule_on_the_whole_row_without_a_field_name(self):
-        # in_nav=True with no titles fails a rule between fields, so the error belongs
-        # to the row itself rather than to one field.
+        # A rule between fields (a model validator) belongs to the row itself rather
+        # than to one field.
+        class Range(BaseModel):
+            low: int
+            high: int
+
+            @model_validator(mode="after")
+            def _low_below_high(self):
+                if self.low > self.high:
+                    raise ValueError("low must not be above high")
+                return self
+
+        with pytest.raises(ValidationError) as error:
+            Range(low=2, high=1)
+        issues = format_pydantic_errors(error.value, table_name="Ranges", row_number=4)
+        assert issues == ["Error in Ranges - Invalid row 4: low must not be above high"]
+
+    def test_names_a_per_language_field_with_its_language(self):
         issues = format_pydantic_errors(
-            self._validation_error(section="home", in_nav=True, abbreviation="HM_"),
+            self._validation_error(
+                section="home", in_nav=False, abbreviation="HM_", title_en=True
+            ),
             table_name="Sections",
-            row_number=4,
+            row_number=2,
         )
         assert issues == [
-            "Error in Sections - Invalid row 4: "
-            "title_fr and title_en are required when in_nav is true"
+            "Error in Sections - Invalid title.en in row 2: True - "
+            "Input should be a valid string"
         ]
+
+
+class TestCollectLanguageColumns:
+    def test_gathers_the_columns_of_every_language_into_one_dict(self):
+        row = {"section": "home", "title_fr": "Accueil", "title_es": "Inicio"}
+        assert _collect_language_columns(row, "title", "title_") == {
+            "section": "home",
+            "title": {"fr": "Accueil", "es": "Inicio"},
+        }
+
+    def test_reads_a_number_as_text_but_not_a_bool(self):
+        row = {"title_fr": 1, "title_en": 2.5, "title_es": True}
+        assert _collect_language_columns(row, "title", "title_")["title"] == {
+            "fr": "1",
+            "en": "2.5",
+            "es": True,
+        }
+
+    def test_leaves_a_row_without_such_columns_unchanged(self):
+        row = {"section": "home"}
+        assert _collect_language_columns(row, "title", "title_") == row

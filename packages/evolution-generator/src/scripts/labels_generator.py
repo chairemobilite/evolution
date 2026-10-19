@@ -13,6 +13,7 @@ from helpers.generator_helpers import (
     get_data_from_excel,
     get_label_context_flags,
 )
+from survey_definition.validation_context import DEFAULT_SURVEY_LANGUAGES
 
 
 class SheetWithLabels(TypedDict):
@@ -434,6 +435,7 @@ class LabelsGenerator:
         excel_file_path,
         labels_output_folder_path,
         sheet_with_labels: SheetWithLabels = DEFAULT_SHEETS_WITH_LABELS[0],
+        languages: tuple[str, ...] = DEFAULT_SURVEY_LANGUAGES,
     ):
         """
         Reads translations from an Excel file and adds them to the appropriate YAML files.
@@ -442,6 +444,7 @@ class LabelsGenerator:
             excel_file_path (str): The path to the Excel file containing translations.
             labels_output_folder_path (str): The output folder path for the labels.
             sheet_with_labels (SheetWithLabels): Sheet configuration containing sheetName and header names.
+            languages (tuple of str): The survey languages; each needs its label::<language> column.
         """
         try:
             # Read data from Excel and return rows and headers
@@ -452,97 +455,52 @@ class LabelsGenerator:
             # Find the index
             section_index = widgets_headers.index(sheet_with_labels["namespaceHeader"])
             label_key_index = widgets_headers.index(sheet_with_labels["keyHeader"])
-            label_fr_index = widgets_headers.index("label::fr")
-            label_en_index = widgets_headers.index("label::en")
-            label_fr_one_index = (
-                widgets_headers.index("label_one::fr")
-                if "label_one::fr" in widgets_headers
-                else None
-            )
-            label_en_one_index = (
-                widgets_headers.index("label_one::en")
-                if "label_one::en" in widgets_headers
-                else None
-            )
+            # One label column per language, and an optional label_one column
+            label_index_by_language = {
+                language: widgets_headers.index(f"label::{language}")
+                for language in languages
+            }
+            label_one_index_by_language = {
+                language: widgets_headers.index(f"label_one::{language}")
+                for language in languages
+                if f"label_one::{language}" in widgets_headers
+            }
 
             rowNumber = 2  # Start from the second row
             processed_sections = set()  # Track processed sections
-            translations_dict = {
-                "fr": {},
-                "en": {},
-            }  # Store translations for each language
+            # Store translations for each language
+            translations_dict = {language: {} for language in languages}
 
             # Parse the widget sheet to add the translations
             for row in widgets_rows[1:]:
                 # Get the row values
-                # question_name = row[question_name_index].value
                 section = row[section_index].value
                 label_key = row[label_key_index].value
-                fr_label = row[label_fr_index].value
-                en_label = row[label_en_index].value
-                fr_label_one = (
-                    row[label_fr_one_index].value
-                    if label_fr_one_index is not None
-                    else None
-                )
-                en_label_one = (
-                    row[label_en_one_index].value
-                    if label_en_one_index is not None
-                    else None
-                )
-
-                # Expand gender context for labels, by language
-                gender_fr = cls.expand_gender(fr_label)
-                gender_fr_one = cls.expand_gender(fr_label_one)
-                gender_en = cls.expand_gender(en_label)
-                gender_en_one = cls.expand_gender(en_label_one)
 
                 # Add section to processed section set if not already processed
                 if section not in processed_sections:
                     processed_sections.add(section)  # Mark section as processed
 
-                # Add French translations
-                cls.add_gender_or_base_translations(
-                    "fr",
-                    section,
-                    label_key,
-                    gender_fr,
-                    fr_label,
-                    "",
-                    rowNumber,
-                    translations_dict,
-                )
-                cls.add_gender_or_base_translations(
-                    "fr",
-                    section,
-                    label_key,
-                    gender_fr_one,
-                    fr_label_one,
-                    "_one",
-                    rowNumber,
-                    translations_dict,
-                )
-                # Add English translations
-                cls.add_gender_or_base_translations(
-                    "en",
-                    section,
-                    label_key,
-                    gender_en,
-                    en_label,
-                    "",
-                    rowNumber,
-                    translations_dict,
-                )
-                cls.add_gender_or_base_translations(
-                    "en",
-                    section,
-                    label_key,
-                    gender_en_one,
-                    en_label_one,
-                    "_one",
-                    rowNumber,
-                    translations_dict,
-                )
+                # Add the translations of each language, expanding the gender context
+                for language in languages:
+                    label = row[label_index_by_language[language]].value
+                    label_one_index = label_one_index_by_language.get(language)
+                    label_one = (
+                        row[label_one_index].value
+                        if label_one_index is not None
+                        else None
+                    )
+                    for text, extra_suffix in ((label, ""), (label_one, "_one")):
+                        cls.add_gender_or_base_translations(
+                            language,
+                            section,
+                            label_key,
+                            cls.expand_gender(text),
+                            text,
+                            extra_suffix,
+                            rowNumber,
+                            translations_dict,
+                        )
 
                 rowNumber += 1  # Increment row number
 
@@ -742,6 +700,7 @@ class LabelsGenerator:
         excel_file_path,
         labels_output_folder_path,
         sheets_with_labels: list[SheetWithLabels] = DEFAULT_SHEETS_WITH_LABELS,
+        languages: tuple[str, ...] = DEFAULT_SURVEY_LANGUAGES,
     ):
         """
         Generates the labels locales files from an Excel file for multiple sheets.
@@ -755,6 +714,7 @@ class LabelsGenerator:
             excel_file_path (str): The path to the Excel file containing translations.
             labels_output_folder_path (str): The output folder path for the labels.
             sheets_with_labels (list[SheetWithLabels]): Sheet configurations for labels extraction.
+            languages (tuple of str): The survey languages; each needs its label::<language> column.
         """
         try:
             if not sheets_with_labels:
@@ -776,7 +736,7 @@ class LabelsGenerator:
             # Step 2: Delete all YAML files for all sections/languages ONCE before any processing
             cls.delete_all_labels_yaml_files(
                 labels_output_folder_path,
-                ["fr", "en"],
+                list(languages),
                 all_sections,
             )
 
@@ -786,6 +746,7 @@ class LabelsGenerator:
                     excel_file_path=excel_file_path,
                     labels_output_folder_path=labels_output_folder_path,
                     sheet_with_labels=sheet,
+                    languages=languages,
                 )
         except Exception as e:
             print(f"An error occurred: {e}")
