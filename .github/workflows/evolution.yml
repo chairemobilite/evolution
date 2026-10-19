@@ -33,6 +33,9 @@ jobs:
       uses: actions/setup-node@v7
       with:
         node-version: ${{ matrix.node-version }}
+    - name: Enable Corepack
+      # Corepack runs the Yarn version set in package.json. Node.js 25+ no longer bundles it.
+      run: npm install -g corepack
     - name: Install
       run: yarn
     - name: Compile
@@ -54,6 +57,9 @@ jobs:
       uses: actions/setup-node@v7
       with:
         node-version: ${{ env.NODE_VERSION }}
+    - name: Enable Corepack
+      # Corepack runs the Yarn version set in package.json. Node.js 25+ no longer bundles it.
+      run: npm install -g corepack
     - name: Install
       run: yarn install
     - name: Compile
@@ -71,6 +77,9 @@ jobs:
       uses: actions/setup-node@v7
       with:
         node-version: ${{ env.NODE_VERSION }}
+    - name: Enable Corepack
+      # Corepack runs the Yarn version set in package.json. Node.js 25+ no longer bundles it.
+      run: npm install -g corepack
     - name: Install
       run: yarn install --frozen-lockfile
     - name: Yarn format
@@ -116,6 +125,9 @@ jobs:
       uses: actions/setup-node@v7
       with:
         node-version: ${{ matrix.node-version }}
+    - name: Enable Corepack
+      # Corepack runs the Yarn version set in package.json. Node.js 25+ no longer bundles it.
+      run: npm install -g corepack
     - name: Install
       run: yarn
     - name: Compile
