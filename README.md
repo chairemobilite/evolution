@@ -25,12 +25,13 @@ Skip this step if Node.js (version 18.x or 20.x) is already installed on your Li
     node -v
 ```
 
-### Install Yarn on Linux
+### Install Yarn via Corepack on Linux
 
-Skip this step if Yarn is already installed on your Linux system.
+This project configures the Yarn version via Corepack. You might need to install corepack if you
+don't have it already. Also, if you have installed a system-wide Yarn, you'll want to remove it first.
 
     ```bash
-    sudo npm install -g yarn
+    sudo npm install -g corepack
     yarn -v
     ```
 
