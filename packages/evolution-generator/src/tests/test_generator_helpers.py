@@ -232,7 +232,7 @@ class TestReadSheetRows:
 
 
 class TestLoadSurveyDefinition:
-    """Tests for load_survey_definition (builds a SurveyDefinition from the Sections and Conditionals sheets)."""
+    """Tests for load_survey_definition (builds a SurveyDefinition from the Sections, Conditionals and Choices sheets)."""
 
     VALID_SECTIONS_HEADERS = [
         "section",
@@ -256,6 +256,24 @@ class TestLoadSurveyDefinition:
     ]
     VALID_CONDITIONALS_ROWS = [["cond1", "", "household.size", "===", 1, "", ""]]
 
+    VALID_CHOICES_HEADERS = [
+        "choicesName",
+        "value",
+        "label::fr",
+        "label::en",
+        "spreadChoicesName",
+        "conditional",
+    ]
+    VALID_CHOICES_ROWS = [["yesNo", "yes", "Oui", "Yes", "", ""]]
+
+    def _add_choices_sheet(self, workbook, headers=None, rows=None):
+        add_mocked_excel_sheet(
+            workbook,
+            "Choices",
+            headers or self.VALID_CHOICES_HEADERS,
+            rows or self.VALID_CHOICES_ROWS,
+        )
+
     def test_valid_file_returns_a_survey_definition(self):
         workbook = create_mocked_excel_data(
             "Sections", self.VALID_SECTIONS_HEADERS, self.VALID_SECTIONS_ROWS
@@ -266,6 +284,7 @@ class TestLoadSurveyDefinition:
             self.VALID_CONDITIONALS_HEADERS,
             self.VALID_CONDITIONALS_ROWS,
         )
+        self._add_choices_sheet(workbook)
         try:
             survey_definition = load_survey_definition(MOCKED_EXCEL_FILE)
             assert [section.section for section in survey_definition.sections] == [
@@ -298,6 +317,7 @@ class TestLoadSurveyDefinition:
             self.VALID_CONDITIONALS_HEADERS,
             self.VALID_CONDITIONALS_ROWS,
         )
+        self._add_choices_sheet(workbook)
         try:
             survey_definition = load_survey_definition(MOCKED_EXCEL_FILE)
             assert [section.section for section in survey_definition.sections] == [
@@ -317,6 +337,7 @@ class TestLoadSurveyDefinition:
             self.VALID_CONDITIONALS_HEADERS,
             self.VALID_CONDITIONALS_ROWS,
         )
+        self._add_choices_sheet(workbook)
         conditionals_sheet = workbook["Conditionals"]
         for column in range(1, len(self.VALID_CONDITIONALS_HEADERS) + 1):
             conditionals_sheet.cell(row=3, column=column).fill = PatternFill(
@@ -343,6 +364,7 @@ class TestLoadSurveyDefinition:
             self.VALID_CONDITIONALS_HEADERS[:-1],  # drop value_when_hidden
             [row[:-1] for row in self.VALID_CONDITIONALS_ROWS],
         )
+        self._add_choices_sheet(workbook)
         try:
             survey_definition = load_survey_definition(MOCKED_EXCEL_FILE)
             assert survey_definition.conditionals[0].value_when_hidden is None
@@ -389,6 +411,7 @@ class TestLoadSurveyDefinition:
             self.VALID_CONDITIONALS_HEADERS,
             self.VALID_CONDITIONALS_ROWS,
         )
+        self._add_choices_sheet(workbook)
         try:
             with pytest.raises(ValidationError):
                 load_survey_definition(MOCKED_EXCEL_FILE)
@@ -405,8 +428,84 @@ class TestLoadSurveyDefinition:
             self.VALID_CONDITIONALS_HEADERS,
             [[None, "", "household.size", "===", 1, "", ""]],
         )
+        self._add_choices_sheet(workbook)
         try:
             with pytest.raises(ValidationError):
+                load_survey_definition(MOCKED_EXCEL_FILE)
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+    def _create_workbook_with_choices(self, headers=None, rows=None):
+        workbook = create_mocked_excel_data(
+            "Sections", self.VALID_SECTIONS_HEADERS, self.VALID_SECTIONS_ROWS
+        )
+        add_mocked_excel_sheet(
+            workbook,
+            "Conditionals",
+            self.VALID_CONDITIONALS_HEADERS,
+            self.VALID_CONDITIONALS_ROWS,
+        )
+        self._add_choices_sheet(workbook, headers, rows)
+        return workbook
+
+    def test_reads_the_choices_sheet(self):
+        self._create_workbook_with_choices(
+            rows=[
+                ["yes", "yes", "Oui", "Yes", "", ""],
+                ["yesNo", "", "", "", "yes", "isAdultCustomConditional"],
+            ]
+        )
+        try:
+            survey_definition = load_survey_definition(MOCKED_EXCEL_FILE)
+            yes, spread = survey_definition.choices
+            assert yes.label == {"fr": "Oui", "en": "Yes"}
+            assert yes.label_one == {}
+            assert yes.hidden is False
+            assert spread.spread_choices_name == "yes"
+            assert spread.conditional == "isAdultCustomConditional"
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+    def test_reads_the_optional_label_one_and_hidden_columns(self):
+        self._create_workbook_with_choices(
+            headers=self.VALID_CHOICES_HEADERS
+            + ["label_one::fr", "label_one::en", "hidden"],
+            rows=[["yesNo", "yes", "Oui", "Yes", "", "", "Oui!", "", True]],
+        )
+        try:
+            choice = load_survey_definition(MOCKED_EXCEL_FILE).choices[0]
+            assert choice.label_one == {"fr": "Oui!"}
+            assert choice.hidden is True
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+    def test_missing_choices_sheet_raises(self):
+        workbook = create_mocked_excel_data(
+            "Sections", self.VALID_SECTIONS_HEADERS, self.VALID_SECTIONS_ROWS
+        )
+        add_mocked_excel_sheet(
+            workbook,
+            "Conditionals",
+            self.VALID_CONDITIONALS_HEADERS,
+            self.VALID_CONDITIONALS_ROWS,
+        )
+        try:
+            with pytest.raises(
+                Exception, match="Sheet with name Choices does not exist"
+            ):
+                load_survey_definition(MOCKED_EXCEL_FILE)
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+    def test_missing_label_column_for_a_survey_language_raises(self):
+        headers = [h for h in self.VALID_CHOICES_HEADERS if h != "label::en"]
+        self._create_workbook_with_choices(
+            headers=headers, rows=[["yesNo", "yes", "Oui", "", ""]]
+        )
+        try:
+            with pytest.raises(
+                Exception, match="Missing expected header in Choices sheet: label::en"
+            ):
                 load_survey_definition(MOCKED_EXCEL_FILE)
         finally:
             delete_file_if_exists(MOCKED_EXCEL_FILE)

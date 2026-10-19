@@ -58,7 +58,9 @@ def format_pydantic_errors(
         if not error["loc"]:
             issues.append(f"{prefix}Invalid row {row_number}: {reason}")
             continue
-        field_name = str(error["loc"][0])
+        # A per-language field (e.g. label) holds one entry per language, so its loc is
+        # ("label", "fr"); name the field and language together, e.g. "label.fr".
+        field_name = ".".join(str(part) for part in error["loc"])
         issues.append(
             f"{prefix}Invalid {field_name} in row {row_number}: {error['input']!r} - {reason}"
         )
@@ -73,6 +75,30 @@ def _strip_blanks(row: dict) -> dict:
         for key, value in row.items()
         if value is not None and not (isinstance(value, str) and not value.strip())
     }
+
+
+def _collect_language_columns(row: dict, field_name: str, column_prefix: str) -> dict:
+    """
+    Move every `<column_prefix><language>` key of `row` into one dict under `field_name`,
+    keyed by language, e.g. {"label::fr": "Oui", "label::en": "Yes"} becomes
+    {"label": {"fr": "Oui", "en": "Yes"}}.
+
+    This keeps a table's model the same whatever the survey languages are. Which
+    languages must be present is checked by SurveyDefinition, which knows them. A number is turned into text, since a spreadsheet stores a label
+    like "1" as a number. Call it after _strip_blanks, so a blank cell is left out.
+    """
+    collected = {}
+    rest = {}
+    for key, value in row.items():
+        if isinstance(key, str) and key.startswith(column_prefix):
+            if isinstance(value, (int, float)) and not isinstance(value, bool):
+                value = str(value)
+            collected[key.removeprefix(column_prefix)] = value
+        else:
+            rest[key] = value
+    if collected:
+        rest[field_name] = collected
+    return rest
 
 
 def _raise_if_check_fails(check, value, row: dict) -> None:

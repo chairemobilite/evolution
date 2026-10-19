@@ -40,9 +40,21 @@ VALID_CONDITIONALS_HEADERS = [
 ]
 VALID_CONDITIONALS_ROWS = [["cond1", "", "household.size", "===", 1, "", ""]]
 
+VALID_CHOICES_HEADERS = [
+    "choicesName",
+    "value",
+    "label::fr",
+    "label::en",
+    "spreadChoicesName",
+    "conditional",
+]
+VALID_CHOICES_ROWS = [["yesNo", "yes", "Oui", "Yes", "", ""]]
+
 
 def _create_workbook(
-    sections_rows=VALID_SECTIONS_ROWS, conditionals_rows=VALID_CONDITIONALS_ROWS
+    sections_rows=VALID_SECTIONS_ROWS,
+    conditionals_rows=VALID_CONDITIONALS_ROWS,
+    choices_rows=VALID_CHOICES_ROWS,
 ):
     workbook = create_mocked_excel_data(
         "Sections", VALID_SECTIONS_HEADERS, sections_rows
@@ -50,6 +62,7 @@ def _create_workbook(
     add_mocked_excel_sheet(
         workbook, "Conditionals", VALID_CONDITIONALS_HEADERS, conditionals_rows
     )
+    add_mocked_excel_sheet(workbook, "Choices", VALID_CHOICES_HEADERS, choices_rows)
 
 
 class TestCheckExcelIntegrityWithMessages:
@@ -65,10 +78,11 @@ class TestCheckExcelIntegrityWithMessages:
         assert ok is False
         assert len(messages) == 1
 
-    def test_invalid_rows_in_both_sheets_return_every_message(self):
+    def test_invalid_rows_in_every_sheet_return_every_message(self):
         _create_workbook(
             sections_rows=[["home", "", "Home", True, "", "", "HM_"]],
             conditionals_rows=[["cond1", "", "", "===", 1, "", ""]],
+            choices_rows=[["yesNo", "", "Oui", "Yes", "", ""]],
         )
         try:
             ok, messages = check_excel_integrity_with_messages(MOCKED_EXCEL_FILE)
@@ -76,6 +90,22 @@ class TestCheckExcelIntegrityWithMessages:
             assert messages == [
                 "Error in Sections - Invalid row 2: title_fr is required when in_nav is true",
                 "Error in Conditionals - Required field is missing in row 2. Missing fields: ['path']",
+                "Error in Choices - Invalid row 2: value is required when spreadChoicesName is blank",
+            ]
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+    def test_choice_conditional_missing_from_conditionals_returns_message(self):
+        """Once every sheet is valid on its own, the rules across sheets are checked."""
+        _create_workbook(
+            choices_rows=[["yesNo", "yes", "Oui", "Yes", "", "unknownConditional"]],
+        )
+        try:
+            ok, messages = check_excel_integrity_with_messages(MOCKED_EXCEL_FILE)
+            assert ok is False
+            assert messages == [
+                "Error in Choices - Invalid conditional in row 2: 'unknownConditional' "
+                "does not match any conditional_name of the Conditionals table",
             ]
         finally:
             delete_file_if_exists(MOCKED_EXCEL_FILE)
