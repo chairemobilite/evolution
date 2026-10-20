@@ -396,7 +396,7 @@ def process_radio_number_values(parameters: str, language: Literal["en", "fr"]) 
 
 def process_range(ranges_rows, ranges_headers, language):
     """
-    Process the ranges from the Excel sheet and group them by inputRangeName.
+    Process the ranges from the Excel sheet and group them by input_range_name.
     Concatenate their min and max values with their corresponding labels.
 
     Args:
@@ -405,14 +405,14 @@ def process_range(ranges_rows, ranges_headers, language):
         language (str): Language code ('en' or 'fr').
 
     Returns:
-        dict: A dictionary mapping inputRangeName to their concatenated values.
+        dict: A dictionary mapping input_range_name to their concatenated values.
     """
-    input_range_name_index = ranges_headers.index("inputRangeName")
-    min_value_index = ranges_headers.index("minValue")
-    max_value_index = ranges_headers.index("maxValue")
-    label_min_index = ranges_headers.index(f"label{language.capitalize()}Min")
-    label_middle_index = ranges_headers.index(f"label{language.capitalize()}Middle")
-    label_max_index = ranges_headers.index(f"label{language.capitalize()}Max")
+    input_range_name_index = ranges_headers.index("input_range_name")
+    min_value_index = ranges_headers.index("min_value")
+    max_value_index = ranges_headers.index("max_value")
+    label_min_index = ranges_headers.index(f"label_min::{language}")
+    label_middle_index = ranges_headers.index(f"label_middle::{language}")
+    label_max_index = ranges_headers.index(f"label_max::{language}")
 
     ranges_map = {}
     for row in ranges_rows[1:]:

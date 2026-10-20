@@ -10,6 +10,7 @@ from openpyxl import Workbook  # Read data from Excel, File system operations
 from typing import List, Optional, Tuple  # Types for Python
 
 from survey_definition.conditionals_definition import CONDITIONAL_REQUIRED_FIELD_NAMES
+from survey_definition.input_range_definition import INPUT_RANGE_REQUIRED_FIELD_NAMES
 from survey_definition.sections_definition import SECTION_REQUIRED_FIELD_NAMES
 from survey_definition.survey_definition import SurveyDefinition
 
@@ -197,15 +198,25 @@ def _read_sheet_rows(
     ]
 
 
+def _read_optional_sheet_rows(
+    workbook: Workbook, sheet_name: str, expected_headers
+) -> List[dict]:
+    """Like _read_sheet_rows, but a missing sheet is read as an empty table (e.g. a survey without any slider has no InputRange sheet)."""
+    if sheet_name not in workbook.sheetnames:
+        return []
+    return _read_sheet_rows(workbook, sheet_name, expected_headers)
+
+
 def load_survey_definition(excel_file_path: str) -> SurveyDefinition:
     """
-    Build a SurveyDefinition from an Excel file's Sections and Conditionals sheets.
+    Build a SurveyDefinition from the Excel file's sheets, one sheet per table of the
+    survey definition. An optional sheet that is missing is read as an empty table.
 
     Raises on the same problems as get_data_from_excel/get_headers (invalid file,
-    missing sheet, missing/too few headers), and `pydantic.ValidationError` when a
-    sheet's rows don't pass its table's own checks (see sections_definition.py,
-    conditionals_definition.py). The returned instance is already validated; callers
-    don't need to check it again.
+    missing required sheet, missing/too few headers), and `pydantic.ValidationError` when a
+    sheet's rows don't pass its table's own checks (see the survey_definition
+    package). The returned instance is already validated; callers don't need to
+    check it again.
     """
     is_excel_file(excel_file_path)
     workbook = get_workbook(excel_file_path)
@@ -214,6 +225,9 @@ def load_survey_definition(excel_file_path: str) -> SurveyDefinition:
         sections=_read_sheet_rows(workbook, "Sections", SECTION_REQUIRED_FIELD_NAMES),
         conditionals=_read_sheet_rows(
             workbook, "Conditionals", CONDITIONAL_REQUIRED_FIELD_NAMES
+        ),
+        input_range=_read_optional_sheet_rows(
+            workbook, "InputRange", INPUT_RANGE_REQUIRED_FIELD_NAMES
         ),
     )
 

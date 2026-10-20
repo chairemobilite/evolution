@@ -13,6 +13,7 @@
 from pydantic import BaseModel, Field
 
 from survey_definition.conditionals_definition import Conditionals
+from survey_definition.input_range_definition import InputRange
 from survey_definition.sections_definition import Sections
 
 
@@ -39,7 +40,10 @@ class SurveyDefinition(BaseModel):
             source order.
         conditionals: The Conditionals table, already checked: one ConditionalDefinition
             per row, in source order.
+        input_range: The InputRange table, already checked: one InputRangeDefinition
+            per row (slider configuration), in source order.
     """
 
     sections: Sections = Field(default_factory=lambda: Sections([]))
     conditionals: Conditionals = Field(default_factory=lambda: Conditionals([]))
+    input_range: InputRange = Field(default_factory=lambda: InputRange([]))

@@ -40,15 +40,31 @@ VALID_CONDITIONALS_HEADERS = [
 ]
 VALID_CONDITIONALS_ROWS = [["cond1", "", "household.size", "===", 1, "", ""]]
 
+VALID_INPUT_RANGE_HEADERS = [
+    "input_range_name",
+    "label_min::fr",
+    "label_max::fr",
+    "label_min::en",
+    "label_max::en",
+    "min_value",
+    "max_value",
+]
+VALID_INPUT_RANGE_ROWS = [["slider", "Min", "Max", "Min", "Max", 0, 100]]
+
 
 def _create_workbook(
-    sections_rows=VALID_SECTIONS_ROWS, conditionals_rows=VALID_CONDITIONALS_ROWS
+    sections_rows=VALID_SECTIONS_ROWS,
+    conditionals_rows=VALID_CONDITIONALS_ROWS,
+    input_range_rows=VALID_INPUT_RANGE_ROWS,
 ):
     workbook = create_mocked_excel_data(
         "Sections", VALID_SECTIONS_HEADERS, sections_rows
     )
     add_mocked_excel_sheet(
         workbook, "Conditionals", VALID_CONDITIONALS_HEADERS, conditionals_rows
+    )
+    add_mocked_excel_sheet(
+        workbook, "InputRange", VALID_INPUT_RANGE_HEADERS, input_range_rows
     )
 
 
@@ -65,10 +81,11 @@ class TestCheckExcelIntegrityWithMessages:
         assert ok is False
         assert len(messages) == 1
 
-    def test_invalid_rows_in_both_sheets_return_every_message(self):
+    def test_invalid_rows_in_every_sheet_return_every_message(self):
         _create_workbook(
             sections_rows=[["home", "", "Home", True, "", "", "HM_"]],
             conditionals_rows=[["cond1", "", "", "===", 1, "", ""]],
+            input_range_rows=[["slider", "Min", "Max", "Min", "Max", 100, 0]],
         )
         try:
             ok, messages = check_excel_integrity_with_messages(MOCKED_EXCEL_FILE)
@@ -76,6 +93,7 @@ class TestCheckExcelIntegrityWithMessages:
             assert messages == [
                 "Error in Sections - Invalid row 2: title_fr is required when in_nav is true",
                 "Error in Conditionals - Required field is missing in row 2. Missing fields: ['path']",
+                "Error in InputRange - Invalid row 2: min_value (100) must be less than max_value (0)",
             ]
         finally:
             delete_file_if_exists(MOCKED_EXCEL_FILE)

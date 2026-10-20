@@ -232,7 +232,7 @@ class TestReadSheetRows:
 
 
 class TestLoadSurveyDefinition:
-    """Tests for load_survey_definition (builds a SurveyDefinition from the Sections and Conditionals sheets)."""
+    """Tests for load_survey_definition (builds a SurveyDefinition from the Excel file's sheets)."""
 
     VALID_SECTIONS_HEADERS = [
         "section",
@@ -256,6 +256,32 @@ class TestLoadSurveyDefinition:
     ]
     VALID_CONDITIONALS_ROWS = [["cond1", "", "household.size", "===", 1, "", ""]]
 
+    VALID_INPUT_RANGE_HEADERS = [
+        "input_range_name",
+        "label_min::fr",
+        "label_middle::fr",
+        "label_max::fr",
+        "label_min::en",
+        "label_middle::en",
+        "label_max::en",
+        "min_value",
+        "max_value",
+        "unit::fr",
+        "unit::en",
+        "input_color",
+    ]
+    VALID_INPUT_RANGE_ROWS = [
+        ["slider", "Min", "", "Max", "Min", "", "Max", -10, 100, "%", "%", ""]
+    ]
+
+    def _add_input_range_sheet(self, workbook, headers=None, rows=None):
+        add_mocked_excel_sheet(
+            workbook,
+            "InputRange",
+            headers if headers is not None else self.VALID_INPUT_RANGE_HEADERS,
+            rows if rows is not None else self.VALID_INPUT_RANGE_ROWS,
+        )
+
     def test_valid_file_returns_a_survey_definition(self):
         workbook = create_mocked_excel_data(
             "Sections", self.VALID_SECTIONS_HEADERS, self.VALID_SECTIONS_ROWS
@@ -266,6 +292,7 @@ class TestLoadSurveyDefinition:
             self.VALID_CONDITIONALS_HEADERS,
             self.VALID_CONDITIONALS_ROWS,
         )
+        self._add_input_range_sheet(workbook)
         try:
             survey_definition = load_survey_definition(MOCKED_EXCEL_FILE)
             assert [section.section for section in survey_definition.sections] == [
@@ -298,6 +325,7 @@ class TestLoadSurveyDefinition:
             self.VALID_CONDITIONALS_HEADERS,
             self.VALID_CONDITIONALS_ROWS,
         )
+        self._add_input_range_sheet(workbook)
         try:
             survey_definition = load_survey_definition(MOCKED_EXCEL_FILE)
             assert [section.section for section in survey_definition.sections] == [
@@ -317,6 +345,7 @@ class TestLoadSurveyDefinition:
             self.VALID_CONDITIONALS_HEADERS,
             self.VALID_CONDITIONALS_ROWS,
         )
+        self._add_input_range_sheet(workbook)
         conditionals_sheet = workbook["Conditionals"]
         for column in range(1, len(self.VALID_CONDITIONALS_HEADERS) + 1):
             conditionals_sheet.cell(row=3, column=column).fill = PatternFill(
@@ -343,6 +372,7 @@ class TestLoadSurveyDefinition:
             self.VALID_CONDITIONALS_HEADERS[:-1],  # drop value_when_hidden
             [row[:-1] for row in self.VALID_CONDITIONALS_ROWS],
         )
+        self._add_input_range_sheet(workbook)
         try:
             survey_definition = load_survey_definition(MOCKED_EXCEL_FILE)
             assert survey_definition.conditionals[0].value_when_hidden is None
@@ -389,6 +419,7 @@ class TestLoadSurveyDefinition:
             self.VALID_CONDITIONALS_HEADERS,
             self.VALID_CONDITIONALS_ROWS,
         )
+        self._add_input_range_sheet(workbook)
         try:
             with pytest.raises(ValidationError):
                 load_survey_definition(MOCKED_EXCEL_FILE)
@@ -405,8 +436,131 @@ class TestLoadSurveyDefinition:
             self.VALID_CONDITIONALS_HEADERS,
             [[None, "", "household.size", "===", 1, "", ""]],
         )
+        self._add_input_range_sheet(workbook)
         try:
             with pytest.raises(ValidationError):
+                load_survey_definition(MOCKED_EXCEL_FILE)
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+    def test_input_range_sheet_is_read_by_column_name(self):
+        workbook = create_mocked_excel_data(
+            "Sections", self.VALID_SECTIONS_HEADERS, self.VALID_SECTIONS_ROWS
+        )
+        add_mocked_excel_sheet(
+            workbook,
+            "Conditionals",
+            self.VALID_CONDITIONALS_HEADERS,
+            self.VALID_CONDITIONALS_ROWS,
+        )
+        self._add_input_range_sheet(workbook)
+        try:
+            input_range = load_survey_definition(MOCKED_EXCEL_FILE).input_range
+            assert len(input_range) == 1
+            assert input_range[0].input_range_name == "slider"
+            assert input_range[0].label_max_en == "Max"
+            assert input_range[0].min_value == -10
+            assert input_range[0].unit_fr == "%"
+            assert input_range[0].label_middle_fr is None
+            assert input_range[0].input_color is None
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+    def test_input_range_sheet_without_optional_columns_is_valid(self):
+        """The middle labels, units and input_color columns don't need to exist."""
+        workbook = create_mocked_excel_data(
+            "Sections", self.VALID_SECTIONS_HEADERS, self.VALID_SECTIONS_ROWS
+        )
+        add_mocked_excel_sheet(
+            workbook,
+            "Conditionals",
+            self.VALID_CONDITIONALS_HEADERS,
+            self.VALID_CONDITIONALS_ROWS,
+        )
+        self._add_input_range_sheet(
+            workbook,
+            headers=[
+                "input_range_name",
+                "label_min::fr",
+                "label_max::fr",
+                "label_min::en",
+                "label_max::en",
+                "min_value",
+                "max_value",
+            ],
+            rows=[["slider", "Min", "Max", "Min", "Max", 0, 10]],
+        )
+        try:
+            input_range = load_survey_definition(MOCKED_EXCEL_FILE).input_range
+            assert input_range[0].unit_en is None
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+    def test_missing_input_range_sheet_is_an_empty_table(self):
+        """The InputRange sheet is optional: a survey without any slider can leave it out."""
+        workbook = create_mocked_excel_data(
+            "Sections", self.VALID_SECTIONS_HEADERS, self.VALID_SECTIONS_ROWS
+        )
+        add_mocked_excel_sheet(
+            workbook,
+            "Conditionals",
+            self.VALID_CONDITIONALS_HEADERS,
+            self.VALID_CONDITIONALS_ROWS,
+        )
+        try:
+            assert len(load_survey_definition(MOCKED_EXCEL_FILE).input_range) == 0
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+    def test_input_range_sheet_with_old_column_names_raises(self):
+        """The columns were renamed (e.g. inputRangeName -> input_range_name)."""
+        workbook = create_mocked_excel_data(
+            "Sections", self.VALID_SECTIONS_HEADERS, self.VALID_SECTIONS_ROWS
+        )
+        add_mocked_excel_sheet(
+            workbook,
+            "Conditionals",
+            self.VALID_CONDITIONALS_HEADERS,
+            self.VALID_CONDITIONALS_ROWS,
+        )
+        self._add_input_range_sheet(
+            workbook,
+            headers=[
+                "inputRangeName",
+                "labelFrMin",
+                "labelFrMax",
+                "labelEnMin",
+                "labelEnMax",
+                "minValue",
+                "maxValue",
+            ],
+            rows=[["slider", "Min", "Max", "Min", "Max", 0, 10]],
+        )
+        try:
+            with pytest.raises(
+                Exception,
+                match="Missing expected header in InputRange sheet: input_range_name",
+            ):
+                load_survey_definition(MOCKED_EXCEL_FILE)
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+    def test_invalid_input_range_row_raises_validation_error(self):
+        workbook = create_mocked_excel_data(
+            "Sections", self.VALID_SECTIONS_HEADERS, self.VALID_SECTIONS_ROWS
+        )
+        add_mocked_excel_sheet(
+            workbook,
+            "Conditionals",
+            self.VALID_CONDITIONALS_HEADERS,
+            self.VALID_CONDITIONALS_ROWS,
+        )
+        self._add_input_range_sheet(
+            workbook,
+            rows=[["slider", "Min", "", "Max", "Min", "", "Max", 0, 10.5, "", "", ""]],
+        )
+        try:
+            with pytest.raises(ValidationError, match="Invalid max_value in row 2"):
                 load_survey_definition(MOCKED_EXCEL_FILE)
         finally:
             delete_file_if_exists(MOCKED_EXCEL_FILE)
