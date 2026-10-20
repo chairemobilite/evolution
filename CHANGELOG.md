@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Breaking** Generator: the InputRange sheet columns are renamed to follow the other sheets' convention. Rename them in your survey's Excel file: `inputRangeName` → `input_range_name`, `labelFrMin` → `label_min::fr`, `labelFrMiddle` → `label_middle::fr`, `labelFrMax` → `label_max::fr`, `labelEnMin` → `label_min::en`, `labelEnMiddle` → `label_middle::en`, `labelEnMax` → `label_max::en`, `minValue` → `min_value`, `maxValue` → `max_value`, `unitFr` → `unit::fr`, `unitEn` → `unit::en` (`input_color` is unchanged). The units are now optional (set both `unit::fr` and `unit::en`, or neither). The InputRange sheet is now validated with the rest of the survey definition, and can be left out of a survey without any slider. The inputRange and questionnaire dictionary scripts read it from `SurveyDefinition` ([#2040](https://github.com/chairemobilite/evolution/issues/2040), [#2047](https://github.com/chairemobilite/evolution/issues/2047))
+
 ### Deprecated
 
 ### Removed

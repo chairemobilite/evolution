@@ -13,8 +13,10 @@ from scripts.generate_questionnaire_dictionary import (
     get_choices_text,
     process_choices,
     process_radio_number_values,
+    process_range,
     rename_input_type,
 )
+from survey_definition.input_range_definition import InputRange
 from survey_definition.survey_definition import SurveyDefinition
 from tests.mocked_excel import (
     MOCKED_EXCEL_FILE,
@@ -245,6 +247,56 @@ class TestCombineValuesText:
         assert combine_values_text() == ""
 
 
+def _input_range_row(input_range_name: str = "slider", **extra) -> dict:
+    """One valid InputRange row, keyed by its source (Excel) column names."""
+    return {
+        "input_range_name": input_range_name,
+        "label_min::fr": "Facile",
+        "label_max::fr": "Difficile",
+        "label_min::en": "Easy",
+        "label_max::en": "Difficult",
+        "min_value": -10,
+        "max_value": 100,
+        **extra,
+    }
+
+
+class TestProcessRange:
+    @pytest.mark.parametrize(
+        "language, label_min, label_max",
+        [("en", "Easy", "Difficult"), ("fr", "Facile", "Difficile")],
+    )
+    def test_describes_min_and_max_in_the_requested_language(
+        self, language, label_min, label_max
+    ):
+        ranges_map = process_range(InputRange([_input_range_row()]), language)
+        assert ranges_map == {"slider": f"0 : {label_min}\n100 : {label_max}"}
+
+    def test_includes_middle_value_when_there_is_a_middle_label(self):
+        input_ranges = InputRange(
+            [
+                _input_range_row(
+                    min_value=0,
+                    max_value=10,
+                    **{"label_middle::fr": "Moyen", "label_middle::en": "Medium"},
+                )
+            ]
+        )
+        assert process_range(input_ranges, "en") == {
+            "slider": "0 : Easy\n5 : Medium\n10 : Difficult"
+        }
+
+    def test_removes_markdown_from_labels(self):
+        input_ranges = InputRange([_input_range_row(**{"label_min::en": "**Easy**"})])
+        assert process_range(input_ranges, "en")["slider"].startswith("0 : Easy\n")
+
+    def test_maps_every_input_range_by_name(self):
+        input_ranges = InputRange(
+            [_input_range_row("first"), _input_range_row("second")]
+        )
+        assert list(process_range(input_ranges, "en")) == ["first", "second"]
+
+
 class TestGenerateQuestionnaireDictionary:
     def test_describes_each_section_with_its_title_and_abbreviation(self, tmp_path):
         """Each section is introduced by its title, in the requested language, and its abbreviation, from the survey definition."""
@@ -287,22 +339,6 @@ class TestGenerateQuestionnaireDictionary:
             ],
         )
         add_mocked_excel_sheet(workbook, "Choices", CHOICES_HEADERS, [])
-        add_mocked_excel_sheet(
-            workbook,
-            "InputRange",
-            [
-                "inputRangeName",
-                "minValue",
-                "maxValue",
-                "labelFrMin",
-                "labelFrMiddle",
-                "labelFrMax",
-                "labelEnMin",
-                "labelEnMiddle",
-                "labelEnMax",
-            ],
-            [],
-        )
         try:
             for language, title, abbreviation_label in (
                 ("en", "Household", "Abbreviation"),

@@ -1,1 +1,1 @@
-inputRangeName,labelFrMin,labelFrMiddle,labelFrMax,labelEnMin,labelEnMiddle,labelEnMax,minValue,maxValue,unitFr,unitEn,input_color
+input_range_name,label_min::fr,label_middle::fr,label_max::fr,label_min::en,label_middle::en,label_max::en,min_value,max_value,unit::fr,unit::en,input_color
