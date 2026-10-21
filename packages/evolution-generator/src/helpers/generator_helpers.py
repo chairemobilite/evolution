@@ -10,9 +10,7 @@ from openpyxl import Workbook  # Read data from Excel, File system operations
 from typing import List, Optional, Tuple  # Types for Python
 
 from survey_definition.conditionals_definition import CONDITIONAL_REQUIRED_FIELD_NAMES
-from survey_definition.sections_definition import (
-    SECTION_REQUIRED_FIELD_NAMES,
-)
+from survey_definition.sections_definition import SECTION_REQUIRED_FIELD_NAMES
 from survey_definition.survey_definition import SurveyDefinition
 
 # Define constants

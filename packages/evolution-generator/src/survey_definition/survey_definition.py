@@ -27,7 +27,6 @@ from pydantic import (
 
 from survey_definition.conditionals_definition import Conditionals
 from survey_definition.sections_definition import Sections
-from survey_definition.validation_context import DEFAULT_SURVEY_LANGUAGES
 
 # A language code: two lowercase letters, optionally followed by a region, e.g. 'fr' or
 # 'en-CA'. It names the translated columns (title_fr) and the locales folders (locales/fr).
@@ -42,8 +41,7 @@ class SurveyDefinition(BaseModel):
     Input: a dict with the survey `languages` and one key per table (`sections`,
         `conditionals`, later `widgets`, `choices`, ...), each holding that table's raw
         rows (or an already-built table object, e.g. `SurveyDefinition(sections=[...])`).
-        Every key is optional; an omitted table defaults to empty, and omitted
-        languages default to DEFAULT_SURVEY_LANGUAGES.
+        `languages` is required; an omitted table defaults to empty.
     Output: a validated instance if the languages and every table are valid;
         otherwise raises `pydantic.ValidationError` with one error per invalid field,
         a table's listing all its problems as that table's own class does (e.g.
@@ -51,7 +49,7 @@ class SurveyDefinition(BaseModel):
         see sections_definition.py).
 
     An already-built table object is kept as is: its rows were checked when it was
-    built, with the context it was built with (e.g. the default languages).
+    built, with the context it was built with.
 
     The input source is loaded a single time into one instance of this class, which is
     then passed to each script, so they all work from the same already-validated data
@@ -74,7 +72,7 @@ class SurveyDefinition(BaseModel):
     # field's validator can read the fields before it (info.data). So the languages
     # come first, and the tables follow in dependency order: a table only gets
     # information from the fields before it.
-    languages: tuple[str, ...] = DEFAULT_SURVEY_LANGUAGES
+    languages: tuple[str, ...]
     conditionals: Conditionals = Field(default_factory=lambda: Conditionals([]))
     sections: Sections = Field(default_factory=lambda: Sections([]))
 

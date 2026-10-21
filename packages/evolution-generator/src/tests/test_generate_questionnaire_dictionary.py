@@ -249,6 +249,7 @@ class TestGenerateQuestionnaireDictionary:
     def test_describes_each_section_with_its_title_and_abbreviation(self, tmp_path):
         """Each section is introduced by its title, in the requested language, and its abbreviation, from the survey definition."""
         survey_definition = SurveyDefinition(
+            languages=("fr", "en"),
             sections=[
                 {
                     "section": "household",
@@ -257,7 +258,7 @@ class TestGenerateQuestionnaireDictionary:
                     "title_fr": "Ménage",
                     "title_en": "Household",
                 }
-            ]
+            ],
         )
         workbook = create_mocked_excel_data(
             "Widgets",

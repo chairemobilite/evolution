@@ -13,11 +13,12 @@ from survey_definition.survey_definition import SurveyDefinition
 
 class TestSurveyDefinition:
     def test_survey_definition_defaults_to_empty_lists(self):
-        survey_definition = SurveyDefinition()
+        survey_definition = SurveyDefinition(languages=("fr", "en"))
         assert len(survey_definition.sections) == 0
 
     def test_survey_definition_holds_parsed_rows(self):
         survey_definition = SurveyDefinition(
+            languages=("fr", "en"),
             sections=[
                 SectionDefinition(section="home", in_nav=False, abbreviation="HM_")
             ],
@@ -26,6 +27,7 @@ class TestSurveyDefinition:
 
     def test_survey_definition_builds_sections_from_source_rows(self):
         survey_definition = SurveyDefinition(
+            languages=("fr", "en"),
             sections=[{"section": "home", "in_nav": False, "abbreviation": "HM_"}],
         )
         assert [s.section for s in survey_definition.sections] == ["home"]
@@ -34,7 +36,7 @@ class TestSurveyDefinition:
         # A SurveyDefinition can't be built around a sheet that has duplicates.
         row = {"section": "home", "in_nav": False, "abbreviation": "HM_"}
         with pytest.raises(ValidationError, match="Duplicate section 'home'"):
-            SurveyDefinition(sections=[row, row])
+            SurveyDefinition(languages=("fr", "en"), sections=[row, row])
 
 
 class TestSurveyDefinitionLanguages:
@@ -58,8 +60,11 @@ class TestSurveyDefinitionLanguages:
             for issue in str(field_error["ctx"]["error"]).split("\n")
         ]
 
-    def test_defaults_to_french_and_english(self):
-        assert SurveyDefinition().languages == ("fr", "en")
+    def test_requires_the_languages(self):
+        with pytest.raises(ValidationError) as error:
+            SurveyDefinition()
+        assert error.value.errors()[0]["loc"] == ("languages",)
+        assert error.value.errors()[0]["type"] == "missing"
 
     def test_accepts_other_languages_and_regions(self):
         survey_definition = SurveyDefinition(languages=["es", "en-CA"])
@@ -119,6 +124,7 @@ class TestSurveyDefinitionLanguages:
     def test_reports_every_table_s_problems_together(self):
         """A missing title (a rule needing the languages) comes with the other tables' errors."""
         issues = self._issues(
+            languages=["fr", "en"],
             sections=[self._section(title_en=None)],
             conditionals=[{"conditional_name": "cond1"}],
         )
@@ -132,6 +138,8 @@ class TestSurveyDefinitionLanguages:
 
     def test_keeps_an_already_built_table_as_is(self):
         """Its rows were checked when it was built, with the context it was built with."""
-        sections = Sections([self._section()])
+        sections = Sections.model_validate(
+            [self._section()], context={"languages": ("fr", "en")}
+        )
         survey_definition = SurveyDefinition(languages=["fr"], sections=sections)
         assert survey_definition.sections is sections

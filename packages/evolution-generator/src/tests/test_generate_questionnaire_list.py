@@ -16,6 +16,7 @@ class TestGenerateQuestionnaireList:
     def test_lists_each_section_questions_under_its_title(self, tmp_path):
         """Each section's questions are listed, in source order, under that section's title in the requested language, even when the Widgets rows of different sections are interleaved."""
         survey_definition = SurveyDefinition(
+            languages=("fr", "en"),
             sections=[
                 {
                     "section": "home",
@@ -31,7 +32,7 @@ class TestGenerateQuestionnaireList:
                     "title_fr": "Ménage",
                     "title_en": "Household",
                 },
-            ]
+            ],
         )
         workbook = create_mocked_excel_data(
             "Widgets",

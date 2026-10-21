@@ -260,6 +260,7 @@ class TestAddTranslationsFromExcel:
             LabelsGenerator.generate_labels(
                 MOCKED_EXCEL_FILE,
                 labels_output_folder_path,
+                languages=("fr", "en"),
                 sheets_with_labels=[case["sheet_data"]],
             )
         finally:

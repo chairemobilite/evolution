@@ -183,7 +183,7 @@ def test_generate_section_configs_from_survey_definition(tmp_path: Path) -> None
     )
 
     for case in SECTION_CONFIG_CASES:
-        survey_definition = SurveyDefinition(sections=case.rows)
+        survey_definition = SurveyDefinition(languages=("fr", "en"), sections=case.rows)
         out_dir = tmp_path / case.id
         for row in case.rows:
             (out_dir / row["section"]).mkdir(parents=True, exist_ok=True)
@@ -208,11 +208,12 @@ def test_generate_section_configs_links_sections_in_source_order(
 ) -> None:
     """Each section's previous and next sections are its neighbours in the Sections table."""
     survey_definition = SurveyDefinition(
+        languages=("fr", "en"),
         sections=[
             {"section": "home", "in_nav": False, "abbreviation": "HM_"},
             {"section": "household", "in_nav": False, "abbreviation": "HH_"},
             {"section": "end", "in_nav": False, "abbreviation": "EN_"},
-        ]
+        ],
     )
     for section in ("home", "household", "end"):
         (tmp_path / section).mkdir()
@@ -294,6 +295,7 @@ def test_generate_section_configs_replaces_stale_section_titles(tmp_path: Path) 
     )
     (tmp_path / "home").mkdir()
     survey_definition = SurveyDefinition(
+        languages=("fr", "en"),
         sections=[
             {
                 "section": "home",
@@ -302,7 +304,7 @@ def test_generate_section_configs_replaces_stale_section_titles(tmp_path: Path) 
                 "title_fr": "Accueil",
                 "title_en": "Home",
             }
-        ]
+        ],
     )
 
     generate_section_configs(

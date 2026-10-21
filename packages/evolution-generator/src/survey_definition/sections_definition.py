@@ -67,7 +67,7 @@ class SectionDefinition(BaseModel):
     the rules that need more than one row (unique `section`/`abbreviation`,
     `parent_section` exists). The survey languages come from the validation context
     (see validation_context.py), e.g. `Sections.model_validate(rows,
-    context={"languages": ("fr", "es")})`; without one, fr and en are used.
+    context={"languages": ("fr", "es")})`; a row in the navigation menu needs them.
     Constructing a SectionDefinition directly only runs the per-row rules below. Validation
     is strict: no type coercion (e.g. the string "yes" is rejected for a bool field).
 
@@ -178,29 +178,26 @@ class SectionDefinition(BaseModel):
         return self
 
 
-def _titles_in_survey_languages(
-    languages: tuple[str, ...],
-) -> SheetRule[SectionDefinition]:
+def _titles_in_survey_languages(info: ValidationInfo) -> SheetRule[SectionDefinition]:
     """
-    Build a sheet rule: no row has a title in a language that isn't one of `languages`,
-    e.g. from a typo such as title_fe. Reported once for the table, not on each row.
-    Without any language (they were invalid, and reported as such), there is nothing
-    to compare to.
+    Build a sheet rule: no row has a title in a language that isn't a survey language
+    (from the validation context `info`), e.g. from a typo such as title_fe. Reported
+    once for the table, not on each row. Without any language (they were invalid, and
+    reported as such), there is nothing to compare to.
     """
 
     def rule(
         rows: Sequence[tuple[int, SectionDefinition]], table_name: str
     ) -> list[str]:
+        title_languages = {
+            language for _, section in rows for language in section.title
+        }
+        if not title_languages:
+            return []
+        languages = context_languages(info)
         if not languages:
             return []
-        other_languages = sorted(
-            {
-                language
-                for _, section in rows
-                for language in section.title
-                if language not in languages
-            }
-        )
+        other_languages = sorted(title_languages - set(languages))
         if not other_languages:
             return []
         return [
@@ -253,7 +250,7 @@ class Sections(RootModel[list[SectionDefinition]]):
                     sheet_rules=[
                         unique_field("section"),
                         unique_field("abbreviation"),
-                        _titles_in_survey_languages(context_languages(info)),
+                        _titles_in_survey_languages(info),
                     ],
                 )
                 if issues:

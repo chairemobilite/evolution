@@ -13,7 +13,6 @@ from helpers.generator_helpers import (
     get_data_from_excel,
     get_label_context_flags,
 )
-from survey_definition.validation_context import DEFAULT_SURVEY_LANGUAGES
 
 
 class SheetWithLabels(TypedDict):
@@ -434,8 +433,8 @@ class LabelsGenerator:
         cls,
         excel_file_path,
         labels_output_folder_path,
+        languages: tuple[str, ...],
         sheet_with_labels: SheetWithLabels = DEFAULT_SHEETS_WITH_LABELS[0],
-        languages: tuple[str, ...] = DEFAULT_SURVEY_LANGUAGES,
     ):
         """
         Reads translations from an Excel file and adds them to the appropriate YAML files.
@@ -443,8 +442,8 @@ class LabelsGenerator:
         Args:
             excel_file_path (str): The path to the Excel file containing translations.
             labels_output_folder_path (str): The output folder path for the labels.
-            sheet_with_labels (SheetWithLabels): Sheet configuration containing sheetName and header names.
             languages (tuple of str): The survey languages; each needs its label::<language> column.
+            sheet_with_labels (SheetWithLabels): Sheet configuration containing sheetName and header names.
         """
         try:
             # Read data from Excel and return rows and headers
@@ -699,8 +698,8 @@ class LabelsGenerator:
         cls,
         excel_file_path,
         labels_output_folder_path,
+        languages: tuple[str, ...],
         sheets_with_labels: list[SheetWithLabels] = DEFAULT_SHEETS_WITH_LABELS,
-        languages: tuple[str, ...] = DEFAULT_SURVEY_LANGUAGES,
     ):
         """
         Generates the labels locales files from an Excel file for multiple sheets.
@@ -713,8 +712,8 @@ class LabelsGenerator:
         Args:
             excel_file_path (str): The path to the Excel file containing translations.
             labels_output_folder_path (str): The output folder path for the labels.
-            sheets_with_labels (list[SheetWithLabels]): Sheet configurations for labels extraction.
             languages (tuple of str): The survey languages; each needs its label::<language> column.
+            sheets_with_labels (list[SheetWithLabels]): Sheet configurations for labels extraction.
         """
         try:
             if not sheets_with_labels:
