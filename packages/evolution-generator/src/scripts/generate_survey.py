@@ -243,22 +243,8 @@ def generate_survey(config_path, only_scripts=None):
 
     # Call the generate_labels function to generate the labels locales folder if script enabled
     if enabled_generate_labels:
-        # TODO: At some point, we should consider only read the Excel sheet one time, to avoid reading it multiple times.
-        # TODO: We might consider extracting the sheet names from the Excel file or config file instead of hardcoding them.
-        # Generate the labels for the specified sheets
-        sheets_with_labels = [
-            {
-                "sheetName": "Widgets",
-                "namespaceHeader": "section",
-                "keyHeader": "questionName",
-            },
-            {"sheetName": "Labels", "namespaceHeader": "namespace", "keyHeader": "key"},
-        ]
         LabelsGenerator.generate_labels(
-            excel_file_path,
-            labels_output_folder_path,
-            sheets_with_labels=sheets_with_labels,
-            languages=survey_definition.languages,
+            survey_definition, excel_file_path, labels_output_folder_path
         )
 
     # Call the generate_UI_tests function to generate the common-UI-tests-helpers-template.ts.ts if script enabled
