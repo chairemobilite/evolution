@@ -225,7 +225,7 @@ def generate_survey(config_path, only_scripts=None):
             survey_folder_path, "src", "survey", "common", "choices.tsx"
         )
         generate_choices(
-            excel_file_path,
+            survey_definition,
             choices_output_file_path,
             labels_output_folder_path=labels_output_folder_path,
         )
@@ -327,8 +327,8 @@ def _load_survey_definition_with_messages(
     excel_file_path: str,
 ) -> tuple[SurveyDefinition | None, list[str]]:
     """
-    Load a SurveyDefinition from the Excel file's Sections and Conditionals sheets
-    (see load_survey_definition).
+    Load a SurveyDefinition from the Excel file's Sections, Conditionals and Choices
+    sheets (see load_survey_definition).
 
     Returns (survey_definition, []) when valid, or (None, messages) with
     human-readable issues.
@@ -336,8 +336,8 @@ def _load_survey_definition_with_messages(
     try:
         return load_survey_definition(excel_file_path), []
     except ValidationError as exc:
-        # Sections and Conditionals are independent fields of SurveyDefinition, so a
-        # bad sheet in each produces its own error here; collect every one of them.
+        # Each table is an independent field of SurveyDefinition, so a bad sheet in
+        # each produces its own error here; collect every one of them.
         messages: list[str] = []
         for error in exc.errors():
             reason = error.get("ctx", {}).get("error")
@@ -351,8 +351,8 @@ def _load_survey_definition_with_messages(
 
 def check_excel_integrity_with_messages(excel_file_path: str) -> tuple[bool, list[str]]:
     """
-    Check the integrity of the Excel file's Sections and Conditionals sheets. Entry
-    point for scripts and UI (see check_excel_integrity_cli.py).
+    Check the integrity of the Excel file's Sections, Conditionals and Choices sheets.
+    Entry point for scripts and UI (see check_excel_integrity_cli.py).
 
     Returns (True, []) when valid, or (False, messages) with human-readable issues.
     """

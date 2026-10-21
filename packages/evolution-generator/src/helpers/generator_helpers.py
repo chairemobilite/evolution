@@ -7,11 +7,15 @@ import os  # File system operations
 import re  # Regular expression module for pattern matching
 import openpyxl  # Read data from Excel
 from openpyxl import Workbook  # Read data from Excel, File system operations
-from typing import List, Optional, Tuple  # Types for Python
+from typing import Iterable, List, Optional, Tuple  # Types for Python
 
+from survey_definition.choices_definition import (
+    CHOICE_LABEL_COLUMN_PREFIX,
+    CHOICE_REQUIRED_FIELD_NAMES,
+)
 from survey_definition.conditionals_definition import CONDITIONAL_REQUIRED_FIELD_NAMES
 from survey_definition.sections_definition import SECTION_REQUIRED_FIELD_NAMES
-from survey_definition.survey_definition import SurveyDefinition
+from survey_definition.survey_definition import SURVEY_LANGUAGES, SurveyDefinition
 
 # Define constants
 INDENT = "    "  # 4-space indentation
@@ -199,12 +203,14 @@ def _read_sheet_rows(
 
 def load_survey_definition(excel_file_path: str) -> SurveyDefinition:
     """
-    Build a SurveyDefinition from an Excel file's Sections and Conditionals sheets.
+    Build a SurveyDefinition from an Excel file's Sections, Conditionals and Choices
+    sheets.
 
     Raises on the same problems as get_data_from_excel/get_headers (invalid file,
     missing sheet, missing/too few headers), and `pydantic.ValidationError` when a
     sheet's rows don't pass its table's own checks (see sections_definition.py,
-    conditionals_definition.py). The returned instance is already validated; callers
+    conditionals_definition.py, choices_definition.py) or the checks across tables
+    (see survey_definition.py). The returned instance is already validated; callers
     don't need to check it again.
     """
     is_excel_file(excel_file_path)
@@ -214,6 +220,12 @@ def load_survey_definition(excel_file_path: str) -> SurveyDefinition:
         sections=_read_sheet_rows(workbook, "Sections", SECTION_REQUIRED_FIELD_NAMES),
         conditionals=_read_sheet_rows(
             workbook, "Conditionals", CONDITIONAL_REQUIRED_FIELD_NAMES
+        ),
+        choices=_read_sheet_rows(
+            workbook,
+            "Choices",
+            CHOICE_REQUIRED_FIELD_NAMES
+            + tuple(CHOICE_LABEL_COLUMN_PREFIX + lang for lang in SURVEY_LANGUAGES),
         ),
     )
 
@@ -237,9 +249,14 @@ def get_label_context_flags(
     label_en: Optional[str] = None,
     label_one_fr: Optional[str] = None,
     label_one_en: Optional[str] = None,
+    labels: Iterable[Optional[str]] = (),
+    labels_one: Iterable[Optional[str]] = (),
 ) -> Tuple[bool, bool, bool, bool]:
     """
     Detect whether label strings require dynamic i18n context.
+
+    The labels are given either one per keyword (label_fr, label_one_en, ...) or, for
+    any set of languages, as `labels` and `labels_one`; both can be combined.
 
     Returns:
         (has_nickname, has_count, has_gender_context, has_label_one)
@@ -252,18 +269,14 @@ def get_label_context_flags(
         - `has_label_one` is true if any of the *_one labels are non-empty.
     """
 
-    texts = [
-        label_fr or "",
-        label_en or "",
-        label_one_fr or "",
-        label_one_en or "",
-    ]
-    label_text = "".join(texts)
+    labels_one = [label_one_fr, label_one_en, *labels_one]
+    texts = [label_fr, label_en, *labels, *labels_one]
+    label_text = "".join(text or "" for text in texts)
 
     has_nickname = re.search(r"\{\{\s*nickname\s*\}\}", label_text) is not None
     has_count = re.search(r"\{\{\s*count\s*\}\}", label_text) is not None
     has_gender_context = re.search(r"\{\{\s*gender\s*:\s*", label_text) is not None
-    has_label_one = bool((label_one_fr or "").strip() or (label_one_en or "").strip())
+    has_label_one = any((label_one or "").strip() for label_one in labels_one)
     return has_nickname, has_count, has_gender_context, has_label_one
 
 
