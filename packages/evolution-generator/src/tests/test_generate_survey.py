@@ -5,6 +5,7 @@
 # Note: Tests for scripts/generate_survey.py's Excel integrity/loading entry points.
 
 import os
+from unittest.mock import MagicMock
 
 import pytest  # pyright: ignore[reportMissingImports]
 
@@ -12,6 +13,7 @@ from helpers.generator_helpers import (
     delete_file_if_exists,
 )
 from tests.mocked_excel import add_mocked_excel_sheet, create_mocked_excel_data
+import scripts.generate_survey as generate_survey_module
 from scripts.generate_survey import (
     check_excel_integrity,
     check_excel_integrity_with_messages,
@@ -199,5 +201,24 @@ class TestGenerateSurvey:
         try:
             generate_survey(str(config_path))
             assert sorted(os.listdir(tmp_path / "locales")) == ["en"]
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+    def test_loads_the_survey_definition_once(self, tmp_path, monkeypatch):
+        load_survey_definition = MagicMock(
+            wraps=generate_survey_module.load_survey_definition
+        )
+        monkeypatch.setattr(
+            generate_survey_module, "load_survey_definition", load_survey_definition
+        )
+        _create_workbook()
+        config_path = tmp_path / "generatorConfigs.yaml"
+        config_path.write_text(
+            f"survey_folder_path: {tmp_path}\n"
+            f"excel_file_path: {MOCKED_EXCEL_FILE}\n"
+        )
+        try:
+            generate_survey(str(config_path))
+            load_survey_definition.assert_called_once_with(MOCKED_EXCEL_FILE)
         finally:
             delete_file_if_exists(MOCKED_EXCEL_FILE)
