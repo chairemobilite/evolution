@@ -15,7 +15,7 @@ const EXCEL_ACCEPT =
 
 // Check if the file is an Excel file
 // We support Excel 2010+ formats: xlsx/xlsm/xltx/xltm (not legacy .xls).
-/** Lines to show in the verify error panel (API may send a string[] or omit empty lists). */
+/** Lines to show in the verify error or warning panel (API may send a string[] or omit empty lists). */
 const normalizeVerifyErrorMessages = (errors: unknown): string[] => {
     if (Array.isArray(errors)) {
         return errors.filter((e): e is string => typeof e === 'string');
@@ -185,11 +185,67 @@ const GeneratorExcelFileInput: React.FunctionComponent<GeneratorExcelFileInputPr
     );
 };
 
+type GeneratorVerifyMessagesProps = {
+    title: string;
+    messages: string[];
+    variant: 'error' | 'warning';
+    onDismiss: () => void;
+};
+
+/** Panel listing the verification errors or warnings, with buttons to copy and dismiss them. */
+const GeneratorVerifyMessages: React.FunctionComponent<GeneratorVerifyMessagesProps> = ({
+    title,
+    messages,
+    variant,
+    onDismiss
+}) => {
+    const { t } = useTranslation();
+    return (
+        <div
+            className={`admin-generator-verify-error admin-generator-verify-error--${variant}`}
+            // Errors interrupt the user; warnings don't stop the generation, so they are announced politely.
+            role={variant === 'error' ? 'alert' : 'status'}
+        >
+            <div className="admin-generator-verify-error__header">
+                <strong>{title}</strong>
+                <div className="admin-generator-verify-error__actions">
+                    <button
+                        type="button"
+                        onClick={async () => {
+                            try {
+                                // Join the messages with a newline and copy to the clipboard.
+                                await navigator.clipboard.writeText(messages.join('\n\n'));
+                                toast.success(t('admin:generator:GeneratorVerifyErrorCopied'));
+                            } catch {
+                                toast.error(t('admin:generator:GeneratorVerifyErrorCopyFailed'));
+                            }
+                        }}
+                    >
+                        {t('admin:generator:GeneratorVerifyErrorCopy')}
+                    </button>
+                    <button type="button" onClick={onDismiss}>
+                        {t('admin:generator:GeneratorVerifyErrorDismiss')}
+                    </button>
+                </div>
+            </div>
+            <ul className="admin-generator-verify-error__content">
+                {messages.map((message, idx) => (
+                    <li key={idx}>{message}</li>
+                ))}
+            </ul>
+        </div>
+    );
+};
+
 const AdminGeneratorPage: React.FunctionComponent = () => {
     const { t } = useTranslation();
     const [excelFile, setExcelFile] = useState<File | null>(null);
     const [isVerifying, setIsVerifying] = useState(false);
     const [verifyErrors, setVerifyErrors] = useState<string[] | null>(null); // Excel validation errors to display to the user
+    // Problems that don't fail the check (e.g. many empty rows after the data), shown whatever the outcome.
+    const [verifyWarnings, setVerifyWarnings] = useState<string[] | null>(null);
+    // Incremented when the file changes, so a verification still pending for the previous file is ignored.
+    const verificationIdRef = useRef(0);
 
     // Verify the Excel file and show a toast for the outcome.
     const onVerifyClick = useCallback(async () => {
@@ -201,7 +257,10 @@ const AdminGeneratorPage: React.FunctionComponent = () => {
             return;
         }
         setVerifyErrors(null);
+        setVerifyWarnings(null);
         setIsVerifying(true);
+        const verificationId = ++verificationIdRef.current;
+        const isOutdated = () => verificationId !== verificationIdRef.current;
         try {
             const formData = new FormData();
             formData.append('generatorFile', excelFile);
@@ -216,6 +275,9 @@ const AdminGeneratorPage: React.FunctionComponent = () => {
                 body: formData
             });
             const data = (await response.json()) as Status.Status<unknown> & Record<string, unknown>;
+            if (isOutdated()) {
+                return;
+            }
 
             // 4xx/5xx: show API error(s) when present
             if (!response.ok) {
@@ -234,7 +296,9 @@ const AdminGeneratorPage: React.FunctionComponent = () => {
 
             // HTTP 200: read body structurally so we always surface `result.errors` (do not rely only on type guards).
             if (data.status === 'ok' && data.result !== null && typeof data.result === 'object') {
-                const result = data.result as { integrityOk?: unknown; errors?: unknown };
+                const result = data.result as { integrityOk?: unknown; errors?: unknown; warnings?: unknown };
+                const serverWarnings = normalizeVerifyErrorMessages(result.warnings);
+                setVerifyWarnings(serverWarnings.length > 0 ? serverWarnings : null);
                 if (result.integrityOk === true) {
                     setVerifyErrors(null);
                     toast.success(t('admin:generator:GeneratorVerifySuccess'));
@@ -252,6 +316,9 @@ const AdminGeneratorPage: React.FunctionComponent = () => {
             setVerifyErrors([t('admin:generator:GeneratorVerifyErrorFallback')]);
             toast.error(t('admin:generator:GeneratorVerifyFailedIntegrity'));
         } catch (error) {
+            if (isOutdated()) {
+                return;
+            }
             const isNetworkFailure =
                 error instanceof Error && (error.message.includes('Failed to fetch') || error.name === 'TypeError');
             const message = isNetworkFailure
@@ -272,8 +339,10 @@ const AdminGeneratorPage: React.FunctionComponent = () => {
                 <GeneratorExcelFileInput
                     file={excelFile}
                     onFileChange={(file) => {
+                        verificationIdRef.current++;
                         setExcelFile(file);
                         setVerifyErrors(null);
+                        setVerifyWarnings(null);
                     }}
                 />
                 <button type="button" onClick={onVerifyClick} disabled={isVerifying}>
@@ -282,35 +351,20 @@ const AdminGeneratorPage: React.FunctionComponent = () => {
 
                 {/* Display the validation error message to the user if it exists */}
                 {verifyErrors && (
-                    <div className="admin-generator-verify-error" role="alert" aria-live="polite">
-                        <div className="admin-generator-verify-error__header">
-                            <strong>{t('admin:generator:GeneratorVerifyErrorTitle')}</strong>
-                            <div className="admin-generator-verify-error__actions">
-                                <button
-                                    type="button"
-                                    onClick={async () => {
-                                        try {
-                                            // Join the errors with a newline and copy to the clipboard.
-                                            await navigator.clipboard.writeText(verifyErrors.join('\n\n'));
-                                            toast.success(t('admin:generator:GeneratorVerifyErrorCopied'));
-                                        } catch {
-                                            toast.error(t('admin:generator:GeneratorVerifyErrorCopyFailed'));
-                                        }
-                                    }}
-                                >
-                                    {t('admin:generator:GeneratorVerifyErrorCopy')}
-                                </button>
-                                <button type="button" onClick={() => setVerifyErrors(null)}>
-                                    {t('admin:generator:GeneratorVerifyErrorDismiss')}
-                                </button>
-                            </div>
-                        </div>
-                        <ul className="admin-generator-verify-error__content">
-                            {verifyErrors.map((err, idx) => (
-                                <li key={idx}>{err}</li>
-                            ))}
-                        </ul>
-                    </div>
+                    <GeneratorVerifyMessages
+                        title={t('admin:generator:GeneratorVerifyErrorTitle')}
+                        messages={verifyErrors}
+                        variant="error"
+                        onDismiss={() => setVerifyErrors(null)}
+                    />
+                )}
+                {verifyWarnings && (
+                    <GeneratorVerifyMessages
+                        title={t('admin:generator:GeneratorVerifyWarningTitle')}
+                        messages={verifyWarnings}
+                        variant="warning"
+                        onDismiss={() => setVerifyWarnings(null)}
+                    />
                 )}
             </div>
         </div>
