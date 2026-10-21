@@ -102,9 +102,46 @@ describe('/generator/verify route', () => {
             status: 'ok',
             result: {
                 integrityOk: false,
-                errors
+                errors,
+                warnings: []
             }
         });
+    });
+
+    it.each([
+        {
+            description: 'passing check with warnings',
+            cliResult: { ok: true, integrityOk: true, errors: [], warnings: ['Widgets sheet has 5000 empty rows'] },
+            expectedResult: { integrityOk: true, warnings: ['Widgets sheet has 5000 empty rows'] }
+        },
+        {
+            description: 'failing check with warnings',
+            cliResult: { ok: true, integrityOk: false, errors: ['Invalid data'], warnings: ['Labels sheet has 200 empty columns'] },
+            expectedResult: { integrityOk: false, errors: ['Invalid data'], warnings: ['Labels sheet has 200 empty columns'] }
+        },
+        {
+            description: 'CLI output without warnings',
+            cliResult: { ok: true, integrityOk: true, errors: [] },
+            expectedResult: { integrityOk: true, warnings: [] }
+        }
+    ])('Should forward the Excel warnings: $description', async ({ cliResult, expectedResult }) => {
+        execFileMock.mockReturnValueOnce({ stdout: JSON.stringify(cliResult), stderr: '' } as unknown as ReturnType<
+            typeof execFile
+        >);
+
+        const response = await request(app)
+            .post('/api/admin/generator/verify')
+            .attach(
+                'generatorFile',
+                Buffer.from('dummy'),
+                {
+                    filename: 'test.xlsx',
+                    contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+                }
+            );
+
+        expect(response.status).toBe(200);
+        expect(response.body).toEqual({ status: 'ok', result: expectedResult });
     });
 
     it('Should return 500 when Excel integrity check produces no output', async () => {
