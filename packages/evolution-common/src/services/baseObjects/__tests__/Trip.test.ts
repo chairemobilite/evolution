@@ -267,6 +267,26 @@ describe('Trip', () => {
             const errors = Trip.validateParams(validAttributes);
             expect(errors).toHaveLength(0);
         });
+
+        test.each([
+            ['_startPlace', 'StartVisitedPlace'],
+            ['_endPlace', 'EndVisitedPlace']
+        ])('should validate %s', (key, displayName) => {
+            const errors = Trip.validateParams({ ...validAttributes, [key]: { activity: 123 } });
+            expect(errors[0].toString()).toContain(displayName);
+            expect(errors[0].toString()).toContain('activity');
+        });
+
+        test.each(['_startPlace', '_endPlace'])('should reject null %s', (key) => {
+            const errors = Trip.validateParams({ ...validAttributes, [key]: null });
+            expect(errors).toHaveLength(1);
+            expect(errors[0].toString()).toContain(`${key} should not be null`);
+        });
+
+        test.each(['startPlace', 'endPlace'])('should ignore %s without an underscore', (key) => {
+            const errors = Trip.validateParams({ ...validAttributes, [key]: { activity: 123 } });
+            expect(errors).toHaveLength(0);
+        });
     });
 
     describe('Getters and Setters', () => {

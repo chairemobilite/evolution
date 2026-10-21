@@ -8,7 +8,7 @@
 import type { Address } from 'evolution-common/lib/services/baseObjects/Address';
 import type { Home } from 'evolution-common/lib/services/baseObjects/Home';
 
-/** CSV columns copied into `home.preData`, and the `Address` field the parser stores them in. */
+/** CSV columns copied into `home.preData`, and the `Address` field filled from the declared home address. */
 const prefilledAddressFields: ReadonlyArray<readonly [string, keyof Address]> = [
     ['Address', 'fullAddress'],
     ['City', 'municipalityName'],

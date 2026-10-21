@@ -226,6 +226,29 @@ describe('VisitedPlace', () => {
             const errors = VisitedPlace.validateParams(validVisitedPlaceAttributesWithPlace);
             expect(errors).toHaveLength(0);
         });
+
+        test('should validate _place', () => {
+            const errors = VisitedPlace.validateParams({
+                ...validVisitedPlaceAttributes,
+                _place: { name: 123 }
+            });
+            expect(errors[0].toString()).toContain('name');
+        });
+
+        test('should ignore place without an underscore', () => {
+            const errors = VisitedPlace.validateParams({
+                ...validVisitedPlaceAttributes,
+                place: { name: 123 }
+            });
+            expect(errors).toHaveLength(0);
+
+            const visitedPlace = new VisitedPlace(
+                { ...validVisitedPlaceAttributes, place: { name: 'Somewhere' } } as ExtendedVisitedPlaceAttributes,
+                registry
+            );
+            expect(visitedPlace.place).toBeUndefined();
+            expect(visitedPlace.customAttributes.place).toBeUndefined();
+        });
     });
 
     describe('Getters and Setters', () => {
