@@ -8,7 +8,7 @@ from helpers.generator_helpers import add_generator_yaml_header
 from tests.mocked_excel import create_mocked_excel_data
 from scripts.labels_generator import LabelsGenerator, LabelFormatter
 import pytest
-from helpers.generator_helpers import delete_file_if_exists
+from helpers.generator_helpers import delete_file_if_exists, get_workbook
 
 
 def test_label_formatter_bold():
@@ -258,7 +258,7 @@ class TestAddTranslationsFromExcel:
         )
         try:
             LabelsGenerator.generate_labels(
-                MOCKED_EXCEL_FILE,
+                get_workbook(MOCKED_EXCEL_FILE),
                 labels_output_folder_path,
                 languages=("fr", "en"),
                 sheets_with_labels=[case["sheet_data"]],
@@ -309,7 +309,7 @@ class TestAddTranslationsFromExcel:
         )
         try:
             LabelsGenerator.generate_labels(
-                MOCKED_EXCEL_FILE,
+                get_workbook(MOCKED_EXCEL_FILE),
                 str(tmp_path / "locales"),
                 sheets_with_labels=[
                     {

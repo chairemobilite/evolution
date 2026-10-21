@@ -5,7 +5,7 @@
 import csv
 
 import pytest
-from helpers.generator_helpers import delete_file_if_exists
+from helpers.generator_helpers import delete_file_if_exists, get_workbook
 from scripts.generate_questionnaire_dictionary import (
     MAX_RADIO_NUMBER_VALUES,
     combine_values_text,
@@ -310,7 +310,10 @@ class TestGenerateQuestionnaireDictionary:
                 ("fr", "Ménage", "Abréviation"),
             ):
                 generate_questionnaire_dictionary(
-                    MOCKED_EXCEL_FILE, survey_definition, str(tmp_path), language
+                    get_workbook(MOCKED_EXCEL_FILE),
+                    survey_definition,
+                    str(tmp_path),
+                    language,
                 )
                 with open(
                     tmp_path / f"questionnaire_dictionary_{language}.csv",

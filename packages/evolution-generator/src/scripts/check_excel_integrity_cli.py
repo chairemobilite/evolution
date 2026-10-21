@@ -7,9 +7,9 @@ import json
 import sys
 
 try:
-    from scripts.generate_survey import check_excel_integrity_with_messages
+    from scripts.generate_survey import check_excel_integrity_with_warnings
 except ModuleNotFoundError:
-    from generate_survey import check_excel_integrity_with_messages
+    from generate_survey import check_excel_integrity_with_warnings
 
 
 def main() -> int:
@@ -20,13 +20,17 @@ def main() -> int:
     excel_file_path = sys.argv[1]
 
     try:
-        integrity_ok, errors = check_excel_integrity_with_messages(excel_file_path)
+        integrity_ok, errors, warnings = check_excel_integrity_with_warnings(
+            excel_file_path
+        )
         payload: dict = {
             "ok": True,
             "integrityOk": integrity_ok,
             "excelFilePath": excel_file_path,
             # Always send the list so the admin API can forward every validation line to the UI.
             "errors": errors,
+            # Problems that don't fail the check, e.g. many empty rows after the data.
+            "warnings": warnings,
         }
         print(json.dumps(payload))
         return 0
