@@ -10,6 +10,7 @@ from openpyxl import Workbook  # Read data from Excel, File system operations
 from typing import List, Optional, Tuple  # Types for Python
 
 from survey_definition.conditionals_definition import CONDITIONAL_REQUIRED_FIELD_NAMES
+from survey_definition.labels_definition import LABEL_REQUIRED_FIELD_NAMES
 from survey_definition.sections_definition import SECTION_REQUIRED_FIELD_NAMES
 from survey_definition.survey_definition import SurveyDefinition
 
@@ -227,13 +228,13 @@ def read_survey_languages(workbook: Workbook) -> tuple[str, ...]:
 
 def load_survey_definition(excel_file_path: str) -> SurveyDefinition:
     """
-    Build a SurveyDefinition from an Excel file's Sections and Conditionals sheets, in
-    the survey languages read from the Widgets sheet (see read_survey_languages).
+    Build a SurveyDefinition from an Excel file's sheets, in the survey languages read
+    from the Widgets sheet (see read_survey_languages).
 
     Raises on the same problems as get_data_from_excel/get_headers (invalid file,
     missing sheet, missing/too few headers), and `pydantic.ValidationError` when the
     languages or a sheet's rows don't pass their checks (see survey_definition.py,
-    sections_definition.py, conditionals_definition.py).
+    sections_definition.py, ...).
     The returned instance is already validated; callers don't need to check it again.
     """
     is_excel_file(excel_file_path)
@@ -245,6 +246,7 @@ def load_survey_definition(excel_file_path: str) -> SurveyDefinition:
         conditionals=_read_sheet_rows(
             workbook, "Conditionals", CONDITIONAL_REQUIRED_FIELD_NAMES
         ),
+        labels=_read_sheet_rows(workbook, "Labels", LABEL_REQUIRED_FIELD_NAMES),
     )
 
 
