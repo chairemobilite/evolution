@@ -171,7 +171,7 @@ export const getModePreWidgetConfig = (
             return [
                 {
                     validation: _isBlank(value),
-                    errorMessage: (t: TFunction) => t(['survey:segments:ModeIsRequired', 'segments:ModeIsRequired'])
+                    errorMessage: { text: 'segments:ModeIsRequired' }
                 }
             ];
         },

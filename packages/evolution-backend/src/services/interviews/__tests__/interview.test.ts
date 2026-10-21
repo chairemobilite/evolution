@@ -230,7 +230,7 @@ describe('Update Interview', () => {
             foo: {
                 validations: [{
                     validation: (_val) => true,
-                    errorMessage: { fr: 'erreur', en: 'error' }
+                    errorMessage: { text: 'survey:errors:error' }
                 }]
             }
         };

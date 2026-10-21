@@ -25,6 +25,7 @@ import {
     QuestionnaireObjectWithUuidAndSequence,
     RadioChoiceType,
     UserInterviewAttributes,
+    ValidationErrorMessage,
     WidgetConfig
 } from '../services/questionnaire/types';
 
@@ -44,6 +45,25 @@ export const translateString = (
         : typeof i18nData === 'object'
             ? parseString(i18nData[i18nObj.language], interview, path, user)
             : i18nData;
+};
+
+/**
+ * Translate a validation error message
+ *
+ * @param errorMessage The error message
+ * @param i18nObj The i18n object
+ * @returns The translated error message, or `undefined` if there is no message
+ */
+export const translateErrorMessage = (
+    errorMessage: ValidationErrorMessage | undefined,
+    i18nObj: i18n
+): string | undefined => {
+    if (errorMessage === undefined) {
+        return undefined;
+    }
+    // The params may contain participant answers, so they are always escaped,
+    // even if escaping is disabled in the i18n configuration
+    return i18nObj.t(errorMessage.text, { ...errorMessage.params, interpolation: { escapeValue: true } });
 };
 
 /**

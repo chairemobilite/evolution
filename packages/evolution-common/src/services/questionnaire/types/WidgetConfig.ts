@@ -14,7 +14,8 @@ import {
     InterviewResponsePath,
     ParsingFunction,
     ParsingFunctionWithCallbacks,
-    UserInterviewAttributes
+    UserInterviewAttributes,
+    ValidationErrorMessage
 } from './Data';
 
 type IconData = {
@@ -69,7 +70,7 @@ export type ValidationFunction = (
 ) => {
     validation: boolean;
     errorCode?: string;
-    errorMessage: I18nData;
+    errorMessage: ValidationErrorMessage;
     isWarning?: boolean; // For now, used only in admin validations and auditing. Will be displayed differently in audits.
 }[];
 

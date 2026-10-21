@@ -13,7 +13,11 @@ import InfoMap from '../survey/InfoMap';
 import Button from '../survey/Button';
 import Question from '../survey/Question';
 import { Group } from '../survey/GroupWidgets';
-import { UserRuntimeInterviewAttributes, WidgetStatus } from 'evolution-common/lib/services/questionnaire/types';
+import {
+    ServerValidationErrors,
+    UserRuntimeInterviewAttributes,
+    WidgetStatus
+} from 'evolution-common/lib/services/questionnaire/types';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { WidgetConfig } from 'evolution-common/lib/services/questionnaire/types';
 import { InterviewUpdateCallbacks } from 'evolution-common/lib/services/questionnaire/types';
@@ -24,7 +28,7 @@ export type WidgetProps = {
     nextWidgetShortname?: string;
     sectionName: string;
     interview: UserRuntimeInterviewAttributes;
-    errors?: { [path: string]: string };
+    errors?: ServerValidationErrors;
     user: CliUser;
     loadingState: number;
 };

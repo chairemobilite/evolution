@@ -73,7 +73,7 @@ export const getModeWidgetConfig = (
             return [
                 {
                     validation: _isBlank(value),
-                    errorMessage: (t: TFunction) => t('segments:ModeIsRequired')
+                    errorMessage: { text: 'segments:ModeIsRequired' }
                 }
             ];
         },

@@ -175,10 +175,7 @@ export const personNoWorkTripReason = {
         return [
             {
                 validation: _isBlank(value),
-                errorMessage: {
-                    fr: 'Cette réponse est requise.',
-                    en: 'This field is required.'
-                }
+                errorMessage: { text: 'survey:validation:FieldRequired' }
             }
         ];
     }
@@ -317,10 +314,7 @@ export const personNoSchoolTripReason = {
         return [
             {
                 validation: _isBlank(value),
-                errorMessage: {
-                    fr: 'Cette réponse est requise.',
-                    en: 'This field is required.'
-                }
+                errorMessage: { text: 'survey:validation:FieldRequired' }
             }
         ];
     }
@@ -377,10 +371,7 @@ export const personWhoAnsweredForThisPerson = {
         return [
             {
                 validation: _isBlank(value),
-                errorMessage: {
-                    fr: 'Cette réponse est requise.',
-                    en: 'This field is required.'
-                }
+                errorMessage: { text: 'survey:validation:FieldRequired' }
             }
         ];
     }

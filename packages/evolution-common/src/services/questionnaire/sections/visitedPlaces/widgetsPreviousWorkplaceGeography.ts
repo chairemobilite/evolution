@@ -149,7 +149,7 @@ export class PreviousWorkPlaceGeographyWidgetFactory implements WidgetConfigFact
             const validations: any[] = [
                 {
                     validation: _isBlank(value),
-                    errorMessage: (t: TFunction) => t('visitedPlaces:workPlaceLocationIsRequiredError')
+                    errorMessage: { text: 'visitedPlaces:workPlaceLocationIsRequiredError' }
                 },
                 {
                     validation:
@@ -158,16 +158,15 @@ export class PreviousWorkPlaceGeographyWidgetFactory implements WidgetConfigFact
                         (geography.properties.lastAction === 'mapClicked' ||
                             geography.properties.lastAction === 'markerDragged') &&
                         geography.properties.zoom < config.minManualPlacementZoom,
-                    errorMessage: (t: TFunction) => t('visitedPlaces:locationIsNotPreciseError')
+                    errorMessage: { text: 'visitedPlaces:locationIsNotPreciseError' }
                 },
                 // TODO Should an inaccessible zone validation here when we support it from survey configuration
                 {
                     validation: geography && geography.properties?.isGeocodingImprecise,
-                    errorMessage: (t: TFunction) =>
-                        t('survey:geography.geocodingStringImpreciseError', {
-                            geocodingTextInput: geocodingTextInput || '',
-                            interpolation: { escapeValue: true }
-                        })
+                    errorMessage: {
+                        text: 'survey:geography.geocodingStringImpreciseError',
+                        params: { geocodingTextInput: geocodingTextInput || '' }
+                    }
                 }
             ];
             return validations;

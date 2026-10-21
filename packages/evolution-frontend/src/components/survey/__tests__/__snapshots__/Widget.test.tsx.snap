@@ -341,7 +341,7 @@ exports[`With server errors Render Group with server error, shoud be passed alon
     widgetConfig: 
     {"type":"group","path":"test","widgets":["testNext"]}
     widgetStatus: 
-    {"path":"myTestPath","isVisible":true,"isDisabled":false,"isCollapsed":false,"isEmpty":false,"isCustomEmpty":false,"isValid":false,"isResponded":true,"isCustomResponded":false,"errorMessage":"Server error message","currentUpdateKey":1,"value":null}
+    {"path":"myTestPath","isVisible":true,"isDisabled":false,"isCollapsed":false,"isEmpty":false,"isCustomEmpty":false,"isValid":false,"isResponded":true,"isCustomResponded":false,"errorMessage":{"text":"Server error message"},"currentUpdateKey":1,"value":null}
     join: 
     false
     shortname: 
@@ -349,7 +349,7 @@ exports[`With server errors Render Group with server error, shoud be passed alon
     parentObjectIds: 
     {}
     errors: 
-    {"test":"Server error message"}
+    {"test":{"text":"Server error message"}}
   </div>
 </div>
 `;
@@ -369,7 +369,7 @@ exports[`With server errors Render Question with server error 1`] = `
     widgetConfig: 
     {"type":"question","path":"test","label":"test question","inputType":"string"}
     widgetStatus: 
-    {"path":"myTestPath","isVisible":true,"isDisabled":false,"isCollapsed":false,"isEmpty":false,"isCustomEmpty":false,"isValid":false,"isResponded":true,"isCustomResponded":false,"errorMessage":"Server error message","currentUpdateKey":1,"value":null}
+    {"path":"myTestPath","isVisible":true,"isDisabled":false,"isCollapsed":false,"isEmpty":false,"isCustomEmpty":false,"isValid":false,"isResponded":true,"isCustomResponded":false,"errorMessage":{"text":"Server error message"},"currentUpdateKey":1,"value":null}
     join: 
     false
   </div>

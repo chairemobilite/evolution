@@ -17,6 +17,7 @@ import interviewsDbQueries from '../../models/interviews.db.queries';
 import projectConfig from '../../config/projectConfig';
 import {
     InterviewAttributes,
+    ServerValidationErrors,
     UserAction,
     UserInterviewAttributes
 } from 'evolution-common/lib/services/questionnaire/types';
@@ -133,13 +134,7 @@ type UpdateInterviewOptions = {
 
 type UpdateInterviewResult = {
     interviewId: string | undefined;
-    serverValidations:
-        | true
-        | {
-              [key: string]: {
-                  [key: string]: string;
-              };
-          };
+    serverValidations: true | ServerValidationErrors;
     serverValuesByPath: { [key: string]: unknown };
     redirectUrl: string | undefined;
 };

@@ -250,6 +250,69 @@ describe('Update interview', () => {
         expect(updateCallback).toHaveBeenCalledWith(expectedInterviewAsState);
     });
 
+    const requiredMessage = { text: 'survey:errors:answerRequired' };
+    test.each([
+        {
+            description: 'invalid widget',
+            widgetStatus: { path: 'section1.q1', isVisible: true, isValid: false, errorMessage: requiredMessage },
+            expectedErrorMessage: requiredMessage
+        },
+        {
+            description: 'invalid widget by custom path',
+            widgetStatus: { path: 'section1.other', customPath: 'section1.q1', isVisible: true, isValid: false, errorMessage: requiredMessage },
+            expectedErrorMessage: requiredMessage
+        },
+        {
+            description: 'invalid widget with params in the message',
+            widgetStatus: { path: 'section1.q1', isVisible: true, isValid: false, errorMessage: { text: 'survey:errors:overMax', params: { max: '3' } } },
+            expectedErrorMessage: { text: 'survey:errors:overMax', params: { max: '3' } }
+        },
+        {
+            description: 'valid widget',
+            widgetStatus: { path: 'section1.q1', isVisible: true, isValid: true, errorMessage: requiredMessage },
+            expectedErrorMessage: undefined
+        },
+        {
+            description: 'invalid widget with other path',
+            widgetStatus: { path: 'section1.q2', isVisible: true, isValid: false, errorMessage: requiredMessage },
+            expectedErrorMessage: undefined
+        },
+        {
+            description: 'invalid widget without error message',
+            widgetStatus: { path: 'section1.q1', isVisible: true, isValid: false },
+            expectedErrorMessage: undefined
+        }
+    ])('Call with a "widgetInteraction" user action and error message: $description', async ({ widgetStatus, expectedErrorMessage }) => {
+        // Prepare mock and test data
+        jsonFetchResolve.mockResolvedValue({ status: 'success', interviewId: interviewAttributes.uuid });
+        const userAction = {
+            type: 'widgetInteraction' as const,
+            widgetType: 'string',
+            path: 'response.section1.q1',
+            value: 'foo'
+        };
+        mockPrepareSectionWidgets.mockImplementationOnce((_sectionShortname, interview, _affectedPaths, valuesByPath) => {
+            const innerInterview = _cloneDeep(interview);
+            innerInterview.widgets = {
+                widget: widgetStatus
+            } as any;
+            return { updatedInterview: innerInterview, updatedValuesByPath: valuesByPath, needUpdate: false };
+        });
+
+        // Do the actual test
+        const callback = SurveyActions.startUpdateInterview({ sectionShortname: 'section', valuesByPath: {}, interview: _cloneDeep(interviewAttributes), userAction });
+        await callback(mockDispatch, mockGetState);
+
+        // Verify the error message in the user action sent to the server
+        expect(fetchRetryMock).toHaveBeenCalledTimes(1);
+        const body = JSON.parse(fetchRetryMock.mock.calls[0][1].body);
+        expect(body.userAction).toEqual(
+            expectedErrorMessage === undefined
+                ? userAction
+                : { ...userAction, errorMessage: expectedErrorMessage }
+        );
+    });
+
     test('Call with an interview, with validation, unset path and "buttonClick" action', async () => {
         // Prepare mock and test data
         const updateCallback = jest.fn();
@@ -329,8 +392,9 @@ describe('Update interview', () => {
         // Mock the prepareSectionWidgets to return some invisible widgets
         const nextWidgetStatuses = {
             visibleValidWidget: { path: 'visibleValidWidgetPath', isVisible: true, isValid: true },
-            visibleInvalidWidget: { path: 'visibleInvalidWidgetPath', isVisible: true, isValid: false },
-            invisibleWidget: { path: 'invisibleWidgetPath', isVisible: false, isValid: false }
+            visibleInvalidWidget: { path: 'visibleInvalidWidgetPath', isVisible: true, isValid: false, errorMessage: { text: 'survey:errors:answerRequired' } },
+            visibleInvalidWidgetWithoutMessage: { path: 'visibleInvalidWidgetWithoutMessagePath', isVisible: true, isValid: false },
+            invisibleWidget: { path: 'invisibleWidgetPath', isVisible: false, isValid: false, errorMessage: { text: 'survey:errors:hidden' } }
         } as { [widgetName: string]: Partial<WidgetStatus> };
         const nextGroupStatuses = {
             testGroup: {
@@ -340,7 +404,7 @@ describe('Update interview', () => {
                 },
                 groupIdWithSomeInvisibleOrInvalid: {
                     visibleWidget: { path: 'group.groupIdWithSomeInvisible.visibleWidget', isVisible: true, isValid: true },
-                    visibleInvalidWidget: { path: 'group.groupIdWithSomeInvisible.visibleInvalidWidget', isVisible: true, isValid: false },
+                    visibleInvalidWidget: { path: 'group.groupIdWithSomeInvisible.visibleInvalidWidget', isVisible: true, isValid: false, errorMessage: { text: 'survey:errors:overMax', params: { max: '3' } } },
                     invisibleWidget: { path: 'group.groupIdWithSomeInvisible.invisibleWidget', isVisible: false, isValid: true }
                 }
             }
@@ -374,7 +438,10 @@ describe('Update interview', () => {
                 participant_id: interviewAttributes.participant_id,
                 valuesByPath: { ...valuesByPath, 'validations.section1.q2': true, sectionLoaded: 'section' },
                 unsetPaths: ['response.section2.q1'],
-                userAction: { ...buttonClickUserAction, hiddenWidgets: [ 'invisibleWidgetPath', 'group.groupIdWithSomeInvisible.invisibleWidget' ], invalidWidgets: [ 'visibleInvalidWidgetPath', 'group.groupIdWithSomeInvisible.visibleInvalidWidget' ]}
+                userAction: { ...buttonClickUserAction, hiddenWidgets: [ 'invisibleWidgetPath', 'group.groupIdWithSomeInvisible.invisibleWidget' ], invalidWidgets: [ 'visibleInvalidWidgetPath', 'visibleInvalidWidgetWithoutMessagePath', 'group.groupIdWithSomeInvisible.visibleInvalidWidget' ], invalidWidgetsMessages: {
+                    visibleInvalidWidgetPath: { text: 'survey:errors:answerRequired' },
+                    'group.groupIdWithSomeInvisible.visibleInvalidWidget': { text: 'survey:errors:overMax', params: { max: '3' } }
+                }}
             })
         }));
         expect(mockDispatch).toHaveBeenCalledTimes(3);

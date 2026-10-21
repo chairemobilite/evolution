@@ -62,7 +62,7 @@ describe('SET_INTERVIEW action', () => {
                 navigationHistory: [{ sectionShortname: 'previous3' }, { sectionShortname: 'previous2', iterationContext: ['1234'] }]
             },
             submitted: true,
-            errors: { field: { 'en': 'something' } },
+            errors: { field: { text: 'something' } },
             interview: { id: 2 } as UserRuntimeInterviewAttributes,
         }
         const action = {
@@ -89,7 +89,7 @@ describe('UPDATE_INTERVIEW action', () => {
         interview: testInterview,
         interviewLoaded: true,
         submitted: true,
-        errors: { field: { en: 'something' } }
+        errors: { field: { text: 'something' } }
     };
 
     test('updates the interview when ids match', () => {
@@ -106,7 +106,7 @@ describe('UPDATE_INTERVIEW action', () => {
             interview: updateAction.interview,
             interviewLoaded: true,
             submitted: true,
-            errors: { field: { en: 'something' } }
+            errors: { field: { text: 'something' } }
         });
     });
 

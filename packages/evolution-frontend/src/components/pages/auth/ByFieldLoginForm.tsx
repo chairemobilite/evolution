@@ -20,7 +20,7 @@ import { InterviewContext } from '../../../contexts/InterviewContext';
 import CaptchaComponent from 'chaire-lib-frontend/lib/components/captcha/CaptchaComponent';
 import { SurveyContext } from '../../../contexts/SurveyContext';
 import { ValidationFunction } from 'evolution-common/lib/services/questionnaire/types';
-import { translateString } from 'evolution-common/lib/utils/helpers';
+import { translateErrorMessage } from 'evolution-common/lib/utils/helpers';
 import FormattedInput from '../../inputs/FormattedInput';
 
 type ByFieldLoginFormProps = {
@@ -41,7 +41,7 @@ const validateValueFromInterview = (validations: ValidationFunction, value: stri
         const validationResult = validations(value, undefined, {} as any, '');
         const resultWithError = validationResult.find((result) => result.validation === true);
         if (resultWithError) {
-            return translateString(resultWithError.errorMessage, i18n, {} as any, '');
+            return translateErrorMessage(resultWithError.errorMessage, i18n);
         }
         return undefined;
     } catch (error) {

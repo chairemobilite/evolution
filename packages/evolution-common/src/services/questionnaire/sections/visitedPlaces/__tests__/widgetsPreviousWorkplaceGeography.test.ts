@@ -353,7 +353,7 @@ describe('visitedPlacePreviousWorkPlaceGeography widget', () => {
             const validationResult = validations(undefined, null, interview, path);
 
             expect(validationResult[0].validation).toBe(true);
-            expect(translateString(validationResult[0].errorMessage, { t: mockedT } as any, interview, path)).toBe('visitedPlaces:workPlaceLocationIsRequiredError');
+            expect(validationResult[0].errorMessage).toEqual({ text: 'visitedPlaces:workPlaceLocationIsRequiredError' });
         });
 
         test('should accept geography value', () => {
@@ -378,7 +378,7 @@ describe('visitedPlacePreviousWorkPlaceGeography widget', () => {
 
             const validationResult = validations!(geography, null, interview, path);
             expect(validationResult[1].validation).toBe(true);
-            expect(translateString(validationResult[1].errorMessage, { t: mockedT } as any, interview, path)).toBe('visitedPlaces:locationIsNotPreciseError');
+            expect(validationResult[1].errorMessage).toEqual({ text: 'visitedPlaces:locationIsNotPreciseError' });
         });
 
         test('should flag imprecise location when markerDragged and zoom is below 15', () => {
@@ -395,7 +395,7 @@ describe('visitedPlacePreviousWorkPlaceGeography widget', () => {
 
             const validationResult = validations!(geography, null, interview, path);
             expect(validationResult[1].validation).toBe(true);
-            expect(translateString(validationResult[1].errorMessage, { t: mockedT } as any, interview, path)).toBe('visitedPlaces:locationIsNotPreciseError');
+            expect(validationResult[1].errorMessage).toEqual({ text: 'visitedPlaces:locationIsNotPreciseError' });
         });
 
         test('should not flag zoom precision error when zoom is 15 or more', () => {
@@ -432,10 +432,9 @@ describe('visitedPlacePreviousWorkPlaceGeography widget', () => {
             expect(validationResult[2].validation).toBe(true);
 
             
-            translateString(validationResult[2].errorMessage, { t: mockedT } as any, interview, path);
-            expect(mockedT).toHaveBeenCalledWith('survey:geography.geocodingStringImpreciseError', {
-                geocodingTextInput: 'Main street',
-                interpolation: { escapeValue: true }
+            expect(validationResult[2].errorMessage).toEqual({
+                text: 'survey:geography.geocodingStringImpreciseError',
+                params: { geocodingTextInput: 'Main street' }
             });
         });
 
@@ -454,11 +453,9 @@ describe('visitedPlacePreviousWorkPlaceGeography widget', () => {
 
             const validationResult = validations!(geography, null, interview, path);
 
-            const mockedT = jest.fn();
-            translateString(validationResult[2].errorMessage, { t: mockedT } as any, interview, path);
-            expect(mockedT).toHaveBeenCalledWith('survey:geography.geocodingStringImpreciseError', {
-                geocodingTextInput: '',
-                interpolation: { escapeValue: true }
+            expect(validationResult[2].errorMessage).toEqual({
+                text: 'survey:geography.geocodingStringImpreciseError',
+                params: { geocodingTextInput: '' }
             });
         });
     });

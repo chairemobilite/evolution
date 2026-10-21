@@ -239,7 +239,7 @@ describe('With server errors', () => {
                     interview={frontendInterviewAttributes}
                     loadingState={0}
                     errors={{
-                        [testWidgetShortname]: 'Server error message'
+                        [testWidgetShortname]: { text: 'Server error message' }
                     }}
                     user={userAttributes}
                     startUpdateInterview={jest.fn()}
@@ -268,7 +268,7 @@ describe('With server errors', () => {
                     interview={frontendInterviewAttributes}
                     loadingState={0}
                     errors={{
-                        [testWidgetShortname]: 'Server error message'
+                        [testWidgetShortname]: { text: 'Server error message' }
                     }}
                     user={userAttributes}
                     startUpdateInterview={jest.fn()}

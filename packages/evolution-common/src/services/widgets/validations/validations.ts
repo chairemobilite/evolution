@@ -18,7 +18,7 @@ export const requiredValidation: ValidationFunction = (value) => {
     return [
         {
             validation: _isBlank(value),
-            errorMessage: (t) => t('survey:errors:answerRequired')
+            errorMessage: { text: 'survey:errors:answerRequired' }
         }
     ];
 };
@@ -42,11 +42,11 @@ export const inputRangeValidation: ValidationFunction = (value) => {
         {
             // Check if the value is less than 0 and not 'na'
             validation: !(Number(value) >= 0) && value !== 'na',
-            errorMessage: (t) => t('survey:errors:inputRangeMinZero')
+            errorMessage: { text: 'survey:errors:inputRangeMinZero' }
         },
         {
             validation: _isBlank(value),
-            errorMessage: (t) => t('survey:errors:answerRequired')
+            errorMessage: { text: 'survey:errors:answerRequired' }
         }
     ];
 };
@@ -62,19 +62,22 @@ export const householdSizeValidation: ValidationFunction = (value) => {
     return [
         {
             validation: isNaN(Number(value)) || !Number.isInteger(Number(value)),
-            errorMessage: (t) => t('survey:errors:householdSizeInvalid')
+            errorMessage: { text: 'survey:errors:householdSizeInvalid' }
         },
         {
             validation: _isBlank(value),
-            errorMessage: (t) => t('survey:errors:householdSizeRequired')
+            errorMessage: { text: 'survey:errors:householdSizeRequired' }
         },
         {
             validation: Number(value) > projectConfig.maxHouseholdSize,
-            errorMessage: (t) => t('survey:errors:householdSizeOverMax', { max: projectConfig.maxHouseholdSize })
+            errorMessage: {
+                text: 'survey:errors:householdSizeOverMax',
+                params: { max: String(projectConfig.maxHouseholdSize) }
+            }
         },
         {
             validation: Number(value) <= 0,
-            errorMessage: (t) => t('survey:errors:householdSizeMinOne')
+            errorMessage: { text: 'survey:errors:householdSizeMinOne' }
         }
     ];
 };
@@ -96,19 +99,19 @@ export const ageValidation: ValidationFunction = (value) => {
     return [
         {
             validation: _isBlank(value),
-            errorMessage: (t) => t('survey:errors:ageRequired')
+            errorMessage: { text: 'survey:errors:ageRequired' }
         },
         {
             validation: isNaN(Number(value)) || !Number.isInteger(Number(value)),
-            errorMessage: (t) => t('survey:errors:ageInvalid')
+            errorMessage: { text: 'survey:errors:ageInvalid' }
         },
         {
             validation: Number(value) < 0,
-            errorMessage: (t) => t('survey:errors:ageMinZero')
+            errorMessage: { text: 'survey:errors:ageMinZero' }
         },
         {
             validation: Number(value) > projectConfig.ages.maxPersonAge,
-            errorMessage: (t) => t('survey:errors:ageTooHigh')
+            errorMessage: { text: 'survey:errors:ageTooHigh' }
         }
     ];
 };
@@ -124,7 +127,7 @@ export const emailValidation: ValidationFunction = (value) => {
     return [
         {
             validation: _isBlank(value),
-            errorMessage: (t) => t('survey:errors:emailRequired')
+            errorMessage: { text: 'survey:errors:emailRequired' }
         },
         {
             validation:
@@ -132,7 +135,7 @@ export const emailValidation: ValidationFunction = (value) => {
                 !/^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
                     String(value)
                 ),
-            errorMessage: (t) => t('survey:errors:emailInvalid')
+            errorMessage: { text: 'survey:errors:emailInvalid' }
         }
     ];
 };
@@ -161,7 +164,7 @@ export const phoneValidation: ValidationFunction = (value) => {
             // Trim and remove all whitespace characters (spaces, tabs, non-breaking spaces, etc.) before validating
             validation:
                 !_isBlank(value) && !validateNorthAmericanOrInternationalPhoneNumber(String(value).replace(/\s+/g, '')),
-            errorMessage: (t) => t('survey:errors:phoneNumberInvalid')
+            errorMessage: { text: 'survey:errors:phoneNumberInvalid' }
         }
     ];
 };
@@ -204,14 +207,14 @@ export const postalCodeValidation: ValidationFunction = (value) => {
     return [
         {
             validation: _isBlank(value),
-            errorMessage: (t) => t('survey:errors:postalCodeRequired')
+            errorMessage: { text: 'survey:errors:postalCodeRequired' }
         },
         {
             validation: !getPostalCodeRegex().test(String(value)),
-            errorMessage: (t) =>
-                t('survey:errors:postalCodeInvalid', {
-                    context: projectConfig.postalCodeRegion
-                })
+            errorMessage: {
+                text: 'survey:errors:postalCodeInvalid',
+                params: { context: projectConfig.postalCodeRegion }
+            }
         }
     ];
 };
@@ -220,11 +223,11 @@ export const accessCodeValidation: ValidationFunction = (value) => {
     return [
         {
             validation: _isBlank(value),
-            errorMessage: (t) => t('survey:errors:accessCodeRequired')
+            errorMessage: { text: 'survey:errors:accessCodeRequired' }
         },
         {
             validation: !matchesAccessCodeFormat(String(value), getAccessCodeFormat(projectConfig.accessCodeFormat)),
-            errorMessage: (t) => t('survey:errors:accessCodeInvalid')
+            errorMessage: { text: 'survey:errors:accessCodeInvalid' }
         }
     ];
 };

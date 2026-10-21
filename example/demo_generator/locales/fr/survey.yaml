@@ -49,3 +49,5 @@ auth:
         revenir dans votre questionnaire si votre session expire ou si vous changez de
         navigateur.
     Login: Confirmer
+validation:
+    LocationInaccessible: Le lieu est dans une étendue d'eau ou est inaccessible. Veuillez vérifier la localisation.

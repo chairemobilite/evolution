@@ -282,7 +282,7 @@ describe('Test with previous status', () => {
         expectedInterview.validations.section1.q2 = false;
 
         // Let the validation function return `false`
-        const errorMessage = 'error';
+        const errorMessage = { text: 'error' };
         mockedCheckValidations.mockReturnValueOnce([false, errorMessage]);
 
         // Test, both widgets should be visible, only widget 1 is valid
@@ -390,7 +390,7 @@ describe('Test with previous status', () => {
         expectedInterview.validations.section1.q1 = false;
 
         // Let the validation function return `false` for widget 1
-        const errorMessage = 'error';
+        const errorMessage = { text: 'error' };
         mockedCheckValidations.mockReturnValueOnce([false, errorMessage]);
 
         // Test, the 2 widgets should be visible, widget1 is invalid

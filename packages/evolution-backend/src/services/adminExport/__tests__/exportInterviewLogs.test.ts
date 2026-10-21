@@ -429,6 +429,7 @@ describe('exportInterviewLogTask', () => {
         expect(currentLog.mapZoom).toEqual('');
         expect(currentLog.mapAction).toEqual('');
         expect(currentLog.invalidFields).toEqual('');
+        expect(currentLog.invalidMessages).toEqual('');
         expect(currentLog.validFields).toEqual('home.geography');
     });
 
@@ -557,6 +558,28 @@ describe('exportInterviewLogTask', () => {
                     hiddenWidgets: '',
                     invalidFields: 'valuesByPathInvalid|invalidWidget1|invalidWidget2'
                 }
+            },
+            {
+                description: 'invalid widgets with messages in user action',
+                userAction: {
+                    type: 'buttonClick',
+                    buttonId: 'response.otherField',
+                    invalidWidgets: [ 'invalidWidget1', 'invalidWidget2' ],
+                    invalidWidgetsMessages: {
+                        invalidWidget1: { text: 'survey:errors:answerRequired' },
+                        invalidWidget2: { text: 'survey:errors:overMax', params: { max: '3' } }
+                    }
+                },
+                values_by_path: { },
+                unset_paths: undefined,
+                expectedOutput: {
+                    hiddenWidgets: '',
+                    invalidFields: 'invalidWidget1|invalidWidget2',
+                    invalidMessages: JSON.stringify({
+                        invalidWidget1: { text: 'survey:errors:answerRequired' },
+                        invalidWidget2: { text: 'survey:errors:overMax', params: { max: '3' } }
+                    })
+                }
             }
         ];
 
@@ -608,6 +631,7 @@ describe('exportInterviewLogTask', () => {
                 mapZoom: '',
                 hiddenWidgets: expectedOutput.hiddenWidgets,
                 invalidFields: expectedOutput.invalidFields,
+                invalidMessages: (expectedOutput as any).invalidMessages ?? '',
                 validFields: '',
                 browser: '',
                 os: '',
@@ -649,6 +673,15 @@ describe('exportInterviewLogTask', () => {
                 expectedOutput: {
                     mapZoom: '13.02',
                     mapAction: 'mapClicked'
+                }
+            },
+            {
+                description: 'with mapClicked action, zoom and error message',
+                userAction: { type: 'widgetInteraction', widgetType: 'mapFindPlace', path: 'response.home.geography', value: { type: 'Feature', geometry: { type: 'Point', coordinates: [0, 1] }, properties: { lastAction: 'mapClicked', zoom: 13.02 } }, errorMessage: { text: 'visitedPlaces:locationIsNotPreciseError' } },
+                expectedOutput: {
+                    mapZoom: '13.02',
+                    mapAction: 'mapClicked',
+                    invalidMessages: JSON.stringify({ 'home.geography': { text: 'visitedPlaces:locationIsNotPreciseError' } })
                 }
             },
             {
@@ -715,6 +748,7 @@ describe('exportInterviewLogTask', () => {
                 mapZoom: expectedOutput.mapZoom,
                 hiddenWidgets: '',
                 invalidFields: '',
+                invalidMessages: (expectedOutput as any).invalidMessages ?? '',
                 validFields: '',
                 browser: '',
                 os: '',
@@ -782,6 +816,7 @@ describe('exportInterviewLogTask', () => {
             mapZoom: '',
             hiddenWidgets: '',
             invalidFields: '',
+            invalidMessages: '',
             validFields: 'home.geography',
             browser: '',
             os: '',
@@ -805,6 +840,7 @@ describe('exportInterviewLogTask', () => {
             mapZoom: '',
             hiddenWidgets: userActionWithHidden.hiddenWidgets.join('|'),
             invalidFields: '',
+            invalidMessages: '',
             validFields: '',
             browser: '',
             os: '',
@@ -864,6 +900,7 @@ describe('exportInterviewLogTask', () => {
             mapZoom: '',
             hiddenWidgets: '',
             invalidFields: '',
+            invalidMessages: '',
             validFields: 'home.geography',
             browser: '',
             os: '',
@@ -922,6 +959,7 @@ describe('exportInterviewLogTask', () => {
             mapZoom: '',
             hiddenWidgets: '',
             invalidFields: '',
+            invalidMessages: '',
             validFields: 'home.geography',
             browser: '',
             os: '',
@@ -976,6 +1014,7 @@ describe('exportInterviewLogTask', () => {
             mapZoom: '',
             hiddenWidgets: '',
             invalidFields: '',
+            invalidMessages: '',
             validFields: '',
             browser: '',
             os: '',
@@ -1048,6 +1087,7 @@ describe('exportInterviewLogTask', () => {
             mapZoom: '',
             hiddenWidgets: '',
             invalidFields: '',
+            invalidMessages: '',
             validFields: 'home.geography',
             browser: '',
             os: '',
@@ -1071,6 +1111,7 @@ describe('exportInterviewLogTask', () => {
             mapZoom: '',
             hiddenWidgets: '',
             invalidFields: 'home.someField',
+            invalidMessages: '',
             validFields: '',
             browser: '',
             os: '',
@@ -1094,6 +1135,7 @@ describe('exportInterviewLogTask', () => {
             mapZoom: '',
             hiddenWidgets: '',
             invalidFields: ['home.household.size', 'home.someField'].join('|'),
+            invalidMessages: '',
             validFields: 'home.geography',
             browser: '',
             os: '',
@@ -1151,6 +1193,7 @@ describe('exportInterviewLogTask', () => {
             mapZoom: '',
             hiddenWidgets: '',
             invalidFields: '',
+            invalidMessages: '',
             validFields: '',
             browser: '',
             os: '',
@@ -1206,6 +1249,7 @@ describe('exportInterviewLogTask', () => {
                     .map(([key]) => key.replace('validations.', ''))
                     .join('|')
                 : '',
+            invalidMessages: '',
             validFields: log.values_by_path
                 ? Object.entries(log.values_by_path)
                     .filter(([key, value]) => key.startsWith('validations.') && value === true)

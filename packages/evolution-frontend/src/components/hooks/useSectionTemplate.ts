@@ -6,7 +6,11 @@
  */
 import { useEffect, useState } from 'react';
 import { getPathForSection } from '../../services/url'; // Adjust the import path
-import { SectionConfig, UserRuntimeInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
+import {
+    SectionConfig,
+    ServerValidationErrors,
+    UserRuntimeInterviewAttributes
+} from 'evolution-common/lib/services/questionnaire/types';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
 import { InterviewUpdateCallbacks } from 'evolution-common/lib/services/questionnaire/types';
 import { useLocation } from 'react-router';
@@ -15,7 +19,7 @@ export type SectionProps = {
     shortname: string;
     sectionConfig: SectionConfig;
     interview: UserRuntimeInterviewAttributes;
-    errors: { [path: string]: string };
+    errors: ServerValidationErrors;
     user: CliUser;
     allWidgetsValid?: boolean;
     submitted?: boolean;

@@ -47,7 +47,7 @@ export const getSameAsReverseTripWidgetConfig = (_options: WidgetFactoryOptions)
             return [
                 {
                     validation: _isBlank(value),
-                    errorMessage: (t: TFunction) => t('survey:ResponseIsRequired')
+                    errorMessage: { text: 'survey:ResponseIsRequired' }
                 }
             ];
         },

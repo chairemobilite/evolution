@@ -6,6 +6,7 @@
  */
 // This file contains types that are used for the questionnaire configuration and flow
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
+import { TranslatableMessageWithParams } from 'chaire-lib-common/lib/utils/TranslatableMessage';
 import { TFunction } from 'i18next';
 import { PersonAttributes } from '../../baseObjects/Person';
 import { JourneyAttributes } from '../../baseObjects/Journey';
@@ -49,6 +50,24 @@ export type TranslatableStringFunction = (
 ) => string;
 
 export type I18nData = string | LangData | TranslatableStringFunction;
+
+/**
+ * Error message of a validation: a translation key with its optional
+ * parameters. It is fixed for a given error, so it can be logged in the
+ * paradata as is and compared between events, and it is translated only when
+ * displayed.
+ */
+export type ValidationErrorMessage = {
+    /** The translation key */
+    text: string;
+    /** The values to interpolate in the translated string */
+    params?: TranslatableMessageWithParams['params'];
+};
+
+/**
+ * Error messages of the server-side validations, by field path
+ */
+export type ServerValidationErrors = { [path: string]: ValidationErrorMessage };
 
 type Required<T> = { [P in keyof T]-?: T[P] };
 // This recursive generic type is taken from this stack overflow question:
@@ -497,12 +516,21 @@ export type UserAction =
            * Widgets that are currently visible and invalid when the button was clicked
            */
           invalidWidgets?: string[];
+          /**
+           * Error message of each invalid widget, by widget path
+           */
+          invalidWidgetsMessages?: { [path: string]: ValidationErrorMessage };
       }
     | {
           type: 'widgetInteraction';
           widgetType: string;
           path: string;
           value: unknown;
+          /**
+           * Error message of the widget if it is invalid after this
+           * interaction
+           */
+          errorMessage?: ValidationErrorMessage;
       }
     | {
           type: 'sectionChange';
@@ -639,7 +667,7 @@ export type WidgetStatus = {
     isValid: boolean;
     isResponded: boolean;
     isCustomResponded: boolean;
-    errorMessage?: I18nData;
+    errorMessage?: ValidationErrorMessage;
     groupedObjectId?: string;
     value: unknown;
     customValue?: unknown;

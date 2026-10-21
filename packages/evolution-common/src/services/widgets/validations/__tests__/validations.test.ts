@@ -23,12 +23,8 @@ jest.mock('../../../../config/project.config', () => ({
     }
 }));
 
-const mockTranslation = jest.fn().mockImplementation((key: string, _params) => key);
 const unusedInterview = {} as any;
-const translationKey = (errorMessage: unknown): string => {
-    expect(typeof errorMessage).toEqual('function');
-    return (errorMessage as (t: typeof mockTranslation) => string)(mockTranslation);
-};
+const translationKey = (errorMessage: { text: string }): string => errorMessage.text;
 
 describe('requiredValidation', () => {
     test.each([
@@ -112,16 +108,13 @@ describe('emailValidation', () => {
 });
 
 describe('postalCodeValidation', () => {
-    // Mock the translation function for errors
-    const mockTranslation = jest.fn().mockImplementation((key: string, _params) => key);
 
     describe('Empty postal code validation', () => {
         it('should return error when postal code is empty', () => {
             const result = validations.postalCodeValidation('', undefined, {} as any, 'postalCode');
             expect(result.length).toBe(2);
             expect(result[0].validation).toBe(true); // Empty validation fails
-            expect(typeof result[0].errorMessage).toEqual('function');
-            expect((result[0].errorMessage as any)(mockTranslation)).toEqual('survey:errors:postalCodeRequired');
+            expect(result[0].errorMessage).toEqual({ text: 'survey:errors:postalCodeRequired' });
         });
     });
 
@@ -158,9 +151,7 @@ describe('postalCodeValidation', () => {
         ])('should reject invalid Canadian postal code: %s (%s)', (postalCode, reason) => {
             const result = validations.postalCodeValidation(postalCode, undefined, {} as any, 'postalCode');
             expect(result[1].validation).toBe(true); // Should be invalid
-            expect(typeof result[1].errorMessage).toEqual('function');
-            expect((result[1].errorMessage as any)(mockTranslation)).toEqual('survey:errors:postalCodeInvalid');
-            expect(mockTranslation).toHaveBeenLastCalledWith('survey:errors:postalCodeInvalid', { context: 'canada' });
+            expect(result[1].errorMessage).toEqual({ text: 'survey:errors:postalCodeInvalid', params: { context: 'canada' } });
         });
     });
 
@@ -201,9 +192,7 @@ describe('postalCodeValidation', () => {
         ])('should reject non-Quebec Canadian postal code: %s (%s)', (postalCode, province) => {
             const result = validations.postalCodeValidation(postalCode, undefined, {} as any, 'postalCode');
             expect(result[1].validation).toBe(true); // Should be invalid
-            expect(typeof result[1].errorMessage).toEqual('function');
-            expect((result[1].errorMessage as any)(mockTranslation)).toEqual('survey:errors:postalCodeInvalid');
-            expect(mockTranslation).toHaveBeenLastCalledWith('survey:errors:postalCodeInvalid', { context: 'quebec' });
+            expect(result[1].errorMessage).toEqual({ text: 'survey:errors:postalCodeInvalid', params: { context: 'quebec' } });
         });
     });
 
@@ -361,16 +350,13 @@ describe('phoneValidation', () => {
 });
 
 describe('accessCodeValidation', () => {
-    // Mock the translation function for errors
-    const mockTranslation = jest.fn().mockImplementation((key: string, _params) => key);
 
     describe('Empty access code validation', () => {
         it('should return error when access code is empty', () => {
             const result = validations.accessCodeValidation('', undefined, {} as any, 'accessCode');
             expect(result.length).toBe(2);
             expect(result[0].validation).toBe(true); // Empty validation fails
-            expect(typeof result[0].errorMessage).toEqual('function');
-            expect((result[0].errorMessage as any)(mockTranslation)).toEqual('survey:errors:accessCodeRequired');
+            expect(result[0].errorMessage).toEqual({ text: 'survey:errors:accessCodeRequired' });
         });
     });
 
@@ -398,9 +384,7 @@ describe('accessCodeValidation', () => {
             const result = validations.accessCodeValidation(accessCode, undefined, {} as any, 'accessCode');
             expect(result[0].validation).toBe(false); // Empty validation passes
             expect(result[1].validation).toBe(true); // Should be invalid
-            expect(typeof result[1].errorMessage).toEqual('function');
-            expect((result[1].errorMessage as any)(mockTranslation)).toEqual('survey:errors:accessCodeInvalid');
-            expect(mockTranslation).toHaveBeenLastCalledWith('survey:errors:accessCodeInvalid');
+            expect(result[1].errorMessage).toEqual({ text: 'survey:errors:accessCodeInvalid' });
         });
     });
 
