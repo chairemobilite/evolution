@@ -12,7 +12,7 @@ import { Optional } from '../../types/Optional.type';
 import { PreData } from '../../types/shared';
 import { GeocodingPrecisionCategory, LastAction } from './attributeTypes/PlaceAttributes';
 import { ParkingType, ParkingFeeType } from './attributeTypes/PlaceAttributes';
-import { Address, AddressAttributes } from './Address';
+import { Address, AddressAttributes, ExtendedAddressAttributes } from './Address';
 import { Device } from './attributeTypes/InterviewParadataAttributes';
 import { Result, createErrors, createOk } from '../../types/Result.type';
 import { ParamsValidatorUtils } from '../../utils/ParamsValidatorUtils';
@@ -90,6 +90,24 @@ export type SerializedExtendedPlaceAttributes = {
 };
 
 /**
+ * Address parameters from `_address`, or from `address` when `_address` is absent.
+ * A survey parser turns the questionnaire fields into an `address` object.
+ * A string `address` is left for that parser: it is omitted and not read here.
+ * @param params Place parameters
+ * @returns The address parameters, or undefined when absent
+ */
+const composedAddress = (params: { [key: string]: unknown }): Optional<ExtendedAddressAttributes> => {
+    if (params._address !== undefined) {
+        return params._address as ExtendedAddressAttributes;
+    }
+    const address = params.address;
+    if (typeof address === 'object' && address !== null && !Array.isArray(address)) {
+        return address as ExtendedAddressAttributes;
+    }
+    return undefined;
+};
+
+/**
  * A place is a location (GeoJSON point) with attributes.
  * Classes can inherit this class and add their own attributes (like a work place, a school place, a junction, etc.).
  */
@@ -119,7 +137,7 @@ export class Place extends SurveyObject {
         this._customAttributes = customAttributes;
 
         this.address = ConstructorUtils.initializeComposedAttribute(
-            params._address,
+            composedAddress(params),
             Address.unserialize,
             this._surveyObjectsRegistry
         );
@@ -424,7 +442,7 @@ export class Place extends SurveyObject {
 
         errors.push(...ParamsValidatorUtils.isGeojsonPoint('preGeography', dirtyParams.preGeography, displayName));
 
-        const addressAttributes = dirtyParams._address as { [key: string]: unknown };
+        const addressAttributes = composedAddress(dirtyParams);
         if (addressAttributes) {
             errors.push(...Address.validateParams(addressAttributes, 'Address'));
         }

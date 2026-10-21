@@ -638,13 +638,17 @@ export class Trip extends SurveyObject {
 
         errors.push(...ParamsValidatorUtils.isRecord('preData', dirtyParams.preData, displayName, false));
 
-        const startPlaceAttributes = dirtyParams.startPlace as { [key: string]: unknown };
-        if (startPlaceAttributes !== undefined) {
+        const startPlaceAttributes = dirtyParams._startPlace as { [key: string]: unknown } | null | undefined;
+        if (startPlaceAttributes === null) {
+            errors.push(new Error(`${displayName} validateParams: _startPlace should not be null`));
+        } else if (startPlaceAttributes !== undefined) {
             errors.push(...VisitedPlace.validateParams(startPlaceAttributes, 'StartVisitedPlace'));
         }
 
-        const endPlaceAttributes = dirtyParams.endPlace as { [key: string]: unknown };
-        if (endPlaceAttributes !== undefined) {
+        const endPlaceAttributes = dirtyParams._endPlace as { [key: string]: unknown } | null | undefined;
+        if (endPlaceAttributes === null) {
+            errors.push(new Error(`${displayName} validateParams: _endPlace should not be null`));
+        } else if (endPlaceAttributes !== undefined) {
             errors.push(...VisitedPlace.validateParams(endPlaceAttributes, 'EndVisitedPlace'));
         }
 
