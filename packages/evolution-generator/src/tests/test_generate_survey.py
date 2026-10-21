@@ -60,6 +60,7 @@ def _create_workbook(
         workbook, "Conditionals", VALID_CONDITIONALS_HEADERS, conditionals_rows
     )
     add_mocked_excel_sheet(workbook, "Widgets", widgets_headers, [])
+    add_mocked_excel_sheet(workbook, "Labels", ["namespace", "key"], [])
 
 
 class TestCheckExcelIntegrityWithMessages:

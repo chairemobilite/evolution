@@ -7,6 +7,7 @@ from typing import NamedTuple
 from helpers.generator_helpers import add_generator_yaml_header
 from tests.mocked_excel import create_mocked_excel_data
 from scripts.labels_generator import LabelsGenerator, LabelFormatter
+from survey_definition.survey_definition import SurveyDefinition
 import pytest
 from helpers.generator_helpers import delete_file_if_exists
 
@@ -115,186 +116,18 @@ def test_get_labels_file_path_widgets():
 MOCKED_EXCEL_FILE = "src/tests/references/test.xlsx"
 
 
-class TestAddTranslationsFromExcel:
-    """Tests for add_translations_from_excel function"""
+class TestGenerateLabels:
+    """Tests for generate_labels, from the Widgets sheet (Excel) and the Labels table (survey definition)"""
 
-    @pytest.mark.parametrize(
-        "case",
-        [
-            {
-                "sheet_data": {
-                    "sheetName": "Widgets",
-                    "namespaceHeader": "section",
-                    "keyHeader": "questionName",
-                },
-                "headers": [
-                    "section",
-                    "questionName",
-                    "path",
-                    "inputType",
-                    "label::fr",
-                    "label::en",
-                ],
-                "rows": [
-                    [
-                        "section1",
-                        "section1Question1",
-                        "some.path",
-                        "question",
-                        "personne",
-                        "person",
-                    ],
-                    [
-                        "section1",
-                        "section1Question2",
-                        "some.other.path",
-                        "question",
-                        "une question",
-                        "a question",
-                    ],
-                    [
-                        "section2",
-                        "section2Question1",
-                        "another.path",
-                        "question",
-                        "une autre question",
-                        "another question",
-                    ],
-                ],
-                "expected_translations_fr": {
-                    "section1": {
-                        "section1Question1": "personne",
-                        "section1Question2": "une question",
-                    },
-                    "section2": {"section2Question1": "une autre question"},
-                },
-                "expected_translations_en": {
-                    "section1": {
-                        "section1Question1": "person",
-                        "section1Question2": "a question",
-                    },
-                    "section2": {"section2Question1": "another question"},
-                },
-            },
-            {
-                "sheet_data": {
-                    "sheetName": "Labels",
-                    "namespaceHeader": "namespace",
-                    "keyHeader": "path",
-                },
-                "headers": [
-                    "namespace",
-                    "questionName",
-                    "path",
-                    "inputType",
-                    "label::fr",
-                    "label::en",
-                ],
-                "rows": [
-                    [
-                        "section1",
-                        "section1Question1",
-                        "some.path",
-                        "question",
-                        "personne",
-                        "person",
-                    ],
-                    [
-                        "section1",
-                        "section1Question2",
-                        "some.other.path",
-                        "question",
-                        "une question",
-                        "a question",
-                    ],
-                    [
-                        "section2",
-                        "section2Question1",
-                        "another.path",
-                        "question",
-                        "une autre question",
-                        "another question",
-                    ],
-                ],
-                "expected_translations_fr": {
-                    "section1": {
-                        "some.path": "personne",
-                        "some.other.path": "une question",
-                    },
-                    "section2": {"another.path": "une autre question"},
-                },
-                "expected_translations_en": {
-                    "section1": {
-                        "some.path": "person",
-                        "some.other.path": "a question",
-                    },
-                    "section2": {"another.path": "another question"},
-                },
-            },
-        ],
-    )
-    def test_with_question_name_or_path_header(self, monkeypatch, tmp_path, case):
-        """
-        Test add_translations_from_excel with supported sheets and headers.
-        """
-        # Mock the save_translations function to record calls
-        calls = []
+    WIDGETS_SHEET = {
+        "sheetName": "Widgets",
+        "namespaceHeader": "section",
+        "keyHeader": "questionName",
+    }
 
-        def mock_save_translation(
-            language, section, labels_output_folder_path, translations
-        ):
-            calls.append((language, section, labels_output_folder_path, translations))
-
-        monkeypatch.setattr(
-            "scripts.labels_generator.LabelsGenerator.save_translations",
-            mock_save_translation,
-        )
-        labels_output_folder_path = str(tmp_path / "locales")
-
-        create_mocked_excel_data(
-            case["sheet_data"]["sheetName"],
-            case["headers"],
-            case["rows"],
-        )
-        try:
-            LabelsGenerator.generate_labels(
-                MOCKED_EXCEL_FILE,
-                labels_output_folder_path,
-                languages=("fr", "en"),
-                sheets_with_labels=[case["sheet_data"]],
-            )
-        finally:
-            delete_file_if_exists(MOCKED_EXCEL_FILE)
-
-        # Verify the calls to save_translation
-        assert len(calls) == 4  # Should have 4 calls (2 sections * 2 languages)
-        assert (
-            "fr",
-            "section1",
-            labels_output_folder_path,
-            case["expected_translations_fr"],
-        ) in calls
-        assert (
-            "fr",
-            "section2",
-            labels_output_folder_path,
-            case["expected_translations_fr"],
-        ) in calls
-        assert (
-            "en",
-            "section1",
-            labels_output_folder_path,
-            case["expected_translations_en"],
-        ) in calls
-        assert (
-            "en",
-            "section2",
-            labels_output_folder_path,
-            case["expected_translations_en"],
-        ) in calls
-
-    def test_generates_a_translation_per_survey_language(self, monkeypatch, tmp_path):
-        """Each survey language reads its own label::<language> column."""
+    @pytest.fixture
+    def saved_translations(self, monkeypatch):
+        """Record each save_translations call, as (language, section, translations), instead of writing files."""
         calls = []
         monkeypatch.setattr(
             "scripts.labels_generator.LabelsGenerator.save_translations",
@@ -302,6 +135,103 @@ class TestAddTranslationsFromExcel:
                 (language, section, translations)
             ),
         )
+        return calls
+
+    def test_reads_the_widgets_sheet_from_excel(self, saved_translations, tmp_path):
+        create_mocked_excel_data(
+            "Widgets",
+            ["section", "questionName", "path", "label::fr", "label::en"],
+            [
+                ["section1", "section1Question1", "some.path", "personne", "person"],
+                [
+                    "section1",
+                    "section1Question2",
+                    "other",
+                    "une question",
+                    "a question",
+                ],
+                ["section2", "section2Question1", "another", "une autre", "another"],
+            ],
+        )
+        try:
+            LabelsGenerator.generate_labels(
+                SurveyDefinition(languages=("fr", "en")),
+                MOCKED_EXCEL_FILE,
+                str(tmp_path / "locales"),
+                sheets_with_labels=[self.WIDGETS_SHEET],
+            )
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+        expected_fr = {
+            "section1": {
+                "section1Question1": "personne",
+                "section1Question2": "une question",
+            },
+            "section2": {"section2Question1": "une autre"},
+        }
+        expected_en = {
+            "section1": {
+                "section1Question1": "person",
+                "section1Question2": "a question",
+            },
+            "section2": {"section2Question1": "another"},
+        }
+        assert sorted(saved_translations) == [
+            ("en", "section1", expected_en),
+            ("en", "section2", expected_en),
+            ("fr", "section1", expected_fr),
+            ("fr", "section2", expected_fr),
+        ]
+
+    def test_reads_the_labels_from_the_survey_definition(
+        self, saved_translations, tmp_path
+    ):
+        survey_definition = SurveyDefinition(
+            languages=("fr", "en"),
+            labels=[
+                {
+                    "namespace": "home",
+                    "key": "some.path",
+                    "label::fr": "personne",
+                    "label::en": "person",
+                    "label_one::fr": "une personne",
+                    "label_one::en": "one person",
+                },
+                {
+                    "namespace": "end",
+                    "key": "thanks",
+                    "label::fr": "Merci",
+                    "label::en": "Thanks",
+                },
+            ],
+        )
+        LabelsGenerator.generate_labels(
+            survey_definition,
+            MOCKED_EXCEL_FILE,
+            str(tmp_path / "locales"),
+            sheets_with_labels=[],
+        )
+
+        expected_fr = {
+            "home": {"some.path": "personne", "some.path_one": "une personne"},
+            "end": {"thanks": "Merci"},
+        }
+        expected_en = {
+            "home": {"some.path": "person", "some.path_one": "one person"},
+            "end": {"thanks": "Thanks"},
+        }
+        assert sorted(saved_translations) == [
+            ("en", "end", expected_en),
+            ("en", "home", expected_en),
+            ("fr", "end", expected_fr),
+            ("fr", "home", expected_fr),
+        ]
+
+    def test_generates_a_translation_per_survey_language(
+        self, saved_translations, tmp_path
+    ):
+        """Each survey language reads its own label::<language> column."""
         create_mocked_excel_data(
             "Widgets",
             ["section", "questionName", "label::es", "label::en", "label_one::es"],
@@ -309,21 +239,15 @@ class TestAddTranslationsFromExcel:
         )
         try:
             LabelsGenerator.generate_labels(
+                SurveyDefinition(languages=("es", "en")),
                 MOCKED_EXCEL_FILE,
                 str(tmp_path / "locales"),
-                sheets_with_labels=[
-                    {
-                        "sheetName": "Widgets",
-                        "namespaceHeader": "section",
-                        "keyHeader": "questionName",
-                    }
-                ],
-                languages=("es", "en"),
+                sheets_with_labels=[self.WIDGETS_SHEET],
             )
         finally:
             delete_file_if_exists(MOCKED_EXCEL_FILE)
 
-        assert sorted(calls, key=lambda call: call[0]) == [
+        assert sorted(saved_translations) == [
             ("en", "home", {"home": {"carCount": "How many?"}}),
             (
                 "es",
@@ -336,6 +260,50 @@ class TestAddTranslationsFromExcel:
                 },
             ),
         ]
+
+    def test_deletes_the_files_of_every_namespace_once(self, monkeypatch, tmp_path):
+        """The Widgets and Labels namespaces are deleted together, before any is written."""
+        events = []
+        monkeypatch.setattr(
+            "scripts.labels_generator.LabelsGenerator.delete_all_labels_yaml_files",
+            lambda folder, languages, sections: events.append(
+                ("delete", languages, sorted(sections))
+            ),
+        )
+        monkeypatch.setattr(
+            "scripts.labels_generator.LabelsGenerator.save_translations",
+            lambda language, section, folder, translations: events.append(
+                ("save", language, section)
+            ),
+        )
+        create_mocked_excel_data(
+            "Widgets",
+            ["section", "questionName", "label::fr", "label::en"],
+            [["home", "q1", "Q1 fr", "Q1 en"]],
+        )
+        survey_definition = SurveyDefinition(
+            languages=("fr", "en"),
+            labels=[
+                {
+                    "namespace": "end",
+                    "key": "thanks",
+                    "label::fr": "Merci",
+                    "label::en": "Thanks",
+                }
+            ],
+        )
+        try:
+            LabelsGenerator.generate_labels(
+                survey_definition,
+                MOCKED_EXCEL_FILE,
+                str(tmp_path / "locales"),
+                sheets_with_labels=[self.WIDGETS_SHEET],
+            )
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+        assert events[0] == ("delete", ["fr", "en"], ["end", "home"])
+        assert [event[0] for event in events[1:]] == ["save"] * 4
 
 
 class TestAddGenderOrBaseTranslations:
@@ -1275,12 +1243,8 @@ class TestSaveTranslations:
         assert not (tmp_path / "locales" / "fr" / "home.yaml").exists()
 
 
-# TODO: test generate_labels
-# TODO: test delete_all_labels_yaml_files (check that generate_labels() call this function only once)
 # TODO: test add_translation
 # TODO: test merged_section_translations
 # TODO: test save_translations
 # TODO: test_deleteYamlFile
 # TODO: test_addTranslation
-# TODO: test_addTranslationsFromExcel
-# TODO: test add_translations_from_excel
