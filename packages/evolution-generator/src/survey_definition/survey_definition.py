@@ -26,6 +26,7 @@ from pydantic import (
 )
 
 from survey_definition.conditionals_definition import Conditionals
+from survey_definition.labels_definition import Labels
 from survey_definition.sections_definition import Sections
 
 # A language code: two lowercase letters, optionally followed by a region, e.g. 'fr' or
@@ -64,6 +65,8 @@ class SurveyDefinition(BaseModel):
             per row, in source order.
         sections: The Sections table, already checked: one SectionDefinition per row, in
             source order.
+        labels: The Labels table, already checked: one LabelDefinition per row, in
+            source order.
     """
 
     # Pydantic validates a table field with the table's own validators (e.g.
@@ -75,6 +78,7 @@ class SurveyDefinition(BaseModel):
     languages: tuple[str, ...]
     conditionals: Conditionals = Field(default_factory=lambda: Conditionals([]))
     sections: Sections = Field(default_factory=lambda: Sections([]))
+    labels: Labels = Field(default_factory=lambda: Labels([]))
 
     @field_validator("languages")
     @classmethod
@@ -106,6 +110,14 @@ class SurveyDefinition(BaseModel):
         # other problems are still reported, without a title error for each language.
         languages = info.data.get("languages", ())
         return _validated_table(Sections, rows, context={"languages": languages})
+
+    @field_validator("labels", mode="before")
+    @classmethod
+    def _labels_are_valid(cls, rows: Any, info: ValidationInfo) -> Any:
+        """Validate the Labels table with the survey languages in its context."""
+        # See _sections_are_valid: no language at all when they are invalid.
+        languages = info.data.get("languages", ())
+        return _validated_table(Labels, rows, context={"languages": languages})
 
 
 def _validated_table[T: BaseModel](
