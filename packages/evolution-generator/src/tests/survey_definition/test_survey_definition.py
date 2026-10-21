@@ -38,6 +38,20 @@ class TestSurveyDefinition:
         with pytest.raises(ValidationError, match="Duplicate section 'home'"):
             SurveyDefinition(languages=("fr", "en"), sections=[row, row])
 
+    def test_survey_definition_builds_labels_from_source_rows(self):
+        survey_definition = SurveyDefinition(
+            languages=("fr", "en"),
+            labels=[
+                {
+                    "namespace": "home",
+                    "key": "welcome",
+                    "label::fr": "Bienvenue",
+                    "label::en": "Welcome",
+                }
+            ],
+        )
+        assert [label.key for label in survey_definition.labels] == ["welcome"]
+
 
 class TestSurveyDefinitionLanguages:
     def _section(self, **extra) -> dict:
@@ -135,6 +149,15 @@ class TestSurveyDefinitionLanguages:
         assert issues[1] == (
             "Error in Sections - Invalid row 2: title_en is required when in_nav is true"
         )
+
+    def test_passes_the_survey_languages_to_the_labels(self):
+        """The Labels rule (a label in every language) checks the survey's languages."""
+        label = {"namespace": "home", "key": "welcome", "label::fr": "Bienvenue"}
+        assert self._issues(languages=["fr", "es"], labels=[label]) == [
+            "Error in Labels - Invalid row 2: label::es is required"
+        ]
+        survey_definition = SurveyDefinition(languages=["fr"], labels=[label])
+        assert survey_definition.labels[0].label == {"fr": "Bienvenue"}
 
     def test_keeps_an_already_built_table_as_is(self):
         """Its rows were checked when it was built, with the context it was built with."""
