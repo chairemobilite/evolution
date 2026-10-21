@@ -11,7 +11,7 @@
 # This module only defines the shape and the checks; it does not read any input source.
 # See survey_definition.py for the bundle of all tables.
 
-from collections.abc import Iterator, Sequence
+from collections.abc import Iterator
 from typing import Any, Self
 
 from pydantic import (
@@ -30,8 +30,8 @@ from survey_definition.row_checks import (
     _strip_blanks,
 )
 from survey_definition.sheet_checks import (
-    SheetRule,
     collect_sheet_issues,
+    fields_in_survey_languages,
     unique_field,
 )
 from survey_definition.validation_context import context_languages
@@ -178,37 +178,6 @@ class SectionDefinition(BaseModel):
         return self
 
 
-def _titles_in_survey_languages(info: ValidationInfo) -> SheetRule[SectionDefinition]:
-    """
-    Build a sheet rule: no row has a title in a language that isn't a survey language
-    (from the validation context `info`), e.g. from a typo such as title_fe. Reported
-    once for the table, not on each row. Without any language (they were invalid, and
-    reported as such), there is nothing to compare to.
-    """
-
-    def rule(
-        rows: Sequence[tuple[int, SectionDefinition]], table_name: str
-    ) -> list[str]:
-        title_languages = {
-            language for _, section in rows for language in section.title
-        }
-        if not title_languages:
-            return []
-        languages = context_languages(info)
-        if not languages:
-            return []
-        other_languages = sorted(title_languages - set(languages))
-        if not other_languages:
-            return []
-        return [
-            f"Error in {table_name} - Unexpected columns: "
-            f"{[SECTION_TITLE_COLUMN_PREFIX + language for language in other_languages]}. "
-            f"The survey languages are {list(languages)}."
-        ]
-
-    return rule
-
-
 class Sections(RootModel[list[SectionDefinition]]):
     """
     The whole Sections sheet: a list of SectionDefinition that has passed every check,
@@ -250,7 +219,9 @@ class Sections(RootModel[list[SectionDefinition]]):
                     sheet_rules=[
                         unique_field("section"),
                         unique_field("abbreviation"),
-                        _titles_in_survey_languages(info),
+                        fields_in_survey_languages(
+                            info, {"title": SECTION_TITLE_COLUMN_PREFIX}
+                        ),
                     ],
                 )
                 if issues:

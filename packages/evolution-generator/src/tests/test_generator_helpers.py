@@ -232,7 +232,7 @@ class TestReadSheetRows:
 
 
 class TestLoadSurveyDefinition:
-    """Tests for load_survey_definition (builds a SurveyDefinition from the Sections and Conditionals sheets)."""
+    """Tests for load_survey_definition (builds a SurveyDefinition from the Excel file's sheets)."""
 
     VALID_SECTIONS_HEADERS = [
         "section",
@@ -256,11 +256,17 @@ class TestLoadSurveyDefinition:
     ]
     VALID_CONDITIONALS_ROWS = [["cond1", "", "household.size", "===", 1, "", ""]]
 
+    VALID_LABELS_HEADERS = ["namespace", "key", "label::fr", "label::en"]
+    VALID_LABELS_ROWS = [["home", "welcome", "Bienvenue", "Welcome"]]
+
     def _create_workbook(self, sheet_name, headers, rows):
-        """Like create_mocked_excel_data, plus a Widgets sheet holding the survey languages (fr, en)."""
+        """Like create_mocked_excel_data, plus a Widgets sheet holding the survey languages (fr, en) and a Labels sheet."""
         workbook = create_mocked_excel_data(sheet_name, headers, rows)
         add_mocked_excel_sheet(
             workbook, "Widgets", ["questionName", "label::fr", "label::en"], []
+        )
+        add_mocked_excel_sheet(
+            workbook, "Labels", self.VALID_LABELS_HEADERS, self.VALID_LABELS_ROWS
         )
         return workbook
 
@@ -283,6 +289,10 @@ class TestLoadSurveyDefinition:
                 conditional.conditional_name
                 for conditional in survey_definition.conditionals
             ] == ["cond1"]
+            assert [
+                (label.namespace, label.key, label.label)
+                for label in survey_definition.labels
+            ] == [("home", "welcome", {"fr": "Bienvenue", "en": "Welcome"})]
         finally:
             delete_file_if_exists(MOCKED_EXCEL_FILE)
 
@@ -385,6 +395,46 @@ class TestLoadSurveyDefinition:
         finally:
             delete_file_if_exists(MOCKED_EXCEL_FILE)
 
+    def test_missing_labels_sheet_raises(self):
+        workbook = self._create_workbook(
+            "Sections", self.VALID_SECTIONS_HEADERS, self.VALID_SECTIONS_ROWS
+        )
+        add_mocked_excel_sheet(
+            workbook,
+            "Conditionals",
+            self.VALID_CONDITIONALS_HEADERS,
+            self.VALID_CONDITIONALS_ROWS,
+        )
+        del workbook["Labels"]
+        workbook.save(MOCKED_EXCEL_FILE)
+        try:
+            with pytest.raises(
+                Exception, match="Sheet with name Labels does not exist"
+            ):
+                load_survey_definition(MOCKED_EXCEL_FILE)
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+    def test_labels_sheet_missing_a_required_header_raises(self):
+        workbook = self._create_workbook(
+            "Sections", self.VALID_SECTIONS_HEADERS, self.VALID_SECTIONS_ROWS
+        )
+        add_mocked_excel_sheet(
+            workbook,
+            "Conditionals",
+            self.VALID_CONDITIONALS_HEADERS,
+            self.VALID_CONDITIONALS_ROWS,
+        )
+        del workbook["Labels"]
+        add_mocked_excel_sheet(
+            workbook, "Labels", ["namespace", "label::fr", "label::en"], []
+        )
+        try:
+            with pytest.raises(Exception, match="Labels"):
+                load_survey_definition(MOCKED_EXCEL_FILE)
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
     def test_invalid_sections_row_raises_validation_error(self):
         workbook = self._create_workbook(
             "Sections",
@@ -442,6 +492,7 @@ class TestLoadSurveyDefinition:
         add_mocked_excel_sheet(
             workbook, "Widgets", ["questionName", "label::es", "label::en"], []
         )
+        add_mocked_excel_sheet(workbook, "Labels", self.VALID_LABELS_HEADERS, [])
         try:
             survey_definition = load_survey_definition(MOCKED_EXCEL_FILE)
             assert survey_definition.languages == ("es", "en")

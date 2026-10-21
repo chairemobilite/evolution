@@ -11,9 +11,10 @@
 
 from collections.abc import Callable, Sequence
 
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel, ValidationError, ValidationInfo
 
 from survey_definition.row_checks import format_pydantic_errors
+from survey_definition.validation_context import context_languages
 
 type SheetRule[M: BaseModel] = Callable[[Sequence[tuple[int, M]], str], list[str]]
 
@@ -67,6 +68,51 @@ def unique_field(field_name: str) -> SheetRule[BaseModel]:
             f"{prefix}Duplicate {field_name} {value!r}: found in rows {row_numbers}"
             for value, row_numbers in row_numbers_by_value.items()
             if len(row_numbers) > 1
+        ]
+
+    return rule
+
+
+def fields_in_survey_languages(
+    info: ValidationInfo, column_prefix_by_field: dict[str, str]
+) -> SheetRule[BaseModel]:
+    """
+    Build a sheet rule: no row has a translated field in a language that isn't a survey
+    language (from the validation context `info`), e.g. from a typo such as title_fe.
+    Reported once for the table, not on each row.
+
+    `column_prefix_by_field` maps each translated field, a dict by language (see
+    row_checks.py::_collect_language_columns), to the prefix of its columns, e.g.
+    {"title": "title_"}, to name the unexpected columns. The survey languages are only
+    read when a row has a translated value, so a table without any can be built
+    without them. Without any language (they were invalid, and reported as such),
+    there is nothing to compare to.
+    """
+
+    def rule(rows: Sequence[tuple[int, BaseModel]], table_name: str) -> list[str]:
+        columns_by_language: dict[str, set[str]] = {}
+        for _, definition in rows:
+            for field_name, column_prefix in column_prefix_by_field.items():
+                for language in getattr(definition, field_name):
+                    columns_by_language.setdefault(language, set()).add(
+                        column_prefix + language
+                    )
+        if not columns_by_language:
+            return []
+        languages = context_languages(info)
+        if not languages:
+            return []
+        other_columns = sorted(
+            column
+            for language, columns in columns_by_language.items()
+            if language not in languages
+            for column in columns
+        )
+        if not other_columns:
+            return []
+        return [
+            f"Error in {table_name} - Unexpected columns: {other_columns}. "
+            f"The survey languages are {list(languages)}."
         ]
 
     return rule
