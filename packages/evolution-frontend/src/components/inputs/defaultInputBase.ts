@@ -157,10 +157,7 @@ export const inputMapFindPlaceBase: Pick<
         return [
             {
                 validation: _isBlank(value),
-                errorMessage: {
-                    fr: 'Le positionnement du lieu est requis.',
-                    en: 'Positioning of the place is required.'
-                }
+                errorMessage: (t: TFunction) => t('visitedPlaces:locationIsRequiredError')
             },
             {
                 validation:
@@ -168,10 +165,7 @@ export const inputMapFindPlaceBase: Pick<
                     geography.properties.lastAction &&
                     geography.properties.lastAction === 'mapClicked' &&
                     geography.properties.zoom < 15,
-                errorMessage: {
-                    fr: 'Le positionnement du lieu n\'est pas assez précis. Utilisez le zoom + pour vous rapprocher davantage, puis précisez la localisation en déplaçant l\'icône.',
-                    en: 'The positioning of the place is not precise enough. Please use the + zoom and drag the icon marker to confirm the precise location.'
-                }
+                errorMessage: (t: TFunction) => t('visitedPlaces:locationIsNotPreciseError')
             }
         ];
     }

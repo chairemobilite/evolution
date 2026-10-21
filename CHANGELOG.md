@@ -10,9 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Generator: the survey languages are read from the Excel file (the `label::<language>` columns of the Widgets sheet), instead of always French and English (fixes [#2035](https://github.com/chairemobilite/evolution/issues/2035))
+- Paradata: log the error message of invalid widgets (its translation key, when there is one, and its text in each survey language) in button clicks and widget interactions, and export it in the `invalidMessages` column of the interview logs (fixes [#1364](https://github.com/chairemobilite/evolution/issues/1364))
 
 ### Changed
 
+- The default `mapFindPlace` validation messages use the `visitedPlaces:locationIsRequiredError` and `visitedPlaces:locationIsNotPreciseError` translations instead of inline text
 - Generator: the section titles of the generated `sectionConfigs.ts` are translations, written in `locales/<language>/sectionConfigs.yaml` and read with the `t` function, instead of one inline text per language
 
 ### Deprecated

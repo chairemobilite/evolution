@@ -13,6 +13,7 @@ import * as SurveyActions from '../Survey';
 import { prepareSectionWidgets } from '../utils';
 import { handleClientError, handleHttpOtherResponseCode } from '../../services/errorManagement/errorHandling';
 import applicationConfiguration from '../../config/application.config';
+import config from 'chaire-lib-common/lib/config/shared/project.config';
 import bowser from 'bowser';
 import { SurveyActionTypes } from '../../store/survey';
 import { createNavigationService, NavigationService } from 'evolution-common/lib/services/questionnaire/sections/NavigationService';
@@ -33,7 +34,9 @@ jest.mock('@zeit/fetch-retry', () => {
 const fetchRetryMock = fetchRetry as jest.MockedFunction<typeof fetchRetry>;
 
 jest.mock('../../config/i18n.config', () => ({
-    language: 'en'
+    language: 'en',
+    // Translation function that prefixes the key with the language
+    getFixedT: (language: string) => (key: string) => `${language}: ${key}`
 }));
 jest.mock('evolution-common/lib/utils/helpers', () => {
     // Require the original module to not be mocked...
@@ -142,6 +145,14 @@ beforeEach(() => {
 });
 
 describe('Update interview', () => {
+    const originalLanguages = config.languages;
+    beforeAll(() => {
+        config.languages = ['fr', 'en'];
+    });
+    afterAll(() => {
+        config.languages = originalLanguages;
+    });
+
 
     test('Call with an interview, no validation change, no error', async () => {
         // Prepare mock and test data
@@ -250,6 +261,74 @@ describe('Update interview', () => {
         expect(updateCallback).toHaveBeenCalledWith(expectedInterviewAsState);
     });
 
+    test.each([
+        {
+            description: 'invalid widget',
+            widgetStatus: { path: 'section1.q1', isVisible: true, isValid: false, errorMessage: (t) => t('survey:errors:answerRequired') },
+            expectedErrorMessage: 'survey:errors:answerRequired'
+        },
+        {
+            description: 'invalid widget by custom path',
+            widgetStatus: { path: 'section1.other', customPath: 'section1.q1', isVisible: true, isValid: false, errorMessage: (t) => t('survey:errors:answerRequired') },
+            expectedErrorMessage: 'survey:errors:answerRequired'
+        },
+        {
+            description: 'valid widget',
+            widgetStatus: { path: 'section1.q1', isVisible: true, isValid: true, errorMessage: (t) => t('survey:errors:answerRequired') },
+            expectedErrorMessage: undefined
+        },
+        {
+            description: 'invalid widget with other path',
+            widgetStatus: { path: 'section1.q2', isVisible: true, isValid: false, errorMessage: (t) => t('survey:errors:answerRequired') },
+            expectedErrorMessage: undefined
+        },
+        {
+            description: 'invalid widget without error message',
+            widgetStatus: { path: 'section1.q1', isVisible: true, isValid: false },
+            expectedErrorMessage: undefined
+        },
+        {
+            description: 'invalid widget with an error message without key nor text',
+            widgetStatus: { path: 'section1.q1', isVisible: true, isValid: false, errorMessage: () => { throw new Error('error'); } },
+            expectedErrorMessage: undefined
+        }
+    ])('Call with a "widgetInteraction" user action and error message: $description', async ({ widgetStatus, expectedErrorMessage }) => {
+        // Prepare mock and test data
+        jsonFetchResolve.mockResolvedValue({ status: 'success', interviewId: interviewAttributes.uuid });
+        const userAction = {
+            type: 'widgetInteraction' as const,
+            widgetType: 'string',
+            path: 'response.section1.q1',
+            value: 'foo'
+        };
+        mockPrepareSectionWidgets.mockImplementationOnce((_sectionShortname, interview, _affectedPaths, valuesByPath) => {
+            const innerInterview = _cloneDeep(interview);
+            innerInterview.widgets = {
+                widget: widgetStatus
+            } as any;
+            return { updatedInterview: innerInterview, updatedValuesByPath: valuesByPath, needUpdate: false };
+        });
+
+        // Do the actual test
+        const callback = SurveyActions.startUpdateInterview({ sectionShortname: 'section', valuesByPath: {}, interview: _cloneDeep(interviewAttributes), userAction });
+        await callback(mockDispatch, mockGetState);
+
+        // Verify the error message in the user action sent to the server
+        expect(fetchRetryMock).toHaveBeenCalledTimes(1);
+        const body = JSON.parse(fetchRetryMock.mock.calls[0][1].body);
+        expect(body.userAction).toEqual(
+            expectedErrorMessage === undefined
+                ? userAction
+                : {
+                    ...userAction,
+                    errorMessage: {
+                        translationKey: expectedErrorMessage,
+                        textByLanguage: { fr: `fr: ${expectedErrorMessage}`, en: `en: ${expectedErrorMessage}` }
+                    }
+                }
+        );
+    });
+
     test('Call with an interview, with validation, unset path and "buttonClick" action', async () => {
         // Prepare mock and test data
         const updateCallback = jest.fn();
@@ -329,8 +408,10 @@ describe('Update interview', () => {
         // Mock the prepareSectionWidgets to return some invisible widgets
         const nextWidgetStatuses = {
             visibleValidWidget: { path: 'visibleValidWidgetPath', isVisible: true, isValid: true },
-            visibleInvalidWidget: { path: 'visibleInvalidWidgetPath', isVisible: true, isValid: false },
-            invisibleWidget: { path: 'invisibleWidgetPath', isVisible: false, isValid: false }
+            visibleInvalidWidget: { path: 'visibleInvalidWidgetPath', isVisible: true, isValid: false, errorMessage: (t) => t('survey:errors:answerRequired') },
+            visibleInvalidWidgetWithoutMessage: { path: 'visibleInvalidWidgetWithoutMessagePath', isVisible: true, isValid: false },
+            visibleInvalidWidgetWithFailingMessage: { path: 'visibleInvalidWidgetWithFailingMessagePath', isVisible: true, isValid: false, errorMessage: () => { throw new Error('error'); } },
+            invisibleWidget: { path: 'invisibleWidgetPath', isVisible: false, isValid: false, errorMessage: (t) => t('survey:errors:hidden') }
         } as { [widgetName: string]: Partial<WidgetStatus> };
         const nextGroupStatuses = {
             testGroup: {
@@ -340,7 +421,7 @@ describe('Update interview', () => {
                 },
                 groupIdWithSomeInvisibleOrInvalid: {
                     visibleWidget: { path: 'group.groupIdWithSomeInvisible.visibleWidget', isVisible: true, isValid: true },
-                    visibleInvalidWidget: { path: 'group.groupIdWithSomeInvisible.visibleInvalidWidget', isVisible: true, isValid: false },
+                    visibleInvalidWidget: { path: 'group.groupIdWithSomeInvisible.visibleInvalidWidget', isVisible: true, isValid: false, errorMessage: { fr: 'Réponse requise', en: 'Answer required' } },
                     invisibleWidget: { path: 'group.groupIdWithSomeInvisible.invisibleWidget', isVisible: false, isValid: true }
                 }
             }
@@ -374,7 +455,10 @@ describe('Update interview', () => {
                 participant_id: interviewAttributes.participant_id,
                 valuesByPath: { ...valuesByPath, 'validations.section1.q2': true, sectionLoaded: 'section' },
                 unsetPaths: ['response.section2.q1'],
-                userAction: { ...buttonClickUserAction, hiddenWidgets: [ 'invisibleWidgetPath', 'group.groupIdWithSomeInvisible.invisibleWidget' ], invalidWidgets: [ 'visibleInvalidWidgetPath', 'group.groupIdWithSomeInvisible.visibleInvalidWidget' ]}
+                userAction: { ...buttonClickUserAction, hiddenWidgets: [ 'invisibleWidgetPath', 'group.groupIdWithSomeInvisible.invisibleWidget' ], invalidWidgets: [ 'visibleInvalidWidgetPath', 'visibleInvalidWidgetWithoutMessagePath', 'visibleInvalidWidgetWithFailingMessagePath', 'group.groupIdWithSomeInvisible.visibleInvalidWidget' ], invalidWidgetsMessages: {
+                    visibleInvalidWidgetPath: { translationKey: 'survey:errors:answerRequired', textByLanguage: { fr: 'fr: survey:errors:answerRequired', en: 'en: survey:errors:answerRequired' } },
+                    'group.groupIdWithSomeInvisible.visibleInvalidWidget': { textByLanguage: { fr: 'Réponse requise', en: 'Answer required' } }
+                }}
             })
         }));
         expect(mockDispatch).toHaveBeenCalledTimes(3);
