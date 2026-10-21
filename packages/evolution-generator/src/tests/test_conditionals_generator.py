@@ -240,6 +240,7 @@ class TestGenerateConditionals:
     def test_writes_generated_code_to_output_file(self, tmp_path):
         """The TypeScript generated from survey_definition.conditionals is written to the output file."""
         survey_definition = SurveyDefinition(
+            languages=("fr", "en"),
             conditionals=[
                 {
                     "conditional_name": "hasChildren",
@@ -248,7 +249,7 @@ class TestGenerateConditionals:
                     "value": 1,
                     "value_when_hidden": False,
                 }
-            ]
+            ],
         )
         output_file = tmp_path / "conditionals.tsx"
 

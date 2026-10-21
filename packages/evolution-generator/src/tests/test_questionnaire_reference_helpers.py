@@ -23,7 +23,9 @@ SECTIONS_ROWS = [
 class TestGetAbbreviationBySection:
     def test_maps_each_section_to_its_abbreviation(self):
         """Every section of the Sections table maps to its abbreviation."""
-        survey_definition = SurveyDefinition(sections=SECTIONS_ROWS)
+        survey_definition = SurveyDefinition(
+            languages=("fr", "en"), sections=SECTIONS_ROWS
+        )
         assert get_abbreviation_by_section(survey_definition.sections) == {
             "household": "HH_",
             "home": "HM_",
@@ -137,6 +139,7 @@ class TestDescribeConditionals:
     def test_describes_each_conditional_on_one_line(self):
         """Each conditional_name gets one description, with rows from anywhere in the table grouped together."""
         survey_definition = SurveyDefinition(
+            languages=("fr", "en"),
             sections=SECTIONS_ROWS,
             conditionals=[
                 {
@@ -180,4 +183,9 @@ class TestDescribeConditionals:
 
     def test_no_conditionals_gives_empty_map(self):
         """A survey definition without conditionals gives no descriptions."""
-        assert describe_conditionals(SurveyDefinition(sections=SECTIONS_ROWS)) == {}
+        assert (
+            describe_conditionals(
+                SurveyDefinition(languages=("fr", "en"), sections=SECTIONS_ROWS)
+            )
+            == {}
+        )

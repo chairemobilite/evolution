@@ -11,10 +11,11 @@ from scripts.generate_widgets_configs import generate_widgets_configs
 from survey_definition.survey_definition import SurveyDefinition
 
 SURVEY_DEFINITION = SurveyDefinition(
+    languages=("fr", "en"),
     sections=[
         {"section": "home", "in_nav": False, "abbreviation": "HM_"},
         {"section": "household", "in_nav": False, "abbreviation": "HH_"},
-    ]
+    ],
 )
 
 
