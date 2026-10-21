@@ -412,6 +412,50 @@ describe('Place', () => {
             expect(place.address?.combinedAddressUuid).toBe(addressAttributes.combinedAddressUuid);
         });
 
+        test.each(['_address', 'address'])('should create an Address from %s', (key) => {
+            const result = Place.create(
+                {
+                    ...validPlaceAttributes,
+                    [key]: { fullAddress: '123 rue Principale', municipalityName: 'Montréal' }
+                },
+                registry
+            );
+            expect(isOk(result)).toBe(true);
+            const place = unwrap(result) as Place;
+            expect(place.address?.fullAddress).toBe('123 rue Principale');
+            expect(place.address?.municipalityName).toBe('Montréal');
+            expect(place.customAttributes.address).toBeUndefined();
+        });
+
+        test('should keep _address when address is also set', () => {
+            const result = Place.create(
+                {
+                    ...validPlaceAttributes,
+                    _address: { fullAddress: '10 rue Conservée' },
+                    address: { fullAddress: '123 rue Principale' }
+                },
+                registry
+            );
+            const place = unwrap(result) as Place;
+            expect(place.address?.fullAddress).toBe('10 rue Conservée');
+        });
+
+        test('should ignore a string address', () => {
+            const result = Place.create(
+                { ...validPlaceAttributes, address: '123 rue Principale' } as ExtendedPlaceAttributes,
+                registry
+            );
+            expect(isOk(result)).toBe(true);
+            const place = unwrap(result) as Place;
+            expect(place.address).toBeUndefined();
+            expect(place.customAttributes.address).toBeUndefined();
+        });
+
+        test('should validate an address object', () => {
+            const errors = Place.validateParams({ ...validPlaceAttributes, address: { fullAddress: 123 } });
+            expect(errors[0].toString()).toContain('fullAddress');
+        });
+
         test('should validate Address with new UUID fields', () => {
             const addressAttributes: AddressAttributes = {
                 _uuid: uuidV4(),
