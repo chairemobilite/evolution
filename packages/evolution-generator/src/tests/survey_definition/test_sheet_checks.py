@@ -2,12 +2,19 @@
 # This file is licensed under the MIT License.
 # License text available at https://opensource.org/licenses/MIT
 
-# Note: Tests for survey_definition/sheet_checks.py: collect_sheet_issues and unique_field,
-# the checks shared by every table (see test_sections_definition.py for the Sections ones).
+# Note: Tests for survey_definition/sheet_checks.py: collect_sheet_issues and the sheet
+# rules shared by every table (see test_sections_definition.py for the Sections ones).
 
+from types import SimpleNamespace
+
+import pytest  # pyright: ignore[reportMissingImports]
 from pydantic import BaseModel, ValidationInfo, model_validator
 
-from survey_definition.sheet_checks import collect_sheet_issues, unique_field
+from survey_definition.sheet_checks import (
+    collect_sheet_issues,
+    fields_in_survey_languages,
+    unique_field,
+)
 
 
 class TestCollectSheetIssues:
@@ -63,3 +70,48 @@ class TestCollectSheetIssuesContext:
         )
         assert [row.value for row in rows] == [1]
         assert issues == ["Error in Rows - Invalid row 3: above the limit"]
+
+
+class TestFieldsInSurveyLanguages:
+    # Any model with translated fields (dicts by language) works.
+    class _Item(BaseModel):
+        name: dict[str, str] = {}
+        name_one: dict[str, str] = {}
+
+    PREFIXES = {"name": "name::", "name_one": "name_one::"}
+
+    def _issues(self, items: list, context: dict | None) -> list[str]:
+        """Run the rule on `items`, numbered from row 2, with the validation `context`."""
+        # The rule only reads the info's context, so a stand-in for ValidationInfo does.
+        rule = fields_in_survey_languages(
+            SimpleNamespace(context=context), self.PREFIXES
+        )
+        rows = [(row_number, item) for row_number, item in enumerate(items, start=2)]
+        return rule(rows, "Items")
+
+    def test_no_issue_when_every_field_is_in_a_survey_language(self):
+        items = [self._Item(name={"fr": "a", "en": "b"}, name_one={"fr": "c"})]
+        assert self._issues(items, {"languages": ("fr", "en")}) == []
+
+    def test_reports_every_column_in_another_language_once(self):
+        items = [
+            self._Item(name={"fr": "a", "fe": "b"}),
+            self._Item(name={"fe": "c"}, name_one={"es": "d"}),
+        ]
+        assert self._issues(items, {"languages": ("fr", "en")}) == [
+            "Error in Items - Unexpected columns: ['name::fe', 'name_one::es']. "
+            "The survey languages are ['fr', 'en']."
+        ]
+
+    def test_needs_no_language_without_a_translated_value(self):
+        """E.g. an empty table, or rows without a title: the context isn't read."""
+        assert self._issues([], None) == []
+        assert self._issues([self._Item()], None) == []
+
+    def test_needs_the_survey_languages_for_a_translated_value(self):
+        with pytest.raises(RuntimeError, match="survey languages are missing"):
+            self._issues([self._Item(name={"fr": "a"})], None)
+
+    def test_no_issue_without_any_survey_language(self):
+        """The languages were invalid, and are reported as such: nothing to compare to."""
+        assert self._issues([self._Item(name={"fr": "a"})], {"languages": ()}) == []

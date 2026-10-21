@@ -10,7 +10,7 @@
 # See survey_definition.py for the bundle of all tables, and scripts/labels_generator.py
 # for the YAML generation.
 
-from collections.abc import Iterator, Sequence
+from collections.abc import Iterator
 from typing import Any, Self
 
 from pydantic import (
@@ -22,7 +22,10 @@ from pydantic import (
 )
 
 from survey_definition.row_checks import _collect_language_columns, _strip_blanks
-from survey_definition.sheet_checks import SheetRule, collect_sheet_issues
+from survey_definition.sheet_checks import (
+    collect_sheet_issues,
+    fields_in_survey_languages,
+)
 from survey_definition.validation_context import context_languages
 
 # Field names the Labels source must provide. The label columns (one per language)
@@ -105,42 +108,6 @@ class LabelDefinition(BaseModel):
         return self
 
 
-def _labels_in_survey_languages(info: ValidationInfo) -> SheetRule[LabelDefinition]:
-    """
-    Build a sheet rule: no row has a label in a language that isn't a survey language
-    (from the validation context `info`), e.g. from a typo such as label::fe. Reported
-    once for the table, not on each row. Without any row, or any language (they were
-    invalid, and reported as such), there is nothing to compare.
-    """
-
-    def rule(rows: Sequence[tuple[int, LabelDefinition]], table_name: str) -> list[str]:
-        if not rows:
-            return []
-        languages = context_languages(info)
-        if not languages:
-            return []
-        other_columns = sorted(
-            {
-                prefix + language
-                for _, label in rows
-                for prefix, by_language in (
-                    (LABEL_COLUMN_PREFIX, label.label),
-                    (LABEL_ONE_COLUMN_PREFIX, label.label_one),
-                )
-                for language in by_language
-                if language not in languages
-            }
-        )
-        if not other_columns:
-            return []
-        return [
-            f"Error in {table_name} - Unexpected columns: {other_columns}. "
-            f"The survey languages are {list(languages)}."
-        ]
-
-    return rule
-
-
 class Labels(RootModel[list[LabelDefinition]]):
     """
     The whole Labels sheet: a list of LabelDefinition that has passed every check.
@@ -166,7 +133,15 @@ class Labels(RootModel[list[LabelDefinition]]):
                     model=LabelDefinition,
                     table_name="Labels",
                     context=info.context,
-                    sheet_rules=[_labels_in_survey_languages(info)],
+                    sheet_rules=[
+                        fields_in_survey_languages(
+                            info,
+                            {
+                                "label": LABEL_COLUMN_PREFIX,
+                                "label_one": LABEL_ONE_COLUMN_PREFIX,
+                            },
+                        )
+                    ],
                 )
                 if issues:
                     raise ValueError("\n".join(issues))
