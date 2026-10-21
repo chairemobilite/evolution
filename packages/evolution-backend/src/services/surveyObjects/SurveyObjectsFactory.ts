@@ -18,6 +18,7 @@ import { Home } from 'evolution-common/lib/services/baseObjects/Home';
 import { Household } from 'evolution-common/lib/services/baseObjects/Household';
 import { SurveyObjectsRegistry } from 'evolution-common/lib/services/baseObjects/SurveyObjectsRegistry';
 import { AuditLog } from '../audits/auditLog';
+import { mapInterviewHomeAddress } from './interviewHomeAddress';
 
 /**
  * Configuration options for object creation
@@ -119,7 +120,7 @@ export class SurveyObjectsFactory {
             // explicit _uuid. Default it to the interview uuid so it stays stable across
             // reconstructions (matches the review API's existence check for singleton objects).
             const homeResult = Home.create(
-                { _uuid: interviewAttributes.uuid, ...homeAttributes } as { [key: string]: unknown },
+                mapInterviewHomeAddress({ _uuid: interviewAttributes.uuid, ...homeAttributes }),
                 surveyObjectsRegistry
             );
             if (isOk(homeResult)) {

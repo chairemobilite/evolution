@@ -179,6 +179,38 @@ describe('SurveyObjectsFactory', () => {
             expect(mockedpopulatePersonsForHousehold).not.toHaveBeenCalled();
         });
 
+        it('should map questionnaire home address fields onto _address', async () => {
+            interviewAttributes.corrected_response!.home = {
+                address: '123 rue Principale',
+                city: 'Montréal',
+                region: 'QC',
+                country: 'Canada',
+                postalCode: 'H2X 1Y4',
+                apartmentNumber: '3'
+            } as any;
+
+            mockedCreateInterviewObject.mockReturnValue(createOk({} as any));
+            (MockedHome.create as jest.Mock).mockReturnValue(createOk({} as any));
+            (MockedHousehold.create as jest.Mock).mockReturnValue(createOk({ members: [] } as any));
+
+            await factory.createAllObjectsWithErrors(interviewAttributes);
+
+            expect(MockedHome.create).toHaveBeenCalledWith(
+                {
+                    _uuid: 'interview-uuid',
+                    _address: {
+                        fullAddress: '123 rue Principale',
+                        municipalityName: 'Montréal',
+                        region: 'QC',
+                        country: 'Canada',
+                        postalCode: 'H2X 1Y4',
+                        unitNumber: '3'
+                    }
+                },
+                expect.any(SurveyObjectsRegistry)
+            );
+        });
+
         it('should default home _uuid to the interview uuid when not explicitly set', async () => {
             interviewAttributes.corrected_response!.home = {
                 geography: { type: 'Point', coordinates: [-73.5, 45.5] }
