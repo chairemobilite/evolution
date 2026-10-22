@@ -87,9 +87,18 @@ const userActionToWidgetData = (
     invalidWidgets: string[];
     mapZoom: number | string;
     mapAction: string;
+    sectionChangeSource: string;
 } => {
     if (userAction === undefined || _isBlank(userAction)) {
-        return { widgetType: '', widgetPath: '', hiddenWidgets: '', invalidWidgets: [], mapZoom: '', mapAction: '' };
+        return {
+            widgetType: '',
+            widgetPath: '',
+            hiddenWidgets: '',
+            invalidWidgets: [],
+            mapZoom: '',
+            mapAction: '',
+            sectionChangeSource: ''
+        };
     }
     switch (userAction.type) {
     case 'buttonClick':
@@ -99,7 +108,8 @@ const userActionToWidgetData = (
             hiddenWidgets: userAction.hiddenWidgets ? userAction.hiddenWidgets.join('|') : '',
             invalidWidgets: userAction.invalidWidgets ? userAction.invalidWidgets : [],
             mapZoom: '',
-            mapAction: ''
+            mapAction: '',
+            sectionChangeSource: ''
         };
     case 'widgetInteraction': {
         const { mapZoom, mapAction } = getFieldsForMapWidget(userAction);
@@ -109,10 +119,12 @@ const userActionToWidgetData = (
             hiddenWidgets: '',
             invalidWidgets: [],
             mapZoom,
-            mapAction
+            mapAction,
+            sectionChangeSource: ''
         };
     }
     case 'sectionChange':
+        // section change is done by request if there is not previous section defined (either link click or direct navigation). If there is a previous section, the is the natural survey flow
         return {
             widgetType: '',
             widgetPath: [
@@ -122,7 +134,8 @@ const userActionToWidgetData = (
             hiddenWidgets: userAction.hiddenWidgets ? userAction.hiddenWidgets.join('|') : '',
             invalidWidgets: [],
             mapZoom: '',
-            mapAction: ''
+            mapAction: '',
+            sectionChangeSource: userAction.previousSection === undefined ? 'directAccess' : 'surveyFlow'
         };
     case 'helpPopupClicked':
         return {
@@ -131,7 +144,8 @@ const userActionToWidgetData = (
             hiddenWidgets: '',
             invalidWidgets: [],
             mapZoom: '',
-            mapAction: ''
+            mapAction: '',
+            sectionChangeSource: ''
         };
     default:
         return {
@@ -140,7 +154,8 @@ const userActionToWidgetData = (
             hiddenWidgets: '',
             invalidWidgets: [],
             mapZoom: '',
-            mapAction: ''
+            mapAction: '',
+            sectionChangeSource: ''
         };
     }
 };
