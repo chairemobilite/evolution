@@ -55,6 +55,7 @@ describe('exportInterviewLogTask', () => {
         widgetPath: '',
         mapAction: '',
         mapZoom: '',
+        sectionChangeSource: '',
         hiddenWidgets: '',
         invalidFields: '',
         validFields: '',
@@ -731,7 +732,7 @@ describe('exportInterviewLogTask', () => {
     test('Test with an event of type section_change with user action', async () => {
         // Just add one log statement to test the widget_interaction event:
         const userAction = { type: 'sectionChange', targetSection: { sectionShortname: 'someSection' } };
-        const userActionWithHidden = { type: 'sectionChange', targetSection: { sectionShortname: 'someSection', iterationContext: ['person', 'personId'] }, previousSection: { sectionShortname: 'prevSection' }, hiddenWidgets: [ 'hiddenWidget1', 'hiddenWidget2' ] };
+        const userActionWithHiddenAndPrevious = { type: 'sectionChange', targetSection: { sectionShortname: 'someSection', iterationContext: ['person', 'personId'] }, previousSection: { sectionShortname: 'prevSection' }, hiddenWidgets: [ 'hiddenWidget1', 'hiddenWidget2' ] };
         const sectionChangeLogs: { [key: string]: any }[] = [{
             ...commonInterviewData,
             event_type: 'section_change',
@@ -746,7 +747,7 @@ describe('exportInterviewLogTask', () => {
             timestamp_sec: 2,
             event_date: new Date(2 * 1000),
             values_by_path: { },
-            user_action: userActionWithHidden
+            user_action: userActionWithHiddenAndPrevious
         }];
         // Add the logs to the stream
         mockGetInterviewLogsStream.mockReturnValue(new ObjectReadableMock(sectionChangeLogs) as any);
@@ -782,7 +783,8 @@ describe('exportInterviewLogTask', () => {
             initializedFields: initializedKeys,
             unsetFields: sectionChangeLogs[0].unset_paths !== undefined ? sectionChangeLogs[0].unset_paths.filter((path: string) => !path.startsWith('validations.')).join('|') : '',
             widgetPath: userAction.targetSection.sectionShortname,
-            validFields: 'home.geography'
+            validFields: 'home.geography',
+            sectionChangeSource: 'directAccess'
         });
 
         const modifiedKeys2 = Object.entries(sectionChangeLogs[1].values_by_path).filter(([key, value]) => value !== null && !key.startsWith('validations.')).map(([key, value]) => key).join('|');
@@ -796,8 +798,9 @@ describe('exportInterviewLogTask', () => {
             modifiedFields: modifiedKeys2,
             initializedFields: initializedKeys2,
             unsetFields: sectionChangeLogs[1].unset_paths !== undefined ? sectionChangeLogs[1].unset_paths.filter((path: string) => !path.startsWith('validations.')).join('|') : '',
-            widgetPath: userAction.targetSection.sectionShortname + '/' + (userActionWithHidden.targetSection.iterationContext || []).join('/'),
-            hiddenWidgets: userActionWithHidden.hiddenWidgets.join('|')
+            widgetPath: userAction.targetSection.sectionShortname + '/' + (userActionWithHiddenAndPrevious.targetSection.iterationContext || []).join('/'),
+            hiddenWidgets: userActionWithHiddenAndPrevious.hiddenWidgets.join('|'),
+            sectionChangeSource: 'surveyFlow'
         });
 
     });
