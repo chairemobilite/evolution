@@ -43,8 +43,26 @@ beforeEach(() => {
 describe('exportInterviewLogTask', () => {
 
     // Common data for all logs of the interview
-    const commonInterviewData = { id: 1, uuid: 'uuid',  'updated_at': '2024-10-11 09:02:00', is_completed: true, is_questionable: null, review_status: 'approved', interview_is_completed: true, user_id: null };
-    const commonInterviewDataInRows = { id: '1', uuid: 'uuid',  'updated_at': '2024-10-11 09:02:00', is_completed: 'true', is_questionable: '', review_status: 'approved', interview_is_completed: 'true', user_id: '' };
+    const commonInterviewData = { id: 1, uuid: 'uuid', 'updated_at': '2024-10-11 09:02:00', is_completed: true, is_questionable: null, review_status: 'approved', interview_is_completed: true, user_id: null, for_correction: false };
+    // Default exported values for both with values and without values
+    const commonInterviewDataInRows = { id: '1', uuid: 'uuid', 'updated_at': '2024-10-11 09:02:00', is_completed: 'true', is_questionable: '', review_status: 'approved', interview_is_completed: 'true', user_id: '', for_correction: 'false' };
+    // Default exported values for paradata without values
+    const defaultInterviewLogData = {
+        modifiedFields: '',
+        initializedFields: '',
+        unsetFields: '',
+        widgetType: '',
+        widgetPath: '',
+        mapAction: '',
+        mapZoom: '',
+        hiddenWidgets: '',
+        invalidFields: '',
+        validFields: '',
+        browser: '',
+        os: '',
+        platform: '',
+        language: ''
+    }
 
     // Various logs to test different situations, the last one is not from the participant
     const logs: { [key: string]: any }[] = [
@@ -147,7 +165,8 @@ describe('exportInterviewLogTask', () => {
         // One row per log, with modified fields and unset fields for each
         for (let i = 0; i < logs.length; i++) {
             expect(logRows[i]).toEqual(expect.objectContaining({
-                ...commonInterviewDataInRows
+                ...commonInterviewDataInRows,
+                for_correction: String(logs[i].for_correction)
             }));
             const modifiedKeys = Object.entries(logs[i].values_by_path).filter(([key, value]) => value !== null && !key.startsWith('validations.')).map(([key, value]) => key).join('|');
             const initializedKeys = Object.entries(logs[i].values_by_path).filter(([key, value]) => value === null && !key.startsWith('validations.')).map(([key, value]) => key).join('|');
@@ -227,7 +246,8 @@ describe('exportInterviewLogTask', () => {
         // One row per log, with modified fields and unset fields for each
         for (let i = 0; i < logs.length - 1; i++) {
             expect(logRows[i]).toEqual(expect.objectContaining({
-                ...commonInterviewDataInRows
+                ...commonInterviewDataInRows,
+                for_correction: ''
             }));
             const modifiedKeys = Object.entries(logs[i].values_by_path).filter(([key, value]) => value !== null).filter(([key, value]) => key.startsWith('response.')).map(([key, value]) => key).join('|');
             const initializedKeys = Object.entries(logs[i].values_by_path).filter(([key, value]) => value === null).filter(([key, value]) => key.startsWith('response.')).map(([key, value]) => key).join('|');
@@ -596,23 +616,16 @@ describe('exportInterviewLogTask', () => {
             const initializedKeys = Object.entries(values_by_path).filter(([key, value]) => value === null && !key.startsWith('validations.')).map(([key, value]) => key).join('|');
             expect(logRows[0]).toEqual({
                 ...commonInterviewDataInRows,
+                ...defaultInterviewLogData,
                 event_type: 'button_click',
                 timestampMs : String((1) * 1000),
                 event_date: new Date((1) * 1000).toISOString(),
                 modifiedFields: modifiedKeys,
                 initializedFields: initializedKeys,
                 unsetFields: unset_paths !== undefined ? unset_paths.filter((path: string) => !path.startsWith('validations.')).join('|') : '',
-                widgetType: '',
                 widgetPath: userAction.buttonId,
-                mapAction: '',
-                mapZoom: '',
                 hiddenWidgets: expectedOutput.hiddenWidgets,
-                invalidFields: expectedOutput.invalidFields,
-                validFields: '',
-                browser: '',
-                os: '',
-                platform: '',
-                language: ''
+                invalidFields: expectedOutput.invalidFields
             });
         });
     });
@@ -703,23 +716,14 @@ describe('exportInterviewLogTask', () => {
             // Test the row values
             expect(logRows[0]).toEqual({
                 ...commonInterviewDataInRows,
+                ...defaultInterviewLogData,
                 event_type: 'widget_interaction',
                 timestampMs : String((1) * 1000),
                 event_date: new Date((1) * 1000).toISOString(),
-                modifiedFields: '',
-                initializedFields: '',
-                unsetFields: '',
                 widgetType: 'mapFindPlace',
                 widgetPath: userAction.path,
                 mapAction: expectedOutput.mapAction,
-                mapZoom: expectedOutput.mapZoom,
-                hiddenWidgets: '',
-                invalidFields: '',
-                validFields: '',
-                browser: '',
-                os: '',
-                platform: '',
-                language: ''
+                mapZoom: expectedOutput.mapZoom
             });
         });
     });
@@ -770,46 +774,30 @@ describe('exportInterviewLogTask', () => {
         const initializedKeys = Object.entries(sectionChangeLogs[0].values_by_path).filter(([key, value]) => value === null && !key.startsWith('validations.')).map(([key, value]) => key).join('|');
         expect(logRows[0]).toEqual({
             ...commonInterviewDataInRows,
+            ...defaultInterviewLogData,
             event_type: 'section_change',
             timestampMs : String((1) * 1000),
             event_date: new Date((1) * 1000).toISOString(),
             modifiedFields: modifiedKeys,
             initializedFields: initializedKeys,
             unsetFields: sectionChangeLogs[0].unset_paths !== undefined ? sectionChangeLogs[0].unset_paths.filter((path: string) => !path.startsWith('validations.')).join('|') : '',
-            widgetType: '',
             widgetPath: userAction.targetSection.sectionShortname,
-            mapAction: '',
-            mapZoom: '',
-            hiddenWidgets: '',
-            invalidFields: '',
-            validFields: 'home.geography',
-            browser: '',
-            os: '',
-            platform: '',
-            language: ''
+            validFields: 'home.geography'
         });
 
         const modifiedKeys2 = Object.entries(sectionChangeLogs[1].values_by_path).filter(([key, value]) => value !== null && !key.startsWith('validations.')).map(([key, value]) => key).join('|');
         const initializedKeys2 = Object.entries(sectionChangeLogs[1].values_by_path).filter(([key, value]) => value === null && !key.startsWith('validations.')).map(([key, value]) => key).join('|');
         expect(logRows[1]).toEqual({
             ...commonInterviewDataInRows,
+            ...defaultInterviewLogData,
             event_type: 'section_change',
             timestampMs : String((2) * 1000),
             event_date: new Date((2) * 1000).toISOString(),
             modifiedFields: modifiedKeys2,
             initializedFields: initializedKeys2,
             unsetFields: sectionChangeLogs[1].unset_paths !== undefined ? sectionChangeLogs[1].unset_paths.filter((path: string) => !path.startsWith('validations.')).join('|') : '',
-            widgetType: '',
             widgetPath: userAction.targetSection.sectionShortname + '/' + (userActionWithHidden.targetSection.iterationContext || []).join('/'),
-            mapAction: '',
-            mapZoom: '',
-            hiddenWidgets: userActionWithHidden.hiddenWidgets.join('|'),
-            invalidFields: '',
-            validFields: '',
-            browser: '',
-            os: '',
-            platform: '',
-            language: ''
+            hiddenWidgets: userActionWithHidden.hiddenWidgets.join('|')
         });
 
     });
@@ -852,22 +840,14 @@ describe('exportInterviewLogTask', () => {
         const initializedKeysLog1 = Object.entries(languageLogs[0].values_by_path).filter(([key, value]) => value === null && !key.startsWith('validations.')).map(([key, value]) => key).join('|');
         expect(logRows[0]).toEqual({
             ...commonInterviewDataInRows,
+            ...defaultInterviewLogData,
             event_type: 'language_change',
             timestampMs : String((1) * 1000),
             event_date: new Date((1) * 1000).toISOString(),
             modifiedFields: modifiedKeysLog1,
             initializedFields: initializedKeysLog1,
             unsetFields: languageLogs[0].unset_paths !== undefined ? languageLogs[0].unset_paths.filter((path: string) => !path.startsWith('validations.')).join('|') : '',
-            widgetType: '',
-            widgetPath: '',
-            mapAction: '',
-            mapZoom: '',
-            hiddenWidgets: '',
-            invalidFields: '',
             validFields: 'home.geography',
-            browser: '',
-            os: '',
-            platform: '',
             language: 'fr'
         });
     });
@@ -910,23 +890,14 @@ describe('exportInterviewLogTask', () => {
         const initializedKeysLog1 = Object.entries(interviewOpenLogs[0].values_by_path).filter(([key, value]) => value === null && !key.startsWith('validations.')).map(([key, value]) => key).join('|');
         expect(logRows[0]).toEqual({
             ...commonInterviewDataInRows,
+            ...defaultInterviewLogData,
             event_type: 'interview_open',
             timestampMs : String((1) * 1000),
             event_date: new Date((1) * 1000).toISOString(),
             modifiedFields: modifiedKeysLog1,
             initializedFields: initializedKeysLog1,
             unsetFields: interviewOpenLogs[0].unset_paths.filter((path: string) => !path.startsWith('validations.')).join('|'),
-            widgetType: '',
-            widgetPath: '',
-            mapAction: '',
-            mapZoom: '',
-            hiddenWidgets: '',
-            invalidFields: '',
             validFields: 'home.geography',
-            browser: '',
-            os: '',
-            platform: '',
-            language: ''
         });
     });
 
@@ -964,23 +935,11 @@ describe('exportInterviewLogTask', () => {
         // Test the row values
         expect(logRows[0]).toEqual({
             ...commonInterviewDataInRows,
+            ...defaultInterviewLogData,
             event_type: 'help_popup_clicked',
             timestampMs : String((1) * 1000),
             event_date: new Date((1) * 1000).toISOString(),
-            modifiedFields: '',
-            initializedFields: '',
-            unsetFields: '',
-            widgetType: '',
-            widgetPath: 'path.to.widget',
-            mapAction: '',
-            mapZoom: '',
-            hiddenWidgets: '',
-            invalidFields: '',
-            validFields: '',
-            browser: '',
-            os: '',
-            platform: '',
-            language: ''
+            widgetPath: 'path.to.widget'
         });
     });
 
@@ -1036,29 +995,22 @@ describe('exportInterviewLogTask', () => {
         const initializedKeysLog1 = Object.entries(interviewLogs[0].values_by_path).filter(([key, value]) => value === null && !key.startsWith('validations.')).map(([key, value]) => key).join('|');
         expect(logRows[0]).toEqual({
             ...commonInterviewDataInRows,
+            ...defaultInterviewLogData,
             event_type: 'button_click',
             timestampMs : String((1) * 1000),
             event_date: new Date((1) * 1000).toISOString(),
             modifiedFields: modifiedKeysLog1,
             initializedFields: initializedKeysLog1,
             unsetFields: interviewLogs[0].unset_paths !== undefined ? interviewLogs[0].unset_paths.filter((path: string) => !path.startsWith('validations.')).join('|') : '',
-            widgetType: '',
             widgetPath: interviewLogs[0].user_action.buttonId,
-            mapAction: '',
-            mapZoom: '',
-            hiddenWidgets: '',
-            invalidFields: '',
-            validFields: 'home.geography',
-            browser: '',
-            os: '',
-            platform: '',
-            language: ''
+            validFields: 'home.geography'
         });
 
         const modifiedKeysLog2 = Object.entries(interviewLogs[1].values_by_path).filter(([key, value]) => value !== null && !key.startsWith('validations.')).map(([key, value]) => key).join('|');
         const initializedKeysLog2 = Object.entries(interviewLogs[1].values_by_path).filter(([key, value]) => value === null && !key.startsWith('validations.')).map(([key, value]) => key).join('|');
         expect(logRows[1]).toEqual({
             ...commonInterviewDataInRows,
+            ...defaultInterviewLogData,
             event_type: 'widget_interaction',
             timestampMs : String((2) * 1000),
             event_date: new Date((2) * 1000).toISOString(),
@@ -1067,38 +1019,23 @@ describe('exportInterviewLogTask', () => {
             unsetFields: interviewLogs[1].unset_paths !== undefined ? interviewLogs[1].unset_paths.join('|') : '',
             widgetType: interviewLogs[1].user_action.widgetType,
             widgetPath: interviewLogs[1].user_action.path,
-            mapAction: '',
-            mapZoom: '',
-            hiddenWidgets: '',
-            invalidFields: 'home.someField',
-            validFields: '',
-            browser: '',
-            os: '',
-            platform: '',
-            language: ''
+            invalidFields: 'home.someField'
         });
 
         const modifiedKeysLog3 = Object.entries(interviewLogs[2].values_by_path).filter(([key, value]) => value !== null && !key.startsWith('validations.')).map(([key, value]) => key).join('|');
         const initializedKeysLog3 = Object.entries(interviewLogs[2].values_by_path).filter(([key, value]) => value === null && !key.startsWith('validations.')).map(([key, value]) => key).join('|');
         expect(logRows[2]).toEqual({
             ...commonInterviewDataInRows,
+            ...defaultInterviewLogData,
             event_type: 'button_click',
             timestampMs : String((3) * 1000),
             event_date: new Date((3) * 1000).toISOString(),
             modifiedFields: modifiedKeysLog3,
             initializedFields: initializedKeysLog3,
             unsetFields: interviewLogs[2].unset_paths !== undefined ? interviewLogs[2].unset_paths.join('|') : '',
-            widgetType: '',
             widgetPath: interviewLogs[2].user_action.buttonId,
-            mapAction: '',
-            mapZoom: '',
-            hiddenWidgets: '',
             invalidFields: ['home.household.size', 'home.someField'].join('|'),
-            validFields: 'home.geography',
-            browser: '',
-            os: '',
-            platform: '',
-            language: ''
+            validFields: 'home.geography'
         });
     });
 
@@ -1138,24 +1075,11 @@ describe('exportInterviewLogTask', () => {
         // Test the row values
         expect(logRows[0]).toEqual({
             ...commonInterviewDataInRows,
+            ...defaultInterviewLogData,
             event_type: 'legacy',
             timestampMs : String((1) * 1000),
             event_date: new Date((1) * 1000).toISOString(),
-            for_correction: '',
-            modifiedFields: '',
-            initializedFields: '',
-            unsetFields: '',
-            widgetType: '',
-            widgetPath: '',
-            mapAction: '',
-            mapZoom: '',
-            hiddenWidgets: '',
-            invalidFields: '',
-            validFields: '',
-            browser: '',
-            os: '',
-            platform: '',
-            language: ''
+            for_correction: ''
         });
     });
 
@@ -1176,6 +1100,7 @@ describe('exportInterviewLogTask', () => {
         // Deduce the expected values from the log data, with specific overrides for some fields if needed
         const expectedRowFromLog = (log: { [key: string]: any }, overrides: { [key: string]: any } = {}) => ({
             ...commonInterviewDataInRows,
+            ...defaultInterviewLogData,
             event_type: log.event_type ?? 'legacy',
             timestampMs: String((log.timestamp_sec ?? 0) * 1000),
             event_date: new Date((log.timestamp_sec ?? 0) * 1000).toISOString(),
@@ -1195,11 +1120,6 @@ describe('exportInterviewLogTask', () => {
             unsetFields: log.unset_paths
                 ? log.unset_paths.filter((path: string) => !path.startsWith('validations.')).join('|')
                 : '',
-            widgetType: '',
-            widgetPath: '',
-            mapAction: '',
-            mapZoom: '',
-            hiddenWidgets: '',
             invalidFields: log.values_by_path
                 ? Object.entries(log.values_by_path)
                     .filter(([key, value]) => key.startsWith('validations.') && value !== true)
@@ -1212,10 +1132,6 @@ describe('exportInterviewLogTask', () => {
                     .map(([key]) => key.replace('validations.', ''))
                     .join('|')
                 : '',
-            browser: '',
-            os: '',
-            platform: '',
-            language: '',
             ...overrides
         });
 
