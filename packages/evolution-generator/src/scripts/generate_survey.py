@@ -11,7 +11,8 @@ from dotenv import load_dotenv  # For environment variables
 import os  # For file operations
 import yaml  # For reading the yaml file
 from pydantic import ValidationError
-from helpers.generator_helpers import load_survey_definition
+from helpers.excel_workbook import ExcelWorkbook
+from helpers.generator_helpers import get_workbook, load_survey_definition
 from survey_definition.survey_definition import SurveyDefinition
 from scripts.excel_to_csv_generator import ExcelToCsvGenerator
 from scripts.generate_excel import generate_excel
@@ -110,9 +111,9 @@ def generate_survey(config_path, only_scripts=None):
     """
     Generate the survey from the Generator config file.
 
-    Loads and validates the survey definition once (aborting if the Excel file is
-    invalid), then runs every script enabled in the config and passes it the
-    definition when it needs one.
+    Reads the Excel file and validates its survey definition once (aborting if the
+    file is invalid), then runs every script enabled in the config and passes it the
+    workbook and the definition it needs.
 
     Args:
         config_path: Path to the Generator config YAML file.
@@ -173,11 +174,13 @@ def generate_survey(config_path, only_scripts=None):
         )
 
     # Check the integrity of the Excel file to avoid generating the survey with invalid data
-    survey_definition = _load_survey_definition_or_raise(excel_file_path)
+    workbook, survey_definition = _load_survey_or_raise(excel_file_path)
 
     # Copy every Excel sheet to CSV if script enabled, so changes are easier to review in git diffs.
     if enabled_copy_excel_to_csv:
-        ExcelToCsvGenerator.generate_csv_copy(excel_file_path=excel_file_path)
+        ExcelToCsvGenerator.generate_csv_copy(
+            excel_file_path=excel_file_path, workbook=workbook
+        )
 
     # Call the generate_folders function to generate the folders for the survey
     generate_folders(survey_definition, survey_folder_path, enabled_scripts)
@@ -212,7 +215,7 @@ def generate_survey(config_path, only_scripts=None):
         widgets_output_folder = os.path.join(
             survey_folder_path, "src", "survey", "sections"
         )
-        generate_widgets(excel_file_path, widgets_output_folder)
+        generate_widgets(workbook, widgets_output_folder)
 
     # Call the generate_conditionals function to generate conditionals.tsx if script enabled
     if enabled_generate_conditionals:
@@ -229,7 +232,7 @@ def generate_survey(config_path, only_scripts=None):
             survey_folder_path, "src", "survey", "common", "choices.tsx"
         )
         generate_choices(
-            excel_file_path,
+            workbook,
             choices_output_file_path,
             labels_output_folder_path=labels_output_folder_path,
         )
@@ -239,11 +242,10 @@ def generate_survey(config_path, only_scripts=None):
         input_range_output_file_path = os.path.join(
             survey_folder_path, "src", "survey", "common", "inputRange.tsx"
         )
-        generate_input_range(excel_file_path, input_range_output_file_path)
+        generate_input_range(workbook, input_range_output_file_path)
 
     # Call the generate_labels function to generate the labels locales folder if script enabled
     if enabled_generate_labels:
-        # TODO: At some point, we should consider only read the Excel sheet one time, to avoid reading it multiple times.
         # TODO: We might consider extracting the sheet names from the Excel file or config file instead of hardcoding them.
         # Generate the labels for the specified sheets
         sheets_with_labels = [
@@ -255,7 +257,7 @@ def generate_survey(config_path, only_scripts=None):
             {"sheetName": "Labels", "namespaceHeader": "namespace", "keyHeader": "key"},
         ]
         LabelsGenerator.generate_labels(
-            excel_file_path,
+            workbook,
             labels_output_folder_path,
             sheets_with_labels=sheets_with_labels,
             languages=survey_definition.languages,
@@ -266,7 +268,7 @@ def generate_survey(config_path, only_scripts=None):
         UI_tests_output_file_path = os.path.join(
             survey_folder_path, "tests", "common-UI-tests-helpers-template.ts"
         )
-        generate_UI_tests(excel_file_path, UI_tests_output_file_path)
+        generate_UI_tests(workbook, UI_tests_output_file_path)
 
     # TODO: Write questionnaire_list files for survey_definition.languages
     # instead of en/fr once the script supports any language (see #2035).
@@ -276,13 +278,13 @@ def generate_survey(config_path, only_scripts=None):
             survey_folder_path, "references"
         )
         generate_questionnaire_list(
-            excel_file_path,
+            workbook,
             survey_definition,
             questionnaire_list_output_folder,
             language="en",
         )
         generate_questionnaire_list(
-            excel_file_path,
+            workbook,
             survey_definition,
             questionnaire_list_output_folder,
             language="fr",
@@ -296,13 +298,13 @@ def generate_survey(config_path, only_scripts=None):
             survey_folder_path, "references"
         )
         generate_questionnaire_dictionary(
-            excel_file_path,
+            workbook,
             survey_definition,
             questionnaire_dictionary_output_folder,
             language="en",
         )
         generate_questionnaire_dictionary(
-            excel_file_path,
+            workbook,
             survey_definition,
             questionnaire_dictionary_output_folder,
             language="fr",
@@ -332,18 +334,21 @@ def main():
     generate_survey(config_path, only_scripts=only_scripts)
 
 
-def _load_survey_definition_with_messages(
+def _load_survey_with_messages(
     excel_file_path: str,
-) -> tuple[SurveyDefinition | None, list[str]]:
+) -> tuple[ExcelWorkbook | None, SurveyDefinition | None, list[str]]:
     """
-    Load a SurveyDefinition from the Excel file's Sections and Conditionals sheets
-    (see load_survey_definition).
+    Read the Excel file and load its SurveyDefinition from the Sections and
+    Conditionals sheets (see load_survey_definition).
 
-    Returns (survey_definition, []) when valid, or (None, messages) with
-    human-readable issues.
+    Returns (workbook, survey_definition, []) when valid, or
+    (workbook, None, messages) with human-readable issues; workbook is None when the
+    file can't be read.
     """
+    workbook = None
     try:
-        return load_survey_definition(excel_file_path), []
+        workbook = get_workbook(excel_file_path)
+        return workbook, load_survey_definition(workbook), []
     except ValidationError as exc:
         # SurveyDefinition reports every table's problems in one error, one problem
         # per line; collect every line of every error.
@@ -353,54 +358,78 @@ def _load_survey_definition_with_messages(
             messages.extend(
                 str(reason).split("\n") if reason is not None else [error["msg"]]
             )
-        return None, messages
+        return workbook, None, messages
     except Exception as e:
-        return None, [str(e)]
+        return workbook, None, [str(e)]
 
 
-def check_excel_integrity_with_messages(excel_file_path: str) -> tuple[bool, list[str]]:
+def check_excel_integrity_with_warnings(
+    excel_file_path: str,
+) -> tuple[bool, list[str], list[str]]:
     """
     Check the integrity of the Excel file's Sections and Conditionals sheets. Entry
     point for scripts and UI (see check_excel_integrity_cli.py).
 
+    Returns (ok, errors, warnings): ok is True when errors is empty; warnings list
+    the problems that don't stop the generation (see ExcelWorkbook).
+    """
+    workbook, survey_definition, messages = _load_survey_with_messages(excel_file_path)
+    warnings = workbook.warnings if workbook is not None else []
+    return survey_definition is not None, messages, warnings
+
+
+def check_excel_integrity_with_messages(excel_file_path: str) -> tuple[bool, list[str]]:
+    """
+    Check the integrity of the Excel file, like check_excel_integrity_with_warnings
+    without the warnings.
+
     Returns (True, []) when valid, or (False, messages) with human-readable issues.
     """
-    survey_definition, messages = _load_survey_definition_with_messages(excel_file_path)
-    return survey_definition is not None, messages
+    ok, messages, _ = check_excel_integrity_with_warnings(excel_file_path)
+    return ok, messages
 
 
-# Check the integrity of the Excel file to avoid generating the survey with invalid data
-def check_excel_integrity(excel_file_path: str) -> bool:
-    """Check the integrity of the Excel file. Entry point for scripts and UI."""
-    ok, messages = check_excel_integrity_with_messages(excel_file_path)
+def _print_integrity_result(
+    excel_file_path: str, ok: bool, messages: list[str], warnings: list[str]
+) -> None:
+    for warning in warnings:
+        print(f"Warning: {warning}")
     if ok:
         print(f"Excel integrity check passed for {excel_file_path}")
     else:
         print(f"Excel integrity check FAILED for {excel_file_path}")
         for message in messages:
             print(message)
+
+
+# Check the integrity of the Excel file to avoid generating the survey with invalid data
+def check_excel_integrity(excel_file_path: str) -> bool:
+    """Check the integrity of the Excel file. Entry point for scripts and UI."""
+    ok, messages, warnings = check_excel_integrity_with_warnings(excel_file_path)
+    _print_integrity_result(excel_file_path, ok, messages, warnings)
     return ok
 
 
-def _load_survey_definition_or_raise(excel_file_path: str) -> SurveyDefinition:
+def _load_survey_or_raise(
+    excel_file_path: str,
+) -> tuple[ExcelWorkbook, SurveyDefinition]:
     """
-    Load a SurveyDefinition, printing the same pass/fail messages as
+    Read the Excel file and load its SurveyDefinition, printing the same messages as
     check_excel_integrity, and raise if invalid.
 
-    For a caller (generate_survey) that needs the loaded SurveyDefinition itself, not
-    just a pass/fail bool, so it can check integrity and keep the result in one step
-    instead of re-reading the Excel file again afterwards.
+    For a caller (generate_survey) that needs the workbook and SurveyDefinition
+    themselves, not just a pass/fail bool, so it can check integrity and keep the
+    result in one step instead of re-reading the Excel file afterwards.
     """
-    survey_definition, messages = _load_survey_definition_with_messages(excel_file_path)
-    if survey_definition is None:
-        print(f"Excel integrity check FAILED for {excel_file_path}")
-        for message in messages:
-            print(message)
+    workbook, survey_definition, messages = _load_survey_with_messages(excel_file_path)
+    ok = survey_definition is not None
+    warnings = workbook.warnings if workbook is not None else []
+    _print_integrity_result(excel_file_path, ok, messages, warnings)
+    if not ok:
         raise Exception(
             f"Excel integrity check failed for {excel_file_path}. Aborting generation."
         )
-    print(f"Excel integrity check passed for {excel_file_path}")
-    return survey_definition
+    return workbook, survey_definition
 
 
 def verify_excel_cli_main() -> int:

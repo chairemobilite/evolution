@@ -6,14 +6,15 @@
 # These functions are intended to be invoked from the generate_survey.py script.
 import os
 from typing import Literal
-from helpers.generator_helpers import get_data_from_excel, clean_text
+from helpers.excel_workbook import ExcelWorkbook
+from helpers.generator_helpers import get_data_from_excel, get_data_rows, clean_text
 from survey_definition.survey_definition import SurveyDefinition
 
 
 # Function to generate questionnaire_test for each section
 def generate_questionnaire_list(
-    # TODO: Remove excel_file_path once every sheet read here is migrated to the survey definition.
-    excel_file_path: str,
+    # TODO: Remove workbook once every sheet read here is migrated to the survey definition.
+    workbook: ExcelWorkbook,
     survey_definition: SurveyDefinition,
     questionnaire_list_output_folder: str,
     language: Literal["en", "fr"],
@@ -23,7 +24,7 @@ def generate_questionnaire_list(
     its choices.
 
     Args:
-        excel_file_path: Excel file to read the sheets not yet migrated to the
+        workbook: Excel workbook to read the sheets not yet migrated to the
             survey definition from.
         survey_definition: Already-validated survey definition to describe.
         questionnaire_list_output_folder: Folder to write the text file to.
@@ -32,10 +33,10 @@ def generate_questionnaire_list(
     try:
         # Read data from Excel and return rows and headers
         widgets_rows, widgets_headers = get_data_from_excel(
-            excel_file_path, sheet_name="Widgets"
+            workbook, sheet_name="Widgets"
         )
         choices_rows, choices_headers = get_data_from_excel(
-            excel_file_path, sheet_name="Choices"
+            workbook, sheet_name="Choices"
         )
 
         # Find the index
@@ -55,7 +56,7 @@ def generate_questionnaire_list(
 
         # Group choices by choicesName and concatenate their 'en' values
         choices_map = {}
-        for row in choices_rows[1:]:
+        for row in get_data_rows(choices_rows):
             choices_name = row[choices_name_index].value
             choice_text = clean_text(row[choices_language_index].value)
             choices_spread_choices_name = row[choices_spread_choices_name_index].value
@@ -79,7 +80,7 @@ def generate_questionnaire_list(
 
         # Group questions by section
         sections = {}
-        for row in widgets_rows[1:]:
+        for row in get_data_rows(widgets_rows):
             section_name = row[widgets_section_index].value
             question_text = clean_text(row[widgets_language_index].value)
             active = row[widgets_active_index].value

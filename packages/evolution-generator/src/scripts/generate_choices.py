@@ -12,12 +12,12 @@ from helpers.generator_helpers import (
     add_generator_yaml_header,
     generate_label_typescript_with_context,
     get_label_context_flags,
-    is_excel_file,
     is_ts_file,
-    get_workbook,
     sheet_exists,
+    get_data_rows,
     get_headers,
 )
+from helpers.excel_workbook import ExcelWorkbook
 from scripts.labels_generator import LabelFormatter, LabelsGenerator
 
 
@@ -241,16 +241,15 @@ def _generate_choices_yaml_locales(choices_by_name, labels_output_folder_path: s
 
 # Function to generate choices.tsx
 def generate_choices(
-    input_file: str, output_file: str, labels_output_folder_path: str | None = None
+    workbook: ExcelWorkbook,
+    output_file: str,
+    labels_output_folder_path: str | None = None,
 ):
     try:
-        is_excel_file(input_file)  # Check if the input file is an Excel file
         is_ts_file(output_file)  # Check if the output file is an TypeScript file
 
         # Read data from Excel and group choices by choiceName
         choices_by_name = defaultdict(list)
-
-        workbook = get_workbook(input_file)  # Get workbook from Excel file
 
         sheet_exists(workbook, "Choices")  # Check if the sheet exists
         sheet = workbook["Choices"]  # Get Choices sheet
@@ -276,7 +275,7 @@ def generate_choices(
         has_custom_conditionals_import = False
 
         # Iterate through each row in the sheet, starting from the second row
-        for row in list(sheet.rows)[1:]:
+        for row in get_data_rows(sheet.rows):
             # Create a dictionary from the row values and headers
             row_dict = dict(zip(headers, (cell.value for cell in row)))
 

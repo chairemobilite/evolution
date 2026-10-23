@@ -11,6 +11,7 @@ from helpers.generator_helpers import (
     _read_sheet_rows,
     delete_file_if_exists,
     generate_label_typescript_with_context,
+    get_data_rows,
     get_label_context_flags,
     get_workbook,
     load_survey_definition,
@@ -155,9 +156,44 @@ class TestGenerateLabelTypescriptWithContext:
         assert "context: activePerson?.gender," in result
 
 
+class _Cell:
+    def __init__(self, value):
+        self.value = value
+
+
+def _row(*values):
+    return tuple(_Cell(value) for value in values)
+
+
+@pytest.mark.parametrize(
+    "rows, expected_values",
+    [
+        pytest.param(
+            [_row("name"), _row("a"), _row("b")], [["a"], ["b"]], id="no empty row"
+        ),
+        pytest.param(
+            [_row("name", "label"), _row("a", "A"), _row(None, None), _row("b", "B")],
+            [["a", "A"], ["b", "B"]],
+            id="empty row between rows with data",
+        ),
+        pytest.param(
+            [_row("name", "label"), _row(None, "A")],
+            [[None, "A"]],
+            id="row with a value in any column is kept",
+        ),
+        pytest.param([_row("name")], [], id="header only"),
+    ],
+)
+def test_get_data_rows(rows, expected_values):
+    assert [
+        [cell.value for cell in row] for row in get_data_rows(rows)
+    ] == expected_values
+
+
 class TestReadSheetRows:
     """
-    Tests for _read_sheet_rows, in particular its trimming of trailing blank rows.
+    Tests for _read_sheet_rows, in particular the trailing blank rows the workbook
+    drops when it is read (see ExcelSheet).
 
     A row with no cell value and no style isn't written to the saved .xlsx at all,
     so it can't reproduce the bug the trimming guards against. A row
@@ -223,12 +259,12 @@ class TestReadSheetRows:
         rows = self._read()
         assert [row["section"] for row in rows] == ["home", None, "profile"]
 
-    def test_keeps_a_lone_styled_blank_row(self):
-        """Never trims down to zero rows: a single blank row is left as-is."""
+    def test_drops_a_lone_styled_blank_row(self):
+        """A sheet with only a styled blank row reads like a sheet with only headers."""
         workbook = create_mocked_excel_data("Sections", self.HEADERS, [])
         self._style_blank_row(workbook, row_number=2)
         rows = self._read()
-        assert len(rows) == 1
+        assert rows == []
 
 
 class TestLoadSurveyDefinition:
@@ -275,7 +311,7 @@ class TestLoadSurveyDefinition:
             self.VALID_CONDITIONALS_ROWS,
         )
         try:
-            survey_definition = load_survey_definition(MOCKED_EXCEL_FILE)
+            survey_definition = load_survey_definition(get_workbook(MOCKED_EXCEL_FILE))
             assert [section.section for section in survey_definition.sections] == [
                 "home"
             ]
@@ -307,7 +343,7 @@ class TestLoadSurveyDefinition:
             self.VALID_CONDITIONALS_ROWS,
         )
         try:
-            survey_definition = load_survey_definition(MOCKED_EXCEL_FILE)
+            survey_definition = load_survey_definition(get_workbook(MOCKED_EXCEL_FILE))
             assert [section.section for section in survey_definition.sections] == [
                 "home"
             ]
@@ -332,7 +368,7 @@ class TestLoadSurveyDefinition:
             )
         workbook.save(MOCKED_EXCEL_FILE)
         try:
-            survey_definition = load_survey_definition(MOCKED_EXCEL_FILE)
+            survey_definition = load_survey_definition(get_workbook(MOCKED_EXCEL_FILE))
             assert [
                 conditional.conditional_name
                 for conditional in survey_definition.conditionals
@@ -352,7 +388,7 @@ class TestLoadSurveyDefinition:
             [row[:-1] for row in self.VALID_CONDITIONALS_ROWS],
         )
         try:
-            survey_definition = load_survey_definition(MOCKED_EXCEL_FILE)
+            survey_definition = load_survey_definition(get_workbook(MOCKED_EXCEL_FILE))
             assert survey_definition.conditionals[0].value_when_hidden is None
         finally:
             delete_file_if_exists(MOCKED_EXCEL_FILE)
@@ -367,7 +403,7 @@ class TestLoadSurveyDefinition:
             with pytest.raises(
                 Exception, match="Sheet with name Sections does not exist"
             ):
-                load_survey_definition(MOCKED_EXCEL_FILE)
+                load_survey_definition(get_workbook(MOCKED_EXCEL_FILE))
         finally:
             delete_file_if_exists(MOCKED_EXCEL_FILE)
 
@@ -381,7 +417,7 @@ class TestLoadSurveyDefinition:
             with pytest.raises(
                 Exception, match="Sheet with name Conditionals does not exist"
             ):
-                load_survey_definition(MOCKED_EXCEL_FILE)
+                load_survey_definition(get_workbook(MOCKED_EXCEL_FILE))
         finally:
             delete_file_if_exists(MOCKED_EXCEL_FILE)
 
@@ -399,7 +435,7 @@ class TestLoadSurveyDefinition:
         )
         try:
             with pytest.raises(ValidationError):
-                load_survey_definition(MOCKED_EXCEL_FILE)
+                load_survey_definition(get_workbook(MOCKED_EXCEL_FILE))
         finally:
             delete_file_if_exists(MOCKED_EXCEL_FILE)
 
@@ -415,7 +451,7 @@ class TestLoadSurveyDefinition:
         )
         try:
             with pytest.raises(ValidationError):
-                load_survey_definition(MOCKED_EXCEL_FILE)
+                load_survey_definition(get_workbook(MOCKED_EXCEL_FILE))
         finally:
             delete_file_if_exists(MOCKED_EXCEL_FILE)
 
@@ -443,7 +479,7 @@ class TestLoadSurveyDefinition:
             workbook, "Widgets", ["questionName", "label::es", "label::en"], []
         )
         try:
-            survey_definition = load_survey_definition(MOCKED_EXCEL_FILE)
+            survey_definition = load_survey_definition(get_workbook(MOCKED_EXCEL_FILE))
             assert survey_definition.languages == ("es", "en")
             assert survey_definition.sections[0].title == {"es": "Inicio", "en": "Home"}
         finally:
@@ -463,6 +499,6 @@ class TestLoadSurveyDefinition:
             with pytest.raises(
                 Exception, match="Sheet with name Widgets does not exist"
             ):
-                load_survey_definition(MOCKED_EXCEL_FILE)
+                load_survey_definition(get_workbook(MOCKED_EXCEL_FILE))
         finally:
             delete_file_if_exists(MOCKED_EXCEL_FILE)

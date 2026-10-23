@@ -212,6 +212,7 @@ router.post('/generator/verify', (req: Request, res: Response) => {
                     integrityOk?: boolean;
                     error?: string;
                     errors?: string[];
+                    warnings?: string[];
                     excelFilePath?: string;
                 };
 
@@ -224,12 +225,15 @@ router.post('/generator/verify', (req: Request, res: Response) => {
                     });
                 }
 
-                // Excel validation issues: HTTP 200 with status ok; integrityOk is false and errors list the problems.
+                // Problems that don't fail the check (e.g. many empty rows after the data), sent whatever the outcome.
+                const warningMessages = Array.isArray(parsedResult.warnings) ? parsedResult.warnings : [];
+
                 if (parsedResult.integrityOk === true) {
                     return respondOk({
                         res,
                         result: {
-                            integrityOk: true
+                            integrityOk: true,
+                            warnings: warningMessages
                         }
                     });
                 }
@@ -240,7 +244,8 @@ router.post('/generator/verify', (req: Request, res: Response) => {
                     res,
                     result: {
                         integrityOk: false,
-                        errors: errorMessages
+                        errors: errorMessages,
+                        warnings: warningMessages
                     }
                 });
             } catch (error) {

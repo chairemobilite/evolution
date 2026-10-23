@@ -7,7 +7,7 @@
 import os
 import pytest
 
-from helpers.generator_helpers import delete_file_if_exists
+from helpers.generator_helpers import delete_file_if_exists, get_workbook
 from tests.mocked_excel import create_mocked_excel_data
 from scripts.generate_choices import (
     generate_choices,
@@ -119,7 +119,7 @@ class TestGenerateChoices:
             pytest.skip(f"Demo generator file not found: {demo_input}")
 
         generate_choices(
-            demo_input,
+            get_workbook(demo_input),
             output_paths["choices_tsx_path"],
             labels_output_folder_path=output_paths["locales_dir_path"],
         )
@@ -165,7 +165,7 @@ class TestGenerateChoices:
         create_mocked_excel_data(self.SHEET_NAME, self.EXPECTED_HEADERS, rows)
 
         generate_choices(
-            MOCKED_EXCEL_FILE,
+            get_workbook(MOCKED_EXCEL_FILE),
             output_paths["choices_tsx_path"],
             labels_output_folder_path=output_paths["locales_dir_path"],
         )
@@ -231,7 +231,9 @@ class TestGenerateChoices:
         ]
         create_mocked_excel_data(self.SHEET_NAME, headers, rows)
 
-        generate_choices(MOCKED_EXCEL_FILE, output_paths["choices_tsx_path"])
+        generate_choices(
+            get_workbook(MOCKED_EXCEL_FILE), output_paths["choices_tsx_path"]
+        )
 
         with open(
             output_paths["choices_tsx_path"], mode="r", encoding="utf-8"
@@ -264,7 +266,9 @@ class TestGenerateChoices:
         ]
         create_mocked_excel_data(self.SHEET_NAME, self.EXPECTED_HEADERS, rows)
 
-        generate_choices(MOCKED_EXCEL_FILE, output_paths["choices_tsx_path"])
+        generate_choices(
+            get_workbook(MOCKED_EXCEL_FILE), output_paths["choices_tsx_path"]
+        )
 
         with open(
             output_paths["choices_tsx_path"], mode="r", encoding="utf-8"
@@ -300,7 +304,9 @@ class TestGenerateChoices:
         create_mocked_excel_data(self.SHEET_NAME, self.EXPECTED_HEADERS, rows)
 
         with pytest.raises(Exception) as e_info:
-            generate_choices(MOCKED_EXCEL_FILE, output_paths["choices_tsx_path"])
+            generate_choices(
+                get_workbook(MOCKED_EXCEL_FILE), output_paths["choices_tsx_path"]
+            )
         assert str(e_info.value) == "Invalid row data in Choices sheet"
 
     def test_generates_spread_rows_into_typescript_array(self, output_paths):
@@ -318,7 +324,9 @@ class TestGenerateChoices:
         ]
         create_mocked_excel_data(self.SHEET_NAME, self.EXPECTED_HEADERS, rows)
 
-        generate_choices(MOCKED_EXCEL_FILE, output_paths["choices_tsx_path"])
+        generate_choices(
+            get_workbook(MOCKED_EXCEL_FILE), output_paths["choices_tsx_path"]
+        )
 
         with open(
             output_paths["choices_tsx_path"], mode="r", encoding="utf-8"
@@ -342,7 +350,9 @@ class TestGenerateChoices:
         ]
         create_mocked_excel_data(self.SHEET_NAME, self.EXPECTED_HEADERS, rows)
 
-        generate_choices(MOCKED_EXCEL_FILE, output_paths["choices_tsx_path"])
+        generate_choices(
+            get_workbook(MOCKED_EXCEL_FILE), output_paths["choices_tsx_path"]
+        )
 
         with open(
             output_paths["choices_tsx_path"], mode="r", encoding="utf-8"
@@ -366,7 +376,9 @@ class TestGenerateChoices:
         ]
         create_mocked_excel_data(self.SHEET_NAME, self.EXPECTED_HEADERS, rows)
 
-        generate_choices(MOCKED_EXCEL_FILE, output_paths["choices_tsx_path"])
+        generate_choices(
+            get_workbook(MOCKED_EXCEL_FILE), output_paths["choices_tsx_path"]
+        )
 
         with open(
             output_paths["choices_tsx_path"], mode="r", encoding="utf-8"
@@ -401,8 +413,9 @@ class TestGenerateChoices:
         ],
     )
     def test_rejects_invalid_file_extensions(self, case):
+        create_mocked_excel_data(self.SHEET_NAME, self.EXPECTED_HEADERS, [])
         with pytest.raises(Exception) as e_info:
-            generate_choices(case["input_file"], case["output_file"])
+            generate_choices(get_workbook(case["input_file"]), case["output_file"])
         assert str(e_info.value) == case["expected_error"]
 
     def test_missing_sheet_raises(self, output_paths):
@@ -410,7 +423,9 @@ class TestGenerateChoices:
             self.SHEET_NAME + "Bad", self.EXPECTED_HEADERS, [["x"]]
         )
         with pytest.raises(Exception) as e_info:
-            generate_choices(MOCKED_EXCEL_FILE, output_paths["choices_tsx_path"])
+            generate_choices(
+                get_workbook(MOCKED_EXCEL_FILE), output_paths["choices_tsx_path"]
+            )
         assert str(e_info.value) == "Sheet with name Choices does not exist"
 
     def test_missing_expected_header_raises(self, output_paths):
@@ -431,7 +446,9 @@ class TestGenerateChoices:
         ]
         create_mocked_excel_data(self.SHEET_NAME, bad_headers, rows)
         with pytest.raises(Exception) as e_info:
-            generate_choices(MOCKED_EXCEL_FILE, output_paths["choices_tsx_path"])
+            generate_choices(
+                get_workbook(MOCKED_EXCEL_FILE), output_paths["choices_tsx_path"]
+            )
         assert (
             str(e_info.value) == "Missing expected header in Choices sheet: choicesName"
         )
@@ -441,7 +458,9 @@ class TestGenerateChoices:
         rows = [choices_row(choicesName="yesNoChoices", label_fr="Oui", label_en="Yes")]
         create_mocked_excel_data(self.SHEET_NAME, self.EXPECTED_HEADERS, rows)
         with pytest.raises(Exception) as e_info:
-            generate_choices(MOCKED_EXCEL_FILE, output_paths["choices_tsx_path"])
+            generate_choices(
+                get_workbook(MOCKED_EXCEL_FILE), output_paths["choices_tsx_path"]
+            )
         assert str(e_info.value) == "Invalid row data in Choices sheet"
 
 
@@ -568,7 +587,7 @@ class TestGenerateChoicesYamlLocales:
         create_mocked_excel_data(TestGenerateChoices.SHEET_NAME, headers, rows)
 
         generate_choices(
-            MOCKED_EXCEL_FILE,
+            get_workbook(MOCKED_EXCEL_FILE),
             output_paths["choices_tsx_path"],
             labels_output_folder_path=output_paths["locales_dir_path"],
         )

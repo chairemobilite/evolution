@@ -7,7 +7,8 @@
 import os
 import csv
 from typing import Literal
-from helpers.generator_helpers import get_data_from_excel, clean_text
+from helpers.excel_workbook import ExcelWorkbook
+from helpers.generator_helpers import get_data_from_excel, get_data_rows, clean_text
 from helpers.questionnaire_reference_helpers import (
     describe_conditionals,
     get_abbreviation_by_section,
@@ -19,8 +20,8 @@ from survey_definition.survey_definition import SurveyDefinition
 
 # Function to generate questionnaire_test for each section
 def generate_questionnaire_dictionary(
-    # TODO: Remove excel_file_path once every sheet read here is migrated to the survey definition.
-    excel_file_path: str,
+    # TODO: Remove workbook once every sheet read here is migrated to the survey definition.
+    workbook: ExcelWorkbook,
     survey_definition: SurveyDefinition,
     questionnaire_dictionary_output_folder: str,
     language: Literal["en", "fr"],
@@ -30,7 +31,7 @@ def generate_questionnaire_dictionary(
     with its path, conditional, input type and possible values.
 
     Args:
-        excel_file_path: Excel file to read the sheets not yet migrated to the
+        workbook: Excel workbook to read the sheets not yet migrated to the
             survey definition from.
         survey_definition: Already-validated survey definition to describe.
         questionnaire_dictionary_output_folder: Folder to write the CSV file to.
@@ -39,13 +40,13 @@ def generate_questionnaire_dictionary(
     try:
         # Read data from Excel and return rows and headers
         widgets_rows, widgets_headers = get_data_from_excel(
-            excel_file_path, sheet_name="Widgets"
+            workbook, sheet_name="Widgets"
         )
         choices_rows, choices_headers = get_data_from_excel(
-            excel_file_path, sheet_name="Choices"
+            workbook, sheet_name="Choices"
         )
         ranges_rows, ranges_headers = get_data_from_excel(
-            excel_file_path, sheet_name="InputRange"
+            workbook, sheet_name="InputRange"
         )
 
         # Find the index
@@ -86,7 +87,7 @@ def generate_questionnaire_dictionary(
 
         # Group questions by section
         sections_questions = {}
-        for row in widgets_rows[1:]:
+        for row in get_data_rows(widgets_rows):
             section_name = row[widgets_section_index].value
             question_text = clean_text(row[widgets_language_index].value)
             active = row[widgets_active_index].value
@@ -287,7 +288,7 @@ def process_choices(choices_rows, choices_headers, language, conditionals_map):
     choices_conditional_index = choices_headers.index("conditional")
 
     choices_map = {}
-    for row in choices_rows[1:]:
+    for row in get_data_rows(choices_rows):
         choices_name = row[choices_name_index].value
         choice_text = clean_text(row[choices_language_index].value)
         choice_value = row[choices_value_index].value
@@ -417,7 +418,7 @@ def process_range(ranges_rows, ranges_headers, language):
     label_max_index = ranges_headers.index(f"label{language.capitalize()}Max")
 
     ranges_map = {}
-    for row in ranges_rows[1:]:
+    for row in get_data_rows(ranges_rows):
         input_range_name = row[input_range_name_index].value
         # Ensure min_value is not negative
         min_value = max(0, row[min_value_index].value)

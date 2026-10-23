@@ -8,9 +8,11 @@ import os  # For interacting with the operating system
 import ruamel.yaml  # For working with YAML files
 import re  # For regular expressions
 from typing import TypedDict
+from helpers.excel_workbook import ExcelWorkbook
 from helpers.generator_helpers import (
     add_generator_yaml_header,
     get_data_from_excel,
+    get_data_rows,
     get_label_context_flags,
 )
 
@@ -431,16 +433,16 @@ class LabelsGenerator:
     @classmethod
     def add_translations_from_excel(
         cls,
-        excel_file_path,
+        workbook: ExcelWorkbook,
         labels_output_folder_path,
         languages: tuple[str, ...],
         sheet_with_labels: SheetWithLabels = DEFAULT_SHEETS_WITH_LABELS[0],
     ):
         """
-        Reads translations from an Excel file and adds them to the appropriate YAML files.
+        Reads translations from an Excel workbook and adds them to the appropriate YAML files.
 
         Args:
-            excel_file_path (str): The path to the Excel file containing translations.
+            workbook (ExcelWorkbook): The Excel workbook containing translations.
             labels_output_folder_path (str): The output folder path for the labels.
             languages (tuple of str): The survey languages; each needs its label::<language> column.
             sheet_with_labels (SheetWithLabels): Sheet configuration containing sheetName and header names.
@@ -448,7 +450,7 @@ class LabelsGenerator:
         try:
             # Read data from Excel and return rows and headers
             widgets_rows, widgets_headers = get_data_from_excel(
-                excel_file_path, sheet_name=sheet_with_labels["sheetName"]
+                workbook, sheet_name=sheet_with_labels["sheetName"]
             )
 
             # Find the index
@@ -471,7 +473,7 @@ class LabelsGenerator:
             translations_dict = {language: {} for language in languages}
 
             # Parse the widget sheet to add the translations
-            for row in widgets_rows[1:]:
+            for row in get_data_rows(widgets_rows):
                 # Get the row values
                 section = row[section_index].value
                 label_key = row[label_key_index].value
@@ -696,13 +698,13 @@ class LabelsGenerator:
     @classmethod
     def generate_labels(
         cls,
-        excel_file_path,
+        workbook: ExcelWorkbook,
         labels_output_folder_path,
         languages: tuple[str, ...],
         sheets_with_labels: list[SheetWithLabels] = DEFAULT_SHEETS_WITH_LABELS,
     ):
         """
-        Generates the labels locales files from an Excel file for multiple sheets.
+        Generates the labels locales files from an Excel workbook for multiple sheets.
 
         This function:
         1. Collects all unique section names from all specified sheets.
@@ -710,7 +712,7 @@ class LabelsGenerator:
         3. Processes each sheet, merging translations into the same YAML files per section/language.
 
         Args:
-            excel_file_path (str): The path to the Excel file containing translations.
+            workbook (ExcelWorkbook): The Excel workbook containing translations.
             labels_output_folder_path (str): The output folder path for the labels.
             languages (tuple of str): The survey languages; each needs its label::<language> column.
             sheets_with_labels (list[SheetWithLabels]): Sheet configurations for labels extraction.
@@ -724,10 +726,10 @@ class LabelsGenerator:
             all_sections = set()
             for sheet in sheets_with_labels:
                 widgets_rows, widgets_headers = get_data_from_excel(
-                    excel_file_path, sheet_name=sheet["sheetName"]
+                    workbook, sheet_name=sheet["sheetName"]
                 )
                 section_index = widgets_headers.index(sheet["namespaceHeader"])
-                for row in widgets_rows[1:]:
+                for row in get_data_rows(widgets_rows):
                     section = row[section_index].value
                     if section:
                         all_sections.add(section)
@@ -742,7 +744,7 @@ class LabelsGenerator:
             # Step 3: Process each sheet and merge translations into the same files
             for sheet in sheets_with_labels:
                 cls.add_translations_from_excel(
-                    excel_file_path=excel_file_path,
+                    workbook=workbook,
                     labels_output_folder_path=labels_output_folder_path,
                     sheet_with_labels=sheet,
                     languages=languages,
