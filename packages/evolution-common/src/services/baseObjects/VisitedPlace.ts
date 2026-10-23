@@ -102,7 +102,7 @@ export class VisitedPlace extends SurveyObject {
         this._customAttributes = {};
 
         const { attributes, customAttributes } = ConstructorUtils.initializeAttributes(
-            _omit(params, ['_place', '_journeyUuid']),
+            _omit(params, ['_place', 'place', '_journeyUuid']),
             visitedPlaceAttributes,
             visitedPlaceAttributesWithComposedAttributes
         );
