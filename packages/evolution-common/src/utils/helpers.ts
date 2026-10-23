@@ -8,7 +8,7 @@ import _get from 'lodash/get';
 import _set from 'lodash/set';
 import { v4 as uuidV4 } from 'uuid';
 import sortBy from 'lodash/sortBy';
-import { i18n } from 'i18next';
+import { i18n, TFunction } from 'i18next';
 import moment from 'moment';
 import { isFeature } from 'geojson-validation';
 
@@ -23,7 +23,9 @@ import {
     InterviewResponse,
     ParsingFunction,
     QuestionnaireObjectWithUuidAndSequence,
+    I18nDataParadata,
     RadioChoiceType,
+    TranslatableStringFunction,
     UserInterviewAttributes,
     WidgetConfig
 } from '../services/questionnaire/types';
@@ -44,6 +46,79 @@ export const translateString = (
         : typeof i18nData === 'object'
             ? parseString(i18nData[i18nObj.language], interview, path, user)
             : i18nData;
+};
+
+// Call a translation function, returning undefined if it fails or does not
+// return a string
+const callTranslationFunction = (
+    i18nData: TranslatableStringFunction,
+    t: TFunction,
+    interview: UserInterviewAttributes,
+    path: string,
+    user?: CliUser
+): string | undefined => {
+    try {
+        const text = i18nData(t, interview, path, user);
+        return typeof text === 'string' ? text : undefined;
+    } catch {
+        return undefined;
+    }
+};
+
+/**
+ * Get a translatable string as it should be logged in the paradata: its
+ * translation key, if it is translated with a key, and its text in each survey
+ * language.
+ *
+ * @param i18nData The translatable string
+ * @param i18nObj The i18n object, used to get the text in each language
+ * @param interview The interview attributes
+ * @param path The path of the field the string is for
+ * @param user The current user's information
+ * @returns The translation key and texts, or `undefined` if there is no
+ * string, or if neither the key nor any text can be determined
+ */
+export const getI18nDataForParadata = (
+    i18nData: I18nData | undefined,
+    i18nObj: i18n,
+    interview: UserInterviewAttributes,
+    path: string,
+    user?: CliUser
+): I18nDataParadata | undefined => {
+    if (i18nData === undefined) {
+        return undefined;
+    }
+    let translationKey: string | undefined = undefined;
+    const textByLanguage: { [language: string]: string } = {};
+    for (const language of config.languages) {
+        const text =
+            typeof i18nData === 'function'
+                ? callTranslationFunction(i18nData, i18nObj.getFixedT(language), interview, path, user)
+                : typeof i18nData === 'object'
+                    ? parseString(i18nData[language], interview, path, user)
+                    : i18nData;
+        if (text !== undefined) {
+            textByLanguage[language] = text;
+        }
+    }
+    if (typeof i18nData === 'function') {
+        // Use a `t` function that returns the key instead of translating it.
+        // If the function does not call `t`, what it returns is text, not a key.
+        let keyTCalled = false;
+        const keyT = ((key: string | string[]) => {
+            keyTCalled = true;
+            return Array.isArray(key) ? key[0] : key;
+        }) as unknown as TFunction;
+        const key = callTranslationFunction(i18nData, keyT, interview, path, user);
+        translationKey = keyTCalled ? key : undefined;
+    }
+    if (translationKey === undefined && Object.keys(textByLanguage).length === 0) {
+        return undefined;
+    }
+    return {
+        translationKey,
+        textByLanguage: Object.keys(textByLanguage).length === 0 ? undefined : textByLanguage
+    };
 };
 
 /**

@@ -369,6 +369,99 @@ each([
     }
 });
 
+describe('getI18nDataForParadata', () => {
+    // Translation function that prefixes the key with the language
+    const i18nObj = {
+        getFixedT: (language: string) => (key: string | string[], options?: { [key: string]: unknown }) =>
+            `${language}: ${Array.isArray(key) ? key[0] : key}${options?.max !== undefined ? ` ${options.max}` : ''}`
+    } as any;
+    const originalLanguages = config.languages;
+    beforeAll(() => {
+        config.languages = ['fr', 'en'];
+    });
+    afterAll(() => {
+        config.languages = originalLanguages;
+    });
+
+    test.each([
+        {
+            description: 'undefined',
+            i18nData: undefined,
+            expected: undefined
+        },
+        {
+            description: 'simple string',
+            i18nData: 'test',
+            expected: { translationKey: undefined, textByLanguage: { fr: 'test', en: 'test' } }
+        },
+        {
+            description: 'object with simple strings',
+            i18nData: { fr: 'french', en: 'english' },
+            expected: { translationKey: undefined, textByLanguage: { fr: 'french', en: 'english' } }
+        },
+        {
+            description: 'object with a missing language and an unsupported language',
+            i18nData: { fr: 'french', es: 'spanish' },
+            expected: { translationKey: undefined, textByLanguage: { fr: 'french' } }
+        },
+        {
+            description: 'object with parsed function',
+            i18nData: { en: () => 'english', fr: () => 'french' },
+            expected: { translationKey: undefined, textByLanguage: { fr: 'french', en: 'english' } }
+        },
+        {
+            description: 'TFunction with key',
+            i18nData: (t) => t('survey:errors:answerRequired'),
+            expected: {
+                translationKey: 'survey:errors:answerRequired',
+                textByLanguage: { fr: 'fr: survey:errors:answerRequired', en: 'en: survey:errors:answerRequired' }
+            }
+        },
+        {
+            description: 'TFunction with key and options',
+            i18nData: (t) => t('survey:errors:overMax', { max: 3 }),
+            expected: {
+                translationKey: 'survey:errors:overMax',
+                textByLanguage: { fr: 'fr: survey:errors:overMax 3', en: 'en: survey:errors:overMax 3' }
+            }
+        },
+        {
+            description: 'TFunction with array of keys',
+            i18nData: (t) => t(['survey:errors:specific', 'survey:errors:generic']),
+            expected: {
+                translationKey: 'survey:errors:specific',
+                textByLanguage: { fr: 'fr: survey:errors:specific', en: 'en: survey:errors:specific' }
+            }
+        },
+        {
+            description: 'TFunction returning text without calling t',
+            i18nData: (_t) => 'some text',
+            expected: { translationKey: undefined, textByLanguage: { fr: 'some text', en: 'some text' } }
+        },
+        {
+            description: 'object without any survey language',
+            i18nData: { es: 'spanish' },
+            expected: undefined
+        },
+        {
+            description: 'TFunction returning something else than a string',
+            i18nData: (_t) => ({ some: 'object' }),
+            expected: undefined
+        },
+        {
+            description: 'TFunction throwing an error',
+            i18nData: (_t) => {
+                throw new Error('error');
+            },
+            expected: undefined
+        }
+    ])('$description', ({ i18nData, expected }) => {
+        expect(
+            Helpers.getI18nDataForParadata(i18nData as any, i18nObj, interviewAttributes, 'some.path', userAttributes)
+        ).toEqual(expected);
+    });
+});
+
 each([
     ['simple path', 'home.address', 'home.address'],
     ['single replacement for the whole string', '{section1.q1}', 'abc'],

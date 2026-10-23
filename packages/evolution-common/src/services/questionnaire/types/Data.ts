@@ -50,6 +50,21 @@ export type TranslatableStringFunction = (
 
 export type I18nData = string | LangData | TranslatableStringFunction;
 
+/**
+ * A translatable string, as logged in the paradata
+ */
+export type I18nDataParadata = {
+    /**
+     * The translation key passed to the `t` function, undefined if the string
+     * is not translated with a key (for example `{ fr, en }` objects)
+     */
+    translationKey?: string;
+    /**
+     * The text of the string in each survey language, by language
+     */
+    textByLanguage?: { [language: string]: string };
+};
+
 type Required<T> = { [P in keyof T]-?: T[P] };
 // This recursive generic type is taken from this stack overflow question:
 // https://stackoverflow.com/questions/65332597/typescript-is-there-a-recursive-keyof
@@ -497,12 +512,21 @@ export type UserAction =
            * Widgets that are currently visible and invalid when the button was clicked
            */
           invalidWidgets?: string[];
+          /**
+           * Error message of each invalid widget, by widget path
+           */
+          invalidWidgetsMessages?: { [path: string]: I18nDataParadata };
       }
     | {
           type: 'widgetInteraction';
           widgetType: string;
           path: string;
           value: unknown;
+          /**
+           * Error message of the widget if it is invalid after this
+           * interaction
+           */
+          errorMessage?: I18nDataParadata;
       }
     | {
           type: 'sectionChange';
