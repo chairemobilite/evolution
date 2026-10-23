@@ -5,6 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import moment from 'moment';
+import _cloneDeep from 'lodash/cloneDeep';
 // eslint-disable-next-line n/no-unpublished-import
 import { test, expect, Page, Browser, BrowserContext, Locator } from '@playwright/test';
 import configureI18n, { registerTranslationDir } from './configurei18n';
@@ -162,11 +163,20 @@ export const initializeTestPage = async (
             if (postData === null) {
                 return;
             }
-            const data = JSON.parse(postData)['valuesByPath'];
-            if (data === undefined) {
+            const jsonData = JSON.parse(postData);
+            // Active objects may come from the user action, like the select
+            // person widget, so if this is a user action of type
+            // widgetInteraction, add the field to the data
+            const data = jsonData['valuesByPath'];
+            const userAction = jsonData['userAction'];
+            if (data === undefined && (userAction === undefined || userAction.type !== 'widgetInteraction')) {
                 return;
             }
-            surveyObjectDetector.detectSurveyObjects(data);
+            const updatedValues = _cloneDeep(data ?? {});
+            if (userAction !== undefined && userAction.type === 'widgetInteraction') {
+                updatedValues[userAction.path] = userAction.value;
+            }
+            surveyObjectDetector.detectSurveyObjects(updatedValues);
         }
     });
     // Also listen to responses in case the server returns new object data in
