@@ -71,7 +71,9 @@ class ConditionalDefinition(BaseModel):
 
     Attributes:
         conditional_name: Name of the conditional this row belongs to; shared by every
-            row of the same conditional. Required.
+            row of the same conditional. Required; must be a valid TypeScript
+            identifier ending with "Conditional", but not "CustomConditional" (those
+            are written by hand in customConditionals.tsx).
         logical_operator: How this row combines with the previous one ('||' or '&&').
             Required (non-blank) on every row of a conditional except its first.
         path: Interview path this row compares, e.g. 'household.size'. May contain at
@@ -105,6 +107,20 @@ class ConditionalDefinition(BaseModel):
     logical_operator: Literal["||", "&&"] | None = None
     parentheses: Literal["(", ")"] | None = None
     value_when_hidden: object | None = None
+
+    @field_validator("conditional_name")
+    @classmethod
+    def _conditional_name_is_valid(cls, value: str, info: ValidationInfo) -> str:
+        """Check that `conditional_name` is a valid TypeScript identifier ending with "Conditional", but not "CustomConditional"."""
+        # Each conditional is exported under its name in conditionals.tsx.
+        _raise_if_check_fails(field_checks.valid_ts_identifier, value, info.data)
+        # A conditional is referenced by name, and the suffix tells the two kinds apart:
+        # a name ending with "CustomConditional" is imported from customConditionals.tsx,
+        # so a generated one must not end with it, or it would be looked for there.
+        _raise_if_check_fails(
+            field_checks.valid_generated_conditional_name, value, info.data
+        )
+        return value
 
     @field_validator("path")
     @classmethod

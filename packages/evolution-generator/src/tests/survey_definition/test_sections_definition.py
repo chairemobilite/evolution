@@ -101,7 +101,7 @@ class TestSections:
         ]
         assert self._issues(rows) == [
             "Error in Sections - Invalid enable_conditional in row 2: "
-            "'hasSize1' - Must end with 'Conditional' or 'CustomConditional' "
+            "'hasSize1' - Must be a valid TypeScript identifier ending with 'Conditional' or 'CustomConditional' "
             "(e.g. 'hasHouseholdSize1Conditional', 'isCompleteCustomConditional')."
         ]
 
@@ -114,7 +114,7 @@ class TestSections:
         ]
         assert self._issues(rows) == [
             "Error in Sections - Invalid completion_conditional in row 2: "
-            "'isDone' - Must end with 'Conditional' or 'CustomConditional' "
+            "'isDone' - Must be a valid TypeScript identifier ending with 'Conditional' or 'CustomConditional' "
             "(e.g. 'hasHouseholdSize1Conditional', 'isCompleteCustomConditional')."
         ]
 

@@ -35,8 +35,14 @@ def ends_with_underscore(value, row: dict) -> bool:
 
 
 def valid_conditional_name(value, row: dict) -> bool:
-    """Must end with 'Conditional' or 'CustomConditional' (e.g. 'hasHouseholdSize1Conditional', 'isCompleteCustomConditional')."""
-    return str(value).endswith("Conditional")
+    """Must be a valid TypeScript identifier ending with 'Conditional' or 'CustomConditional' (e.g. 'hasHouseholdSize1Conditional', 'isCompleteCustomConditional')."""
+    return valid_ts_identifier(value, row) and str(value).endswith("Conditional")
+
+
+def valid_generated_conditional_name(value, row: dict) -> bool:
+    """Must end with 'Conditional' but not 'CustomConditional' (e.g. 'hasHouseholdSize1Conditional'): a CustomConditional is written by hand in customConditionals.tsx, not in the Conditionals sheet."""
+    name = str(value)
+    return name.endswith("Conditional") and not name.endswith("CustomConditional")
 
 
 def primitive_value(value, row: dict) -> bool:

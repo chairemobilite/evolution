@@ -265,7 +265,9 @@ class TestLoadSurveyDefinition:
         "parentheses",
         "value_when_hidden",
     ]
-    VALID_CONDITIONALS_ROWS = [["cond1", "", "household.size", "===", 1, "", ""]]
+    VALID_CONDITIONALS_ROWS = [
+        ["cond1Conditional", "", "household.size", "===", 1, "", ""]
+    ]
 
     VALID_LABELS_HEADERS = ["namespace", "key", "label::fr", "label::en"]
     VALID_LABELS_ROWS = [["home", "welcome", "Bienvenue", "Welcome"]]
@@ -312,7 +314,7 @@ class TestLoadSurveyDefinition:
             assert [
                 conditional.conditional_name
                 for conditional in survey_definition.conditionals
-            ] == ["cond1"]
+            ] == ["cond1Conditional"]
             assert [
                 (label.namespace, label.key, label.label)
                 for label in survey_definition.labels
@@ -370,7 +372,7 @@ class TestLoadSurveyDefinition:
             assert [
                 conditional.conditional_name
                 for conditional in survey_definition.conditionals
-            ] == ["cond1"]
+            ] == ["cond1Conditional"]
         finally:
             delete_file_if_exists(MOCKED_EXCEL_FILE)
 

@@ -42,7 +42,7 @@ VALID_CONDITIONALS_HEADERS = [
     "parentheses",
     "value_when_hidden",
 ]
-VALID_CONDITIONALS_ROWS = [["cond1", "", "household.size", "===", 1, "", ""]]
+VALID_CONDITIONALS_ROWS = [["cond1Conditional", "", "household.size", "===", 1, "", ""]]
 
 
 VALID_WIDGETS_HEADERS = ["questionName", "label::fr", "label::en"]
@@ -93,7 +93,7 @@ class TestCheckExcelIntegrityWithMessages:
     def test_invalid_rows_in_both_sheets_return_every_message(self):
         _create_workbook(
             sections_rows=[["home", "Accueil", "Home", True, "", "", ""]],
-            conditionals_rows=[["cond1", "", "", "===", 1, "", ""]],
+            conditionals_rows=[["cond1Conditional", "", "", "===", 1, "", ""]],
         )
         try:
             ok, messages = check_excel_integrity_with_messages(MOCKED_EXCEL_FILE)
@@ -110,7 +110,7 @@ class TestCheckExcelIntegrityWithMessages:
         """The rule that needs the survey languages runs with each sheet's other checks."""
         _create_workbook(
             sections_rows=[["home", "", "Home", True, "", "", "HM_"]],
-            conditionals_rows=[["cond1", "", "", "===", 1, "", ""]],
+            conditionals_rows=[["cond1Conditional", "", "", "===", 1, "", ""]],
         )
         try:
             assert check_excel_integrity_with_messages(MOCKED_EXCEL_FILE) == (

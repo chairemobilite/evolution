@@ -310,7 +310,7 @@ Sections in your survey help organize questions into logical groups, making it e
 | enable_conditional     | Optional. Name of the conditional that controls whether the section can be opened from the nav. | string?  |
 | completion_conditional | Optional. Name of the conditional that marks the section as completed in the nav.               | string?  |
 
-> **Note:** Conditional names ending with `CustomConditional` are imported from `customConditionals`; all other names are taken from generated `conditionals` (see [Generate Conditionals](#generate-conditionals)).
+> **Note:** `enable_conditional` and `completion_conditional` must be valid TypeScript names ending with `Conditional` or `CustomConditional`. Names ending with `CustomConditional` are imported from `customConditionals`; all other names are taken from generated `conditionals` (see [Generate Conditionals](#generate-conditionals)).
 
 ### Sections Example
 
@@ -380,13 +380,15 @@ In your survey logic, conditionals play a key role in determining whether a widg
 
 | Field                                   | Description                                                              | Type                      |
 | --------------------------------------- | ------------------------------------------------------------------------ | ------------------------- |
-| conditional_name                        | Name of the conditional                                                  | string                    |
+| [conditional_name](#cond_name)          | Name of the conditional                                                  | string                    |
 | logical_operator                        | Logical operator (optional)                                              | && or \|\|                |
 | path                                    | Path to the response object for comparison                               | string                    |
 | [comparison_operator](#comp)            | Operator for comparison                                                  | ===, ==, >, <, >= or <=   |
 | value                                   | Value for the comparison                                                 | number or string          |
 | [parentheses](#par)                     | Parentheses (optional)                                                   | ( or )                    |
 | [value_when_hidden](#value_when_hidden) | Value to use when the widget is hidden (conditional is false) (optional) | boolean, number or string |
+
+> <span id="cond_name">**Note:**</span> The `conditional_name` must be a valid TypeScript name (letters, digits, `_` or `$`, not starting with a digit), ending with `Conditional` but not `CustomConditional`, e.g. `hasDrivingLicenseConditional`. Wherever a conditional is referenced by name, a name ending with `CustomConditional` is imported from `customConditionals.tsx`, which is written by hand, so a conditional of this sheet can't use that ending.
 
 > <span id="comp">**Note:**</span> The `comparison_operator` field helps compare the respondent’s response with the specified value. It determines how the respondent's answer should be evaluated in the conditional logic. For example, `>=` signifies that the condition is true when the response at `path` is greater than or equal to the value.
 
@@ -458,7 +460,7 @@ Choices in your survey define the available options for `InputRadio` or `InputCh
 
 > <span id="spread">**Note:**</span> The `spreadChoicesName` field is useful to avoid repetition. If you are using the same choices as another `choicesName`, you can specify the existing `choicesName` in `spreadChoicesName` to reuse the choices without duplicating them.
 
-> <span id="choice_cond">**Note:**</span> The `conditional` field must be a `conditional_name` of the `Conditionals` sheet (see [Generate Conditionals](#generate-conditionals)), unless it ends with `CustomConditional`: such a conditional is imported from `customConditionals.tsx`.
+> <span id="choice_cond">**Note:**</span> The `conditional` field must be a valid TypeScript name ending with `Conditional` or `CustomConditional`. It must be a `conditional_name` of the `Conditionals` sheet (see [Generate Conditionals](#generate-conditionals)), unless it ends with `CustomConditional`: such a conditional is imported from `customConditionals.tsx`.
 
 ### Choices Example
 

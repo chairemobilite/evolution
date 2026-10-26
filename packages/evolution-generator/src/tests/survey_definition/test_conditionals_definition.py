@@ -19,7 +19,7 @@ from survey_definition.conditionals_definition import (
 class TestConditionalDefinition:
     def test_conditional_definition_required_fields_and_defaults(self):
         conditional = ConditionalDefinition(
-            conditional_name="cond1",
+            conditional_name="cond1Conditional",
             path="household.size",
             comparison_operator="===",
             value=1,
@@ -48,17 +48,24 @@ class TestConditionals:
 
     def test_no_issues_for_a_valid_table(self):
         rows = [
-            self._row("cond1"),
-            self._row("cond1", logical_operator="&&", value=2),
-            self._row("cond2"),
+            self._row("cond1Conditional"),
+            self._row("cond1Conditional", logical_operator="&&", value=2),
+            self._row("cond2Conditional"),
         ]
         conditionals = Conditionals(rows)
         assert len(conditionals) == 3
-        assert [c.conditional_name for c in conditionals] == ["cond1", "cond1", "cond2"]
-        assert conditionals[0].conditional_name == "cond1"
+        assert [c.conditional_name for c in conditionals] == [
+            "cond1Conditional",
+            "cond1Conditional",
+            "cond2Conditional",
+        ]
+        assert conditionals[0].conditional_name == "cond1Conditional"
 
     def test_includes_each_row_s_own_issues(self):
-        rows = [self._row("cond1"), {**self._row("cond2"), "path": None}]
+        rows = [
+            self._row("cond1Conditional"),
+            {**self._row("cond2Conditional"), "path": None},
+        ]
         assert self._issues(rows) == [
             "Error in Conditionals - Required field is missing in row 3. "
             "Missing fields: ['path']"
@@ -68,16 +75,46 @@ class TestConditionals:
         """When several rows are individually invalid, every row issue is reported and
         the grouped rules (which need every row to be valid first) do not run."""
         rows = [
-            {**self._row("cond1"), "conditional_name": None},
-            {**self._row("cond2"), "comparison_operator": "=="},
+            {**self._row("cond1Conditional"), "conditional_name": None},
+            {**self._row("cond2Conditional"), "comparison_operator": "=="},
         ]
         issues = self._issues(rows)
         assert len(issues) == 2
         assert any("conditional_name" in issue for issue in issues)
         assert any("comparison_operator" in issue for issue in issues)
 
+    def test_reports_conditional_name_not_ending_with_conditional(self):
+        rows = [self._row("householdHasCars")]
+        assert self._issues(rows) == [
+            "Error in Conditionals - Invalid conditional_name in row 2: "
+            "'householdHasCars' - Must end with 'Conditional' but not "
+            "'CustomConditional' (e.g. 'hasHouseholdSize1Conditional'): a "
+            "CustomConditional is written by hand in customConditionals.tsx, not in "
+            "the Conditionals sheet."
+        ]
+
+    def test_reports_conditional_name_that_is_not_a_valid_identifier(self):
+        """It is exported under its name in conditionals.tsx."""
+        rows = [self._row("has-cars Conditional")]
+        assert self._issues(rows) == [
+            "Error in Conditionals - Invalid conditional_name in row 2: "
+            "'has-cars Conditional' - Must be a valid TypeScript identifier "
+            "(letters, digits, '_' or '$', not starting with a digit)."
+        ]
+
+    def test_reports_conditional_name_ending_with_custom_conditional(self):
+        """Sections and choices would import it from customConditionals.tsx instead."""
+        rows = [self._row("isCompleteCustomConditional")]
+        issues = self._issues(rows)
+        assert len(issues) == 1
+        assert issues[0].startswith(
+            "Error in Conditionals - Invalid conditional_name in row 2: "
+            "'isCompleteCustomConditional' - Must end with 'Conditional' but not "
+            "'CustomConditional'"
+        )
+
     def test_reports_wrong_type(self):
-        rows = [{**self._row("cond1"), "conditional_name": 10}]
+        rows = [{**self._row("cond1Conditional"), "conditional_name": 10}]
         assert self._issues(rows) == [
             "Error in Conditionals - Invalid conditional_name in row 2: 10 - "
             "Input should be a valid string"
@@ -85,7 +122,7 @@ class TestConditionals:
 
     def test_reports_invalid_comparison_operator(self):
         """Pydantic checks the Literal itself; its message lists the allowed values."""
-        rows = [{**self._row("cond1"), "comparison_operator": "=="}]
+        rows = [{**self._row("cond1Conditional"), "comparison_operator": "=="}]
         assert self._issues(rows) == [
             "Error in Conditionals - Invalid comparison_operator in row 2: '==' - "
             "Input should be '===', '!==', '>', '<', '>=' or '<='"
@@ -93,7 +130,7 @@ class TestConditionals:
 
     def test_reports_invalid_logical_operator(self):
         """Pydantic checks the Literal itself; its message lists the allowed values."""
-        rows = [{**self._row("cond1"), "logical_operator": "OR"}]
+        rows = [{**self._row("cond1Conditional"), "logical_operator": "OR"}]
         assert self._issues(rows) == [
             "Error in Conditionals - Invalid logical_operator in row 2: 'OR' - "
             "Input should be '||' or '&&'"
@@ -101,28 +138,28 @@ class TestConditionals:
 
     def test_reports_invalid_parentheses(self):
         """Pydantic checks the Literal itself; its message lists the allowed values."""
-        rows = [{**self._row("cond1"), "parentheses": "(("}]
+        rows = [{**self._row("cond1Conditional"), "parentheses": "(("}]
         assert self._issues(rows) == [
             "Error in Conditionals - Invalid parentheses in row 2: '((' - "
             "Input should be '(' or ')'"
         ]
 
     def test_reports_non_primitive_value(self):
-        rows = [{**self._row("cond1"), "value": [1, 2]}]
+        rows = [{**self._row("cond1Conditional"), "value": [1, 2]}]
         assert self._issues(rows) == [
             "Error in Conditionals - Invalid value in row 2: [1, 2] - "
             "Must be a bool, int, float, or str."
         ]
 
     def test_reports_non_primitive_value_when_hidden(self):
-        rows = [{**self._row("cond1"), "value_when_hidden": [1, 2]}]
+        rows = [{**self._row("cond1Conditional"), "value_when_hidden": [1, 2]}]
         assert self._issues(rows) == [
             "Error in Conditionals - Invalid value_when_hidden in row 2: [1, 2] - "
             "Must be a bool, int, float, or str."
         ]
 
     def test_allows_blank_value_when_hidden(self):
-        rows = [{**self._row("cond1"), "value_when_hidden": ""}]
+        rows = [{**self._row("cond1Conditional"), "value_when_hidden": ""}]
         conditionals = Conditionals(rows)
         assert conditionals[0].value_when_hidden is None
 
@@ -132,12 +169,14 @@ class TestConditionals:
             "${currentPerson}.age",
             "${currentTrip}.segments.0.mode",
         ):
-            conditionals = Conditionals([{**self._row("cond1"), "path": path}])
+            conditionals = Conditionals(
+                [{**self._row("cond1Conditional"), "path": path}]
+            )
             assert conditionals[0].path == path
 
     def test_rejects_more_than_one_expansion_token_in_path(self):
         path = "${relativePath}.${currentPerson}.age"
-        issues = self._issues([{**self._row("cond1"), "path": path}])
+        issues = self._issues([{**self._row("cond1Conditional"), "path": path}])
         assert len(issues) == 1
         assert "only one expansion token" in issues[0]
         assert "${relativePath}" in issues[0]
@@ -145,22 +184,24 @@ class TestConditionals:
 
     def test_balanced_parentheses_across_a_group(self):
         rows = [
-            self._row("cond1", parentheses="("),
-            self._row("cond1", logical_operator="||", value=2, parentheses=")"),
+            self._row("cond1Conditional", parentheses="("),
+            self._row(
+                "cond1Conditional", logical_operator="||", value=2, parentheses=")"
+            ),
         ]
         assert len(Conditionals(rows)) == 2
 
     def test_reports_too_many_closing_parentheses(self):
-        rows = [self._row("cond1", parentheses=")")]
+        rows = [self._row("cond1Conditional", parentheses=")")]
         assert self._issues(rows) == [
-            "Error in Conditionals - Unbalanced parentheses for conditional_name 'cond1' "
+            "Error in Conditionals - Unbalanced parentheses for conditional_name 'cond1Conditional' "
             "in row 2: too many ')' (closing parenthesis without matching opening)."
         ]
 
     def test_reports_unclosed_opening_parenthesis(self):
-        rows = [self._row("cond1", parentheses="(")]
+        rows = [self._row("cond1Conditional", parentheses="(")]
         assert self._issues(rows) == [
-            "Error in Conditionals - Unbalanced parentheses for conditional_name 'cond1' "
+            "Error in Conditionals - Unbalanced parentheses for conditional_name 'cond1Conditional' "
             "(e.g. row 2): 1 unclosed opening parenthesis/parentheses."
         ]
 
@@ -168,36 +209,41 @@ class TestConditionals:
         """A conditional_name split across non-consecutive rows (another name's rows in
         between) is still checked as one group, in source order."""
         rows = [
-            self._row("condA", parentheses="("),
-            self._row("condB"),
-            self._row("condA", logical_operator="||", value=2, parentheses=")"),
+            self._row("condAConditional", parentheses="("),
+            self._row("condBConditional"),
+            self._row(
+                "condAConditional", logical_operator="||", value=2, parentheses=")"
+            ),
         ]
         assert len(Conditionals(rows)) == 3
 
     def test_first_row_of_a_group_must_not_have_logical_operator(self):
-        rows = [self._row("cond1", logical_operator="&&")]
+        rows = [self._row("cond1Conditional", logical_operator="&&")]
         assert self._issues(rows) == [
             "Error in Conditionals - Invalid logical_operator in row 2: "
             "first row of a conditional must have empty logical_operator, got '&&'"
         ]
 
     def test_non_first_row_of_a_group_must_have_logical_operator(self):
-        rows = [self._row("cond1"), self._row("cond1", value=2)]
+        rows = [self._row("cond1Conditional"), self._row("cond1Conditional", value=2)]
         assert self._issues(rows) == [
             "Error in Conditionals - Missing logical_operator in row 3: "
-            "non-first row of a conditional must have a logical_operator for conditional_name 'cond1'"
+            "non-first row of a conditional must have a logical_operator for conditional_name 'cond1Conditional'"
         ]
 
     def test_multiple_value_when_hidden_for_the_same_name_must_agree(self):
         rows = [
-            self._row("cond1", value_when_hidden="defaultA"),
+            self._row("cond1Conditional", value_when_hidden="defaultA"),
             self._row(
-                "cond1", logical_operator="&&", value=2, value_when_hidden="defaultB"
+                "cond1Conditional",
+                logical_operator="&&",
+                value=2,
+                value_when_hidden="defaultB",
             ),
         ]
         assert self._issues(rows) == [
             "Error in Conditionals - Multiple value_when_hidden for conditional_name "
-            "'cond1': ['defaultA', 'defaultB']"
+            "'cond1Conditional': ['defaultA', 'defaultB']"
         ]
 
     def test_multiple_value_when_hidden_with_mixed_types_does_not_raise_type_error(
@@ -205,20 +251,29 @@ class TestConditionals:
     ):
         """sorted() on mixed int/str values_when_hidden must not crash the check itself."""
         rows = [
-            self._row("cond1", value_when_hidden=1),
+            self._row("cond1Conditional", value_when_hidden=1),
             self._row(
-                "cond1", logical_operator="&&", value=2, value_when_hidden="defaultB"
+                "cond1Conditional",
+                logical_operator="&&",
+                value=2,
+                value_when_hidden="defaultB",
             ),
         ]
         issues = self._issues(rows)
         assert len(issues) == 1
-        assert "Multiple value_when_hidden for conditional_name 'cond1'" in issues[0]
+        assert (
+            "Multiple value_when_hidden for conditional_name 'cond1Conditional'"
+            in issues[0]
+        )
 
     def test_repeating_the_same_value_when_hidden_is_allowed(self):
         rows = [
-            self._row("cond1", value_when_hidden="defaultA"),
+            self._row("cond1Conditional", value_when_hidden="defaultA"),
             self._row(
-                "cond1", logical_operator="&&", value=2, value_when_hidden="defaultA"
+                "cond1Conditional",
+                logical_operator="&&",
+                value=2,
+                value_when_hidden="defaultA",
             ),
         ]
         assert len(Conditionals(rows)) == 2
@@ -226,14 +281,14 @@ class TestConditionals:
     def test_by_name_groups_rows_in_source_order(self):
         """by_name keeps each conditional's rows together, in source order, with names in order of first appearance."""
         rows = [
-            self._row("cond1"),
-            self._row("cond2"),
-            self._row("cond1", logical_operator="&&", value=2),
+            self._row("cond1Conditional"),
+            self._row("cond2Conditional"),
+            self._row("cond1Conditional", logical_operator="&&", value=2),
         ]
         groups = Conditionals(rows).by_name()
-        assert list(groups.keys()) == ["cond1", "cond2"]
-        assert [c.value for c in groups["cond1"]] == [1, 2]
-        assert [c.value for c in groups["cond2"]] == [1]
+        assert list(groups.keys()) == ["cond1Conditional", "cond2Conditional"]
+        assert [c.value for c in groups["cond1Conditional"]] == [1, 2]
+        assert [c.value for c in groups["cond2Conditional"]] == [1]
 
     def test_by_name_of_an_empty_table_is_empty(self):
         """An empty Conditionals table has no groups."""
