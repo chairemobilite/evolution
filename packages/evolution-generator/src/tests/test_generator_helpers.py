@@ -280,6 +280,24 @@ class TestLoadSurveyDefinition:
     ]
     VALID_CHOICES_ROWS = [["yesNo", "yes", "Oui", "Yes", "", ""]]
 
+    VALID_INPUT_RANGE_HEADERS = [
+        "input_range_name",
+        "label_min::fr",
+        "label_middle::fr",
+        "label_max::fr",
+        "label_min::en",
+        "label_middle::en",
+        "label_max::en",
+        "min_value",
+        "max_value",
+        "unit::fr",
+        "unit::en",
+        "input_color",
+    ]
+    VALID_INPUT_RANGE_ROWS = [
+        ["slider", "Min", "", "Max", "Min", "", "Max", -10, 100, "%", "%", ""]
+    ]
+
     def _create_workbook(self, sheet_name, headers, rows):
         """Like create_mocked_excel_data, plus a Widgets sheet holding the survey languages (fr, en), a Labels sheet and a Choices sheet."""
         workbook = create_mocked_excel_data(sheet_name, headers, rows)
@@ -600,6 +618,114 @@ class TestLoadSurveyDefinition:
             with pytest.raises(
                 Exception,
                 match="Missing expected header in Choices sheet: spreadChoicesName",
+            ):
+                load_survey_definition(MOCKED_EXCEL_FILE)
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+    def _create_workbook_with_input_range(self, headers=None, rows=None):
+        """Like _create_valid_workbook, plus an InputRange sheet."""
+        workbook = self._create_valid_workbook()
+        add_mocked_excel_sheet(
+            workbook,
+            "InputRange",
+            headers if headers is not None else self.VALID_INPUT_RANGE_HEADERS,
+            rows if rows is not None else self.VALID_INPUT_RANGE_ROWS,
+        )
+        return workbook
+
+    def test_input_range_sheet_is_read_by_column_name(self):
+        self._create_workbook_with_input_range()
+        try:
+            input_range = load_survey_definition(MOCKED_EXCEL_FILE).input_ranges
+            assert len(input_range) == 1
+            assert input_range[0].input_range_name == "slider"
+            assert input_range[0].label_max == {"fr": "Max", "en": "Max"}
+            assert input_range[0].min_value == -10
+            assert input_range[0].unit == {"fr": "%", "en": "%"}
+            assert input_range[0].label_middle == {}
+            assert input_range[0].input_color is None
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+    def test_input_range_sheet_without_optional_columns_is_valid(self):
+        """The middle labels, units and input_color columns don't need to exist."""
+        self._create_workbook_with_input_range(
+            headers=[
+                "input_range_name",
+                "label_min::fr",
+                "label_max::fr",
+                "label_min::en",
+                "label_max::en",
+                "min_value",
+                "max_value",
+            ],
+            rows=[["slider", "Min", "Max", "Min", "Max", 0, 10]],
+        )
+        try:
+            input_range = load_survey_definition(MOCKED_EXCEL_FILE).input_ranges
+            assert input_range[0].unit == {}
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+    def test_missing_input_range_sheet_is_an_empty_table(self):
+        """The InputRange sheet is optional: a survey without any slider can leave it out."""
+        self._create_valid_workbook()
+        try:
+            assert len(load_survey_definition(MOCKED_EXCEL_FILE).input_ranges) == 0
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+    def test_input_range_sheet_with_old_column_names_raises(self):
+        """The columns were renamed (e.g. inputRangeName -> input_range_name)."""
+        self._create_workbook_with_input_range(
+            headers=[
+                "inputRangeName",
+                "labelFrMin",
+                "labelFrMax",
+                "labelEnMin",
+                "labelEnMax",
+                "minValue",
+                "maxValue",
+            ],
+            rows=[["slider", "Min", "Max", "Min", "Max", 0, 10]],
+        )
+        try:
+            with pytest.raises(
+                Exception,
+                match="Missing expected header in InputRange sheet: input_range_name",
+            ):
+                load_survey_definition(MOCKED_EXCEL_FILE)
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+    def test_invalid_input_range_row_raises_validation_error(self):
+        self._create_workbook_with_input_range(
+            rows=[["slider", "Min", "", "Max", "Min", "", "Max", 0, 10.5, "", "", ""]],
+        )
+        try:
+            with pytest.raises(ValidationError, match="Invalid max_value in row 2"):
+                load_survey_definition(MOCKED_EXCEL_FILE)
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+    def test_input_range_sheet_is_read_in_the_survey_languages(self):
+        """The label and unit columns follow the label::<language> columns of the Widgets sheet."""
+        self._create_workbook_with_input_range(
+            headers=[
+                "input_range_name",
+                "label_min::fr",
+                "label_max::fr",
+                "min_value",
+                "max_value",
+            ],
+            rows=[["slider", "Min", "Max", 0, 10]],
+        )
+        try:
+            # The Widgets sheet of _create_workbook has label::fr and label::en
+            with pytest.raises(
+                ValidationError,
+                match="label_min::en is required; label_max::en is required",
             ):
                 load_survey_definition(MOCKED_EXCEL_FILE)
         finally:

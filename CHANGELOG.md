@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Generator: the Excel integrity check now validates the Choices sheet (fixes [#2039](https://github.com/chairemobilite/evolution/issues/2039))
 - Switch from Yarn 1 to Yarn 4 ([#2158](https://github.com/chairemobilite/evolution/pull/2158))
+- **Breaking** Generator: the InputRange sheet is validated with the survey definition, and its columns are renamed: `inputRangeName` → `input_range_name`, `labelFrMin`/`labelEnMin` → `label_min::fr`/`label_min::en` (same for `Middle` and `Max`), `minValue` → `min_value`, `maxValue` → `max_value`, `unitFr`/`unitEn` → `unit::fr`/`unit::en` (fixes [#2040](https://github.com/chairemobilite/evolution/issues/2040))
 
 ### Deprecated
 

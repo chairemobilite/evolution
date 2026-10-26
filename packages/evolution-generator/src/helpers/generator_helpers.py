@@ -11,6 +11,7 @@ from typing import Iterable, List, Optional, Tuple  # Types for Python
 
 from survey_definition.choices_definition import CHOICE_REQUIRED_FIELD_NAMES
 from survey_definition.conditionals_definition import CONDITIONAL_REQUIRED_FIELD_NAMES
+from survey_definition.input_range_definition import INPUT_RANGE_REQUIRED_FIELD_NAMES
 from survey_definition.labels_definition import LABEL_REQUIRED_FIELD_NAMES
 from survey_definition.sections_definition import SECTION_REQUIRED_FIELD_NAMES
 from survey_definition.survey_definition import SurveyDefinition
@@ -227,15 +228,25 @@ def read_survey_languages(workbook: Workbook) -> tuple[str, ...]:
     return languages
 
 
+def _read_optional_sheet_rows(
+    workbook: Workbook, sheet_name: str, expected_headers
+) -> List[dict]:
+    """Like _read_sheet_rows, but a missing sheet is read as an empty table (e.g. a survey without any slider has no InputRange sheet)."""
+    if sheet_name not in workbook.sheetnames:
+        return []
+    return _read_sheet_rows(workbook, sheet_name, expected_headers)
+
+
 def load_survey_definition(excel_file_path: str) -> SurveyDefinition:
     """
     Build a SurveyDefinition from an Excel file's sheets, in the survey languages read
-    from the Widgets sheet (see read_survey_languages).
+    from the Widgets sheet (see read_survey_languages). An optional sheet that is
+    missing is read as an empty table.
 
     Raises on the same problems as get_data_from_excel/get_headers (invalid file,
-    missing sheet, missing/too few headers), and `pydantic.ValidationError` when the
-    languages or a sheet's rows don't pass their checks (see survey_definition.py,
-    sections_definition.py, ...).
+    missing required sheet, missing/too few headers), and `pydantic.ValidationError`
+    when the languages or a sheet's rows don't pass their checks (see
+    survey_definition.py, sections_definition.py, ...).
     The returned instance is already validated; callers don't need to check it again.
     """
     is_excel_file(excel_file_path)
@@ -249,6 +260,9 @@ def load_survey_definition(excel_file_path: str) -> SurveyDefinition:
         ),
         labels=_read_sheet_rows(workbook, "Labels", LABEL_REQUIRED_FIELD_NAMES),
         choices=_read_sheet_rows(workbook, "Choices", CHOICE_REQUIRED_FIELD_NAMES),
+        input_ranges=_read_optional_sheet_rows(
+            workbook, "InputRange", INPUT_RANGE_REQUIRED_FIELD_NAMES
+        ),
     )
 
 
