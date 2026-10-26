@@ -15,6 +15,7 @@ from helpers.questionnaire_reference_helpers import (
 )
 from scripts.generate_widgets import get_radio_number_parameters
 from survey_definition.choices_definition import Choices
+from survey_definition.input_range_definition import InputRanges
 from survey_definition.survey_definition import SurveyDefinition
 
 
@@ -41,9 +42,6 @@ def generate_questionnaire_dictionary(
         # Read data from Excel and return rows and headers
         widgets_rows, widgets_headers = get_data_from_excel(
             excel_file_path, sheet_name="Widgets"
-        )
-        ranges_rows, ranges_headers = get_data_from_excel(
-            excel_file_path, sheet_name="InputRange"
         )
 
         # Find the index
@@ -80,7 +78,7 @@ def generate_questionnaire_dictionary(
         )
 
         # Process ranges and get the ranges_map
-        ranges_map = process_range(ranges_rows, ranges_headers, language)
+        ranges_map = process_range(survey_definition.input_ranges, language)
 
         # Group questions by section
         sections_questions = {}
@@ -393,48 +391,33 @@ def process_radio_number_values(parameters: str, language: Literal["en", "fr"]) 
     return "\n".join(values)
 
 
-def process_range(ranges_rows, ranges_headers, language):
+def process_range(input_ranges: InputRanges, language: str) -> dict[str, str]:
     """
-    Process the ranges from the Excel sheet and group them by input_range_name.
-    Concatenate their min and max values with their corresponding labels.
+    Describe each input range: its min and max values (and middle value, if it has a
+    middle label), each with its label.
 
     Args:
-        ranges_rows (list): Rows from the InputRange sheet.
-        ranges_headers (list): Headers from the InputRange sheet.
-        language (str): Language code ('en' or 'fr').
+        input_ranges: The validated InputRange table.
+        language (str): Language code, one of the survey languages (e.g. 'fr').
 
     Returns:
-        dict: A dictionary mapping input_range_name to their concatenated values.
+        dict: A dictionary mapping input_range_name to its description.
     """
-    input_range_name_index = ranges_headers.index("input_range_name")
-    min_value_index = ranges_headers.index("min_value")
-    max_value_index = ranges_headers.index("max_value")
-    label_min_index = ranges_headers.index(f"label_min::{language}")
-    label_middle_index = ranges_headers.index(f"label_middle::{language}")
-    label_max_index = ranges_headers.index(f"label_max::{language}")
-
     ranges_map = {}
-    for row in ranges_rows[1:]:
-        input_range_name = row[input_range_name_index].value
+    for input_range in input_ranges:
         # Ensure min_value is not negative
-        min_value = max(0, row[min_value_index].value)
-        max_value = row[max_value_index].value
-        label_min = clean_text(row[label_min_index].value)
-        label_middle = (
-            clean_text(row[label_middle_index].value)
-            if row[label_middle_index].value
-            else None
-        )
-        label_max = clean_text(row[label_max_index].value)
+        min_value = max(0, input_range.min_value)
+        max_value = input_range.max_value
+        label_min = clean_text(input_range.label_min[language])
+        label_max = clean_text(input_range.label_max[language])
 
-        # Add range to ranges_map if it has min and max values and labels
-        if min_value is not None and max_value is not None and label_min and label_max:
-            if label_middle:
-                middle_value = (min_value + max_value) // 2
-                range_entry = f"{min_value} : {label_min}\n{middle_value} : {label_middle}\n{max_value} : {label_max}"
-            else:
-                range_entry = f"{min_value} : {label_min}\n{max_value} : {label_max}"
-            ranges_map[input_range_name] = range_entry
+        if input_range.label_middle:
+            label_middle = clean_text(input_range.label_middle[language])
+            middle_value = (min_value + max_value) // 2
+            range_entry = f"{min_value} : {label_min}\n{middle_value} : {label_middle}\n{max_value} : {label_max}"
+        else:
+            range_entry = f"{min_value} : {label_min}\n{max_value} : {label_max}"
+        ranges_map[input_range.input_range_name] = range_entry
 
     return ranges_map
 
