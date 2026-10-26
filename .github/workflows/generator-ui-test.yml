@@ -51,10 +51,11 @@ jobs:
     - name: Enable Corepack
       # Corepack runs the Yarn version set in package.json. Node.js 25+ no longer bundles it.
       run: npm install -g corepack
+    - name: Install
+      # Yarn 4 needs the project to be installed before running scripts
+      run: yarn
     - name: Generate survey
       run: yarn generateSurvey:generator
-    - name: Install
-      run: yarn
     - name: Format python
       run: yarn format:python
     - name: Check git status after python format

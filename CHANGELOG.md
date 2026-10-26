@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Generator: the Excel integrity check now validates the Choices sheet (fixes [#2039](https://github.com/chairemobilite/evolution/issues/2039))
+- Switch from Yarn 1 to Yarn 4 ([#2158](https://github.com/chairemobilite/evolution/pull/2158))
 
 ### Deprecated
 

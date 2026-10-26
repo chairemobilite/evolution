@@ -27,13 +27,15 @@ Skip this step if Node.js (version 18.x or 20.x) is already installed on your Li
 
 ### Install Yarn via Corepack on Linux
 
-This project configures the Yarn version via Corepack. You might need to install corepack if you
-don't have it already. Also, if you have installed a system-wide Yarn, you'll want to remove it first.
+This project uses Yarn 4, selected through Corepack with the `packageManager` field of `package.json`. You might need to install corepack if you
+don't have it already (Node.js 25+ no longer bundles it). Also, if you have installed a system-wide Yarn, you'll want to remove it first (`sudo npm uninstall -g yarn` or `sudo apt-get remove yarn`).
 
     ```bash
     sudo npm install -g corepack
     yarn -v
     ```
+
+`yarn -v` should print the version set in `packageManager`. If you need to use Yarn 1 for other projects, run `yarn set version 1.22.22` in that project's directory.
 
 ### Install PostgreSQL and PostGIS on Linux
 
@@ -72,7 +74,7 @@ The following instructions explain how to prepare and compile the application
 ```
 
 - `git submodule init && git submodule update` will get the Transition repository
-- `yarn install` or just `yarn`: Will download the packages required by the application
+- `yarn install` or just `yarn`: Will download the packages required by the application. It also removes `transition/yarn.lock` from the submodule's checkout (with `git sparse-checkout`), as Yarn 4 would otherwise take the `transition` directory as a separate project and fail to run the `chaire-lib` workspaces' scripts
 - `yarn compile`: Convert the typescript files to javascript
 - `yarn setup`: Run this command to setup the database for the current project
 - `yarn migrate`: Update the database schema with latest changes. This can be run whenever the source code is updated

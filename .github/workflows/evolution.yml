@@ -81,7 +81,8 @@ jobs:
       # Corepack runs the Yarn version set in package.json. Node.js 25+ no longer bundles it.
       run: npm install -g corepack
     - name: Install
-      run: yarn install --frozen-lockfile
+      # Fail if the yarn.lock was not committed after a dependency change. This is the default on CI, but makes it explicit.
+      run: yarn install --immutable
     - name: Yarn format
       run: yarn format
     - name: Check git status

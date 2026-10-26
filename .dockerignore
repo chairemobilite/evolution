@@ -1,0 +1,3 @@
+# The submodule's lockfile would make Yarn take transition/ as a separate project.
+# Outside docker, the postinstall hides it with a sparse-checkout.
+transition/yarn.lock

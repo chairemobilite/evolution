@@ -7,7 +7,7 @@ WORKDIR /app
 
 # TODO split package.json copy and yarn install to have some intermediary images
 COPY . /app
-RUN yarn install
+RUN yarn install --immutable
 
 # Setup the example as a default configuration for the image
 COPY .env.example /app/.env
