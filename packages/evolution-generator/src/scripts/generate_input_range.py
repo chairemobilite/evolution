@@ -7,130 +7,114 @@
 from helpers.generator_helpers import (
     INDENT,
     add_generator_comment,
-    is_excel_file,
+    generate_output_file,
     is_ts_file,
-    get_workbook,
-    sheet_exists,
-    get_headers,
 )
+from survey_definition.input_range_definition import (
+    INPUT_RANGE_DEFAULT_COLOR,
+    InputRangeDefinition,
+)
+from survey_definition.survey_definition import SurveyDefinition
 
 
 # Function to replace single quotes and stringify text
-def replaces_quotes_and_stringify(text):
+def replaces_quotes_and_stringify(text: str | None) -> str:
+    """Escape single quotes so `text` fits in a single-quoted TypeScript string; None becomes ''."""
     if text is not None:
         return str(text).replace("'", "\\'")  # Replace single quotes
-    return None
+    return ""
+
+
+def _language_key(language: str) -> str:
+    """A language as a key of a TypeScript object, quoted when it isn't an identifier (e.g. 'en-CA')."""
+    return language if language.isidentifier() else f"'{language}'"
+
+
+def generate_label(
+    label: dict[str, str], languages: tuple[str, ...], is_last: bool = False
+) -> str:
+    """Generate one entry of the `labels` array: the label in each survey language, e.g. `{ fr, en }`."""
+    insert_comma = "," if not is_last else ""  # Insert comma if not last label
+    translations = ",\n".join(
+        f"{INDENT}{INDENT}{_language_key(language)}: "
+        f"'{replaces_quotes_and_stringify(label[language])}'"
+        for language in languages
+    )
+    return f"{INDENT}{{\n{translations}\n{INDENT}}}{insert_comma}\n"
+
+
+def generate_format_label(
+    input_range: InputRangeDefinition, languages: tuple[str, ...]
+) -> str:
+    """Generate the `formatLabel` function: the selected value followed by its unit in the current language, if any."""
+    if not input_range.unit:
+        formatted_value = "`${value}`"
+    else:
+        # e.g. language === 'fr' ? '%' : language === 'en' ? '%' : ''
+        unit_by_language = "".join(
+            f"language === '{language}' ? "
+            f"'{replaces_quotes_and_stringify(input_range.unit[language])}' : "
+            for language in languages
+        )
+        formatted_value = f"`${{value}} ${{{unit_by_language}''}}`"
+    return (
+        f"{INDENT}formatLabel: (value, language) => {{\n"
+        f"{INDENT}{INDENT}return value < 0 ? '' : {formatted_value};\n"
+        f"{INDENT}}},\n"
+    )
+
+
+def generate_input_range_ts_code(
+    input_range: InputRangeDefinition, languages: tuple[str, ...]
+) -> str:
+    """Generate the exported slider configuration of one InputRange row, in the survey `languages`."""
+    input_color = input_range.input_color or INPUT_RANGE_DEFAULT_COLOR
+
+    ts_code = f"export const {input_range.input_range_name}: Pick<InputRangeType,'labels' | 'minValue' | 'maxValue' | 'formatLabel' | 'trackClassName'> = {{\n"
+    ts_code += f"{INDENT}labels: [\n"
+    ts_code += generate_label(input_range.label_min, languages)
+    if input_range.label_middle:
+        ts_code += generate_label(input_range.label_middle, languages)
+    ts_code += generate_label(input_range.label_max, languages, True)
+    ts_code += f"{INDENT}],\n"
+    ts_code += f"{INDENT}minValue: {input_range.min_value},\n"
+    ts_code += f"{INDENT}maxValue: {input_range.max_value},\n"
+    ts_code += generate_format_label(input_range, languages)
+    ts_code += f"{INDENT}trackClassName: 'input-slider-{input_color}'\n"
+    ts_code += "};\n\n"
+    return ts_code
 
 
 # Function to generate inputRange.tsx
-def generate_input_range(input_file: str, output_file: str):
+def generate_input_range(survey_definition: SurveyDefinition, output_file: str):
+    """
+    Write inputRange.tsx: one exported slider configuration per row of the InputRange
+    table, for the InputRange widgets that use it (Widgets sheet's `inputRange` column).
+    Nothing is written when the table is empty: no widget imports the file then.
+
+    Args:
+        survey_definition: Already-validated survey definition; its input_ranges table
+            is generated, with the labels and units in its languages.
+        output_file: TypeScript file to write.
+    """
     try:
-        is_excel_file(input_file)  # Check if the input file is an Excel file
         is_ts_file(output_file)  # Check if the output file is an TypeScript file
-        workbook = get_workbook(input_file)  # Get workbook from Excel file
-        sheet_exists(workbook, "InputRange")  # Check if the sheet exists
-        sheet = workbook["InputRange"]  # Get InputRange sheet
 
-        # Get headers from the first row
-        # TODO: Use survey_definition.languages instead of fr/en once the InputRange
-        # sheet is migrated to the survey definition (see #2035). Its columns don't
-        # follow the <field>::<language> naming (e.g. labelFrMin, unitFr).
-        headers = get_headers(
-            sheet,
-            expected_headers=[
-                "input_range_name",
-                "label_min::fr",
-                "label_max::fr",
-                "label_min::en",
-                "label_max::en",
-                "min_value",
-                "max_value",
-                "unit::fr",
-                "unit::en",
-            ],
-            sheet_name="InputRange",
-        )
-
-        # Generate TypeScript codedict
-        ts_code: str = ""  # TypeScript code to be written to file
+        if not survey_definition.input_ranges:
+            return
 
         # Add Generator comment at the start of the file
-        ts_code += add_generator_comment()
+        ts_code: str = add_generator_comment()
 
         # Add imports
-        ts_code += f"import {{ type InputRangeType }} from 'evolution-common/lib/services/questionnaire/types';\n\n"
+        ts_code += "import { type InputRangeType } from 'evolution-common/lib/services/questionnaire/types';\n\n"
 
-        # Iterate through each row in the sheet, starting from the second row
-        for row in list(sheet.rows)[1:]:
-            # Create a dictionary from the row values and headers
-            row_dict = dict(zip(headers, (cell.value for cell in row)))
-
-            # Get values from the row dictionary
-            input_range_name = row_dict["input_range_name"]
-            label_fr_min = replaces_quotes_and_stringify(row_dict.get("label_min::fr"))
-            label_fr_middle = replaces_quotes_and_stringify(
-                row_dict.get("label_middle::fr")
-            )
-            label_fr_max = replaces_quotes_and_stringify(row_dict.get("label_max::fr"))
-            label_en_min = replaces_quotes_and_stringify(row_dict.get("label_min::en"))
-            label_en_middle = replaces_quotes_and_stringify(
-                row_dict.get("label_middle::en")
-            )
-            label_en_max = replaces_quotes_and_stringify(row_dict.get("label_max::en"))
-            min_value = str(row_dict["min_value"])
-            max_value = str(row_dict["max_value"])
-            unit_fr = replaces_quotes_and_stringify(row_dict.get("unit::fr"))
-            unit_en = replaces_quotes_and_stringify(row_dict.get("unit::en"))
-            input_color = (
-                row_dict["input_color"]
-                if "input_color" in row_dict and row_dict["input_color"] is not None
-                else "blue"
+        for input_range in survey_definition.input_ranges:
+            ts_code += generate_input_range_ts_code(
+                input_range, survey_definition.languages
             )
 
-            # Check if the row is valid
-            if (
-                input_range_name is None
-                or label_fr_min is None
-                or label_fr_max is None
-                or label_en_min is None
-                or label_en_max is None
-                or min_value is None
-                or max_value is None
-                or unit_fr is None
-                or unit_en is None
-            ):
-                raise Exception("Invalid row data in InputRange sheet")
-
-            # Function to generate label
-            def generate_label(label_fr: str, label_en: str, is_last: bool = False):
-                insert_comma = (
-                    "," if not is_last else ""
-                )  # Insert comma if not last label
-                return f"{INDENT}{{\n{INDENT}{INDENT}fr: '{label_fr}',\n{INDENT}{INDENT}en: '{label_en}'\n{INDENT}}}{insert_comma}\n"
-
-            # Generate TypeScript code
-            ts_code += f"export const {input_range_name}: Pick<InputRangeType,'labels' | 'minValue' | 'maxValue' | 'formatLabel' | 'trackClassName'> = {{\n"
-            ts_code += f"{INDENT}labels: [\n"
-            ts_code += generate_label(label_fr_min, label_en_min)
-            # Check if both label_fr_middle and label_en_middle exist before calling generate_label
-            if label_fr_middle and label_en_middle:
-                ts_code += generate_label(label_fr_middle, label_en_middle)
-            ts_code += generate_label(label_fr_max, label_en_max, True)
-            ts_code += f"{INDENT}],\n"
-            ts_code += f"{INDENT}minValue: {min_value},\n"
-            ts_code += f"{INDENT}maxValue: {max_value},\n"
-            # TODO: Write the unit of every survey language, not just fr/en (see #2035).
-            ts_code += f"{INDENT}formatLabel: (value, language) => {{\n"
-            ts_code += f"{INDENT}{INDENT}return value < 0 ? '' : `${{value}} ${{language === 'fr' ? '{unit_fr}' : language === 'en' ? '{unit_en}' : ''}}`;\n"
-            ts_code += f"{INDENT}}},\n"
-            ts_code += f"{INDENT}trackClassName: 'input-slider-{input_color}'\n"
-            ts_code += "};\n\n"
-
-        # Write TypeScript code to a file
-        with open(output_file, mode="w", encoding="utf-8", newline="\n") as ts_file:
-            ts_file.write(ts_code)
-
-        print(f"Generated {output_file} successfully")
+        generate_output_file(ts_code, output_file)
 
     except Exception as e:
         # Handle any other exceptions that might occur during script execution
