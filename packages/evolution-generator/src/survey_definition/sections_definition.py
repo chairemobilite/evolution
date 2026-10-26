@@ -101,10 +101,10 @@ class SectionDefinition(BaseModel):
         has_preload: Whether a `customPreload` function runs before this section loads.
             Blank is treated as true by `generate_section_configs.py`.
         enable_conditional: Name of the conditional that decides whether this section's
-            navigation item is enabled. If set, must end with "Conditional" or
-            "CustomConditional", and a name ending with only "Conditional" must be a
-            conditional_name of the Conditionals table. Blank means enabled once the
-            previous section is complete.
+            navigation item is enabled. If set, must be a valid TypeScript identifier
+            and, unless it ends with "CustomConditional", a conditional_name of the
+            Conditionals table. Blank means enabled once the previous section is
+            complete.
         completion_conditional: Name of the conditional that decides whether this
             section is complete. Same naming rule as `enable_conditional`. Blank means
             the default completion check.
@@ -167,12 +167,12 @@ class SectionDefinition(BaseModel):
         cls, value: str | None, info: ValidationInfo
     ) -> str | None:
         """
-        Check that a non-blank `enable_conditional`/`completion_conditional` ends with
-        "Conditional" and names a conditional of the Conditionals table.
+        Check that a non-blank `enable_conditional`/`completion_conditional` is a valid
+        TypeScript identifier and names a conditional of the Conditionals table.
         """
         if value is None:
             return value
-        _raise_if_check_fails(field_checks.valid_conditional_name, value, info.data)
+        _raise_if_check_fails(field_checks.valid_ts_identifier, value, info.data)
         # A name ending with 'CustomConditional' is written by hand in
         # customConditionals.tsx, so it isn't in the Conditionals table. Without the
         # conditional names (the Conditionals table is invalid, and reported as such),

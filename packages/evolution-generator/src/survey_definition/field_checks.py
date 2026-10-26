@@ -68,9 +68,9 @@ def ends_with_underscore(value, row: dict) -> bool:
     return str(value).endswith("_")
 
 
-def valid_conditional_name(value, row: dict) -> bool:
-    """Must end with 'Conditional' or 'CustomConditional' (e.g. 'hasHouseholdSize1Conditional', 'isCompleteCustomConditional')."""
-    return str(value).endswith("Conditional")
+def valid_generated_conditional_name(value, row: dict) -> bool:
+    """Must not end with 'CustomConditional' (e.g. 'householdHasCars'): a CustomConditional is written by hand in customConditionals.tsx, not in the Conditionals sheet."""
+    return not str(value).endswith("CustomConditional")
 
 
 def primitive_value(value, row: dict) -> bool:

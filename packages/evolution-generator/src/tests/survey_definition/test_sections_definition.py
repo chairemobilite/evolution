@@ -96,39 +96,42 @@ class TestSections:
             "Must end with an underscore ('_'), e.g. 'h_'."
         ]
 
-    def test_reports_enable_conditional_not_ending_with_conditional(self):
-        rows = [
-            {**self._valid_section_row("home", "HM_"), "enable_conditional": "hasSize1"}
-        ]
-        assert self._issues(rows) == [
-            "Error in Sections - Invalid enable_conditional in row 2: "
-            "'hasSize1' - Must end with 'Conditional' or 'CustomConditional' "
-            "(e.g. 'hasHouseholdSize1Conditional', 'isCompleteCustomConditional')."
-        ]
-
-    def test_reports_completion_conditional_not_ending_with_conditional(self):
+    def test_reports_enable_conditional_that_is_not_a_valid_identifier(self):
         rows = [
             {
                 **self._valid_section_row("home", "HM_"),
-                "completion_conditional": "isDone",
+                "enable_conditional": "has size1",
+            }
+        ]
+        assert self._issues(rows) == [
+            "Error in Sections - Invalid enable_conditional in row 2: "
+            "'has size1' - Must be a valid TypeScript identifier "
+            "(letters, digits, '_' or '$', not starting with a digit)."
+        ]
+
+    def test_reports_completion_conditional_that_is_not_a_valid_identifier(self):
+        rows = [
+            {
+                **self._valid_section_row("home", "HM_"),
+                "completion_conditional": "is done",
             }
         ]
         assert self._issues(rows) == [
             "Error in Sections - Invalid completion_conditional in row 2: "
-            "'isDone' - Must end with 'Conditional' or 'CustomConditional' "
-            "(e.g. 'hasHouseholdSize1Conditional', 'isCompleteCustomConditional')."
+            "'is done' - Must be a valid TypeScript identifier "
+            "(letters, digits, '_' or '$', not starting with a digit)."
         ]
 
     def test_accepts_valid_conditional_names(self):
         rows = [
             {
                 **self._valid_section_row("home", "HM_"),
-                "enable_conditional": "hasSize1Conditional",
+                "enable_conditional": "hasSize1",
                 "completion_conditional": "isDoneCustomConditional",
             }
         ]
         sections = _sections(rows)
-        assert sections[0].enable_conditional == "hasSize1Conditional"
+        assert sections[0].enable_conditional == "hasSize1"
         assert sections[0].completion_conditional == "isDoneCustomConditional"
 
     @cases(

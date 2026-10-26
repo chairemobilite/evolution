@@ -76,6 +76,29 @@ class TestConditionals:
         assert any("conditional_name" in issue for issue in issues)
         assert any("comparison_operator" in issue for issue in issues)
 
+    def test_accepts_conditional_name_without_conditional_suffix(self):
+        conditionals = Conditionals([self._row("householdHasCars")])
+        assert conditionals[0].conditional_name == "householdHasCars"
+
+    def test_reports_conditional_name_that_is_not_a_valid_identifier(self):
+        """It is exported under its name in conditionals.tsx."""
+        rows = [self._row("has-cars Conditional")]
+        assert self._issues(rows) == [
+            "Error in Conditionals - Invalid conditional_name in row 2: "
+            "'has-cars Conditional' - Must be a valid TypeScript identifier "
+            "(letters, digits, '_' or '$', not starting with a digit)."
+        ]
+
+    def test_reports_conditional_name_ending_with_custom_conditional(self):
+        """Sections and choices would import it from customConditionals.tsx instead."""
+        rows = [self._row("isCompleteCustomConditional")]
+        issues = self._issues(rows)
+        assert len(issues) == 1
+        assert issues[0].startswith(
+            "Error in Conditionals - Invalid conditional_name in row 2: "
+            "'isCompleteCustomConditional' - Must not end with 'CustomConditional'"
+        )
+
     def test_reports_wrong_type(self):
         rows = [{**self._row("cond1"), "conditional_name": 10}]
         assert self._issues(rows) == [
