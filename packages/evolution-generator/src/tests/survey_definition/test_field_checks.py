@@ -126,19 +126,18 @@ class TestEndsWithUnderscore:
         assert field_checks.ends_with_underscore("h_m", {}) is False
 
 
-class TestValidConditionalName:
-    def test_accepts_generated_conditional_name(self):
-        assert (
-            field_checks.valid_conditional_name("hasHouseholdSize1Conditional", {})
-            is True
-        )
+class TestValidGeneratedConditionalName:
+    @cases(
+        dict(id="ends with Conditional", name="hasHouseholdSize1Conditional"),
+        dict(id="without the Conditional suffix", name="householdHasCars"),
+    )
+    def test_accepts_generated_conditional_name(self, name):
+        assert field_checks.valid_generated_conditional_name(name, {}) is True
 
-    def test_accepts_custom_conditional_name(self):
-        # "CustomConditional" already ends with "Conditional", so one check covers both.
+    def test_rejects_custom_conditional_name(self):
         assert (
-            field_checks.valid_conditional_name("isCompleteCustomConditional", {})
-            is True
+            field_checks.valid_generated_conditional_name(
+                "isCompleteCustomConditional", {}
+            )
+            is False
         )
-
-    def test_rejects_name_not_ending_with_conditional(self):
-        assert field_checks.valid_conditional_name("hasHouseholdSize1", {}) is False

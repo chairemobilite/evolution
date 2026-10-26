@@ -623,10 +623,6 @@ class WidgetDefinition(BaseModel):
                 return WidgetAppearance(unparsed=value.strip())
             raise
 
-    # A conditional is only checked as a name here, not for its 'Conditional' suffix:
-    # whether a conditional must end with 'Conditional' is still open, for the
-    # Conditionals sheet and every reference to it alike (see
-    # chairemobilite/evolution#2157). Apply the rule decided there to `conditional` too.
     @field_validator(
         "question_name",
         "group",

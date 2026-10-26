@@ -91,8 +91,8 @@ class ChoiceDefinition(BaseModel):
             this row (column `spreadChoicesName`). If set, must name a list that starts
             in an earlier row; this row's value and labels are then not used.
         conditional: Name of the conditional that decides whether this choice is shown.
-            If set, a generated one (not a custom conditional) must be in the
-            Conditionals table.
+            If set, must be a valid TypeScript identifier, and a generated one (not a
+            custom conditional) must be in the Conditionals table.
         hidden: Whether this choice is hidden. Blank means false.
     """
 
@@ -140,6 +140,16 @@ class ChoiceDefinition(BaseModel):
     def _choices_name_is_valid_identifier(cls, value: str, info: ValidationInfo) -> str:
         """Check that `choices_name` is a valid TypeScript identifier."""
         _raise_if_check_fails(field_checks.valid_ts_identifier, value, info.data)
+        return value
+
+    @field_validator("conditional")
+    @classmethod
+    def _conditional_name_is_valid(
+        cls, value: str | None, info: ValidationInfo
+    ) -> str | None:
+        """Check that a non-blank `conditional` is a valid TypeScript identifier."""
+        if value is not None:
+            _raise_if_check_fails(field_checks.valid_ts_identifier, value, info.data)
         return value
 
     # One "after" validator for every rule between fields or needing the context:
