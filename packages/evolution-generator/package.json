@@ -16,11 +16,14 @@
     "test:python": "poetry run pytest -v --disable-warnings --tb=short",
     "test:sequential": "echo 'no tests to run for this workspace'",
     "test:ui": "echo 'no tests to run for this workspace'",
-    "lint": "eslint .",
-    "format": "prettier-eslint \"./src/**/*.{ts,tsx}\" --write",
+    "lint": "echo 'no Typescript to lint for this workspace'",
+    "format": "echo 'no Typescript to format for this workspace'",
     "format:python": "poetry run black .",
     "format:all": "yarn format && yarn format:python",
     "generateSurvey": "poetry run generateSurvey",
     "verifyExcel": "poetry run verifyExcel"
+  },
+  "devDependencies": {
+    "rimraf": "^6.1.2"
   }
 }

@@ -18,12 +18,12 @@
         "setup-test": "PROJECT_CONFIG=${PWD}/transition/tests/config_test.js yarn workspace chaire-lib-backend run setup-test",
         "migrate": "yarn workspace chaire-lib-backend run migrate && yarn workspace evolution-backend run migrate",
         "migrate-test": "PROJECT_CONFIG=${PWD}/transition/tests/config_test.js yarn workspace chaire-lib-backend run migrate-test && PROJECT_CONFIG=${PWD}/transition/tests/config_test.js yarn workspace evolution-backend run migrate-test",
-        "clean": "yarn workspaces run clean",
+        "clean": "yarn workspaces foreach -Av run clean",
         "clean:evolution": "yarn workspace evolution-common run clean && yarn workspace evolution-backend run clean && yarn workspace evolution-frontend run clean && yarn workspace evolution-interviewer run clean && yarn workspace demo_survey run clean",
         "cleanModules": "yarn workspace evolution-common run cleanModules && yarn workspace evolution-backend run cleanModules && yarn workspace evolution-frontend run cleanModules && yarn workspace evolution-interviewer run cleanModules && yarn workspace demo_survey run cleanModules && rimraf node_modules",
-        "compile": "yarn workspaces run compile",
+        "compile": "yarn workspaces foreach -Av --topological run compile",
         "compile:evolution": "yarn workspace evolution-common run compile && yarn workspace evolution-backend run compile && yarn workspace evolution-frontend run compile && yarn workspace evolution-interviewer run compile && yarn workspace demo_survey run compile",
-        "compile:dev": "yarn wsrun compile:dev",
+        "compile:dev": "yarn workspaces foreach -Apiv -j unlimited run compile:dev",
         "compile:dev:generator": "yarn workspace demo_generator run compile:dev",
         "compile:generator": "yarn workspace demo_generator run compile:example",
         "create-user": "yarn workspace chaire-lib-backend run create-user",
@@ -50,6 +50,7 @@
         "format:python": "yarn workspace evolution-generator run format:python",
         "format:all": "yarn format && yarn format:python",
         "generate-migration": "knex migrate:make",
+        "postinstall": "test ! -e transition/.git || git -C transition sparse-checkout set --no-cone '/*' '!/yarn.lock'",
         "reset-submodules": "rimraf transition/ && git submodule init && git submodule update",
         "generateSurvey:generator": "yarn workspace evolution-generator run generateSurvey --config_path ../../example/demo_generator/references/generatorConfigs.yaml",
         "verifyExcel": "yarn workspace evolution-generator run verifyExcel",
@@ -60,8 +61,8 @@
     },
     "devDependencies": {
         "depcheck": "^1.4.3",
-        "rimraf": "^6.1.2",
-        "wsrun": "^5.2.4"
+        "knex": "^3.1.0",
+        "rimraf": "^6.1.2"
     },
-    "packageManager": "yarn@1.22.22"
+    "packageManager": "yarn@4.18.1"
 }

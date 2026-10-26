@@ -25,12 +25,12 @@
     },
     "dependencies": {
         "@casl/ability": "^6.8.1",
-        "chaire-lib-backend": "^0.2.2",
-        "chaire-lib-common": "^0.2.2",
-        "chaire-lib-frontend": "^0.2.2",
-        "evolution-backend": "^0.6.7",
-        "evolution-common": "^0.6.7",
-        "evolution-frontend": "^0.6.7",
+        "chaire-lib-backend": "workspace:^",
+        "chaire-lib-common": "workspace:^",
+        "chaire-lib-frontend": "workspace:^",
+        "evolution-backend": "workspace:^",
+        "evolution-common": "workspace:^",
+        "evolution-frontend": "workspace:^",
         "express": "^5.2.1",
         "i18next": "^26.0.6",
         "knex": "^3.1.0",
@@ -54,6 +54,7 @@
         "jest": "^30.2.0",
         "jest-each": "^30.2.0",
         "prettier-eslint-cli": "^8.0.1",
+        "rimraf": "^6.1.2",
         "ts-jest": "^29.4.6",
         "typescript": "^5.9.3"
     }
