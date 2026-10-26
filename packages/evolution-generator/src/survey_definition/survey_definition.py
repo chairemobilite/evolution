@@ -27,6 +27,7 @@ from pydantic import (
 
 from survey_definition.choices_definition import Choices
 from survey_definition.conditionals_definition import Conditionals
+from survey_definition.input_range_definition import InputRanges
 from survey_definition.labels_definition import Labels
 from survey_definition.sections_definition import Sections
 
@@ -70,6 +71,8 @@ class SurveyDefinition(BaseModel):
             source order.
         choices: The Choices table, already checked: one ChoiceDefinition per row, in
             source order.
+        input_ranges: The InputRange table, already checked: one InputRangeDefinition
+            per row (slider configuration), in source order.
     """
 
     # Pydantic validates a table field with the table's own validators (e.g.
@@ -83,6 +86,7 @@ class SurveyDefinition(BaseModel):
     sections: Sections = Field(default_factory=lambda: Sections([]))
     labels: Labels = Field(default_factory=lambda: Labels([]))
     choices: Choices = Field(default_factory=lambda: Choices([]))
+    input_ranges: InputRanges = Field(default_factory=lambda: InputRanges([]))
 
     @field_validator("languages")
     @classmethod
@@ -140,6 +144,14 @@ class SurveyDefinition(BaseModel):
             rows,
             context={"languages": languages, "conditional_names": conditional_names},
         )
+
+    @field_validator("input_ranges", mode="before")
+    @classmethod
+    def _input_ranges_are_valid(cls, rows: Any, info: ValidationInfo) -> Any:
+        """Validate the InputRange table with the survey languages in its context."""
+        # See _sections_are_valid: no language at all when they are invalid.
+        languages = info.data.get("languages", ())
+        return _validated_table(InputRanges, rows, context={"languages": languages})
 
 
 def _validated_table[T: BaseModel](

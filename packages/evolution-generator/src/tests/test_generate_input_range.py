@@ -22,26 +22,26 @@ BAD_OUTPUT_FILE = "src/tests/survey/common/inputRange.txt"
 GOOD_SHEET_NAME = "InputRange"
 BAD_SHEET_NAME = "InputRangeBad"
 GOOD_HEADERS = [
-    "inputRangeName",
-    "labelFrMin",
-    "labelFrMax",
-    "labelEnMin",
-    "labelEnMax",
-    "minValue",
-    "maxValue",
-    "unitFr",
-    "unitEn",
+    "input_range_name",
+    "label_min::fr",
+    "label_max::fr",
+    "label_min::en",
+    "label_max::en",
+    "min_value",
+    "max_value",
+    "unit::fr",
+    "unit::en",
 ]
 BAD_HEADERS = [
-    "inputRangeNameBad",
-    "labelFrMin",
-    "labelFrMax",
-    "labelEnMin",
-    "labelEnMax",
-    "minValue",
-    "maxValue",
-    "unitFr",
-    "unitEn",
+    "input_range_name_bad",
+    "label_min::fr",
+    "label_max::fr",
+    "label_min::en",
+    "label_max::en",
+    "min_value",
+    "max_value",
+    "unit::fr",
+    "unit::en",
 ]
 GOOD_ROWS_DATA = [
     [
@@ -114,7 +114,7 @@ BAD_ROWS_DATA = [["badRowData"]]
             GOOD_ROWS_DATA,
             GOOD_INPUT_FILE,
             GOOD_OUPUT_FILE,
-            f"Missing expected header in {GOOD_SHEET_NAME} sheet: inputRangeName",
+            f"Missing expected header in {GOOD_SHEET_NAME} sheet: input_range_name",
         ),
         # Test that the function catch bad row data
         (
