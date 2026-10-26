@@ -107,28 +107,19 @@ export const personAge = {
         return [
             {
                 validation: _isBlank(value),
-                errorMessage: (t: TFunction) => t('survey:validation:AgeRequired')
+                errorMessage: { text: 'survey:validation:AgeRequired' }
             },
             {
                 validation: isNaN(Number(value)) || !Number.isInteger(Number(value)),
-                errorMessage: {
-                    fr: 'L\'âge est invalide.',
-                    en: 'Age is invalid.'
-                }
+                errorMessage: { text: 'survey:validation:AgeInvalid' }
             },
             {
                 validation: value < 0,
-                errorMessage: {
-                    fr: 'L\'âge doit être au moins de 0.',
-                    en: 'Age must be at least 0.'
-                }
+                errorMessage: { text: 'survey:validation:AgeNegative' }
             },
             {
                 validation: value > 115,
-                errorMessage: {
-                    fr: 'L\'âge est trop élevé.',
-                    en: 'Age is too high.'
-                }
+                errorMessage: { text: 'survey:validation:AgeTooHigh' }
             }
         ];
     }
@@ -152,17 +143,11 @@ export const personNickname = {
         return [
             {
                 validation: _isBlank(value),
-                errorMessage: {
-                    fr: 'L\'identifiant est requis',
-                    en: 'The identifier is required.'
-                }
+                errorMessage: { text: 'survey:validation:NicknameRequired' }
             },
             {
                 validation: !_isBlank(value) && value.length > 30,
-                errorMessage: {
-                    fr: 'Veuillez choisir un nom ou surnom de moins de 30 caractères',
-                    en: 'Please choose an identifier of less than 30 characters'
-                }
+                errorMessage: { text: 'survey:validation:NicknameTooLong' }
             }
         ];
     }
@@ -208,17 +193,11 @@ export const personGender = {
         return [
             {
                 validation: _isBlank(value),
-                errorMessage: {
-                    fr: 'Le sexe est requis.',
-                    en: 'Gender is required.'
-                }
+                errorMessage: { text: 'survey:validation:GenderRequired' }
             },
             {
                 validation: _isBlank(customValue) && surveyHelperNew.getResponse(interview, path, null) === 'custom',
-                errorMessage: {
-                    fr: 'L\'identifiant du sexe est requis.',
-                    en: 'Gender identification is required.'
-                }
+                errorMessage: { text: 'survey:validation:GenderIdentificationRequired' }
             }
         ];
     }
@@ -355,10 +334,7 @@ export const personOccupation = {
         return [
             {
                 validation: _isBlank(value) && !_isBlank(age) && (age as any) >= 5,
-                errorMessage: {
-                    fr: 'L\'occupation principale est requise.',
-                    en: 'The main occupation is required.'
-                }
+                errorMessage: { text: 'survey:validation:OccupationRequired' }
             }
         ];
     }
@@ -423,10 +399,7 @@ export const personTransitPassOwner = {
         return [
             {
                 validation: _isBlank(value) && !_isBlank(age) && (age as any) >= 5,
-                errorMessage: {
-                    fr: 'Cette réponse est requise.',
-                    en: 'This field is required.'
-                }
+                errorMessage: { text: 'survey:validation:FieldRequired' }
             }
         ];
     }
@@ -550,10 +523,7 @@ export const personTransitPasses = {
         return [
             {
                 validation: _isBlank(value) && transitPassOwner === 'yes',
-                errorMessage: {
-                    fr: 'Cette réponse est requise.',
-                    en: 'This field is required.'
-                }
+                errorMessage: { text: 'survey:validation:FieldRequired' }
             }
         ];
     }
@@ -618,10 +588,7 @@ export const personCellphoneOwner = {
         return [
             {
                 validation: _isBlank(value) && !_isBlank(age) && (age as any) >= 12,
-                errorMessage: {
-                    fr: 'Cette réponse est requise.',
-                    en: 'This field is required.'
-                }
+                errorMessage: { text: 'survey:validation:FieldRequired' }
             }
         ];
     }
@@ -689,10 +656,7 @@ export const personDrivingLicenseOwnership = {
         return [
             {
                 validation: _isBlank(value) && !_isBlank(age) && (age as any) >= 16,
-                errorMessage: {
-                    fr: 'Cette réponse est requise.',
-                    en: 'This field is required.'
-                }
+                errorMessage: { text: 'survey:validation:FieldRequired' }
             }
         ];
     }
@@ -776,10 +740,7 @@ export const personCarsharingMember = {
         return [
             {
                 validation: _isBlank(value) && drivingLicenseOwnership === 'yes',
-                errorMessage: {
-                    fr: 'Cette réponse est requise.',
-                    en: 'This field is required.'
-                }
+                errorMessage: { text: 'survey:validation:FieldRequired' }
             }
         ];
     }
@@ -852,10 +813,7 @@ export const personBikesharingMember = {
         return [
             {
                 validation: _isBlank(value) && !_isBlank(age) && (age as any) >= 14,
-                errorMessage: {
-                    fr: 'Cette réponse est requise.',
-                    en: 'This field is required.'
-                }
+                errorMessage: { text: 'survey:validation:FieldRequired' }
             }
         ];
     }
@@ -910,10 +868,7 @@ export const personHasDisability = {
         return [
             {
                 validation: _isBlank(value),
-                errorMessage: {
-                    fr: 'Cette réponse est requise.',
-                    en: 'This field is required.'
-                }
+                errorMessage: { text: 'survey:validation:FieldRequired' }
             }
         ];
     }
@@ -999,10 +954,7 @@ export const personDidTrips = {
         return [
             {
                 validation: _isBlank(value) && !_isBlank(age) && age >= 5,
-                errorMessage: {
-                    fr: 'Cette réponse est requise.',
-                    en: 'This field is required.'
-                }
+                errorMessage: { text: 'survey:validation:FieldRequired' }
             }
         ];
     }
@@ -1091,10 +1043,7 @@ export const selectPerson = {
         return [
             {
                 validation: _isBlank(value),
-                errorMessage: {
-                    fr: 'Veuillez sélectionner une personne pour poursuivre.',
-                    en: 'Please select a person to continue.'
-                }
+                errorMessage: { text: 'survey:validation:PersonSelectionRequired' }
             }
         ];
     }
@@ -1148,10 +1097,7 @@ export const groupedPersonWorkOnTheRoad = {
         return [
             {
                 validation: _isBlank(value) && !_isBlank(occupation) && helper.isWorker(occupation),
-                errorMessage: {
-                    fr: 'Cette réponse est requise',
-                    en: 'This field is required.'
-                }
+                errorMessage: { text: 'survey:validation:FieldRequired' }
             }
         ];
     }
@@ -1191,10 +1137,7 @@ export const groupedPersonUsualWorkPlaceIsHome = {
         return [
             {
                 validation: _isBlank(value) && !_isBlank(occupation) && helper.isWorker(occupation),
-                errorMessage: {
-                    fr: 'Cette réponse est requise',
-                    en: 'This field is required.'
-                }
+                errorMessage: { text: 'survey:validation:FieldRequired' }
             }
         ];
     }
@@ -1219,17 +1162,11 @@ export const groupedPersonUsualWorkPlaceName = {
         return [
             {
                 validation: _isBlank(value) && workAtHome === false,
-                errorMessage: {
-                    fr: 'Le nom ou descriptif du lieu habituel de travail est requis.',
-                    en: 'Usual work place\'s name or description is required.'
-                }
+                errorMessage: { text: 'survey:validation:UsualWorkPlaceNameRequired' }
             },
             {
                 validation: !_isBlank(value) && workAtHome === false && value.length > 50,
-                errorMessage: {
-                    fr: 'Veuillez choisir un nom de moins de 50 caractères',
-                    en: 'Please choose a name of less than 50 characters'
-                }
+                errorMessage: { text: 'survey:validation:NameTooLong' }
             }
         ];
     }
@@ -1274,10 +1211,7 @@ export const groupedPersonUsualWorkPlaceGeography = {
         return [
             {
                 validation: _isBlank(value) && helper.isWorker(occupation),
-                errorMessage: {
-                    fr: 'Le positionnement du lieu de travail habituel est requis.',
-                    en: 'Usual work place location is required.'
-                }
+                errorMessage: { text: 'survey:validation:UsualWorkPlaceLocationRequired' }
             },
             {
                 validation:
@@ -1285,18 +1219,12 @@ export const groupedPersonUsualWorkPlaceGeography = {
                     geography.properties.lastAction &&
                     geography.properties.lastAction === 'mapClicked' &&
                     geography.properties.zoom < 15,
-                errorMessage: {
-                    fr: 'Le positionnement du lieu n\'est pas assez précis. Utilisez le zoom + pour vous rapprocher davantage, puis précisez la localisation en déplaçant l\'icône.',
-                    en: 'Location is not precise enough. Please use the + zoom and drag the icon marker to confirm the precise location.'
-                }
+                errorMessage: { text: 'survey:validation:LocationNotPrecise' }
             },
             getImpreciseGeocodingValidation(geography),
             {
                 validation: geography && turfBooleanPointInPolygon(geography, (waterBoundaries as any).features[0]),
-                errorMessage: {
-                    fr: 'Le lieu est dans une étendue d\'eau ou est inaccessible. Veuillez vérifier la localisation.',
-                    en: 'Location is in water or is inaccessible. Please verify.'
-                }
+                errorMessage: { text: 'survey:validation:LocationInaccessible' }
             }
         ];
     }
@@ -1321,17 +1249,11 @@ export const groupedPersonUsualSchoolPlaceName = {
         return [
             {
                 validation: _isBlank(value) && helper.isStudent(occupation),
-                errorMessage: {
-                    fr: 'Le nom ou descriptif du lieu habituel d’études est requis.',
-                    en: 'Usual school place\'s name or description is required.'
-                }
+                errorMessage: { text: 'survey:validation:UsualSchoolPlaceNameRequired' }
             },
             {
                 validation: !_isBlank(value) && value.length > 50,
-                errorMessage: {
-                    fr: 'Veuillez choisir un nom de moins de 50 caractères',
-                    en: 'Please choose a name of less than 50 characters'
-                }
+                errorMessage: { text: 'survey:validation:NameTooLong' }
             }
         ];
     }
@@ -1377,10 +1299,7 @@ export const groupedPersonUsualSchoolPlaceGeography = {
         return [
             {
                 validation: _isBlank(value) && helper.isStudent(occupation),
-                errorMessage: {
-                    fr: 'Le positionnement du lieu habituel d’études est requis.',
-                    en: 'Usual school place location is required.'
-                }
+                errorMessage: { text: 'survey:validation:UsualSchoolPlaceLocationRequired' }
             },
             {
                 validation:
@@ -1388,18 +1307,12 @@ export const groupedPersonUsualSchoolPlaceGeography = {
                     geography.properties.lastAction &&
                     geography.properties.lastAction === 'mapClicked' &&
                     geography.properties.zoom < 15,
-                errorMessage: {
-                    fr: 'Le positionnement du lieu n\'est pas assez précis. Utilisez le zoom + pour vous rapprocher davantage, puis précisez la localisation en déplaçant l\'icône.',
-                    en: 'Location is not precise enough. Please use the + zoom and drag the icon marker to confirm the precise location.'
-                }
+                errorMessage: { text: 'survey:validation:LocationNotPrecise' }
             },
             getImpreciseGeocodingValidation(geography),
             {
                 validation: geography && turfBooleanPointInPolygon(geography, (waterBoundaries as any).features[0]),
-                errorMessage: {
-                    fr: 'Le lieu est dans une étendue d\'eau ou est inaccessible. Veuillez vérifier la localisation.',
-                    en: 'Location is in water or is inaccessible. Please verify.'
-                }
+                errorMessage: { text: 'survey:validation:LocationInaccessible' }
             }
         ];
     }
@@ -1527,10 +1440,7 @@ export const groupedPersonNoWorkTripReason = {
         return [
             {
                 validation: _isBlank(value),
-                errorMessage: {
-                    fr: 'Cette réponse est requise.',
-                    en: 'This field is required.'
-                }
+                errorMessage: { text: 'survey:validation:FieldRequired' }
             }
         ];
     }
@@ -1639,10 +1549,7 @@ export const groupedPersonNoSchoolTripReason = {
         return [
             {
                 validation: _isBlank(value),
-                errorMessage: {
-                    fr: 'Cette réponse est requise.',
-                    en: 'This field is required.'
-                }
+                errorMessage: { text: 'survey:validation:FieldRequired' }
             }
         ];
     }
@@ -1687,10 +1594,7 @@ export const groupedPersonWhoAnsweredForThisPerson = {
         return [
             {
                 validation: _isBlank(value),
-                errorMessage: {
-                    fr: 'Cette réponse est requise.',
-                    en: 'This field is required.'
-                }
+                errorMessage: { text: 'survey:validation:FieldRequired' }
             }
         ];
     }

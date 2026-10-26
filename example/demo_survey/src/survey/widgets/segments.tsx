@@ -37,31 +37,19 @@ export const segmentVehicleOccupancy = {
         return [
             {
                 validation: _isBlank(value),
-                errorMessage: {
-                    fr: 'Le nombre d\'occupants est requis.',
-                    en: 'The number of persons in vehicle is required.'
-                }
+                errorMessage: { text: 'survey:validation:VehicleOccupancyRequired' }
             },
             {
                 validation: isNaN(Number(value)) || !Number.isInteger(Number(value)),
-                errorMessage: {
-                    fr: 'Le nombre d\'occupants est invalide.',
-                    en: 'The number of persons in vehicle is invalid.'
-                }
+                errorMessage: { text: 'survey:validation:VehicleOccupancyInvalid' }
             },
             {
                 validation: value <= 0,
-                errorMessage: {
-                    fr: 'Le nombre d\'occupants doit être au moins de 1 (Vous devez inclure le conducteur).',
-                    en: 'The number of persons in the vehicle must be at least 1 (You need to include the driver).'
-                }
+                errorMessage: { text: 'survey:validation:VehicleOccupancyBelowOne' }
             },
             {
                 validation: value > 60,
-                errorMessage: {
-                    fr: 'Le nombre d\'occupants est trop élevé.',
-                    en: 'The number of persons in the vehicle is too high.'
-                }
+                errorMessage: { text: 'survey:validation:VehicleOccupancyTooHigh' }
             }
         ];
     }
@@ -182,10 +170,7 @@ export const segmentVehicleType = {
         return [
             {
                 validation: _isBlank(value),
-                errorMessage: {
-                    fr: 'Le type de véhicule est requis.',
-                    en: 'Vehicle type is required.'
-                }
+                errorMessage: { text: 'survey:validation:VehicleTypeRequired' }
             }
         ];
     }
@@ -255,10 +240,7 @@ export const segmentUsedBikesharing = {
         return [
             {
                 validation: _isBlank(value),
-                errorMessage: {
-                    fr: 'Cette réponse est requis.',
-                    en: 'This field is required.'
-                }
+                errorMessage: { text: 'survey:validation:FieldRequired' }
             }
         ];
     }
@@ -380,10 +362,7 @@ export const segmentSubwayStationStart = {
         return [
             {
                 validation: _isBlank(value),
-                errorMessage: {
-                    fr: 'Veuillez indiquer la station de métro de départ.',
-                    en: 'Please select the departure subway station.'
-                }
+                errorMessage: { text: 'survey:validation:SubwayDepartureStationRequired' }
             }
         ];
     }
@@ -506,10 +485,7 @@ export const segmentSubwayStationEnd = {
         return [
             {
                 validation: _isBlank(value),
-                errorMessage: {
-                    fr: 'Veuillez indiquer la station de métro d\'arrivée.',
-                    en: 'Please select the arrival subway station.'
-                }
+                errorMessage: { text: 'survey:validation:SubwayArrivalStationRequired' }
             },
             {
                 validation:
@@ -518,10 +494,7 @@ export const segmentSubwayStationEnd = {
                     departureSubwayStation === value &&
                     departureSubwayStation !== 'dontKnow' &&
                     departureSubwayStation !== 'other',
-                errorMessage: {
-                    fr: 'Les stations de départ et d\'arrivée sont identiques.',
-                    en: 'Departure and arrival stations are the same.'
-                }
+                errorMessage: { text: 'survey:validation:SubwayStationsSame' }
             }
         ];
     }
@@ -633,10 +606,7 @@ export const segmentSubwayTransferStations = {
         return [
             {
                 validation: _isBlank(value),
-                errorMessage: {
-                    fr: 'Cette réponse est requise. Choisissez "Aucune" si aucun transfert n\'a été effectué.',
-                    en: 'This field is required. Choose "None" if no transfer occured.'
-                }
+                errorMessage: { text: 'survey:validation:TransferRequired' }
             }
         ];
     }
@@ -1510,10 +1480,7 @@ export const segmentTrainStationStart = {
         return [
             {
                 validation: _isBlank(value),
-                errorMessage: {
-                    fr: 'Veuillez indiquer la gare de départ.',
-                    en: 'Please select the departure train station.'
-                }
+                errorMessage: { text: 'survey:validation:TrainDepartureStationRequired' }
             }
         ];
     }
@@ -1636,10 +1603,7 @@ export const segmentTrainStationEnd = {
         return [
             {
                 validation: _isBlank(value),
-                errorMessage: {
-                    fr: 'Veuillez indiquer la gare d\'arrivée.',
-                    en: 'Please select the arrival train station.'
-                }
+                errorMessage: { text: 'survey:validation:TrainArrivalStationRequired' }
             },
             {
                 validation:
@@ -1648,10 +1612,7 @@ export const segmentTrainStationEnd = {
                     departureTrainStation === value &&
                     departureTrainStation !== 'dontKnow' &&
                     departureTrainStation !== 'other',
-                errorMessage: {
-                    fr: 'Les gares de départ et d\'arrivée sont identiques.',
-                    en: 'Departure and arrival stations are the same.'
-                }
+                errorMessage: { text: 'survey:validation:TrainStationsSame' }
             }
         ];
     }
@@ -1753,10 +1714,7 @@ export const segmentBusLines = {
         return [
             {
                 validation: _isBlank(value),
-                errorMessage: {
-                    fr: 'Veuillez indiquer la ou les lignes de bus.',
-                    en: 'Please select bus line(s).'
-                }
+                errorMessage: { text: 'survey:validation:BusLinesRequired' }
             }
         ];
     }
@@ -2075,10 +2033,7 @@ export const tripJunctionGeography = {
         return [
             {
                 validation: _isBlank(value),
-                errorMessage: {
-                    fr: 'Le positionnement du lieu de transfert est requis.',
-                    en: 'Transfer location is required.'
-                }
+                errorMessage: { text: 'survey:validation:TransferLocationRequired' }
             },
             getImpreciseGeocodingValidation(geography)
         ];
@@ -2170,10 +2125,7 @@ export const segmentParkingType = {
         return [
             {
                 validation: _isBlank(value),
-                errorMessage: {
-                    fr: 'Le type de stationnement est requis.',
-                    en: 'Parking type is required.'
-                }
+                errorMessage: { text: 'survey:validation:ParkingTypeRequired' }
             }
         ];
     }
@@ -2313,10 +2265,7 @@ export const segmentParkingPaymentType = {
         return [
             {
                 validation: _isBlank(value),
-                errorMessage: {
-                    fr: 'Cette réponse est requise.',
-                    en: 'This field is required.'
-                }
+                errorMessage: { text: 'survey:validation:FieldRequired' }
             }
         ];
     }

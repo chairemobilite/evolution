@@ -161,7 +161,7 @@ export const getActivityWidgetConfig = (
             return [
                 {
                     validation: _isBlank(value),
-                    errorMessage: (t: TFunction) => t('visitedPlaces:activityIsRequiredError')
+                    errorMessage: { text: 'visitedPlaces:activityIsRequiredError' }
                 }
             ];
         },

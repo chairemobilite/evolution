@@ -13,10 +13,7 @@ const validations = {
         validations: [
             {
                 validation: (value: string) => (parseInt(value) % 2 === 0),
-                errorMessage: {
-                    fr: 'Valeur paire',
-                    en: 'Value is even'
-                }
+                errorMessage: { text: 'survey:errors:valueIsEven' }
             }
         ]
     }

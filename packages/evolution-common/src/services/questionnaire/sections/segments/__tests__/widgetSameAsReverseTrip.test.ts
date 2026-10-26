@@ -116,9 +116,7 @@ describe('sameAsReverseTripWidget validations', () => {
 
     test('should return the right error message', () => {
         const validation = validations!(null, null, interview, 'household.persons.personId2.journeys.journeyId2.trips.tripId1P2.segments.segmentId1P2T1.sameModeAsReverseTrip');
-        const mockedT = jest.fn();
-        translateString(validation[0].errorMessage, { t: mockedT } as any, interview, 'path');
-        expect(mockedT).toHaveBeenCalledWith('survey:ResponseIsRequired');
+        expect(validation[0].errorMessage).toEqual({ text: 'survey:ResponseIsRequired' });
     });
 
 

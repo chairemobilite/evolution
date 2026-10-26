@@ -4,7 +4,11 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import { UserRuntimeInterviewAttributes, NavigationSection } from 'evolution-common/lib/services/questionnaire/types';
+import {
+    UserRuntimeInterviewAttributes,
+    NavigationSection,
+    ServerValidationErrors
+} from 'evolution-common/lib/services/questionnaire/types';
 import { NavigationService } from 'evolution-common/lib/services/questionnaire/sections/NavigationService';
 import type { ReviewDecisions } from 'evolution-common/lib/services/reviews/types';
 
@@ -27,11 +31,7 @@ export type SurveyAction =
           type: SurveyActionTypes.UPDATE_INTERVIEW;
           interview: UserRuntimeInterviewAttributes;
           interviewLoaded: boolean;
-          errors: {
-              [key: string]: {
-                  [key: string]: string;
-              };
-          };
+          errors: ServerValidationErrors;
           submitted: boolean;
       }
     | {
@@ -66,11 +66,7 @@ export type NavigationState = {
 export interface SurveyState {
     readonly interview?: UserRuntimeInterviewAttributes;
     readonly interviewLoaded?: boolean;
-    readonly errors?: {
-        [key: string]: {
-            [key: string]: string;
-        };
-    };
+    readonly errors?: ServerValidationErrors;
     readonly submitted?: boolean;
     readonly hasConsent?: boolean;
     readonly navigation?: NavigationState;

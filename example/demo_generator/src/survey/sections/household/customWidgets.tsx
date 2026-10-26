@@ -103,7 +103,7 @@ export const personUsualWorkPlaceGeography: InputMapFindPlaceType = {
         return [
             {
                 validation: _isBlank(value),
-                errorMessage: (t: TFunction) => t('survey:visitedPlace:locationIsRequiredError')
+                errorMessage: { text: 'visitedPlaces:locationIsRequiredError' }
             },
             {
                 validation:
@@ -112,10 +112,7 @@ export const personUsualWorkPlaceGeography: InputMapFindPlaceType = {
                     (geography.properties.lastAction === 'mapClicked' ||
                         geography.properties.lastAction === 'markerDragged') &&
                     geography.properties.zoom < 15,
-                errorMessage: {
-                    fr: "Le positionnement du lieu n'est pas assez précis. Utilisez le zoom + pour vous rapprocher davantage, puis précisez la localisation en déplaçant l'icône.",
-                    en: 'Location is not precise enough. Please use the + zoom and drag the icon marker to confirm the precise location.'
-                }
+                errorMessage: { text: 'visitedPlaces:locationIsNotPreciseError' }
             },
             {
                 validation:
@@ -124,7 +121,7 @@ export const personUsualWorkPlaceGeography: InputMapFindPlaceType = {
                         geography,
                         inaccessibleZones.features[0] as GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon>
                     ),
-                errorMessage: (t: TFunction) => t('survey:visitedPlace:locationIsNotAccessibleError')
+                errorMessage: { text: 'survey:validation:LocationInaccessible' }
             }
         ];
     },
@@ -179,7 +176,7 @@ export const personUsualSchoolPlaceGeography: InputMapFindPlaceType = {
         return [
             {
                 validation: _isBlank(value),
-                errorMessage: (t: TFunction) => t('survey:visitedPlace:locationIsRequiredError')
+                errorMessage: { text: 'visitedPlaces:locationIsRequiredError' }
             },
             {
                 validation:
@@ -188,10 +185,7 @@ export const personUsualSchoolPlaceGeography: InputMapFindPlaceType = {
                     (geography.properties.lastAction === 'mapClicked' ||
                         geography.properties.lastAction === 'markerDragged') &&
                     geography.properties.zoom < 15,
-                errorMessage: {
-                    fr: "Le positionnement du lieu n'est pas assez précis. Utilisez le zoom + pour vous rapprocher davantage, puis précisez la localisation en déplaçant l'icône.",
-                    en: 'Location is not precise enough. Please use the + zoom and drag the icon marker to confirm the precise location.'
-                }
+                errorMessage: { text: 'visitedPlaces:locationIsNotPreciseError' }
             },
             {
                 validation:
@@ -200,7 +194,7 @@ export const personUsualSchoolPlaceGeography: InputMapFindPlaceType = {
                         geography,
                         inaccessibleZones.features[0] as GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon>
                     ),
-                errorMessage: (t: TFunction) => t('survey:visitedPlace:locationIsNotAccessibleError')
+                errorMessage: { text: 'survey:validation:LocationInaccessible' }
             }
         ];
     },

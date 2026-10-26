@@ -110,7 +110,7 @@ export class VisitedPlaceGeographyWidgetFactory implements WidgetConfigFactory {
             return [
                 {
                     validation: _isBlank(value),
-                    errorMessage: (t: TFunction) => t('visitedPlaces:activityNameIsRequiredError')
+                    errorMessage: { text: 'visitedPlaces:activityNameIsRequiredError' }
                 }
             ];
         }
@@ -168,7 +168,7 @@ export class VisitedPlaceGeographyWidgetFactory implements WidgetConfigFactory {
                 {
                     // FIXME This is taken as is from od_nationale, but since the condition is expected to be false in those cases, it should simply be mandatory no?
                     validation: ['home', ...loopActivities].indexOf(activity) <= -1 && _isBlank(value),
-                    errorMessage: (t: TFunction) => t('visitedPlaces:locationIsRequiredError')
+                    errorMessage: { text: 'visitedPlaces:locationIsRequiredError' }
                 },
                 {
                     validation:
@@ -177,16 +177,15 @@ export class VisitedPlaceGeographyWidgetFactory implements WidgetConfigFactory {
                         (geography.properties.lastAction === 'mapClicked' ||
                             geography.properties.lastAction === 'markerDragged') &&
                         geography.properties.zoom < config.minManualPlacementZoom,
-                    errorMessage: (t: TFunction) => t('visitedPlaces:locationIsNotPreciseError')
+                    errorMessage: { text: 'visitedPlaces:locationIsNotPreciseError' }
                 },
                 // TODO Should an inaccessible zone validation here when we support it from survey configuration
                 {
                     validation: geography && geography.properties?.isGeocodingImprecise,
-                    errorMessage: (t: TFunction) =>
-                        t('survey:geography.geocodingStringImpreciseError', {
-                            geocodingTextInput: geocodingTextInput || '',
-                            interpolation: { escapeValue: true }
-                        })
+                    errorMessage: {
+                        text: 'survey:geography.geocodingStringImpreciseError',
+                        params: { geocodingTextInput: geocodingTextInput || '' }
+                    }
                 }
             ];
             return validations;

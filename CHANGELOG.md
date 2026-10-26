@@ -7,12 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased (0.6.7)]
 
+### Breaking changes
+
+- Validations: the `errorMessage` of the widget validations and of the server validations must be a `{ text, params? }` message (a translation key and its optional interpolation values), instead of an `I18nData` (functions, `{ fr, en }` objects and strings). The message is translated when displayed and logged as is in the paradata. Move inline texts to the survey locales, and replace `(t) => t('key', { value })` with `{ text: 'key', params: { value: String(value) } }`. The params are always escaped when translated.
+
 ### Added
 
 - Generator: the survey languages are read from the Excel file (the `label::<language>` columns of the Widgets sheet), instead of always French and English (fixes [#2035](https://github.com/chairemobilite/evolution/issues/2035))
+- Paradata: log the error message of invalid widgets in button clicks and widget interactions, and export it in the `invalidMessages` column of the interview logs (fixes [#1364](https://github.com/chairemobilite/evolution/issues/1364))
 
 ### Changed
 
+- The default `mapFindPlace` validation messages use the `visitedPlaces:locationIsRequiredError` and `visitedPlaces:locationIsNotPreciseError` translations instead of inline text
+- The `segmentModePre` validation message uses the `segments:ModeIsRequired` translation only, instead of `survey:segments:ModeIsRequired` with a fallback
 - Generator: the section titles of the generated `sectionConfigs.ts` are translations, written in `locales/<language>/sectionConfigs.yaml` and read with the `t` function, instead of one inline text per language
 
 ### Deprecated
@@ -20,6 +27,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 
 ### Fixed
+
+- Demo generator: the work and school location validations used translation keys that do not exist
 
 ### Security
 

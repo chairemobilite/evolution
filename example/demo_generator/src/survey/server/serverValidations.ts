@@ -14,10 +14,7 @@ export default {
         validations: [
             {
                 validation: (value) => typeof value === 'string' && !validateAccessCode(value),
-                errorMessage: {
-                    fr: 'Code d\'accès invalide.',
-                    en: 'Invalid access code.'
-                }
+                errorMessage: { text: 'survey:errors:accessCodeInvalid' }
             }
         ]
     },
@@ -28,10 +25,7 @@ export default {
                     const accessCode = getResponse(interview, 'accessCode');
                     return typeof accessCode !== 'string' || !validateAccessCode(accessCode);
                 },
-                errorMessage: {
-                    fr: 'Code d\'accès invalide.',
-                    en: 'Invalid access code.'
-                }
+                errorMessage: { text: 'survey:errors:accessCodeInvalid' }
             }
         ]
     }

@@ -8,7 +8,7 @@
 import fs from 'fs';
 import { unparse } from 'papaparse';
 import { isFeature, isPoint } from 'geojson-validation';
-import { UserAction } from 'evolution-common/lib/services/questionnaire/types';
+import { UserAction, ValidationErrorMessage } from 'evolution-common/lib/services/questionnaire/types';
 
 import { execJob } from '../../tasks/serverWorkerPool';
 import { fileManager } from 'chaire-lib-backend/lib/utils/filesystem/fileManager';
@@ -85,11 +85,20 @@ const userActionToWidgetData = (
     widgetPath: string;
     hiddenWidgets: string;
     invalidWidgets: string[];
+    invalidMessages: { [path: string]: ValidationErrorMessage };
     mapZoom: number | string;
     mapAction: string;
 } => {
     if (userAction === undefined || _isBlank(userAction)) {
-        return { widgetType: '', widgetPath: '', hiddenWidgets: '', invalidWidgets: [], mapZoom: '', mapAction: '' };
+        return {
+            widgetType: '',
+            widgetPath: '',
+            hiddenWidgets: '',
+            invalidWidgets: [],
+            invalidMessages: {},
+            mapZoom: '',
+            mapAction: ''
+        };
     }
     switch (userAction.type) {
     case 'buttonClick':
@@ -98,6 +107,7 @@ const userActionToWidgetData = (
             widgetPath: userAction.buttonId,
             hiddenWidgets: userAction.hiddenWidgets ? userAction.hiddenWidgets.join('|') : '',
             invalidWidgets: userAction.invalidWidgets ? userAction.invalidWidgets : [],
+            invalidMessages: userAction.invalidWidgetsMessages ? userAction.invalidWidgetsMessages : {},
             mapZoom: '',
             mapAction: ''
         };
@@ -108,6 +118,10 @@ const userActionToWidgetData = (
             widgetPath: userAction.path,
             hiddenWidgets: '',
             invalidWidgets: [],
+            invalidMessages:
+                    userAction.errorMessage !== undefined
+                        ? { [userAction.path.replace(responsePrefix, '')]: userAction.errorMessage }
+                        : {},
             mapZoom,
             mapAction
         };
@@ -121,6 +135,7 @@ const userActionToWidgetData = (
             ].join('/'),
             hiddenWidgets: userAction.hiddenWidgets ? userAction.hiddenWidgets.join('|') : '',
             invalidWidgets: [],
+            invalidMessages: {},
             mapZoom: '',
             mapAction: ''
         };
@@ -130,6 +145,7 @@ const userActionToWidgetData = (
             widgetPath: userAction.path,
             hiddenWidgets: '',
             invalidWidgets: [],
+            invalidMessages: {},
             mapZoom: '',
             mapAction: ''
         };
@@ -139,6 +155,7 @@ const userActionToWidgetData = (
             widgetPath: '',
             hiddenWidgets: '',
             invalidWidgets: [],
+            invalidMessages: {},
             mapZoom: '',
             mapAction: ''
         };
@@ -248,7 +265,7 @@ const exportLogToRows = (
             { valuesByPath: [], valuesByPathInit: [], invalidFields: [], validFields: [] }
         );
 
-        const { invalidWidgets, ...userActionFields } = userActionToWidgetData(user_action);
+        const { invalidWidgets, invalidMessages, ...userActionFields } = userActionToWidgetData(user_action);
         const allInvalidFields = invalidFields.concat(invalidWidgets);
 
         return [
@@ -261,6 +278,8 @@ const exportLogToRows = (
                 // Don't include validation paths in the unset fields
                 unsetFields: (unset_paths || []).filter((path) => !path.startsWith(validationsPrefix)).join('|'),
                 invalidFields: allInvalidFields.length > 0 ? allInvalidFields.join('|') : '',
+                // Error message of the invalid fields, by path, as JSON
+                invalidMessages: _isBlank(invalidMessages) ? '' : JSON.stringify(invalidMessages),
                 validFields: validFields.length > 0 ? validFields.join('|') : ''
             }
         ];

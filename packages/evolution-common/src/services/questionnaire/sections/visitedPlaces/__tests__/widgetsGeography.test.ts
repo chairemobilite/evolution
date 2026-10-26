@@ -393,7 +393,7 @@ describe('visitedPlaceName widget', () => {
             expect(validationResult).toEqual([
                 {
                     validation: true,
-                    errorMessage: expect.any(Function)
+                    errorMessage: { text: 'visitedPlaces:activityNameIsRequiredError' }
                 }
             ]);
         });
@@ -403,9 +403,7 @@ describe('visitedPlaceName widget', () => {
             const validationResult = validations!('A place name', null, interview, 'path');
             expect(validationResult[0].validation).toBe(false);
 
-            const mockedT = jest.fn();
-            translateString(validationResult[0].errorMessage, { t: mockedT } as any, interview, 'path');
-            expect(mockedT).toHaveBeenCalledWith('visitedPlaces:activityNameIsRequiredError');
+            expect(validationResult[0].errorMessage).toEqual({ text: 'visitedPlaces:activityNameIsRequiredError' });
         });
     });
 
@@ -614,7 +612,7 @@ describe('visitedPlaceGeography widget', () => {
 
             const validationResult = validations!(undefined, null, interview, path);
             expect(validationResult[0].validation).toBe(true);
-            expect(translateString(validationResult[0].errorMessage, { t: mockedT } as any, interview, path)).toBe('visitedPlaces:locationIsRequiredError');
+            expect(validationResult[0].errorMessage).toEqual({ text: 'visitedPlaces:locationIsRequiredError' });
         });
 
         test.each(['home', ...loopActivities])('should not require geography for %s activity', (activity) => {
@@ -644,7 +642,7 @@ describe('visitedPlaceGeography widget', () => {
 
             const validationResult = validations!(geography, null, interview, path);
             expect(validationResult[1].validation).toBe(true);
-            expect(translateString(validationResult[1].errorMessage, { t: mockedT } as any, interview, path)).toBe('visitedPlaces:locationIsNotPreciseError');
+            expect(validationResult[1].errorMessage).toEqual({ text: 'visitedPlaces:locationIsNotPreciseError' });
         });
 
         test('should flag imprecise location when markerDragged and zoom is below 15', () => {
@@ -661,7 +659,7 @@ describe('visitedPlaceGeography widget', () => {
 
             const validationResult = validations!(geography, null, interview, path);
             expect(validationResult[1].validation).toBe(true);
-            expect(translateString(validationResult[1].errorMessage, { t: mockedT } as any, interview, path)).toBe('visitedPlaces:locationIsNotPreciseError');
+            expect(validationResult[1].errorMessage).toEqual({ text: 'visitedPlaces:locationIsNotPreciseError' });
         });
 
         test('should not flag zoom precision error when zoom is 15 or more', () => {
@@ -698,10 +696,9 @@ describe('visitedPlaceGeography widget', () => {
             expect(validationResult[2].validation).toBe(true);
 
             
-            translateString(validationResult[2].errorMessage, { t: mockedT } as any, interview, path);
-            expect(mockedT).toHaveBeenCalledWith('survey:geography.geocodingStringImpreciseError', {
-                geocodingTextInput: 'Main street',
-                interpolation: { escapeValue: true }
+            expect(validationResult[2].errorMessage).toEqual({
+                text: 'survey:geography.geocodingStringImpreciseError',
+                params: { geocodingTextInput: 'Main street' }
             });
         });
 
@@ -720,11 +717,9 @@ describe('visitedPlaceGeography widget', () => {
 
             const validationResult = validations!(geography, null, interview, path);
 
-            const mockedT = jest.fn();
-            translateString(validationResult[2].errorMessage, { t: mockedT } as any, interview, path);
-            expect(mockedT).toHaveBeenCalledWith('survey:geography.geocodingStringImpreciseError', {
-                geocodingTextInput: '',
-                interpolation: { escapeValue: true }
+            expect(validationResult[2].errorMessage).toEqual({
+                text: 'survey:geography.geocodingStringImpreciseError',
+                params: { geocodingTextInput: '' }
             });
         });
     });

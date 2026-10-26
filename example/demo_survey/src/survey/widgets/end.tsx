@@ -87,10 +87,7 @@ export const householdResidentialPhoneType = {
         return [
             {
                 validation: _isBlank(value),
-                errorMessage: {
-                    fr: 'Le type de téléphone résidentiel est requis.',
-                    en: 'Residential phone type is required.'
-                }
+                errorMessage: { text: 'survey:validation:ResidentialPhoneTypeRequired' }
             }
         ];
     }
@@ -130,10 +127,7 @@ export const householdWouldLikeToParticipateInOtherSurveys = {
         return [
             {
                 validation: _isBlank(value),
-                errorMessage: {
-                    fr: 'Cette réponse est requise.',
-                    en: 'This field is required.'
-                }
+                errorMessage: { text: 'survey:validation:FieldRequired' }
             }
         ];
     }
@@ -173,10 +167,7 @@ export const householdDidAlsoRespondByPhone = {
         return [
             {
                 validation: _isBlank(value),
-                errorMessage: {
-                    fr: 'Cette réponse est requise.',
-                    en: 'This field is required'
-                }
+                errorMessage: { text: 'survey:validation:FieldRequired' }
             }
         ];
     }
@@ -206,10 +197,7 @@ export const householdContactEmail = {
         return [
             {
                 validation: !_isBlank(value) && !_isEmail(value),
-                errorMessage: {
-                    fr: 'Le courriel est invalide.',
-                    en: 'Email is invalid'
-                }
+                errorMessage: { text: 'survey:validation:EmailInvalid' }
             }
         ];
     }

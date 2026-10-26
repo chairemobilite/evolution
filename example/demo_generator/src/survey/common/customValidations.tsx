@@ -10,10 +10,7 @@ export const getGeographyCustomValidation = ({ value, interview, path }) => {
     return [
         {
             validation: _isBlank(value),
-            errorMessage: {
-                fr: 'Le positionnement du lieu est requis.',
-                en: 'Positioning of the place is required.'
-            }
+            errorMessage: { text: 'visitedPlaces:locationIsRequiredError' }
         },
         {
             validation:
@@ -22,20 +19,13 @@ export const getGeographyCustomValidation = ({ value, interview, path }) => {
                 (geography.properties.lastAction === 'mapClicked' ||
                     geography.properties.lastAction === 'markerDragged') &&
                 geography.properties.zoom < 15,
-            errorMessage: {
-                fr: "Le positionnement du lieu n'est pas assez précis. Utilisez le zoom + pour vous rapprocher davantage, puis précisez la localisation en déplaçant l'icône.",
-                en: 'The positioning of the place is not precise enough. Please use the + zoom and drag the icon marker to confirm the precise location.'
-            }
+            errorMessage: { text: 'visitedPlaces:locationIsNotPreciseError' }
         },
         {
             validation: geography && geography.properties.isGeocodingImprecise,
             errorMessage: {
-                fr: `<strong>Le nom du lieu utilisé pour effectuer la recherche ${
-                    !_isBlank(geocodingTextInput) ? `("${geocodingTextInput}")` : ''
-                } n'est pas assez précis.</strong> Ajoutez de l'information ou précisez l'emplacement à l'aide de la carte.`,
-                en: `<strong>The location name used for searching ${
-                    !_isBlank(geocodingTextInput) ? `("${geocodingTextInput}")` : ''
-                } is not specific enough.</strong> Please add more information or specify the location more precisely using the map.`
+                text: 'survey:geography.geocodingStringImpreciseError',
+                params: { geocodingTextInput: geocodingTextInput || '' }
             }
         }
     ];

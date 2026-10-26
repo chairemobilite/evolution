@@ -48,11 +48,11 @@ const interviewAttributes: UserInterviewAttributes = {
 
 each([
     ['undefined validation', undefined, [true, undefined]],
-    ['one group: invalid', jest.fn().mockReturnValue([{ validation: true, errorMessage: 'error' }]), [false, 'error']],
-    ['one group: valid', jest.fn().mockReturnValue([{ validation: false, errorMessage: 'error' }]), [true, undefined]],
-    ['multiple groups: all valid', jest.fn().mockReturnValue([{ validation: false, errorMessage: 'error' }, { validation: false, errorMessage: 'error2' }]), [true, undefined]],
-    ['multiple groups: second is invalid', jest.fn().mockReturnValue([{ validation: false, errorMessage: 'error' }, { validation: true, errorMessage: 'error2' }]), [false, 'error2']],
-    ['multiple groups: all invalid', jest.fn().mockReturnValue([{ validation: true, errorMessage: 'error' }, { validation: true, errorMessage: 'error2' }]), [false, 'error']],
+    ['one group: invalid', jest.fn().mockReturnValue([{ validation: true, errorMessage: { text: 'error' } }]), [false, { text: 'error' }]],
+    ['one group: valid', jest.fn().mockReturnValue([{ validation: false, errorMessage: { text: 'error' } }]), [true, undefined]],
+    ['multiple groups: all valid', jest.fn().mockReturnValue([{ validation: false, errorMessage: { text: 'error' } }, { validation: false, errorMessage: { text: 'error2' } }]), [true, undefined]],
+    ['multiple groups: second is invalid', jest.fn().mockReturnValue([{ validation: false, errorMessage: { text: 'error' } }, { validation: true, errorMessage: { text: 'error2' } }]), [false, { text: 'error2' }]],
+    ['multiple groups: all invalid', jest.fn().mockReturnValue([{ validation: true, errorMessage: { text: 'error' } }, { validation: true, errorMessage: { text: 'error2' } }]), [false, { text: 'error' }]],
     ['function with error, should be valid', jest.fn().mockImplementation(() => { throw 'error'; }), [true, undefined]],
 ]).test('Test check validation %s', (_title, validations, expectedResult) => {
     expect(checkValidations(validations, 'dummy value', 'custom', interviewAttributes, 'path', 'customPath')).toEqual(expectedResult);

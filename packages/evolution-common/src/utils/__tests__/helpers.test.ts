@@ -369,6 +369,31 @@ each([
     }
 });
 
+describe('translateErrorMessage', () => {
+    const t = jest.fn().mockReturnValue('translated');
+    const i18nObj = { t } as any;
+    beforeEach(() => {
+        jest.clearAllMocks();
+    });
+
+    test('message without params', () => {
+        expect(Helpers.translateErrorMessage({ text: 'survey:key' }, i18nObj)).toEqual('translated');
+        expect(t).toHaveBeenCalledWith('survey:key', { interpolation: { escapeValue: true } });
+    });
+
+    test('message with params, which are escaped', () => {
+        expect(Helpers.translateErrorMessage({ text: 'survey:key', params: { max: '3' } }, i18nObj)).toEqual(
+            'translated'
+        );
+        expect(t).toHaveBeenCalledWith('survey:key', { max: '3', interpolation: { escapeValue: true } });
+    });
+
+    test('undefined', () => {
+        expect(Helpers.translateErrorMessage(undefined, i18nObj)).toBeUndefined();
+        expect(t).not.toHaveBeenCalled();
+    });
+});
+
 each([
     ['simple path', 'home.address', 'home.address'],
     ['single replacement for the whole string', '{section1.q1}', 'abc'],

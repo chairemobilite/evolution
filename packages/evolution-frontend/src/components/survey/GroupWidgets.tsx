@@ -18,7 +18,10 @@ import { devLog, parseBoolean, translateString } from 'evolution-common/lib/util
 import { getRandomOrderedWidgets } from 'evolution-common/lib/services/questionnaire/randomOrderQuestions';
 import { checkConditional } from '../../actions/utils/Conditional';
 import { CliUser } from 'chaire-lib-common/lib/services/user/userType';
-import { UserRuntimeInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
+import {
+    ServerValidationErrors,
+    UserRuntimeInterviewAttributes
+} from 'evolution-common/lib/services/questionnaire/types';
 import { GroupConfig, InterviewUpdateCallbacks } from 'evolution-common/lib/services/questionnaire/types';
 import DeleteGroupedObjectButton from './widgets/DeleteGroupedObjectButton';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
@@ -38,7 +41,7 @@ type GroupedObjectProps = InterviewUpdateCallbacks &
         objectId: string;
         sequence: number;
         /** Server-side errors FIXME Maybe they should not be passed by props, they should be better handled */
-        errors?: { [path: string]: string };
+        errors?: ServerValidationErrors;
     };
 
 export const GroupedObject: React.FC<GroupedObjectProps> = (props) => {
@@ -135,7 +138,7 @@ type GroupProps = InterviewUpdateCallbacks &
         /** Associates a widget shortname with the parent UUID */
         parentObjectIds: { [widgetShortname: string]: string };
         /** Server-side errors FIXME Maybe they should not be passed by props, they should be better handled */
-        errors?: { [path: string]: string };
+        errors?: ServerValidationErrors;
     };
 
 export const Group: FunctionComponent<GroupProps> = (props) => {

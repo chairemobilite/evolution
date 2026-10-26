@@ -335,7 +335,7 @@ describe('Activity category validations', () => {
         expect(validations!(undefined, null, interview, 'path')).toEqual([
             {
                 validation: true,
-                errorMessage: expect.any(Function)
+                errorMessage: { text: 'visitedPlaces:activityIsRequiredError' }
             }
         ]);
     });
@@ -345,13 +345,11 @@ describe('Activity category validations', () => {
         expect(validation).toEqual([
             {
                 validation: false,
-                errorMessage: expect.any(Function)
+                errorMessage: { text: 'visitedPlaces:activityIsRequiredError' }
             }
         ]);
 
         // Verify the error message
-        const mockedT = jest.fn();
-        translateString(validation[0].errorMessage, { t: mockedT } as any, interview, 'path');
-        expect(mockedT).toHaveBeenCalledWith('visitedPlaces:activityIsRequiredError');
+        expect(validation[0].errorMessage).toEqual({ text: 'visitedPlaces:activityIsRequiredError' });
     });
 });

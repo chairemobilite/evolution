@@ -43,6 +43,7 @@ import { handleClientError, handleHttpOtherResponseCode } from '../services/erro
 import {
     GotoFunction,
     NavigationSection,
+    ServerValidationErrors,
     StartAddGroupedObjects,
     StartNavigate,
     StartRemoveGroupedObjects,
@@ -50,6 +51,7 @@ import {
     SurveySections,
     UserAction,
     UserRuntimeInterviewAttributes,
+    ValidationErrorMessage,
     WidgetStatus
 } from 'evolution-common/lib/services/questionnaire/types';
 import { SurveyAction, SurveyActionTypes } from '../store/survey';
@@ -154,17 +156,17 @@ export const validateAndPrepareSection = (
     return [interview, currentValuesByPath];
 };
 
-// Get the widget paths that correspond to a given test function
+// Get the widget statuses that correspond to a given test function
 const getWidgetsWithData = (
     interview: UserRuntimeInterviewAttributes,
     test: (widget: WidgetStatus) => boolean
-): string[] | undefined => {
-    const widgetsWithData: string[] = [];
+): WidgetStatus[] => {
+    const widgetsWithData: WidgetStatus[] = [];
     // For each widget status, if the widget passes the test, it is added to the array
     const widgets = interview.widgets || {};
     for (const widget of Object.values(widgets)) {
         if (test(widget)) {
-            widgetsWithData.push(widget.path);
+            widgetsWithData.push(widget);
         }
     }
     const groups = interview.groups || {};
@@ -174,20 +176,35 @@ const getWidgetsWithData = (
             const objectWidgets = group[objectId];
             for (const widget of Object.values(objectWidgets)) {
                 if (test(widget)) {
-                    widgetsWithData.push(widget.path);
+                    widgetsWithData.push(widget);
                 }
             }
         }
     }
-    return widgetsWithData.length === 0 ? undefined : widgetsWithData;
+    return widgetsWithData;
 };
 
-// Get the widget paths that are not visible in the interview.
-const getHiddenWidgets = (interview: UserRuntimeInterviewAttributes): string[] | undefined =>
+const getWidgetPaths = (widgets: WidgetStatus[]): string[] | undefined =>
+    widgets.length === 0 ? undefined : widgets.map((widget) => widget.path);
+
+// Get the error messages of the widgets to log in the paradata, by path. The
+// messages are fixed translation keys and params, so they are logged as is.
+const getErrorMessages = (widgets: WidgetStatus[]): { [path: string]: ValidationErrorMessage } | undefined => {
+    const messages: { [path: string]: ValidationErrorMessage } = {};
+    for (const widget of widgets) {
+        if (widget.errorMessage !== undefined) {
+            messages[widget.path] = widget.errorMessage;
+        }
+    }
+    return Object.keys(messages).length === 0 ? undefined : messages;
+};
+
+// Get the widgets that are not visible in the interview.
+const getHiddenWidgets = (interview: UserRuntimeInterviewAttributes): WidgetStatus[] =>
     getWidgetsWithData(interview, (widget) => !widget.isVisible);
 
-// Get the widget paths that are visible and invalid in the interview.
-const getInvalidWidgets = (interview: UserRuntimeInterviewAttributes): string[] | undefined =>
+// Get the widgets that are visible and invalid in the interview.
+const getInvalidWidgets = (interview: UserRuntimeInterviewAttributes): WidgetStatus[] =>
     getWidgetsWithData(interview, (widget) => widget.isVisible && !widget.isValid);
 
 const enhanceUserActionOnUpdate = (interview: UserRuntimeInterviewAttributes, userAction: UserAction | undefined) => {
@@ -196,12 +213,28 @@ const enhanceUserActionOnUpdate = (interview: UserRuntimeInterviewAttributes, us
         // change as this function is run with the next section, but the hidden
         // widgets should be for the previous one. The navigate action will set
         // the hidden widgets for the previous section.
-        userAction.hiddenWidgets = getHiddenWidgets(interview);
+        userAction.hiddenWidgets = getWidgetPaths(getHiddenWidgets(interview));
         // Save the invalid widgets when a button is clicked. The invalidity
         // status may not be in the valuesByPath if it was previously set as
         // invalid and there is no change to the status, so we just sent all
         // visible invalid widgets here.
-        userAction.invalidWidgets = getInvalidWidgets(interview);
+        const invalidWidgets = getInvalidWidgets(interview);
+        userAction.invalidWidgets = getWidgetPaths(invalidWidgets);
+        userAction.invalidWidgetsMessages = getErrorMessages(invalidWidgets);
+    } else if (userAction && userAction.type === 'widgetInteraction') {
+        // Save the error message of the widget the participant interacted
+        // with, if it is invalid after the interaction
+        const widgetPath = userAction.path.startsWith('response.')
+            ? userAction.path.substring('response.'.length)
+            : userAction.path;
+        const [invalidWidget] = getWidgetsWithData(
+            interview,
+            (widget) =>
+                widget.isVisible && !widget.isValid && (widget.path === widgetPath || widget.customPath === widgetPath)
+        );
+        if (invalidWidget?.errorMessage !== undefined) {
+            userAction.errorMessage = invalidWidget.errorMessage;
+        }
     }
 };
 
@@ -459,11 +492,7 @@ const updateInterviewCallback = async (
  */
 export const updateInterviewState = (
     interview: UserRuntimeInterviewAttributes,
-    errors: {
-        [path: string]: {
-            [lang: string]: string;
-        };
-    } = {},
+    errors: ServerValidationErrors = {},
     submitted = false
 ): SurveyAction => ({
     type: SurveyActionTypes.UPDATE_INTERVIEW,
@@ -648,7 +677,7 @@ export const startNavigateWithUpdateCallback =
                             // section, otherwise it does not follow the survey
                             // flow
                             previousSection: requestedSection === undefined ? navigation?.currentSection : undefined,
-                            hiddenWidgets: getHiddenWidgets(prevSectionInterview)
+                            hiddenWidgets: getWidgetPaths(getHiddenWidgets(prevSectionInterview))
                         }
                     })
                 );

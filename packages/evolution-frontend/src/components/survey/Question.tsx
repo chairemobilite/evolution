@@ -359,12 +359,7 @@ export class Question extends React.Component<QuestionProps & WithSurveyContextP
                     label={label}
                     errorMessage={
                         showErrorMessage === true
-                            ? surveyHelper.translateString(
-                                widgetStatus.errorMessage,
-                                this.props.i18n,
-                                this.props.interview,
-                                this.props.path
-                            ) || ''
+                            ? surveyHelper.translateErrorMessage(widgetStatus.errorMessage, this.props.i18n) || ''
                             : undefined
                     }
                     helpTitle={

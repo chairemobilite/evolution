@@ -5,7 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
-import { I18nData, UserInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
+import { UserInterviewAttributes, ValidationErrorMessage } from 'evolution-common/lib/services/questionnaire/types';
 import { ValidationFunction } from 'evolution-common/lib/services/questionnaire/types';
 
 /**
@@ -26,7 +26,7 @@ export const checkValidations = (
     interview: UserInterviewAttributes,
     path: string,
     customPath?: string
-): [boolean, I18nData | undefined] => {
+): [boolean, ValidationErrorMessage | undefined] => {
     if (typeof validations === 'function') {
         try {
             const validationsGroup = validations(value, customValue, interview, path, customPath);

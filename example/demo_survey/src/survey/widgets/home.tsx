@@ -107,31 +107,19 @@ export const householdSize = {
         return [
             {
                 validation: isNaN(Number(value)) || !Number.isInteger(Number(value)),
-                errorMessage: {
-                    fr: 'La taille du ménage est invalide.',
-                    en: 'Household size is invalid.'
-                }
+                errorMessage: { text: 'survey:validation:HouseholdSizeInvalid' }
             },
             {
                 validation: _isBlank(value),
-                errorMessage: {
-                    fr: 'La taille du ménage est requise.',
-                    en: 'Household size is required.'
-                }
+                errorMessage: { text: 'survey:validation:HouseholdSizeRequired' }
             },
             {
                 validation: (value as number) > 18,
-                errorMessage: {
-                    fr: 'La taille du ménage doit être au maximum 18.',
-                    en: 'Household size must be less than or equal to 18.'
-                }
+                errorMessage: { text: 'survey:validation:HouseholdSizeAboveMax' }
             },
             {
                 validation: (value as number) <= 0,
-                errorMessage: {
-                    fr: 'La taille du ménage doit être au moins de 1 (Vous devez vous inclure).',
-                    en: 'Household size must be at least 1 (You need to include yourself).'
-                }
+                errorMessage: { text: 'survey:validation:HouseholdSizeBelowOne' }
             }
         ];
     }
@@ -183,31 +171,19 @@ export const householdCarNumber = {
         return [
             {
                 validation: isNaN(Number(value)) || !Number.isInteger(Number(value)),
-                errorMessage: {
-                    fr: 'Le nombre de véhicules est invalide.',
-                    en: 'The number of vehicles is invalid.'
-                }
+                errorMessage: { text: 'survey:validation:CarNumberInvalid' }
             },
             {
                 validation: _isBlank(value),
-                errorMessage: {
-                    fr: 'Le nombre de véhicules est requis.',
-                    en: 'The number of vehicles is required.'
-                }
+                errorMessage: { text: 'survey:validation:CarNumberRequired' }
             },
             {
                 validation: value > 13,
-                errorMessage: {
-                    fr: 'Le nombre de véhicules doit être au maximum 13.',
-                    en: 'The number of vehicle must be less than or equal to 13.'
-                }
+                errorMessage: { text: 'survey:validation:CarNumberAboveMax' }
             },
             {
                 validation: value < 0,
-                errorMessage: {
-                    fr: 'Le nombre de véhicules doit être au moins de 0.',
-                    en: 'The number of vehicles must be at least 0.'
-                }
+                errorMessage: { text: 'survey:validation:CarNumberNegative' }
             },
             {
                 validation:
@@ -215,10 +191,7 @@ export const householdCarNumber = {
                     !isNaN(Number(householdSize)) &&
                     Number.isInteger(Number(value)) &&
                     Number(value) / householdSize > 3,
-                errorMessage: {
-                    fr: 'Le nombre de véhicules est trop élevé. Ne pas inclure les véhicules de collection ou les véhicules qui ne sont pas utilisés régulièrement.',
-                    en: 'The number of vehicles is too high. Do not include collection vehicles or vehicles that are not used on a regular basis.'
-                }
+                errorMessage: { text: 'survey:validation:CarNumberTooHigh' }
             }
         ];
     }
@@ -359,10 +332,7 @@ export const homeDwellingType = {
         return [
             {
                 validation: _isBlank(value),
-                errorMessage: {
-                    fr: 'Le type d\'habitation est requis.',
-                    en: 'Dwelling type is required.'
-                }
+                errorMessage: { text: 'survey:validation:DwellingTypeRequired' }
             }
         ];
     }
@@ -383,10 +353,7 @@ export const homeAddress = {
         return [
             {
                 validation: _isBlank(value),
-                errorMessage: {
-                    fr: 'Veuillez spécifier votre adresse.',
-                    en: 'Please specify your address.'
-                }
+                errorMessage: { text: 'survey:validation:AddressRequired' }
             }
         ];
     }
@@ -421,10 +388,7 @@ export const homeCity = {
         return [
             {
                 validation: _isBlank(value),
-                errorMessage: {
-                    fr: 'Veuillez spécifier votre ville.',
-                    en: 'Please specify your city.'
-                }
+                errorMessage: { text: 'survey:validation:CityRequired' }
             }
         ];
     }
@@ -522,10 +486,7 @@ export const homeGeography = {
         return [
             {
                 validation: _isBlank(value),
-                errorMessage: {
-                    fr: 'Le positionnement du domicile est requis.',
-                    en: 'Home location is required.'
-                }
+                errorMessage: { text: 'survey:validation:HomeLocationRequired' }
             },
             {
                 validation:
@@ -533,18 +494,12 @@ export const homeGeography = {
                     geography.properties.lastAction &&
                     geography.properties.lastAction === 'mapClicked' &&
                     geography.properties.zoom < 15,
-                errorMessage: {
-                    fr: 'Le positionnement de votre domicile n\'est pas assez précis.  Utilisez le zoom + pour vous rapprocher davantage, puis précisez la localisation en déplaçant l\'icône.',
-                    en: 'Location of your home is not precise enough. Please use the + zoom and drag the icon marker to confirm the precise location.'
-                }
+                errorMessage: { text: 'survey:validation:HomeLocationNotPrecise' }
             },
             getImpreciseGeocodingValidation(geography),
             {
                 validation: geography && turfBooleanPointInPolygon(geography, (waterBoundaries as any).features[0]),
-                errorMessage: {
-                    fr: 'Le lieu est dans une étendue d\'eau ou est inaccessible. Veuillez vérifier la localisation.',
-                    en: 'Location is in water or is inaccessible. Please verify.'
-                }
+                errorMessage: { text: 'survey:validation:LocationInaccessible' }
             }
         ];
     },

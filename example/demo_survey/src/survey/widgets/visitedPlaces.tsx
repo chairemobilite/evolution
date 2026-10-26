@@ -169,10 +169,7 @@ export const personDeparturePlaceType = {
         return [
             {
                 validation: _isBlank(value),
-                errorMessage: {
-                    fr: 'Le point de départ est requis.',
-                    en: 'Departure location is required.'
-                }
+                errorMessage: { text: 'survey:validation:DepartureLocationRequired' }
             }
         ];
     }
@@ -269,10 +266,7 @@ export const visitedPlaceGeography = {
             ...validationResults,
             {
                 validation: geography && turfBooleanPointInPolygon(geography, (waterBoundaries as any).features[0]),
-                errorMessage: {
-                    fr: 'Le lieu est dans une étendue d\'eau ou est inaccessible. Veuillez vérifier la localisation.',
-                    en: 'Location is in water or is inaccessible. Please verify.'
-                }
+                errorMessage: { text: 'survey:validation:LocationInaccessible' }
             }
         ];
     }
@@ -325,10 +319,7 @@ export const personLastVisitedPlaceNotHome = {
         return [
             {
                 validation: _isBlank(value),
-                errorMessage: {
-                    fr: 'Cette réponse est requise.',
-                    en: 'This field is required.'
-                }
+                errorMessage: { text: 'survey:validation:FieldRequired' }
             }
         ];
     },

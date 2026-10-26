@@ -251,7 +251,7 @@ describe('With error message', () => {
 
     test('Error message on visible widget', () => {
         const widgetStatus = _cloneDeep(defaultWidgetStatus);
-        widgetStatus.errorMessage = 'error test';
+        widgetStatus.errorMessage = { text: 'error test' };
         widgetStatus.isValid = false;
 
         const { container } = render(
