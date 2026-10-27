@@ -5,15 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased (0.6.7)]
+## [Unreleased (0.6.8)]
 
 ### Added
 
-- Generator: the survey languages are read from the Excel file (the `label::<language>` columns of the Widgets sheet), instead of always French and English (fixes [#2035](https://github.com/chairemobilite/evolution/issues/2035))
-
 ### Changed
-
-- Generator: the section titles of the generated `sectionConfigs.ts` are translations, written in `locales/<language>/sectionConfigs.yaml` and read with the `t` function, instead of one inline text per language
 
 ### Deprecated
 
@@ -25,10 +21,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Dependency updates
 
+## [0.6.7] - 2026-10-27
+
+### Added
+
+- Audits: new audit checks: `T_W_SpeedNotInRange`, `T_L_SpeedNotInRange`, `T_W_ShortTripDuration`, `T_L_ShortTripDuration` (fixes [#1980](https://github.com/chairemobilite/evolution/issues/1980))
+- Generator: the survey languages are read from the Excel file (the `label::<language>` columns of the Widgets sheet), instead of always French and English (fixes [#2035](https://github.com/chairemobilite/evolution/issues/2035))
+- ui tests: look at `userData` for active objects
+- paradata: export the `sectionChangeSource` column (fixes [#2112](https://github.com/chairemobilite/evolution/issues/2112))
+
+### Changed
+
+- Generator: the section titles of the generated `sectionConfigs.ts` are translations, written in `locales/<language>/sectionConfigs.yaml` and read with the `t` function, instead of one inline text per language
+- Generator: Multiple updates to the generator, to better validate the Excel file, through an intermediary layer: fixes [#2041](https://github.com/chairemobilite/evolution/issues/2041), [#2043](https://github.com/chairemobilite/evolution/issues/2043), [#2044](https://github.com/chairemobilite/evolution/issues/2044), [#2048](https://github.com/chairemobilite/evolution/issues/2048), [#2095](https://github.com/chairemobilite/evolution/issues/2095)
+- Use `corepack`'s `yarn` command instead of the system one
+
+### Deprecated
+
+### Removed
+
+### Fixed
+
+- Fix widget of box in person panel (fixes [#2069](https://github.com/chairemobilite/evolution/issues/2069))
+- audits: fix home attributes looking for address in either `address` or `_address` (commit [911731e7](https://github.com/chairemobilite/evolution/commit/911731e755527c6be8b29c561bf531974fdb47c0))
+
+### Security
+
+### Dependency updates
+
 Python:
 
 * cryptography: 44.0.1 => 50.0.2 (fixes Dependabot alert [#373](https://github.com/chairemobilite/evolution/security/dependabot/373))
 * msal: 1.31.1 => 1.39.0
+* certifi: 2025.1.31 => 2026.10.19
+* black: 26.3.1 => 26.10.1
+
+Typescript:
+
+* moment: 2.30.1 => 2.31.0
+* Transition: cb5d6760..33ea5638
+* dompurify: 3.4.16 => 3.4.17
 
 ## [0.6.6] - 2026-10-14
 
