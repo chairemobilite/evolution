@@ -6,6 +6,9 @@ label,
     font-weight: 600;
     width: 100%;
     color: settings.$label;
+    // Avoid a short word or a lone punctuation mark (e.g. " ?" in French) on the
+    // last line. Browsers that don't support it keep the default wrapping.
+    text-wrap: pretty;
 }
 
 label.no-question,
