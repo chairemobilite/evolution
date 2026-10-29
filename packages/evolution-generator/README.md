@@ -511,34 +511,42 @@ The `InputRange` tab in Excel is used to generate slider components in the `inpu
 
 ### InputRange Fields
 
-<!-- TODO: Change the label from labelFrMin to label_min_fr and labelEnMin to label_min_en, etc. -->
+| Field                       | Description                                                                                              | Type     |
+| --------------------------- | -------------------------------------------------------------------------------------------------------- | -------- |
+| input_range_name            | Name of the input range, used in the `inputRange` column of the Widgets sheet (unique, valid identifier) | string   |
+| label_min::fr               | French label for the minimum value                                                                       | string   |
+| [label_middle::fr](#middle) | French label for the middle value (optional)                                                             | string?  |
+| label_max::fr               | French label for the maximum value                                                                       | string   |
+| label_min::en               | English label for the minimum value                                                                      | string   |
+| [label_middle::en](#middle) | English label for the middle value (optional)                                                            | string?  |
+| label_max::en               | English label for the maximum value                                                                      | string   |
+| min_value                   | Minimum value for the input range, less than `max_value`                                                 | integer  |
+| max_value                   | Maximum value for the input range                                                                        | integer  |
+| [unit::fr](#unit)           | Unit shown after the value in French (optional)                                                          | string?  |
+| [unit::en](#unit)           | Unit shown after the value in English (optional)                                                         | string?  |
+| [input_color](#color)       | Color of the slider track (optional, `blue` by default)                                                  | string?  |
 
-| Field          | Description                                                 | Type    |
-| -------------- | ----------------------------------------------------------- | ------- |
-| inputRangeName | Name of the input range                                     | string  |
-| labelFrMin     | French label for the minimum value                          | string  |
-| labelFrMiddle  | French label for the middle value (optional)                | string? |
-| labelFrMax     | French label for the maximum value                          | string  |
-| labelEnMin     | English label for the minimum value                         | string  |
-| labelEnMiddle  | English label for the middle value (optional)               | string? |
-| labelEnMax     | English label for the maximum value                         | string  |
-| minValue       | Minimum numerical value for the input range                 | number  |
-| maxValue       | Maximum numerical value for the input range                 | number  |
-| unitFr         | Unit in French                                              | string  |
-| unitEn         | Unit in English                                             | string  |
-| input_color    | Optional color/style hint for the input range UI (optional) | string? |
+> **Note:** The label and unit columns are named `<field>::<language>`, one per survey language (see the `label::<language>` columns of the Widgets sheet). This example is for a survey in French and English.
+
+> <span id="middle">**Note:**</span> `label_middle::<language>` must be set in every survey language, or left blank in all of them.
+
+> <span id="unit">**Note:**</span> `unit::<language>` must be set in every survey language, or left blank in all of them. When blank, the slider shows the value alone.
+
+> <span id="color">**Note:**</span> `input_color` can be one of: `blue`, `red-yellow-green`, `red-white-green`, `green-yellow-red` or `green-white-red`.
+
+> **Note:** A negative `min_value` leaves room for a "no answer" zone at the start of the slider: no value label is shown below 0.
 
 ### InputRange Example
 
 In this example, we define an InputRange named `confidentInputRange`. This InputRange allows users to select a value representing their confidence level, ranging from "Not at all confident" to "Very confident". The corresponding TypeScript code and a visual representation of this InputRange are shown below:
 
-| inputRangeName      | labelFrMin           | labelFrMax    | labelEnMin           | labelEnMax     | minValue | maxValue | unitFr | unitEn |
-| ------------------- | -------------------- | ------------- | -------------------- | -------------- | -------- | -------- | ------ | ------ |
-| confidentInputRange | Pas du tout confiant | Très confiant | Not at all confident | Very confident | -10      | 100      | %      | %      |
+| input_range_name    | label_min::fr        | label_max::fr | label_min::en        | label_max::en  | min_value | max_value | unit::fr | unit::en |
+| ------------------- | -------------------- | ------------- | -------------------- | -------------- | --------- | --------- | -------- | -------- |
+| confidentInputRange | Pas du tout confiant | Très confiant | Not at all confident | Very confident | -10       | 100       | %        | %        |
 
 ```typescript
 // inputRange.tsx
-export const confidentInputRange: InputRangeConfig = {
+export const confidentInputRange: Pick<InputRangeType, 'labels' | 'minValue' | 'maxValue' | 'formatLabel' | 'trackClassName'> = {
     labels: [
         {
             fr: 'Pas du tout confiant',
@@ -553,7 +561,8 @@ export const confidentInputRange: InputRangeConfig = {
     maxValue: 100,
     formatLabel: (value, language) => {
         return value < 0 ? '' : `${value} ${language === 'fr' ? '%' : language === 'en' ? '%' : ''}`;
-    }
+    },
+    trackClassName: 'input-slider-blue'
 };
 ```
 

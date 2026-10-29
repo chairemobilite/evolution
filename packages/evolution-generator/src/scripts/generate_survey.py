@@ -234,12 +234,12 @@ def generate_survey(config_path, only_scripts=None):
             labels_output_folder_path=labels_output_folder_path,
         )
 
-    # Call the generate_input_range function to generate labels.tsx if script enabled
+    # Call the generate_input_range function to generate inputRange.tsx if script enabled
     if enabled_generate_input_range:
         input_range_output_file_path = os.path.join(
             survey_folder_path, "src", "survey", "common", "inputRange.tsx"
         )
-        generate_input_range(excel_file_path, input_range_output_file_path)
+        generate_input_range(survey_definition, input_range_output_file_path)
 
     # Call the generate_labels function to generate the labels locales folder if script enabled
     if enabled_generate_labels:
