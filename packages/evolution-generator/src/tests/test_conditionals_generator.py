@@ -52,7 +52,7 @@ class TestConditionalCellToPrimitive:
 class TestGenerateTypescriptCode:
     def test_emits_valueWhenHidden_when_any_row_has_value_when_hidden(self):
         conditional_by_name = {
-            "condWithDefault": [
+            "condWithDefaultConditional": [
                 {
                     "logical_operator": "",
                     "path": "household.size",
@@ -79,7 +79,7 @@ class TestGenerateTypescriptCode:
     def test_emits_numeric_valueWhenHidden_without_string_quotes(self):
         """Numeric value_when_hidden must emit as TS number literal, not a quoted string."""
         conditional_by_name = {
-            "condNumericHidden": [
+            "condNumericHiddenConditional": [
                 {
                     "logical_operator": "",
                     "path": "household.size",
@@ -101,7 +101,7 @@ class TestGenerateTypescriptCode:
         self,
     ):
         conditional_by_name = {
-            "condWithRepeatedDefault": [
+            "condWithRepeatedDefaultConditional": [
                 {
                     "logical_operator": "",
                     "path": "household.size",
@@ -130,7 +130,7 @@ class TestGenerateTypescriptCode:
         self,
     ):
         conditional_by_name = {
-            "condNoDefault": [
+            "condNoDefaultConditional": [
                 {
                     "logical_operator": "",
                     "path": "household.size",
@@ -150,7 +150,7 @@ class TestGenerateTypescriptCode:
     def test_emits_conditional_value_as_ts_null_not_string(self, raw_value):
         """Null comparison value must emit as TS null, not a quoted \"null\" string."""
         conditional_by_name = {
-            "condNullCompare": [
+            "condNullCompareConditional": [
                 {
                     "logical_operator": "",
                     "path": "household.size",
@@ -243,7 +243,7 @@ class TestGenerateConditionals:
             languages=("fr", "en"),
             conditionals=[
                 {
-                    "conditional_name": "hasChildren",
+                    "conditional_name": "hasChildrenConditional",
                     "path": "household.size",
                     "comparison_operator": ">",
                     "value": 1,
@@ -257,7 +257,8 @@ class TestGenerateConditionals:
 
         ts_code = output_file.read_text()
         assert (
-            "export const hasChildren: WidgetConditional = (interview) => {" in ts_code
+            "export const hasChildrenConditional: WidgetConditional = (interview) => {"
+            in ts_code
         )
         assert "valueWhenHidden: false," in ts_code
         assert "path: 'household.size'," in ts_code

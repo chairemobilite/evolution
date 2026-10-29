@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - Generator: the Excel integrity check now validates the Choices sheet (fixes [#2039](https://github.com/chairemobilite/evolution/issues/2039))
+- Generator: the Excel integrity check now validates the conditional names: valid TypeScript names ending with "Conditional" or, for custom ones, "CustomConditional"
 
 ### Deprecated
 

@@ -92,29 +92,29 @@ class TestDescribeConditional:
         """A one-row conditional is described as its name followed by its comparison."""
         conditionals = [
             ConditionalDefinition(
-                conditional_name="cond1",
+                conditional_name="cond1Conditional",
                 path="household.size",
                 comparison_operator=">=",
                 value=2,
             )
         ]
         assert (
-            describe_conditional("cond1", conditionals, self.ABBREVIATIONS)
-            == "cond1 : HH_size >= 2"
+            describe_conditional("cond1Conditional", conditionals, self.ABBREVIATIONS)
+            == "cond1Conditional : HH_size >= 2"
         )
 
     def test_rows_joined_with_logical_operators_and_parentheses(self):
         """Rows are joined by their logical operators, with their parentheses kept."""
         conditionals = [
             ConditionalDefinition(
-                conditional_name="cond1",
+                conditional_name="cond1Conditional",
                 path="household.size",
                 comparison_operator=">",
                 value=1,
                 parentheses="(",
             ),
             ConditionalDefinition(
-                conditional_name="cond1",
+                conditional_name="cond1Conditional",
                 logical_operator="||",
                 path="household.carNumber",
                 comparison_operator="!==",
@@ -122,15 +122,17 @@ class TestDescribeConditional:
                 parentheses=")",
             ),
             ConditionalDefinition(
-                conditional_name="cond1",
+                conditional_name="cond1Conditional",
                 logical_operator="&&",
                 path="acceptToBeContacted",
                 comparison_operator="===",
                 value="yes",
             ),
         ]
-        assert describe_conditional("cond1", conditionals, self.ABBREVIATIONS) == (
-            "cond1 : (HH_size > 1 || HH_carNumber !== True) "
+        assert describe_conditional(
+            "cond1Conditional", conditionals, self.ABBREVIATIONS
+        ) == (
+            "cond1Conditional : (HH_size > 1 || HH_carNumber !== True) "
             "&& acceptToBeContacted === yes"
         )
 
@@ -143,19 +145,19 @@ class TestDescribeConditionals:
             sections=SECTIONS_ROWS,
             conditionals=[
                 {
-                    "conditional_name": "cond1",
+                    "conditional_name": "cond1Conditional",
                     "path": "household.size",
                     "comparison_operator": ">",
                     "value": 1,
                 },
                 {
-                    "conditional_name": "cond2",
+                    "conditional_name": "cond2Conditional",
                     "path": "acceptToBeContacted",
                     "comparison_operator": "===",
                     "value": "yes",
                 },
                 {
-                    "conditional_name": "cond1",
+                    "conditional_name": "cond1Conditional",
                     "logical_operator": "&&",
                     "path": "household.carNumber",
                     "comparison_operator": "===",
@@ -163,7 +165,7 @@ class TestDescribeConditionals:
                     "parentheses": "(",
                 },
                 {
-                    "conditional_name": "cond1",
+                    "conditional_name": "cond1Conditional",
                     "logical_operator": "||",
                     "path": "${relativePath}.age",
                     "comparison_operator": "<",
@@ -174,11 +176,11 @@ class TestDescribeConditionals:
         )
 
         assert describe_conditionals(survey_definition) == {
-            "cond1": (
-                "cond1 : HH_size > 1 && (HH_carNumber === 0 "
+            "cond1Conditional": (
+                "cond1Conditional : HH_size > 1 && (HH_carNumber === 0 "
                 "|| ${relativePath}.age < 18)"
             ),
-            "cond2": "cond2 : acceptToBeContacted === yes",
+            "cond2Conditional": "cond2Conditional : acceptToBeContacted === yes",
         }
 
     def test_no_conditionals_gives_empty_map(self):

@@ -151,6 +151,24 @@ class TestChoices:
     def test_blank_hidden_is_false(self):
         assert self._choices([self._row("yesNo", hidden="")])[0].hidden is False
 
+    def test_reports_conditional_that_is_not_a_valid_conditional_name(self):
+        assert self._issues([self._row("yesNo", conditional="isAdult")]) == [
+            "Error in Choices - Invalid conditional in row 2: 'isAdult' - "
+            "Must be a valid TypeScript identifier ending with 'Conditional' or "
+            "'CustomConditional' (e.g. 'hasHouseholdSize1Conditional', "
+            "'isCompleteCustomConditional')."
+        ]
+
+    def test_reports_custom_conditional_that_is_not_a_valid_identifier(self):
+        """A custom conditional isn't in the Conditionals table, but is still written in choices.tsx."""
+        rows = [self._row("yesNo", conditional="bad nameCustomConditional")]
+        issues = self._issues(rows)
+        assert len(issues) == 1
+        assert issues[0].startswith(
+            "Error in Choices - Invalid conditional in row 2: "
+            "'bad nameCustomConditional' - Must be a valid TypeScript identifier"
+        )
+
     def test_reports_spread_choices_name_that_names_no_list(self):
         assert self._issues([self._spread("yesNo", "doesNotExist")]) == [
             "Error in Choices - Invalid spreadChoicesName in row 2: "

@@ -88,3 +88,34 @@ class TestValidConditionalName:
 
     def test_rejects_name_not_ending_with_conditional(self):
         assert field_checks.valid_conditional_name("hasHouseholdSize1", {}) is False
+
+    def test_rejects_custom_conditional_name_that_is_not_a_valid_identifier(self):
+        # It is written as customConditionals.<name> in the generated TypeScript.
+        assert (
+            field_checks.valid_conditional_name("bad nameCustomConditional", {})
+            is False
+        )
+
+
+class TestValidGeneratedConditionalName:
+    def test_accepts_generated_conditional_name(self):
+        assert (
+            field_checks.valid_generated_conditional_name(
+                "hasHouseholdSize1Conditional", {}
+            )
+            is True
+        )
+
+    def test_rejects_custom_conditional_name(self):
+        assert (
+            field_checks.valid_generated_conditional_name(
+                "isCompleteCustomConditional", {}
+            )
+            is False
+        )
+
+    def test_rejects_name_not_ending_with_conditional(self):
+        assert (
+            field_checks.valid_generated_conditional_name("householdHasCars", {})
+            is False
+        )

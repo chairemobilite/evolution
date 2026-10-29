@@ -142,7 +142,7 @@ class TestSurveyDefinitionLanguages:
         issues = self._issues(
             languages=["fr", "en"],
             sections=[self._section(title_en=None)],
-            conditionals=[{"conditional_name": "cond1"}],
+            conditionals=[{"conditional_name": "cond1Conditional"}],
         )
         assert len(issues) == 2
         assert issues[0].startswith(
