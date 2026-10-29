@@ -9,6 +9,7 @@ import openpyxl  # Read data from Excel
 from openpyxl import Workbook  # Read data from Excel, File system operations
 from typing import Iterable, List, Optional, Tuple  # Types for Python
 
+from survey_definition.choices_definition import CHOICE_REQUIRED_FIELD_NAMES
 from survey_definition.conditionals_definition import CONDITIONAL_REQUIRED_FIELD_NAMES
 from survey_definition.labels_definition import LABEL_REQUIRED_FIELD_NAMES
 from survey_definition.sections_definition import SECTION_REQUIRED_FIELD_NAMES
@@ -247,6 +248,7 @@ def load_survey_definition(excel_file_path: str) -> SurveyDefinition:
             workbook, "Conditionals", CONDITIONAL_REQUIRED_FIELD_NAMES
         ),
         labels=_read_sheet_rows(workbook, "Labels", LABEL_REQUIRED_FIELD_NAMES),
+        choices=_read_sheet_rows(workbook, "Choices", CHOICE_REQUIRED_FIELD_NAMES),
     )
 
 

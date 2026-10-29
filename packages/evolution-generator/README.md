@@ -454,9 +454,11 @@ Choices in your survey define the available options for `InputRadio` or `InputCh
 | label_one::fr                | French label for one-person interviews (optional)     | string or number |
 | label_one::en                | English label for one-person interviews (optional)    | string or number |
 | [spreadChoicesName](#spread) | Spreading another choicesName (optional)              | string?          |
-| conditional                  | Conditional name for displaying the choice (optional) | string?          |
+| [conditional](#choice_cond)  | Conditional name for displaying the choice (optional) | string?          |
 
 > <span id="spread">**Note:**</span> The `spreadChoicesName` field is useful to avoid repetition. If you are using the same choices as another `choicesName`, you can specify the existing `choicesName` in `spreadChoicesName` to reuse the choices without duplicating them.
+
+> <span id="choice_cond">**Note:**</span> The `conditional` field must be a `conditional_name` of the `Conditionals` sheet (see [Generate Conditionals](#generate-conditionals)), unless it ends with `CustomConditional`: such a conditional is imported from `customConditionals.tsx`.
 
 ### Choices Example
 
