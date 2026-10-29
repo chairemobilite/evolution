@@ -11,8 +11,9 @@
 # doesn't have by itself, e.g. the survey languages (see validation_context.py).
 #
 # This module only defines the shape; it does not read any input source. See
-# generator_helpers.py::load_survey_definition() for that (loads the source and
-# builds a SurveyDefinition instance from the table models).
+# excel_survey_definition_reader.py for that, and
+# generator_helpers.py::load_survey_definition(), which builds a SurveyDefinition
+# instance from the tables it reads.
 
 import re
 from typing import Any
@@ -58,8 +59,8 @@ class SurveyDefinition(BaseModel):
     instead of each re-reading and re-parsing the source on its own.
 
     Attributes:
-        languages: The survey languages, e.g. ('fr', 'en'), read from the workbook (see
-            generator_helpers.py::read_survey_languages).
+        languages: The survey languages, e.g. ('fr', 'en'), read from the source (see
+            ExcelSurveyDefinitionReader.read_languages).
             Every translated field (e.g. a section title) must be set in each of them,
             and none in another language.
         conditionals: The Conditionals table, already checked: one ConditionalDefinition

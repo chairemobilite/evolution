@@ -5,9 +5,9 @@
 # Note: This script includes functions that help generate and test Generator scripts.
 import os  # File system operations
 import re  # Regular expression module for pattern matching
-from typing import Iterable, List, Optional, Tuple  # Types for Python
+from typing import Iterable, Optional, Tuple  # Types for Python
 
-from helpers.excel_workbook import ExcelWorkbook, load_excel_workbook
+from survey_definition.excel_survey_definition_reader import ExcelSurveyDefinitionReader
 from survey_definition.choices_definition import CHOICE_REQUIRED_FIELD_NAMES
 from survey_definition.conditionals_definition import CONDITIONAL_REQUIRED_FIELD_NAMES
 from survey_definition.labels_definition import LABEL_REQUIRED_FIELD_NAMES
@@ -35,63 +35,6 @@ def add_generator_comment() -> str:
 # Add Generator YAML header at the start of the file
 def add_generator_yaml_header() -> str:
     return _format_generator_header("# ")
-
-
-# Read a sheet of the workbook and return rows and headers
-def get_data_from_excel(workbook: ExcelWorkbook, sheet_name: str) -> tuple:
-    try:
-        rows: List = workbook[sheet_name].rows  # Get all rows in the sheet
-
-        # Filter out None values from headers
-        headers = []
-        for cell in rows[0]:
-            if cell.value is not None:
-                headers.append(cell.value)
-            else:
-                # If we find an empty header, stop reading columns here
-                break
-
-        # Error when header has spaces
-        if any(" " in str(header) for header in headers):
-            raise Exception("Header has spaces")
-
-        # Error when header is None
-        if None in headers:
-            raise Exception("Header is None")
-
-        return rows, headers
-
-    except Exception as e:
-        print(f"Error reading Excel in {sheet_name} sheet: {e}")
-        raise e
-
-
-def get_data_rows(rows: List) -> List:
-    """
-    Return the rows after the header row, without the empty ones (e.g. a blank row
-    left to separate groups of rows), so scripts only see rows with data.
-    """
-    return [row for row in rows[1:] if any(cell.value is not None for cell in row)]
-
-
-# TODO: Add types for rows and headers
-# Get values from the row
-def get_values_from_row(row, headers) -> tuple:
-    try:
-        # Create a dictionary from the row values and headers
-        row_dict = dict(zip(headers, (cell.value for cell in row)))
-        values = []  # List of values from the row
-
-        # Get values from the row dictionary
-        for header in headers:
-            header = row_dict[header]
-            values.append(header)
-
-        return values
-
-    except Exception as e:
-        print(f"Error getting values from row: {e}")
-        raise e
 
 
 # Error when any required fields values are None
@@ -130,20 +73,6 @@ def delete_file_if_exists(file_path: str) -> None:
         os.remove(file_path)
 
 
-# Check if the input file is an Excel file
-def is_excel_file(file: str) -> None:
-    file_lower = file.lower()
-    if not (
-        file_lower.endswith(".xlsx")
-        or file_lower.endswith(".xlsm")
-        or file_lower.endswith(".xltx")
-        or file_lower.endswith(".xltm")
-    ):
-        raise Exception(
-            f"Invalid input file extension for {file} : must be an Excel 2010+ .xlsx, .xlsm, .xltx or .xltm file"
-        )
-
-
 # Check if the output file is an TypeScript file
 def is_ts_file(file: str) -> None:
     if not (file.endswith(".ts") or file.endswith(".tsx")):
@@ -152,99 +81,23 @@ def is_ts_file(file: str) -> None:
         )
 
 
-# Check if the sheet exists
-def sheet_exists(workbook: ExcelWorkbook, sheet_name: str) -> None:
-    if sheet_name not in workbook.sheetnames:
-        raise Exception(f"Sheet with name {sheet_name} does not exist")
-
-
-# Get workbook from Excel file, read once so every script can share it
-def get_workbook(input_file: str) -> ExcelWorkbook:
-    is_excel_file(input_file)
-    return load_excel_workbook(input_file)
-
-
-# Get headers from the first row
-def get_headers(sheet, expected_headers: List[str], sheet_name: str) -> List[str]:
-    # Get headers from the first row
-    current_headers = [cell.value for cell in sheet.rows[0]]
-
-    # Check if the headers are valid
-    for expected in expected_headers:
-        if not expected in current_headers:
-            raise Exception(
-                f"Missing expected header in {sheet_name} sheet: {expected}"
-            )
-
-    return current_headers
-
-
-def _read_sheet_rows(
-    workbook: ExcelWorkbook, sheet_name: str, expected_headers
-) -> List[dict]:
-    """Read every data row of `sheet_name` (row 1 is the header) as a dict keyed by its headers.
-
-    Interior blank rows are kept (still invalid if the sheet requires values); the
-    workbook has no blank rows after the data (see ExcelSheet).
+def load_survey_definition(reader: ExcelSurveyDefinitionReader) -> SurveyDefinition:
     """
-    sheet_exists(workbook, sheet_name)
-    sheet = workbook[sheet_name]
-    headers = get_headers(
-        sheet, expected_headers=expected_headers, sheet_name=sheet_name
-    )
-    return [
-        dict(zip(headers, get_values_from_row(row, headers), strict=True))
-        for row in sheet.rows[1:]
-    ]
+    Build a SurveyDefinition from the languages and tables read by `reader`.
 
-
-# Prefix of the translated columns the survey languages are read from, in the Widgets
-# sheet: one column per language, e.g. label::fr, label::en.
-LANGUAGE_COLUMN_PREFIX = "label::"
-
-
-def read_survey_languages(workbook: ExcelWorkbook) -> tuple[str, ...]:
-    """
-    Read the survey languages from the Widgets sheet: one per `label::<language>`
-    column, in column order, e.g. ("fr", "en") for label::fr and label::en.
-
-    The workbook carries its own languages, so a survey is checked the same way from
-    any app or config. Raises if the sheet has no such column.
-    """
-    sheet_exists(workbook, "Widgets")
-    headers = [cell.value for cell in workbook["Widgets"].rows[0]]
-    languages = tuple(
-        header.removeprefix(LANGUAGE_COLUMN_PREFIX)
-        for header in headers
-        if isinstance(header, str) and header.startswith(LANGUAGE_COLUMN_PREFIX)
-    )
-    if not languages:
-        raise Exception(
-            "Missing label::<language> columns in Widgets sheet: the survey languages "
-            "are read from them, e.g. label::fr and label::en."
-        )
-    return languages
-
-
-def load_survey_definition(workbook: ExcelWorkbook) -> SurveyDefinition:
-    """
-    Build a SurveyDefinition from a workbook's sheets, in the survey languages read
-    from the Widgets sheet (see read_survey_languages).
-
-    Raises on the same problems as get_data_from_excel/get_headers (missing sheet,
-    missing/too few headers), and `pydantic.ValidationError` when the
-    languages or a sheet's rows don't pass their checks (see survey_definition.py,
-    sections_definition.py, ...).
+    Raises on the problems the reader finds (missing table, missing required field),
+    and `pydantic.ValidationError` when the languages or a table's rows don't pass
+    their checks.
     The returned instance is already validated; callers don't need to check it again.
     """
     return SurveyDefinition(
-        languages=read_survey_languages(workbook),
-        sections=_read_sheet_rows(workbook, "Sections", SECTION_REQUIRED_FIELD_NAMES),
-        conditionals=_read_sheet_rows(
-            workbook, "Conditionals", CONDITIONAL_REQUIRED_FIELD_NAMES
+        languages=reader.read_languages(),
+        sections=reader.read_table("Sections", SECTION_REQUIRED_FIELD_NAMES),
+        conditionals=reader.read_table(
+            "Conditionals", CONDITIONAL_REQUIRED_FIELD_NAMES
         ),
-        labels=_read_sheet_rows(workbook, "Labels", LABEL_REQUIRED_FIELD_NAMES),
-        choices=_read_sheet_rows(workbook, "Choices", CHOICE_REQUIRED_FIELD_NAMES),
+        labels=reader.read_table("Labels", LABEL_REQUIRED_FIELD_NAMES),
+        choices=reader.read_table("Choices", CHOICE_REQUIRED_FIELD_NAMES),
     )
 
 

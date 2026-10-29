@@ -8,24 +8,19 @@ from helpers.generator_helpers import (
     INDENT,
     add_generator_comment,
     is_ts_file,
-    sheet_exists,
-    get_data_rows,
-    get_headers,
 )
-from helpers.excel_workbook import ExcelWorkbook
+from survey_definition.excel_survey_definition_reader import ExcelSurveyDefinitionReader
 
 
 # Function to generate common-UI-tests-helpers-template.ts.ts
-def generate_UI_tests(workbook: ExcelWorkbook, output_file: str):
+def generate_UI_tests(reader: ExcelSurveyDefinitionReader, output_file: str):
     try:
         is_ts_file(output_file)  # Check if the output file is an TypeScript file
-        sheet_exists(workbook, "Widgets")  # Check if the sheet exists
-        sheet = workbook["Widgets"]  # Get Widgets sheet
         current_section = None
 
         # Get headers from the first row
-        headers = get_headers(
-            sheet,
+        headers = reader.get_headers(
+            "Widgets",
             expected_headers=[
                 "questionName",
                 "inputType",
@@ -38,7 +33,6 @@ def generate_UI_tests(workbook: ExcelWorkbook, output_file: str):
                 "conditional",
                 # "validation",
             ],
-            sheet_name="Widgets",
         )
 
         # Generate TypeScript codedict
@@ -94,7 +88,7 @@ def generate_UI_tests(workbook: ExcelWorkbook, output_file: str):
         ts_code += f"surveyTestHelpers.startAndLoginAnonymously({{ context, title: '?', hasUser: false }});\n\n"
 
         # Iterate through each row in the sheet, starting from the second row
-        for row in get_data_rows(sheet.rows):
+        for row in reader.get_data_rows("Widgets"):
             # Create a dictionary from the row values and headers
             row_dict = dict(zip(headers, (cell.value for cell in row)))
 

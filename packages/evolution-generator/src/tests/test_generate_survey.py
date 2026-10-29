@@ -13,7 +13,6 @@ import pytest  # pyright: ignore[reportMissingImports]
 from openpyxl.cell.read_only import EMPTY_CELL
 from openpyxl.styles import PatternFill
 
-from helpers.excel_workbook import EMPTY_ROWS_WARNING_THRESHOLD
 from helpers.generator_helpers import (
     delete_file_if_exists,
 )
@@ -24,6 +23,10 @@ from scripts.generate_survey import (
     check_excel_integrity_with_messages,
     check_excel_integrity_with_warnings,
     generate_survey,
+)
+from survey_definition.excel_survey_definition_reader import (
+    EMPTY_ROWS_WARNING_THRESHOLD,
+    ExcelSurveyDefinitionReader,
 )
 
 MOCKED_EXCEL_FILE = "src/tests/references/test.xlsx"
@@ -378,16 +381,15 @@ class TestGenerateSurvey:
 
         expected_files = generate(tmp_path / "without_empty_rows")
 
-        get_workbook = generate_survey_module.get_workbook
-
-        def get_workbook_with_empty_rows(excel_file_path):
-            workbook = get_workbook(excel_file_path)
-            for sheet_name in ["Widgets", "InputRange"]:
-                rows = workbook[sheet_name].rows
-                rows.insert(2, (EMPTY_CELL,) * len(rows[0]))
-            return workbook
+        class ReaderWithEmptyRows(ExcelSurveyDefinitionReader):
+            def __init__(self, excel_file_path: str) -> None:
+                super().__init__(excel_file_path)
+                for sheet_name in ["Widgets", "InputRange"]:
+                    # The sheets are private to the reader: add the empty row there.
+                    rows = self._sheets[sheet_name].rows
+                    rows.insert(2, (EMPTY_CELL,) * len(rows[0]))
 
         monkeypatch.setattr(
-            generate_survey_module, "get_workbook", get_workbook_with_empty_rows
+            generate_survey_module, "ExcelSurveyDefinitionReader", ReaderWithEmptyRows
         )
         assert generate(tmp_path / "with_empty_rows") == expected_files

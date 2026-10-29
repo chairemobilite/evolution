@@ -5,7 +5,7 @@
 import csv
 
 import pytest
-from helpers.generator_helpers import delete_file_if_exists, get_workbook
+from helpers.generator_helpers import delete_file_if_exists
 from scripts.generate_questionnaire_dictionary import (
     MAX_RADIO_NUMBER_VALUES,
     combine_values_text,
@@ -16,6 +16,7 @@ from scripts.generate_questionnaire_dictionary import (
     rename_input_type,
 )
 from survey_definition.choices_definition import Choices
+from survey_definition.excel_survey_definition_reader import ExcelSurveyDefinitionReader
 from survey_definition.survey_definition import SurveyDefinition
 from tests.mocked_excel import (
     MOCKED_EXCEL_FILE,
@@ -362,7 +363,7 @@ class TestGenerateQuestionnaireDictionary:
                 ("fr", "Ménage", "Abréviation"),
             ):
                 generate_questionnaire_dictionary(
-                    get_workbook(MOCKED_EXCEL_FILE),
+                    ExcelSurveyDefinitionReader(MOCKED_EXCEL_FILE),
                     survey_definition,
                     str(tmp_path),
                     language,

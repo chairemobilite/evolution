@@ -3,14 +3,15 @@
 # License text available at https://opensource.org/licenses/MIT
 
 from typing import NamedTuple
+from unittest.mock import MagicMock
 
-from helpers.excel_workbook import ExcelWorkbook
 from helpers.generator_helpers import add_generator_yaml_header
 from tests.mocked_excel import create_mocked_excel_data
 from scripts.labels_generator import LabelsGenerator, LabelFormatter
+from survey_definition.excel_survey_definition_reader import ExcelSurveyDefinitionReader
 from survey_definition.survey_definition import SurveyDefinition
 import pytest
-from helpers.generator_helpers import delete_file_if_exists, get_workbook
+from helpers.generator_helpers import delete_file_if_exists
 
 
 def test_label_formatter_bold():
@@ -157,7 +158,7 @@ class TestGenerateLabels:
         try:
             LabelsGenerator.generate_labels(
                 SurveyDefinition(languages=("fr", "en")),
-                get_workbook(MOCKED_EXCEL_FILE),
+                ExcelSurveyDefinitionReader(MOCKED_EXCEL_FILE),
                 str(tmp_path / "locales"),
                 sheets_with_labels=[self.WIDGETS_SHEET],
             )
@@ -209,7 +210,8 @@ class TestGenerateLabels:
         )
         LabelsGenerator.generate_labels(
             survey_definition,
-            ExcelWorkbook([], []),
+            # No sheet with labels to read from the Excel file
+            MagicMock(spec=ExcelSurveyDefinitionReader),
             str(tmp_path / "locales"),
             sheets_with_labels=[],
         )
@@ -241,7 +243,7 @@ class TestGenerateLabels:
         try:
             LabelsGenerator.generate_labels(
                 SurveyDefinition(languages=("es", "en")),
-                get_workbook(MOCKED_EXCEL_FILE),
+                ExcelSurveyDefinitionReader(MOCKED_EXCEL_FILE),
                 str(tmp_path / "locales"),
                 sheets_with_labels=[self.WIDGETS_SHEET],
             )
@@ -296,7 +298,7 @@ class TestGenerateLabels:
         try:
             LabelsGenerator.generate_labels(
                 survey_definition,
-                get_workbook(MOCKED_EXCEL_FILE),
+                ExcelSurveyDefinitionReader(MOCKED_EXCEL_FILE),
                 str(tmp_path / "locales"),
                 sheets_with_labels=[self.WIDGETS_SHEET],
             )
