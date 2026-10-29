@@ -15,6 +15,7 @@ from scripts.generate_questionnaire_dictionary import (
     process_radio_number_values,
     rename_input_type,
 )
+from survey_definition.choices_definition import Choices
 from survey_definition.survey_definition import SurveyDefinition
 from tests.mocked_excel import (
     MOCKED_EXCEL_FILE,
@@ -22,50 +23,29 @@ from tests.mocked_excel import (
     create_mocked_excel_data,
 )
 
-CHOICES_HEADERS = [
-    "choicesName",
-    "value",
-    "label::fr",
-    "label::en",
-    "label_one::fr",
-    "label_one::en",
-    "spreadChoicesName",
-    "conditional",
-]
+
+def choices_table(rows: list[dict]) -> Choices:
+    """A Choices table in French and English (see choice)."""
+    return Choices.model_validate(rows, context={"languages": ("fr", "en")})
 
 
-class MockCell:
-    def __init__(self, value):
-        self.value = value
-
-
-def choices_row(**kwargs):
-    header_aliases = {
-        "label_en": "label::en",
-        "label_fr": "label::fr",
-    }
-    normalized_kwargs = {
-        header_aliases.get(key, key): value for key, value in kwargs.items()
-    }
-    values = {header: None for header in CHOICES_HEADERS}
-    values.update(normalized_kwargs)
-    return [MockCell(values[header]) for header in CHOICES_HEADERS]
-
-
-def choices_data_rows(*rows):
-    """process_choices skips the first row, like Excel sheet data."""
-    return [[MockCell(header) for header in CHOICES_HEADERS], *rows]
+def choice(choices_name, value=None, label_en=None, **extra) -> dict:
+    """A Choices row; label_en is the only label most tests need, so label::fr mirrors it."""
+    labels = {"label::en": label_en, "label::fr": label_en} if label_en else {}
+    return {"choicesName": choices_name, "value": value, **labels, **extra}
 
 
 class TestProcessChoices:
     def test_includes_zero_value_in_dictionary(self):
-        rows = choices_data_rows(
-            choices_row(choicesName="likert5", value=-2, label_en="Strongly disagree"),
-            choices_row(choicesName="likert5", value=0, label_en="Neutral"),
-            choices_row(choicesName="likert5", value=2, label_en="Strongly agree"),
+        choices = choices_table(
+            [
+                choice("likert5", value=-2, label_en="Strongly disagree"),
+                choice("likert5", value=0, label_en="Neutral"),
+                choice("likert5", value=2, label_en="Strongly agree"),
+            ]
         )
 
-        choices_map = process_choices(rows, CHOICES_HEADERS, "en", {})
+        choices_map = process_choices(choices, "en", {})
 
         assert choices_map["likert5"] == [
             "-2 : Strongly disagree",
@@ -73,16 +53,89 @@ class TestProcessChoices:
             "2 : Strongly agree",
         ]
 
-    def test_skips_rows_without_value(self):
-        rows = choices_data_rows(
-            choices_row(choicesName="yesNo", value="yes", label_en="Yes"),
-            choices_row(choicesName="yesNo", value=None, label_en="Missing value"),
-            choices_row(choicesName="yesNo", value=False, label_en="No"),
+    def test_includes_false_value_in_dictionary(self):
+        choices = choices_table(
+            [
+                choice("yesNo", value="yes", label_en="Yes"),
+                choice("yesNo", value=False, label_en="No"),
+            ]
         )
 
-        choices_map = process_choices(rows, CHOICES_HEADERS, "en", {})
+        choices_map = process_choices(choices, "en", {})
 
         assert choices_map["yesNo"] == ["yes : Yes", "False : No"]
+
+    def test_uses_the_label_of_the_requested_language(self):
+        choices = choices_table(
+            [
+                {
+                    "choicesName": "yesNo",
+                    "value": "yes",
+                    "label::fr": "Oui",
+                    "label::en": "Yes",
+                }
+            ]
+        )
+
+        assert process_choices(choices, "fr", {})["yesNo"] == ["yes : Oui"]
+
+    def test_spread_rows_add_the_choices_of_the_spread_list(self):
+        choices = choices_table(
+            [
+                choice("yes", value="yes", label_en="Yes"),
+                choice("no", value="no", label_en="No"),
+                choice("yesNo", spreadChoicesName="yes"),
+                choice("yesNo", spreadChoicesName="no"),
+                choice("yesNo", value="dontKnow", label_en="Don't know"),
+            ]
+        )
+
+        choices_map = process_choices(choices, "en", {})
+
+        assert choices_map["yesNo"] == ["yes : Yes", "no : No", "dontKnow : Don't know"]
+
+    def test_a_spread_row_s_own_value_and_label_are_not_used(self):
+        """Like in choices.tsx, a spread row only adds the spread list's choices."""
+        choices = choices_table(
+            [
+                choice("yes", value="yes", label_en="Yes"),
+                choice(
+                    "yesNo",
+                    value="ignored",
+                    label_en="Ignored",
+                    spreadChoicesName="yes",
+                ),
+            ]
+        )
+
+        assert process_choices(choices, "en", {})["yesNo"] == ["yes : Yes"]
+
+    def test_describes_the_conditional_of_a_choice(self):
+        choices = choices_table(
+            [
+                choice(
+                    "age",
+                    value="adult",
+                    label_en="Adult",
+                    conditional="isAdultConditional",
+                ),
+                choice(
+                    "age",
+                    value="kid",
+                    label_en="Kid",
+                    conditional="isKidCustomConditional",
+                ),
+            ]
+        )
+
+        choices_map = process_choices(
+            choices, "en", {"isAdultConditional": "age >= 18"}
+        )
+
+        assert choices_map["age"] == [
+            "adult (age >= 18) : Adult",
+            "kid (isKidCustomConditional): Kid",
+        ]
 
 
 class TestGetChoicesText:
@@ -287,7 +340,6 @@ class TestGenerateQuestionnaireDictionary:
                 ]
             ],
         )
-        add_mocked_excel_sheet(workbook, "Choices", CHOICES_HEADERS, [])
         add_mocked_excel_sheet(
             workbook,
             "InputRange",

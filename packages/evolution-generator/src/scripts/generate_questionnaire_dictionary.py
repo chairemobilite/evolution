@@ -14,6 +14,7 @@ from helpers.questionnaire_reference_helpers import (
     transform_path,
 )
 from scripts.generate_widgets import get_radio_number_parameters
+from survey_definition.choices_definition import Choices
 from survey_definition.survey_definition import SurveyDefinition
 
 
@@ -40,9 +41,6 @@ def generate_questionnaire_dictionary(
         # Read data from Excel and return rows and headers
         widgets_rows, widgets_headers = get_data_from_excel(
             excel_file_path, sheet_name="Widgets"
-        )
-        choices_rows, choices_headers = get_data_from_excel(
-            excel_file_path, sheet_name="Choices"
         )
         ranges_rows, ranges_headers = get_data_from_excel(
             excel_file_path, sheet_name="InputRange"
@@ -78,7 +76,7 @@ def generate_questionnaire_dictionary(
 
         # Process choices and get the choices_map
         choices_map = process_choices(
-            choices_rows, choices_headers, language, conditionals_map
+            survey_definition.choices, language, conditionals_map
         )
 
         # Process ranges and get the ranges_map
@@ -266,36 +264,36 @@ def combine_values_text(*value_parts: str) -> str:
     return "\n".join(part for part in value_parts if part)
 
 
-def process_choices(choices_rows, choices_headers, language, conditionals_map):
+def process_choices(
+    choices: Choices, language: Literal["en", "fr"], conditionals_map: dict
+) -> dict:
     """
-    Process the choices from the Excel sheet and group them by choicesName.
+    Group the choices by choicesName.
     Concatenate their values and handle spreadChoicesName.
 
     Args:
-        choices_rows (list): Rows from the Choices sheet.
-        choices_headers (list): Headers from the Choices sheet.
+        choices (Choices): The survey definition's Choices table.
         language (str): Language code ('en' or 'fr').
         conditionals_map (dict): A dictionary mapping conditional names to their descriptions.
 
     Returns:
         dict: A dictionary mapping choicesName to their concatenated values.
     """
-    choices_name_index = choices_headers.index("choicesName")
-    choices_value_index = choices_headers.index("value")
-    choices_language_index = choices_headers.index("label::" + language)
-    choices_spread_choices_name_index = choices_headers.index("spreadChoicesName")
-    choices_conditional_index = choices_headers.index("conditional")
-
     choices_map = {}
-    for row in choices_rows[1:]:
-        choices_name = row[choices_name_index].value
-        choice_text = clean_text(row[choices_language_index].value)
-        choice_value = row[choices_value_index].value
-        choices_spread_choices_name = row[choices_spread_choices_name_index].value
-        choice_conditional = row[choices_conditional_index].value
+    for choice in choices:
+        choices_name = choice.choices_name
+        choice_text = clean_text(choice.label.get(language))
+        choice_value = choice.value
+        choices_spread_choices_name = choice.spread_choices_name
+        choice_conditional = choice.conditional
 
-        # Add choice to choices_map if it has a value and text
-        if choice_text and choice_value is not None:
+        # Add choice to choices_map if it has a value and text. A spread row's own
+        # value and text aren't used, like in choices.tsx.
+        if (
+            choice_text
+            and choice_value is not None
+            and choices_spread_choices_name is None
+        ):
 
             # Format the choice entry based on whether it is conditional
             if isinstance(choice_conditional, str):
@@ -326,7 +324,6 @@ def process_choices(choices_rows, choices_headers, language, conditionals_map):
         # If choices_spread_choices_name is not null, append its choices to the current choices_name
         if (
             choices_spread_choices_name is not None
-            and choices_spread_choices_name != ""
             and choices_spread_choices_name in choices_map
         ):
             # This is to ensure that the spread choices are not added to the choices_map if they are already in the choices_map

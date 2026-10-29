@@ -34,18 +34,12 @@ def generate_questionnaire_list(
         widgets_rows, widgets_headers = get_data_from_excel(
             excel_file_path, sheet_name="Widgets"
         )
-        choices_rows, choices_headers = get_data_from_excel(
-            excel_file_path, sheet_name="Choices"
-        )
 
         # Find the index
         widgets_language_index = widgets_headers.index("label::" + language)
         widgets_section_index = widgets_headers.index("section")
         widgets_active_index = widgets_headers.index("active")
         widgets_choices_index = widgets_headers.index("choices")
-        choices_name_index = choices_headers.index("choicesName")
-        choices_language_index = choices_headers.index("label::" + language)
-        choices_spread_choices_name_index = choices_headers.index("spreadChoicesName")
 
         # Map section names to their titles
         section_titles = {
@@ -53,29 +47,15 @@ def generate_questionnaire_list(
             for section in survey_definition.sections
         }
 
-        # Group choices by choicesName and concatenate their 'en' values
-        choices_map = {}
-        for row in choices_rows[1:]:
-            choices_name = row[choices_name_index].value
-            choice_text = clean_text(row[choices_language_index].value)
-            choices_spread_choices_name = row[choices_spread_choices_name_index].value
-
-            if choice_text is not None:
-                if choices_name in choices_map:
-                    choices_map[choices_name].append(choice_text)
-                else:
-                    choices_map[choices_name] = [choice_text]
-
-            # If choices_spread_choices_name is not null, append its choices to the current choices_name
-            if choices_spread_choices_name:
-                if choices_spread_choices_name in choices_map:
-                    choices_map[choices_name].extend(
-                        choices_map[choices_spread_choices_name]
-                    )
-                else:
-                    print(
-                        f"Warning: {choices_spread_choices_name} not found in choices_map"
-                    )
+        # Group the choice labels by choicesName, a spread row adding the labels of
+        # the list it names (always an earlier one, see Choices)
+        choices_map: dict[str, list[str]] = {}
+        for choice in survey_definition.choices:
+            choice_texts = choices_map.setdefault(choice.choices_name, [])
+            if choice.spread_choices_name is not None:
+                choice_texts.extend(choices_map[choice.spread_choices_name])
+            else:
+                choice_texts.append(clean_text(choice.label.get(language)))
 
         # Group questions by section
         sections = {}

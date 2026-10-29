@@ -269,3 +269,22 @@ class TestGenerateSurvey:
             load_survey_definition.assert_called_once_with(MOCKED_EXCEL_FILE)
         finally:
             delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+    def test_generates_the_choices_from_the_survey_definition(self, tmp_path):
+        _create_workbook(choices_rows=[["yesNo", "yes", "Oui", "Yes", "", ""]])
+        config_path = tmp_path / "generatorConfigs.yaml"
+        config_path.write_text(
+            f"survey_folder_path: {tmp_path}\n"
+            f"excel_file_path: {MOCKED_EXCEL_FILE}\n"
+        )
+        try:
+            generate_survey(str(config_path), only_scripts={"generate_choices"})
+            choices_ts = (
+                tmp_path / "src" / "survey" / "common" / "choices.tsx"
+            ).read_text(encoding="utf-8")
+            assert "export const yesNo: ChoiceType[] = [" in choices_ts
+            assert "yes: Oui" in (
+                tmp_path / "locales" / "fr" / "choices.yaml"
+            ).read_text(encoding="utf-8")
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)

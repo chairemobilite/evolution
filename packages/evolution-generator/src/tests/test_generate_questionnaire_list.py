@@ -7,7 +7,6 @@ from scripts.generate_questionnaire_list import generate_questionnaire_list
 from survey_definition.survey_definition import SurveyDefinition
 from tests.mocked_excel import (
     MOCKED_EXCEL_FILE,
-    add_mocked_excel_sheet,
     create_mocked_excel_data,
 )
 
@@ -43,12 +42,6 @@ class TestGenerateQuestionnaireList:
                 ["home", "Type de logement?", "Dwelling type?", True, None],
             ],
         )
-        add_mocked_excel_sheet(
-            workbook,
-            "Choices",
-            ["choicesName", "label::fr", "label::en", "spreadChoicesName"],
-            [],
-        )
         try:
             for language, expected_text in (
                 (
@@ -69,5 +62,54 @@ class TestGenerateQuestionnaireList:
                     encoding="utf-8"
                 )
                 assert text == expected_text, language
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+    def test_lists_the_choices_of_each_question_from_the_survey_definition(
+        self, tmp_path
+    ):
+        """A question's choices are listed under it, a spread row adding the choices of the list it names."""
+        survey_definition = SurveyDefinition(
+            languages=("fr", "en"),
+            sections=[
+                {
+                    "section": "home",
+                    "in_nav": True,
+                    "abbreviation": "HM_",
+                    "title_fr": "Domicile",
+                    "title_en": "Home",
+                }
+            ],
+            choices=[
+                {
+                    "choicesName": "yes",
+                    "value": "yes",
+                    "label::fr": "Oui",
+                    "label::en": "Yes",
+                },
+                {"choicesName": "yesNo", "spreadChoicesName": "yes"},
+                {
+                    "choicesName": "yesNo",
+                    "value": "no",
+                    "label::fr": "Non",
+                    "label::en": "No",
+                },
+            ],
+        )
+        create_mocked_excel_data(
+            "Widgets",
+            ["section", "label::fr", "label::en", "active", "choices"],
+            [["home", "Voiture?", "Car?", True, "yesNo"]],
+        )
+        try:
+            for language, question, choices in (
+                ("en", "Car?", "- Yes\n- No"),
+                ("fr", "Voiture?", "- Oui\n- Non"),
+            ):
+                generate_questionnaire_list(
+                    MOCKED_EXCEL_FILE, survey_definition, str(tmp_path), language
+                )
+                text = (tmp_path / f"questionnaire_list_{language}.txt").read_text()
+                assert f"{question}\n{choices}" in text
         finally:
             delete_file_if_exists(MOCKED_EXCEL_FILE)
