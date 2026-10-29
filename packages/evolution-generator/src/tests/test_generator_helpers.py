@@ -22,7 +22,7 @@ MOCKED_EXCEL_FILE = "src/tests/references/test.xlsx"
 
 class TestGetLabelContextFlags:
     def test_returns_all_false_when_no_tokens_present(self):
-        assert get_label_context_flags(label_fr="Bonjour", label_en="Hello") == (
+        assert get_label_context_flags(labels=["Bonjour", "Hello"]) == (
             False,
             False,
             False,
@@ -30,7 +30,7 @@ class TestGetLabelContextFlags:
         )
 
     def test_detects_nickname_token(self):
-        assert get_label_context_flags(label_fr="Bonjour {{nickname}}") == (
+        assert get_label_context_flags(labels=["Bonjour {{nickname}}"]) == (
             True,
             False,
             False,
@@ -38,7 +38,7 @@ class TestGetLabelContextFlags:
         )
 
     def test_detects_count_token_even_with_spaces(self):
-        assert get_label_context_flags(label_en="Hello {{ count }}") == (
+        assert get_label_context_flags(labels=["Hello {{ count }}"]) == (
             False,
             True,
             False,
@@ -46,13 +46,13 @@ class TestGetLabelContextFlags:
         )
 
     def test_detects_gender_token_with_or_without_spaces_around_colon(self):
-        assert get_label_context_flags(label_fr="Étudian{{gender:t/te/t·e}}") == (
+        assert get_label_context_flags(labels=["Étudian{{gender:t/te/t·e}}"]) == (
             False,
             False,
             True,
             False,
         )
-        assert get_label_context_flags(label_fr="Étudian{{gender : t/te/t·e}}") == (
+        assert get_label_context_flags(labels=["Étudian{{gender : t/te/t·e}}"]) == (
             False,
             False,
             True,
@@ -60,14 +60,25 @@ class TestGetLabelContextFlags:
         )
 
     def test_detects_label_one_presence_and_ignores_whitespace_only(self):
-        assert get_label_context_flags(label_one_fr="Salut") == (
+        assert get_label_context_flags(labels_one=["Salut"]) == (
             False,
             False,
             False,
             True,
         )
-        assert get_label_context_flags(label_one_en="   ") == (
+        assert get_label_context_flags(labels_one=["   "]) == (
             False,
+            False,
+            False,
+            False,
+        )
+
+    def test_ignores_missing_labels(self):
+        """A label missing in a language is None."""
+        assert get_label_context_flags(
+            labels=[None, "Hi {{nickname}}"], labels_one=[None, None]
+        ) == (
+            True,
             False,
             False,
             False,
@@ -75,8 +86,8 @@ class TestGetLabelContextFlags:
 
     def test_detects_all_flags_together(self):
         assert get_label_context_flags(
-            label_fr="Bonjour **{{nickname}}** ({{count}}) Étudian{{gender:t/te/t·e}}",
-            label_one_en="Hi",
+            labels=["Bonjour **{{nickname}}** ({{count}}) Étudian{{gender:t/te/t·e}}"],
+            labels_one=["Hi"],
         ) == (
             True,
             True,

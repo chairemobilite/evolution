@@ -7,7 +7,7 @@ import os  # File system operations
 import re  # Regular expression module for pattern matching
 import openpyxl  # Read data from Excel
 from openpyxl import Workbook  # Read data from Excel, File system operations
-from typing import List, Optional, Tuple  # Types for Python
+from typing import Iterable, List, Optional, Tuple  # Types for Python
 
 from survey_definition.conditionals_definition import CONDITIONAL_REQUIRED_FIELD_NAMES
 from survey_definition.labels_definition import LABEL_REQUIRED_FIELD_NAMES
@@ -265,13 +265,14 @@ def clean_text(text) -> str:
 
 def get_label_context_flags(
     *,
-    label_fr: Optional[str] = None,
-    label_en: Optional[str] = None,
-    label_one_fr: Optional[str] = None,
-    label_one_en: Optional[str] = None,
+    labels: Iterable[Optional[str]] = (),
+    labels_one: Iterable[Optional[str]] = (),
 ) -> Tuple[bool, bool, bool, bool]:
     """
     Detect whether label strings require dynamic i18n context.
+
+    `labels` and `labels_one` are the labels and the `label_one` labels to check, in
+    any languages (e.g. `labels=[label_fr, label_en]`); a missing label is None.
 
     Returns:
         (has_nickname, has_count, has_gender_context, has_label_one)
@@ -284,18 +285,13 @@ def get_label_context_flags(
         - `has_label_one` is true if any of the *_one labels are non-empty.
     """
 
-    texts = [
-        label_fr or "",
-        label_en or "",
-        label_one_fr or "",
-        label_one_en or "",
-    ]
-    label_text = "".join(texts)
+    labels_one = list(labels_one)
+    label_text = "".join(text or "" for text in [*labels, *labels_one])
 
     has_nickname = re.search(r"\{\{\s*nickname\s*\}\}", label_text) is not None
     has_count = re.search(r"\{\{\s*count\s*\}\}", label_text) is not None
     has_gender_context = re.search(r"\{\{\s*gender\s*:\s*", label_text) is not None
-    has_label_one = bool((label_one_fr or "").strip() or (label_one_en or "").strip())
+    has_label_one = any((label_one or "").strip() for label_one in labels_one)
     return has_nickname, has_count, has_gender_context, has_label_one
 
 

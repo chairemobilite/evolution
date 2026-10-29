@@ -45,10 +45,14 @@ def _generate_choice_label_typescript(
     translation_key = f"choices:{choice_name}.{value_key}"
     has_nickname, has_count, has_gender_context, has_label_one = (
         get_label_context_flags(
-            label_fr=(choice.get("label_yaml", {}) or {}).get("fr"),
-            label_en=(choice.get("label_yaml", {}) or {}).get("en"),
-            label_one_fr=(choice.get("label_one_yaml", {}) or {}).get("fr"),
-            label_one_en=(choice.get("label_one_yaml", {}) or {}).get("en"),
+            labels=[
+                (choice.get("label_yaml", {}) or {}).get("fr"),
+                (choice.get("label_yaml", {}) or {}).get("en"),
+            ],
+            labels_one=[
+                (choice.get("label_one_yaml", {}) or {}).get("fr"),
+                (choice.get("label_one_yaml", {}) or {}).get("en"),
+            ],
         )
     )
 
@@ -83,10 +87,14 @@ def _generate_typescript_code(
                 continue
             has_nickname, has_count, has_gender_context, has_label_one = (
                 get_label_context_flags(
-                    label_fr=(choice.get("label_yaml", {}) or {}).get("fr"),
-                    label_en=(choice.get("label_yaml", {}) or {}).get("en"),
-                    label_one_fr=(choice.get("label_one_yaml", {}) or {}).get("fr"),
-                    label_one_en=(choice.get("label_one_yaml", {}) or {}).get("en"),
+                    labels=[
+                        (choice.get("label_yaml", {}) or {}).get("fr"),
+                        (choice.get("label_yaml", {}) or {}).get("en"),
+                    ],
+                    labels_one=[
+                        (choice.get("label_one_yaml", {}) or {}).get("fr"),
+                        (choice.get("label_one_yaml", {}) or {}).get("en"),
+                    ],
                 )
             )
             if has_nickname:
