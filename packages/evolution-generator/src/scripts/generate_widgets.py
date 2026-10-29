@@ -717,10 +717,8 @@ def generate_label(
     label_one_en = row.get("label_one::en", "")  # English label for one person
     has_nickname, has_count, has_gender_context, has_label_one = (
         get_label_context_flags(
-            label_fr=label_fr,
-            label_en=label_en,
-            label_one_fr=label_one_fr,
-            label_one_en=label_one_en,
+            labels=[label_fr, label_en],
+            labels_one=[label_one_fr, label_one_en],
         )
     )
 
@@ -1350,10 +1348,8 @@ def get_widgets_file_import_flags(section_rows) -> ImportFlags:
         # Check for {{nickname}}, {{count}}, and label_one in labels
         has_nickname, has_count, _has_gender_context, has_label_one = (
             get_label_context_flags(
-                label_fr=label_fr,
-                label_en=label_en,
-                label_one_fr=label_one_fr,
-                label_one_en=label_one_en,
+                labels=[label_fr, label_en],
+                labels_one=[label_one_fr, label_one_en],
             )
         )
         if has_nickname:

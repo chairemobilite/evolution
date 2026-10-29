@@ -645,7 +645,7 @@ class LabelsGenerator:
 
         # Fast-path: if there is no gender token at all, skip regex work.
         _has_nickname, _has_count, has_gender_context, _has_label_one = (
-            get_label_context_flags(label_fr=label)
+            get_label_context_flags(labels=[label])
         )
         if not has_gender_context:
             return None
