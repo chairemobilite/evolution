@@ -15,6 +15,8 @@ class TestSurveyDefinition:
     def test_survey_definition_defaults_to_empty_lists(self):
         survey_definition = SurveyDefinition(languages=("fr", "en"))
         assert len(survey_definition.sections) == 0
+        assert len(survey_definition.labels) == 0
+        assert len(survey_definition.choices) == 0
 
     def test_survey_definition_holds_parsed_rows(self):
         survey_definition = SurveyDefinition(
@@ -158,6 +160,54 @@ class TestSurveyDefinitionLanguages:
         ]
         survey_definition = SurveyDefinition(languages=["fr"], labels=[label])
         assert survey_definition.labels[0].label == {"fr": "Bienvenue"}
+
+    def test_passes_the_survey_languages_to_the_choices(self):
+        """The Choices rule (a label in every language) checks the survey's languages."""
+        choice = {"choicesName": "yesNo", "value": "yes", "label::fr": "Oui"}
+        assert self._issues(languages=["fr", "es"], choices=[choice]) == [
+            "Error in Choices - Invalid row 2: label::es is required"
+        ]
+        survey_definition = SurveyDefinition(languages=["fr"], choices=[choice])
+        assert survey_definition.choices[0].label == {"fr": "Oui"}
+
+    def test_passes_the_conditional_names_to_the_choices(self):
+        """A choice conditional must name a conditional of the Conditionals table."""
+        conditional = {
+            "conditional_name": "isAdultConditional",
+            "path": "person.age",
+            "comparison_operator": ">=",
+            "value": 18,
+        }
+        choice = {"choicesName": "yesNo", "value": "yes", "label::fr": "Oui"}
+        SurveyDefinition(
+            languages=["fr"],
+            conditionals=[conditional],
+            choices=[{**choice, "conditional": "isAdultConditional"}],
+        )
+        assert self._issues(
+            languages=["fr"],
+            conditionals=[conditional],
+            choices=[{**choice, "conditional": "isKidConditional"}],
+        ) == [
+            "Error in Choices - Invalid row 2: conditional 'isKidConditional' does "
+            "not match any conditional_name of the Conditionals table"
+        ]
+
+    def test_does_not_check_choice_conditionals_against_invalid_conditionals(self):
+        """An invalid Conditionals table is reported on its own, not again by each choice."""
+        choice = {
+            "choicesName": "yesNo",
+            "value": "yes",
+            "label::fr": "Oui",
+            "conditional": "isAdultConditional",
+        }
+        with pytest.raises(ValidationError) as error:
+            SurveyDefinition(
+                languages=["fr"],
+                conditionals=[{"conditional_name": "isAdultConditional"}],
+                choices=[choice],
+            )
+        assert [e["loc"] for e in error.value.errors()] == [("conditionals",)]
 
     def test_keeps_an_already_built_table_as_is(self):
         """Its rows were checked when it was built, with the context it was built with."""

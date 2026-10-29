@@ -25,6 +25,7 @@ from pydantic import (
     field_validator,
 )
 
+from survey_definition.choices_definition import Choices
 from survey_definition.conditionals_definition import Conditionals
 from survey_definition.labels_definition import Labels
 from survey_definition.sections_definition import Sections
@@ -40,7 +41,7 @@ class SurveyDefinition(BaseModel):
     Generator script.
 
     Input: a dict with the survey `languages` and one key per table (`sections`,
-        `conditionals`, later `widgets`, `choices`, ...), each holding that table's raw
+        `conditionals`, `labels`, `choices`, later `widgets`, ...), each holding that table's raw
         rows (or an already-built table object, e.g. `SurveyDefinition(sections=[...])`).
         `languages` is required; an omitted table defaults to empty.
     Output: a validated instance if the languages and every table are valid;
@@ -67,6 +68,8 @@ class SurveyDefinition(BaseModel):
             source order.
         labels: The Labels table, already checked: one LabelDefinition per row, in
             source order.
+        choices: The Choices table, already checked: one ChoiceDefinition per row, in
+            source order.
     """
 
     # Pydantic validates a table field with the table's own validators (e.g.
@@ -79,6 +82,7 @@ class SurveyDefinition(BaseModel):
     conditionals: Conditionals = Field(default_factory=lambda: Conditionals([]))
     sections: Sections = Field(default_factory=lambda: Sections([]))
     labels: Labels = Field(default_factory=lambda: Labels([]))
+    choices: Choices = Field(default_factory=lambda: Choices([]))
 
     @field_validator("languages")
     @classmethod
@@ -118,6 +122,24 @@ class SurveyDefinition(BaseModel):
         # See _sections_are_valid: no language at all when they are invalid.
         languages = info.data.get("languages", ())
         return _validated_table(Labels, rows, context={"languages": languages})
+
+    @field_validator("choices", mode="before")
+    @classmethod
+    def _choices_are_valid(cls, rows: Any, info: ValidationInfo) -> Any:
+        """Validate the Choices table with the survey languages and the conditional names in its context."""
+        # See _sections_are_valid: no language at all when they are invalid. Without a
+        # valid Conditionals table (already reported), the choice conditionals aren't
+        # compared to it.
+        languages = info.data.get("languages", ())
+        conditionals = info.data.get("conditionals")
+        conditional_names = (
+            set(conditionals.by_name()) if conditionals is not None else None
+        )
+        return _validated_table(
+            Choices,
+            rows,
+            context={"languages": languages, "conditional_names": conditional_names},
+        )
 
 
 def _validated_table[T: BaseModel](

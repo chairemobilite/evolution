@@ -53,6 +53,7 @@ def _create_workbook(
     conditionals_rows=VALID_CONDITIONALS_ROWS,
     widgets_headers=VALID_WIDGETS_HEADERS,
     sections_headers=VALID_SECTIONS_HEADERS,
+    choices_rows=(),
 ):
     """Write a workbook whose Widgets sheet holds the survey languages (its label::<language> columns)."""
     workbook = create_mocked_excel_data("Sections", sections_headers, sections_rows)
@@ -61,6 +62,19 @@ def _create_workbook(
     )
     add_mocked_excel_sheet(workbook, "Widgets", widgets_headers, [])
     add_mocked_excel_sheet(workbook, "Labels", ["namespace", "key"], [])
+    add_mocked_excel_sheet(
+        workbook,
+        "Choices",
+        [
+            "choicesName",
+            "value",
+            "label::fr",
+            "label::en",
+            "spreadChoicesName",
+            "conditional",
+        ],
+        list(choices_rows),
+    )
 
 
 class TestCheckExcelIntegrityWithMessages:
@@ -157,6 +171,38 @@ class TestCheckExcelIntegrityWithMessages:
             assert messages == [
                 "Invalid survey languages ['French']: each must be a language code "
                 "like 'fr' or 'en-CA'."
+            ]
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+
+class TestCheckExcelIntegrityChoices:
+    def test_reports_a_choice_conditional_missing_from_the_conditionals_sheet(self):
+        _create_workbook(
+            choices_rows=[["yesNo", "yes", "Oui", "Yes", "", "nopeConditional"]]
+        )
+        try:
+            assert check_excel_integrity_with_messages(MOCKED_EXCEL_FILE) == (
+                False,
+                [
+                    "Error in Choices - Invalid row 2: conditional 'nopeConditional' "
+                    "does not match any conditional_name of the Conditionals table"
+                ],
+            )
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+    def test_reports_the_choices_problems_with_the_other_sheets_ones(self):
+        _create_workbook(
+            sections_rows=[["home", "Accueil", "Home", True, "", "", ""]],
+            choices_rows=[["yesNo", "yes", "Oui", "", "", ""]],
+        )
+        try:
+            ok, messages = check_excel_integrity_with_messages(MOCKED_EXCEL_FILE)
+            assert ok is False
+            assert messages == [
+                "Error in Sections - Required field is missing in row 2. Missing fields: ['abbreviation']",
+                "Error in Choices - Invalid row 2: label::en is required",
             ]
         finally:
             delete_file_if_exists(MOCKED_EXCEL_FILE)

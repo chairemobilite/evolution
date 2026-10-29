@@ -270,14 +270,27 @@ class TestLoadSurveyDefinition:
     VALID_LABELS_HEADERS = ["namespace", "key", "label::fr", "label::en"]
     VALID_LABELS_ROWS = [["home", "welcome", "Bienvenue", "Welcome"]]
 
+    VALID_CHOICES_HEADERS = [
+        "choicesName",
+        "value",
+        "label::fr",
+        "label::en",
+        "spreadChoicesName",
+        "conditional",
+    ]
+    VALID_CHOICES_ROWS = [["yesNo", "yes", "Oui", "Yes", "", ""]]
+
     def _create_workbook(self, sheet_name, headers, rows):
-        """Like create_mocked_excel_data, plus a Widgets sheet holding the survey languages (fr, en) and a Labels sheet."""
+        """Like create_mocked_excel_data, plus a Widgets sheet holding the survey languages (fr, en), a Labels sheet and a Choices sheet."""
         workbook = create_mocked_excel_data(sheet_name, headers, rows)
         add_mocked_excel_sheet(
             workbook, "Widgets", ["questionName", "label::fr", "label::en"], []
         )
         add_mocked_excel_sheet(
             workbook, "Labels", self.VALID_LABELS_HEADERS, self.VALID_LABELS_ROWS
+        )
+        add_mocked_excel_sheet(
+            workbook, "Choices", self.VALID_CHOICES_HEADERS, self.VALID_CHOICES_ROWS
         )
         return workbook
 
@@ -504,6 +517,7 @@ class TestLoadSurveyDefinition:
             workbook, "Widgets", ["questionName", "label::es", "label::en"], []
         )
         add_mocked_excel_sheet(workbook, "Labels", self.VALID_LABELS_HEADERS, [])
+        add_mocked_excel_sheet(workbook, "Choices", self.VALID_CHOICES_HEADERS, [])
         try:
             survey_definition = load_survey_definition(MOCKED_EXCEL_FILE)
             assert survey_definition.languages == ("es", "en")
@@ -524,6 +538,68 @@ class TestLoadSurveyDefinition:
         try:
             with pytest.raises(
                 Exception, match="Sheet with name Widgets does not exist"
+            ):
+                load_survey_definition(MOCKED_EXCEL_FILE)
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+    def _create_valid_workbook(self):
+        workbook = self._create_workbook(
+            "Sections", self.VALID_SECTIONS_HEADERS, self.VALID_SECTIONS_ROWS
+        )
+        add_mocked_excel_sheet(
+            workbook,
+            "Conditionals",
+            self.VALID_CONDITIONALS_HEADERS,
+            self.VALID_CONDITIONALS_ROWS,
+        )
+        return workbook
+
+    def test_reads_the_choices_sheet(self):
+        workbook = self._create_valid_workbook()
+        del workbook["Choices"]
+        add_mocked_excel_sheet(
+            workbook,
+            "Choices",
+            self.VALID_CHOICES_HEADERS + ["label_one::fr", "label_one::en", "hidden"],
+            [
+                ["yes", "yes", "Oui", "Yes", "", "", "", "", True],
+                ["yesNo", "", "", "", "yes", "", "", "", ""],
+            ],
+        )
+        try:
+            yes, spread = load_survey_definition(MOCKED_EXCEL_FILE).choices
+            assert yes.label == {"fr": "Oui", "en": "Yes"}
+            assert yes.hidden is True
+            assert spread.spread_choices_name == "yes"
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+    def test_missing_choices_sheet_raises(self):
+        workbook = self._create_valid_workbook()
+        del workbook["Choices"]
+        workbook.save(MOCKED_EXCEL_FILE)
+        try:
+            with pytest.raises(
+                Exception, match="Sheet with name Choices does not exist"
+            ):
+                load_survey_definition(MOCKED_EXCEL_FILE)
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+    def test_choices_sheet_missing_a_required_header_raises(self):
+        workbook = self._create_valid_workbook()
+        del workbook["Choices"]
+        add_mocked_excel_sheet(
+            workbook,
+            "Choices",
+            [h for h in self.VALID_CHOICES_HEADERS if h != "spreadChoicesName"],
+            [],
+        )
+        try:
+            with pytest.raises(
+                Exception,
+                match="Missing expected header in Choices sheet: spreadChoicesName",
             ):
                 load_survey_definition(MOCKED_EXCEL_FILE)
         finally:
