@@ -7,12 +7,9 @@
 from helpers.generator_helpers import (
     INDENT,
     add_generator_comment,
-    is_excel_file,
     is_ts_file,
-    get_workbook,
-    sheet_exists,
-    get_headers,
 )
+from survey_definition.excel_survey_definition_reader import ExcelSurveyDefinitionReader
 
 
 # Function to replace single quotes and stringify text
@@ -23,20 +20,16 @@ def replaces_quotes_and_stringify(text):
 
 
 # Function to generate inputRange.tsx
-def generate_input_range(input_file: str, output_file: str):
+def generate_input_range(reader: ExcelSurveyDefinitionReader, output_file: str):
     try:
-        is_excel_file(input_file)  # Check if the input file is an Excel file
         is_ts_file(output_file)  # Check if the output file is an TypeScript file
-        workbook = get_workbook(input_file)  # Get workbook from Excel file
-        sheet_exists(workbook, "InputRange")  # Check if the sheet exists
-        sheet = workbook["InputRange"]  # Get InputRange sheet
 
         # Get headers from the first row
         # TODO: Use survey_definition.languages instead of fr/en once the InputRange
         # sheet is migrated to the survey definition (see #2035). Its columns don't
         # follow the <field>::<language> naming (e.g. labelFrMin, unitFr).
-        headers = get_headers(
-            sheet,
+        headers = reader.get_headers(
+            "InputRange",
             expected_headers=[
                 "inputRangeName",
                 "labelFrMin",
@@ -48,7 +41,6 @@ def generate_input_range(input_file: str, output_file: str):
                 "unitFr",
                 "unitEn",
             ],
-            sheet_name="InputRange",
         )
 
         # Generate TypeScript codedict
@@ -61,7 +53,7 @@ def generate_input_range(input_file: str, output_file: str):
         ts_code += f"import {{ type InputRangeType }} from 'evolution-common/lib/services/questionnaire/types';\n\n"
 
         # Iterate through each row in the sheet, starting from the second row
-        for row in list(sheet.rows)[1:]:
+        for row in reader.get_data_rows("InputRange"):
             # Create a dictionary from the row values and headers
             row_dict = dict(zip(headers, (cell.value for cell in row)))
 

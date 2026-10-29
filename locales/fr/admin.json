@@ -291,6 +291,7 @@
         "GeneratorVerifyRequestFailed": "Impossible de joindre le serveur.",
         "GeneratorVerifyErrorFallback": "La vérification a échoué.",
         "GeneratorVerifyErrorTitle": "Erreurs de vérification",
+        "GeneratorVerifyWarningTitle": "Avertissements de vérification",
         "GeneratorVerifyErrorCopy": "Copier",
         "GeneratorVerifyErrorDismiss": "Fermer",
         "GeneratorVerifyErrorCopied": "Copié dans le presse-papiers.",

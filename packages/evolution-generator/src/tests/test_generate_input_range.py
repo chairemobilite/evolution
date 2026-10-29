@@ -8,9 +8,8 @@ import pytest  # Testing framework
 from typing import List, Union, Optional  # Types for Python
 
 from scripts.generate_input_range import generate_input_range
-from helpers.generator_helpers import (
-    delete_file_if_exists,
-)
+from helpers.generator_helpers import delete_file_if_exists
+from survey_definition.excel_survey_definition_reader import ExcelSurveyDefinitionReader
 from tests.mocked_excel import create_mocked_excel_data
 
 # Define constants
@@ -144,12 +143,12 @@ def test_generate_input_range(
     if expected_error is not None:
         # Check that the function raises an error
         with pytest.raises(Exception) as e_info:
-            generate_input_range(input_file, output_file)
+            generate_input_range(ExcelSurveyDefinitionReader(input_file), output_file)
 
         # Check the error message
         assert str(e_info.value) == expected_error
     else:
-        generate_input_range(input_file, output_file)
+        generate_input_range(ExcelSurveyDefinitionReader(input_file), output_file)
 
         # Check that the output file is created
         assert os.path.isfile(output_file)

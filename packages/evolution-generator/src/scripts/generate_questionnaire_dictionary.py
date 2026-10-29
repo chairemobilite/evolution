@@ -7,7 +7,7 @@
 import os
 import csv
 from typing import Literal
-from helpers.generator_helpers import get_data_from_excel, clean_text
+from helpers.generator_helpers import clean_text
 from helpers.questionnaire_reference_helpers import (
     describe_conditionals,
     get_abbreviation_by_section,
@@ -15,13 +15,14 @@ from helpers.questionnaire_reference_helpers import (
 )
 from scripts.generate_widgets import get_radio_number_parameters
 from survey_definition.choices_definition import Choices
+from survey_definition.excel_survey_definition_reader import ExcelSurveyDefinitionReader
 from survey_definition.survey_definition import SurveyDefinition
 
 
 # Function to generate questionnaire_test for each section
 def generate_questionnaire_dictionary(
-    # TODO: Remove excel_file_path once every sheet read here is migrated to the survey definition.
-    excel_file_path: str,
+    # TODO: Remove reader once every sheet read here is migrated to the survey definition.
+    reader: ExcelSurveyDefinitionReader,
     survey_definition: SurveyDefinition,
     questionnaire_dictionary_output_folder: str,
     language: Literal["en", "fr"],
@@ -31,20 +32,16 @@ def generate_questionnaire_dictionary(
     with its path, conditional, input type and possible values.
 
     Args:
-        excel_file_path: Excel file to read the sheets not yet migrated to the
-            survey definition from.
+        reader: Reader of the Excel file, to read the sheets not yet migrated to
+            the survey definition from.
         survey_definition: Already-validated survey definition to describe.
         questionnaire_dictionary_output_folder: Folder to write the CSV file to.
         language: Language of the labels, 'en' or 'fr'.
     """
     try:
         # Read data from Excel and return rows and headers
-        widgets_rows, widgets_headers = get_data_from_excel(
-            excel_file_path, sheet_name="Widgets"
-        )
-        ranges_rows, ranges_headers = get_data_from_excel(
-            excel_file_path, sheet_name="InputRange"
-        )
+        _, widgets_headers = reader.get_rows_and_headers("Widgets")
+        _, ranges_headers = reader.get_rows_and_headers("InputRange")
 
         # Find the index
         widgets_language_index = widgets_headers.index("label::" + language)
@@ -80,11 +77,13 @@ def generate_questionnaire_dictionary(
         )
 
         # Process ranges and get the ranges_map
-        ranges_map = process_range(ranges_rows, ranges_headers, language)
+        ranges_map = process_range(
+            reader.get_data_rows("InputRange"), ranges_headers, language
+        )
 
         # Group questions by section
         sections_questions = {}
-        for row in widgets_rows[1:]:
+        for row in reader.get_data_rows("Widgets"):
             section_name = row[widgets_section_index].value
             question_text = clean_text(row[widgets_language_index].value)
             active = row[widgets_active_index].value
@@ -399,7 +398,8 @@ def process_range(ranges_rows, ranges_headers, language):
     Concatenate their min and max values with their corresponding labels.
 
     Args:
-        ranges_rows (list): Rows from the InputRange sheet.
+        ranges_rows (list): Rows with data of the InputRange sheet, header row
+            excluded.
         ranges_headers (list): Headers from the InputRange sheet.
         language (str): Language code ('en' or 'fr').
 
@@ -414,7 +414,7 @@ def process_range(ranges_rows, ranges_headers, language):
     label_max_index = ranges_headers.index(f"label{language.capitalize()}Max")
 
     ranges_map = {}
-    for row in ranges_rows[1:]:
+    for row in ranges_rows:
         input_range_name = row[input_range_name_index].value
         # Ensure min_value is not negative
         min_value = max(0, row[min_value_index].value)
