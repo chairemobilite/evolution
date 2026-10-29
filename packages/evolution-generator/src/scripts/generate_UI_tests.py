@@ -7,20 +7,18 @@
 from helpers.generator_helpers import (
     INDENT,
     add_generator_comment,
-    is_excel_file,
     is_ts_file,
-    get_workbook,
     sheet_exists,
+    get_data_rows,
     get_headers,
 )
+from helpers.excel_workbook import ExcelWorkbook
 
 
 # Function to generate common-UI-tests-helpers-template.ts.ts
-def generate_UI_tests(input_file: str, output_file: str):
+def generate_UI_tests(workbook: ExcelWorkbook, output_file: str):
     try:
-        is_excel_file(input_file)  # Check if the input file is an Excel file
         is_ts_file(output_file)  # Check if the output file is an TypeScript file
-        workbook = get_workbook(input_file)  # Get workbook from Excel file
         sheet_exists(workbook, "Widgets")  # Check if the sheet exists
         sheet = workbook["Widgets"]  # Get Widgets sheet
         current_section = None
@@ -96,7 +94,7 @@ def generate_UI_tests(input_file: str, output_file: str):
         ts_code += f"surveyTestHelpers.startAndLoginAnonymously({{ context, title: '?', hasUser: false }});\n\n"
 
         # Iterate through each row in the sheet, starting from the second row
-        for row in list(sheet.rows)[1:]:
+        for row in get_data_rows(sheet.rows):
             # Create a dictionary from the row values and headers
             row_dict = dict(zip(headers, (cell.value for cell in row)))
 

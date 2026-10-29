@@ -5,10 +5,9 @@
 # Note: This script includes functions that help generate and test Generator scripts.
 import os  # File system operations
 import re  # Regular expression module for pattern matching
-import openpyxl  # Read data from Excel
-from openpyxl import Workbook  # Read data from Excel, File system operations
 from typing import Iterable, List, Optional, Tuple  # Types for Python
 
+from helpers.excel_workbook import ExcelWorkbook, load_excel_workbook
 from survey_definition.choices_definition import CHOICE_REQUIRED_FIELD_NAMES
 from survey_definition.conditionals_definition import CONDITIONAL_REQUIRED_FIELD_NAMES
 from survey_definition.labels_definition import LABEL_REQUIRED_FIELD_NAMES
@@ -38,13 +37,10 @@ def add_generator_yaml_header() -> str:
     return _format_generator_header("# ")
 
 
-# Read data from Excel and return rows and headers
-def get_data_from_excel(excel_file_path: str, sheet_name: str) -> tuple:
+# Read a sheet of the workbook and return rows and headers
+def get_data_from_excel(workbook: ExcelWorkbook, sheet_name: str) -> tuple:
     try:
-        # Load Excel file
-        workbook: Workbook = openpyxl.load_workbook(excel_file_path, data_only=True)
-        sheet = workbook[sheet_name]  # Get sheet
-        rows: List = list(sheet.rows)  # Get all rows in the sheet
+        rows: List = workbook[sheet_name].rows  # Get all rows in the sheet
 
         # Filter out None values from headers
         headers = []
@@ -68,6 +64,14 @@ def get_data_from_excel(excel_file_path: str, sheet_name: str) -> tuple:
     except Exception as e:
         print(f"Error reading Excel in {sheet_name} sheet: {e}")
         raise e
+
+
+def get_data_rows(rows: List) -> List:
+    """
+    Return the rows after the header row, without the empty ones (e.g. a blank row
+    left to separate groups of rows), so scripts only see rows with data.
+    """
+    return [row for row in rows[1:] if any(cell.value is not None for cell in row)]
 
 
 # TODO: Add types for rows and headers
@@ -149,21 +153,21 @@ def is_ts_file(file: str) -> None:
 
 
 # Check if the sheet exists
-def sheet_exists(workbook: Workbook, sheet_name: str) -> None:
+def sheet_exists(workbook: ExcelWorkbook, sheet_name: str) -> None:
     if sheet_name not in workbook.sheetnames:
         raise Exception(f"Sheet with name {sheet_name} does not exist")
 
 
-# Get workbook from Excel file
-def get_workbook(input_file: str) -> Workbook:
-    workbook = openpyxl.load_workbook(input_file, data_only=True)
-    return workbook
+# Get workbook from Excel file, read once so every script can share it
+def get_workbook(input_file: str) -> ExcelWorkbook:
+    is_excel_file(input_file)
+    return load_excel_workbook(input_file)
 
 
 # Get headers from the first row
 def get_headers(sheet, expected_headers: List[str], sheet_name: str) -> List[str]:
     # Get headers from the first row
-    current_headers = [cell.value for cell in list(sheet.rows)[0]]
+    current_headers = [cell.value for cell in sheet.rows[0]]
 
     # Check if the headers are valid
     for expected in expected_headers:
@@ -176,26 +180,21 @@ def get_headers(sheet, expected_headers: List[str], sheet_name: str) -> List[str
 
 
 def _read_sheet_rows(
-    workbook: Workbook, sheet_name: str, expected_headers
+    workbook: ExcelWorkbook, sheet_name: str, expected_headers
 ) -> List[dict]:
     """Read every data row of `sheet_name` (row 1 is the header) as a dict keyed by its headers.
 
-    Trailing rows whose cells are all blank are dropped: openpyxl's row count can
-    include a styled-but-otherwise-empty row past the real data, which would otherwise
-    be read as a row missing every required field. Interior blank rows are kept
-    (still invalid if the sheet requires values).
+    Interior blank rows are kept (still invalid if the sheet requires values); the
+    workbook has no blank rows after the data (see ExcelSheet).
     """
     sheet_exists(workbook, sheet_name)
     sheet = workbook[sheet_name]
     headers = get_headers(
         sheet, expected_headers=expected_headers, sheet_name=sheet_name
     )
-    rows = list(sheet.rows)[1:]
-    while len(rows) > 1 and all(cell.value is None for cell in rows[-1]):
-        rows.pop()
     return [
         dict(zip(headers, get_values_from_row(row, headers), strict=True))
-        for row in rows
+        for row in sheet.rows[1:]
     ]
 
 
@@ -204,7 +203,7 @@ def _read_sheet_rows(
 LANGUAGE_COLUMN_PREFIX = "label::"
 
 
-def read_survey_languages(workbook: Workbook) -> tuple[str, ...]:
+def read_survey_languages(workbook: ExcelWorkbook) -> tuple[str, ...]:
     """
     Read the survey languages from the Widgets sheet: one per `label::<language>`
     column, in column order, e.g. ("fr", "en") for label::fr and label::en.
@@ -213,7 +212,7 @@ def read_survey_languages(workbook: Workbook) -> tuple[str, ...]:
     any app or config. Raises if the sheet has no such column.
     """
     sheet_exists(workbook, "Widgets")
-    headers = [cell.value for cell in next(workbook["Widgets"].iter_rows(max_row=1))]
+    headers = [cell.value for cell in workbook["Widgets"].rows[0]]
     languages = tuple(
         header.removeprefix(LANGUAGE_COLUMN_PREFIX)
         for header in headers
@@ -227,20 +226,17 @@ def read_survey_languages(workbook: Workbook) -> tuple[str, ...]:
     return languages
 
 
-def load_survey_definition(excel_file_path: str) -> SurveyDefinition:
+def load_survey_definition(workbook: ExcelWorkbook) -> SurveyDefinition:
     """
-    Build a SurveyDefinition from an Excel file's sheets, in the survey languages read
+    Build a SurveyDefinition from a workbook's sheets, in the survey languages read
     from the Widgets sheet (see read_survey_languages).
 
-    Raises on the same problems as get_data_from_excel/get_headers (invalid file,
-    missing sheet, missing/too few headers), and `pydantic.ValidationError` when the
+    Raises on the same problems as get_data_from_excel/get_headers (missing sheet,
+    missing/too few headers), and `pydantic.ValidationError` when the
     languages or a sheet's rows don't pass their checks (see survey_definition.py,
     sections_definition.py, ...).
     The returned instance is already validated; callers don't need to check it again.
     """
-    is_excel_file(excel_file_path)
-    workbook = get_workbook(excel_file_path)
-
     return SurveyDefinition(
         languages=read_survey_languages(workbook),
         sections=_read_sheet_rows(workbook, "Sections", SECTION_REQUIRED_FIELD_NAMES),

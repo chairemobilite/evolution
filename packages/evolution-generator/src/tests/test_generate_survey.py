@@ -5,10 +5,15 @@
 # Note: Tests for scripts/generate_survey.py's Excel integrity/loading entry points.
 
 import os
+import shutil
 from unittest.mock import MagicMock
 
+import openpyxl
 import pytest  # pyright: ignore[reportMissingImports]
+from openpyxl.cell.read_only import EMPTY_CELL
+from openpyxl.styles import PatternFill
 
+from helpers.excel_workbook import EMPTY_ROWS_WARNING_THRESHOLD
 from helpers.generator_helpers import (
     delete_file_if_exists,
 )
@@ -17,10 +22,15 @@ import scripts.generate_survey as generate_survey_module
 from scripts.generate_survey import (
     check_excel_integrity,
     check_excel_integrity_with_messages,
+    check_excel_integrity_with_warnings,
     generate_survey,
 )
 
 MOCKED_EXCEL_FILE = "src/tests/references/test.xlsx"
+DEMO_EXCEL_FILE = os.path.join(
+    os.path.dirname(__file__),
+    "../../../../example/demo_generator/references/Household_Travel_Generate_Survey.xlsx",
+)
 
 VALID_SECTIONS_HEADERS = [
     "section",
@@ -220,6 +230,35 @@ class TestCheckExcelIntegrity:
         assert check_excel_integrity("nonexistent.xlsx") is False
 
 
+class TestCheckExcelIntegrityWithWarnings:
+    def test_warns_about_many_empty_rows_after_the_data(self):
+        _create_workbook()
+        # A formatted cell far below the data, with no value
+        workbook = openpyxl.load_workbook(MOCKED_EXCEL_FILE)
+        workbook["Widgets"].cell(
+            row=EMPTY_ROWS_WARNING_THRESHOLD + 1, column=1
+        ).fill = PatternFill(fill_type="solid", fgColor="FFFF00")
+        workbook.save(MOCKED_EXCEL_FILE)
+        try:
+            assert check_excel_integrity_with_warnings(MOCKED_EXCEL_FILE) == (
+                True,
+                [],
+                [
+                    f"Widgets sheet has {EMPTY_ROWS_WARNING_THRESHOLD} empty "
+                    "rows after its last row with data (row 1). Delete them in Excel "
+                    "to make the file faster to open."
+                ],
+            )
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+    def test_unreadable_file_has_no_warnings(self):
+        ok, messages, warnings = check_excel_integrity_with_warnings("nonexistent.xlsx")
+        assert ok is False
+        assert len(messages) == 1
+        assert warnings == []
+
+
 class TestGenerateSurvey:
     def test_invalid_excel_file_aborts_generation(self, tmp_path):
         config_path = tmp_path / "generatorConfigs.yaml"
@@ -266,7 +305,7 @@ class TestGenerateSurvey:
         )
         try:
             generate_survey(str(config_path))
-            load_survey_definition.assert_called_once_with(MOCKED_EXCEL_FILE)
+            load_survey_definition.assert_called_once()
         finally:
             delete_file_if_exists(MOCKED_EXCEL_FILE)
 
@@ -288,3 +327,67 @@ class TestGenerateSurvey:
             ).read_text(encoding="utf-8")
         finally:
             delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+    def test_reads_the_excel_file_once_for_every_script(self, tmp_path, monkeypatch):
+        if not os.path.isfile(DEMO_EXCEL_FILE):
+            pytest.skip(f"Demo generator file not found: {DEMO_EXCEL_FILE}")
+        # The CSV copy is written next to the Excel file: copy it out of the repo.
+        excel_file_path = tmp_path / "references" / "survey.xlsx"
+        excel_file_path.parent.mkdir()
+        shutil.copy(DEMO_EXCEL_FILE, excel_file_path)
+        load_workbook = MagicMock(wraps=openpyxl.load_workbook)
+        monkeypatch.setattr(openpyxl, "load_workbook", load_workbook)
+        enabled_scripts = "".join(
+            f"    {script_key}: {script_key != 'generate_excel'}\n"
+            for script_key in generate_survey_module.SUPPORTED_SCRIPT_KEYS
+        )
+        config_path = tmp_path / "generatorConfigs.yaml"
+        config_path.write_text(
+            f"survey_folder_path: {tmp_path}\n"
+            f"excel_file_path: {excel_file_path}\n"
+            f"enabled_scripts:\n{enabled_scripts}"
+        )
+        generate_survey(str(config_path))
+        load_workbook.assert_called_once()
+
+    def test_empty_rows_between_data_rows_generate_the_same_files(
+        self, tmp_path, monkeypatch
+    ):
+        """An empty row left between rows of the sheets not yet in the survey definition is skipped."""
+        if not os.path.isfile(DEMO_EXCEL_FILE):
+            pytest.skip(f"Demo generator file not found: {DEMO_EXCEL_FILE}")
+        enabled_scripts = "".join(
+            f"    {script_key}: {script_key not in ('generate_excel', 'copy_excel_to_csv')}\n"
+            for script_key in generate_survey_module.SUPPORTED_SCRIPT_KEYS
+        )
+
+        def generate(survey_folder_path):
+            survey_folder_path.mkdir()
+            config_path = tmp_path / f"{survey_folder_path.name}.yaml"
+            config_path.write_text(
+                f"survey_folder_path: {survey_folder_path}\n"
+                f"excel_file_path: {DEMO_EXCEL_FILE}\n"
+                f"enabled_scripts:\n{enabled_scripts}"
+            )
+            generate_survey(str(config_path))
+            return {
+                path.relative_to(survey_folder_path): path.read_bytes()
+                for path in sorted(survey_folder_path.rglob("*"))
+                if path.is_file()
+            }
+
+        expected_files = generate(tmp_path / "without_empty_rows")
+
+        get_workbook = generate_survey_module.get_workbook
+
+        def get_workbook_with_empty_rows(excel_file_path):
+            workbook = get_workbook(excel_file_path)
+            for sheet_name in ["Widgets", "InputRange"]:
+                rows = workbook[sheet_name].rows
+                rows.insert(2, (EMPTY_CELL,) * len(rows[0]))
+            return workbook
+
+        monkeypatch.setattr(
+            generate_survey_module, "get_workbook", get_workbook_with_empty_rows
+        )
+        assert generate(tmp_path / "with_empty_rows") == expected_files

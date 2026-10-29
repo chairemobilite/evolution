@@ -7,7 +7,7 @@
 import os
 import pytest
 
-from helpers.generator_helpers import load_survey_definition
+from helpers.generator_helpers import get_workbook, load_survey_definition
 from scripts.generate_choices import (
     generate_choices,
     _generate_choices_yaml_locales,
@@ -108,7 +108,7 @@ class TestGenerateChoices:
             pytest.skip(f"Demo generator file not found: {demo_input}")
 
         generate_choices(
-            load_survey_definition(demo_input),
+            load_survey_definition(get_workbook(demo_input)),
             output_paths["choices_tsx_path"],
             labels_output_folder_path=output_paths["locales_dir_path"],
         )
