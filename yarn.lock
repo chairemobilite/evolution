@@ -9574,7 +9574,7 @@ __metadata:
     geojson: "npm:^0.5.0"
     geojson-validation: "npm:^1.0.2"
     gl-matrix: "npm:^3.4.3"
-    highcharts: "npm:^12.1.2"
+    highcharts: "npm:^12.6.2"
     highcharts-react-official: "npm:^3.2.1"
     html-webpack-plugin: "npm:^5.6.5"
     i18next: "npm:^26.0.6"
@@ -10669,10 +10669,18 @@ __metadata:
   languageName: node
   linkType: hard
 
-"highcharts@npm:^12.1.2":
-  version: 12.1.2
-  resolution: "highcharts@npm:12.1.2"
-  checksum: 10c0/dfbacab6ce0091053f438561832e8f97c6ed387ba50b1898afeada12e9ef2b0f1a6461e078565c1302e09b28cf1e45816d4ff38033a1b9555729862ee31611dc
+"highcharts@npm:^12.6.2":
+  version: 12.6.2
+  resolution: "highcharts@npm:12.6.2"
+  peerDependencies:
+    jspdf: ^4.1.0
+    svg2pdf.js: ^2.7.0
+  peerDependenciesMeta:
+    jspdf:
+      optional: true
+    svg2pdf.js:
+      optional: true
+  checksum: 10c0/78e91eb1e8f098f905a341f402efa2c4eae81c6b03f5043b529bfc8fec67d259446aa399caa04774e2145c0ab615343a5407363f6862b21f19b305252a587f1f
   languageName: node
   linkType: hard
 
