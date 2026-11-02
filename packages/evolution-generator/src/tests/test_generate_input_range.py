@@ -5,7 +5,7 @@
 # Note: This script tests the generate_input_range functions.
 import pytest  # Testing framework
 
-from helpers.generator_helpers import INDENT, load_survey_definition
+from helpers.generator_helpers import INDENT, get_workbook, load_survey_definition
 from scripts.generate_input_range import generate_input_range
 from survey_definition.survey_definition import SurveyDefinition
 
@@ -39,7 +39,9 @@ def _generate(tmp_path, rows: list[dict], languages=("fr", "en")) -> str:
 
 def test_demo_generator_excel_file_generates(tmp_path):
     output_file = tmp_path / "inputRange.tsx"
-    generate_input_range(load_survey_definition(DEMO_EXCEL_FILE), str(output_file))
+    generate_input_range(
+        load_survey_definition(get_workbook(DEMO_EXCEL_FILE)), str(output_file)
+    )
     # The demo survey has no InputRange rows
     assert not output_file.exists()
 

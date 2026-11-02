@@ -2,7 +2,7 @@
 # This file is licensed under the MIT License.
 # License text available at https://opensource.org/licenses/MIT
 
-from helpers.generator_helpers import delete_file_if_exists
+from helpers.generator_helpers import delete_file_if_exists, get_workbook
 from scripts.generate_questionnaire_list import generate_questionnaire_list
 from survey_definition.survey_definition import SurveyDefinition
 from tests.mocked_excel import (
@@ -56,7 +56,10 @@ class TestGenerateQuestionnaireList:
                 ),
             ):
                 generate_questionnaire_list(
-                    MOCKED_EXCEL_FILE, survey_definition, str(tmp_path), language
+                    get_workbook(MOCKED_EXCEL_FILE),
+                    survey_definition,
+                    str(tmp_path),
+                    language,
                 )
                 text = (tmp_path / f"questionnaire_list_{language}.txt").read_text(
                     encoding="utf-8"
@@ -107,7 +110,10 @@ class TestGenerateQuestionnaireList:
                 ("fr", "Voiture?", "- Oui\n- Non"),
             ):
                 generate_questionnaire_list(
-                    MOCKED_EXCEL_FILE, survey_definition, str(tmp_path), language
+                    get_workbook(MOCKED_EXCEL_FILE),
+                    survey_definition,
+                    str(tmp_path),
+                    language,
                 )
                 text = (tmp_path / f"questionnaire_list_{language}.txt").read_text()
                 assert f"{question}\n{choices}" in text

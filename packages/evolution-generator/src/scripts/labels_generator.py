@@ -8,6 +8,7 @@ import os  # For interacting with the operating system
 import ruamel.yaml  # For working with YAML files
 import re  # For regular expressions
 from typing import NamedTuple, TypedDict
+from helpers.excel_workbook import ExcelWorkbook
 from helpers.generator_helpers import (
     add_generator_yaml_header,
     get_data_from_excel,
@@ -446,7 +447,7 @@ class LabelsGenerator:
     @classmethod
     def label_rows_from_excel(
         cls,
-        excel_file_path,
+        workbook: ExcelWorkbook,
         languages: tuple[str, ...],
         sheet_with_labels: SheetWithLabels = DEFAULT_SHEETS_WITH_LABELS[0],
     ) -> list[LabelRow]:
@@ -454,14 +455,14 @@ class LabelsGenerator:
         Reads the labels of a sheet that isn't in the survey definition yet (e.g. Widgets).
 
         Args:
-            excel_file_path (str): The path to the Excel file containing translations.
+            workbook (ExcelWorkbook): The Excel workbook containing translations.
             languages (tuple of str): The survey languages; each needs its label::<language> column.
             sheet_with_labels (SheetWithLabels): Sheet configuration containing sheetName and header names.
         """
         # TODO: Read the Widgets labels from the survey definition once the Widgets
         # sheet is in it, and remove this function.
         rows, headers = get_data_from_excel(
-            excel_file_path, sheet_name=sheet_with_labels["sheetName"]
+            workbook, sheet_name=sheet_with_labels["sheetName"]
         )
         namespace_index = headers.index(sheet_with_labels["namespaceHeader"])
         key_index = headers.index(sheet_with_labels["keyHeader"])
@@ -489,6 +490,8 @@ class LabelsGenerator:
                 },
             )
             for row_number, row in enumerate(rows[1:], start=2)
+            # Skip the empty rows between rows with data
+            if any(cell.value is not None for cell in row)
         ]
 
     @staticmethod
@@ -739,14 +742,14 @@ class LabelsGenerator:
     def generate_labels(
         cls,
         survey_definition: SurveyDefinition,
-        excel_file_path,
+        workbook: ExcelWorkbook,
         labels_output_folder_path,
         sheets_with_labels: list[SheetWithLabels] = DEFAULT_SHEETS_WITH_LABELS,
     ):
         """
         Generates the labels locales files, in the survey languages, from the survey
         definition's Labels table and from the sheets not in it yet (`sheets_with_labels`,
-        read from the Excel file).
+        read from the Excel workbook).
 
         This function:
         1. Collects all unique namespaces from all sheets.
@@ -755,14 +758,14 @@ class LabelsGenerator:
 
         Args:
             survey_definition (SurveyDefinition): The already-validated survey definition.
-            excel_file_path (str): The path to the Excel file holding `sheets_with_labels`.
+            workbook (ExcelWorkbook): The Excel workbook holding `sheets_with_labels`.
             labels_output_folder_path (str): The output folder path for the labels.
             sheets_with_labels (list[SheetWithLabels]): Configurations of the sheets read from the Excel file.
         """
         try:
             languages = survey_definition.languages
             label_rows_by_sheet = [
-                cls.label_rows_from_excel(excel_file_path, languages, sheet)
+                cls.label_rows_from_excel(workbook, languages, sheet)
                 for sheet in sheets_with_labels
             ]
             label_rows_by_sheet.append(

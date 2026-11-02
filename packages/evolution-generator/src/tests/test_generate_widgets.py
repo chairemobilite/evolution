@@ -7,6 +7,7 @@ import shutil
 import tempfile
 
 import pytest
+from helpers.generator_helpers import get_workbook
 from scripts.generate_widgets import (
     ImportFlags,
     generate_choices,
@@ -2001,7 +2002,7 @@ def demo_generator_widgets_output():
     for section in ("home", "household", "completed"):
         os.makedirs(os.path.join(temp_dir, section), exist_ok=True)
     try:
-        generate_widgets(DEMO_GENERATOR_EXCEL, temp_dir)
+        generate_widgets(get_workbook(DEMO_GENERATOR_EXCEL), temp_dir)
         yield temp_dir
     finally:
         shutil.rmtree(temp_dir)

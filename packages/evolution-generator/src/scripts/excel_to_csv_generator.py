@@ -9,9 +9,8 @@ import csv
 import os
 import re
 
-import openpyxl
-
-from helpers.generator_helpers import is_excel_file, get_data_from_excel
+from helpers.excel_workbook import ExcelWorkbook
+from helpers.generator_helpers import get_data_from_excel, get_workbook
 
 
 class ExcelToCsvGenerator:
@@ -22,10 +21,15 @@ class ExcelToCsvGenerator:
     def __init__(
         self,
         excel_file_path: str,
+        workbook: ExcelWorkbook | None = None,
         clean_output_folder: bool = True,
     ):
-        """Configure the generator for a given Excel file."""
+        """
+        Configure the generator for a given Excel file. Pass its already loaded
+        `workbook` to avoid reading the file again.
+        """
         self.excel_file_path = excel_file_path
+        self.workbook = workbook
         self.output_folder_path = self.get_output_folder_path(excel_file_path)
         self.clean_output_folder = clean_output_folder
 
@@ -45,22 +49,16 @@ class ExcelToCsvGenerator:
 
     def copy(self) -> list[str]:
         """Write one CSV file per sheet and return their paths."""
-        is_excel_file(self.excel_file_path)
+        workbook = self.workbook or get_workbook(self.excel_file_path)
         os.makedirs(self.output_folder_path, exist_ok=True)
 
         if self.clean_output_folder:
             self.delete_existing_csv_files()
 
-        workbook = openpyxl.load_workbook(
-            self.excel_file_path, data_only=True, read_only=True
-        )
-        try:
-            generated_files = []
-            for worksheet in workbook.worksheets:
-                generated_files.append(self.write_sheet_to_csv(worksheet))
-            return generated_files
-        finally:
-            workbook.close()
+        return [
+            self.write_sheet_to_csv(workbook, sheet_name)
+            for sheet_name in workbook.sheetnames
+        ]
 
     def delete_existing_csv_files(self) -> None:
         """Remove any .csv file already present in the output folder."""
@@ -69,9 +67,9 @@ class ExcelToCsvGenerator:
             if os.path.isfile(file_path) and file_name.lower().endswith(".csv"):
                 os.remove(file_path)
 
-    def write_sheet_to_csv(self, worksheet) -> str:
+    def write_sheet_to_csv(self, workbook: ExcelWorkbook, sheet_name: str) -> str:
         """Write a single sheet to "<SheetName>.csv" and return its path."""
-        csv_file_name = f"{self.sanitize_sheet_title(worksheet.title)}.csv"
+        csv_file_name = f"{self.sanitize_sheet_title(sheet_name)}.csv"
         csv_file_path = os.path.join(self.output_folder_path, csv_file_name)
 
         with open(csv_file_path, mode="w", encoding="utf-8", newline="") as csv_file:
@@ -79,9 +77,7 @@ class ExcelToCsvGenerator:
 
             # Use get_data_from_excel to properly bound rows and headers
             try:
-                rows, headers = get_data_from_excel(
-                    self.excel_file_path, worksheet.title
-                )
+                rows, headers = get_data_from_excel(workbook, sheet_name)
 
                 # Write headers
                 writer.writerow(headers)
@@ -94,7 +90,7 @@ class ExcelToCsvGenerator:
                     writer.writerow(values)
 
             except Exception as e:
-                print(f"Error processing sheet '{worksheet.title}': {e}")
+                print(f"Error processing sheet '{sheet_name}': {e}")
                 raise
 
         print(f"Generated {csv_file_path} successfully")
@@ -111,10 +107,12 @@ class ExcelToCsvGenerator:
     def generate_csv_copy(
         cls,
         excel_file_path: str,
+        workbook: ExcelWorkbook | None = None,
         clean_output_folder: bool = True,
     ) -> list[str]:
         """Copy every Excel sheet to a CSV file and return the generated file paths."""
         return cls(
             excel_file_path=excel_file_path,
+            workbook=workbook,
             clean_output_folder=clean_output_folder,
         ).copy()

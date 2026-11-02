@@ -7,10 +7,12 @@
 from helpers.generator_helpers import (
     INDENT,
     get_data_from_excel,
+    get_data_rows,
     add_generator_comment,
     generate_label_typescript_with_context,
     get_label_context_flags,
 )
+from helpers.excel_workbook import ExcelWorkbook
 import re  # Regular expression module for pattern matching
 from typing import TypedDict
 from dataclasses import dataclass
@@ -111,10 +113,10 @@ class WidgetResult(TypedDict):
 
 
 # Function to generate widgets.tsx for each section
-def generate_widgets(excel_file_path: str, widgets_output_folder: str):
+def generate_widgets(workbook: ExcelWorkbook, widgets_output_folder: str):
     try:
         # Read data from Excel and return rows and headers
-        rows, headers = get_data_from_excel(excel_file_path, sheet_name="Widgets")
+        rows, headers = get_data_from_excel(workbook, sheet_name="Widgets")
 
         # Find the index of 'section' in headers
         section_index = headers.index("section")
@@ -122,7 +124,7 @@ def generate_widgets(excel_file_path: str, widgets_output_folder: str):
         # Get all unique section names while preserving order from the section sheet
         seen_sections: set[str] = set()
         section_names: list[str] = []
-        for row in rows[1:]:
+        for row in get_data_rows(rows):
             section = row[section_index].value
             if section and section not in seen_sections:
                 seen_sections.add(section)
@@ -138,7 +140,7 @@ def generate_widgets(excel_file_path: str, widgets_output_folder: str):
             headers = [cell.value for cell in rows[0]]
 
             section_rows = []
-            for row in rows[1:]:
+            for row in get_data_rows(rows):
                 values = [cell.value if cell.value is not None else "" for cell in row]
 
                 if len(values) != len(headers):
