@@ -6,15 +6,15 @@
 # These functions are intended to be invoked from the generate_survey.py script.
 import os
 from typing import Literal
-from helpers.excel_workbook import ExcelWorkbook
-from helpers.generator_helpers import get_data_from_excel, get_data_rows, clean_text
+from helpers.generator_helpers import clean_text
+from survey_definition.excel_survey_definition_reader import ExcelSurveyDefinitionReader
 from survey_definition.survey_definition import SurveyDefinition
 
 
 # Function to generate questionnaire_test for each section
 def generate_questionnaire_list(
-    # TODO: Remove workbook once every sheet read here is migrated to the survey definition.
-    workbook: ExcelWorkbook,
+    # TODO: Remove reader once every sheet read here is migrated to the survey definition.
+    reader: ExcelSurveyDefinitionReader,
     survey_definition: SurveyDefinition,
     questionnaire_list_output_folder: str,
     language: Literal["en", "fr"],
@@ -24,17 +24,15 @@ def generate_questionnaire_list(
     its choices.
 
     Args:
-        workbook: Excel workbook to read the sheets not yet migrated to the
-            survey definition from.
+        reader: Reader of the Excel file, to read the sheets not yet migrated to
+            the survey definition from.
         survey_definition: Already-validated survey definition to describe.
         questionnaire_list_output_folder: Folder to write the text file to.
         language: Language of the labels, 'en' or 'fr'.
     """
     try:
         # Read data from Excel and return rows and headers
-        widgets_rows, widgets_headers = get_data_from_excel(
-            workbook, sheet_name="Widgets"
-        )
+        _, widgets_headers = reader.get_rows_and_headers("Widgets")
 
         # Find the index
         widgets_language_index = widgets_headers.index("label::" + language)
@@ -60,7 +58,7 @@ def generate_questionnaire_list(
 
         # Group questions by section
         sections = {}
-        for row in get_data_rows(widgets_rows):
+        for row in reader.get_data_rows("Widgets"):
             section_name = row[widgets_section_index].value
             question_text = clean_text(row[widgets_language_index].value)
             active = row[widgets_active_index].value

@@ -8,12 +8,11 @@ import os  # For interacting with the operating system
 import ruamel.yaml  # For working with YAML files
 import re  # For regular expressions
 from typing import NamedTuple, TypedDict
-from helpers.excel_workbook import ExcelWorkbook
 from helpers.generator_helpers import (
     add_generator_yaml_header,
-    get_data_from_excel,
     get_label_context_flags,
 )
+from survey_definition.excel_survey_definition_reader import ExcelSurveyDefinitionReader
 from survey_definition.labels_definition import Labels
 from survey_definition.survey_definition import SurveyDefinition
 
@@ -447,7 +446,7 @@ class LabelsGenerator:
     @classmethod
     def label_rows_from_excel(
         cls,
-        workbook: ExcelWorkbook,
+        reader: ExcelSurveyDefinitionReader,
         languages: tuple[str, ...],
         sheet_with_labels: SheetWithLabels = DEFAULT_SHEETS_WITH_LABELS[0],
     ) -> list[LabelRow]:
@@ -455,15 +454,13 @@ class LabelsGenerator:
         Reads the labels of a sheet that isn't in the survey definition yet (e.g. Widgets).
 
         Args:
-            workbook (ExcelWorkbook): The Excel workbook containing translations.
+            reader (ExcelSurveyDefinitionReader): The reader of the Excel file containing translations.
             languages (tuple of str): The survey languages; each needs its label::<language> column.
             sheet_with_labels (SheetWithLabels): Sheet configuration containing sheetName and header names.
         """
         # TODO: Read the Widgets labels from the survey definition once the Widgets
         # sheet is in it, and remove this function.
-        rows, headers = get_data_from_excel(
-            workbook, sheet_name=sheet_with_labels["sheetName"]
-        )
+        rows, headers = reader.get_rows_and_headers(sheet_with_labels["sheetName"])
         namespace_index = headers.index(sheet_with_labels["namespaceHeader"])
         key_index = headers.index(sheet_with_labels["keyHeader"])
         # One label column per language, and an optional label_one column
@@ -742,14 +739,14 @@ class LabelsGenerator:
     def generate_labels(
         cls,
         survey_definition: SurveyDefinition,
-        workbook: ExcelWorkbook,
+        reader: ExcelSurveyDefinitionReader,
         labels_output_folder_path,
         sheets_with_labels: list[SheetWithLabels] = DEFAULT_SHEETS_WITH_LABELS,
     ):
         """
         Generates the labels locales files, in the survey languages, from the survey
         definition's Labels table and from the sheets not in it yet (`sheets_with_labels`,
-        read from the Excel workbook).
+        read from the Excel file).
 
         This function:
         1. Collects all unique namespaces from all sheets.
@@ -758,14 +755,14 @@ class LabelsGenerator:
 
         Args:
             survey_definition (SurveyDefinition): The already-validated survey definition.
-            workbook (ExcelWorkbook): The Excel workbook holding `sheets_with_labels`.
+            reader (ExcelSurveyDefinitionReader): The reader of the Excel file holding `sheets_with_labels`.
             labels_output_folder_path (str): The output folder path for the labels.
             sheets_with_labels (list[SheetWithLabels]): Configurations of the sheets read from the Excel file.
         """
         try:
             languages = survey_definition.languages
             label_rows_by_sheet = [
-                cls.label_rows_from_excel(workbook, languages, sheet)
+                cls.label_rows_from_excel(reader, languages, sheet)
                 for sheet in sheets_with_labels
             ]
             label_rows_by_sheet.append(

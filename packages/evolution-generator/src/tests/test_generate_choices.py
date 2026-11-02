@@ -7,13 +7,14 @@
 import os
 import pytest
 
-from helpers.generator_helpers import get_workbook, load_survey_definition
+from helpers.generator_helpers import load_survey_definition
 from scripts.generate_choices import (
     generate_choices,
     _generate_choices_yaml_locales,
     _generate_import_statements,
 )
 from survey_definition.choices_definition import Choices
+from survey_definition.excel_survey_definition_reader import ExcelSurveyDefinitionReader
 from survey_definition.survey_definition import SurveyDefinition
 
 # A conditional the choices of these tests can name, as in the Conditionals table.
@@ -108,7 +109,7 @@ class TestGenerateChoices:
             pytest.skip(f"Demo generator file not found: {demo_input}")
 
         generate_choices(
-            load_survey_definition(get_workbook(demo_input)),
+            load_survey_definition(ExcelSurveyDefinitionReader(demo_input)),
             output_paths["choices_tsx_path"],
             labels_output_folder_path=output_paths["locales_dir_path"],
         )
