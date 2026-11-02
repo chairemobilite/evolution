@@ -76,6 +76,55 @@ def test_keeps_empty_rows_between_rows_with_data(tmp_path):
     ]
 
 
+@pytest.mark.parametrize(
+    "rows",
+    [
+        pytest.param(
+            [*DATA_ROWS, [" ", None]], id="whitespace-only row after the data"
+        ),
+        pytest.param(
+            [*DATA_ROWS, [None, " \t"], [" ", None]],
+            id="whitespace-only rows after the data",
+        ),
+        pytest.param(
+            [["home", True, None, " "], ["profile", False]],
+            id="whitespace-only cell right of the data",
+        ),
+    ],
+)
+def test_whitespace_only_cells_are_not_data(tmp_path, rows):
+    path = _save_workbook(tmp_path / "survey.xlsx", rows=rows)
+    assert _read_sections(path) == EXPECTED_TABLE
+
+
+def test_counts_whitespace_only_rows_as_empty_rows_after_the_data(tmp_path):
+    rows = [*DATA_ROWS, *[[" ", None]] * EMPTY_ROWS_WARNING_THRESHOLD]
+    path = _save_workbook(tmp_path / "survey.xlsx", rows=rows)
+    assert ExcelSurveyDefinitionReader(path).warnings == [ROWS_WARNING]
+
+
+def test_keeps_whitespace_only_rows_between_rows_with_data(tmp_path):
+    """Like an empty row: kept for the table's checks, skipped for the scripts."""
+    path = _save_workbook(
+        tmp_path / "survey.xlsx", rows=[["home", True], [" ", None], ["end", False]]
+    )
+    reader = ExcelSurveyDefinitionReader(path)
+    assert reader.read_table("Sections", HEADERS) == [
+        {"section": "home", "in_nav": True},
+        {"section": None, "in_nav": None},
+        {"section": "end", "in_nav": False},
+    ]
+    assert [row[0].value for row in reader.get_data_rows("Sections")] == ["home", "end"]
+
+
+def test_zero_and_false_are_data(tmp_path):
+    path = _save_workbook(tmp_path / "survey.xlsx", rows=[["home", True], [0, False]])
+    assert _read_sections(path) == [
+        {"section": "home", "in_nav": True},
+        {"section": 0, "in_nav": False},
+    ]
+
+
 def test_reads_a_sheet_with_only_a_styled_empty_row_as_an_empty_table(tmp_path):
     path = _save_workbook(tmp_path / "survey.xlsx", styled_cells=[(2, 1)], rows=[])
     assert _read_sections(path) == []

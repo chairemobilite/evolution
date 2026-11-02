@@ -27,8 +27,9 @@ LANGUAGE_COLUMN_PREFIX = "label::"
 class _ExcelSheet:
     """
     One sheet read into memory, cut to the area that has data: rows after the last row
-    with a value, and columns after the last column with a value, are dropped. Every
-    row has the same number of cells, each with a `.value` (None when empty).
+    with a value, and columns after the last column with a value, are dropped (a
+    whitespace-only string is not a value). Every row has the same number of cells,
+    each with a `.value`.
     """
 
     def __init__(self, title: str, rows: List[Tuple]) -> None:
@@ -179,8 +180,15 @@ def _check_excel_file_extension(file: str) -> None:
         )
 
 
+def _is_empty(cell) -> bool:
+    """A cell with no value or only an empty/whitespace-only string, like row_checks.py's blanks."""
+    return cell.value is None or (
+        isinstance(cell.value, str) and not cell.value.strip()
+    )
+
+
 def _has_value(row: Tuple) -> bool:
-    return any(cell.value is not None for cell in row)
+    return any(not _is_empty(cell) for cell in row)
 
 
 def _read_sheet(worksheet) -> Tuple[_ExcelSheet, int, int]:
@@ -212,7 +220,7 @@ def _read_sheet(worksheet) -> Tuple[_ExcelSheet, int, int]:
             index + 1
             for row in rows
             for index, cell in enumerate(row)
-            if cell.value is not None
+            if not _is_empty(cell)
         ),
         default=0,
     )
