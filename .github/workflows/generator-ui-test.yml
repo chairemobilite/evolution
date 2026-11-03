@@ -7,9 +7,12 @@ on:
     branches: [ main ]
   # We are not running on Pull Request, since we need the Google API Key
 
+permissions:
+  contents: read
+
 jobs:
   generate-build-and-test:
-    runs-on: ubuntu-24.04 # As of Nov 2024, ubuntu-latest is too old for peotry
+    runs-on: ubuntu-24.04 # As of Nov 2024, ubuntu-latest is too old for poetry
     services:
       postgres:
         image: postgis/postgis
@@ -43,11 +46,19 @@ jobs:
       uses: actions/setup-node@v7
       with:
         node-version: ${{ matrix.node-version }}
+    - name: Use Python 3.14
+      # Only test the latest version used by GitHub runners, since this workflow is long and uses the Google API Key.
+      # The 'CI-Generator' workflow already tests the Python versions supported by the generator.
+      uses: actions/setup-python@v7
+      with:
+        python-version: '3.14'
     - name: Install poetry
       run: pipx install poetry
     - name: Run Poetry
       working-directory: packages/evolution-generator
-      run: poetry install
+      run: |
+        poetry env use python3.14
+        poetry install
     - name: Enable Corepack
       # Corepack runs the Yarn version set in package.json. Node.js 25+ no longer bundles it.
       run: npm install -g corepack
