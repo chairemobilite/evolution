@@ -21,9 +21,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Generator: `poetry install` fails with Python 3.14 (fixes [#2170](https://github.com/chairemobilite/evolution/issues/2170))
+
 ### Security
 
 ### Dependency updates
+
+Python:
+
+* ruamel-yaml-clib: 0.2.8 => 0.2.15
 
 ## [0.6.7] - 2026-10-27
 
