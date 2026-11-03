@@ -8,12 +8,17 @@ on:
   pull_request:
     branches: [ main ]
 
+permissions:
+  contents: read
+
 jobs:
   generate-and-build-generator:
-    runs-on: ubuntu-24.04 # As of Nov 2024, ubuntu-latest is too old for peotry
+    runs-on: ubuntu-24.04 # As of Nov 2024, ubuntu-latest is too old for poetry
     strategy:
       matrix:
         node-version: [24.x]
+        # Lowest version allowed by pyproject.toml and latest version used by GitHub runners
+        python-version: ['3.12', '3.14']
     steps:
     - uses: actions/checkout@v7
       with:
@@ -24,11 +29,17 @@ jobs:
       uses: actions/setup-node@v7
       with:
         node-version: ${{ matrix.node-version }}
+    - name: Use Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v7
+      with:
+        python-version: ${{ matrix.python-version }}
     - name: Install poetry
       run: pipx install poetry
     - name: Run Poetry
       working-directory: packages/evolution-generator
-      run: poetry install
+      run: |
+        poetry env use python${{ matrix.python-version }}
+        poetry install
     - name: Enable Corepack
       # Corepack runs the Yarn version set in package.json. Node.js 25+ no longer bundles it.
       run: npm install -g corepack
