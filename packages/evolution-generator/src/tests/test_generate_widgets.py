@@ -491,14 +491,14 @@ def test_generate_common_properties_all_false():
 
 def test_generate_common_properties_two_columns_true():
     """Test generate_common_properties with twoColumns True"""
-    row = {"twoColumns": True}
+    row = {"two_columns": True}
     result = generate_common_properties(row)
     assert "twoColumns: true" in result
 
 
 def test_generate_common_properties_contains_html_true():
     """Test generate_common_properties with containsHtml True"""
-    row = {"containsHtml": True}
+    row = {"contains_html": True}
     result = generate_common_properties(row)
     assert "containsHtml: true" in result
 
@@ -526,7 +526,7 @@ def test_generate_info_text_widget_no_join_with():
 
 def test_generate_common_properties_all_true():
     """Test generate_common_properties with all options True/set"""
-    row = {"twoColumns": True, "containsHtml": True, "appearance": "join_with=${bar}"}
+    row = {"two_columns": True, "contains_html": True, "appearance": "join_with=${bar}"}
     result = generate_common_properties(row)
     assert "twoColumns: true" in result
     assert "containsHtml: true" in result
@@ -548,23 +548,23 @@ def test_generate_common_properties_bad_join_with_pattern(capsys):
 def test_generate_radio_widget_basic():
     """Test generate_radio_widget with minimal required fields"""
     row = {
-        "questionName": "acceptToBeContactedForHelp",
-        "inputType": "Radio",
+        "question_name": "acceptToBeContactedForHelp",
+        "input_type": "Radio",
         "section": "home",
         "path": "acceptToBeContactedForHelp",
         "conditional": "",
         "validation": "",
-        "inputRange": "",
+        "input_range": "",
         "help_popup": "",
         "choices": "yesNo",
         "label::fr": "Acceptez-vous d'être contacté pour de l'aide?",
         "label::en": "Do you agree to be contacted for help?",
     }
     widget_label = generate_label(
-        section=row["section"], label_key=row["questionName"], row=row
+        section=row["section"], label_key=row["question_name"], row=row
     )
     code = generate_radio_widget(
-        row["questionName"],
+        row["question_name"],
         row["path"],
         row["choices"],
         row["help_popup"],
@@ -592,27 +592,27 @@ def test_generate_radio_widget_basic():
 def test_generate_radio_widget_complex():
     """Test generate_radio_widget with all fields set"""
     row = {
-        "questionName": "acceptToBeContactedForHelp",
-        "inputType": "Radio",
+        "question_name": "acceptToBeContactedForHelp",
+        "input_type": "Radio",
         "section": "home",
         "path": "acceptToBeContactedForHelp",
         "conditional": "someConditional",
         "validation": "someValidation",
-        "inputRange": "",
+        "input_range": "",
         "help_popup": "someHelpPopup",
         "choices": "yesNo",
-        "twoColumns": True,
-        "containsHtml": True,
-        "customPath": "custom.path",
-        "customChoice": "customChoiceValue",
+        "two_columns": True,
+        "contains_html": True,
+        "custom_path": "custom.path",
+        "custom_choice": "customChoiceValue",
         "label::fr": "Acceptez-vous d'être contacté pour de l'aide?",
         "label::en": "Do you agree to be contacted for help?",
     }
     widget_label = generate_label(
-        section=row["section"], label_key=row["questionName"], row=row
+        section=row["section"], label_key=row["question_name"], row=row
     )
     code = generate_radio_widget(
-        row["questionName"],
+        row["question_name"],
         row["path"],
         row["choices"],
         row["help_popup"],
@@ -642,8 +642,8 @@ def test_generate_radio_widget_complex():
 def test_generate_next_button_widget_default_conditional():
     """Test generate_next_button_widget includes default conditional when missing"""
     row = {
-        "questionName": "home_save",
-        "inputType": "NextButton",
+        "question_name": "home_save",
+        "input_type": "NextButton",
         "section": "home",
         "path": "home.save",
         "conditional": "",
@@ -652,10 +652,10 @@ def test_generate_next_button_widget_default_conditional():
         "label::en": "Continue",
     }
     widget_label = generate_label(
-        section=row["section"], label_key=row["questionName"], row=row
+        section=row["section"], label_key=row["question_name"], row=row
     )
     code = generate_next_button_widget(
-        row["questionName"],
+        row["question_name"],
         row["path"],
         row["confirm_popup"],
         row["conditional"],
@@ -674,8 +674,8 @@ def test_generate_next_button_widget_default_conditional():
 def test_generate_next_button_widget_custom_conditional():
     """Test generate_next_button_widget includes customConditionals when suffix matches"""
     row = {
-        "questionName": "home_save",
-        "inputType": "NextButton",
+        "question_name": "home_save",
+        "input_type": "NextButton",
         "section": "home",
         "path": "home.save",
         "conditional": "hiddenWithCanadaAsDefaultValueCustomConditional",
@@ -684,10 +684,10 @@ def test_generate_next_button_widget_custom_conditional():
         "label::en": "Continue",
     }
     widget_label = generate_label(
-        section=row["section"], label_key=row["questionName"], row=row
+        section=row["section"], label_key=row["question_name"], row=row
     )
     code = generate_next_button_widget(
-        row["questionName"],
+        row["question_name"],
         row["path"],
         row["confirm_popup"],
         row["conditional"],
@@ -705,8 +705,8 @@ def test_generate_next_button_widget_custom_conditional():
 def test_generate_next_button_widget_normal_conditional():
     """Test generate_next_button_widget includes conditionals for non-custom conditional"""
     row = {
-        "questionName": "home_save",
-        "inputType": "NextButton",
+        "question_name": "home_save",
+        "input_type": "NextButton",
         "section": "home",
         "path": "home.save",
         "conditional": "someConditional",
@@ -715,10 +715,10 @@ def test_generate_next_button_widget_normal_conditional():
         "label::en": "Continue",
     }
     widget_label = generate_label(
-        section=row["section"], label_key=row["questionName"], row=row
+        section=row["section"], label_key=row["question_name"], row=row
     )
     code = generate_next_button_widget(
-        row["questionName"],
+        row["question_name"],
         row["path"],
         row["confirm_popup"],
         row["conditional"],
@@ -733,8 +733,8 @@ def test_generate_next_button_widget_normal_conditional():
 def test_generate_radio_number_widget_basic():
     """Test generate_radio_number_widget with minimal required fields"""
     row = {
-        "questionName": "household_size",
-        "inputType": "RadioNumber",
+        "question_name": "household_size",
+        "input_type": "RadioNumber",
         "section": "home",
         "path": "household.size",
         "help_popup": "",
@@ -746,10 +746,10 @@ def test_generate_radio_number_widget_basic():
         "label::en": "How many people in the household?",
     }
     widget_label = generate_label(
-        section=row["section"], label_key=row["questionName"], row=row
+        section=row["section"], label_key=row["question_name"], row=row
     )
     result = generate_radio_number_widget(
-        row["questionName"],
+        row["question_name"],
         row["path"],
         row["help_popup"],
         row["conditional"],
@@ -776,8 +776,8 @@ def test_generate_radio_number_widget_basic():
 def test_generate_radio_number_widget_complex():
     """Test generate_radio_number_widget with all fields set"""
     row = {
-        "questionName": "household_size",
-        "inputType": "RadioNumber",
+        "question_name": "household_size",
+        "input_type": "RadioNumber",
         "section": "home",
         "path": "household.size",
         "help_popup": "householdSizeHelpPopup",
@@ -790,10 +790,10 @@ def test_generate_radio_number_widget_complex():
         "label::en": "How many people in the household?",
     }
     widget_label = generate_label(
-        section=row["section"], label_key=row["questionName"], row=row
+        section=row["section"], label_key=row["question_name"], row=row
     )
     result = generate_radio_number_widget(
-        row["questionName"],
+        row["question_name"],
         row["path"],
         row["help_popup"],
         row["conditional"],
@@ -821,8 +821,8 @@ def test_generate_radio_number_widget_complex():
 def test_generate_radio_number_widget_min_max_field_values():
     """Test generate_radio_number_widget when min/max are not integers"""
     row = {
-        "questionName": "household_size",
-        "inputType": "RadioNumber",
+        "question_name": "household_size",
+        "input_type": "RadioNumber",
         "section": "home",
         "path": "household.size",
         "help_popup": "",
@@ -835,10 +835,10 @@ def test_generate_radio_number_widget_min_max_field_values():
         "label::en": "How many people in the household?",
     }
     widget_label = generate_label(
-        section=row["section"], label_key=row["questionName"], row=row
+        section=row["section"], label_key=row["question_name"], row=row
     )
     result = generate_radio_number_widget(
-        row["questionName"],
+        row["question_name"],
         row["path"],
         row["help_popup"],
         row["conditional"],
@@ -863,8 +863,8 @@ def test_generate_radio_number_widget_min_max_field_values():
 def test_generate_radio_number_widget_min_gte_max(capsys):
     """Test generate_radio_number_widget prints error when min >= max"""
     row = {
-        "questionName": "household_size",
-        "inputType": "RadioNumber",
+        "question_name": "household_size",
+        "input_type": "RadioNumber",
         "section": "home",
         "path": "household.size",
         "help_popup": "",
@@ -877,10 +877,10 @@ def test_generate_radio_number_widget_min_gte_max(capsys):
         "label::en": "How many people in the household?",
     }
     widget_label = generate_label(
-        section=row["section"], label_key=row["questionName"], row=row
+        section=row["section"], label_key=row["question_name"], row=row
     )
     result = generate_radio_number_widget(
-        row["questionName"],
+        row["question_name"],
         row["path"],
         row["help_popup"],
         row["conditional"],
@@ -904,8 +904,8 @@ def test_generate_radio_number_widget_min_gte_max(capsys):
 def test_generate_radio_number_widget_unrecognized_parameter_line(capsys):
     """Test generate_radio_number_widget prints warning for unrecognized parameter line"""
     row = {
-        "questionName": "household_size",
-        "inputType": "RadioNumber",
+        "question_name": "household_size",
+        "input_type": "RadioNumber",
         "section": "home",
         "path": "household.size",
         "help_popup": "",
@@ -917,10 +917,10 @@ def test_generate_radio_number_widget_unrecognized_parameter_line(capsys):
         "label::en": "How many people in the household?",
     }
     widget_label = generate_label(
-        section=row["section"], label_key=row["questionName"], row=row
+        section=row["section"], label_key=row["question_name"], row=row
     )
     result = generate_radio_number_widget(
-        row["questionName"],
+        row["question_name"],
         row["path"],
         row["help_popup"],
         row["conditional"],
@@ -950,8 +950,8 @@ class TestGenerateStringWidget:
     def test_generate_string_widget_basic(self):
         """Test generate_string_widget with minimal required fields"""
         row = {
-            "questionName": "accessCode",
-            "inputType": "String",
+            "question_name": "accessCode",
+            "input_type": "String",
             "section": "home",
             "path": "accessCode",
             "help_popup": "",
@@ -964,12 +964,12 @@ class TestGenerateStringWidget:
         }
         widget_label = generate_label(
             section=row["section"],
-            label_key=row["questionName"],
+            label_key=row["question_name"],
             row=row,
             gender_fields=self.GENDER_FIELDS,
         )
         result = generate_string_widget(
-            row["questionName"],
+            row["question_name"],
             row["path"],
             row["help_popup"],
             row["conditional"],
@@ -992,8 +992,8 @@ class TestGenerateStringWidget:
     def test_generate_string_widget_complex(self):
         """Test generate_string_widget with all parameters set"""
         row = {
-            "questionName": "accessCode",
-            "inputType": "String",
+            "question_name": "accessCode",
+            "input_type": "String",
             "section": "home",
             "path": "accessCode",
             "help_popup": "accessCodeHelpPopup",
@@ -1001,20 +1001,20 @@ class TestGenerateStringWidget:
             "validation": "accessCodeValidation",
             "parameters": "",
             "appearance": "join_with=${phoneNumber}",
-            "twoColumns": True,
-            "containsHtml": True,
-            "defaultValue": "12345678",
+            "two_columns": True,
+            "contains_html": True,
+            "default_value": "12345678",
             "label::fr": "Code d'accès",
             "label::en": "Access code",
         }
         widget_label = generate_label(
             section=row["section"],
-            label_key=row["questionName"],
+            label_key=row["question_name"],
             row=row,
             gender_fields=self.GENDER_FIELDS,
         )
         result = generate_string_widget(
-            row["questionName"],
+            row["question_name"],
             row["path"],
             row["help_popup"],
             row["conditional"],
@@ -1043,8 +1043,8 @@ class TestGenerateStringWidget:
     def test_generate_string_widget_with_formatter(self):
         """Test generate_string_widget with formatter"""
         row = {
-            "questionName": "accessCode",
-            "inputType": "String",
+            "question_name": "accessCode",
+            "input_type": "String",
             "section": "home",
             "path": "accessCode",
             "help_popup": "",
@@ -1057,12 +1057,12 @@ class TestGenerateStringWidget:
         }
         widget_label = generate_label(
             section=row["section"],
-            label_key=row["questionName"],
+            label_key=row["question_name"],
             row=row,
             gender_fields=self.GENDER_FIELDS,
         )
         result = generate_string_widget(
-            row["questionName"],
+            row["question_name"],
             row["path"],
             row["help_popup"],
             row["conditional"],
@@ -1080,8 +1080,8 @@ class TestGenerateStringWidget:
     def test_generate_string_widget_with_custom_formatter(self):
         """Test generate_string_widget with custom formatter"""
         row = {
-            "questionName": "accessCode",
-            "inputType": "String",
+            "question_name": "accessCode",
+            "input_type": "String",
             "section": "home",
             "path": "accessCode",
             "help_popup": "",
@@ -1094,12 +1094,12 @@ class TestGenerateStringWidget:
         }
         widget_label = generate_label(
             section=row["section"],
-            label_key=row["questionName"],
+            label_key=row["question_name"],
             row=row,
             gender_fields=self.GENDER_FIELDS,
         )
         result = generate_string_widget(
-            row["questionName"],
+            row["question_name"],
             row["path"],
             row["help_popup"],
             row["conditional"],
@@ -1117,14 +1117,14 @@ class TestGenerateStringWidget:
 class TestGenerateWidgetStatementComments:
     def test_single_line_comment_is_preserved(self):
         row = {
-            "questionName": "acceptToBeContactedForHelp",
+            "question_name": "acceptToBeContactedForHelp",
             "active": True,
-            "inputType": "Radio",
+            "input_type": "Radio",
             "section": "home",
             "path": "acceptToBeContactedForHelp",
             "conditional": "",
             "validation": "",
-            "inputRange": "",
+            "input_range": "",
             "help_popup": "",
             "choices": "yesNo",
             "comments": "This is a single line comment",
@@ -1141,14 +1141,14 @@ class TestGenerateWidgetStatementComments:
 
     def test_multi_line_comment_is_preserved(self):
         row = {
-            "questionName": "acceptToBeContactedForHelp",
+            "question_name": "acceptToBeContactedForHelp",
             "active": True,
-            "inputType": "Radio",
+            "input_type": "Radio",
             "section": "home",
             "path": "acceptToBeContactedForHelp",
             "conditional": "",
             "validation": "",
-            "inputRange": "",
+            "input_range": "",
             "help_popup": "",
             "choices": "yesNo",
             "comments": "First line\nSecond line",
@@ -1165,14 +1165,14 @@ class TestGenerateWidgetStatementComments:
 
     def test_no_comments_column_does_not_add_comment(self):
         row = {
-            "questionName": "acceptToBeContactedForHelp",
+            "question_name": "acceptToBeContactedForHelp",
             "active": True,
-            "inputType": "Radio",
+            "input_type": "Radio",
             "section": "home",
             "path": "acceptToBeContactedForHelp",
             "conditional": "",
             "validation": "",
-            "inputRange": "",
+            "input_range": "",
             "help_popup": "",
             "choices": "yesNo",
             "label::fr": "Acceptez-vous d'être contacté pour de l'aide?",
@@ -1190,14 +1190,14 @@ class TestGenerateWidgetStatementComments:
 class TestGenerateWidgetStatementActiveFlag:
     def test_inactive_widget_generates_not_active_comment_only(self):
         row = {
-            "questionName": "acceptToBeContactedForHelp",
+            "question_name": "acceptToBeContactedForHelp",
             "active": False,
-            "inputType": "Radio",
+            "input_type": "Radio",
             "section": "home",
             "path": "acceptToBeContactedForHelp",
             "conditional": "",
             "validation": "",
-            "inputRange": "",
+            "input_range": "",
             "help_popup": "",
             "choices": "yesNo",
             "label::fr": "Acceptez-vous d'être contacté pour de l'aide?",
@@ -1214,14 +1214,14 @@ class TestGenerateWidgetStatementActiveFlag:
     def test_inactive_widget_with_active_zero_generates_not_active_comment_only(self):
         """Test that active=0 (e.g. from Excel) is treated as inactive"""
         row = {
-            "questionName": "acceptToBeContactedForHelp",
+            "question_name": "acceptToBeContactedForHelp",
             "active": 0,
-            "inputType": "Radio",
+            "input_type": "Radio",
             "section": "home",
             "path": "acceptToBeContactedForHelp",
             "conditional": "",
             "validation": "",
-            "inputRange": "",
+            "input_range": "",
             "help_popup": "",
             "choices": "yesNo",
             "label::fr": "Acceptez-vous d'être contacté pour de l'aide?",
@@ -1238,14 +1238,14 @@ class TestGenerateWidgetStatementActiveFlag:
     def test_inactive_widget_with_empty_active_defaults_to_inactive(self):
         """Test that an empty active cell (e.g. from Excel) defaults to inactive"""
         row = {
-            "questionName": "acceptToBeContactedForHelp",
+            "question_name": "acceptToBeContactedForHelp",
             "active": "",
-            "inputType": "Radio",
+            "input_type": "Radio",
             "section": "home",
             "path": "acceptToBeContactedForHelp",
             "conditional": "",
             "validation": "",
-            "inputRange": "",
+            "input_range": "",
             "help_popup": "",
             "choices": "yesNo",
             "label::fr": "Acceptez-vous d'être contacté pour de l'aide?",
@@ -1262,14 +1262,14 @@ class TestGenerateWidgetStatementActiveFlag:
     def test_active_widget_with_active_one_generates_widget_statement(self):
         """Test that active=1 (e.g. from Excel) is treated as active and generates the widget"""
         row = {
-            "questionName": "acceptToBeContactedForHelp",
+            "question_name": "acceptToBeContactedForHelp",
             "active": 1,
-            "inputType": "Radio",
+            "input_type": "Radio",
             "section": "home",
             "path": "acceptToBeContactedForHelp",
             "conditional": "",
             "validation": "",
-            "inputRange": "",
+            "input_range": "",
             "help_popup": "",
             "choices": "yesNo",
             "label::fr": "Acceptez-vous d'être contacté pour de l'aide?",
@@ -1289,14 +1289,14 @@ class TestGenerateWidgetStatementActiveFlag:
     def test_active_widget_with_active_true_generates_widget_statement(self):
         """Test that active=True is treated as active and generates the widget"""
         row = {
-            "questionName": "acceptToBeContactedForHelp",
+            "question_name": "acceptToBeContactedForHelp",
             "active": True,
-            "inputType": "Radio",
+            "input_type": "Radio",
             "section": "home",
             "path": "acceptToBeContactedForHelp",
             "conditional": "",
             "validation": "",
-            "inputRange": "",
+            "input_range": "",
             "help_popup": "",
             "choices": "yesNo",
             "label::fr": "Acceptez-vous d'être contacté pour de l'aide?",
@@ -1319,23 +1319,23 @@ class TestGenerateWidgetName:
 
     def test_active_one_emits_uncommented_name(self):
         """active=1 (e.g. from Excel) should be treated as active"""
-        row = {"questionName": "homeAddress", "active": 1, "group": ""}
+        row = {"question_name": "homeAddress", "active": 1, "group": ""}
         result = generate_widget_name(row, group="", is_last=False)
         assert result == f"{self.INDENT}'homeAddress',"
 
     def test_active_zero_emits_commented_name(self):
         """active=0 (e.g. from Excel) should be treated as inactive"""
-        row = {"questionName": "homeAddress", "active": 0, "group": ""}
+        row = {"question_name": "homeAddress", "active": 0, "group": ""}
         result = generate_widget_name(row, group="", is_last=False)
         assert result == f"{self.INDENT}// 'homeAddress',"
 
     def test_last_row_omits_trailing_comma(self):
-        row = {"questionName": "homeAddress", "active": 1, "group": ""}
+        row = {"question_name": "homeAddress", "active": 1, "group": ""}
         result = generate_widget_name(row, group="", is_last=True)
         assert result == f"{self.INDENT}'homeAddress'"
 
     def test_returns_none_when_group_does_not_match_row_group(self):
-        row = {"questionName": "homeAddress", "active": True, "group": "personGroup"}
+        row = {"question_name": "homeAddress", "active": True, "group": "personGroup"}
         result = generate_widget_name(row, group="", is_last=False)
         assert result is None
 
@@ -1489,14 +1489,14 @@ def test_generate_widget_statement_ignores_help_popup_for_unsupported_types(
 ):
     """Test generate_widget_statement ignores help_popup for InfoText and NextButton"""
     row = {
-        "questionName": "unsupportedHelpPopupWidget",
+        "question_name": "unsupportedHelpPopupWidget",
         "active": True,
-        "inputType": input_type,
+        "input_type": input_type,
         "section": "home",
         "path": "unsupported.intro",
         "conditional": "",
         "validation": "",
-        "inputRange": "",
+        "input_range": "",
         "help_popup": "someHelpPopup",
         "choices": "",
         **extra_row_fields,
@@ -1756,7 +1756,7 @@ class TestGetWidgetsFileImportFlags:
         section_rows = [
             {
                 "choices": "yesNo",
-                "inputType": "Radio",
+                "input_type": "Radio",
                 "validation": "",
                 "conditional": "",
             }
@@ -1769,7 +1769,7 @@ class TestGetWidgetsFileImportFlags:
         section_rows = [
             {
                 "choices": "myCustomChoices",
-                "inputType": "Radio",
+                "input_type": "Radio",
                 "validation": "",
                 "conditional": "",
             }
@@ -1782,7 +1782,7 @@ class TestGetWidgetsFileImportFlags:
         section_rows = [
             {
                 "choices": "myCustomChoices_customChoices",
-                "inputType": "Radio",
+                "input_type": "Radio",
                 "validation": "",
                 "conditional": "",
             }
@@ -1795,7 +1795,7 @@ class TestGetWidgetsFileImportFlags:
         """Test that validation columns are correctly detected"""
         # Default validations
         section_rows = [
-            {"inputType": "Radio", "choices": "", "validation": "", "conditional": ""}
+            {"input_type": "Radio", "choices": "", "validation": "", "conditional": ""}
         ]
         import_flags = get_widgets_file_import_flags(section_rows)
         assert import_flags.has_validations_import is True
@@ -1804,7 +1804,7 @@ class TestGetWidgetsFileImportFlags:
         # Standard validation
         section_rows = [
             {
-                "inputType": "Radio",
+                "input_type": "Radio",
                 "choices": "",
                 "validation": "phoneNumberValidation",
                 "conditional": "",
@@ -1817,7 +1817,7 @@ class TestGetWidgetsFileImportFlags:
         # Explicitly custom validation with CustomValidation suffix
         section_rows = [
             {
-                "inputType": "Radio",
+                "input_type": "Radio",
                 "choices": "",
                 "validation": "specialCustomValidation",
                 "conditional": "",
@@ -1833,7 +1833,7 @@ class TestGetWidgetsFileImportFlags:
         """Test that conditional columns are correctly detected"""
         # Default conditionals
         section_rows = [
-            {"inputType": "Radio", "choices": "", "validation": "", "conditional": ""}
+            {"input_type": "Radio", "choices": "", "validation": "", "conditional": ""}
         ]
         import_flags = get_widgets_file_import_flags(section_rows)
         assert import_flags.has_conditionals_import is False
@@ -1842,7 +1842,7 @@ class TestGetWidgetsFileImportFlags:
         # Standard conditional
         section_rows = [
             {
-                "inputType": "Radio",
+                "input_type": "Radio",
                 "choices": "",
                 "validation": "",
                 "conditional": "someConditional",
@@ -1855,7 +1855,7 @@ class TestGetWidgetsFileImportFlags:
         # Custom conditional with CustomConditional suffix
         section_rows = [
             {
-                "inputType": "Radio",
+                "input_type": "Radio",
                 "choices": "",
                 "validation": "",
                 "conditional": "myCustomConditional",
@@ -1869,11 +1869,11 @@ class TestGetWidgetsFileImportFlags:
         """Test that inputRange columns are correctly detected"""
         section_rows = [
             {
-                "inputType": "Radio",
+                "input_type": "Radio",
                 "choices": "",
                 "validation": "",
                 "conditional": "",
-                "inputRange": "satisfaction",
+                "input_range": "satisfaction",
             }
         ]
         import_flags = get_widgets_file_import_flags(section_rows)
@@ -1882,7 +1882,7 @@ class TestGetWidgetsFileImportFlags:
     def test_custom_widgets_imports(self):
         """Test that Custom inputType is correctly detected"""
         section_rows = [
-            {"inputType": "Custom", "choices": "", "validation": "", "conditional": ""}
+            {"input_type": "Custom", "choices": "", "validation": "", "conditional": ""}
         ]
         import_flags = get_widgets_file_import_flags(section_rows)
         assert import_flags.has_custom_widgets_import is True
@@ -1892,7 +1892,7 @@ class TestGetWidgetsFileImportFlags:
         # Help popup
         section_rows = [
             {
-                "inputType": "Radio",
+                "input_type": "Radio",
                 "choices": "",
                 "validation": "",
                 "conditional": "",
@@ -1905,7 +1905,7 @@ class TestGetWidgetsFileImportFlags:
         # Confirm popup on NextButton
         section_rows = [
             {
-                "inputType": "NextButton",
+                "input_type": "NextButton",
                 "choices": "",
                 "validation": "",
                 "conditional": "",
@@ -1927,7 +1927,7 @@ class TestGetWidgetsFileImportFlags:
         """Unsupported popup columns must not trigger customHelpPopup import."""
         section_rows = [
             {
-                "inputType": input_type,
+                "input_type": input_type,
                 "choices": "",
                 "validation": "",
                 "conditional": "",
@@ -1942,7 +1942,7 @@ class TestGetWidgetsFileImportFlags:
         # Nickname label
         section_rows = [
             {
-                "inputType": "Radio",
+                "input_type": "Radio",
                 "choices": "",
                 "validation": "",
                 "conditional": "",
@@ -1955,7 +1955,7 @@ class TestGetWidgetsFileImportFlags:
         # Persons count via count in label
         section_rows = [
             {
-                "inputType": "Radio",
+                "input_type": "Radio",
                 "choices": "",
                 "validation": "",
                 "conditional": "",
@@ -1968,7 +1968,7 @@ class TestGetWidgetsFileImportFlags:
         # Persons count via label_one
         section_rows = [
             {
-                "inputType": "Radio",
+                "input_type": "Radio",
                 "choices": "",
                 "validation": "",
                 "conditional": "",
@@ -1982,7 +1982,7 @@ class TestGetWidgetsFileImportFlags:
         # Gendered suffix
         section_rows = [
             {
-                "inputType": "Radio",
+                "input_type": "Radio",
                 "choices": "",
                 "validation": "",
                 "conditional": "",
@@ -2004,7 +2004,7 @@ class TestGetWidgetsFileImportFlags:
         """Test that customLabels usage in parameters is correctly detected, whatever the case of its name"""
         section_rows = [
             {
-                "inputType": "Radio",
+                "input_type": "Radio",
                 "choices": "",
                 "validation": "",
                 "conditional": "",

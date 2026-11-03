@@ -124,7 +124,7 @@ class TestGenerateLabels:
     WIDGETS_SHEET = {
         "sheetName": "Widgets",
         "namespaceHeader": "section",
-        "keyHeader": "questionName",
+        "keyHeader": "question_name",
     }
 
     @pytest.fixture
@@ -142,7 +142,7 @@ class TestGenerateLabels:
     def test_reads_the_widgets_sheet_from_excel(self, saved_translations, tmp_path):
         create_mocked_excel_data(
             "Widgets",
-            ["section", "questionName", "path", "label::fr", "label::en"],
+            ["section", "question_name", "path", "label::fr", "label::en"],
             [
                 ["section1", "section1Question1", "some.path", "personne", "person"],
                 [
@@ -190,7 +190,7 @@ class TestGenerateLabels:
         """An empty row between rows, or an empty first cell, doesn't shift the row numbers."""
         create_mocked_excel_data(
             "Widgets",
-            ["section", "questionName", "label::fr"],
+            ["section", "question_name", "label::fr"],
             [
                 ["section1", "question1", "une question"],
                 [None, None, None],
@@ -262,7 +262,7 @@ class TestGenerateLabels:
         """Each survey language reads its own label::<language> column."""
         create_mocked_excel_data(
             "Widgets",
-            ["section", "questionName", "label::es", "label::en", "label_one::es"],
+            ["section", "question_name", "label::es", "label::en", "label_one::es"],
             [["home", "carCount", "¿Cuántos?", "How many?", "¿Cuántos tienes?"]],
         )
         try:
@@ -306,7 +306,7 @@ class TestGenerateLabels:
         )
         create_mocked_excel_data(
             "Widgets",
-            ["section", "questionName", "label::fr", "label::en"],
+            ["section", "question_name", "label::fr", "label::en"],
             [["home", "q1", "Q1 fr", "Q1 en"]],
         )
         survey_definition = SurveyDefinition(

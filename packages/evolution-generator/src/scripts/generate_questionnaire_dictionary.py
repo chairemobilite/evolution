@@ -46,12 +46,12 @@ def generate_questionnaire_dictionary(
         # Find the index
         widgets_language_index = widgets_headers.index("label::" + language)
         widgets_section_index = widgets_headers.index("section")
-        widgets_input_type_index = widgets_headers.index("inputType")
+        widgets_input_type_index = widgets_headers.index("input_type")
         widgets_active_index = widgets_headers.index("active")
         widgets_path_index = widgets_headers.index("path")
         widgets_conditional_index = widgets_headers.index("conditional")
         widgets_choices_index = widgets_headers.index("choices")
-        widgets_input_range_index = widgets_headers.index("inputRange")
+        widgets_input_range_index = widgets_headers.index("input_range")
         # The 'parameters' column is optional: not every Widgets sheet has it.
         widgets_parameters_index = (
             widgets_headers.index("parameters")

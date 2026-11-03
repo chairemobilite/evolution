@@ -251,7 +251,7 @@ _CONFIRM_POPUP_INPUT_TYPES = frozenset({"NextButton"})
 
 def _row_uses_custom_help_popup_import(row) -> bool:
     """Return True when generated widget output will reference customHelpPopup."""
-    input_type = row.get("inputType", "")
+    input_type = row.get("input_type", "")
     if row.get("help_popup") and input_type in _HELP_POPUP_INPUT_TYPES:
         return True
     if row.get("confirm_popup") and input_type in _CONFIRM_POPUP_INPUT_TYPES:
@@ -263,14 +263,14 @@ def _row_uses_custom_help_popup_import(row) -> bool:
 def generate_widget_statement(row, gender_fields: GenderFields = None) -> WidgetResult:
     # Initialize gender_fields to a default class if none is provided
     gender_fields = gender_fields or GenderFields()
-    question_name = row["questionName"]
+    question_name = row["question_name"]
     active = row.get("active", False)  # Default to False if not present
-    input_type = row["inputType"]
+    input_type = row["input_type"]
     section = row["section"]
     path = row["path"]
     conditional = row["conditional"]
     validation = row["validation"]
-    input_range = row["inputRange"]
+    input_range = row["input_range"]
     help_popup = row["help_popup"]
     if help_popup and input_type not in _HELP_POPUP_INPUT_TYPES:
         print(
@@ -407,7 +407,7 @@ def generate_widget_statement(row, gender_fields: GenderFields = None) -> Widget
 
 # Define a function to generate the widget name for a given row and group
 def generate_widget_name(row, group, is_last):
-    question_name = row["questionName"]
+    question_name = row["question_name"]
     active = row.get("active", False)  # Default to False if not present
     rowGroup = row.get("group") if row.get("group") else ""
 
@@ -832,7 +832,7 @@ def generate_contains_html(containsHtml, shouldAddContainsHtml):
 
 
 def generate_custom_path(row):
-    custom_path = row.get("customPath", None)
+    custom_path = row.get("custom_path", None)
     if custom_path:
         return f"{INDENT}customPath: '{custom_path}',\n"
     else:
@@ -840,7 +840,7 @@ def generate_custom_path(row):
 
 
 def generate_custom_choice(row):
-    custom_choice = row.get("customChoice", None)
+    custom_choice = row.get("custom_choice", None)
     if custom_choice:
         return f"{INDENT}customChoice: '{custom_choice}',\n"
     else:
@@ -848,7 +848,7 @@ def generate_custom_choice(row):
 
 
 def generate_default_value(row):
-    default_value = row.get("defaultValue", None)
+    default_value = row.get("default_value", None)
     if default_value:
         return f"{INDENT}defaultValue: '{default_value}',\n"
     else:
@@ -864,8 +864,8 @@ def generate_common_properties(
     - Prints a warning if join_with is present but not in the expected pattern.
     - If allow_join_with is False, disables joinWith extraction.
     """
-    twoColumns = row.get("twoColumns", False)
-    containsHtml = row.get("containsHtml", False)
+    twoColumns = row.get("two_columns", False)
+    containsHtml = row.get("contains_html", False)
 
     join_with = None
     if allow_join_with:
@@ -1083,7 +1083,7 @@ def generate_range_widget(
     widget_label,
     row,
 ):
-    includeNotApplicable = row.get("includeNotApplicable", False)
+    includeNotApplicable = row.get("include_not_applicable", False)
     notApplicableConfig = (
         "includeNotApplicable: true,\n" if includeNotApplicable else ""
     )
@@ -1329,11 +1329,11 @@ def get_widgets_file_import_flags(section_rows) -> ImportFlags:
         ):
             # Check to see if the conditional is not empty and does not finish with 'CustomConditional'
             import_flags.has_conditionals_import = True
-        if row.get("inputRange"):
+        if row.get("input_range"):
             import_flags.has_input_range_import = True
-        if row["inputType"] == "Custom":
+        if row["input_type"] == "Custom":
             import_flags.has_custom_widgets_import = True
-        if row["inputType"] == "BuiltIn":
+        if row["input_type"] == "BuiltIn":
             import_flags.has_built_in_widgets_import = True
         if _row_uses_custom_help_popup_import(row):
             import_flags.has_help_popup_import = True

@@ -10,7 +10,6 @@ from unittest.mock import MagicMock
 
 import openpyxl
 import pytest  # pyright: ignore[reportMissingImports]
-from openpyxl.cell.read_only import EMPTY_CELL
 from openpyxl.styles import PatternFill
 
 from helpers.generator_helpers import (
@@ -28,6 +27,7 @@ from survey_definition.excel_survey_definition_reader import (
     EMPTY_ROWS_WARNING_THRESHOLD,
     ExcelSurveyDefinitionReader,
 )
+from survey_definition.widgets_definition import WIDGET_REQUIRED_FIELD_NAMES
 
 MOCKED_EXCEL_FILE = "src/tests/references/test.xlsx"
 DEMO_EXCEL_FILE = os.path.join(
@@ -68,7 +68,7 @@ VALID_INPUT_RANGE_HEADERS = [
 ]
 VALID_INPUT_RANGE_ROWS = [["slider", "Min", "Max", "Min", "Max", 0, 100]]
 
-VALID_WIDGETS_HEADERS = ["questionName", "label::fr", "label::en"]
+VALID_WIDGETS_HEADERS = [*WIDGET_REQUIRED_FIELD_NAMES, "label::fr", "label::en"]
 
 
 def _create_workbook(
@@ -159,7 +159,9 @@ class TestCheckExcelIntegrityWithMessages:
 
     def test_checks_the_languages_of_the_widgets_sheet(self):
         # The Widgets sheet has label::es, but the Sections sheet has no title_es column
-        _create_workbook(widgets_headers=["questionName", "label::fr", "label::es"])
+        _create_workbook(
+            widgets_headers=[*WIDGET_REQUIRED_FIELD_NAMES, "label::fr", "label::es"]
+        )
         try:
             assert check_excel_integrity_with_messages(MOCKED_EXCEL_FILE) == (
                 False,
@@ -173,7 +175,7 @@ class TestCheckExcelIntegrityWithMessages:
     def test_reports_a_title_column_in_another_language(self):
         """A title_<language> column for a language of no label:: column, e.g. a typo, is reported."""
         _create_workbook(
-            widgets_headers=["questionName", "label::fr"],
+            widgets_headers=[*WIDGET_REQUIRED_FIELD_NAMES, "label::fr"],
         )
         try:
             ok, messages = check_excel_integrity_with_messages(MOCKED_EXCEL_FILE)
@@ -186,7 +188,7 @@ class TestCheckExcelIntegrityWithMessages:
             delete_file_if_exists(MOCKED_EXCEL_FILE)
 
     def test_reports_a_widgets_sheet_without_label_columns(self):
-        _create_workbook(widgets_headers=["questionName", "label"])
+        _create_workbook(widgets_headers=[*WIDGET_REQUIRED_FIELD_NAMES, "label"])
         try:
             ok, messages = check_excel_integrity_with_messages(MOCKED_EXCEL_FILE)
             assert ok is False
@@ -198,7 +200,9 @@ class TestCheckExcelIntegrityWithMessages:
             delete_file_if_exists(MOCKED_EXCEL_FILE)
 
     def test_reports_invalid_languages(self):
-        _create_workbook(widgets_headers=["questionName", "label::French"])
+        _create_workbook(
+            widgets_headers=[*WIDGET_REQUIRED_FIELD_NAMES, "label::French"]
+        )
         try:
             ok, messages = check_excel_integrity_with_messages(MOCKED_EXCEL_FILE)
             assert ok is False
@@ -298,7 +302,7 @@ class TestGenerateSurvey:
 
     def test_creates_a_locales_folder_per_survey_language(self, tmp_path):
         _create_workbook(
-            widgets_headers=["questionName", "label::en"],
+            widgets_headers=[*WIDGET_REQUIRED_FIELD_NAMES, "label::en"],
             sections_headers=[h for h in VALID_SECTIONS_HEADERS if h != "title_fr"],
             sections_rows=[["home", "Home", True, "", "", "HM_"]],
         )
@@ -373,43 +377,3 @@ class TestGenerateSurvey:
         )
         generate_survey(str(config_path))
         load_workbook.assert_called_once()
-
-    def test_empty_rows_between_data_rows_generate_the_same_files(
-        self, tmp_path, monkeypatch
-    ):
-        """An empty row left between rows of the sheets not yet in the survey definition is skipped."""
-        if not os.path.isfile(DEMO_EXCEL_FILE):
-            pytest.skip(f"Demo generator file not found: {DEMO_EXCEL_FILE}")
-        enabled_scripts = "".join(
-            f"    {script_key}: {script_key not in ('generate_excel', 'copy_excel_to_csv')}\n"
-            for script_key in generate_survey_module.SUPPORTED_SCRIPT_KEYS
-        )
-
-        def generate(survey_folder_path):
-            survey_folder_path.mkdir()
-            config_path = tmp_path / f"{survey_folder_path.name}.yaml"
-            config_path.write_text(
-                f"survey_folder_path: {survey_folder_path}\n"
-                f"excel_file_path: {DEMO_EXCEL_FILE}\n"
-                f"enabled_scripts:\n{enabled_scripts}"
-            )
-            generate_survey(str(config_path))
-            return {
-                path.relative_to(survey_folder_path): path.read_bytes()
-                for path in sorted(survey_folder_path.rglob("*"))
-                if path.is_file()
-            }
-
-        expected_files = generate(tmp_path / "without_empty_rows")
-
-        class ReaderWithEmptyRows(ExcelSurveyDefinitionReader):
-            def __init__(self, excel_file_path: str) -> None:
-                super().__init__(excel_file_path)
-                # The sheets are private to the reader: add the empty row there.
-                rows = self._sheets["Widgets"].rows
-                rows.insert(2, (EMPTY_CELL,) * len(rows[0]))
-
-        monkeypatch.setattr(
-            generate_survey_module, "ExcelSurveyDefinitionReader", ReaderWithEmptyRows
-        )
-        assert generate(tmp_path / "with_empty_rows") == expected_files

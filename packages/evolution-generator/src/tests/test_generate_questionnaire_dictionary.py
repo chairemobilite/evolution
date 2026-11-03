@@ -379,12 +379,12 @@ class TestGenerateQuestionnaireDictionary:
                 "section",
                 "label::fr",
                 "label::en",
-                "inputType",
+                "input_type",
                 "active",
                 "path",
                 "conditional",
                 "choices",
-                "inputRange",
+                "input_range",
             ],
             [
                 [

@@ -22,8 +22,8 @@ def generate_UI_tests(reader: ExcelSurveyDefinitionReader, output_file: str):
         headers = reader.get_headers(
             "Widgets",
             expected_headers=[
-                "questionName",
-                "inputType",
+                "question_name",
+                "input_type",
                 "active",
                 "section",
                 # "group",
@@ -93,8 +93,8 @@ def generate_UI_tests(reader: ExcelSurveyDefinitionReader, output_file: str):
             row_dict = dict(zip(headers, (cell.value for cell in row)))
 
             # Get values from the row dictionary
-            question_name = row_dict["questionName"]
-            input_type = row_dict["inputType"]
+            question_name = row_dict["question_name"]
+            input_type = row_dict["input_type"]
             active = row_dict["active"]
             section = row_dict["section"]
             group = row_dict.get("group") if row_dict.get("group") else None

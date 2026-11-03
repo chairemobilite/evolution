@@ -3,7 +3,7 @@
 # License text available at https://opensource.org/licenses/MIT
 
 # Note: The survey definition: the survey as authored (its languages, sections,
-# conditionals, and later widgets, choices, ...), bundled in one object. Each table has
+# conditionals, widgets, choices, ...), bundled in one object. Each table has
 # its own module in this package (sections_definition.py, ...) that defines and
 # validates its rows, and holds every rule about that table. This module only holds
 # the rules about the survey languages: it validates them, then each table, passing
@@ -44,7 +44,7 @@ class SurveyDefinition(BaseModel):
     Generator script.
 
     Input: a dict with the survey `languages` and one key per table (`sections`,
-        `conditionals`, `labels`, `choices`, later `widgets`, ...), each holding that table's raw
+        `conditionals`, `labels`, `choices`, `widgets`, ...), each holding that table's raw
         rows (or an already-built table object, e.g. `SurveyDefinition(sections=[...])`).
         `languages` is required; an omitted table defaults to empty.
     Output: a validated instance if the languages and every table are valid;

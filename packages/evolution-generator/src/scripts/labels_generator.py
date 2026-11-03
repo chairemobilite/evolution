@@ -42,7 +42,7 @@ DEFAULT_SHEETS_WITH_LABELS: list[SheetWithLabels] = [
     {
         "sheetName": "Widgets",
         "namespaceHeader": "section",
-        "keyHeader": "questionName",
+        "keyHeader": "question_name",
     }
 ]
 
