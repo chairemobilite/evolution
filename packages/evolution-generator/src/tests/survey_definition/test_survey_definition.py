@@ -216,3 +216,73 @@ class TestSurveyDefinitionLanguages:
         )
         survey_definition = SurveyDefinition(languages=["fr"], sections=sections)
         assert survey_definition.sections is sections
+
+    def test_passes_the_names_of_the_other_tables_to_the_widgets(self):
+        """A widget's section, conditional, choices and input range must be in their tables."""
+        widget = {
+            "question_name": "personSchoolType",
+            "input_type": "Radio",
+            "active": True,
+            "section": "home",
+            "path": "schoolType",
+            "label::fr": "École",
+            "conditional": "isAdultConditional",
+            "choices": "schoolType",
+            "custom_path": "schoolTypeOther",
+            "custom_choice": "other",
+        }
+        tables = {
+            "sections": [{"section": "home", "in_nav": False, "abbreviation": "HM_"}],
+            "conditionals": [
+                {
+                    "conditional_name": "isAdultConditional",
+                    "path": "person.age",
+                    "comparison_operator": ">=",
+                    "value": 18,
+                }
+            ],
+            "choices": [
+                {"choicesName": "schoolType", "value": "other", "label::fr": "Autre"}
+            ],
+        }
+        survey_definition = SurveyDefinition(
+            languages=["fr"], widgets=[widget], **tables
+        )
+        assert survey_definition.widgets[0].custom_choice == "other"
+        assert self._issues(
+            languages=["fr"],
+            widgets=[
+                {
+                    **widget,
+                    "section": "work",
+                    "conditional": "isKidConditional",
+                    "custom_choice": "others",
+                }
+            ],
+            **tables,
+        ) == [
+            "Error in Widgets - Invalid row 2: section 'work' does not match any section "
+            "of the Sections table; conditional 'isKidConditional' does not match any "
+            "conditional_name of the Conditionals table; custom_choice 'others' does not "
+            "match any value of the 'schoolType' choices"
+        ]
+
+    def test_does_not_check_widget_names_against_invalid_tables(self):
+        """An invalid table is reported on its own, not again by each widget."""
+        widget = {
+            "question_name": "homeName",
+            "input_type": "Radio",
+            "active": True,
+            "section": "home",
+            "path": "home.name",
+            "label::fr": "Nom",
+            "choices": "yesNo",
+        }
+        with pytest.raises(ValidationError) as error:
+            SurveyDefinition(
+                languages=["fr"],
+                sections=[{"section": "home"}],
+                choices=[{"choicesName": "yesNo"}],
+                widgets=[widget],
+            )
+        assert [e["loc"] for e in error.value.errors()] == [("sections",), ("choices",)]

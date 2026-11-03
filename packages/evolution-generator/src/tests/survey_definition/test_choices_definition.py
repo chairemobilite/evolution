@@ -375,3 +375,18 @@ class TestChoices:
                 self._row("yesNo", value="dontKnow"),
             ]
         )
+
+    def test_lists_the_values_of_each_list_with_its_spreads_as_text(self):
+        choices = self._choices(
+            [
+                self._row("yesNo", value="yes"),
+                self._row("yesNo", value="no"),
+                self._row("schoolType", value=1),
+                self._spread("schoolType", "yesNo"),
+                self._row("schoolType", value=True),
+            ]
+        )
+        assert choices.values_by_name() == {
+            "yesNo": ["yes", "no"],
+            "schoolType": ["1", "yes", "no", "True"],
+        }

@@ -36,6 +36,7 @@ from scripts.generate_widgets import (
     generate_widgets,
 )
 from survey_definition.excel_survey_definition_reader import ExcelSurveyDefinitionReader
+from tests.parametrize_cases import cases
 
 # TODO: Test generate_widgets
 # TODO: Test generate_widget_statement
@@ -229,6 +230,25 @@ class TestGenerateLabel:
         )
         assert "label: customLabels.personSchoolTypeCustomLabels" in result
         assert "t('sectionA:foo.bar')" not in result
+
+    @cases(
+        dict(
+            id="lower case", parameters="customlabels={{personSchoolTypeCustomLabels}}"
+        ),
+        dict(
+            id="capitalized", parameters="CustomLabels={{personSchoolTypeCustomLabels}}"
+        ),
+    )
+    def test_generate_label_custom_labels_name_is_case_insensitive(self, parameters):
+        """Test generate_label reads customLabels whatever the case of the parameter name, like the other parameters"""
+        row = {"label::fr": "Nom", "label::en": "Name", "parameters": parameters}
+        result = generate_label(
+            section="sectionA",
+            label_key="foo.bar",
+            row=row,
+            gender_fields=self.GENDER_FIELDS,
+        )
+        assert "label: customLabels.personSchoolTypeCustomLabels" in result
 
     def test_generate_label_custom_labels_invalid_format_prints_warning_and_falls_back(
         self, capsys
@@ -1522,6 +1542,14 @@ class TestRadioNumberParameters:
         assert params["max_value"] == 5
         assert params["over_max_allowed"] is True
 
+    def test_get_radio_number_parameters_names_are_case_insensitive(self):
+        """Test get_radio_number_parameters reads min, max and overMaxAllowed whatever their case"""
+        row = {"parameters": "min=0\nMax=4\nOverMaxAllowed"}
+        params = get_radio_number_parameters(row)
+        assert params["min_value"] == 0
+        assert params["max_value"] == 4
+        assert params["over_max_allowed"] is True
+
     def test_get_radio_number_parameters_non_numeric_min_max(self):
         """Test get_radio_number_parameters with non-numeric min/max"""
         row = {"parameters": "min=abc\nmax=xyz"}
@@ -1964,15 +1992,23 @@ class TestGetWidgetsFileImportFlags:
         import_flags = get_widgets_file_import_flags(section_rows)
         assert import_flags.has_gendered_suffix_label is True
 
-    def test_custom_labels_imports(self):
-        """Test that customLabels usage in parameters is correctly detected"""
+    @cases(
+        dict(
+            id="camel case", parameters="customLabels={{personSchoolTypeCustomLabels}}"
+        ),
+        dict(
+            id="lower case", parameters="customlabels={{personSchoolTypeCustomLabels}}"
+        ),
+    )
+    def test_custom_labels_imports(self, parameters):
+        """Test that customLabels usage in parameters is correctly detected, whatever the case of its name"""
         section_rows = [
             {
                 "inputType": "Radio",
                 "choices": "",
                 "validation": "",
                 "conditional": "",
-                "parameters": "customLabels={{personSchoolTypeCustomLabels}}",
+                "parameters": parameters,
                 "label::en": "Some label",
             }
         ]

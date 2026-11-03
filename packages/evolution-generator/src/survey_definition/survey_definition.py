@@ -31,6 +31,7 @@ from survey_definition.conditionals_definition import Conditionals
 from survey_definition.input_range_definition import InputRanges
 from survey_definition.labels_definition import Labels
 from survey_definition.sections_definition import Sections
+from survey_definition.widgets_definition import Widgets
 
 # A language code: two lowercase letters, optionally followed by a region, e.g. 'fr' or
 # 'en-CA'. It names the translated columns (title_fr) and the locales folders (locales/fr).
@@ -74,6 +75,8 @@ class SurveyDefinition(BaseModel):
             source order.
         input_ranges: The InputRange table, already checked: one InputRangeDefinition
             per row (slider configuration), in source order.
+        widgets: The Widgets table, already checked: one WidgetDefinition per row, in
+            source order. Its names of the other tables are checked against them.
     """
 
     # Pydantic validates a table field with the table's own validators (e.g.
@@ -88,6 +91,7 @@ class SurveyDefinition(BaseModel):
     labels: Labels = Field(default_factory=lambda: Labels([]))
     choices: Choices = Field(default_factory=lambda: Choices([]))
     input_ranges: InputRanges = Field(default_factory=lambda: InputRanges([]))
+    widgets: Widgets = Field(default_factory=lambda: Widgets([]))
 
     @field_validator("languages")
     @classmethod
@@ -153,6 +157,59 @@ class SurveyDefinition(BaseModel):
         # See _sections_are_valid: no language at all when they are invalid.
         languages = info.data.get("languages", ())
         return _validated_table(InputRanges, rows, context={"languages": languages})
+
+    @field_validator("widgets", mode="before")
+    @classmethod
+    def _widgets_are_valid(cls, rows: Any, info: ValidationInfo) -> Any:
+        """
+        Validate the Widgets table, giving it what its rows name in the other tables.
+
+        A widget row names things defined in other sheets: its section, conditional,
+        choices list (and a value of it, custom_choice) and input range. The Widgets
+        table can't see those sheets by itself, so this collects their names from the
+        tables already built and passes them in the validation context, where the
+        rows read them (see WidgetDefinition._other_table_issues).
+        """
+        # Pydantic fills the fields in the order they are declared, and info.data holds
+        # the ones before this one that passed, already built. So each table Widgets
+        # needs is declared before it. A table missing from info.data is invalid: its
+        # problems are already reported, so its entry is None, which tells the rows not
+        # to compare their names to it (and not to report one more error per widget).
+        # The languages are missing when they are invalid: see _sections_are_valid.
+        sections = info.data.get("sections")
+        conditionals = info.data.get("conditionals")
+        choices = info.data.get("choices")
+        input_ranges = info.data.get("input_ranges")
+        context = {
+            # e.g. ("fr", "en"): every label must be in each one.
+            "languages": info.data.get("languages", ()),
+            # e.g. {"home", "household"}: a widget's section must be one of them.
+            "section_names": (
+                {section.section for section in sections}
+                if sections is not None
+                else None
+            ),
+            # e.g. {"isAdultConditional"}: a widget's conditional must be one of them,
+            # unless it ends with 'CustomConditional'.
+            "conditional_names": (
+                set(conditionals.by_name()) if conditionals is not None else None
+            ),
+            # e.g. {"schoolType": ["school", "other"]}: a widget's choices must be one
+            # of the lists (unless it ends with 'CustomChoices'), and its
+            # custom_choice one of that list's values, as text.
+            "choice_values_by_name": (
+                choices.values_by_name() if choices is not None else None
+            ),
+            # e.g. {"confidenceSlider"}: a Range widget's input_range must be one of them.
+            "input_range_names": (
+                {input_range.input_range_name for input_range in input_ranges}
+                if input_ranges is not None
+                else None
+            ),
+        }
+        # Builds the Widgets table from the raw rows: each row gets the context as
+        # info.context. Its problems are reported as the table's own messages.
+        return _validated_table(Widgets, rows, context=context)
 
 
 def _validated_table[T: BaseModel](

@@ -693,10 +693,11 @@ def generate_label(
 
     # Check if customLabels are present in the parameters
     # If so, return the customLabels function
+    # The parameter name is case-insensitive, like the other parameters (see parse_parameters)
     parameters = row.get("parameters", "") or ""
-    if "customLabels={{" in parameters:
+    if "customlabels={{" in parameters.lower():
         custom_labels_match = re.search(
-            r"customLabels=\{\{([a-zA-Z0-9_$]+)\}\}", parameters
+            r"customLabels=\{\{([a-zA-Z0-9_$]+)\}\}", parameters, re.IGNORECASE
         )
         if custom_labels_match:
             custom_labels_name = custom_labels_match.group(1)
@@ -1303,8 +1304,8 @@ def get_widgets_file_import_flags(section_rows) -> ImportFlags:
     for row in section_rows:
         parameters = row.get("parameters", "") or ""
 
-        # Check if customLabels are present in the parameters
-        if "customLabels={{" in parameters:
+        # Check if customLabels are present in the parameters (name case-insensitive)
+        if "customlabels={{" in parameters.lower():
             import_flags.has_custom_labels_import = True
         if row["choices"]:
             # Check to see if the choices finish with 'CustomChoices'
