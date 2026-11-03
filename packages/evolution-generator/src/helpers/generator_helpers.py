@@ -92,14 +92,12 @@ def load_survey_definition(reader: ExcelSurveyDefinitionReader) -> SurveyDefinit
     The returned instance is already validated; callers don't need to check it again.
     """
     return SurveyDefinition(
-        languages=reader.read_languages(),
-        sections=reader.read_table("Sections", SECTION_REQUIRED_FIELD_NAMES),
-        conditionals=reader.read_table(
-            "Conditionals", CONDITIONAL_REQUIRED_FIELD_NAMES
-        ),
-        labels=reader.read_table("Labels", LABEL_REQUIRED_FIELD_NAMES),
-        choices=reader.read_table("Choices", CHOICE_REQUIRED_FIELD_NAMES),
-        input_ranges=reader.read_table(
+        languages=reader.get_languages(),
+        sections=reader.get_table("Sections", SECTION_REQUIRED_FIELD_NAMES),
+        conditionals=reader.get_table("Conditionals", CONDITIONAL_REQUIRED_FIELD_NAMES),
+        labels=reader.get_table("Labels", LABEL_REQUIRED_FIELD_NAMES),
+        choices=reader.get_table("Choices", CHOICE_REQUIRED_FIELD_NAMES),
+        input_ranges=reader.get_table(
             "InputRange", INPUT_RANGE_REQUIRED_FIELD_NAMES, is_table_optional=True
         ),
     )

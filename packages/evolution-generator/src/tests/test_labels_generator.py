@@ -186,6 +186,31 @@ class TestGenerateLabels:
             ("fr", "section2", expected_fr),
         ]
 
+    def test_widgets_label_rows_keep_their_excel_row_numbers(self):
+        """An empty row between rows, or an empty first cell, doesn't shift the row numbers."""
+        create_mocked_excel_data(
+            "Widgets",
+            ["section", "questionName", "label::fr"],
+            [
+                ["section1", "question1", "une question"],
+                [None, None, None],
+                [None, "question2", "une autre"],
+            ],
+        )
+        try:
+            label_rows = LabelsGenerator.label_rows_from_excel(
+                ExcelSurveyDefinitionReader(MOCKED_EXCEL_FILE),
+                ("fr",),
+                self.WIDGETS_SHEET,
+            )
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+        assert [(row.row_number, row.key) for row in label_rows] == [
+            (2, "question1"),
+            (4, "question2"),
+        ]
+
     def test_reads_the_labels_from_the_survey_definition(
         self, saved_translations, tmp_path
     ):

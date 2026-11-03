@@ -460,7 +460,7 @@ class LabelsGenerator:
         """
         # TODO: Read the Widgets labels from the survey definition once the Widgets
         # sheet is in it, and remove this function.
-        rows, headers = reader.get_rows_and_headers(sheet_with_labels["sheetName"])
+        headers = reader.get_headers(sheet_with_labels["sheetName"])
         namespace_index = headers.index(sheet_with_labels["namespaceHeader"])
         key_index = headers.index(sheet_with_labels["keyHeader"])
         # One label column per language, and an optional label_one column
@@ -474,7 +474,8 @@ class LabelsGenerator:
         }
         return [
             LabelRow(
-                row_number=row_number,
+                # The Excel row number, from a cell with a value (padding cells have none)
+                row_number=next(cell.row for cell in row if cell.value is not None),
                 namespace=row[namespace_index].value,
                 key=row[key_index].value,
                 label={
@@ -486,9 +487,7 @@ class LabelsGenerator:
                     for language, index in label_one_index_by_language.items()
                 },
             )
-            for row_number, row in enumerate(rows[1:], start=2)
-            # Skip the empty rows between rows with data
-            if any(cell.value is not None for cell in row)
+            for row in reader.get_data_rows(sheet_with_labels["sheetName"])
         ]
 
     @staticmethod

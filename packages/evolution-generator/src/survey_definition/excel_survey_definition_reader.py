@@ -6,7 +6,8 @@
 # is read once, so every script works on the same in-memory copy instead of
 # re-opening it. Sheets, rows and cells are details of this reader: the survey
 # definition is read as tables of dicts (see ExcelSurveyDefinitionReader).
-from typing import List, Tuple
+from itertools import takewhile
+from typing import List, Sequence, Tuple
 
 import openpyxl
 from openpyxl.cell.read_only import EMPTY_CELL
@@ -40,7 +41,7 @@ class _ExcelSheet:
 class ExcelSurveyDefinitionReader:
     """
     Reads the survey definition from the Generator Excel file: the survey languages
-    (read_languages) and each table, one sheet per table (read_table).
+    (get_languages) and each table, one sheet per table (get_table).
 
     The whole file is read when the reader is created. `warnings` lists the problems
     found while reading that don't stop the generation, e.g. a sheet with many empty
@@ -52,15 +53,15 @@ class ExcelSurveyDefinitionReader:
         sheets, self.warnings = _read_workbook(excel_file_path)
         self._sheets = {sheet.title: sheet for sheet in sheets}
 
-    def read_languages(self) -> tuple[str, ...]:
+    def get_languages(self) -> tuple[str, ...]:
         """
-        Read the survey languages from the Widgets sheet: one per `label::<language>`
-        column, in column order, e.g. ("fr", "en") for label::fr and label::en.
+        Return the survey languages, read from the Widgets sheet: one per
+        `label::<language>` column, in column order, e.g. ("fr", "en") for label::fr and label::en.
 
         The file carries its own languages, so a survey is checked the same way from
         any app or config. Raises if the sheet has no such column.
         """
-        headers = [cell.value for cell in self._get_sheet("Widgets").rows[0]]
+        headers = self.get_headers("Widgets")
         languages = tuple(
             header.removeprefix(LANGUAGE_COLUMN_PREFIX)
             for header in headers
@@ -73,14 +74,14 @@ class ExcelSurveyDefinitionReader:
             )
         return languages
 
-    def read_table(
+    def get_table(
         self,
         table_name: str,
         required_fields: List[str],
         is_table_optional: bool = False,
     ) -> List[dict]:
         """
-        Read every row of the `table_name` sheet (row 1 is the header) as a dict keyed
+        Return every row of the `table_name` sheet (row 1 is the header) as a dict keyed
         by its headers. Raises if the sheet or one of `required_fields` is missing; with
         `is_table_optional`, a missing sheet is read as an empty table (e.g. a survey
         without any slider has no InputRange sheet).
@@ -90,11 +91,37 @@ class ExcelSurveyDefinitionReader:
         """
         if is_table_optional and table_name not in self._sheets:
             return []
-        headers = self._get_headers(table_name, required_fields)
+        headers = self.get_headers(table_name, required_fields)
         return [
             dict(zip(headers, (cell.value for cell in row), strict=True))
             for row in self._get_sheet(table_name).rows[1:]
         ]
+
+    def get_headers(
+        self, sheet_name: str, expected_headers: Sequence[str] = ()
+    ) -> List:
+        """
+        Return the values of the sheet's header row, one per column. Raises if the
+        sheet or one of `expected_headers` is missing, or if a header before the first
+        empty one has spaces.
+        """
+        header_cells = self._get_sheet(sheet_name).rows[0]
+        headers = [cell.value for cell in header_cells]
+
+        # Text after the first empty header (e.g. a note in a column left apart) is
+        # not a header, so it may have spaces.
+        for cell in takewhile(lambda cell: not _is_empty(cell), header_cells):
+            if isinstance(cell.value, str) and " " in cell.value:
+                raise Exception(
+                    f"Header has spaces in {sheet_name} sheet: {cell.value!r}"
+                )
+        for expected in expected_headers:
+            if expected not in headers:
+                raise Exception(
+                    f"Missing expected header in {sheet_name} sheet: {expected}"
+                )
+
+        return headers
 
     # TODO: Remove the methods below once every sheet is migrated to the survey
     # definition (#2035): they give the scripts that still read the other sheets
@@ -105,61 +132,13 @@ class ExcelSurveyDefinitionReader:
         """The names of the file's sheets, in file order."""
         return list(self._sheets)
 
-    def get_rows_and_headers(self, sheet_name: str) -> Tuple[List, List[str]]:
-        """
-        Return the rows of the sheet, header row included, and its headers: the
-        header row's values up to its first empty cell.
-
-        Raises if the sheet is missing or a header has spaces.
-        """
-        try:
-            rows: List = self._get_sheet(sheet_name).rows
-
-            # Filter out None values from headers
-            headers = []
-            for cell in rows[0]:
-                if cell.value is not None:
-                    headers.append(cell.value)
-                else:
-                    # If we find an empty header, stop reading columns here
-                    break
-
-            # Error when header has spaces
-            if any(" " in str(header) for header in headers):
-                raise Exception("Header has spaces")
-
-            return rows, headers
-
-        except Exception as e:
-            print(f"Error reading Excel in {sheet_name} sheet: {e}")
-            raise e
-
-    def get_headers(self, sheet_name: str, expected_headers: List[str]) -> List:
-        """
-        Return the values of the sheet's header row. Raises if the sheet or one of
-        `expected_headers` is missing.
-        """
-        return self._get_headers(sheet_name, expected_headers)
-
     def get_data_rows(self, sheet_name: str) -> List:
         """
         Return the rows of the sheet after the header row, without the empty ones (e.g.
         a blank row left to separate groups of rows), so scripts only see rows with
-        data.
+        data. Each row has one cell per header (see get_headers).
         """
         return [row for row in self._get_sheet(sheet_name).rows[1:] if _has_value(row)]
-
-    def _get_headers(self, sheet_name: str, expected_headers: List[str]) -> List:
-        current_headers = [cell.value for cell in self._get_sheet(sheet_name).rows[0]]
-
-        # Check if the headers are valid
-        for expected in expected_headers:
-            if not expected in current_headers:
-                raise Exception(
-                    f"Missing expected header in {sheet_name} sheet: {expected}"
-                )
-
-        return current_headers
 
     def _get_sheet(self, sheet_name: str) -> _ExcelSheet:
         if sheet_name not in self._sheets:

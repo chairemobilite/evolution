@@ -31,8 +31,8 @@ def generate_questionnaire_list(
         language: Language of the labels, 'en' or 'fr'.
     """
     try:
-        # Read data from Excel and return rows and headers
-        _, widgets_headers = reader.get_rows_and_headers("Widgets")
+        # Read the Widgets headers
+        widgets_headers = reader.get_headers("Widgets")
 
         # Find the index
         widgets_language_index = widgets_headers.index("label::" + language)

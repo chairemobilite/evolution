@@ -113,8 +113,9 @@ class WidgetResult(TypedDict):
 # Function to generate widgets.tsx for each section
 def generate_widgets(reader: ExcelSurveyDefinitionReader, widgets_output_folder: str):
     try:
-        # Read data from Excel and return rows and headers
-        rows, headers = reader.get_rows_and_headers("Widgets")
+        # Read the Widgets headers and rows once, for every section
+        headers = reader.get_headers("Widgets")
+        widgets_rows = reader.get_data_rows("Widgets")
 
         # Find the index of 'section' in headers
         section_index = headers.index("section")
@@ -122,7 +123,7 @@ def generate_widgets(reader: ExcelSurveyDefinitionReader, widgets_output_folder:
         # Get all unique section names while preserving order from the section sheet
         seen_sections: set[str] = set()
         section_names: list[str] = []
-        for row in reader.get_data_rows("Widgets"):
+        for row in widgets_rows:
             section = row[section_index].value
             if section and section not in seen_sections:
                 seen_sections.add(section)
@@ -135,10 +136,8 @@ def generate_widgets(reader: ExcelSurveyDefinitionReader, widgets_output_folder:
 
         # Transform Excel content into TypeScript code
         def convert_excel_to_typescript(section):
-            headers = [cell.value for cell in rows[0]]
-
             section_rows = []
-            for row in reader.get_data_rows("Widgets"):
+            for row in widgets_rows:
                 values = [cell.value if cell.value is not None else "" for cell in row]
 
                 if len(values) != len(headers):

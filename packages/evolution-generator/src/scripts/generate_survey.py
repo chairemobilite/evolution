@@ -179,7 +179,10 @@ def generate_survey(config_path, only_scripts=None):
     # Copy every Excel sheet to CSV if script enabled, so changes are easier to review in git diffs.
     if enabled_copy_excel_to_csv:
         ExcelToCsvGenerator.generate_csv_copy(
-            excel_file_path=excel_file_path, reader=reader
+            reader=reader,
+            output_folder_path=ExcelToCsvGenerator.get_output_folder_path(
+                excel_file_path
+            ),
         )
 
     # Call the generate_folders function to generate the folders for the survey

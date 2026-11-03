@@ -61,7 +61,7 @@ class SurveyDefinition(BaseModel):
 
     Attributes:
         languages: The survey languages, e.g. ('fr', 'en'), read from the source (see
-            ExcelSurveyDefinitionReader.read_languages).
+            ExcelSurveyDefinitionReader.get_languages).
             Every translated field (e.g. a section title) must be set in each of them,
             and none in another language.
         conditionals: The Conditionals table, already checked: one ConditionalDefinition

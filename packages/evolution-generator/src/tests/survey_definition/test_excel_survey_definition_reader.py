@@ -40,7 +40,7 @@ def _save_workbook(path, styled_cells=(), rows=DATA_ROWS) -> str:
 
 
 def _read_sections(path: str) -> list[dict]:
-    return ExcelSurveyDefinitionReader(path).read_table("Sections", HEADERS)
+    return ExcelSurveyDefinitionReader(path).get_table("Sections", HEADERS)
 
 
 EXPECTED_TABLE = [
@@ -109,7 +109,7 @@ def test_keeps_whitespace_only_rows_between_rows_with_data(tmp_path):
         tmp_path / "survey.xlsx", rows=[["home", True], [" ", None], ["end", False]]
     )
     reader = ExcelSurveyDefinitionReader(path)
-    assert reader.read_table("Sections", HEADERS) == [
+    assert reader.get_table("Sections", HEADERS) == [
         {"section": "home", "in_nav": True},
         {"section": None, "in_nav": None},
         {"section": "end", "in_nav": False},
@@ -142,15 +142,14 @@ def test_missing_table_raises(tmp_path):
     reader = ExcelSurveyDefinitionReader(_save_workbook(tmp_path / "survey.xlsx"))
 
     with pytest.raises(Exception, match="Sheet with name Widgets does not exist"):
-        reader.read_table("Widgets", [])
+        reader.get_table("Widgets", [])
 
 
 def test_missing_optional_table_is_read_as_an_empty_table(tmp_path):
     reader = ExcelSurveyDefinitionReader(_save_workbook(tmp_path / "survey.xlsx"))
 
     assert (
-        reader.read_table("InputRange", ["inputRangeName"], is_table_optional=True)
-        == []
+        reader.get_table("InputRange", ["inputRangeName"], is_table_optional=True) == []
     )
 
 
@@ -160,9 +159,7 @@ def test_optional_table_still_requires_its_fields(tmp_path):
     with pytest.raises(
         Exception, match="Missing expected header in Sections sheet: abbreviation"
     ):
-        reader.read_table(
-            "Sections", [*HEADERS, "abbreviation"], is_table_optional=True
-        )
+        reader.get_table("Sections", [*HEADERS, "abbreviation"], is_table_optional=True)
 
 
 def test_missing_required_field_raises(tmp_path):
@@ -171,7 +168,48 @@ def test_missing_required_field_raises(tmp_path):
     with pytest.raises(
         Exception, match="Missing expected header in Sections sheet: abbreviation"
     ):
-        reader.read_table("Sections", [*HEADERS, "abbreviation"])
+        reader.get_table("Sections", [*HEADERS, "abbreviation"])
+
+
+@pytest.mark.parametrize(
+    "header_row, expected_error",
+    [
+        pytest.param(
+            ["section", "in nav"],
+            "Header has spaces in Sections sheet: 'in nav'",
+            id="header with spaces",
+        ),
+        pytest.param(
+            ["section", "in nav", None, "Notes for translators"],
+            "Header has spaces in Sections sheet: 'in nav'",
+            id="header with spaces before an empty header",
+        ),
+        pytest.param(
+            ["section", "in_nav", None, "Notes for translators"],
+            None,
+            id="text with spaces after an empty header",
+        ),
+        pytest.param(
+            ["section", "   ", "Notes for translators"],
+            None,
+            id="text with spaces after a whitespace-only header",
+        ),
+    ],
+)
+def test_checks_spaces_in_headers_before_the_first_empty_one(
+    tmp_path, header_row, expected_error
+):
+    workbook = openpyxl.Workbook()
+    workbook.active.title = "Sections"
+    workbook.active.append(header_row)
+    workbook.save(tmp_path / "survey.xlsx")
+    reader = ExcelSurveyDefinitionReader(str(tmp_path / "survey.xlsx"))
+
+    if expected_error is None:
+        assert reader.get_headers("Sections", ["section"]) == header_row
+    else:
+        with pytest.raises(Exception, match=expected_error):
+            reader.get_headers("Sections", ["section"])
 
 
 def test_rejects_a_file_that_is_not_an_excel_file():
