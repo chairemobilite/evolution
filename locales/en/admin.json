@@ -291,6 +291,7 @@
         "GeneratorVerifyRequestFailed": "Could not reach the server.",
         "GeneratorVerifyErrorFallback": "Verification failed.",
         "GeneratorVerifyErrorTitle": "Verification errors",
+        "GeneratorVerifyWarningTitle": "Verification warnings",
         "GeneratorVerifyErrorCopy": "Copy",
         "GeneratorVerifyErrorDismiss": "Dismiss",
         "GeneratorVerifyErrorCopied": "Copied to clipboard.",

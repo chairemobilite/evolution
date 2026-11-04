@@ -4,6 +4,7 @@
 
 from helpers.generator_helpers import delete_file_if_exists
 from scripts.generate_questionnaire_list import generate_questionnaire_list
+from survey_definition.excel_survey_definition_reader import ExcelSurveyDefinitionReader
 from survey_definition.survey_definition import SurveyDefinition
 from tests.mocked_excel import (
     MOCKED_EXCEL_FILE,
@@ -56,7 +57,10 @@ class TestGenerateQuestionnaireList:
                 ),
             ):
                 generate_questionnaire_list(
-                    MOCKED_EXCEL_FILE, survey_definition, str(tmp_path), language
+                    ExcelSurveyDefinitionReader(MOCKED_EXCEL_FILE),
+                    survey_definition,
+                    str(tmp_path),
+                    language,
                 )
                 text = (tmp_path / f"questionnaire_list_{language}.txt").read_text(
                     encoding="utf-8"
@@ -107,7 +111,10 @@ class TestGenerateQuestionnaireList:
                 ("fr", "Voiture?", "- Oui\n- Non"),
             ):
                 generate_questionnaire_list(
-                    MOCKED_EXCEL_FILE, survey_definition, str(tmp_path), language
+                    ExcelSurveyDefinitionReader(MOCKED_EXCEL_FILE),
+                    survey_definition,
+                    str(tmp_path),
+                    language,
                 )
                 text = (tmp_path / f"questionnaire_list_{language}.txt").read_text()
                 assert f"{question}\n{choices}" in text

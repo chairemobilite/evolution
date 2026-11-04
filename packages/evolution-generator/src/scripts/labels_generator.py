@@ -10,9 +10,9 @@ import re  # For regular expressions
 from typing import NamedTuple, TypedDict
 from helpers.generator_helpers import (
     add_generator_yaml_header,
-    get_data_from_excel,
     get_label_context_flags,
 )
+from survey_definition.excel_survey_definition_reader import ExcelSurveyDefinitionReader
 from survey_definition.labels_definition import Labels
 from survey_definition.survey_definition import SurveyDefinition
 
@@ -446,7 +446,7 @@ class LabelsGenerator:
     @classmethod
     def label_rows_from_excel(
         cls,
-        excel_file_path,
+        reader: ExcelSurveyDefinitionReader,
         languages: tuple[str, ...],
         sheet_with_labels: SheetWithLabels = DEFAULT_SHEETS_WITH_LABELS[0],
     ) -> list[LabelRow]:
@@ -454,15 +454,13 @@ class LabelsGenerator:
         Reads the labels of a sheet that isn't in the survey definition yet (e.g. Widgets).
 
         Args:
-            excel_file_path (str): The path to the Excel file containing translations.
+            reader (ExcelSurveyDefinitionReader): The reader of the Excel file containing translations.
             languages (tuple of str): The survey languages; each needs its label::<language> column.
             sheet_with_labels (SheetWithLabels): Sheet configuration containing sheetName and header names.
         """
         # TODO: Read the Widgets labels from the survey definition once the Widgets
         # sheet is in it, and remove this function.
-        rows, headers = get_data_from_excel(
-            excel_file_path, sheet_name=sheet_with_labels["sheetName"]
-        )
+        headers = reader.get_headers(sheet_with_labels["sheetName"])
         namespace_index = headers.index(sheet_with_labels["namespaceHeader"])
         key_index = headers.index(sheet_with_labels["keyHeader"])
         # One label column per language, and an optional label_one column
@@ -476,7 +474,8 @@ class LabelsGenerator:
         }
         return [
             LabelRow(
-                row_number=row_number,
+                # The Excel row number, from a cell with a value (padding cells have none)
+                row_number=next(cell.row for cell in row if cell.value is not None),
                 namespace=row[namespace_index].value,
                 key=row[key_index].value,
                 label={
@@ -488,7 +487,7 @@ class LabelsGenerator:
                     for language, index in label_one_index_by_language.items()
                 },
             )
-            for row_number, row in enumerate(rows[1:], start=2)
+            for row in reader.get_data_rows(sheet_with_labels["sheetName"])
         ]
 
     @staticmethod
@@ -739,7 +738,7 @@ class LabelsGenerator:
     def generate_labels(
         cls,
         survey_definition: SurveyDefinition,
-        excel_file_path,
+        reader: ExcelSurveyDefinitionReader,
         labels_output_folder_path,
         sheets_with_labels: list[SheetWithLabels] = DEFAULT_SHEETS_WITH_LABELS,
     ):
@@ -755,14 +754,14 @@ class LabelsGenerator:
 
         Args:
             survey_definition (SurveyDefinition): The already-validated survey definition.
-            excel_file_path (str): The path to the Excel file holding `sheets_with_labels`.
+            reader (ExcelSurveyDefinitionReader): The reader of the Excel file holding `sheets_with_labels`.
             labels_output_folder_path (str): The output folder path for the labels.
             sheets_with_labels (list[SheetWithLabels]): Configurations of the sheets read from the Excel file.
         """
         try:
             languages = survey_definition.languages
             label_rows_by_sheet = [
-                cls.label_rows_from_excel(excel_file_path, languages, sheet)
+                cls.label_rows_from_excel(reader, languages, sheet)
                 for sheet in sheets_with_labels
             ]
             label_rows_by_sheet.append(

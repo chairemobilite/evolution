@@ -864,6 +864,15 @@ header {
         text-align: left;
     }
 
+    // Warnings don't fail the check: same panel as the errors, with an amber border.
+    .admin-generator-verify-error--warning {
+        border-color: rgba(180, 120, 0, 0.6);
+    }
+
+    .admin-generator-verify-error + .admin-generator-verify-error {
+        margin-top: 0.75rem;
+    }
+
     .admin-generator-verify-error__header {
         display: flex;
         align-items: center;

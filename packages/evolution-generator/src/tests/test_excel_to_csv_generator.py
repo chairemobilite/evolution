@@ -8,6 +8,7 @@ import os
 import openpyxl
 
 from scripts.excel_to_csv_generator import ExcelToCsvGenerator
+from survey_definition.excel_survey_definition_reader import ExcelSurveyDefinitionReader
 
 
 def create_workbook(excel_file_path: str):
@@ -39,7 +40,7 @@ def read_csv(csv_file_path: str) -> list[list[str]]:
 
 
 class TestExcelToCsvGenerator:
-    """Tests for ExcelToCsvGenerator.generate_csv_copy(excel_file_path, ...)."""
+    """Tests for ExcelToCsvGenerator.generate_csv_copy(reader, output_folder_path, ...)."""
 
     def test_get_output_folder_path(self, tmp_path):
         """The output folder is named "<excel_name>_csv" next to the Excel file."""
@@ -60,14 +61,16 @@ class TestExcelToCsvGenerator:
         """A title with no safe file name characters falls back to "Sheet"."""
         assert ExcelToCsvGenerator.sanitize_sheet_title(' <>:"/\\|?* ') == "Sheet"
 
-    def test_copies_each_sheet_to_default_csv_folder(self, tmp_path):
-        """Each sheet becomes its own CSV in "<excel_name>_csv" next to the Excel file."""
+    def test_copies_each_sheet_to_its_own_csv_file(self, tmp_path):
+        """Each sheet becomes its own CSV in the output folder."""
         excel_file_path = str(tmp_path / "generator.xlsx")
         create_workbook(excel_file_path)
-
-        generated_files = ExcelToCsvGenerator.generate_csv_copy(excel_file_path)
-
         output_folder_path = str(tmp_path / "generator_csv")
+
+        generated_files = ExcelToCsvGenerator.generate_csv_copy(
+            ExcelSurveyDefinitionReader(excel_file_path), output_folder_path
+        )
+
         assert generated_files == [
             os.path.join(output_folder_path, "Sections.csv"),
             os.path.join(output_folder_path, "Choices.csv"),
@@ -99,7 +102,7 @@ class TestExcelToCsvGenerator:
             stale_csv_file.write("stale")
 
         ExcelToCsvGenerator.generate_csv_copy(
-            excel_file_path=excel_file_path,
+            ExcelSurveyDefinitionReader(excel_file_path), output_folder_path
         )
 
         assert not os.path.exists(stale_csv_file_path)
@@ -120,7 +123,8 @@ class TestExcelToCsvGenerator:
             existing_csv_file.write("existing")
 
         ExcelToCsvGenerator.generate_csv_copy(
-            excel_file_path=excel_file_path,
+            ExcelSurveyDefinitionReader(excel_file_path),
+            output_folder_path,
             clean_output_folder=False,
         )
 
