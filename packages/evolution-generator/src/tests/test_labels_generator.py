@@ -3,15 +3,11 @@
 # License text available at https://opensource.org/licenses/MIT
 
 from typing import NamedTuple
-from unittest.mock import MagicMock
 
 from helpers.generator_helpers import add_generator_yaml_header
-from tests.mocked_excel import create_mocked_excel_data
 from scripts.labels_generator import LabelsGenerator, LabelFormatter
-from survey_definition.excel_survey_definition_reader import ExcelSurveyDefinitionReader
 from survey_definition.survey_definition import SurveyDefinition
 import pytest
-from helpers.generator_helpers import delete_file_if_exists
 
 
 def test_label_formatter_bold():
@@ -114,18 +110,34 @@ def test_get_labels_file_path_widgets():
     assert path == "../../example/demo_generator/fr/section1.yaml"
 
 
-# Path where create_mocked_excel_data writes the workbook; we delete it after each test.
-MOCKED_EXCEL_FILE = "src/tests/references/test.xlsx"
+def _widget(section, question_name, **labels) -> dict:
+    """An active String widget row with these label columns, e.g. **{"label::fr": "Nom"}."""
+    return {
+        "question_name": question_name,
+        "input_type": "String",
+        "active": True,
+        "section": section,
+        "path": f"{section}.{question_name}",
+        **labels,
+    }
+
+
+def _survey_definition(languages, widgets=(), labels=()) -> SurveyDefinition:
+    """A SurveyDefinition with these widgets and labels, and the sections the widgets are in."""
+    section_names = list(dict.fromkeys(widget["section"] for widget in widgets))
+    return SurveyDefinition(
+        languages=languages,
+        sections=[
+            {"section": name, "in_nav": False, "abbreviation": f"S{index}_"}
+            for index, name in enumerate(section_names)
+        ],
+        widgets=list(widgets),
+        labels=list(labels),
+    )
 
 
 class TestGenerateLabels:
-    """Tests for generate_labels, from the Widgets sheet (Excel) and the Labels table (survey definition)"""
-
-    WIDGETS_SHEET = {
-        "sheetName": "Widgets",
-        "namespaceHeader": "section",
-        "keyHeader": "question_name",
-    }
+    """Tests for generate_labels, from the Widgets and Labels tables of the survey definition"""
 
     @pytest.fixture
     def saved_translations(self, monkeypatch):
@@ -139,31 +151,30 @@ class TestGenerateLabels:
         )
         return calls
 
-    def test_reads_the_widgets_sheet_from_excel(self, saved_translations, tmp_path):
-        create_mocked_excel_data(
-            "Widgets",
-            ["section", "question_name", "path", "label::fr", "label::en"],
-            [
-                ["section1", "section1Question1", "some.path", "personne", "person"],
-                [
+    def test_reads_the_widgets_labels_from_the_survey_definition(
+        self, saved_translations, tmp_path
+    ):
+        survey_definition = _survey_definition(
+            ("fr", "en"),
+            widgets=[
+                _widget(
+                    "section1",
+                    "section1Question1",
+                    **{"label::fr": "personne", "label::en": "person"},
+                ),
+                _widget(
                     "section1",
                     "section1Question2",
-                    "other",
-                    "une question",
-                    "a question",
-                ],
-                ["section2", "section2Question1", "another", "une autre", "another"],
+                    **{"label::fr": "une question", "label::en": "a question"},
+                ),
+                _widget(
+                    "section2",
+                    "section2Question1",
+                    **{"label::fr": "une autre", "label::en": "another"},
+                ),
             ],
         )
-        try:
-            LabelsGenerator.generate_labels(
-                SurveyDefinition(languages=("fr", "en")),
-                ExcelSurveyDefinitionReader(MOCKED_EXCEL_FILE),
-                str(tmp_path / "locales"),
-                sheets_with_labels=[self.WIDGETS_SHEET],
-            )
-        finally:
-            delete_file_if_exists(MOCKED_EXCEL_FILE)
+        LabelsGenerator.generate_labels(survey_definition, str(tmp_path / "locales"))
 
         expected_fr = {
             "section1": {
@@ -186,29 +197,20 @@ class TestGenerateLabels:
             ("fr", "section2", expected_fr),
         ]
 
-    def test_widgets_label_rows_keep_their_excel_row_numbers(self):
-        """An empty row between rows, or an empty first cell, doesn't shift the row numbers."""
-        create_mocked_excel_data(
-            "Widgets",
-            ["section", "question_name", "label::fr"],
-            [
-                ["section1", "question1", "une question"],
-                [None, None, None],
-                [None, "question2", "une autre"],
+    def test_widgets_label_rows_have_their_row_numbers(self):
+        """The row numbers, used in the warnings, are the Widgets table's: the first widget is in row 2."""
+        survey_definition = _survey_definition(
+            ("fr",),
+            widgets=[
+                _widget("section1", "question1", **{"label::fr": "une question"}),
+                _widget("section1", "question2", **{"label::fr": "une autre"}),
             ],
         )
-        try:
-            label_rows = LabelsGenerator.label_rows_from_excel(
-                ExcelSurveyDefinitionReader(MOCKED_EXCEL_FILE),
-                ("fr",),
-                self.WIDGETS_SHEET,
-            )
-        finally:
-            delete_file_if_exists(MOCKED_EXCEL_FILE)
+        label_rows = LabelsGenerator.label_rows_from_widgets(survey_definition.widgets)
 
         assert [(row.row_number, row.key) for row in label_rows] == [
             (2, "question1"),
-            (4, "question2"),
+            (3, "question2"),
         ]
 
     def test_reads_the_labels_from_the_survey_definition(
@@ -233,13 +235,7 @@ class TestGenerateLabels:
                 },
             ],
         )
-        LabelsGenerator.generate_labels(
-            survey_definition,
-            # No sheet with labels to read from the Excel file
-            MagicMock(spec=ExcelSurveyDefinitionReader),
-            str(tmp_path / "locales"),
-            sheets_with_labels=[],
-        )
+        LabelsGenerator.generate_labels(survey_definition, str(tmp_path / "locales"))
 
         expected_fr = {
             "home": {"some.path": "personne", "some.path_one": "une personne"},
@@ -260,23 +256,34 @@ class TestGenerateLabels:
         self, saved_translations, tmp_path
     ):
         """Each survey language reads its own label::<language> column."""
-        create_mocked_excel_data(
-            "Widgets",
-            ["section", "question_name", "label::es", "label::en", "label_one::es"],
-            [["home", "carCount", "¿Cuántos?", "How many?", "¿Cuántos tienes?"]],
+        survey_definition = _survey_definition(
+            ("es", "en"),
+            widgets=[
+                _widget(
+                    "home",
+                    "carCount",
+                    **{
+                        "label::es": "¿Cuántos?",
+                        "label::en": "How many?",
+                        "label_one::es": "¿Cuántos tienes?",
+                        "label_one::en": "How many do you have?",
+                    },
+                )
+            ],
         )
-        try:
-            LabelsGenerator.generate_labels(
-                SurveyDefinition(languages=("es", "en")),
-                ExcelSurveyDefinitionReader(MOCKED_EXCEL_FILE),
-                str(tmp_path / "locales"),
-                sheets_with_labels=[self.WIDGETS_SHEET],
-            )
-        finally:
-            delete_file_if_exists(MOCKED_EXCEL_FILE)
+        LabelsGenerator.generate_labels(survey_definition, str(tmp_path / "locales"))
 
         assert sorted(saved_translations) == [
-            ("en", "home", {"home": {"carCount": "How many?"}}),
+            (
+                "en",
+                "home",
+                {
+                    "home": {
+                        "carCount": "How many?",
+                        "carCount_one": "How many do you have?",
+                    }
+                },
+            ),
             (
                 "es",
                 "home",
@@ -304,13 +311,11 @@ class TestGenerateLabels:
                 ("save", language, section)
             ),
         )
-        create_mocked_excel_data(
-            "Widgets",
-            ["section", "question_name", "label::fr", "label::en"],
-            [["home", "q1", "Q1 fr", "Q1 en"]],
-        )
-        survey_definition = SurveyDefinition(
-            languages=("fr", "en"),
+        survey_definition = _survey_definition(
+            ("fr", "en"),
+            widgets=[
+                _widget("home", "q1", **{"label::fr": "Q1 fr", "label::en": "Q1 en"})
+            ],
             labels=[
                 {
                     "namespace": "end",
@@ -320,15 +325,7 @@ class TestGenerateLabels:
                 }
             ],
         )
-        try:
-            LabelsGenerator.generate_labels(
-                survey_definition,
-                ExcelSurveyDefinitionReader(MOCKED_EXCEL_FILE),
-                str(tmp_path / "locales"),
-                sheets_with_labels=[self.WIDGETS_SHEET],
-            )
-        finally:
-            delete_file_if_exists(MOCKED_EXCEL_FILE)
+        LabelsGenerator.generate_labels(survey_definition, str(tmp_path / "locales"))
 
         assert events[0] == ("delete", ["fr", "en"], ["end", "home"])
         assert [event[0] for event in events[1:]] == ["save"] * 4

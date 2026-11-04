@@ -9,31 +9,14 @@ from helpers.generator_helpers import (
     add_generator_comment,
     is_ts_file,
 )
-from survey_definition.excel_survey_definition_reader import ExcelSurveyDefinitionReader
+from survey_definition.survey_definition import SurveyDefinition
 
 
 # Function to generate common-UI-tests-helpers-template.ts.ts
-def generate_UI_tests(reader: ExcelSurveyDefinitionReader, output_file: str):
+def generate_UI_tests(survey_definition: SurveyDefinition, output_file: str):
     try:
         is_ts_file(output_file)  # Check if the output file is an TypeScript file
         current_section = None
-
-        # Get headers from the first row
-        headers = reader.get_headers(
-            "Widgets",
-            expected_headers=[
-                "question_name",
-                "input_type",
-                "active",
-                "section",
-                # "group",
-                "path",
-                # "fr",
-                # "en",
-                "conditional",
-                # "validation",
-            ],
-        )
 
         # Generate TypeScript codedict
         ts_code: str = ""  # TypeScript code to be written to file
@@ -87,20 +70,16 @@ def generate_UI_tests(reader: ExcelSurveyDefinitionReader, output_file: str):
         ts_code += f"// Start the survey without email\n"
         ts_code += f"surveyTestHelpers.startAndLoginAnonymously({{ context, title: '?', hasUser: false }});\n\n"
 
-        # Iterate through each row in the sheet, starting from the second row
-        for row in reader.get_data_rows("Widgets"):
-            # Create a dictionary from the row values and headers
-            row_dict = dict(zip(headers, (cell.value for cell in row)))
-
-            # Get values from the row dictionary
-            question_name = row_dict["question_name"]
-            input_type = row_dict["input_type"]
-            active = row_dict["active"]
-            section = row_dict["section"]
-            group = row_dict.get("group") if row_dict.get("group") else None
-            path = row_dict["path"]
-            conditional = row_dict["conditional"]
-            choices = row_dict["choices"]
+        # Write the tests of each widget, in the order of the Widgets table
+        for widget in survey_definition.widgets:
+            question_name = widget.question_name
+            input_type = widget.input_type
+            active = widget.active
+            section = widget.section
+            group = widget.group
+            path = widget.path
+            conditional = widget.conditional
+            choices = widget.choices
 
             # Check if we've moved to a new section
             if section != current_section:
@@ -154,7 +133,7 @@ def generate_UI_tests(reader: ExcelSurveyDefinitionReader, output_file: str):
                     f"\n{INDENT}/* @link file://./../src/survey/common/choices.tsx */"
                 )
                 choices_message = f" with choices {choices}"
-            ts_code += f"{INDENT}// Test {input_type.lower() if input_type is not None else 'unknown'} widget {question_name}{conditional_message}{choices_message}{conditional_link_message}{choices_link_message}\n"
+            ts_code += f"{INDENT}// Test {input_type.lower()} widget {question_name}{conditional_message}{choices_message}{conditional_link_message}{choices_link_message}\n"
             # Generate input visible test
             if conditional and active:
                 ts_code += f"{INDENT}testHelpers.inputVisibleTest({{ context, path: '{path}', isVisible: true }});\n"

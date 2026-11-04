@@ -13,17 +13,17 @@ from helpers.questionnaire_reference_helpers import (
     get_abbreviation_by_section,
     transform_path,
 )
-from scripts.generate_widgets import get_radio_number_parameters
 from survey_definition.choices_definition import Choices
-from survey_definition.excel_survey_definition_reader import ExcelSurveyDefinitionReader
 from survey_definition.input_range_definition import InputRanges
 from survey_definition.survey_definition import SurveyDefinition
+from survey_definition.widgets_definition import (
+    RADIO_NUMBER_MAX_CHOICES,
+    WidgetParameters,
+)
 
 
 # Function to generate questionnaire_test for each section
 def generate_questionnaire_dictionary(
-    # TODO: Remove reader once every sheet read here is migrated to the survey definition.
-    reader: ExcelSurveyDefinitionReader,
     survey_definition: SurveyDefinition,
     questionnaire_dictionary_output_folder: str,
     language: Literal["en", "fr"],
@@ -33,32 +33,11 @@ def generate_questionnaire_dictionary(
     with its path, conditional, input type and possible values.
 
     Args:
-        reader: Reader of the Excel file, to read the sheets not yet migrated to
-            the survey definition from.
         survey_definition: Already-validated survey definition to describe.
         questionnaire_dictionary_output_folder: Folder to write the CSV file to.
         language: Language of the labels, 'en' or 'fr'.
     """
     try:
-        # Read the Widgets headers
-        widgets_headers = reader.get_headers("Widgets")
-
-        # Find the index
-        widgets_language_index = widgets_headers.index("label::" + language)
-        widgets_section_index = widgets_headers.index("section")
-        widgets_input_type_index = widgets_headers.index("input_type")
-        widgets_active_index = widgets_headers.index("active")
-        widgets_path_index = widgets_headers.index("path")
-        widgets_conditional_index = widgets_headers.index("conditional")
-        widgets_choices_index = widgets_headers.index("choices")
-        widgets_input_range_index = widgets_headers.index("input_range")
-        # The 'parameters' column is optional: not every Widgets sheet has it.
-        widgets_parameters_index = (
-            widgets_headers.index("parameters")
-            if "parameters" in widgets_headers
-            else None
-        )
-
         # Map section names to their definitions
         section_by_name = {
             section.section: section for section in survey_definition.sections
@@ -81,20 +60,15 @@ def generate_questionnaire_dictionary(
 
         # Group questions by section
         sections_questions = {}
-        for row in reader.get_data_rows("Widgets"):
-            section_name = row[widgets_section_index].value
-            question_text = clean_text(row[widgets_language_index].value)
-            active = row[widgets_active_index].value
-            choices_name = row[widgets_choices_index].value
-            input_range = row[widgets_input_range_index].value
-            parameters = (
-                row[widgets_parameters_index].value
-                if widgets_parameters_index is not None
-                else None
-            )
-            question_path = row[widgets_path_index].value
-            conditional = row[widgets_conditional_index].value
-            input_type = row[widgets_input_type_index].value
+        for widget in survey_definition.widgets:
+            section_name = widget.section
+            question_text = clean_text(widget.label.get(language))
+            active = widget.active
+            choices_name = widget.choices
+            input_range = widget.input_range
+            question_path = widget.path
+            conditional = widget.conditional
+            input_type = widget.input_type
 
             # Skip questions with input_type equal to 'NextButton' or 'InfoText'
             # Because they are not questions with values
@@ -112,7 +86,7 @@ def generate_questionnaire_dictionary(
                 radio_number_text = ""
                 if input_type == "RadioNumber":
                     radio_number_text = process_radio_number_values(
-                        parameters, language
+                        widget.parameters, language
                     )
                 transformed_path = transform_path(
                     question_path, abbreviation_by_section
@@ -159,7 +133,7 @@ def generate_questionnaire_dictionary(
             # Determine labels based on language
             section_label = "Section"
             # TODO: Translate these headers in every survey language, not just fr/en
-            # (see #2035).
+            # (see #2179).
             field_label = "Field" if language == "en" else "Champ"
             abbreviation_label = "Abbreviation" if language == "en" else "Abréviation"
             question_type_label = (
@@ -343,38 +317,31 @@ def process_choices(
     return choices_map
 
 
-# Radio number widgets are meant for small selectable ranges (e.g. 0-10). Cap the
-# enumeration so an authoring typo (e.g. max=100000) can't materialize a huge
-# CSV cell; ranges past this fall back to the Min/Max representation instead.
-MAX_RADIO_NUMBER_VALUES = 20
-
-
-def process_radio_number_values(parameters: str, language: Literal["en", "fr"]) -> str:
+def process_radio_number_values(
+    parameters: WidgetParameters, language: Literal["en", "fr"]
+) -> str:
     """
     Build the list of selectable numeric values for a RadioNumber widget, based on
-    the min/max (and overMaxAllowed) parsed from the widget's 'parameters' column.
+    its min/max (and overMaxAllowed) parameters.
 
     Args:
-        parameters (str): The raw 'parameters' cell value for the widget row
-            (e.g. "min=1\\nmax=6\\noverMaxAllowed").
+        parameters (WidgetParameters): The widget's parameters, e.g. parsed from
+            "min=1\\nmax=6\\noverMaxAllowed".
         language (str): Language code ('en' or 'fr').
 
     Returns:
         str: The selectable values, one per line (e.g. "1\n2\n3\n4\n5\n6\n7+"). When
         min and/or max reference another response's path dynamically instead of a
-        fixed number, or the range is larger than MAX_RADIO_NUMBER_VALUES, the
+        fixed number, or the range is larger than RADIO_NUMBER_MAX_CHOICES, the
         values aren't enumerated, so the raw min/max are shown instead
         (e.g. "Min : someOtherField\nMax : 6").
     """
-    radio_number_parameters = get_radio_number_parameters(
-        {"parameters": parameters or ""}
-    )
-    min_value = radio_number_parameters["min_value"]
-    max_value = radio_number_parameters["max_value"]
-    over_max_allowed = radio_number_parameters["over_max_allowed"]
+    min_value = parameters.min
+    max_value = parameters.max
+    over_max_allowed = parameters.over_max_allowed
 
     is_fixed_range = isinstance(min_value, int) and isinstance(max_value, int)
-    if is_fixed_range and max_value - min_value + 1 <= MAX_RADIO_NUMBER_VALUES:
+    if is_fixed_range and max_value - min_value + 1 <= RADIO_NUMBER_MAX_CHOICES:
         values = [str(value) for value in range(min_value, max_value + 1)]
         if over_max_allowed:
             values.append(f"{max_value + 1}+")

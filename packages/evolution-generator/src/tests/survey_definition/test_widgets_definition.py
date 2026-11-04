@@ -598,7 +598,6 @@ class TestWidgetParameters:
         assert WidgetParameters.parse(text) == expected
 
     def test_parses_parameter_names_in_any_case(self):
-        # The generator reads them in lower case (generate_widgets.py::parse_parameters).
         parameters = WidgetParameters.parse(
             "Min=0\nMAX=4\nOverMaxAllowed\ncustomlabels={{householdSizeCustomLabels}}"
         )

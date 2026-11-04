@@ -7,6 +7,7 @@ import shutil
 import tempfile
 
 import pytest
+from helpers.generator_helpers import load_survey_definition
 from scripts.generate_widgets import (
     ImportFlags,
     generate_choices,
@@ -25,10 +26,6 @@ from scripts.generate_widgets import (
     generate_widget_statement,
     generate_suffix_label_code,
     generate_label,
-    parse_parameters,
-    get_radio_number_parameters,
-    get_string_parameters,
-    get_number_parameters,
     generate_path,
     generate_import_statements,
     get_widgets_file_import_flags,
@@ -36,12 +33,45 @@ from scripts.generate_widgets import (
     generate_widgets,
 )
 from survey_definition.excel_survey_definition_reader import ExcelSurveyDefinitionReader
+from survey_definition.widgets_definition import WidgetDefinition
 from tests.parametrize_cases import cases
 
-# TODO: Test generate_widgets
-# TODO: Test generate_widget_statement
-# TODO: Test generate_built_in_widget when we are ready to support them
 # TODO: Test generate_widgets_names_statements
+
+# The columns an input type requires, besides the ones every widget has (see widget)
+_REQUIRED_COLUMNS_BY_INPUT_TYPE = {
+    "Radio": {"choices": "yesNo"},
+    "Select": {"choices": "yesNo"},
+    "Checkbox": {"choices": "yesNo"},
+    "Range": {"input_range": "satisfactionRange"},
+    "RadioNumber": {"parameters": "min=0\nmax=6"},
+}
+
+
+def widget(input_type: str = "String", **columns) -> WidgetDefinition:
+    """
+    A widget of `input_type`, validated like a row of the Widgets sheet, from these
+    columns (e.g. `widget("Radio", choices="yesNo")`, or `**{"label::en": "..."}`).
+    A column left out gets a valid value, e.g. the choices of a Radio.
+    """
+    row = {
+        "question_name": "someQuestion",
+        "input_type": input_type,
+        "active": True,
+        "section": "home",
+        "path": "home.someQuestion",
+        "label::fr": "Une question",
+        "label::en": "A question",
+        **_REQUIRED_COLUMNS_BY_INPUT_TYPE.get(input_type, {}),
+        **columns,
+    }
+    return WidgetDefinition.model_validate(row, context={"languages": ("fr", "en")})
+
+
+def widget_code(generate, input_type: str = "String", **columns) -> str:
+    """The code `generate` writes for the widget of `input_type` with these columns (see widget)."""
+    definition = widget(input_type, **columns)
+    return generate(definition, generate_label(definition))
 
 
 class TestGenerateImportStatements:
@@ -159,25 +189,6 @@ def test_generate_path_valid():
     assert "path: 'foo.{baz}.bar_123'" in result
 
 
-def test_generate_path_missing(capsys):
-    """Test generate_path with missing path prints error and returns empty string"""
-    result = generate_path("")
-    captured = capsys.readouterr()
-    assert "Error: path is missing in Widgets sheet." in captured.out
-    assert result == ""
-
-
-def test_generate_path_invalid_characters(capsys):
-    """Test generate_path with invalid characters prints warning"""
-    result = generate_path("foo/bar$")
-    captured = capsys.readouterr()
-    assert (
-        "Warning: path 'foo/bar$' contains invalid characters in Widgets sheet."
-        in captured.out
-    )
-    assert "path: 'foo/bar$'" in result
-
-
 def test_generate_join_with_with_value():
     """Test that generate_join_with returns the correct string when a questionName value is provided"""
     result = generate_join_with("questionName")
@@ -196,20 +207,20 @@ class TestGenerateLabel:
     # Default gender fields for tests - gender is available, sex assigned at birth is not
     GENDER_FIELDS = GenderFields(has_gender=True, has_sex_assigned_at_birth=False)
 
+    def _label(self, gender_fields=GENDER_FIELDS, **columns):
+        """The label generate_label writes for the String widget fooBar of sectionA with these columns."""
+        return generate_label(
+            widget(question_name="fooBar", section="sectionA", **columns),
+            gender_fields=gender_fields,
+        )
+
     def test_generate_label_basic(self):
         """Test generate_label returns a simple label function when no special context is needed"""
-        row = {
-            "label::fr": "Quel est votre nom?",
-            "label::en": "What is your name?",
-        }
-        result = generate_label(
-            section="sectionA",
-            label_key="foo.bar",
-            row=row,
-            gender_fields=self.GENDER_FIELDS,
+        result = self._label(
+            **{"label::fr": "Quel est votre nom?", "label::en": "What is your name?"}
         )
-        assert "label: (t: TFunction) => t('sectionA:foo.bar')" in result
-        assert "return t('sectionA:foo.bar', {" not in result
+        assert "label: (t: TFunction) => t('sectionA:fooBar')" in result
+        assert "return t('sectionA:fooBar', {" not in result
         assert "const activePerson =" not in result
         assert "const nickname =" not in result
         assert "const countPersons =" not in result
@@ -217,19 +228,9 @@ class TestGenerateLabel:
 
     def test_generate_label_custom_labels_success(self):
         """Test generate_label returns customLabels reference when customLabels={{...}} is present in parameters"""
-        row = {
-            "label::fr": "Quel est votre nom?",
-            "label::en": "What is your name?",
-            "parameters": "customLabels={{personSchoolTypeCustomLabels}}",
-        }
-        result = generate_label(
-            section="sectionA",
-            label_key="foo.bar",
-            row=row,
-            gender_fields=self.GENDER_FIELDS,
-        )
+        result = self._label(parameters="customLabels={{personSchoolTypeCustomLabels}}")
         assert "label: customLabels.personSchoolTypeCustomLabels" in result
-        assert "t('sectionA:foo.bar')" not in result
+        assert "t('sectionA:fooBar')" not in result
 
     @cases(
         dict(
@@ -241,51 +242,26 @@ class TestGenerateLabel:
     )
     def test_generate_label_custom_labels_name_is_case_insensitive(self, parameters):
         """Test generate_label reads customLabels whatever the case of the parameter name, like the other parameters"""
-        row = {"label::fr": "Nom", "label::en": "Name", "parameters": parameters}
-        result = generate_label(
-            section="sectionA",
-            label_key="foo.bar",
-            row=row,
-            gender_fields=self.GENDER_FIELDS,
-        )
+        result = self._label(parameters=parameters)
         assert "label: customLabels.personSchoolTypeCustomLabels" in result
 
-    def test_generate_label_custom_labels_invalid_format_prints_warning_and_falls_back(
-        self, capsys
-    ):
-        """Test generate_label prints a warning for invalid customLabels format and falls back to normal label generation"""
-        row = {
-            "label::fr": "Quel est votre nom?",
-            "label::en": "What is your name?",
-            "parameters": "customLabels={{bad-name}}",
-        }
+    def test_generate_label_text_key_name(self):
+        """Test generate_label writes the property named key_name, e.g. text for an InfoText"""
         result = generate_label(
-            section="sectionA",
-            label_key="foo.bar",
-            row=row,
-            gender_fields=self.GENDER_FIELDS,
+            widget("InfoText", question_name="introText"), key_name="text"
         )
-        captured = capsys.readouterr()
-        assert (
-            "Warning: Invalid customLabels format in parameters for 'sectionA:foo.bar'."
-            in captured.out
-        )
-        assert "label: (t: TFunction) => t('sectionA:foo.bar')" in result
+        assert result == "    text: (t: TFunction) => t('home:introText')"
 
     def test_generate_label_with_nickname_label(self):
         """Test generate_label includes nickname context when {{nickname}} is present"""
-        row = {
-            "label::fr": "Quel est votre nom, {{nickname}}?",
-            "label::en": "What is your name, {{nickname}}?",
-        }
-        result = generate_label(
-            section="sectionA",
-            label_key="foo.bar",
-            row=row,
-            gender_fields=self.GENDER_FIELDS,
+        result = self._label(
+            **{
+                "label::fr": "Quel est votre nom, {{nickname}}?",
+                "label::en": "What is your name, {{nickname}}?",
+            }
         )
         assert "label: (t: TFunction, interview, path) =>" in result
-        assert "return t('sectionA:foo.bar', {" in result
+        assert "return t('sectionA:fooBar', {" in result
         assert "const activePerson =" in result
         assert (
             "const nickname = _escape(activePerson?.nickname || t('survey:noNickname'));"
@@ -297,36 +273,51 @@ class TestGenerateLabel:
 
     def test_generate_label_with_persons_count_label(self):
         """Test generate_label includes countPersons context when {{count}} is present"""
-        row = {
-            "label::fr": "Nombre de personnes: {{count}}",
-            "label::en": "Number of persons: {{count}}",
-        }
-        result = generate_label(
-            section="sectionB",
-            label_key="baz",
-            row=row,
-            gender_fields=self.GENDER_FIELDS,
+        result = self._label(
+            **{
+                "label::fr": "Nombre de personnes: {{count}}",
+                "label::en": "Number of persons: {{count}}",
+            }
         )
         assert "label: (t: TFunction, interview, path) =>" in result
-        assert "return t('sectionB:baz', {" in result
+        assert "return t('sectionA:fooBar', {" in result
         assert "const activePerson =" not in result
         assert "const nickname =" not in result
         assert "const countPersons =" in result
         assert "const personGender =" not in result
         assert "count: countPersons" in result
 
+    def test_generate_label_reads_every_language(self):
+        """Test generate_label finds the context in a label of any survey language, not just fr and en"""
+        result = generate_label(
+            WidgetDefinition.model_validate(
+                {
+                    "question_name": "fooBar",
+                    "input_type": "String",
+                    "active": True,
+                    "section": "sectionA",
+                    "path": "foo.bar",
+                    "label::es": "¿Cómo te llamas, {{nickname}}?",
+                    "label::en": "What is your name?",
+                },
+                context={"languages": ("es", "en")},
+            )
+        )
+        assert "const nickname =" in result
+
+    GENDER_LABELS = {
+        "label::fr": "{{gender:Il/Elle}} a un permis de conduire?",
+        "label::en": "{{gender:He/She}} has a driver's license?",
+    }
+
     def test_generate_label_with_gender_label_only_gender(self):
         """Test generate_label includes gender context when {{gender:...}} is present with only gender as field"""
-        row = {
-            "label::fr": "{{gender:Il/Elle}} a un permis de conduire?",
-            "label::en": "{{gender:He/She}} has a driver's license?",
-        }
-        gender_fields = GenderFields(has_gender=True, has_sex_assigned_at_birth=False)
-        result = generate_label(
-            section="sectionC", label_key="qux", row=row, gender_fields=gender_fields
+        result = self._label(
+            GenderFields(has_gender=True, has_sex_assigned_at_birth=False),
+            **self.GENDER_LABELS,
         )
         assert "label: (t: TFunction, interview, path) =>" in result
-        assert "return t('sectionC:qux', {" in result
+        assert "return t('sectionA:fooBar', {" in result
         assert "const activePerson =" in result
         assert "const nickname =" not in result
         assert "const countPersons =" not in result
@@ -335,13 +326,9 @@ class TestGenerateLabel:
 
     def test_generate_label_with_gender_label_only_sex_at_birth(self):
         """Test generate_label includes gender context when {{gender:...}} is present with only sexAssignedAtBirth as field"""
-        gender_fields = GenderFields(has_gender=False, has_sex_assigned_at_birth=True)
-        row = {
-            "label::fr": "{{gender:Il/Elle}} a un permis de conduire?",
-            "label::en": "{{gender:He/She}} has a driver's license?",
-        }
-        result = generate_label(
-            section="sectionC", label_key="qux", row=row, gender_fields=gender_fields
+        result = self._label(
+            GenderFields(has_gender=False, has_sex_assigned_at_birth=True),
+            **self.GENDER_LABELS,
         )
         assert "label: (t: TFunction, interview, path) =>" in result
         assert "context: activePerson?.sexAssignedAtBirth" in result
@@ -349,13 +336,9 @@ class TestGenerateLabel:
 
     def test_generate_label_with_gender_label_both_gender_fields(self):
         """Test generate_label includes gender context when {{gender:...}} is present with both gender and sexAssignedAtBirth"""
-        row = {
-            "label::fr": "{{gender:Il/Elle}} a un permis de conduire?",
-            "label::en": "{{gender:He/She}} has a driver's license?",
-        }
-        gender_fields = GenderFields(has_gender=True, has_sex_assigned_at_birth=True)
-        result = generate_label(
-            section="sectionC", label_key="qux", row=row, gender_fields=gender_fields
+        result = self._label(
+            GenderFields(has_gender=True, has_sex_assigned_at_birth=True),
+            **self.GENDER_LABELS,
         )
         assert "label: (t: TFunction, interview, path) =>" in result
         assert (
@@ -365,13 +348,9 @@ class TestGenerateLabel:
 
     def test_generate_label_with_gender_label_no_gender_fields(self):
         """Test generate_label includes gender context when {{gender:...}} is present with no label fields"""
-        row = {
-            "label::fr": "{{gender:Il/Elle}} a un permis de conduire?",
-            "label::en": "{{gender:He/She}} has a driver's license?",
-        }
-        gender_fields = GenderFields(has_gender=False, has_sex_assigned_at_birth=False)
-        result = generate_label(
-            section="sectionC", label_key="qux", row=row, gender_fields=gender_fields
+        result = self._label(
+            GenderFields(has_gender=False, has_sex_assigned_at_birth=False),
+            **self.GENDER_LABELS,
         )
         assert "label: (t: TFunction, interview, path) =>" in result
         assert "context: undefined" in result
@@ -380,20 +359,16 @@ class TestGenerateLabel:
 
     def test_generate_label_with_one_person(self):
         """Test generate_label includes countPersons assignment and count context when only label_one is present"""
-        row = {
-            "label::fr": "Quel est l'âge de cette personne?",
-            "label::en": "What is this person's age?",
-            "label_one::fr": "Votre âge",
-            "label_one::en": "Your age",
-        }
-        result = generate_label(
-            section="sectionE",
-            label_key="foo.age",
-            row=row,
-            gender_fields=self.GENDER_FIELDS,
+        result = self._label(
+            **{
+                "label::fr": "Quel est l'âge de cette personne?",
+                "label::en": "What is this person's age?",
+                "label_one::fr": "Votre âge",
+                "label_one::en": "Your age",
+            }
         )
         assert "label: (t: TFunction, interview, path) =>" in result
-        assert "return t('sectionE:foo.age', {" in result
+        assert "return t('sectionA:fooBar', {" in result
         assert "const activePerson =" not in result
         assert "const nickname =" not in result
         assert "const countPersons =" in result
@@ -402,20 +377,16 @@ class TestGenerateLabel:
 
     def test_generate_label_with_all_contexts(self):
         """Test generate_label includes all contexts when all contexts and label_one are present"""
-        row = {
-            "label::fr": "{{gender:Il/Elle}} s'appelle {{nickname}} et il y a {{count}} personnes.",
-            "label::en": "{{gender:He/She}} is named {{nickname}} and there are {{count}} persons.",
-            "label_one::fr": "Tu t'appelles {{nickname}}.",
-            "label_one::en": "Your name is {{nickname}}.",
-        }
-        result = generate_label(
-            section="sectionD",
-            label_key="bar.baz",
-            row=row,
-            gender_fields=self.GENDER_FIELDS,
+        result = self._label(
+            **{
+                "label::fr": "{{gender:Il/Elle}} s'appelle {{nickname}} et il y a {{count}} personnes.",
+                "label::en": "{{gender:He/She}} is named {{nickname}} and there are {{count}} persons.",
+                "label_one::fr": "Tu t'appelles {{nickname}}.",
+                "label_one::en": "Your name is {{nickname}}.",
+            }
         )
         assert "label: (t: TFunction, interview, path) =>" in result
-        assert "return t('sectionD:bar.baz', {" in result
+        assert "return t('sectionA:fooBar', {" in result
         assert "const activePerson =" in result
         assert (
             "const nickname = _escape(activePerson?.nickname || t('survey:noNickname'));"
@@ -483,95 +454,59 @@ class TestGenerateChoices:
 
 def test_generate_common_properties_all_false():
     """Test generate_common_properties with all options False or missing"""
-    row = {}
-    result = generate_common_properties(row)
+    result = generate_common_properties(widget())
     assert "twoColumns: false" in result
     assert "containsHtml: false" in result
 
 
 def test_generate_common_properties_two_columns_true():
     """Test generate_common_properties with twoColumns True"""
-    row = {"two_columns": True}
-    result = generate_common_properties(row)
+    result = generate_common_properties(widget(two_columns=True))
     assert "twoColumns: true" in result
 
 
 def test_generate_common_properties_contains_html_true():
     """Test generate_common_properties with containsHtml True"""
-    row = {"contains_html": True}
-    result = generate_common_properties(row)
+    result = generate_common_properties(widget(contains_html=True))
     assert "containsHtml: true" in result
 
 
 def test_generate_common_properties_join_with():
     """Test generate_common_properties with joinWith set"""
-    row = {"appearance": "join_with=${foo}"}
-    result = generate_common_properties(row)
+    result = generate_common_properties(widget(appearance="join_with=${foo}"))
     assert "joinWith: 'foo'" in result
 
 
 def test_generate_common_properties_no_join_with_when_not_allowed():
     """Test generate_common_properties does not include joinWith when allow_join_with is False"""
-    row = {"appearance": "join_with=${foo}"}
-    result = generate_common_properties(row, allow_join_with=False)
+    result = generate_common_properties(
+        widget(appearance="join_with=${foo}"), allow_join_with=False
+    )
     assert "joinWith: 'foo'" not in result
-
-
-def test_generate_info_text_widget_no_join_with():
-    """Test generate_info_text_widget never includes joinWith even if appearance has join_with"""
-    row = {"appearance": "join_with=${foo}"}
-    widget_code = generate_info_text_widget("Q1", "path", "", "", row)
-    assert "joinWith:" not in widget_code
 
 
 def test_generate_common_properties_all_true():
     """Test generate_common_properties with all options True/set"""
-    row = {"two_columns": True, "contains_html": True, "appearance": "join_with=${bar}"}
-    result = generate_common_properties(row)
+    result = generate_common_properties(
+        widget(two_columns=True, contains_html=True, appearance="join_with=${bar}")
+    )
     assert "twoColumns: true" in result
     assert "containsHtml: true" in result
     assert "joinWith: 'bar'" in result
 
 
-def test_generate_common_properties_bad_join_with_pattern(capsys):
-    """Test generate_common_properties with appearance join_with missing ${questionName} pattern"""
-    row = {"appearance": "join_with=false_pattern"}
-    result = generate_common_properties(row)
-    assert "joinWith: " not in result
-    captured = capsys.readouterr()
-    assert (
-        "appearance join_with pattern not recognized inside Widgets sheet"
-        in captured.out
-    )
+ACCEPT_TO_BE_CONTACTED = {
+    "question_name": "acceptToBeContactedForHelp",
+    "path": "acceptToBeContactedForHelp",
+    "label::fr": "Acceptez-vous d'être contacté pour de l'aide?",
+    "label::en": "Do you agree to be contacted for help?",
+}
 
 
 def test_generate_radio_widget_basic():
     """Test generate_radio_widget with minimal required fields"""
-    row = {
-        "question_name": "acceptToBeContactedForHelp",
-        "input_type": "Radio",
-        "section": "home",
-        "path": "acceptToBeContactedForHelp",
-        "conditional": "",
-        "validation": "",
-        "input_range": "",
-        "help_popup": "",
-        "choices": "yesNo",
-        "label::fr": "Acceptez-vous d'être contacté pour de l'aide?",
-        "label::en": "Do you agree to be contacted for help?",
-    }
-    widget_label = generate_label(
-        section=row["section"], label_key=row["question_name"], row=row
-    )
-    code = generate_radio_widget(
-        row["question_name"],
-        row["path"],
-        row["choices"],
-        row["help_popup"],
-        row["conditional"],
-        row["validation"],
-        widget_label,
-        row,
+    code = widget_code(
+        generate_radio_widget, "Radio", choices="yesNo", **ACCEPT_TO_BE_CONTACTED
     )
     # Check for all expected lines in the generated widget code
     assert (
@@ -591,35 +526,18 @@ def test_generate_radio_widget_basic():
 
 def test_generate_radio_widget_complex():
     """Test generate_radio_widget with all fields set"""
-    row = {
-        "question_name": "acceptToBeContactedForHelp",
-        "input_type": "Radio",
-        "section": "home",
-        "path": "acceptToBeContactedForHelp",
-        "conditional": "someConditional",
-        "validation": "someValidation",
-        "input_range": "",
-        "help_popup": "someHelpPopup",
-        "choices": "yesNo",
-        "two_columns": True,
-        "contains_html": True,
-        "custom_path": "custom.path",
-        "custom_choice": "customChoiceValue",
-        "label::fr": "Acceptez-vous d'être contacté pour de l'aide?",
-        "label::en": "Do you agree to be contacted for help?",
-    }
-    widget_label = generate_label(
-        section=row["section"], label_key=row["question_name"], row=row
-    )
-    code = generate_radio_widget(
-        row["question_name"],
-        row["path"],
-        row["choices"],
-        row["help_popup"],
-        row["conditional"],
-        row["validation"],
-        widget_label,
-        row,
+    code = widget_code(
+        generate_radio_widget,
+        "Radio",
+        conditional="someConditional",
+        validation="ageValidation",
+        help_popup="someHelpPopup",
+        choices="yesNo",
+        two_columns=True,
+        contains_html=True,
+        custom_path="custom.path",
+        custom_choice="customChoiceValue",
+        **ACCEPT_TO_BE_CONTACTED,
     )
     assert (
         "export const acceptToBeContactedForHelp: WidgetConfig.InputRadioType = {"
@@ -635,33 +553,21 @@ def test_generate_radio_widget_complex():
     assert "helpPopup: customHelpPopup.someHelpPopup" in code
     assert "choices: choices.yesNo" in code
     assert "conditional: conditionals.someConditional" in code
-    assert "validations: validations.someValidation" in code
+    assert "validations: validations.ageValidation" in code
     assert code.strip().endswith("};")
+
+
+HOME_SAVE = {
+    "question_name": "home_save",
+    "path": "home.save",
+    "label::fr": "Continuer",
+    "label::en": "Continue",
+}
 
 
 def test_generate_next_button_widget_default_conditional():
     """Test generate_next_button_widget includes default conditional when missing"""
-    row = {
-        "question_name": "home_save",
-        "input_type": "NextButton",
-        "section": "home",
-        "path": "home.save",
-        "conditional": "",
-        "confirm_popup": "",
-        "label::fr": "Continuer",
-        "label::en": "Continue",
-    }
-    widget_label = generate_label(
-        section=row["section"], label_key=row["question_name"], row=row
-    )
-    code = generate_next_button_widget(
-        row["question_name"],
-        row["path"],
-        row["confirm_popup"],
-        row["conditional"],
-        widget_label,
-        row,
-    )
+    code = widget_code(generate_next_button_widget, "NextButton", **HOME_SAVE)
 
     assert "export const home_save: WidgetConfig.ButtonWidgetConfig = {" in code
     assert "...defaultInputBase.buttonNextBase," in code
@@ -673,26 +579,11 @@ def test_generate_next_button_widget_default_conditional():
 
 def test_generate_next_button_widget_custom_conditional():
     """Test generate_next_button_widget includes customConditionals when suffix matches"""
-    row = {
-        "question_name": "home_save",
-        "input_type": "NextButton",
-        "section": "home",
-        "path": "home.save",
-        "conditional": "hiddenWithCanadaAsDefaultValueCustomConditional",
-        "confirm_popup": "",
-        "label::fr": "Continuer",
-        "label::en": "Continue",
-    }
-    widget_label = generate_label(
-        section=row["section"], label_key=row["question_name"], row=row
-    )
-    code = generate_next_button_widget(
-        row["question_name"],
-        row["path"],
-        row["confirm_popup"],
-        row["conditional"],
-        widget_label,
-        row,
+    code = widget_code(
+        generate_next_button_widget,
+        "NextButton",
+        conditional="hiddenWithCanadaAsDefaultValueCustomConditional",
+        **HOME_SAVE,
     )
 
     assert (
@@ -704,67 +595,52 @@ def test_generate_next_button_widget_custom_conditional():
 
 def test_generate_next_button_widget_normal_conditional():
     """Test generate_next_button_widget includes conditionals for non-custom conditional"""
-    row = {
-        "question_name": "home_save",
-        "input_type": "NextButton",
-        "section": "home",
-        "path": "home.save",
-        "conditional": "someConditional",
-        "confirm_popup": "",
-        "label::fr": "Continuer",
-        "label::en": "Continue",
-    }
-    widget_label = generate_label(
-        section=row["section"], label_key=row["question_name"], row=row
-    )
-    code = generate_next_button_widget(
-        row["question_name"],
-        row["path"],
-        row["confirm_popup"],
-        row["conditional"],
-        widget_label,
-        row,
+    code = widget_code(
+        generate_next_button_widget,
+        "NextButton",
+        conditional="someConditional",
+        **HOME_SAVE,
     )
 
     assert "conditional: conditionals.someConditional" in code
     assert code.strip().endswith("};")
 
 
+def test_generate_next_button_widget_confirm_popup():
+    """Test generate_next_button_widget includes the confirmPopup when set"""
+    code = widget_code(
+        generate_next_button_widget,
+        "NextButton",
+        confirm_popup="someConfirmPopup",
+        **HOME_SAVE,
+    )
+
+    assert "confirmPopup: customHelpPopup.someConfirmPopup," in code
+
+
+HOUSEHOLD_SIZE = {
+    "question_name": "household_size",
+    "path": "household.size",
+    "label::fr": "Combien de personnes dans le ménage?",
+    "label::en": "How many people in the household?",
+}
+
+
 def test_generate_radio_number_widget_basic():
     """Test generate_radio_number_widget with minimal required fields"""
-    row = {
-        "question_name": "household_size",
-        "input_type": "RadioNumber",
-        "section": "home",
-        "path": "household.size",
-        "help_popup": "",
-        "conditional": "",
-        "validation": "",
-        "parameters": "",
-        "appearance": "",
-        "label::fr": "Combien de personnes dans le ménage?",
-        "label::en": "How many people in the household?",
-    }
-    widget_label = generate_label(
-        section=row["section"], label_key=row["question_name"], row=row
-    )
-    result = generate_radio_number_widget(
-        row["question_name"],
-        row["path"],
-        row["help_popup"],
-        row["conditional"],
-        row["validation"],
-        widget_label,
-        None,
-        row,
+    result = widget_code(
+        generate_radio_number_widget,
+        "RadioNumber",
+        parameters="min=0\nmax=6",
+        **HOUSEHOLD_SIZE,
     )
     code = result["statement"]
     assert "export const household_size: WidgetConfig.InputRadioNumberType = {" in code
     assert "...defaultInputBase.inputRadioNumberBase," in code
     assert "path: 'household.size'," in code
     assert "valueRange: {" in code
-    assert "min: 0" in code  # default min is 0
-    assert "max: 6" in code  # default max is 6
+    assert "min: 0" in code
+    assert "max: 6" in code
     assert "overMaxAllowed: true" not in code  # default is not present
     assert "conditional: defaultConditional" in code
     assert "validations: validations.requiredValidation" in code
@@ -775,32 +651,15 @@ def test_generate_radio_number_widget_basic():
 
 def test_generate_radio_number_widget_complex():
     """Test generate_radio_number_widget with all fields set"""
-    row = {
-        "question_name": "household_size",
-        "input_type": "RadioNumber",
-        "section": "home",
-        "path": "household.size",
-        "help_popup": "householdSizeHelpPopup",
-        "conditional": "someConditional",
-        "validation": "householdSizeValidation",
-        "parameters": "min=1\nmax=17\noverMaxAllowed",
-        "choices": "householdSizeAdditionalChoices",
-        "appearance": "",
-        "label::fr": "Combien de personnes dans le ménage?",
-        "label::en": "How many people in the household?",
-    }
-    widget_label = generate_label(
-        section=row["section"], label_key=row["question_name"], row=row
-    )
-    result = generate_radio_number_widget(
-        row["question_name"],
-        row["path"],
-        row["help_popup"],
-        row["conditional"],
-        row["validation"],
-        widget_label,
-        row["choices"],
-        row,
+    result = widget_code(
+        generate_radio_number_widget,
+        "RadioNumber",
+        help_popup="householdSizeHelpPopup",
+        conditional="someConditional",
+        validation="householdSizeValidation",
+        parameters="min=1\nmax=17\noverMaxAllowed",
+        choices="householdSizeAdditionalChoices",
+        **HOUSEHOLD_SIZE,
     )
     code = result["statement"]
     assert "export const household_size: WidgetConfig.InputRadioNumberType = {" in code
@@ -819,164 +678,44 @@ def test_generate_radio_number_widget_complex():
 
 
 def test_generate_radio_number_widget_min_max_field_values():
-    """Test generate_radio_number_widget when min/max are not integers"""
-    row = {
-        "question_name": "household_size",
-        "input_type": "RadioNumber",
-        "section": "home",
-        "path": "household.size",
-        "help_popup": "",
-        "conditional": "",
-        "choices": "",
-        "validation": "",
-        "parameters": "min=abc\nmax=xyz",
-        "appearance": "",
-        "label::fr": "Combien de personnes dans le ménage?",
-        "label::en": "How many people in the household?",
-    }
-    widget_label = generate_label(
-        section=row["section"], label_key=row["question_name"], row=row
-    )
-    result = generate_radio_number_widget(
-        row["question_name"],
-        row["path"],
-        row["help_popup"],
-        row["conditional"],
-        row["validation"],
-        widget_label,
-        row["choices"],
-        row,
+    """Test generate_radio_number_widget when min/max are response paths, not integers"""
+    result = widget_code(
+        generate_radio_number_widget,
+        "RadioNumber",
+        parameters="min=abc\nmax=xyz",
+        **HOUSEHOLD_SIZE,
     )
     code = result["statement"]
     assert (
         "min: (interview) => surveyHelper.getResponse(interview, 'abc', 0) as any"
         in code
-    )  # default min is 0
+    )
     assert (
         "max: (interview) => surveyHelper.getResponse(interview, 'xyz', 0) as any"
         in code
-    )  # default max is 6
+    )
     assert "additionalChoices" not in code
     assert result["has_helper_import"] is True
-
-
-def test_generate_radio_number_widget_min_gte_max(capsys):
-    """Test generate_radio_number_widget prints error when min >= max"""
-    row = {
-        "question_name": "household_size",
-        "input_type": "RadioNumber",
-        "section": "home",
-        "path": "household.size",
-        "help_popup": "",
-        "conditional": "",
-        "choices": "",
-        "validation": "",
-        "parameters": "min=5\nmax=5",
-        "appearance": "",
-        "label::fr": "Combien de personnes dans le ménage?",
-        "label::en": "How many people in the household?",
-    }
-    widget_label = generate_label(
-        section=row["section"], label_key=row["question_name"], row=row
-    )
-    result = generate_radio_number_widget(
-        row["question_name"],
-        row["path"],
-        row["help_popup"],
-        row["conditional"],
-        row["validation"],
-        widget_label,
-        row["choices"],
-        row,
-    )
-    captured = capsys.readouterr()
-    code = result["statement"]
-    assert (
-        "ValueError: min (5) must be less than max (5) in parameters in Widgets sheet."
-        in captured.out
-    )
-    assert "min: 5" in code
-    assert "max: 5" in code
-    assert "additionalChoices" not in code
-    assert result["has_helper_import"] is False
-
-
-def test_generate_radio_number_widget_unrecognized_parameter_line(capsys):
-    """Test generate_radio_number_widget prints warning for unrecognized parameter line"""
-    row = {
-        "question_name": "household_size",
-        "input_type": "RadioNumber",
-        "section": "home",
-        "path": "household.size",
-        "help_popup": "",
-        "conditional": "",
-        "validation": "",
-        "parameters": "min=2\nmax=5\nfoo=bar",
-        "appearance": "",
-        "label::fr": "Combien de personnes dans le ménage?",
-        "label::en": "How many people in the household?",
-    }
-    widget_label = generate_label(
-        section=row["section"], label_key=row["question_name"], row=row
-    )
-    result = generate_radio_number_widget(
-        row["question_name"],
-        row["path"],
-        row["help_popup"],
-        row["conditional"],
-        row["validation"],
-        widget_label,
-        None,
-        row,
-    )
-    captured = capsys.readouterr()
-    code = result["statement"]
-    assert (
-        "Warning: Unrecognized parameter 'foo' for radio_number in Widgets sheet. Expected 'min', 'max' or 'overMaxAllowed'."
-        in captured.out
-    )
-    assert "min: 2" in code
-    assert "max: 5" in code
-    assert "additionalChoices" not in code
-    assert result["has_helper_import"] is False
 
 
 class TestGenerateStringWidget:
     """Tests for generate_string_widget function"""
 
-    # Default gender fields for tests - gender is available, sex assigned at birth is not
-    GENDER_FIELDS = GenderFields(has_gender=True, has_sex_assigned_at_birth=False)
+    ACCESS_CODE = {
+        "question_name": "accessCode",
+        "path": "accessCode",
+        "label::fr": "Code d'accès",
+        "label::en": "Access code",
+    }
+
+    def _result(self, **columns):
+        return widget_code(
+            generate_string_widget, "String", **self.ACCESS_CODE, **columns
+        )
 
     def test_generate_string_widget_basic(self):
         """Test generate_string_widget with minimal required fields"""
-        row = {
-            "question_name": "accessCode",
-            "input_type": "String",
-            "section": "home",
-            "path": "accessCode",
-            "help_popup": "",
-            "conditional": "",
-            "validation": "",
-            "parameters": "",
-            "appearance": "",
-            "label::fr": "Code d'accès",
-            "label::en": "Access code",
-        }
-        widget_label = generate_label(
-            section=row["section"],
-            label_key=row["question_name"],
-            row=row,
-            gender_fields=self.GENDER_FIELDS,
-        )
-        result = generate_string_widget(
-            row["question_name"],
-            row["path"],
-            row["help_popup"],
-            row["conditional"],
-            row["validation"],
-            widget_label,
-            row,
-        )
+        result = self._result()
         code = result["statement"]
         assert "export const accessCode: WidgetConfig.InputStringType = {" in code
         assert "...defaultInputBase.inputStringBase," in code
@@ -984,6 +723,7 @@ class TestGenerateStringWidget:
         assert "conditional: defaultConditional" in code
         assert "validations: validations.requiredValidation" in code
         assert "inputFilter" not in code
+        assert "suffixLabel" not in code
         assert code.strip().endswith("};")
         assert result["has_helper_import"] is False
         assert result["has_formatter_import"] is False
@@ -991,36 +731,14 @@ class TestGenerateStringWidget:
 
     def test_generate_string_widget_complex(self):
         """Test generate_string_widget with all parameters set"""
-        row = {
-            "question_name": "accessCode",
-            "input_type": "String",
-            "section": "home",
-            "path": "accessCode",
-            "help_popup": "accessCodeHelpPopup",
-            "conditional": "accessCodeVisibleConditional",
-            "validation": "accessCodeValidation",
-            "parameters": "",
-            "appearance": "join_with=${phoneNumber}",
-            "two_columns": True,
-            "contains_html": True,
-            "default_value": "12345678",
-            "label::fr": "Code d'accès",
-            "label::en": "Access code",
-        }
-        widget_label = generate_label(
-            section=row["section"],
-            label_key=row["question_name"],
-            row=row,
-            gender_fields=self.GENDER_FIELDS,
-        )
-        result = generate_string_widget(
-            row["question_name"],
-            row["path"],
-            row["help_popup"],
-            row["conditional"],
-            row["validation"],
-            widget_label,
-            row,
+        result = self._result(
+            help_popup="accessCodeHelpPopup",
+            conditional="accessCodeVisibleConditional",
+            validation="accessCodeValidation",
+            appearance="join_with=${phoneNumber}",
+            two_columns=True,
+            contains_html=True,
+            default_value="12345678",
         )
         code = result["statement"]
         assert "export const accessCode: WidgetConfig.InputStringType = {" in code
@@ -1042,34 +760,7 @@ class TestGenerateStringWidget:
 
     def test_generate_string_widget_with_formatter(self):
         """Test generate_string_widget with formatter"""
-        row = {
-            "question_name": "accessCode",
-            "input_type": "String",
-            "section": "home",
-            "path": "accessCode",
-            "help_popup": "",
-            "conditional": "",
-            "validation": "",
-            "parameters": "formatter=eightDigitsAccessCodeFormatter",
-            "appearance": "",
-            "label::fr": "Code d'accès",
-            "label::en": "Access code",
-        }
-        widget_label = generate_label(
-            section=row["section"],
-            label_key=row["question_name"],
-            row=row,
-            gender_fields=self.GENDER_FIELDS,
-        )
-        result = generate_string_widget(
-            row["question_name"],
-            row["path"],
-            row["help_popup"],
-            row["conditional"],
-            row["validation"],
-            widget_label,
-            row,
-        )
+        result = self._result(parameters="formatter=eightDigitsAccessCodeFormatter")
         code = result["statement"]
         assert "export const accessCode: WidgetConfig.InputStringType = {" in code
         assert "inputFilter: formatters.eightDigitsAccessCodeFormatter" in code
@@ -1079,60 +770,32 @@ class TestGenerateStringWidget:
 
     def test_generate_string_widget_with_custom_formatter(self):
         """Test generate_string_widget with custom formatter"""
-        row = {
-            "question_name": "accessCode",
-            "input_type": "String",
-            "section": "home",
-            "path": "accessCode",
-            "help_popup": "",
-            "conditional": "",
-            "validation": "",
-            "parameters": "formatter=myBrandNewCustomFormatter",
-            "appearance": "",
-            "label::fr": "Code d'accès",
-            "label::en": "Access code",
-        }
-        widget_label = generate_label(
-            section=row["section"],
-            label_key=row["question_name"],
-            row=row,
-            gender_fields=self.GENDER_FIELDS,
-        )
-        result = generate_string_widget(
-            row["question_name"],
-            row["path"],
-            row["help_popup"],
-            row["conditional"],
-            row["validation"],
-            widget_label,
-            row,
-        )
+        result = self._result(parameters="formatter=myBrandNewCustomFormatter")
         code = result["statement"]
         assert "inputFilter: customFormatters.myBrandNewCustomFormatter" in code
         assert result["has_helper_import"] is False
         assert result["has_formatter_import"] is False
         assert result["has_custom_formatter_import"] is True
 
+    def test_generate_string_widget_with_suffix_label(self):
+        """Test generate_string_widget with the suffixLabel parameter"""
+        result = self._result(parameters="suffixLabel=home:valueSuffix")
+        assert (
+            "suffixLabel: (t: TFunction) => t('home:valueSuffix')"
+            in result["statement"]
+        )
+
 
 class TestGenerateWidgetStatementComments:
     def test_single_line_comment_is_preserved(self):
-        row = {
-            "question_name": "acceptToBeContactedForHelp",
-            "active": True,
-            "input_type": "Radio",
-            "section": "home",
-            "path": "acceptToBeContactedForHelp",
-            "conditional": "",
-            "validation": "",
-            "input_range": "",
-            "help_popup": "",
-            "choices": "yesNo",
-            "comments": "This is a single line comment",
-            "label::fr": "Acceptez-vous d'être contacté pour de l'aide?",
-            "label::en": "Do you agree to be contacted for help?",
-        }
-
-        result = generate_widget_statement(row, GenderFields())
+        result = generate_widget_statement(
+            widget(
+                "Radio",
+                comments="This is a single line comment",
+                **ACCEPT_TO_BE_CONTACTED,
+            ),
+            GenderFields(),
+        )
         assert result["statement"].startswith("// This is a single line comment\n")
         assert (
             "export const acceptToBeContactedForHelp: WidgetConfig.InputRadioType"
@@ -1140,23 +803,12 @@ class TestGenerateWidgetStatementComments:
         )
 
     def test_multi_line_comment_is_preserved(self):
-        row = {
-            "question_name": "acceptToBeContactedForHelp",
-            "active": True,
-            "input_type": "Radio",
-            "section": "home",
-            "path": "acceptToBeContactedForHelp",
-            "conditional": "",
-            "validation": "",
-            "input_range": "",
-            "help_popup": "",
-            "choices": "yesNo",
-            "comments": "First line\nSecond line",
-            "label::fr": "Acceptez-vous d'être contacté pour de l'aide?",
-            "label::en": "Do you agree to be contacted for help?",
-        }
-
-        result = generate_widget_statement(row, GenderFields())
+        result = generate_widget_statement(
+            widget(
+                "Radio", comments="First line\nSecond line", **ACCEPT_TO_BE_CONTACTED
+            ),
+            GenderFields(),
+        )
         assert result["statement"].startswith("// First line\n// Second line\n")
         assert (
             "export const acceptToBeContactedForHelp: WidgetConfig.InputRadioType"
@@ -1164,22 +816,9 @@ class TestGenerateWidgetStatementComments:
         )
 
     def test_no_comments_column_does_not_add_comment(self):
-        row = {
-            "question_name": "acceptToBeContactedForHelp",
-            "active": True,
-            "input_type": "Radio",
-            "section": "home",
-            "path": "acceptToBeContactedForHelp",
-            "conditional": "",
-            "validation": "",
-            "input_range": "",
-            "help_popup": "",
-            "choices": "yesNo",
-            "label::fr": "Acceptez-vous d'être contacté pour de l'aide?",
-            "label::en": "Do you agree to be contacted for help?",
-        }
-
-        result = generate_widget_statement(row, GenderFields())
+        result = generate_widget_statement(
+            widget("Radio", **ACCEPT_TO_BE_CONTACTED), GenderFields()
+        )
         assert not result["statement"].startswith("//")
         assert (
             "export const acceptToBeContactedForHelp: WidgetConfig.InputRadioType"
@@ -1188,95 +827,27 @@ class TestGenerateWidgetStatementComments:
 
 
 class TestGenerateWidgetStatementActiveFlag:
-    def test_inactive_widget_generates_not_active_comment_only(self):
-        row = {
-            "question_name": "acceptToBeContactedForHelp",
-            "active": False,
-            "input_type": "Radio",
-            "section": "home",
-            "path": "acceptToBeContactedForHelp",
-            "conditional": "",
-            "validation": "",
-            "input_range": "",
-            "help_popup": "",
-            "choices": "yesNo",
-            "label::fr": "Acceptez-vous d'être contacté pour de l'aide?",
-            "label::en": "Do you agree to be contacted for help?",
-        }
+    NOT_ACTIVE_COMMENT = "// Note: acceptToBeContactedForHelp widget is not active. This widget will not be displayed in the survey."
 
-        result = generate_widget_statement(row, GenderFields())
-        assert (
-            result["statement"]
-            == "// Note: acceptToBeContactedForHelp widget is not active. This widget will not be displayed in the survey."
+    @cases(
+        dict(id="false", active=False),
+        dict(id="0 from Excel", active=0),
+    )
+    def test_inactive_widget_generates_not_active_comment_only(self, active):
+        result = generate_widget_statement(
+            widget("Radio", active=active, **ACCEPT_TO_BE_CONTACTED), GenderFields()
         )
+        assert result["statement"] == self.NOT_ACTIVE_COMMENT
         assert "export const acceptToBeContactedForHelp" not in result["statement"]
 
-    def test_inactive_widget_with_active_zero_generates_not_active_comment_only(self):
-        """Test that active=0 (e.g. from Excel) is treated as inactive"""
-        row = {
-            "question_name": "acceptToBeContactedForHelp",
-            "active": 0,
-            "input_type": "Radio",
-            "section": "home",
-            "path": "acceptToBeContactedForHelp",
-            "conditional": "",
-            "validation": "",
-            "input_range": "",
-            "help_popup": "",
-            "choices": "yesNo",
-            "label::fr": "Acceptez-vous d'être contacté pour de l'aide?",
-            "label::en": "Do you agree to be contacted for help?",
-        }
-
-        result = generate_widget_statement(row, GenderFields())
-        assert (
-            result["statement"]
-            == "// Note: acceptToBeContactedForHelp widget is not active. This widget will not be displayed in the survey."
+    @cases(
+        dict(id="true", active=True),
+        dict(id="1 from Excel", active=1),
+    )
+    def test_active_widget_generates_widget_statement(self, active):
+        result = generate_widget_statement(
+            widget("Radio", active=active, **ACCEPT_TO_BE_CONTACTED), GenderFields()
         )
-        assert "export const acceptToBeContactedForHelp" not in result["statement"]
-
-    def test_inactive_widget_with_empty_active_defaults_to_inactive(self):
-        """Test that an empty active cell (e.g. from Excel) defaults to inactive"""
-        row = {
-            "question_name": "acceptToBeContactedForHelp",
-            "active": "",
-            "input_type": "Radio",
-            "section": "home",
-            "path": "acceptToBeContactedForHelp",
-            "conditional": "",
-            "validation": "",
-            "input_range": "",
-            "help_popup": "",
-            "choices": "yesNo",
-            "label::fr": "Acceptez-vous d'être contacté pour de l'aide?",
-            "label::en": "Do you agree to be contacted for help?",
-        }
-
-        result = generate_widget_statement(row, GenderFields())
-        assert (
-            result["statement"]
-            == "// Note: acceptToBeContactedForHelp widget is not active. This widget will not be displayed in the survey."
-        )
-        assert "export const acceptToBeContactedForHelp" not in result["statement"]
-
-    def test_active_widget_with_active_one_generates_widget_statement(self):
-        """Test that active=1 (e.g. from Excel) is treated as active and generates the widget"""
-        row = {
-            "question_name": "acceptToBeContactedForHelp",
-            "active": 1,
-            "input_type": "Radio",
-            "section": "home",
-            "path": "acceptToBeContactedForHelp",
-            "conditional": "",
-            "validation": "",
-            "input_range": "",
-            "help_popup": "",
-            "choices": "yesNo",
-            "label::fr": "Acceptez-vous d'être contacté pour de l'aide?",
-            "label::en": "Do you agree to be contacted for help?",
-        }
-
-        result = generate_widget_statement(row, GenderFields())
         assert (
             "export const acceptToBeContactedForHelp: WidgetConfig.InputRadioType = {"
             in result["statement"]
@@ -1286,30 +857,55 @@ class TestGenerateWidgetStatementActiveFlag:
         assert "widget is not active" not in result["statement"]
         assert result["statement"].strip().endswith("};")
 
-    def test_active_widget_with_active_true_generates_widget_statement(self):
-        """Test that active=True is treated as active and generates the widget"""
-        row = {
-            "question_name": "acceptToBeContactedForHelp",
-            "active": True,
-            "input_type": "Radio",
-            "section": "home",
-            "path": "acceptToBeContactedForHelp",
-            "conditional": "",
-            "validation": "",
-            "input_range": "",
-            "help_popup": "",
-            "choices": "yesNo",
-            "label::fr": "Acceptez-vous d'être contacté pour de l'aide?",
-            "label::en": "Do you agree to be contacted for help?",
-        }
 
-        result = generate_widget_statement(row, GenderFields())
+class TestGenerateWidgetStatementInputType:
+    @cases(
+        dict(id="canonical", input_type="Radio"),
+        dict(id="lower case", input_type="radio"),
+    )
+    def test_generates_the_input_type_written_in_any_case(self, input_type):
+        """The Widgets sheet may write an input type in any case (see WidgetDefinition)."""
+        result = generate_widget_statement(
+            widget(input_type, choices="yesNo", **ACCEPT_TO_BE_CONTACTED)
+        )
         assert (
             "export const acceptToBeContactedForHelp: WidgetConfig.InputRadioType = {"
             in result["statement"]
         )
-        assert "widget is not active" not in result["statement"]
-        assert result["statement"].strip().endswith("};")
+
+    def test_info_text_writes_its_label_as_text(self):
+        result = generate_widget_statement(widget("InfoText", question_name="intro"))
+        assert "export const intro: WidgetConfig.TextWidgetConfig = {" in (
+            result["statement"]
+        )
+        assert "text: (t: TFunction) => t('home:intro')" in result["statement"]
+
+    def test_built_in_widget_without_built_in_function_writes_a_placeholder(self):
+        """The generator doesn't write BuiltIn widgets yet: a comment marks where it goes."""
+        result = generate_widget_statement(
+            widget("BuiltIn", question_name="activePersonTitle")
+        )
+        assert (
+            result["statement"]
+            == "// Built-in widget placeholder for 'activePersonTitle'"
+        )
+
+    def test_built_in_widget_with_built_in_function_writes_a_placeholder(self):
+        result = generate_widget_statement(
+            widget(
+                "BuiltIn",
+                question_name="activePersonTitle",
+                parameters="builtInFunction={{getActivePersonTitleWidgetConfig}}",
+            )
+        )
+        assert result["statement"] == (
+            "// Built-in widget placeholder for 'activePersonTitle' (builtInFunction: getActivePersonTitleWidgetConfig).\n"
+            "// export const activePersonTitle = getActivePersonTitleWidgetConfig();"
+        )
+
+    def test_custom_widget_is_exported_from_custom_widgets(self):
+        result = generate_widget_statement(widget("Custom", question_name="homeMap"))
+        assert result["statement"] == "export const homeMap = customWidgets.homeMap;"
 
 
 class TestGenerateWidgetName:
@@ -1319,408 +915,79 @@ class TestGenerateWidgetName:
 
     def test_active_one_emits_uncommented_name(self):
         """active=1 (e.g. from Excel) should be treated as active"""
-        row = {"question_name": "homeAddress", "active": 1, "group": ""}
-        result = generate_widget_name(row, group="", is_last=False)
+        result = generate_widget_name(
+            widget(question_name="homeAddress", active=1), group="", is_last=False
+        )
         assert result == f"{self.INDENT}'homeAddress',"
 
     def test_active_zero_emits_commented_name(self):
         """active=0 (e.g. from Excel) should be treated as inactive"""
-        row = {"question_name": "homeAddress", "active": 0, "group": ""}
-        result = generate_widget_name(row, group="", is_last=False)
+        result = generate_widget_name(
+            widget(question_name="homeAddress", active=0), group="", is_last=False
+        )
         assert result == f"{self.INDENT}// 'homeAddress',"
 
     def test_last_row_omits_trailing_comma(self):
-        row = {"question_name": "homeAddress", "active": 1, "group": ""}
-        result = generate_widget_name(row, group="", is_last=True)
+        result = generate_widget_name(
+            widget(question_name="homeAddress"), group="", is_last=True
+        )
         assert result == f"{self.INDENT}'homeAddress'"
 
     def test_returns_none_when_group_does_not_match_row_group(self):
-        row = {"question_name": "homeAddress", "active": True, "group": "personGroup"}
-        result = generate_widget_name(row, group="", is_last=False)
+        result = generate_widget_name(
+            widget(question_name="homeAddress", group="personGroup"),
+            group="",
+            is_last=False,
+        )
         assert result is None
 
 
 @pytest.mark.parametrize(
-    ("generator", "args", "help_popup_name"),
+    ("generator", "input_type"),
     [
-        (
-            generate_select_widget,
-            (
-                "householdLanguage",
-                "household.language",
-                "languages",
-                "householdLanguageHelpPopup",
-                "",
-                "requiredValidation",
-                "    label: (t: TFunction) => t('household:householdLanguage'),\n",
-                {},
-            ),
-            "householdLanguageHelpPopup",
-        ),
-        (
-            generate_range_widget,
-            (
-                "tripDistance",
-                "trip.distance",
-                "distanceRange",
-                "distanceHelpPopup",
-                "",
-                "",
-                "    label: (t: TFunction) => t('trips:tripDistance'),\n",
-                {},
-            ),
-            "distanceHelpPopup",
-        ),
-        (
-            generate_text_widget,
-            (
-                "tripComment",
-                "trip.comment",
-                "commentHelpPopup",
-                "",
-                "",
-                "    label: (t: TFunction) => t('trips:tripComment'),\n",
-                {},
-            ),
-            "commentHelpPopup",
-        ),
+        (generate_select_widget, "Select"),
+        (generate_range_widget, "Range"),
+        (generate_text_widget, "Text"),
     ],
 )
-def test_widget_generators_include_help_popup(generator, args, help_popup_name):
+def test_widget_generators_include_help_popup(generator, input_type):
     """Test widget generators emit helpPopup when help_popup is set"""
-    code = generator(*args)
-    assert f"helpPopup: customHelpPopup.{help_popup_name}" in code
+    code = widget_code(generator, input_type, help_popup="someHelpPopup")
+    assert "helpPopup: customHelpPopup.someHelpPopup" in code
 
 
 @pytest.mark.parametrize(
-    ("generator", "args"),
+    ("generator", "input_type"),
     [
-        (
-            generate_select_widget,
-            (
-                "householdLanguage",
-                "household.language",
-                "languages",
-                "",
-                "",
-                "requiredValidation",
-                "    label: (t: TFunction) => t('household:householdLanguage'),\n",
-                {},
-            ),
-        ),
-        (
-            generate_range_widget,
-            (
-                "tripDistance",
-                "trip.distance",
-                "distanceRange",
-                "",
-                "",
-                "",
-                "    label: (t: TFunction) => t('trips:tripDistance'),\n",
-                {},
-            ),
-        ),
-        (
-            generate_text_widget,
-            (
-                "tripComment",
-                "trip.comment",
-                "",
-                "",
-                "",
-                "    label: (t: TFunction) => t('trips:tripComment'),\n",
-                {},
-            ),
-        ),
-        (
-            generate_info_text_widget,
-            (
-                "introText",
-                "intro.text",
-                "",
-                "    text: (t: TFunction) => t('home:introText'),\n",
-                {},
-            ),
-        ),
-        (
-            generate_next_button_widget,
-            (
-                "home_save",
-                "home.save",
-                "",
-                "",
-                "    label: (t: TFunction) => t('home:home_save'),\n",
-                {},
-            ),
-        ),
+        (generate_select_widget, "Select"),
+        (generate_range_widget, "Range"),
+        (generate_text_widget, "Text"),
+        (generate_info_text_widget, "InfoText"),
+        (generate_next_button_widget, "NextButton"),
     ],
 )
-def test_widget_generators_omit_help_popup_when_empty(generator, args):
+def test_widget_generators_omit_help_popup_when_empty(generator, input_type):
     """Test widget generators omit helpPopup when help_popup is empty"""
-    code = generator(*args)
+    code = widget_code(generator, input_type)
     assert "helpPopup" not in code
-
-
-@pytest.mark.parametrize(
-    ("input_type", "extra_row_fields", "export_type_name"),
-    [
-        (
-            "InfoText",
-            {
-                "text::fr": "Texte intro",
-                "text::en": "Intro text",
-            },
-            "TextWidgetConfig",
-        ),
-        (
-            "NextButton",
-            {
-                "label::fr": "Continuer",
-                "label::en": "Continue",
-                "confirm_popup": "",
-            },
-            "ButtonWidgetConfig",
-        ),
-    ],
-)
-def test_generate_widget_statement_ignores_help_popup_for_unsupported_types(
-    capsys, input_type, extra_row_fields, export_type_name
-):
-    """Test generate_widget_statement ignores help_popup for InfoText and NextButton"""
-    row = {
-        "question_name": "unsupportedHelpPopupWidget",
-        "active": True,
-        "input_type": input_type,
-        "section": "home",
-        "path": "unsupported.intro",
-        "conditional": "",
-        "validation": "",
-        "input_range": "",
-        "help_popup": "someHelpPopup",
-        "choices": "",
-        **extra_row_fields,
-    }
-
-    result = generate_widget_statement(row, GenderFields())
-
-    assert (
-        f"export const unsupportedHelpPopupWidget: WidgetConfig.{export_type_name}"
-        in (result["statement"])
-    )
-    assert "helpPopup:" not in result["statement"]
-    captured = capsys.readouterr()
-    assert "not supported" in captured.out
-    assert input_type in captured.out
-    assert "unsupportedHelpPopupWidget" in captured.out
-
-
-class TestRadioNumberParameters:
-    """Tests for get_radio_number_parameters function"""
-
-    def test_get_radio_number_parameters_defaults(self):
-        """Test get_radio_number_parameters returns defaults when parameters is empty"""
-        row = {}
-        params = get_radio_number_parameters(row)
-        assert params["min_value"] == 0
-        assert params["max_value"] == 6
-        assert params["over_max_allowed"] is False
-
-    def test_get_radio_number_parameters_valid_min_max(self):
-        """Test get_radio_number_parameters parses valid min and max"""
-        row = {"parameters": "min=2\nmax=10"}
-        params = get_radio_number_parameters(row)
-        assert params["min_value"] == 2
-        assert params["max_value"] == 10
-        assert params["over_max_allowed"] is False
-
-    def test_get_radio_number_parameters_over_max_allowed(self):
-        """Test get_radio_number_parameters parses overMaxAllowed"""
-        row = {"parameters": "min=1\nmax=5\noverMaxAllowed"}
-        params = get_radio_number_parameters(row)
-        assert params["min_value"] == 1
-        assert params["max_value"] == 5
-        assert params["over_max_allowed"] is True
-
-    def test_get_radio_number_parameters_names_are_case_insensitive(self):
-        """Test get_radio_number_parameters reads min, max and overMaxAllowed whatever their case"""
-        row = {"parameters": "min=0\nMax=4\nOverMaxAllowed"}
-        params = get_radio_number_parameters(row)
-        assert params["min_value"] == 0
-        assert params["max_value"] == 4
-        assert params["over_max_allowed"] is True
-
-    def test_get_radio_number_parameters_non_numeric_min_max(self):
-        """Test get_radio_number_parameters with non-numeric min/max"""
-        row = {"parameters": "min=abc\nmax=xyz"}
-        params = get_radio_number_parameters(row)
-        assert params["min_value"] == "abc"
-        assert params["max_value"] == "xyz"
-
-    def test_get_radio_number_parameters_unrecognized_line(self, capsys):
-        """Test get_radio_number_parameters prints warning for unrecognized line"""
-        row = {"parameters": "min=1\nmax=2\nfoo=bar"}
-        params = get_radio_number_parameters(row)
-        captured = capsys.readouterr()
-        assert (
-            "Warning: Unrecognized parameter 'foo' for radio_number in Widgets sheet. Expected 'min', 'max' or 'overMaxAllowed'."
-            in captured.out
-        )
-        assert params["min_value"] == 1
-        assert params["max_value"] == 2
-
-    def test_get_radio_number_parameters_min_gte_max(self, capsys):
-        """Test get_radio_number_parameters prints error when min >= max"""
-        row = {"parameters": "min=5\nmax=5"}
-        params = get_radio_number_parameters(row)
-        captured = capsys.readouterr()
-        assert (
-            "ValueError: min (5) must be less than max (5) in parameters in Widgets sheet."
-            in captured.out
-        )
-        assert params["min_value"] == 5
-        assert params["max_value"] == 5
-
-
-class TestGetStringParameters:
-    """Tests for get_string_parameters function"""
-
-    def test_get_string_parameters_defaults(self):
-        """Test get_string_parameters returns defaults when parameters is empty"""
-        row = {}
-        params = get_string_parameters(row)
-        assert params["formatter"] is None
-        assert params["suffix_label"] is None
-
-    def test_get_string_parameters_valid_parameters(self):
-        """Test get_string_parameters parses valid min and max"""
-        row = {"parameters": "formatter=somethingCustomFormatter"}
-        params = get_string_parameters(row)
-        assert params["formatter"] == "somethingCustomFormatter"
-        assert params["suffix_label"] is None
-
-    def test_get_string_parameters_suffix_label(self):
-        """Test get_string_parameters parses suffixLabel"""
-        row = {"parameters": "suffixLabel=home:valueSuffix"}
-        params = get_string_parameters(row)
-        assert params["formatter"] is None
-        assert params["suffix_label"] == "home:valueSuffix"
-
-    def test_get_string_parameters_unrecognized_parameter(self, capsys):
-        """Test get_string_parameters prints warning for unrecognized parameter"""
-        row = {"parameters": "formatter=somethingCustomFormatter\nfoo=bar"}
-        params = get_string_parameters(row)
-        captured = capsys.readouterr()
-        assert (
-            "Warning: Unrecognized parameter 'foo' for string in Widgets sheet. Expected 'formatter' or 'suffixLabel'."
-            in captured.out
-        )
-        assert params["formatter"] == "somethingCustomFormatter"
-
-
-class TestGetNumberParameters:
-    """Tests for get_number_parameters function"""
-
-    def test_get_number_parameters_defaults(self):
-        """Test get_number_parameters returns defaults when parameters is empty"""
-        row = {}
-        params = get_number_parameters(row)
-        assert params["suffix_label"] is None
-
-    def test_get_number_parameters_suffix_label(self):
-        """Test get_number_parameters parses suffixLabel"""
-        row = {"parameters": "suffixLabel=home:valueSuffix"}
-        params = get_number_parameters(row)
-        assert params["suffix_label"] == "home:valueSuffix"
-
-    def test_get_number_parameters_unrecognized_parameter(self, capsys):
-        """Test get_number_parameters prints warning for unrecognized parameter"""
-        row = {"parameters": "suffixLabel=home:valueSuffix\nfoo=bar"}
-        params = get_number_parameters(row)
-        captured = capsys.readouterr()
-        assert (
-            "Warning: Unrecognized parameter 'foo' for number in Widgets sheet. Expected 'suffixLabel'."
-            in captured.out
-        )
-        assert params["suffix_label"] == "home:valueSuffix"
 
 
 class TestGenerateSuffixLabelCode:
     """Tests for generate_suffix_label_code helper"""
 
     def test_generate_suffix_label_code_empty(self):
-        assert generate_suffix_label_code(None, "String") == ""
-        assert generate_suffix_label_code("", "String") == ""
-        assert generate_suffix_label_code("   ", "String") == ""
+        assert generate_suffix_label_code(None) == ""
+        assert generate_suffix_label_code("") == ""
 
     def test_generate_suffix_label_code_valid(self):
-        result = generate_suffix_label_code("home:valueSuffix", "String")
+        result = generate_suffix_label_code("home:valueSuffix")
         assert "suffixLabel: (t: TFunction) => t('home:valueSuffix')" in result
 
     def test_generate_suffix_label_code_valid_with_dots(self):
-        result = generate_suffix_label_code("home:home.size.valueSuffix", "String")
+        result = generate_suffix_label_code("home:home.size.valueSuffix")
         assert (
             "suffixLabel: (t: TFunction) => t('home:home.size.valueSuffix')" in result
         )
-
-    def test_generate_suffix_label_code_trims(self):
-        result = generate_suffix_label_code("  home:valueSuffix \n", "String")
-        assert "t('home:valueSuffix')" in result
-
-    def test_generate_suffix_label_code_invalid_format_warns(self, capsys):
-        result = generate_suffix_label_code("home:", "String")
-        captured = capsys.readouterr()
-        assert (
-            "Warning: Invalid suffixLabel format for String in Widgets sheet. Expected suffixLabel=sectionName:valueSuffix, got 'home:'."
-            in captured.out
-        )
-        assert result == ""
-
-
-class TestParseParameters:
-    """Tests for parse_parameters function"""
-
-    def test_parse_parameters_case_insensitivity(self):
-        """Test parse_parameters parses overMaxAllowed"""
-        row = "Min=1\nMax=5\nOverMaxAllowed"
-        params = parse_parameters(row)
-        assert params["min"] == "1"
-        assert params["max"] == "5"
-        assert params["overmaxallowed"] is True
-
-    def test_parse_parameters_semicolon_split(self):
-        """Test parse_parameters splits parameters on semicolon as well as newline"""
-        row = "min=3;max=8;overMaxAllowed"
-        params = parse_parameters(row)
-        assert params["min"] == "3"
-        assert params["max"] == "8"
-        assert params["overmaxallowed"] is True
-
-    def test_parse_parameters_space_split(self):
-        """Test parse_parameters splits parameters on space as well as newline and semicolon"""
-        row = "min=4 max=9 overMaxAllowed"
-        params = parse_parameters(row)
-        assert params["min"] == "4"
-        assert params["max"] == "9"
-        assert params["overmaxallowed"] is True
-
-    def test_parse_parameters_mixed_all_split(self):
-        """Test parse_parameters splits parameters on newline, semicolon, and space"""
-        row = "min=2\nmax=7;overMaxAllowed min=3"
-        params = parse_parameters(row)
-        # The last min=3 should override min=2
-        assert params["min"] == "3"
-        assert params["max"] == "7"
-        assert params["overmaxallowed"] is True
-
-    def test_parse_parameters_multiple_line_breaks(self):
-        """Test parse_parameters splits parameters on newline, semicolon, and space"""
-        row = "min=2\n\nmax=7\n  \noverMaxAllowed\n  \n\n"
-        params = parse_parameters(row)
-        assert params["min"] == "2"
-        assert params["max"] == "7"
-        assert params["overmaxallowed"] is True
-        assert len(params) == 3  # make sure no empty or extra keys are created
 
 
 class TestGetWidgetsFileImportFlags:
@@ -1728,8 +995,7 @@ class TestGetWidgetsFileImportFlags:
 
     def test_empty_section_rows(self):
         """Test that empty section_rows returns default ImportFlags"""
-        section_rows = []
-        import_flags = get_widgets_file_import_flags(section_rows)
+        import_flags = get_widgets_file_import_flags([])
 
         # Only validations should be True by default
         assert import_flags.has_validations_import is True
@@ -1753,78 +1019,42 @@ class TestGetWidgetsFileImportFlags:
     def test_choices_imports(self):
         """Test that choices columns are correctly detected"""
         # Standard choices
-        section_rows = [
-            {
-                "choices": "yesNo",
-                "input_type": "Radio",
-                "validation": "",
-                "conditional": "",
-            }
-        ]
-        import_flags = get_widgets_file_import_flags(section_rows)
+        import_flags = get_widgets_file_import_flags([widget("Radio", choices="yesNo")])
         assert import_flags.has_choices_import is True
         assert import_flags.has_custom_choices_import is False
 
         # Custom choices
-        section_rows = [
-            {
-                "choices": "myCustomChoices",
-                "input_type": "Radio",
-                "validation": "",
-                "conditional": "",
-            }
-        ]
-        import_flags = get_widgets_file_import_flags(section_rows)
+        import_flags = get_widgets_file_import_flags(
+            [widget("Radio", choices="myCustomChoices")]
+        )
         assert import_flags.has_choices_import is False
         assert import_flags.has_custom_choices_import is True
 
         # Explicitly custom choices with CustomChoices suffix
-        section_rows = [
-            {
-                "choices": "myCustomChoices_customChoices",
-                "input_type": "Radio",
-                "validation": "",
-                "conditional": "",
-            }
-        ]
-        import_flags = get_widgets_file_import_flags(section_rows)
+        import_flags = get_widgets_file_import_flags(
+            [widget("Radio", choices="myCustomChoices_customChoices")]
+        )
         assert import_flags.has_choices_import is False
         assert import_flags.has_custom_choices_import is True
 
     def test_validation_imports(self):
         """Test that validation columns are correctly detected"""
         # Default validations
-        section_rows = [
-            {"input_type": "Radio", "choices": "", "validation": "", "conditional": ""}
-        ]
-        import_flags = get_widgets_file_import_flags(section_rows)
+        import_flags = get_widgets_file_import_flags([widget()])
         assert import_flags.has_validations_import is True
         assert import_flags.has_custom_validations_import is False
 
         # Standard validation
-        section_rows = [
-            {
-                "input_type": "Radio",
-                "choices": "",
-                "validation": "phoneNumberValidation",
-                "conditional": "",
-            }
-        ]
-        import_flags = get_widgets_file_import_flags(section_rows)
+        import_flags = get_widgets_file_import_flags(
+            [widget(validation="phoneValidation")]
+        )
         assert import_flags.has_validations_import is True
         assert import_flags.has_custom_validations_import is False
 
         # Explicitly custom validation with CustomValidation suffix
-        section_rows = [
-            {
-                "input_type": "Radio",
-                "choices": "",
-                "validation": "specialCustomValidation",
-                "conditional": "",
-            }
-        ]
-        import_flags = get_widgets_file_import_flags(section_rows)
-        print(import_flags)
+        import_flags = get_widgets_file_import_flags(
+            [widget(validation="specialCustomValidation")]
+        )
         # has_validation_import is always true because of default validations, should it be?
         assert import_flags.has_validations_import is True
         assert import_flags.has_custom_validations_import is True
@@ -1832,164 +1062,82 @@ class TestGetWidgetsFileImportFlags:
     def test_conditional_imports(self):
         """Test that conditional columns are correctly detected"""
         # Default conditionals
-        section_rows = [
-            {"input_type": "Radio", "choices": "", "validation": "", "conditional": ""}
-        ]
-        import_flags = get_widgets_file_import_flags(section_rows)
+        import_flags = get_widgets_file_import_flags([widget()])
         assert import_flags.has_conditionals_import is False
         assert import_flags.has_custom_conditionals_import is False
 
         # Standard conditional
-        section_rows = [
-            {
-                "input_type": "Radio",
-                "choices": "",
-                "validation": "",
-                "conditional": "someConditional",
-            }
-        ]
-        import_flags = get_widgets_file_import_flags(section_rows)
+        import_flags = get_widgets_file_import_flags(
+            [widget(conditional="someConditional")]
+        )
         assert import_flags.has_conditionals_import is True
         assert import_flags.has_custom_conditionals_import is False
 
         # Custom conditional with CustomConditional suffix
-        section_rows = [
-            {
-                "input_type": "Radio",
-                "choices": "",
-                "validation": "",
-                "conditional": "myCustomConditional",
-            }
-        ]
-        import_flags = get_widgets_file_import_flags(section_rows)
+        import_flags = get_widgets_file_import_flags(
+            [widget(conditional="myCustomConditional")]
+        )
         assert import_flags.has_conditionals_import is False
         assert import_flags.has_custom_conditionals_import is True
 
     def test_input_range_imports(self):
         """Test that inputRange columns are correctly detected"""
-        section_rows = [
-            {
-                "input_type": "Radio",
-                "choices": "",
-                "validation": "",
-                "conditional": "",
-                "input_range": "satisfaction",
-            }
-        ]
-        import_flags = get_widgets_file_import_flags(section_rows)
+        import_flags = get_widgets_file_import_flags(
+            [widget("Range", input_range="satisfaction")]
+        )
         assert import_flags.has_input_range_import is True
 
     def test_custom_widgets_imports(self):
         """Test that Custom inputType is correctly detected"""
-        section_rows = [
-            {"input_type": "Custom", "choices": "", "validation": "", "conditional": ""}
-        ]
-        import_flags = get_widgets_file_import_flags(section_rows)
+        import_flags = get_widgets_file_import_flags([widget("Custom")])
         assert import_flags.has_custom_widgets_import is True
 
     def test_help_popup_imports(self):
         """Test that help_popup columns are correctly detected"""
         # Help popup
-        section_rows = [
-            {
-                "input_type": "Radio",
-                "choices": "",
-                "validation": "",
-                "conditional": "",
-                "help_popup": "someHelpPopup",
-            }
-        ]
-        import_flags = get_widgets_file_import_flags(section_rows)
+        import_flags = get_widgets_file_import_flags(
+            [widget(help_popup="someHelpPopup")]
+        )
         assert import_flags.has_help_popup_import is True
 
         # Confirm popup on NextButton
-        section_rows = [
-            {
-                "input_type": "NextButton",
-                "choices": "",
-                "validation": "",
-                "conditional": "",
-                "confirm_popup": "someConfirmPopup",
-            }
-        ]
-        import_flags = get_widgets_file_import_flags(section_rows)
+        import_flags = get_widgets_file_import_flags(
+            [widget("NextButton", confirm_popup="someConfirmPopup")]
+        )
         assert import_flags.has_help_popup_import is True
-
-    @pytest.mark.parametrize(
-        ("input_type", "popup_field"),
-        [
-            ("InfoText", "help_popup"),
-            ("NextButton", "help_popup"),
-            ("Radio", "confirm_popup"),
-        ],
-    )
-    def test_help_popup_imports_ignore_unsupported_types(self, input_type, popup_field):
-        """Unsupported popup columns must not trigger customHelpPopup import."""
-        section_rows = [
-            {
-                "input_type": input_type,
-                "choices": "",
-                "validation": "",
-                "conditional": "",
-                popup_field: "somePopup",
-            }
-        ]
-        import_flags = get_widgets_file_import_flags(section_rows)
-        assert import_flags.has_help_popup_import is False
 
     def test_label_context_imports(self):
         """Test that label context imports are correctly detected"""
         # Nickname label
-        section_rows = [
-            {
-                "input_type": "Radio",
-                "choices": "",
-                "validation": "",
-                "conditional": "",
-                "label::en": "Hello {{nickname}}!",
-            }
-        ]
-        import_flags = get_widgets_file_import_flags(section_rows)
+        import_flags = get_widgets_file_import_flags(
+            [widget(**{"label::en": "Hello {{nickname}}!"})]
+        )
         assert import_flags.has_nickname_label is True
 
         # Persons count via count in label
-        section_rows = [
-            {
-                "input_type": "Radio",
-                "choices": "",
-                "validation": "",
-                "conditional": "",
-                "label::en": "There are {{count}} people",
-            }
-        ]
-        import_flags = get_widgets_file_import_flags(section_rows)
+        import_flags = get_widgets_file_import_flags(
+            [widget(**{"label::en": "There are {{count}} people"})]
+        )
         assert import_flags.has_persons_count_label is True
 
         # Persons count via label_one
-        section_rows = [
-            {
-                "input_type": "Radio",
-                "choices": "",
-                "validation": "",
-                "conditional": "",
-                "label::en": "Regular label",
-                "label_one::en": "Single person label",
-            }
-        ]
-        import_flags = get_widgets_file_import_flags(section_rows)
+        import_flags = get_widgets_file_import_flags(
+            [
+                widget(
+                    **{
+                        "label::en": "Regular label",
+                        "label_one::fr": "Étiquette pour une personne",
+                        "label_one::en": "Single person label",
+                    }
+                )
+            ]
+        )
         assert import_flags.has_persons_count_label is True
 
         # Gendered suffix
-        section_rows = [
-            {
-                "input_type": "Radio",
-                "choices": "",
-                "validation": "",
-                "conditional": "",
-                "label::en": "{{genderedSuffix:he/she}} is happy",
-            }
-        ]
-        import_flags = get_widgets_file_import_flags(section_rows)
+        import_flags = get_widgets_file_import_flags(
+            [widget(**{"label::en": "{{genderedSuffix:he/she}} is happy"})]
+        )
         assert import_flags.has_gendered_suffix_label is True
 
     @cases(
@@ -2002,17 +1150,9 @@ class TestGetWidgetsFileImportFlags:
     )
     def test_custom_labels_imports(self, parameters):
         """Test that customLabels usage in parameters is correctly detected, whatever the case of its name"""
-        section_rows = [
-            {
-                "input_type": "Radio",
-                "choices": "",
-                "validation": "",
-                "conditional": "",
-                "parameters": parameters,
-                "label::en": "Some label",
-            }
-        ]
-        import_flags = get_widgets_file_import_flags(section_rows)
+        import_flags = get_widgets_file_import_flags(
+            [widget(parameters=parameters, **{"label::en": "Some label"})]
+        )
         assert import_flags.has_custom_labels_import is True
 
 
@@ -2038,7 +1178,10 @@ def demo_generator_widgets_output():
     for section in ("home", "household", "completed"):
         os.makedirs(os.path.join(temp_dir, section), exist_ok=True)
     try:
-        generate_widgets(ExcelSurveyDefinitionReader(DEMO_GENERATOR_EXCEL), temp_dir)
+        generate_widgets(
+            load_survey_definition(ExcelSurveyDefinitionReader(DEMO_GENERATOR_EXCEL)),
+            temp_dir,
+        )
         yield temp_dir
     finally:
         shutil.rmtree(temp_dir)

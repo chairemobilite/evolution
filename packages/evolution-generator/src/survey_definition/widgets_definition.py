@@ -151,8 +151,7 @@ WIDGET_ALLOWED_INPUT_TYPES_BY_PARAMETER: dict[str, frozenset[WidgetInputType]] =
     "suffixLabel": frozenset({"String", "Number"}),
 }
 
-# A parameter name may be written in any case, e.g. Max: the generator reads them in
-# lower case (see generate_widgets.py::parse_parameters).
+# A parameter name may be written in any case, e.g. Max is read as max.
 _PARAMETER_BY_LOWER_CASE = {
     name.lower(): name for name in WIDGET_ALLOWED_INPUT_TYPES_BY_PARAMETER
 }
