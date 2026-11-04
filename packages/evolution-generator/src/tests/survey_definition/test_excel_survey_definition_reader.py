@@ -49,6 +49,9 @@ EXPECTED_TABLE = [
 ]
 
 
+# Each styled cell is the (row, column) of a formatted cell with no value (see
+# _save_workbook). The data fills rows 1 to 3 and columns 1 and 2, so (10, 1) is below
+# it and (1, 50) right of it.
 @pytest.mark.parametrize(
     "styled_cells",
     [
