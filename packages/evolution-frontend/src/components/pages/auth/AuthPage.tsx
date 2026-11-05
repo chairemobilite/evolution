@@ -12,7 +12,7 @@ import { RootState } from '../../../store/configureStore';
 import ByFieldLoginForm from './ByFieldLoginForm';
 
 // These authentication methods are managed differently and not in the wrapped component
-const unmanagedAuthMethods = ['facebook', 'google', 'anonymous', 'directToken'];
+const unmanagedAuthMethods = ['google', 'anonymous', 'directToken'];
 
 const PasswordLess = (props: { authMethods: string[] }) => {
     const { t } = useTranslation(['survey', 'auth']);
@@ -102,7 +102,7 @@ const AuthPage: React.FunctionComponent = () => {
                 // 'passwordless' is considered a login method with a widget, so return true
                 return true;
             } else {
-                // For other keys like 'anonymous', 'google', 'facebook', etc., check if the value is true
+                // For other keys like 'anonymous', 'google', etc., check if the value is true
                 return value === true;
             }
         });
@@ -147,7 +147,7 @@ const AuthPage: React.FunctionComponent = () => {
                         </div>
                     )}
 
-                    {(config.auth?.google || config.auth?.facebook) && (
+                    {config.auth?.google && (
                         <div className="apptr__auth-box">
                             <p className="_label apptr__form__label-standalone">
                                 {t(['survey:auth:OAuthTitle', 'auth:OAuthTitle'])}
@@ -156,13 +156,6 @@ const AuthPage: React.FunctionComponent = () => {
                                 <div className="google-oauth-button-container apptr_form-oauth-google-login">
                                     <a className="google-oauth-button" href="/googlelogin">
                                         {t('auth:signInWithGoogle')}
-                                    </a>
-                                </div>
-                            )}
-                            {config.auth?.facebook && (
-                                <div className="facebook-oauth-button-container apptr_form-oauth-facebook-login">
-                                    <a className="facebook-oauth-button" href="/facebooklogin">
-                                        {t('auth:signInWithFacebook')}
                                     </a>
                                 </div>
                             )}

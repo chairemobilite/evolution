@@ -448,7 +448,6 @@ export interface InterviewListAttributes {
     is_completed?: boolean;
     is_questionable?: boolean;
     username: string;
-    facebook: boolean;
     google: boolean;
     audits?: InterviewAudits;
     created_at?: string;
@@ -469,7 +468,6 @@ export interface InterviewStatusAttributesBase {
     review_status: ReviewDecisionEffectiveStatus;
     is_completed?: boolean;
     username: string;
-    facebook: boolean;
     google: boolean;
 }
 

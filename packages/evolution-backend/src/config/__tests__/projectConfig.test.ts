@@ -17,7 +17,6 @@ const interview: InterviewListAttributes = {
     response: { accessCode: 'notsure', foo: 'bar', household: { size: 0 } } as unknown as InterviewResponse,
     corrected_response: {},
     username: 'test',
-    facebook: false,
     google: false,
     audits: { 'errorMsg': 2, 'errorMsg2': 5 }
 };
@@ -31,7 +30,6 @@ const nullResponseInterview = {
     response: null,
     corrected_response: null,
     username: 'test',
-    facebook: false,
     google: false
 };
 
@@ -54,7 +52,6 @@ describe('Validation List Filter', () => {
                     review_status: interview.review_status,
                     is_completed: interview.is_completed,
                     username: interview.username,
-                    facebook: interview.facebook,
                     google: interview.google,
                     response: { household: { size: 0 }, _isCompleted: undefined, _validationComment: undefined },
                     audits: interview.audits
@@ -77,7 +74,6 @@ describe('Validation List Filter', () => {
                     review_status: interview.review_status,
                     is_completed: interview.is_completed,
                     username: interview.username,
-                    facebook: interview.facebook,
                     google: interview.google,
                     response: { household: { size: undefined }, _isCompleted: undefined, _validationComment: undefined }
                 }));
@@ -101,7 +97,6 @@ describe('Validation List Filter', () => {
                     review_status: interview.review_status,
                     is_completed: interview.is_completed,
                     username: interview.username,
-                    facebook: interview.facebook,
                     google: interview.google,
                     response: { accessCode: 'notsure', household: { size: 0 }, _isCompleted: undefined, _validationComment: undefined },
                     audits: interview.audits
@@ -123,7 +118,6 @@ describe('Validation List Filter', () => {
                     review_status: interview.review_status,
                     is_completed: interview.is_completed,
                     username: interview.username,
-                    facebook: interview.facebook,
                     google: interview.google,
                     response: { accessCode: undefined, household: { size: undefined }, _isCompleted: undefined, _validationComment: undefined }
                 }));
@@ -152,7 +146,6 @@ describe('Validation List Filter', () => {
                 review_status: interview.review_status,
                 is_completed: interview.is_completed,
                 username: interview.username,
-                facebook: interview.facebook,
                 google: interview.google,
                 response: { accessCode: 'notsure', foo: 'bar', household: { size: 0 }, _isCompleted: undefined, _validationComment: undefined },
                 audits: interview.audits

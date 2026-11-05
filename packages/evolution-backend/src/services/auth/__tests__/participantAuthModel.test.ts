@@ -42,7 +42,6 @@ const defaultParticipantAttributes = {
     profile: null,
     preferences: { lang: 'es' },
     google_id: null,
-    facebook_id: null,
     password: 'Randomencryptedpassword',
     password_reset_expire_at: moment('2023-04-24'),
     password_reset_token: 'MyPasswordResetToken',
@@ -250,7 +249,6 @@ describe('ParticipantAuthModel: createAndSave', () => {
             username: null,
             email: null,
             google_id: null,
-            facebook_id: null,
             password: null,
             first_name: '',
             last_name: '',
@@ -276,7 +274,6 @@ describe('ParticipantAuthModel: createAndSave', () => {
             username: newUserParams.username,
             email: newUserParams.email,
             google_id: null,
-            facebook_id: null,
             password: expect.stringContaining('$2b$10$'),
             first_name: '',
             last_name: '',
@@ -290,7 +287,6 @@ describe('ParticipantAuthModel: createAndSave', () => {
             username: newUserParams.username,
             email: newUserParams.email,
             google_id: null,
-            facebook_id: null,
             password: expect.stringContaining('$2b$10$'),
             first_name: '',
             last_name: '',
@@ -305,12 +301,11 @@ describe('ParticipantAuthModel: createAndSave', () => {
         expect(await newPart.verifyPassword(newUserParams.password)).toEqual(true);
     });
 
-    test('With google and facebook IDs', async () => {
+    test('With a google ID', async () => {
         const newUserParams = {
             username: 'username',
             email: 'foo@bar.com',
             googleId: 'googleId',
-            facebookId: 'fbId',
             password: '$fdafdsafdasfda',
             isTest: true,
             confirmationToken: 'blabla'
@@ -323,7 +318,6 @@ describe('ParticipantAuthModel: createAndSave', () => {
             username: newUserParams.username,
             email: newUserParams.email,
             google_id: newUserParams.googleId,
-            facebook_id: newUserParams.facebookId,
             password: null,
             first_name: '',
             last_name: '',
@@ -348,7 +342,6 @@ describe('ParticipantAuthModel: createAndSave', () => {
             username: newUserParams.username,
             email: newUserParams.email,
             google_id: null,
-            facebook_id: null,
             password: null,
             first_name: '',
             last_name: '',
@@ -497,7 +490,6 @@ test('ParticipantModel: sanitize', () => {
         email,
         first_name,
         last_name,
-        facebook_id: 'fbid',
         google_id: 'googleid',
         private_token: 'abcefghi',
         preferences,
