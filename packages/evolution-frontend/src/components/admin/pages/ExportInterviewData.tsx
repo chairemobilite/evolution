@@ -23,28 +23,35 @@ const ExportInterviewData = ({ t, i18n }: WithTranslation) => {
     }, []);
 
     const onPrepareCsvRespondentExportFiles = async () => {
-        return onPrepareCsvExportFiles('participant');
+        return onPrepareCsvExportFiles(
+            '/api/admin/data/prepareCsvFileForExportBySurveyObject?responseType=participant'
+        );
     };
 
     const onPrepareCsvCorrectedExportFiles = async () => {
-        return onPrepareCsvExportFiles('correctedIfAvailable');
+        return onPrepareCsvExportFiles(
+            '/api/admin/data/prepareCsvFileForExportBySurveyObject?responseType=correctedIfAvailable'
+        );
     };
 
-    const onPrepareCsvExportFiles = async (
-        exportType: 'correctedIfAvailable' | 'participant' = 'correctedIfAvailable'
-    ) => {
+    const onPrepareSurveyObjectsCsvExportFiles = async () => {
+        return onPrepareCsvExportFiles('/api/admin/data/prepareSurveyObjectsCsvExport');
+    };
+
+    /**
+     * Start the preparation of export files and wait for them
+     * @param prepareUrl URL of the route starting the export task
+     */
+    const onPrepareCsvExportFiles = async (prepareUrl: string) => {
         setIsPreparingCsvExportFiles(true);
         try {
-            const response = await fetch(
-                '/api/admin/data/prepareCsvFileForExportBySurveyObject?responseType=' + exportType,
-                {
-                    method: 'GET',
-                    credentials: 'include',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
+            const response = await fetch(prepareUrl, {
+                method: 'GET',
+                credentials: 'include',
+                headers: {
+                    'Content-Type': 'application/json'
                 }
-            );
+            });
             if (response.status === 200) {
                 updateOrWaitForFiles();
             } else {
@@ -211,6 +218,12 @@ const ExportInterviewData = ({ t, i18n }: WithTranslation) => {
                 color="blue"
                 onClick={onPrepareCsvRespondentExportFiles}
                 label={t('admin:export:PrepareParticipantCsvExportFiles')}
+                align="left"
+            />
+            <Button
+                color="blue"
+                onClick={onPrepareSurveyObjectsCsvExportFiles}
+                label={t('admin:export:PrepareSurveyObjectsCsvExportFiles')}
                 align="left"
             />
             <Button

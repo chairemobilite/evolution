@@ -219,6 +219,7 @@
     "export": {
         "PrepareCorrectedCsvExportFiles": "Préparer les fichiers CSV par objet (réponses corrigées si disponibles)",
         "PrepareParticipantCsvExportFiles": "Préparer les fichiers CSV par objet (réponses originales)",
+        "PrepareSurveyObjectsCsvExportFiles": "Préparer les fichiers CSV des objets d'enquête (réponses corrigées seulement)",
         "RefreshExportFiles": "Rafraîchir la liste des fichiers d'export",
         "ServerErrorForExport": "Erreur de serveur pendant la préparation des fichiers d'export",
         "ServerExportForbidden": "Vous n'êtes pas autorisé à exporter les données d'enquête",

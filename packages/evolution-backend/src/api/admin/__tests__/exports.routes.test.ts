@@ -11,6 +11,7 @@ import router from 'chaire-lib-backend/lib/api/admin.routes';
 import { directoryManager } from 'chaire-lib-backend/lib/utils/filesystem/directoryManager';
 import { fileManager } from 'chaire-lib-backend/lib/utils/filesystem/fileManager';
 import { exportAllResponsesToCsvByObject } from '../../../services/adminExport/exportAllResponsesToCsvByObject';
+import { exportSurveyObjectsToCsv } from '../../../services/adminExport/exportSurveyObjectsToCsv';
 import { isAdmin } from 'chaire-lib-backend/src/services/auth/authorization';
 import _ from 'lodash';
 
@@ -24,6 +25,11 @@ jest.mock('chaire-lib-backend/lib/services/auth/authorization', () => ({
 // Mock the export functions
 jest.mock('../../../services/adminExport/exportAllResponsesToCsvByObject', () => ({
     exportAllResponsesToCsvByObject: jest.fn().mockReturnValue('exportStarted')
+}));
+
+jest.mock('../../../services/adminExport/exportSurveyObjectsToCsv', () => ({
+    exportSurveyObjectsToCsv: jest.fn(),
+    isSurveyObjectsExportRunning: jest.fn().mockReturnValue(false)
 }));
 
 // Mock the file path on server
@@ -41,6 +47,9 @@ jest.mock('chaire-lib-backend/lib/utils/filesystem/fileManager', () => ({
 }));
 
 const exportAllResponsesToCsvByObjectMock = exportAllResponsesToCsvByObject as jest.MockedFunction<typeof exportAllResponsesToCsvByObject>;
+const exportSurveyObjectsToCsvMock = exportSurveyObjectsToCsv as jest.MockedFunction<
+    typeof exportSurveyObjectsToCsv
+>;
 const fileExistsAbsoluteMock = fileManager.fileExistsAbsolute as jest.MockedFunction<
     typeof fileManager.fileExistsAbsolute
 >;
@@ -97,6 +106,24 @@ describe('prepareCsvFileForExportBySurveyObject route', () => {
             status: 'exportStarted'
         });
         expect(exportAllResponsesToCsvByObjectMock).toHaveBeenCalledWith({ responseType: 'participant' });
+    });
+});
+
+describe('prepareSurveyObjectsCsvExport route', () => {
+    it.each(['exportStarted', 'alreadyRunning'] as const)('Should return the export status: %s', async (status) => {
+        exportSurveyObjectsToCsvMock.mockReturnValueOnce(status);
+        const response = await request(app).get('/api/admin/data/prepareSurveyObjectsCsvExport');
+        expect(response.status).toBe(200);
+        expect(response.body).toEqual({ status });
+    });
+
+    it('Should return an error if the export throws', async () => {
+        exportSurveyObjectsToCsvMock.mockImplementationOnce(() => {
+            throw new Error('error');
+        });
+        const response = await request(app).get('/api/admin/data/prepareSurveyObjectsCsvExport');
+        expect(response.status).toBe(500);
+        expect(response.body).toEqual({ status: 'error' });
     });
 });
 

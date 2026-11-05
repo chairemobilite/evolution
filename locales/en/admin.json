@@ -219,6 +219,7 @@
     "export": {
         "PrepareCorrectedCsvExportFiles": "Prepare CSV files by object (corrected responses if available)",
         "PrepareParticipantCsvExportFiles": "Prepare CSV files for export by object (original responses)",
+        "PrepareSurveyObjectsCsvExportFiles": "Prepare CSV files of the survey objects (corrected responses only)",
         "RefreshExportFiles": "Refresh export file list",
         "ServerErrorForExport": "Server error while preparing export files",
         "ServerExportForbidden": "You are not authorized to export data",
