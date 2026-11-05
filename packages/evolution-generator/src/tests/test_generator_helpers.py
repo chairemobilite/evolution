@@ -14,6 +14,7 @@ from helpers.generator_helpers import (
     load_survey_definition,
 )
 from survey_definition.excel_survey_definition_reader import ExcelSurveyDefinitionReader
+from survey_definition.widgets_definition import WIDGET_REQUIRED_FIELD_NAMES
 from tests.mocked_excel import add_mocked_excel_sheet, create_mocked_excel_data
 
 MOCKED_EXCEL_FILE = "src/tests/references/test.xlsx"
@@ -225,7 +226,10 @@ class TestLoadSurveyDefinition:
         """Like create_mocked_excel_data, plus a Widgets sheet holding the survey languages (fr, en), a Labels sheet and a Choices sheet."""
         workbook = create_mocked_excel_data(sheet_name, headers, rows)
         add_mocked_excel_sheet(
-            workbook, "Widgets", ["questionName", "label::fr", "label::en"], []
+            workbook,
+            "Widgets",
+            [*WIDGET_REQUIRED_FIELD_NAMES, "label::fr", "label::en"],
+            [],
         )
         add_mocked_excel_sheet(
             workbook, "Labels", self.VALID_LABELS_HEADERS, self.VALID_LABELS_ROWS
@@ -463,7 +467,10 @@ class TestLoadSurveyDefinition:
             self.VALID_CONDITIONALS_ROWS,
         )
         add_mocked_excel_sheet(
-            workbook, "Widgets", ["questionName", "label::es", "label::en"], []
+            workbook,
+            "Widgets",
+            [*WIDGET_REQUIRED_FIELD_NAMES, "label::es", "label::en"],
+            [],
         )
         add_mocked_excel_sheet(workbook, "Labels", self.VALID_LABELS_HEADERS, [])
         add_mocked_excel_sheet(workbook, "Choices", self.VALID_CHOICES_HEADERS, [])
@@ -672,6 +679,88 @@ class TestLoadSurveyDefinition:
             with pytest.raises(
                 ValidationError,
                 match="label_min::en is required; label_max::en is required",
+            ):
+                load_survey_definition(ExcelSurveyDefinitionReader(MOCKED_EXCEL_FILE))
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+    VALID_WIDGETS_HEADERS = [
+        *WIDGET_REQUIRED_FIELD_NAMES,
+        "path",
+        "label::fr",
+        "label::en",
+    ]
+    VALID_WIDGETS_ROWS = [
+        ["homeName", "String", True, "home", "home.name", "Nom", "Name"]
+    ]
+
+    def _create_workbook_with_widgets(self, headers=None, rows=None):
+        """Like _create_valid_workbook, with these Widgets sheet headers and rows."""
+        workbook = self._create_valid_workbook()
+        del workbook["Widgets"]
+        add_mocked_excel_sheet(
+            workbook,
+            "Widgets",
+            headers if headers is not None else self.VALID_WIDGETS_HEADERS,
+            rows if rows is not None else self.VALID_WIDGETS_ROWS,
+        )
+        return workbook
+
+    def test_widgets_sheet_is_read_by_column_name(self):
+        self._create_workbook_with_widgets()
+        try:
+            widgets = load_survey_definition(
+                ExcelSurveyDefinitionReader(MOCKED_EXCEL_FILE)
+            ).widgets
+            assert len(widgets) == 1
+            assert widgets[0].question_name == "homeName"
+            assert widgets[0].input_type == "String"
+            assert widgets[0].path == "home.name"
+            assert widgets[0].label == {"fr": "Nom", "en": "Name"}
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+    def test_widgets_sheet_with_old_column_names_raises(self):
+        """The columns were renamed (e.g. questionName -> question_name)."""
+        self._create_workbook_with_widgets(
+            headers=[
+                "questionName",
+                "inputType",
+                "active",
+                "section",
+                "label::fr",
+                "label::en",
+            ],
+            rows=[],
+        )
+        try:
+            with pytest.raises(
+                Exception,
+                match="Missing expected header in Widgets sheet: question_name",
+            ):
+                load_survey_definition(ExcelSurveyDefinitionReader(MOCKED_EXCEL_FILE))
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+    def test_invalid_widgets_row_raises_validation_error(self):
+        self._create_workbook_with_widgets(
+            rows=[["homeName", "Slider", True, "home", "home.name", "Nom", "Name"]]
+        )
+        try:
+            with pytest.raises(ValidationError, match="Invalid input_type in row 2"):
+                load_survey_definition(ExcelSurveyDefinitionReader(MOCKED_EXCEL_FILE))
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+    def test_widgets_are_checked_against_the_other_sheets(self):
+        """A widget's section must be in the Sections sheet."""
+        self._create_workbook_with_widgets(
+            rows=[["homeName", "String", True, "work", "home.name", "Nom", "Name"]]
+        )
+        try:
+            with pytest.raises(
+                ValidationError,
+                match="section 'work' does not match any section of the Sections table",
             ):
                 load_survey_definition(ExcelSurveyDefinitionReader(MOCKED_EXCEL_FILE))
         finally:

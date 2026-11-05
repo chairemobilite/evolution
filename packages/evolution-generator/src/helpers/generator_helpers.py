@@ -14,6 +14,7 @@ from survey_definition.input_range_definition import INPUT_RANGE_REQUIRED_FIELD_
 from survey_definition.labels_definition import LABEL_REQUIRED_FIELD_NAMES
 from survey_definition.sections_definition import SECTION_REQUIRED_FIELD_NAMES
 from survey_definition.survey_definition import SurveyDefinition
+from survey_definition.widgets_definition import WIDGET_REQUIRED_FIELD_NAMES
 
 # Define constants
 INDENT = "    "  # 4-space indentation
@@ -100,6 +101,7 @@ def load_survey_definition(reader: ExcelSurveyDefinitionReader) -> SurveyDefinit
         input_ranges=reader.get_table(
             "InputRange", INPUT_RANGE_REQUIRED_FIELD_NAMES, is_table_optional=True
         ),
+        widgets=reader.get_table("Widgets", WIDGET_REQUIRED_FIELD_NAMES),
     )
 
 

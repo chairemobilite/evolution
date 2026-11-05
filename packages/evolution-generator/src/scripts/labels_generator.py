@@ -7,26 +7,18 @@
 import os  # For interacting with the operating system
 import ruamel.yaml  # For working with YAML files
 import re  # For regular expressions
-from typing import NamedTuple, TypedDict
+from typing import NamedTuple
 from helpers.generator_helpers import (
     add_generator_yaml_header,
     get_label_context_flags,
 )
-from survey_definition.excel_survey_definition_reader import ExcelSurveyDefinitionReader
 from survey_definition.labels_definition import Labels
 from survey_definition.survey_definition import SurveyDefinition
-
-
-class SheetWithLabels(TypedDict):
-    """Configuration for one Excel sheet used to generate labels."""
-
-    sheetName: str
-    namespaceHeader: str
-    keyHeader: str
+from survey_definition.widgets_definition import Widgets
 
 
 class LabelRow(NamedTuple):
-    """One row of a sheet with labels, whichever sheet it comes from."""
+    """One row of a table with labels, whichever table it comes from."""
 
     row_number: int
     namespace: str
@@ -34,17 +26,6 @@ class LabelRow(NamedTuple):
     # The label and its singular form by language; a language may be missing.
     label: dict[str, str | None]
     label_one: dict[str, str | None]
-
-
-# Sheets whose labels are read from the Excel file, since they aren't in the survey
-# definition yet. The Labels sheet is read from SurveyDefinition.labels.
-DEFAULT_SHEETS_WITH_LABELS: list[SheetWithLabels] = [
-    {
-        "sheetName": "Widgets",
-        "namespaceHeader": "section",
-        "keyHeader": "questionName",
-    }
-]
 
 
 # TODO: We might change some in class functions to private functions, instead of classmethod or staticmethod.
@@ -443,51 +424,18 @@ class LabelsGenerator:
                             translations=translations_dict[language],
                         )
 
-    @classmethod
-    def label_rows_from_excel(
-        cls,
-        reader: ExcelSurveyDefinitionReader,
-        languages: tuple[str, ...],
-        sheet_with_labels: SheetWithLabels = DEFAULT_SHEETS_WITH_LABELS[0],
-    ) -> list[LabelRow]:
-        """
-        Reads the labels of a sheet that isn't in the survey definition yet (e.g. Widgets).
-
-        Args:
-            reader (ExcelSurveyDefinitionReader): The reader of the Excel file containing translations.
-            languages (tuple of str): The survey languages; each needs its label::<language> column.
-            sheet_with_labels (SheetWithLabels): Sheet configuration containing sheetName and header names.
-        """
-        # TODO: Read the Widgets labels from the survey definition once the Widgets
-        # sheet is in it, and remove this function.
-        headers = reader.get_headers(sheet_with_labels["sheetName"])
-        namespace_index = headers.index(sheet_with_labels["namespaceHeader"])
-        key_index = headers.index(sheet_with_labels["keyHeader"])
-        # One label column per language, and an optional label_one column
-        label_index_by_language = {
-            language: headers.index(f"label::{language}") for language in languages
-        }
-        label_one_index_by_language = {
-            language: headers.index(f"label_one::{language}")
-            for language in languages
-            if f"label_one::{language}" in headers
-        }
+    @staticmethod
+    def label_rows_from_widgets(widgets: Widgets) -> list[LabelRow]:
+        """Returns the labels of the survey definition's Widgets table, in source order: one row per widget, in its section's namespace."""
         return [
             LabelRow(
-                # The Excel row number, from a cell with a value (padding cells have none)
-                row_number=next(cell.row for cell in row if cell.value is not None),
-                namespace=row[namespace_index].value,
-                key=row[key_index].value,
-                label={
-                    language: row[index].value
-                    for language, index in label_index_by_language.items()
-                },
-                label_one={
-                    language: row[index].value
-                    for language, index in label_one_index_by_language.items()
-                },
+                row_number=row_number,
+                namespace=widget.section,
+                key=widget.question_name,
+                label=widget.label,
+                label_one=widget.label_one,
             )
-            for row in reader.get_data_rows(sheet_with_labels["sheetName"])
+            for row_number, widget in enumerate(widgets, start=2)
         ]
 
     @staticmethod
@@ -515,7 +463,7 @@ class LabelsGenerator:
         Adds the translations of `label_rows` to the appropriate YAML files.
 
         Args:
-            label_rows (list[LabelRow]): The rows of one sheet, in source order.
+            label_rows (list[LabelRow]): The rows of one table, in source order.
             labels_output_folder_path (str): The output folder path for the labels.
             languages (tuple of str): The survey languages.
         """
@@ -738,40 +686,32 @@ class LabelsGenerator:
     def generate_labels(
         cls,
         survey_definition: SurveyDefinition,
-        reader: ExcelSurveyDefinitionReader,
         labels_output_folder_path,
-        sheets_with_labels: list[SheetWithLabels] = DEFAULT_SHEETS_WITH_LABELS,
     ):
         """
         Generates the labels locales files, in the survey languages, from the survey
-        definition's Labels table and from the sheets not in it yet (`sheets_with_labels`,
-        read from the Excel file).
+        definition's Widgets and Labels tables.
 
         This function:
-        1. Collects all unique namespaces from all sheets.
+        1. Collects all unique namespaces from both tables.
         2. Deletes all YAML files for all namespaces/languages once before any processing.
-        3. Processes each sheet, merging translations into the same YAML files per namespace/language.
+        3. Processes each table, merging translations into the same YAML files per namespace/language.
 
         Args:
             survey_definition (SurveyDefinition): The already-validated survey definition.
-            reader (ExcelSurveyDefinitionReader): The reader of the Excel file holding `sheets_with_labels`.
             labels_output_folder_path (str): The output folder path for the labels.
-            sheets_with_labels (list[SheetWithLabels]): Configurations of the sheets read from the Excel file.
         """
         try:
             languages = survey_definition.languages
-            label_rows_by_sheet = [
-                cls.label_rows_from_excel(reader, languages, sheet)
-                for sheet in sheets_with_labels
+            label_rows_by_table = [
+                cls.label_rows_from_widgets(survey_definition.widgets),
+                cls.label_rows_from_labels(survey_definition.labels),
             ]
-            label_rows_by_sheet.append(
-                cls.label_rows_from_labels(survey_definition.labels)
-            )
 
-            # Step 1: Collect all unique namespaces from all sheets
+            # Step 1: Collect all unique namespaces from both tables
             all_sections = {
                 label_row.namespace
-                for label_rows in label_rows_by_sheet
+                for label_rows in label_rows_by_table
                 for label_row in label_rows
                 if label_row.namespace
             }
@@ -783,8 +723,8 @@ class LabelsGenerator:
                 all_sections,
             )
 
-            # Step 3: Process each sheet and merge translations into the same files
-            for label_rows in label_rows_by_sheet:
+            # Step 3: Process each table and merge translations into the same files
+            for label_rows in label_rows_by_table:
                 cls.add_translations(label_rows, labels_output_folder_path, languages)
         except Exception as e:
             print(f"An error occurred: {e}")

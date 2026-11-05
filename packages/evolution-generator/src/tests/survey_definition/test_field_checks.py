@@ -6,6 +6,7 @@
 # Every check takes (value, row); these checks all ignore row, so an empty dict stands in.
 
 from survey_definition import field_checks
+from tests.parametrize_cases import cases
 
 
 class TestValidTsIdentifier:
@@ -44,6 +45,30 @@ class TestValidPathChars:
     def test_rejects_disallowed_characters(self):
         assert field_checks.valid_path_chars("household/size", {}) is False
         assert field_checks.valid_path_chars("household-size", {}) is False
+
+
+class TestValidResponsePath:
+    @cases(
+        dict(id="one key", path="age"),
+        dict(id="two keys", path="household.size"),
+        dict(id="placeholder", path="household.persons.{_activePersonId}.age"),
+        dict(id="placeholder holding a path", path="trips.{_activeTrip.uuid}.mode"),
+    )
+    def test_accepts_a_response_path(self, path):
+        assert field_checks.valid_response_path(path, {}) is True
+
+    @cases(
+        dict(id="empty", path=""),
+        dict(id="empty key", path="household..size"),
+        dict(id="trailing dot", path="household."),
+        dict(id="empty placeholder", path="household.{}.size"),
+        dict(id="nested braces", path="household.{{_activePersonId}}"),
+        dict(id="placeholder inside a key", path="household.persons{_activePersonId}"),
+        dict(id="conditional expansion token", path="${relativePath}.age"),
+        dict(id="space", path="household size"),
+    )
+    def test_rejects_an_invalid_response_path(self, path):
+        assert field_checks.valid_response_path(path, {}) is False
 
 
 class TestNonBlank:

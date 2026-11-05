@@ -10,8 +10,8 @@ from helpers.generator_helpers import (
     generate_label_typescript_with_context,
     get_label_context_flags,
 )
-from survey_definition.excel_survey_definition_reader import ExcelSurveyDefinitionReader
-import re  # Regular expression module for pattern matching
+from survey_definition.survey_definition import SurveyDefinition
+from survey_definition.widgets_definition import WidgetDefinition
 from typing import TypedDict
 from dataclasses import dataclass
 
@@ -58,42 +58,6 @@ class GenderFields:
     has_sex_assigned_at_birth: bool = False
 
 
-class RadioNumberParametersResult(TypedDict):
-    """
-    TypedDict to hold the result of parsing parameters for a radio_number widget from the Widgets sheet.
-    It contains:
-    - min_value: int, the minimum value parsed from parameters.
-    - max_value: int, the maximum value parsed from parameters.
-    - over_max_allowed: bool, whether the 'overMaxAllowed' line was present in parameters.
-    """
-
-    min_value: int
-    max_value: int
-    over_max_allowed: bool
-
-
-class StringParametersResult(TypedDict):
-    """
-    TypedDict to hold the result of parsing parameters for a string widget from the Widgets sheet.
-    It contains:
-    - formatter: str | None, the name of the formatter to use. It can end with `customFormatter` to use a custom formatter.
-    - suffix_label: str | None, label rendered to the right of the input (ex: %, days, hours).
-    """
-
-    formatter: str | None
-    suffix_label: str | None
-
-
-class NumberParametersResult(TypedDict):
-    """
-    TypedDict to hold the result of parsing parameters for a number widget from the Widgets sheet.
-    It contains:
-    - suffix_label: str | None, label rendered to the right of the input (ex: %, days, hours).
-    """
-
-    suffix_label: str | None
-
-
 class WidgetResult(TypedDict):
     """
     TypedDict to hold the result of widget statement generation.
@@ -111,61 +75,38 @@ class WidgetResult(TypedDict):
 
 
 # Function to generate widgets.tsx for each section
-def generate_widgets(reader: ExcelSurveyDefinitionReader, widgets_output_folder: str):
+def generate_widgets(survey_definition: SurveyDefinition, widgets_output_folder: str):
     try:
-        # Read the Widgets headers and rows once, for every section
-        headers = reader.get_headers("Widgets")
-        widgets_rows = reader.get_data_rows("Widgets")
+        widgets = survey_definition.widgets
 
-        # Find the index of 'section' in headers
-        section_index = headers.index("section")
-
-        # Get all unique section names while preserving order from the section sheet
-        seen_sections: set[str] = set()
-        section_names: list[str] = []
-        for row in widgets_rows:
-            section = row[section_index].value
-            if section and section not in seen_sections:
-                seen_sections.add(section)
-                section_names.append(section)
+        # Get all unique section names, in the order of the Widgets table
+        section_names = list(dict.fromkeys(widget.section for widget in widgets))
 
         # Track gender-related fields. It will be done one section at a time, so
         # it's not possible to use gender field in a section before it is
         # defined, but subsequent sections can use it.
         gender_fields = GenderFields()
 
-        # Transform Excel content into TypeScript code
-        def convert_excel_to_typescript(section):
-            section_rows = []
-            for row in widgets_rows:
-                values = [cell.value if cell.value is not None else "" for cell in row]
-
-                if len(values) != len(headers):
-                    print(
-                        f"Skipping row {row}: Number of values ({len(values)}) does not match the number of headers ({len(headers)})."
-                    )
-                    continue
-
-                row_dict = dict(zip(headers, values))
-                section_rows.append(row_dict)
-
-            # Filter rows based on section
-            section_rows = [row for row in section_rows if row["section"] == section]
+        # Transform the section's widgets into TypeScript code
+        def convert_widgets_to_typescript(section):
+            section_widgets = [
+                widget for widget in widgets if widget.section == section
+            ]
 
             # See if the section contains a gender field and store it
-            for row in section_rows:
-                path = row.get("path", "")
-                if path == "gender":
+            for widget in section_widgets:
+                if widget.path == "gender":
                     gender_fields.has_gender = True
-                elif path == "sexAssignedAtBirth":
+                elif widget.path == "sexAssignedAtBirth":
                     gender_fields.has_sex_assigned_at_birth = True
 
             # Get the widgets file import flags
-            import_flags = get_widgets_file_import_flags(section_rows)
+            import_flags = get_widgets_file_import_flags(section_widgets)
 
             # Generate widgets statements with gender fields info
             widget_results = [
-                generate_widget_statement(row, gender_fields) for row in section_rows
+                generate_widget_statement(widget, gender_fields)
+                for widget in section_widgets
             ]
 
             # Check if any widget has specific import flags and update import_flags accordingly
@@ -189,7 +130,9 @@ def generate_widgets(reader: ExcelSurveyDefinitionReader, widgets_output_folder:
             )
 
             # Generate widgets names
-            widgets_names_statements = generate_widgets_names_statements(section_rows)
+            widgets_names_statements = generate_widgets_names_statements(
+                section_widgets
+            )
 
             return {
                 "widgetsStatements": widgets_statements,
@@ -198,9 +141,7 @@ def generate_widgets(reader: ExcelSurveyDefinitionReader, widgets_output_folder:
 
         # Process the output files based on sections
         for section in section_names:
-            if section is None:
-                continue
-            transformed_content = convert_excel_to_typescript(section)
+            transformed_content = convert_widgets_to_typescript(section)
             widgets_output_path = widgets_output_folder + "/" + section
 
             # Add Generator comment at the start of the file
@@ -233,62 +174,21 @@ def generate_widgets(reader: ExcelSurveyDefinitionReader, widgets_output_folder:
         raise e
 
 
-# Input types that emit helpPopup or confirmPopup in generated widget code.
-_HELP_POPUP_INPUT_TYPES = frozenset(
-    {
-        "Radio",
-        "RadioNumber",
-        "Select",
-        "String",
-        "Number",
-        "Range",
-        "Checkbox",
-        "Text",
-    }
-)
-_CONFIRM_POPUP_INPUT_TYPES = frozenset({"NextButton"})
-
-
-def _row_uses_custom_help_popup_import(row) -> bool:
-    """Return True when generated widget output will reference customHelpPopup."""
-    input_type = row.get("inputType", "")
-    if row.get("help_popup") and input_type in _HELP_POPUP_INPUT_TYPES:
-        return True
-    if row.get("confirm_popup") and input_type in _CONFIRM_POPUP_INPUT_TYPES:
-        return True
-    return False
-
-
-# Generate widget statement for a row
-def generate_widget_statement(row, gender_fields: GenderFields = None) -> WidgetResult:
+# Generate widget statement for a widget
+def generate_widget_statement(
+    widget: WidgetDefinition, gender_fields: GenderFields = None
+) -> WidgetResult:
     # Initialize gender_fields to a default class if none is provided
     gender_fields = gender_fields or GenderFields()
-    question_name = row["questionName"]
-    active = row.get("active", False)  # Default to False if not present
-    input_type = row["inputType"]
-    section = row["section"]
-    path = row["path"]
-    conditional = row["conditional"]
-    validation = row["validation"]
-    input_range = row["inputRange"]
-    help_popup = row["help_popup"]
-    if help_popup and input_type not in _HELP_POPUP_INPUT_TYPES:
-        print(
-            f"Warning: help_popup is not supported for {input_type} widget '{question_name}'. Ignoring."
-        )
-        help_popup = ""
-    choices = row["choices"]
-    confirm_popup = row.get("confirm_popup", None)  # Optional column
-    comments = row.get("comments", None)  # Optional column
-    widget_label = generate_label(
-        section, question_name, row, gender_fields, key_name="label"
-    )
+    question_name = widget.question_name
+    input_type = widget.input_type
+    widget_label = generate_label(widget, gender_fields, key_name="label")
 
     # Initialize result with default values
     result: WidgetResult = {"statement": "", "has_helper_import": False}
 
     # If the widget is not active, generate a comment and return
-    if not active:
+    if not widget.active:
         result["statement"] = (
             f"// Note: {question_name} widget is not active. This widget will not be displayed in the survey."
         )
@@ -298,144 +198,74 @@ def generate_widget_statement(row, gender_fields: GenderFields = None) -> Widget
     if input_type == "Custom":
         result["statement"] = generate_custom_widget(question_name)
     elif input_type == "BuiltIn":
-        parameters = row.get("parameters", "") or ""
         result["statement"] = generate_built_in_widget(
-            question_name=question_name, parameters=parameters
+            question_name=question_name,
+            built_in_function=widget.parameters.built_in_function,
         )
     elif input_type == "Radio":
-        result["statement"] = generate_radio_widget(
-            question_name,
-            path,
-            choices,
-            help_popup,
-            conditional,
-            validation,
-            widget_label,
-            row,
-        )
+        result["statement"] = generate_radio_widget(widget, widget_label)
     elif input_type == "RadioNumber":
-        result = generate_radio_number_widget(
-            question_name,
-            path,
-            help_popup,
-            conditional,
-            validation,
-            widget_label,
-            choices,
-            row,
-        )
+        result = generate_radio_number_widget(widget, widget_label)
     elif input_type == "Select":
-        result["statement"] = generate_select_widget(
-            question_name,
-            path,
-            choices,
-            help_popup,
-            conditional,
-            validation,
-            widget_label,
-            row,
-        )
+        result["statement"] = generate_select_widget(widget, widget_label)
     elif input_type == "String":
-        result = generate_string_widget(
-            question_name,
-            path,
-            help_popup,
-            conditional,
-            validation,
-            widget_label,
-            row,
-        )
+        result = generate_string_widget(widget, widget_label)
     elif input_type == "Number":
-        result["statement"] = generate_number_widget(
-            question_name,
-            path,
-            help_popup,
-            conditional,
-            validation,
-            widget_label,
-            row,
-        )
+        result["statement"] = generate_number_widget(widget, widget_label)
     elif input_type == "InfoText":
         # Widget label have a different key for InfoText
-        widget_label = generate_label(
-            section, question_name, row, gender_fields, key_name="text"
-        )
-        result["statement"] = generate_info_text_widget(
-            question_name, path, conditional, widget_label, row
-        )
+        widget_label = generate_label(widget, gender_fields, key_name="text")
+        result["statement"] = generate_info_text_widget(widget, widget_label)
     elif input_type == "Range":
-        result["statement"] = generate_range_widget(
-            question_name,
-            path,
-            input_range,
-            help_popup,
-            conditional,
-            validation,
-            widget_label,
-            row,
-        )
+        result["statement"] = generate_range_widget(widget, widget_label)
     elif input_type == "Checkbox":
-        result["statement"] = generate_checkbox_widget(
-            question_name,
-            path,
-            choices,
-            help_popup,
-            conditional,
-            validation,
-            widget_label,
-            row,
-        )
+        result["statement"] = generate_checkbox_widget(widget, widget_label)
     elif input_type == "NextButton":
-        result["statement"] = generate_next_button_widget(
-            question_name, path, confirm_popup, conditional, widget_label, row
-        )
+        result["statement"] = generate_next_button_widget(widget, widget_label)
     elif input_type == "Text":
-        result["statement"] = generate_text_widget(
-            question_name, path, help_popup, conditional, validation, widget_label, row
-        )
-    else:
-        result["statement"] = f"// {question_name}"
+        result["statement"] = generate_text_widget(widget, widget_label)
 
     # Add the comment line to the statement if it is present
-    if comments:
+    if widget.comments:
         # Support multi-line comments by emitting one `// ...` per line.
-        comment_block = "".join([f"// {line}\n" for line in str(comments).splitlines()])
+        comment_block = "".join(
+            [f"// {line}\n" for line in widget.comments.splitlines()]
+        )
         result["statement"] = f"{comment_block}{result['statement']}"
 
     return result
 
 
-# Define a function to generate the widget name for a given row and group
-def generate_widget_name(row, group, is_last):
-    question_name = row["questionName"]
-    active = row.get("active", False)  # Default to False if not present
-    rowGroup = row.get("group") if row.get("group") else ""
+# Define a function to generate the widget name for a given widget and group
+def generate_widget_name(widget: WidgetDefinition, group, is_last):
+    question_name = widget.question_name
+    widget_group = widget.group or ""
 
     # Return the question_name commented if not active
-    if group == rowGroup:
-        if active:
+    if group == widget_group:
+        if widget.active:
             return f"{INDENT}'{question_name}'" + ("," if not is_last else "")
         else:
             return f"{INDENT}// '{question_name}'" + ("," if not is_last else "")
 
 
 # Define a function to generate the widgets names statements
-def generate_widgets_names_statements(section_rows):
-    # Generate the widget name for each row in the group and add it to the widgets names statements
+def generate_widgets_names_statements(section_widgets: list[WidgetDefinition]):
+    # Generate the widget name for each widget in the group and add it to the widgets names statements
     group_question_dict = {}
 
-    # Populate the dictionary with groups and their corresponding rows
-    for row in section_rows:
-        group = row.get("group") if row.get("group") else ""
+    # Populate the dictionary with groups and their corresponding widgets
+    for widget in section_widgets:
+        group = widget.group or ""
         if group not in group_question_dict:
             group_question_dict[group] = []
-        group_question_dict[group].append(row)
+        group_question_dict[group].append(widget)
 
     # Start the widgets names statements with the import statement
     widgets_names_statements = "import { SectionConfig } from 'evolution-common/lib/services/questionnaire/types';\n"
 
     # For each group in the dictionary, generate the widgets names
-    for group, rows in group_question_dict.items():
+    for group, group_widgets in group_question_dict.items():
         # If the group is an empty string, use 'widgetsNames' as the variable name
         # Otherwise, append 'WidgetsNames' to the group name to create the variable name
         if group == "":
@@ -447,10 +277,12 @@ def generate_widgets_names_statements(section_rows):
                 f"\nexport const {group}WidgetsNames: SectionConfig['widgets'] = [\n"
             )
 
-        # For each row in the group, generate the widget name and add it to the widgets names statements
-        for i, row in enumerate(rows):
-            is_last = i == len(rows) - 1  # Check if this is the last row in the group
-            widgets_names = "\n".join([generate_widget_name(row, group, is_last)])
+        # For each widget in the group, generate the widget name and add it to the widgets names statements
+        for i, widget in enumerate(group_widgets):
+            is_last = (
+                i == len(group_widgets) - 1
+            )  # Check if this is the last widget in the group
+            widgets_names = "\n".join([generate_widget_name(widget, group, is_last)])
             widgets_names_statements += f"{widgets_names}\n"
 
         widgets_names_statements += "];\n"
@@ -576,31 +408,17 @@ def generate_custom_widget(question_name):
 
 # TODO: Change this when we are ready to support built-in widgets, right now we are just emitting a comment placeholder.
 # Generate built-in widget
-def generate_built_in_widget(question_name: str, parameters: str) -> str:
-    param_dict = parse_parameters(parameters or "")
-    # parse_parameters lowercases keys, so builtInFunction becomes builtinfunction
-    raw_value = param_dict.get("builtinfunction")
-
-    # Extract the built-in function name from the parameters
-    built_in_function_name: str | None = None
-    if raw_value and isinstance(raw_value, str):
-        built_in_function_name = raw_value.strip()
-        if built_in_function_name.startswith("{{") and built_in_function_name.endswith(
-            "}}"
-        ):
-            built_in_function_name = built_in_function_name[2:-2].strip()
-
-    if built_in_function_name:
+def generate_built_in_widget(question_name: str, built_in_function: str | None) -> str:
+    if built_in_function:
         return (
-            f"// Built-in widget placeholder for '{question_name}' (builtInFunction: {built_in_function_name}).\n"
-            f"// export const {question_name} = {built_in_function_name}();"
+            f"// Built-in widget placeholder for '{question_name}' (builtInFunction: {built_in_function}).\n"
+            f"// export const {question_name} = {built_in_function}();"
         )
     else:
-        # TODO: Uncomment this when we are ready to support built-in widgets
-        # print(
-        #     f"Warning: BuiltIn widget '{question_name}' not generated yet (missing/invalid parameters: builtInFunction={{...}})."
-        # )
-        return ""
+        # TODO: Require builtInFunction once we are ready to support built-in widgets
+        # (see WIDGET_REQUIRED_PARAMETERS_BY_INPUT_TYPE). Until then, the comment marks
+        # where the widget goes.
+        return f"// Built-in widget placeholder for '{question_name}'"
 
 
 # Generate comma and skip line
@@ -612,31 +430,14 @@ def generate_skip_line(skip_line):
     return f"{'\n' if skip_line else ''}"
 
 
-def generate_suffix_label_code(
-    suffix_label: str | None, widget_type_for_error_message: str
-) -> str:
+def generate_suffix_label_code(suffix_label: str | None) -> str:
     """
-    Generates the TypeScript 'suffixLabel' property code if valid.
-
-    Expected parameters format:
-        suffixLabel=sectionName:valueSuffix
+    Generates the TypeScript 'suffixLabel' property code, from the suffixLabel
+    parameter (suffixLabel=sectionName:valueSuffix, see WidgetParameters).
     """
-    if not isinstance(suffix_label, str):
+    if not suffix_label:
         return ""
-
-    raw = suffix_label.strip()  # Remove leading and trailing spaces
-    if raw == "":
-        return ""
-    # Validate `sectionName:valueSuffix` format:
-    # - exactly one ':' separator
-    # - non-empty left and right
-    # - no whitespace
-    if not re.match(r"^[^:\s]+:[^:\s]+$", raw):
-        print(
-            f"Warning: Invalid suffixLabel format for {widget_type_for_error_message} in Widgets sheet. Expected suffixLabel=sectionName:valueSuffix, got '{raw}'."
-        )
-        return ""
-    return f"{INDENT}suffixLabel: (t: TFunction) => t('{raw}'),\n"
+    return f"{INDENT}suffixLabel: (t: TFunction) => t('{suffix_label}'),\n"
 
 
 # Generate all the widget parts
@@ -649,75 +450,46 @@ def generate_defaultInputBase(defaultInputBase):
 
 
 def generate_path(path):
-    """
-    Generates the TypeScript path property for a widget.
-    - If path is empty or None, prints an error and returns an empty string.
-    - If path contains invalid characters (anything except letters, numbers, '_', '.', '{', '}'), prints a warning.
-    - Returns the formatted path string for TypeScript.
-    """
-    if not path:
-        print("Error: path is missing in Widgets sheet.")
-        return ""
-    # Allow only a-z, A-Z, 0-9, _, ., {, }
-    if not re.match(r"^[a-zA-Z0-9_.{}]+$", path):
-        print(
-            f"Warning: path '{path}' contains invalid characters in Widgets sheet. Allowed: a-z, A-Z, 0-9, _, ., {{, }}"
-        )
+    """Generates the TypeScript path property for a widget."""
     return f"{INDENT}path: '{path}'"
 
 
 def generate_join_with(join_with):
     """Generate joinWith property"""
     if join_with:
-        # Remove single quotes in join_with to prevent syntax errors
-        escaped_join_with = join_with.replace("'", "")
-        return f"{INDENT}joinWith: '{escaped_join_with}',\n"
+        return f"{INDENT}joinWith: '{join_with}',\n"
     else:
         return ""
 
 
 def generate_label(
-    section, label_key, row, gender_fields: GenderFields = None, key_name="label"
+    widget: WidgetDefinition, gender_fields: GenderFields = None, key_name="label"
 ):
     """
     Generates the TypeScript label or text property for a widget.
     The property name is controlled by key_name ('label' or 'text').
-    If row parameters contains customLabels={{SomeCustomLabels}}, returns `{key_name}: customLabels.SomeCustomLabels`.
-    Otherwise, inspects the labels columns in the row to determine if nickname, count, or gender context is needed.
+    If the widget has the customLabels={{SomeCustomLabels}} parameter, returns `{key_name}: customLabels.SomeCustomLabels`.
+    Otherwise, inspects the widget's labels, in every language, to determine if nickname, count, or gender context is needed.
     - If no special flags are detected, returns a simple label function.
     - If {{nickname}} is present, adds nickname context.
     - If {{count}} is present, adds countPersons context.
     - If {{gender:...}} is present, adds gender or sexAssignedAtBirth context.
     - If label_one is present, adds countPersons assignment and count: countPersons to the translation context.
     """
+    section = widget.section
+    label_key = widget.question_name
 
-    # Check if customLabels are present in the parameters
-    # If so, return the customLabels function
-    parameters = row.get("parameters", "") or ""
-    if "customLabels={{" in parameters:
-        custom_labels_match = re.search(
-            r"customLabels=\{\{([a-zA-Z0-9_$]+)\}\}", parameters
-        )
-        if custom_labels_match:
-            custom_labels_name = custom_labels_match.group(1)
-            return f"{INDENT}{key_name}: customLabels.{custom_labels_name}"
-        # TODO: Move to the widget generator validator when we will have one.
-        print(
-            f"Warning: Invalid customLabels format in parameters for '{section}:{label_key}'. Expected customLabels={{{{someCustomLabels}}}}."
-        )
+    # If customLabels is set, return the customLabels function
+    custom_labels = widget.parameters.custom_labels
+    if custom_labels:
+        return f"{INDENT}{key_name}: customLabels.{custom_labels}"
 
     # Initialize gender_fields to a default class if none is provided
     gender_fields = gender_fields or GenderFields()
-    # TODO: Use survey_definition.languages instead of fr/en once the Widgets sheet is
-    # migrated to the survey definition (see #2035).
-    label_fr = row.get("label::fr", "")  # French label
-    label_en = row.get("label::en", "")  # English label
-    label_one_fr = row.get("label_one::fr", "")  # French label for one person
-    label_one_en = row.get("label_one::en", "")  # English label for one person
     has_nickname, has_count, has_gender_context, has_label_one = (
         get_label_context_flags(
-            labels=[label_fr, label_en],
-            labels_one=[label_one_fr, label_one_en],
+            labels=widget.label.values(),
+            labels_one=widget.label_one.values(),
         )
     )
 
@@ -772,7 +544,7 @@ def generate_choices(choices):
     Otherwise, returns 'choices: choices.{choices}'.
 
     Args:
-        choices (str): The choices identifier from the Excel row.
+        choices (str): The widget's choices name.
 
     Returns:
         str: The TypeScript code for the choices property.
@@ -830,24 +602,21 @@ def generate_contains_html(containsHtml, shouldAddContainsHtml):
         return ""
 
 
-def generate_custom_path(row):
-    custom_path = row.get("customPath", None)
+def generate_custom_path(custom_path):
     if custom_path:
         return f"{INDENT}customPath: '{custom_path}',\n"
     else:
         return ""
 
 
-def generate_custom_choice(row):
-    custom_choice = row.get("customChoice", None)
+def generate_custom_choice(custom_choice):
     if custom_choice:
         return f"{INDENT}customChoice: '{custom_choice}',\n"
     else:
         return ""
 
 
-def generate_default_value(row):
-    default_value = row.get("defaultValue", None)
+def generate_default_value(default_value):
     if default_value:
         return f"{INDENT}defaultValue: '{default_value}',\n"
     else:
@@ -855,97 +624,74 @@ def generate_default_value(row):
 
 
 def generate_common_properties(
-    row, shouldAddTwoColumns=True, shouldAddContainsHtml=True, allow_join_with=True
+    widget: WidgetDefinition,
+    shouldAddTwoColumns=True,
+    shouldAddContainsHtml=True,
+    allow_join_with=True,
 ):
     """
     - Handles twoColumns and containsHtml column properties.
-    - Extracts joinWith from the 'appearance' column if present, using the pattern join_with=${questionName}.
-    - Prints a warning if join_with is present but not in the expected pattern.
-    - If allow_join_with is False, disables joinWith extraction.
+    - Adds joinWith from the appearance's join_with (join_with=${questionName}).
+    - If allow_join_with is False, leaves joinWith out.
     """
-    twoColumns = row.get("twoColumns", False)
-    containsHtml = row.get("containsHtml", False)
-
-    join_with = None
-    if allow_join_with:
-        appearance = row.get("appearance")
-        if appearance:
-            match = re.search(r"join_with=\$\{([^}]+)\}", appearance)
-            if match:
-                join_with = match.group(1)
-            elif "join_with=" in appearance:
-                print(
-                    f"Warning: appearance join_with pattern not recognized inside Widgets sheet: '{appearance}'"
-                )
+    join_with = widget.appearance.join_with if allow_join_with else None
 
     return (
-        f"{generate_two_columns(twoColumns, shouldAddTwoColumns)}"
-        f"{generate_contains_html(containsHtml, shouldAddContainsHtml)}"
+        f"{generate_two_columns(widget.two_columns, shouldAddTwoColumns)}"
+        f"{generate_contains_html(widget.contains_html, shouldAddContainsHtml)}"
         f"{generate_join_with(join_with)}"
     )
 
 
 # Generate InputRadio widget
-def generate_radio_widget(
-    question_name,
-    path,
-    choices,
-    help_popup,
-    conditional,
-    validation,
-    widget_label,
-    row,
-):
+def generate_radio_widget(widget: WidgetDefinition, widget_label):
     return (
-        f"{generate_constExport(question_name, 'InputRadioType')}\n"
+        f"{generate_constExport(widget.question_name, 'InputRadioType')}\n"
         f"{generate_defaultInputBase('inputRadioBase')},\n"
-        f"{generate_path(path)},\n"
-        f"{generate_common_properties(row)}"
-        f"{generate_custom_path(row)}"
-        f"{generate_custom_choice(row)}"
+        f"{generate_path(widget.path)},\n"
+        f"{generate_common_properties(widget)}"
+        f"{generate_custom_path(widget.custom_path)}"
+        f"{generate_custom_choice(widget.custom_choice)}"
         f"{widget_label},\n"
-        f"{generate_help_popup(help_popup)}"
-        f"{generate_choices(choices)},\n"
-        f"{generate_conditional(conditional)},\n"
-        f"{generate_validation(validation)}\n"
+        f"{generate_help_popup(widget.help_popup)}"
+        f"{generate_choices(widget.choices)},\n"
+        f"{generate_conditional(widget.conditional)},\n"
+        f"{generate_validation(widget.validation)}\n"
         f"}};"
     )
 
 
+def _radio_number_bound(bound: int | str) -> tuple[int | str, bool]:
+    """
+    The TypeScript value of a RadioNumber's min or max: the number, or a function
+    reading the response at that path. The bool tells whether it needs the surveyHelper
+    import.
+    """
+    if isinstance(bound, str):
+        return (
+            f"(interview) => surveyHelper.getResponse(interview, '{bound}', 0) as any",
+            True,
+        )
+    return bound, False
+
+
 # Generate InputRadioNumber widget
 def generate_radio_number_widget(
-    question_name,
-    path,
-    help_popup,
-    conditional,
-    validation,
-    widget_label,
-    choices,
-    row,
+    widget: WidgetDefinition, widget_label
 ) -> WidgetResult:
     """
-    - Parses min and max from the 'parameters' column (format: min=0\\nmax=17), defaults to min=0, max=6.
-    - Parses overMaxAllowed from the 'parameters' column (set to true if a line is 'overMaxAllowed').
+    - Writes the valueRange from the min and max parameters (required, see WidgetParameters).
+    - Adds overMaxAllowed when the overMaxAllowed parameter is set.
     - Generates the TypeScript widget code for InputRadioNumberType.
     """
-    parameters: RadioNumberParametersResult = get_radio_number_parameters(row)
-    over_max_allowed = parameters["over_max_allowed"]
+    parameters = widget.parameters
+    min_value, min_needs_helper = _radio_number_bound(parameters.min)
+    max_value, max_needs_helper = _radio_number_bound(parameters.max)
 
-    result: WidgetResult = {"statement": "", "has_helper_import": False}
-
-    # Determine the value of min_value and max_value based on their types
-    if isinstance(parameters["min_value"], str):
-        min_value = f"(interview) => surveyHelper.getResponse(interview, '{parameters["min_value"]}', 0) as any"
-        result["has_helper_import"] = True
-    else:
-        min_value = parameters["min_value"]
-
-    # Determine the value of max_value based on its type
-    if isinstance(parameters["max_value"], str):
-        max_value = f"(interview) => surveyHelper.getResponse(interview, '{parameters["max_value"]}', 0) as any"
-        result["has_helper_import"] = True
-    else:
-        max_value = parameters["max_value"]
+    result: WidgetResult = {
+        "statement": "",
+        "has_helper_import": min_needs_helper or max_needs_helper,
+    }
 
     value_range = (
         f"{INDENT}valueRange: {{\n"
@@ -953,55 +699,49 @@ def generate_radio_number_widget(
         f"{INDENT}{INDENT}max: {max_value}\n"
         f"{INDENT}}},\n"
     )
-    over_max = f"{INDENT}overMaxAllowed: true,\n" if over_max_allowed else ""
-    additional_choices = generate_additional_choices(choices)
+    over_max = f"{INDENT}overMaxAllowed: true,\n" if parameters.over_max_allowed else ""
+    additional_choices = generate_additional_choices(widget.choices)
     result["statement"] = (
-        f"{generate_constExport(question_name, 'InputRadioNumberType')}\n"
+        f"{generate_constExport(widget.question_name, 'InputRadioNumberType')}\n"
         f"{generate_defaultInputBase('inputRadioNumberBase')},\n"
-        f"{generate_path(path)},\n"
-        f"{generate_common_properties(row)}"
+        f"{generate_path(widget.path)},\n"
+        f"{generate_common_properties(widget)}"
         f"{widget_label},\n"
         f"{value_range}"
         f"{over_max}"
-        f"{generate_help_popup(help_popup)}"
+        f"{generate_help_popup(widget.help_popup)}"
         f"{additional_choices}"
-        f"{generate_conditional(conditional)},\n"
-        f"{generate_validation(validation)}\n"
+        f"{generate_conditional(widget.conditional)},\n"
+        f"{generate_validation(widget.validation)}\n"
         f"}};"
     )
     return result
 
 
 # Generate Select widget
-def generate_select_widget(
-    question_name, path, choices, help_popup, conditional, validation, widget_label, row
-):
+def generate_select_widget(widget: WidgetDefinition, widget_label):
     return (
-        f"{generate_constExport(question_name, 'InputSelectType')}\n"
+        f"{generate_constExport(widget.question_name, 'InputSelectType')}\n"
         f"{generate_defaultInputBase('inputSelectBase')},\n"
-        f"{generate_path(path)},\n"
-        f"{generate_common_properties(row)}"
+        f"{generate_path(widget.path)},\n"
+        f"{generate_common_properties(widget)}"
         f"{widget_label},\n"
-        f"{generate_help_popup(help_popup)}"
-        f"{generate_choices(choices)},\n"
-        f"{generate_conditional(conditional)},\n"
-        f"{generate_validation(validation)}\n"
+        f"{generate_help_popup(widget.help_popup)}"
+        f"{generate_choices(widget.choices)},\n"
+        f"{generate_conditional(widget.conditional)},\n"
+        f"{generate_validation(widget.validation)}\n"
         f"}};"
     )
 
 
 # Generate InputString widget
-def generate_string_widget(
-    question_name, path, help_popup, conditional, validation, widget_label, row
-):
+def generate_string_widget(widget: WidgetDefinition, widget_label) -> WidgetResult:
     """
-    - Parses formatter from the 'parameters' column (format: formatter=somethingCustomFormatter).
-    - Parses suffixLabel from the 'parameters' column (format: suffixLabel=sectionName:valueSuffix).
+    - Adds the inputFilter from the formatter parameter (formatter=somethingCustomFormatter).
+    - Adds the suffixLabel from the suffixLabel parameter (suffixLabel=sectionName:valueSuffix).
     - Generates the TypeScript widget code for InputStringType.
     """
-    parameters: StringParametersResult = get_string_parameters(row)
-    formatter = parameters["formatter"]
-    suffix_label = parameters["suffix_label"]
+    formatter = widget.parameters.formatter
 
     result: WidgetResult = {
         "statement": "",
@@ -1012,7 +752,7 @@ def generate_string_widget(
 
     # Add formatter input filter if specified
     formatter_code = ""
-    if isinstance(formatter, str):
+    if formatter:
         if formatter.endswith("CustomFormatter"):
             formatter_code = f"{INDENT}inputFilter: customFormatters.{formatter},\n"
             result["has_custom_formatter_import"] = True
@@ -1021,341 +761,174 @@ def generate_string_widget(
             result["has_formatter_import"] = True
 
     result["statement"] = (
-        f"{generate_constExport(question_name, 'InputStringType')}\n"
+        f"{generate_constExport(widget.question_name, 'InputStringType')}\n"
         f"{generate_defaultInputBase('inputStringBase')},\n"
-        f"{generate_path(path)},\n"
-        f"{generate_common_properties(row)}"
-        f"{generate_default_value(row)}"
+        f"{generate_path(widget.path)},\n"
+        f"{generate_common_properties(widget)}"
+        f"{generate_default_value(widget.default_value)}"
         f"{formatter_code}"
         f"{widget_label},\n"
-        f"{generate_suffix_label_code(suffix_label, 'String')}"
-        f"{generate_help_popup(help_popup)}"
-        f"{generate_conditional(conditional)},\n"
-        f"{generate_validation(validation)}\n"
+        f"{generate_suffix_label_code(widget.parameters.suffix_label)}"
+        f"{generate_help_popup(widget.help_popup)}"
+        f"{generate_conditional(widget.conditional)},\n"
+        f"{generate_validation(widget.validation)}\n"
         f"}};"
     )
     return result
 
 
 # Generate InputNumber widget
-def generate_number_widget(
-    question_name, path, help_popup, conditional, validation, widget_label, row
-):
-    parameters: NumberParametersResult = get_number_parameters(row)
-    suffix_label = parameters["suffix_label"]
-
+def generate_number_widget(widget: WidgetDefinition, widget_label):
     return (
-        f"{generate_constExport(question_name, 'InputStringType')}\n"
+        f"{generate_constExport(widget.question_name, 'InputStringType')}\n"
         f"{generate_defaultInputBase('inputNumberBase')},\n"
-        f"{generate_path(path)},\n"
-        f"{generate_common_properties(row)}"
+        f"{generate_path(widget.path)},\n"
+        f"{generate_common_properties(widget)}"
         f"{widget_label},\n"
-        f"{generate_suffix_label_code(suffix_label, 'Number')}"
-        f"{generate_help_popup(help_popup)}"
-        f"{generate_conditional(conditional)},\n"
-        f"{generate_validation(validation)}\n"
+        f"{generate_suffix_label_code(widget.parameters.suffix_label)}"
+        f"{generate_help_popup(widget.help_popup)}"
+        f"{generate_conditional(widget.conditional)},\n"
+        f"{generate_validation(widget.validation)}\n"
         f"}};"
     )
 
 
 # Generate InfoText widget
-def generate_info_text_widget(question_name, path, conditional, widget_label, row):
+def generate_info_text_widget(widget: WidgetDefinition, widget_label):
     return (
-        f"{generate_constExport(question_name, 'TextWidgetConfig')}\n"
+        f"{generate_constExport(widget.question_name, 'TextWidgetConfig')}\n"
         f"{generate_defaultInputBase('infoTextBase')},\n"
-        f"{generate_path(path)},\n"
-        f"{generate_common_properties(row, shouldAddTwoColumns = False, allow_join_with=False)}"
+        f"{generate_path(widget.path)},\n"
+        f"{generate_common_properties(widget, shouldAddTwoColumns = False, allow_join_with=False)}"
         f"{widget_label},\n"
-        f"{generate_conditional(conditional)}\n"
+        f"{generate_conditional(widget.conditional)}\n"
         f"}};"
     )
 
 
 # Generate InputRange widget
-def generate_range_widget(
-    question_name,
-    path,
-    input_range,
-    help_popup,
-    conditional,
-    validation,
-    widget_label,
-    row,
-):
-    includeNotApplicable = row.get("includeNotApplicable", False)
+def generate_range_widget(widget: WidgetDefinition, widget_label):
     notApplicableConfig = (
-        "includeNotApplicable: true,\n" if includeNotApplicable else ""
+        "includeNotApplicable: true,\n" if widget.include_not_applicable else ""
     )
     return (
-        f"{generate_constExport(question_name, 'InputRangeType')}\n"
+        f"{generate_constExport(widget.question_name, 'InputRangeType')}\n"
         f"{generate_defaultInputBase('inputRangeBase')},\n"
-        f"{INDENT}...inputRange.{input_range},\n"
-        f"{generate_path(path)},\n"
-        f"{generate_common_properties(row)}"
+        f"{INDENT}...inputRange.{widget.input_range},\n"
+        f"{generate_path(widget.path)},\n"
+        f"{generate_common_properties(widget)}"
         f"{widget_label},\n"
         f"{notApplicableConfig}"
-        f"{generate_help_popup(help_popup)}"
-        f"{generate_conditional(conditional)},\n"
-        f"{generate_validation(validation)}\n"
+        f"{generate_help_popup(widget.help_popup)}"
+        f"{generate_conditional(widget.conditional)},\n"
+        f"{generate_validation(widget.validation)}\n"
         f"}};"
     )
 
 
 # Generate InputCheckbox widget
-def generate_checkbox_widget(
-    question_name,
-    path,
-    choices,
-    help_popup,
-    conditional,
-    validation,
-    widget_label,
-    row,
-):
+def generate_checkbox_widget(widget: WidgetDefinition, widget_label):
     return (
-        f"{generate_constExport(question_name, 'InputCheckboxType')}\n"
+        f"{generate_constExport(widget.question_name, 'InputCheckboxType')}\n"
         f"{generate_defaultInputBase('inputCheckboxBase')},\n"
-        f"{generate_path(path)},\n"
-        f"{generate_common_properties(row)}"
+        f"{generate_path(widget.path)},\n"
+        f"{generate_common_properties(widget)}"
         f"{widget_label},\n"
-        f"{generate_help_popup(help_popup)}"
-        f"{generate_choices(choices)},\n"
-        f"{generate_conditional(conditional)},\n"
-        f"{generate_validation(validation)}\n"
+        f"{generate_help_popup(widget.help_popup)}"
+        f"{generate_choices(widget.choices)},\n"
+        f"{generate_conditional(widget.conditional)},\n"
+        f"{generate_validation(widget.validation)}\n"
         f"}};"
     )
 
 
 # Generate NextButton widget
-def generate_next_button_widget(
-    question_name, path, confirm_popup, conditional, widget_label, row
-):
+def generate_next_button_widget(widget: WidgetDefinition, widget_label):
     return (
-        f"{generate_constExport(question_name, 'ButtonWidgetConfig')}\n"
+        f"{generate_constExport(widget.question_name, 'ButtonWidgetConfig')}\n"
         f"{generate_defaultInputBase('buttonNextBase')},\n"
-        f"{generate_path(path)},\n"
-        f"{generate_confirm_popup(confirm_popup)}"
+        f"{generate_path(widget.path)},\n"
+        f"{generate_confirm_popup(widget.confirm_popup)}"
         f"{widget_label},\n"
-        f"{generate_conditional(conditional)}\n"
+        f"{generate_conditional(widget.conditional)}\n"
         f"}};"
     )
 
 
 # Generate Text textarea widget
-def generate_text_widget(
-    question_name, path, help_popup, conditional, validation, widget_label, row
-):
+def generate_text_widget(widget: WidgetDefinition, widget_label):
     return (
-        f"{generate_constExport(question_name, 'InputTextType')}\n"
+        f"{generate_constExport(widget.question_name, 'InputTextType')}\n"
         f"{generate_defaultInputBase('textBase')},\n"
-        f"{generate_path(path)},\n"
-        f"{generate_common_properties(row)}"
+        f"{generate_path(widget.path)},\n"
+        f"{generate_common_properties(widget)}"
         f"{widget_label},\n"
-        f"{generate_help_popup(help_popup)}"
-        f"{generate_conditional(conditional)},\n"
-        f"{generate_validation(validation)}\n"
+        f"{generate_help_popup(widget.help_popup)}"
+        f"{generate_conditional(widget.conditional)},\n"
+        f"{generate_validation(widget.validation)}\n"
         f"}};"
     )
 
 
-def parse_parameters(parameters: str) -> dict[str, str | None]:
+def get_widgets_file_import_flags(
+    section_widgets: list[WidgetDefinition],
+) -> ImportFlags:
     """
-    Parses a parameters string into a dictionary of key-value pairs.
-    - Converts keys to lowercase.
-    - Returns True for values if a parameter does not contain '='.
-    Example valid formats:
-      - "min=1\nmax=5\noverMaxAllowed"
-      - "min=1;max=5;overMaxAllowed"
-      - "min=1 max=5 overMaxAllowed"
-    """
-    param_dict = {}
-    param_lines = parameters.replace(";", "\n").replace(" ", "\n").splitlines()
-
-    for line in param_lines:
-        if not line.strip():
-            continue
-        param_parts = line.split("=", 1)
-        key = param_parts[0].strip().lower()
-        value = param_parts[1].strip() if len(param_parts) > 1 else True
-        param_dict[key] = value
-
-    return param_dict
-
-
-def get_radio_number_parameters(row) -> RadioNumberParametersResult:
-    """
-    Parses the parameters string for min, max, and overMaxAllowed from the row.
-    Returns a dict with keys: min_value, max_value, over_max_allowed.
-    Prints warnings for invalid or unrecognized parameters.
-    Example valid formats:
-      - "min=1\nmax=5\noverMaxAllowed"
-      - "min=1;max=5;overMaxAllowed"
-      - "min=1 max=5 overMaxAllowed"
-    """
-    parameters = row.get("parameters", "")
-
-    # Initialize the result with default values
-    result: RadioNumberParametersResult = {
-        "min_value": 0,
-        "max_value": 6,
-        "over_max_allowed": False,
-    }
-
-    param_dict = parse_parameters(parameters)
-
-    for key, value in param_dict.items():
-        if key == "min":
-            try:
-                result["min_value"] = int(value) if value is not None else 0
-            except ValueError:
-                result["min_value"] = value  # Keep as string if not an integer
-        elif key == "max":
-            try:
-                result["max_value"] = int(value) if value is not None else 6
-            except ValueError:
-                result["max_value"] = value  # Keep as string if not an integer
-        elif key == "overmaxallowed":
-            result["over_max_allowed"] = True
-        elif key != "":
-            print(
-                f"Warning: Unrecognized parameter '{key}' for radio_number in Widgets sheet. Expected 'min', 'max' or 'overMaxAllowed'."
-            )
-
-    # Validate min < max if they are numbers
-    # Only validate min < max if both are numbers
-    if (
-        isinstance(result["min_value"], int)
-        and isinstance(result["max_value"], int)
-        and result["min_value"] >= result["max_value"]
-    ):
-        print(
-            f"ValueError: min ({result['min_value']}) must be less than max ({result['max_value']}) in parameters in Widgets sheet."
-        )
-
-    return result
-
-
-def get_string_parameters(row) -> StringParametersResult:
-    """
-    Parses the parameters string for formatter from the row.
-    Returns a dict with keys: formatter, suffix_label.
-    Prints warnings for invalid or unrecognized parameters.
-    Example valid formats:
-        - "formatter=eightDigitsAccessCodeFormatter"
-        - "formatter=someFieldCustomFormatter"
-        - "suffixLabel=sectionName:valueSuffix"
-    """
-    parameters = row.get("parameters", "")
-
-    # Initialize the result with default values
-    result: StringParametersResult = {"formatter": None, "suffix_label": None}
-
-    param_dict = parse_parameters(parameters)
-
-    for key, value in param_dict.items():
-        if key == "formatter":
-            result["formatter"] = value
-        elif key == "suffixlabel":
-            result["suffix_label"] = value
-        elif key != "":
-            print(
-                f"Warning: Unrecognized parameter '{key}' for string in Widgets sheet. Expected 'formatter' or 'suffixLabel'."
-            )
-
-    return result
-
-
-def get_number_parameters(row) -> NumberParametersResult:
-    """
-    Parses the parameters string for suffixLabel from the row.
-    Returns a dict with keys: suffix_label.
-    Prints warnings for invalid or unrecognized parameters.
-    Example valid formats:
-        - "suffixLabel=sectionName:valueSuffix"
-    """
-    parameters = row.get("parameters", "")
-
-    # Initialize the result with default values
-    result: NumberParametersResult = {"suffix_label": None}
-
-    param_dict = parse_parameters(parameters)
-
-    for key, value in param_dict.items():
-        if key == "suffixlabel":
-            result["suffix_label"] = value
-        elif key != "":
-            print(
-                f"Warning: Unrecognized parameter '{key}' for number in Widgets sheet. Expected 'suffixLabel'."
-            )
-
-    return result
-
-
-def get_widgets_file_import_flags(section_rows) -> ImportFlags:
-    """
-    Analyze the section_rows and determine which import flags should be set to True.
+    Analyze the section's widgets and determine which import flags should be set to True.
 
     Returns an ImportFlags dataclass with all the import flag booleans.
     """
     import_flags = ImportFlags()
 
-    # Check all rows for import flags
-    for row in section_rows:
-        parameters = row.get("parameters", "") or ""
-
-        # Check if customLabels are present in the parameters
-        if "customLabels={{" in parameters:
+    # Check all widgets for import flags
+    for widget in section_widgets:
+        if widget.parameters.custom_labels:
             import_flags.has_custom_labels_import = True
-        if row["choices"]:
+        if widget.choices:
             # Check to see if the choices finish with 'CustomChoices'
-            if row["choices"].lower().endswith("customchoices"):
+            if widget.choices.lower().endswith("customchoices"):
                 import_flags.has_custom_choices_import = True
             else:
                 import_flags.has_choices_import = True
-        if row["validation"]:
+        if widget.validation:
             # Check to see if the validation finish with 'CustomValidation'
-            if row["validation"].lower().endswith("customvalidation"):
+            if widget.validation.lower().endswith("customvalidation"):
                 import_flags.has_custom_validations_import = True
             else:
                 import_flags.has_validations_import = True
-        if row["conditional"] and row["conditional"].lower().endswith(
+        if widget.conditional and widget.conditional.lower().endswith(
             "customconditional"
         ):
             # Check to see if the conditional finish with 'CustomConditional'
             import_flags.has_custom_conditionals_import = True
-        elif row["conditional"] and not row["conditional"].lower().endswith(
+        elif widget.conditional and not widget.conditional.lower().endswith(
             "customconditional"
         ):
             # Check to see if the conditional is not empty and does not finish with 'CustomConditional'
             import_flags.has_conditionals_import = True
-        if row.get("inputRange"):
+        if widget.input_range:
             import_flags.has_input_range_import = True
-        if row["inputType"] == "Custom":
+        if widget.input_type == "Custom":
             import_flags.has_custom_widgets_import = True
-        if row["inputType"] == "BuiltIn":
+        if widget.input_type == "BuiltIn":
             import_flags.has_built_in_widgets_import = True
-        if _row_uses_custom_help_popup_import(row):
+        # Only the input types that write them can have a help or confirm popup (see
+        # WIDGET_ALLOWED_INPUT_TYPES_BY_FIELD)
+        if widget.help_popup or widget.confirm_popup:
             import_flags.has_help_popup_import = True
 
-        # Check all rows for label context
-        # TODO: Use survey_definition.languages instead of fr/en once the Widgets sheet is
-        # migrated to the survey definition (see #2035).
-        label_fr = row.get("label::fr", "")
-        label_en = row.get("label::en", "")
-        label_one_en = row.get("label_one::en", "")
-        label_one_fr = row.get("label_one::fr", "")
-        # Check for {{nickname}}, {{count}}, and label_one in labels
+        # Check for {{nickname}}, {{count}}, and label_one in the labels, in every language
         has_nickname, has_count, _has_gender_context, has_label_one = (
             get_label_context_flags(
-                labels=[label_fr, label_en],
-                labels_one=[label_one_fr, label_one_en],
+                labels=widget.label.values(),
+                labels_one=widget.label_one.values(),
             )
         )
         if has_nickname:
             import_flags.has_nickname_label = True
         if has_count or has_label_one:
             import_flags.has_persons_count_label = True
-        if "{{genderedSuffix" in label_fr or "{{genderedSuffix" in label_en:
+        if any("{{genderedSuffix" in label for label in widget.label.values()):
             import_flags.has_gendered_suffix_label = True
 
     return import_flags
