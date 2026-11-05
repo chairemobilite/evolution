@@ -44,9 +44,9 @@ const localUserWithPermission = {
     }
 };
 
-const facebookParticipant = {
+// Has no email or username, so its login method is unknown
+const secondParticipant = {
     id: 2,
-    facebook_id: 'facebookId',
     is_valid: true
 };
 
@@ -109,9 +109,9 @@ const localUserInterviewAttributes = {
     validations: {},
 } as any;
 
-const facebookUserInterviewAttributes = {
+const secondParticipantInterviewAttributes = {
     uuid: uuidV4(),
-    participant_id: facebookParticipant.id,
+    participant_id: secondParticipant.id,
     is_valid: undefined,
     is_active: false,
     is_completed: false,
@@ -198,7 +198,7 @@ beforeAll(async () => {
     await knex(surveysTable).insert(localSurvey);
     await truncate(knex, 'sv_participants');
     await create(knex, 'sv_participants', undefined, localUser as any);
-    await create(knex, 'sv_participants', undefined, facebookParticipant as any);
+    await create(knex, 'sv_participants', undefined, secondParticipant as any);
     await create(knex, 'sv_participants', undefined, googleParticipant as any);
     await create(knex, 'sv_participants', undefined, googleParticipant2 as any);
     await create(knex, 'sv_participants', undefined, googleParticipant3 as any);
@@ -209,7 +209,7 @@ beforeAll(async () => {
     await create(knex, 'users', undefined, localUserWithPermission as any);
     await create(knex, 'users', undefined, localUser2WithPermission as any);
     await dbQueries.create(localUserInterviewAttributes);
-    await dbQueries.create(facebookUserInterviewAttributes);
+    await dbQueries.create(secondParticipantInterviewAttributes);
     await dbQueries.create(googleUserInterviewAttributes);
 });
 
@@ -285,7 +285,6 @@ describe('find by response', () => {
             isQuestionable: false,
             email: localUser.email,
             username: undefined,
-            facebook: false,
             google: false
         });
     });
@@ -303,15 +302,14 @@ describe('find by response', () => {
         expect(interviews.length).toEqual(2);
         expect(interviews[0]).toEqual({
             id: expect.anything(),
-            uuid: facebookUserInterviewAttributes.uuid,
-            isCompleted: facebookUserInterviewAttributes.is_completed,
+            uuid: secondParticipantInterviewAttributes.uuid,
+            isCompleted: secondParticipantInterviewAttributes.is_completed,
             reviewStatus: 'notReviewed',
             surveyId: 1,
             isQuestionable: false,
-            home: facebookUserInterviewAttributes.response.home,
+            home: secondParticipantInterviewAttributes.response.home,
             email: undefined,
             username: undefined,
-            facebook: true,
             google: false
         });
         expect(interviews[1]).toEqual({
@@ -324,7 +322,6 @@ describe('find by response', () => {
             home: googleUserInterviewAttributes.response.home,
             email: undefined,
             username: undefined,
-            facebook: false,
             google: true
         });
 
@@ -332,19 +329,18 @@ describe('find by response', () => {
 
     test('Multiple fields', async () => {
 
-        const interviews = await dbQueries.findByResponse({ accessCode: facebookUserInterviewAttributes.response.accessCode, home: { someField: 'somewhere' } });
+        const interviews = await dbQueries.findByResponse({ accessCode: secondParticipantInterviewAttributes.response.accessCode, home: { someField: 'somewhere' } });
         expect(interviews.length).toEqual(1);
         expect(interviews[0]).toEqual({
             id: expect.anything(),
-            uuid: facebookUserInterviewAttributes.uuid,
-            isCompleted: facebookUserInterviewAttributes.is_completed,
+            uuid: secondParticipantInterviewAttributes.uuid,
+            isCompleted: secondParticipantInterviewAttributes.is_completed,
             reviewStatus: 'notReviewed',
             surveyId: 1,
             isQuestionable: false,
-            home: facebookUserInterviewAttributes.response.home,
+            home: secondParticipantInterviewAttributes.response.home,
             email: undefined,
             username: undefined,
-            facebook: true,
             google: false
         });
 
@@ -454,7 +450,7 @@ describe('Get interview by uuid with participant', () => {
         { description: 'anonymous username prefix', uuid: anonymousInterviewAttributes.uuid, expected: 'anonymous' },
         {
             description: 'no email and no reserved username prefix',
-            uuid: facebookUserInterviewAttributes.uuid,
+            uuid: secondParticipantInterviewAttributes.uuid,
             expected: 'unknown'
         }
     ])('loginMethod from the participant join: $description', async ({ uuid, expected }) => {
@@ -479,7 +475,7 @@ describe('Get interview by uuid with participant', () => {
         projectConfig.auth = { ...projectConfig.auth, byField: true };
         try {
             const interview = await interviewsAdminDbQueries.getInterviewByUuidWithParticipant(
-                facebookUserInterviewAttributes.uuid
+                secondParticipantInterviewAttributes.uuid
             );
             expect(interview?.loginMethod).toBe('unknown');
         } finally {
@@ -515,8 +511,8 @@ describe('Get interview by user id', () => {
     });
 
     test('Inactive interview', async () => {
-        // Interview for facebook user is invalid
-        const interview = await dbQueries.getUserInterview(facebookParticipant.id);
+        // The interview of the second participant is inactive
+        const interview = await dbQueries.getUserInterview(secondParticipant.id);
         expect(interview).toBeUndefined();
     });
 });
@@ -567,7 +563,7 @@ describe('Update Interview', () => {
 
 describe('list interviews', () => {
 
-    // There are 6 interviews in the DB, but one, facebookUserInterviewAttributes, is invalid
+    // There are 6 interviews in the DB, but one, secondParticipantInterviewAttributes, is inactive
     const nbActiveInterviews = 5;
 
     // One interview is approved, one is rejected, the 3 others are left unreviewed
@@ -1395,8 +1391,8 @@ describe('stream interviews query', () => {
                     }
                 } else {
                     expect(row.uuid).not.toEqual(googleUserInterviewAttributes.uuid);
-                    if (row.uuid === facebookUserInterviewAttributes.uuid) {
-                        expect(row.response).toEqual(facebookUserInterviewAttributes.response);
+                    if (row.uuid === secondParticipantInterviewAttributes.uuid) {
+                        expect(row.response).toEqual(secondParticipantInterviewAttributes.response);
                     }
                 }
                 i++;

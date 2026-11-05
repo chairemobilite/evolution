@@ -221,39 +221,6 @@
     }
 }
 
-.facebook-oauth-button-container {
-    margin-top: 1rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.facebook-oauth-button {
-    font-family: 'Roboto', sans-serif;
-    font-weight: 500;
-    font-size: 1.5rem;
-    color: #ffffff !important;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-decoration: none;
-    padding: 1.1rem 1.1rem 1.1rem 5.1rem;
-    background: url("../../assets/images/facebook/btn_facebook.svg") #4267b2;
-    background-size: 2.6rem 2.6rem;
-    background-position: 1.1rem center;
-    background-repeat: no-repeat;
-    box-shadow: 0 0.1rem 0.25rem 0 rgba(0, 0, 0, 0.3);
-    border-radius: 0.2rem;
-
-    &:hover {
-        color: #ffffff !important;
-    }
-
-    &:active {
-        background-color: #26488C;
-    }
-}
-
 // Button container for the confirm modal dialogs
 .tr__form-buttons-container {
     display: flex;

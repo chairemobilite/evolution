@@ -64,7 +64,6 @@
     },
     "interviewSearch": {
         "InterviewUser": "User",
-        "FromFacebook": "facebook",
         "FromGoogle": "google",
         "UnknownUser": "Unknown user",
         "UnknownAddress": "Unknown address",

@@ -29,11 +29,9 @@ const InterviewSearchResult: React.FunctionComponent<InterviewProps> = (props: I
             {': '}
             {props.interview.email ||
                 props.interview.username ||
-                (props.interview.facebook
-                    ? props.t('admin:interviewSearch:FromFacebook')
-                    : props.interview.google
-                        ? props.t('admin:interviewSearch:FromGoogle')
-                        : props.t('admin:interviewSearch:UnknownUser'))}{' '}
+                (props.interview.google
+                    ? props.t('admin:interviewSearch:FromGoogle')
+                    : props.t('admin:interviewSearch:UnknownUser'))}{' '}
             •{' '}
             {props.interview.isCompleted === true
                 ? props.t('admin:CompletedFemSingular')

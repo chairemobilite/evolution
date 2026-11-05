@@ -44,8 +44,7 @@ export async function up(knex: Knex): Promise<unknown> {
                 confirmation_token: user.confirmation_token,
                 password_reset_token: user.password_reset_token,
                 password_reset_expire_at: user.password_reset_expire_at,
-                google_id: user.google_id,
-                facebook_id: user.facebook_id
+                google_id: user.google_id
             })
             .returning('id');
         await knex(interviewTable)
@@ -85,9 +84,6 @@ export async function down(knex: Knex): Promise<void> {
         if (!_isBlank(participant.google_id)) {
             findBy.google_id = participant.google_id;
         }
-        if (!_isBlank(participant.facebook_id)) {
-            findBy.facebook_id = participant.facebook_id;
-        }
         let user = await usersDbQueries.find(findBy);
         if (user === undefined) {
             user = await usersDbQueries.create({
@@ -105,7 +101,6 @@ export async function down(knex: Knex): Promise<void> {
                 password_reset_token: participant.password_reset_token,
                 password_reset_expire_at: participant.password_reset_expire_at,
                 google_id: participant.google_id,
-                facebook_id: participant.facebook_id,
                 is_admin: false
             });
         }
