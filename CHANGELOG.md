@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Export: CSV files of the survey objects (interview, home, household, person, journey, visited place, trip and segment), with their custom attributes and review status, created from the corrected responses
+- Export: CSV files of the survey objects (interview, home, household, person, journey, visited place, trip and segment), with their custom attributes, review status and whether they contain a rejected object, created from the corrected responses
 
 ### Changed
 

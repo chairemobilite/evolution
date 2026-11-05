@@ -52,6 +52,9 @@ const reviewStatusByObject = {
     'trip:trip2': 'forceApproved'
 } as const;
 
+// Ancestors of rejected visitedPlace1, by `objectType:uuid`
+const objectsWithRejectedDescendant = ['interview:interview1', 'household:household1', 'person:person1', 'journey:journey1'];
+
 describe('CsvExportVisitor', () => {
     // The project directory, where project-relative paths are resolved, is a temporary directory
     const projectDirectory = fs.mkdtempSync(path.join(os.tmpdir(), 'csvExportVisitorTest-'));
@@ -63,7 +66,8 @@ describe('CsvExportVisitor', () => {
         const visitor = new CsvExportVisitor(
             outputDirectory,
             'surveyObjects',
-            (objectType, objectUuid) => reviewStatusByObject[`${objectType}:${objectUuid}`] ?? 'notReviewed'
+            (objectType, objectUuid) => reviewStatusByObject[`${objectType}:${objectUuid}`] ?? 'notReviewed',
+            (objectType, objectUuid) => objectsWithRejectedDescendant.includes(`${objectType}:${objectUuid}`)
         );
         // The custom attributes differ between interviews, all must be columns of the file
         await walkSurveyObjects(createInterview(1, { custom1: 'a' }), visitor);
@@ -95,9 +99,9 @@ describe('CsvExportVisitor', () => {
         {
             objectType: 'interview',
             expected: [
-                '"_uuid","_interviewUuid","review_status","accessCode"',
-                '"interview1","interview1","notReviewed","1234"',
-                '"interview2","interview2","approved","1234"'
+                '"_uuid","_interviewUuid","review_status","has_rejected_descendant","accessCode"',
+                '"interview1","interview1","notReviewed","true","1234"',
+                '"interview2","interview2","approved","false","1234"'
             ]
         },
         {
@@ -111,17 +115,17 @@ describe('CsvExportVisitor', () => {
         {
             objectType: 'household',
             expected: [
-                '"_uuid","_interviewUuid","review_status","size"',
-                '"household1","interview1","approved","1"',
-                '"household2","interview2","rejected","1"'
+                '"_uuid","_interviewUuid","review_status","has_rejected_descendant","size"',
+                '"household1","interview1","approved","true","1"',
+                '"household2","interview2","rejected","false","1"'
             ]
         },
         {
             objectType: 'person',
             expected: [
-                '"_uuid","_interviewUuid","_householdUuid","review_status","age","custom1","custom2"',
-                '"person1","interview1","household1","approved","30","a",',
-                '"person2","interview2","household2","rejected","30",,"b"'
+                '"_uuid","_interviewUuid","_householdUuid","review_status","has_rejected_descendant","age","custom1","custom2"',
+                '"person1","interview1","household1","approved","true","30","a",',
+                '"person2","interview2","household2","rejected","false","30",,"b"'
             ]
         },
         {

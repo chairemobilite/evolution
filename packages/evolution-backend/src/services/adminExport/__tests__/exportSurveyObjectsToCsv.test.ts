@@ -72,8 +72,9 @@ describe('exportSurveyObjectsToCsvTask', () => {
         });
         expect(mockGetReviewDecisionsForInterview.mock.calls.map(([interviewId]) => interviewId)).toEqual(expectedIds);
         expect(mockCreateAllObjectsWithErrors.mock.calls.map(([interview]) => interview.uuid)).toEqual(expectedUuids);
+        // Each interview is walked twice: to find the rejected descendants, then to write the rows
         expect(mockWalkSurveyObjects.mock.calls.map(([surveyObjects]) => surveyObjects.interview?.uuid)).toEqual(
-            expectedUuids
+            expectedUuids.flatMap((uuid) => [uuid, uuid])
         );
         expect(mockFinish).toHaveBeenCalledTimes(1);
         expect(fileNames).toEqual(['surveyObjects_test_person.csv']);

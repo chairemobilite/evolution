@@ -5,7 +5,14 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 
+import type { SurveyObjectName } from 'evolution-common/lib/services/baseObjects/types';
 import type { ReviewDecisionEffectiveStatus } from 'evolution-common/lib/services/reviews/types';
+
+/**
+ * Function returning the effective review status of an object of the
+ * interview being visited, from the review decisions on this object only
+ */
+export type GetReviewStatus = (objectType: SurveyObjectName, objectUuid: string) => ReviewDecisionEffectiveStatus;
 
 /** Statuses of a parent that its non-reviewed children inherit */
 const inheritedParentStatuses: ReviewDecisionEffectiveStatus[] = ['approved', 'forceApproved', 'rejected'];

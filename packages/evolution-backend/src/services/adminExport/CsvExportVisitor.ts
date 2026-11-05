@@ -13,32 +13,22 @@ import type {
     SurveyObjectVisitor,
     SurveyObjectVisitContext
 } from 'evolution-common/lib/services/baseObjects/walkSurveyObjects';
-import type { SurveyObjectName } from 'evolution-common/lib/services/baseObjects/types';
 import type { ReviewDecisionEffectiveStatus } from 'evolution-common/lib/services/reviews/types';
 import { fileManager } from 'chaire-lib-backend/lib/utils/filesystem/fileManager';
-import { getExportedReviewStatus } from './exportedReviewStatus';
+import { getExportedReviewStatus, GetReviewStatus } from './exportedReviewStatus';
+import {
+    ExportedObjectType,
+    getObjectKey,
+    parentObjectTypeByObjectType,
+    parentObjectTypes
+} from './exportedSurveyObjectParents';
+import type { HasRejectedDescendant } from './RejectedDescendantsVisitor';
 import { CsvRow, ExportableSurveyObject, surveyObjectToCsvRow } from './surveyObjectToCsvRow';
-
-/**
- * Parent of each exported object type. The uuid of the parent is written in a
- * `_<parentType>Uuid` column, to link the rows of the files together. The
- * interview uuid is written for all objects, in the `_interviewUuid` column.
- */
-const parentObjectTypeByObjectType = {
-    interview: undefined,
-    home: 'interview',
-    household: 'interview',
-    person: 'household',
-    journey: 'person',
-    visitedPlace: 'journey',
-    trip: 'journey',
-    segment: 'trip'
-} as const;
-
-type ExportedObjectType = keyof typeof parentObjectTypeByObjectType;
 
 /** Column of the review status of the object */
 const reviewStatusColumn = 'review_status';
+/** Column telling whether an object contains a rejected object, only for the types that have children */
+const hasRejectedDescendantColumn = 'has_rejected_descendant';
 
 /**
  * Get the columns written first in the file of an object type, in this order,
@@ -47,16 +37,14 @@ const reviewStatusColumn = 'review_status';
  */
 const getIdColumns = (objectType: ExportedObjectType): string[] => {
     const parentObjectType = parentObjectTypeByObjectType[objectType];
-    return parentObjectType === undefined || parentObjectType === 'interview'
-        ? ['_uuid', '_interviewUuid', reviewStatusColumn]
-        : ['_uuid', '_interviewUuid', `_${parentObjectType}Uuid`, reviewStatusColumn];
+    return [
+        '_uuid',
+        '_interviewUuid',
+        ...(parentObjectType === undefined || parentObjectType === 'interview' ? [] : [`_${parentObjectType}Uuid`]),
+        reviewStatusColumn,
+        ...(parentObjectTypes.has(objectType) ? [hasRejectedDescendantColumn] : [])
+    ];
 };
-
-/**
- * Function returning the effective review status of an object of the
- * interview being visited, from the review decisions on this object only
- */
-export type GetReviewStatus = (objectType: SurveyObjectName, objectUuid: string) => ReviewDecisionEffectiveStatus;
 
 /** Project-relative directory of the temporary row files, emptied when the export finishes */
 const temporaryDirectory = 'exports/surveyObjectsExportRows';
@@ -74,8 +62,9 @@ type VisitedObject = ExportableSurveyObject & { uuid?: string };
 /**
  * Visitor writing one CSV file per survey object type, with one row per
  * object. Each row contains the attributes and custom attributes of the
- * object, the uuid of its interview and the uuid of its parent object, and
- * its review status (see {@link getExportedReviewStatus}).
+ * object, the uuid of its interview and the uuid of its parent object, its
+ * review status (see {@link getExportedReviewStatus}) and, for objects that
+ * have children, whether one of their descendants is rejected.
  *
  * As custom attributes vary between interviews, the columns are only known
  * once all objects are visited. The rows are first written to temporary
@@ -92,11 +81,14 @@ export class CsvExportVisitor implements SurveyObjectVisitor {
      * @param {string} fileNamePrefix - Prefix of the CSV file names, followed by the object type
      * @param {GetReviewStatus} getReviewStatus - Get the review status of an object of the
      * interview being visited
+     * @param {HasRejectedDescendant} hasRejectedDescendant - Get whether an object of the
+     * interview being visited has a rejected descendant
      */
     constructor(
         private readonly outputDirectory: string,
         private readonly fileNamePrefix: string,
-        private readonly getReviewStatus: GetReviewStatus
+        private readonly getReviewStatus: GetReviewStatus,
+        private readonly hasRejectedDescendant: HasRejectedDescendant
     ) {
         // Start from an empty directory, in case a previous export was interrupted
         fileManager.directoryManager.deleteDirectory(temporaryDirectory);
@@ -153,13 +145,14 @@ export class CsvExportVisitor implements SurveyObjectVisitor {
         const parentStatus =
             parentObjectType === undefined
                 ? undefined
-                : this.exportedReviewStatusByObject.get(`${parentObjectType}:${context[parentObjectType]?.uuid}`);
+                : this.exportedReviewStatusByObject.get(
+                    getObjectKey(parentObjectType, context[parentObjectType]?.uuid)
+                );
         const status = getExportedReviewStatus(
             objectUuid === undefined ? 'notReviewed' : this.getReviewStatus(objectType, objectUuid),
             parentStatus
         );
-        // Keyed by type too, as the home and household have the uuid of the interview
-        this.exportedReviewStatusByObject.set(`${objectType}:${objectUuid}`, status);
+        this.exportedReviewStatusByObject.set(getObjectKey(objectType, objectUuid), status);
         return status;
     }
 
@@ -180,6 +173,10 @@ export class CsvExportVisitor implements SurveyObjectVisitor {
             row[`_${parentObjectType}Uuid`] = context[parentObjectType]?.uuid;
         }
         row[reviewStatusColumn] = this.getObjectReviewStatus(objectType, object.uuid, context);
+        if (parentObjectTypes.has(objectType)) {
+            row[hasRejectedDescendantColumn] =
+                object.uuid !== undefined && this.hasRejectedDescendant(objectType, object.uuid);
+        }
         const file = this.getFile(objectType);
         Object.keys(row).forEach((column) => file.columns.add(column));
         if (!file.stream.write(JSON.stringify(row) + '\n')) {

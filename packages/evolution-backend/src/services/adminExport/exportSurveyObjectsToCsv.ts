@@ -15,6 +15,8 @@ import { computeReviewDecisionStatusForObject } from '../reviews/ReviewDecisionU
 import { SurveyObjectsFactory } from '../surveyObjects/SurveyObjectsFactory';
 import { execJob } from '../../tasks/serverWorkerPool';
 import { CsvExportVisitor } from './CsvExportVisitor';
+import { GetReviewStatus } from './exportedReviewStatus';
+import { RejectedDescendantsVisitor } from './RejectedDescendantsVisitor';
 import { filePathOnServer } from './exportAllResponsesToCsvByObject';
 
 /**
@@ -30,13 +32,16 @@ import { filePathOnServer } from './exportAllResponsesToCsvByObject';
  * @returns {Promise<string[]>} The names of the CSV files, in the export directory
  */
 export const exportSurveyObjectsToCsvTask = async (): Promise<string[]> => {
-    // Review decisions of the interview being exported
+    // Review decisions and rejected descendants of the interview being exported
     let reviewDecisions: ReviewDecision[] = [];
+    const getReviewStatus: GetReviewStatus = (objectType, objectUuid) =>
+        computeReviewDecisionStatusForObject(reviewDecisions, objectType, objectUuid).effectiveStatus;
+    let rejectedDescendants = new RejectedDescendantsVisitor(getReviewStatus);
     const visitor = new CsvExportVisitor(
         filePathOnServer,
         `surveyObjects_${config.projectShortname}`,
-        (objectType, objectUuid) =>
-            computeReviewDecisionStatusForObject(reviewDecisions, objectType, objectUuid).effectiveStatus
+        getReviewStatus,
+        (objectType, objectUuid) => rejectedDescendants.hasRejectedDescendant(objectType, objectUuid)
     );
     // Routing is not exported, no need to calculate it
     const factory = new SurveyObjectsFactory({ calculateRouting: false });
@@ -51,6 +56,9 @@ export const exportSurveyObjectsToCsvTask = async (): Promise<string[]> => {
         }
         reviewDecisions = await reviewDecisionsDbQueries.getReviewDecisionsForInterview(interview.id);
         const surveyObjects = await factory.createAllObjectsWithErrors(interview as InterviewAttributes);
+        // A first walk finds the rejected descendants, which are needed to write the parents' rows
+        rejectedDescendants = new RejectedDescendantsVisitor(getReviewStatus);
+        await walkSurveyObjects(surveyObjects, rejectedDescendants);
         await walkSurveyObjects(surveyObjects, visitor);
     }
     const fileNames = await visitor.finish();
