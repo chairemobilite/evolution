@@ -11,6 +11,10 @@ import {
     getExportFiles,
     isExportRunning
 } from '../../services/adminExport/exportAllResponsesToCsvByObject';
+import {
+    exportSurveyObjectsToCsv,
+    isSurveyObjectsExportRunning
+} from '../../services/adminExport/surveyObjects/exportSurveyObjectsToCsv';
 import { fileManager } from 'chaire-lib-backend/lib/utils/filesystem/fileManager';
 import * as Status from 'chaire-lib-common/lib/utils/Status';
 import { directoryManager } from 'chaire-lib-backend/lib/utils/filesystem/directoryManager';
@@ -41,7 +45,7 @@ export const addExportRoutes = () => {
     router.get('/data/getExportTaskResults', (_req, res, _next) => {
         console.log('getting csv export files...');
         try {
-            if (isExportRunning()) {
+            if (isExportRunning() || isSurveyObjectsExportRunning()) {
                 return res.status(200).json(Status.createOk({ taskRunning: true, files: [] }));
             }
             const files = getExportFiles();
@@ -69,6 +73,17 @@ export const addExportRoutes = () => {
                 csvExportFilePaths: [],
                 error: 'could not prepare csv files for export: ' + error
             });
+        }
+    });
+
+    // Route to prepare the csv files of the survey objects, created from the corrected responses
+    router.get('/data/prepareSurveyObjectsCsvExport', (_req, res, _next) => {
+        console.log('preparing survey objects csv export files...');
+        try {
+            return res.status(200).json({ status: exportSurveyObjectsToCsv() });
+        } catch (error) {
+            console.error('could not prepare survey objects csv files for export', error);
+            return res.status(500).json({ status: 'error' });
         }
     });
 
