@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Removed
 
+- **Breaking** Facebook login: the "Sign in with Facebook" button is removed, the `auth.facebook` option has no effect, and the `facebook` field is removed from the interview list attributes given to `validationListFilter`. A migration drops the `facebook_id` column of `sv_participants`, after setting the username of the Facebook participants without one to `facebook_<facebook_id>`, so the exported data still shows where they came from. Transition drops the `facebook_id` column of `users` and deletes the users who could only log in with Facebook ([chairemobilite/transition#2189](https://github.com/chairemobilite/transition/pull/2189)) ([#2181](https://github.com/chairemobilite/evolution/pull/2181))
+
 ### Fixed
 
 - Generator: `poetry install` fails with Python 3.14 (fixes [#2170](https://github.com/chairemobilite/evolution/issues/2170))

@@ -32,11 +32,10 @@ class ParticipantAuthModel extends AuthModelBase<ParticipantModel> {
             username: userData.username || null,
             email: userData.email || null,
             google_id: userData.googleId || null,
-            facebook_id: userData.facebookId || null,
             password:
-                userData.googleId || userData.facebookId || !userData.password
-                    ? null
-                    : this.encryptPassword(userData.password),
+                !userData.googleId && typeof userData.password === 'string'
+                    ? this.encryptPassword(userData.password)
+                    : null,
             first_name: '',
             last_name: '',
             is_valid: userData.isTest === true ? false : true,

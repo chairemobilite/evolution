@@ -49,7 +49,6 @@ export interface InterviewSearchAttributes {
     reviewStatus: ReviewDecisionEffectiveStatus;
     email?: string | undefined;
     username?: string | undefined;
-    facebook: boolean;
     google: boolean;
     surveyId?: number;
 }
@@ -112,7 +111,6 @@ const findByResponse = async (searchObject: { [key: string]: any }): Promise<Int
                 'review.is_force_approved',
                 'participant.email',
                 'participant.username',
-                knex.raw('case when participant.facebook_id is null then false else true end facebook'),
                 knex.raw('case when participant.google_id is null then false else true end google')
             )
             .from(`${tableName} as i`)
@@ -146,7 +144,6 @@ const findByResponse = async (searchObject: { [key: string]: any }): Promise<Int
             reviewStatus: getInterviewReviewStatusFromRow(interview),
             email: interview.email === null ? undefined : interview.email,
             username: interview.username === null ? undefined : interview.username,
-            facebook: interview.facebook,
             google: interview.google,
             surveyId: interview.survey_id
         }));
@@ -660,7 +657,6 @@ const getList = async (params: {
                 'review.rejection_count',
                 'review.is_force_approved',
                 'participant.username',
-                knex.raw('case when participant.facebook_id is null then false else true end facebook'),
                 knex.raw('case when participant.google_id is null then false else true end google')
             )
             .from(`${tableName} as i`)

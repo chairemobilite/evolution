@@ -70,7 +70,6 @@ export const defaultConfig: ProjectServerConfig = {
             is_completed,
             is_questionable,
             username,
-            facebook,
             google,
             response,
             corrected_response,
@@ -97,7 +96,6 @@ export const defaultConfig: ProjectServerConfig = {
             is_completed,
             is_questionable,
             username,
-            facebook,
             google,
             response: responseData,
             audits

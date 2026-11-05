@@ -52,7 +52,6 @@ module.exports = {
         },
         anonymous: true,
         google: false,
-        facebook: false,
         byField: false
     },
     postalCodeRegion: 'canada',
