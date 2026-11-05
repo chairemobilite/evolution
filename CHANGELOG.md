@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Export: CSV files of the survey objects (interview, home, household, person, journey, visited place, trip and segment), with their custom attributes, review status and whether they contain a rejected object, created from the corrected responses
+
 ### Changed
 
 - Generator: the Excel integrity check now validates the Choices sheet (fixes [#2039](https://github.com/chairemobilite/evolution/issues/2039))

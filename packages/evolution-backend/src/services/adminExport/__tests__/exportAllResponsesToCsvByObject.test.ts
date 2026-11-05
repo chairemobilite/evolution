@@ -9,7 +9,7 @@ import Papa from 'papaparse';
 import { ObjectReadableMock, ObjectWritableMock } from 'stream-mock';
 import interviewsDbQueries from '../../../models/interviews.db.queries';
 
-import { exportAllToCsvBySurveyObjectTask } from '../exportAllToCsvBySurveyObject';
+import { exportAllResponsesToCsvByObjectTask } from '../exportAllResponsesToCsvByObject';
 
 // Mock the database log stream
 jest.mock('../../../models/interviews.db.queries', () => ({
@@ -39,7 +39,7 @@ beforeEach(() => {
     jest.clearAllMocks();
 });
 
-describe('exportAllToCsvBySurveyObject', () => {
+describe('exportAllResponsesToCsvByObject', () => {
 
     const getCsvFileRows = (csvData: string[]): Promise<any[]> => {
         const input = csvData.join('');
@@ -96,7 +96,7 @@ describe('exportAllToCsvBySurveyObject', () => {
         mockGetInterviewsStream.mockReturnValueOnce(new ObjectReadableMock([interviewData]) as any);
         mockGetInterviewsStream.mockReturnValueOnce(new ObjectReadableMock([interviewData]) as any);
 
-        await exportAllToCsvBySurveyObjectTask({ responseType: 'correctedIfAvailable' });
+        await exportAllResponsesToCsvByObjectTask({ responseType: 'correctedIfAvailable' });
 
         // Check the file content of the exported files, there should be one file for persons, one for the interview
         expect(mockCreateStream).toHaveBeenCalledTimes(2);
@@ -238,7 +238,7 @@ describe('exportAllToCsvBySurveyObject', () => {
         mockGetInterviewsStream.mockReturnValueOnce(new ObjectReadableMock([interviewData]) as any);
         mockGetInterviewsStream.mockReturnValueOnce(new ObjectReadableMock([interviewData]) as any);
 
-        const filenames = await exportAllToCsvBySurveyObjectTask({ responseType: 'correctedIfAvailable' });
+        const filenames = await exportAllResponsesToCsvByObjectTask({ responseType: 'correctedIfAvailable' });
         console.log('filenames', filenames);
 
         // Check the file content of the exported files, there should be one file for persons, one for the interview
@@ -381,7 +381,7 @@ describe('exportAllToCsvBySurveyObject', () => {
         mockGetInterviewsStream.mockReturnValueOnce(new ObjectReadableMock(interviewData) as any);
         mockGetInterviewsStream.mockReturnValueOnce(new ObjectReadableMock(interviewData) as any);
 
-        await exportAllToCsvBySurveyObjectTask({ responseType: 'correctedIfAvailable' });
+        await exportAllResponsesToCsvByObjectTask({ responseType: 'correctedIfAvailable' });
 
         // Check the file content of the exported files, there should be one file for persons, one for the interview
         expect(mockCreateStream).toHaveBeenCalledTimes(1);

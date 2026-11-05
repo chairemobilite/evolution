@@ -13,9 +13,10 @@ const mockParsersModule = require.resolve('../../config/__tests__/fixtures/regis
 jest.mock('workerpool', () => ({ worker: jest.fn() }));
 jest.mock('worker_threads', () => ({ workerData: { serverConfigs: { surveyObjectParsers: mockParsersModule } } }));
 // The tasks themselves only need to exist here, they are not run
-jest.mock('../../services/adminExport/exportAllToCsvBySurveyObject', () => ({
-    exportAllToCsvBySurveyObjectTask: jest.fn()
+jest.mock('../../services/adminExport/exportAllResponsesToCsvByObject', () => ({
+    exportAllResponsesToCsvByObjectTask: jest.fn()
 }));
+jest.mock('../../services/adminExport/exportSurveyObjectsToCsv', () => ({ exportSurveyObjectsToCsvTask: jest.fn() }));
 jest.mock('../../services/adminExport/exportInterviewLogs', () => ({ exportInterviewLogTask: jest.fn() }));
 jest.mock('../../services/audits/BatchAuditService', () => ({ runBatchAuditsTask: jest.fn() }));
 
