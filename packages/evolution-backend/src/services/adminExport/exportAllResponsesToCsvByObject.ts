@@ -11,9 +11,9 @@ import fs from 'fs';
 import _get from 'lodash/get';
 import _cloneDeep from 'lodash/cloneDeep';
 import { unparse } from 'papaparse';
-import isString from 'lodash/isString';
 
 import { ExportOptions } from './types';
+import { formatValue, handleCoordinates } from './csvValueFormatters';
 import { execJob } from '../../tasks/serverWorkerPool';
 import * as surveyHelperNew from 'evolution-common/lib/utils/helpers';
 import { fileManager } from 'chaire-lib-backend/lib/utils/filesystem/fileManager';
@@ -300,38 +300,6 @@ const getPathsBySurveyObject = async (options: ExportOptions): Promise<{ [objNam
     }
 
     return pathsBySurveyObject;
-};
-
-/**
- * Handle the coordinates to be exported to CSV as separate lat and lon columns
- * @param container The object to add the coordinates to
- * @param pathKey The path key to use to add the coordinates to
- * @param value The value to add to the coordinates
- */
-const handleCoordinates = (container: any, pathKey: string, value: unknown) => {
-    // force create the fields even if empty otherwise you may end up with an empty header for the lat/lon column if the first row has an empty geometry:
-    container[pathKey.replace('.coordinates', '') + '.lon'] = undefined;
-    container[pathKey.replace('.coordinates', '') + '.lat'] = undefined;
-
-    if (Array.isArray(value)) {
-        container[pathKey.replace('.coordinates', '') + '.lon'] = value[0];
-        container[pathKey.replace('.coordinates', '') + '.lat'] = value[1];
-    }
-};
-
-/**
- * Format the value to be exported to CSV (remove newlines and quotes)
- * @param value The value to format
- * @returns The formatted value
- */
-const formatValue = (value: unknown): unknown => {
-    let valueString = value;
-    if (Array.isArray(valueString)) {
-        valueString = valueString.join('|');
-    }
-    return valueString && isString(valueString)
-        ? valueString.replaceAll('\n', ' ').replaceAll('\r', '').replaceAll('"', '')
-        : valueString;
 };
 
 /**
