@@ -8,11 +8,18 @@
 import { ObjectReadableMock } from 'stream-mock';
 import { walkSurveyObjects } from 'evolution-common/lib/services/baseObjects/walkSurveyObjects';
 import interviewsDbQueries from '../../../models/interviews.db.queries';
+import reviewDecisionsDbQueries from '../../../models/reviewDecisions.db.queries';
 import { exportSurveyObjectsToCsvTask } from '../exportSurveyObjectsToCsv';
 
 jest.mock('../../../models/interviews.db.queries', () => ({
     getInterviewsStream: jest.fn()
 }));
+jest.mock('../../../models/reviewDecisions.db.queries', () => ({
+    getReviewDecisionsForInterview: jest.fn().mockResolvedValue([])
+}));
+const mockGetReviewDecisionsForInterview = reviewDecisionsDbQueries.getReviewDecisionsForInterview as jest.MockedFunction<
+    typeof reviewDecisionsDbQueries.getReviewDecisionsForInterview
+>;
 const mockGetInterviewsStream = interviewsDbQueries.getInterviewsStream as jest.MockedFunction<
     typeof interviewsDbQueries.getInterviewsStream
 >;
@@ -43,17 +50,18 @@ beforeEach(() => {
 
 describe('exportSurveyObjectsToCsvTask', () => {
     test.each([
-        { description: 'no interview', interviews: [], expectedUuids: [] },
+        { description: 'no interview', interviews: [], expectedUuids: [], expectedIds: [] },
         {
             description: 'interviews without corrected response are skipped',
             interviews: [
-                { uuid: 'withCorrected1', corrected_response: { household: {} } },
-                { uuid: 'withoutCorrected', corrected_response: null },
-                { uuid: 'withCorrected2', corrected_response: {} }
+                { id: 1, uuid: 'withCorrected1', corrected_response: { household: {} } },
+                { id: 2, uuid: 'withoutCorrected', corrected_response: null },
+                { id: 3, uuid: 'withCorrected2', corrected_response: {} }
             ],
-            expectedUuids: ['withCorrected1', 'withCorrected2']
+            expectedUuids: ['withCorrected1', 'withCorrected2'],
+            expectedIds: [1, 3]
         }
-    ])('$description', async ({ interviews, expectedUuids }) => {
+    ])('$description', async ({ interviews, expectedUuids, expectedIds }) => {
         mockGetInterviewsStream.mockReturnValueOnce(new ObjectReadableMock(interviews) as any);
 
         const fileNames = await exportSurveyObjectsToCsvTask();
@@ -62,6 +70,7 @@ describe('exportSurveyObjectsToCsvTask', () => {
             filters: {},
             select: { includeAudits: false, responseType: 'corrected' }
         });
+        expect(mockGetReviewDecisionsForInterview.mock.calls.map(([interviewId]) => interviewId)).toEqual(expectedIds);
         expect(mockCreateAllObjectsWithErrors.mock.calls.map(([interview]) => interview.uuid)).toEqual(expectedUuids);
         expect(mockWalkSurveyObjects.mock.calls.map(([surveyObjects]) => surveyObjects.interview?.uuid)).toEqual(
             expectedUuids

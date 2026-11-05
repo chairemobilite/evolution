@@ -13,7 +13,10 @@ import type {
     SurveyObjectVisitor,
     SurveyObjectVisitContext
 } from 'evolution-common/lib/services/baseObjects/walkSurveyObjects';
+import type { SurveyObjectName } from 'evolution-common/lib/services/baseObjects/types';
+import type { ReviewDecisionEffectiveStatus } from 'evolution-common/lib/services/reviews/types';
 import { fileManager } from 'chaire-lib-backend/lib/utils/filesystem/fileManager';
+import { getExportedReviewStatus } from './exportedReviewStatus';
 import { CsvRow, ExportableSurveyObject, surveyObjectToCsvRow } from './surveyObjectToCsvRow';
 
 /**
@@ -34,16 +37,26 @@ const parentObjectTypeByObjectType = {
 
 type ExportedObjectType = keyof typeof parentObjectTypeByObjectType;
 
+/** Column of the review status of the object */
+const reviewStatusColumn = 'review_status';
+
 /**
  * Get the columns written first in the file of an object type, in this order,
- * to identify the object and link it to its interview and parent
+ * to identify the object, link it to its interview and parent, and give its
+ * review status
  */
 const getIdColumns = (objectType: ExportedObjectType): string[] => {
     const parentObjectType = parentObjectTypeByObjectType[objectType];
     return parentObjectType === undefined || parentObjectType === 'interview'
-        ? ['_uuid', '_interviewUuid']
-        : ['_uuid', '_interviewUuid', `_${parentObjectType}Uuid`];
+        ? ['_uuid', '_interviewUuid', reviewStatusColumn]
+        : ['_uuid', '_interviewUuid', `_${parentObjectType}Uuid`, reviewStatusColumn];
 };
+
+/**
+ * Function returning the effective review status of an object of the
+ * interview being visited, from the review decisions on this object only
+ */
+export type GetReviewStatus = (objectType: SurveyObjectName, objectUuid: string) => ReviewDecisionEffectiveStatus;
 
 /** Project-relative directory of the temporary row files, emptied when the export finishes */
 const temporaryDirectory = 'exports/surveyObjectsExportRows';
@@ -61,7 +74,8 @@ type VisitedObject = ExportableSurveyObject & { uuid?: string };
 /**
  * Visitor writing one CSV file per survey object type, with one row per
  * object. Each row contains the attributes and custom attributes of the
- * object, the uuid of its interview and the uuid of its parent object.
+ * object, the uuid of its interview and the uuid of its parent object, and
+ * its review status (see {@link getExportedReviewStatus}).
  *
  * As custom attributes vary between interviews, the columns are only known
  * once all objects are visited. The rows are first written to temporary
@@ -70,14 +84,19 @@ type VisitedObject = ExportableSurveyObject & { uuid?: string };
  */
 export class CsvExportVisitor implements SurveyObjectVisitor {
     private readonly filesByObjectType: { [objectType: string]: ObjectRowsFile } = {};
+    /** Exported review status of the objects of the interview being visited, by `objectType:uuid` */
+    private exportedReviewStatusByObject = new Map<string, ReviewDecisionEffectiveStatus>();
 
     /**
      * @param {string} outputDirectory - Project-relative directory where to write the CSV files
      * @param {string} fileNamePrefix - Prefix of the CSV file names, followed by the object type
+     * @param {GetReviewStatus} getReviewStatus - Get the review status of an object of the
+     * interview being visited
      */
     constructor(
         private readonly outputDirectory: string,
-        private readonly fileNamePrefix: string
+        private readonly fileNamePrefix: string,
+        private readonly getReviewStatus: GetReviewStatus
     ) {
         // Start from an empty directory, in case a previous export was interrupted
         fileManager.directoryManager.deleteDirectory(temporaryDirectory);
@@ -117,6 +136,33 @@ export class CsvExportVisitor implements SurveyObjectVisitor {
         return this.filesByObjectType[objectType];
     }
 
+    /**
+     * Get the review status to export for an object and keep it, so that its
+     * children can inherit it. Parents are visited before their children.
+     */
+    private getObjectReviewStatus(
+        objectType: ExportedObjectType,
+        objectUuid: string | undefined,
+        context: SurveyObjectVisitContext
+    ): ReviewDecisionEffectiveStatus {
+        if (objectType === 'interview') {
+            // A new interview is visited, the statuses of the previous one are not needed anymore
+            this.exportedReviewStatusByObject.clear();
+        }
+        const parentObjectType = parentObjectTypeByObjectType[objectType];
+        const parentStatus =
+            parentObjectType === undefined
+                ? undefined
+                : this.exportedReviewStatusByObject.get(`${parentObjectType}:${context[parentObjectType]?.uuid}`);
+        const status = getExportedReviewStatus(
+            objectUuid === undefined ? 'notReviewed' : this.getReviewStatus(objectType, objectUuid),
+            parentStatus
+        );
+        // Keyed by type too, as the home and household have the uuid of the interview
+        this.exportedReviewStatusByObject.set(`${objectType}:${objectUuid}`, status);
+        return status;
+    }
+
     private async writeRow(
         objectType: ExportedObjectType,
         object: VisitedObject,
@@ -133,6 +179,7 @@ export class CsvExportVisitor implements SurveyObjectVisitor {
         if (parentObjectType !== undefined && parentObjectType !== 'interview') {
             row[`_${parentObjectType}Uuid`] = context[parentObjectType]?.uuid;
         }
+        row[reviewStatusColumn] = this.getObjectReviewStatus(objectType, object.uuid, context);
         const file = this.getFile(objectType);
         Object.keys(row).forEach((column) => file.columns.add(column));
         if (!file.stream.write(JSON.stringify(row) + '\n')) {
