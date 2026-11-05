@@ -70,6 +70,10 @@ A type representing an individual audit entry.
 
 - **Attributes**: version, level, errorCode, message
 
+### walkSurveyObjects and SurveyObjectVisitor
+
+`walkSurveyObjects` walks the survey objects of an interview (interview, home, household, persons, journeys, visited places, trips and segments), parents before children, and calls the matching method of a `SurveyObjectVisitor` with the object and its ancestors. Use it to run an operation on every object (e.g. an export) without rewriting the nested loops over the object tree.
+
 ## Data Flow and Processes
 
 1. **Interview Creation**: An Interview object is created when a respondent starts a survey.
