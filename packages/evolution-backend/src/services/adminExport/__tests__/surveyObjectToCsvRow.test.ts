@@ -49,6 +49,19 @@ describe('surveyObjectToCsvRow', () => {
             }
         },
         {
+            description: 'coordinates rounded to 6 decimals',
+            attributes: {
+                geography: { geometry: { type: 'Point', coordinates: [-73.123456789, 45.5000004] } }
+            },
+            customAttributes: {},
+            prefix: undefined,
+            expected: {
+                'geography.geometry.type': 'Point',
+                'geography.geometry.lon': -73.123457,
+                'geography.geometry.lat': 45.5
+            }
+        },
+        {
             description: 'arrays of primitives joined, arrays of objects as JSON',
             attributes: { busLines: ['a', 'b'], _weights: [new Weight(1.5)] },
             customAttributes: {},

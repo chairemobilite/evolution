@@ -6,6 +6,7 @@
  */
 
 import _isPlainObject from 'lodash/isPlainObject';
+import { roundToDecimals } from 'chaire-lib-common/lib/utils/MathUtils';
 import { formatValue, handleCoordinates } from './csvValueFormatters';
 
 /** Row of a CSV file, by column name */
@@ -17,13 +18,21 @@ export type ExportableSurveyObject = {
     customAttributes: { [key: string]: unknown };
 };
 
+/**
+ * Number of decimals of the exported coordinates, in degrees. 6 decimals are
+ * about 0.1 m (1e-6 degree of latitude is 0.111 m), finer than the precision
+ * of the locations given by participants or by geocoding.
+ */
+const coordinatesDecimals = 6;
+
 const isPrimitive = (value: unknown): boolean => value === null || typeof value !== 'object';
 
 /**
  * Add a value to the row. Plain objects are flattened to one column per
- * nested attribute (`parent.child`), point coordinates are split in lat and
- * lon columns and arrays of primitives are joined. Any other object (class
- * instances, arrays of objects) is exported as JSON in a single column.
+ * nested attribute (`parent.child`), point coordinates are rounded and split
+ * in lat and lon columns and arrays of primitives are joined. Any other
+ * object (class instances, arrays of objects) is exported as JSON in a single
+ * column.
  *
  * @param {CsvRow} row - The row to add the value to
  * @param {string} column - The column name of the value
@@ -35,7 +44,15 @@ const addValueToRow = (row: CsvRow, column: string, value: unknown): void => {
             addValueToRow(row, `${column}.${key}`, nestedValue);
         }
     } else if (column.endsWith('.geometry.coordinates')) {
-        handleCoordinates(row, column, value);
+        handleCoordinates(
+            row,
+            column,
+            Array.isArray(value)
+                ? value.map((coordinate) =>
+                    typeof coordinate === 'number' ? roundToDecimals(coordinate, coordinatesDecimals) : coordinate
+                )
+                : value
+        );
     } else if (isPrimitive(value) || (Array.isArray(value) && value.every(isPrimitive))) {
         row[column] = formatValue(value);
     } else {
