@@ -16,6 +16,9 @@ jest.mock('worker_threads', () => ({ workerData: { serverConfigs: { surveyObject
 jest.mock('../../services/adminExport/exportAllResponsesToCsvByObject', () => ({
     exportAllResponsesToCsvByObjectTask: jest.fn()
 }));
+jest.mock('../../services/adminExport/surveyObjects/exportSurveyObjectsToCsv', () => ({
+    exportSurveyObjectsToCsvTask: jest.fn()
+}));
 jest.mock('../../services/adminExport/exportInterviewLogs', () => ({ exportInterviewLogTask: jest.fn() }));
 jest.mock('../../services/audits/BatchAuditService', () => ({ runBatchAuditsTask: jest.fn() }));
 

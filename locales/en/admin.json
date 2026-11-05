@@ -218,7 +218,12 @@
     "Select": "Select",
     "export": {
         "PrepareCorrectedCsvExportFiles": "Prepare CSV files by object (corrected responses if available)",
+        "PrepareCorrectedCsvExportFilesHelp": "Answers to the questionnaire, with one file per group of objects found in the responses. The corrected responses are used for the interviews that have them, the original responses for the others. Invalid and incomplete interviews are included.",
         "PrepareParticipantCsvExportFiles": "Prepare CSV files for export by object (original responses)",
+        "PrepareParticipantCsvExportFilesHelp": "Same files as the previous export, with the original responses of the participants, without any correction.",
+        "PrepareSurveyObjectsCsvExportFiles": "Prepare CSV files of the survey objects (corrected responses only)",
+        "PrepareSurveyObjectsCsvExportFilesHelp": "Survey objects created from the corrected responses, with their validated attributes: one file each for interviews, homes, households, persons, journeys, visited places, trips and segments.\n\nNot exported:\n\n- interviews that were never audited, as they have no corrected response;\n- interviews with at least one object that could not be created, which are left out entirely;\n- work and school places, vehicles, junctions and routings.\n\nThe interviews left out are in the files of the two other exports.",
+        "ShowExportHelp": "Help on the export: {{exportName}}",
         "RefreshExportFiles": "Refresh export file list",
         "ServerErrorForExport": "Server error while preparing export files",
         "ServerExportForbidden": "You are not authorized to export data",
