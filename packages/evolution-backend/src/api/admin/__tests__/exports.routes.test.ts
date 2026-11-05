@@ -10,7 +10,7 @@ import { addExportRoutes } from '../exports.routes';
 import router from 'chaire-lib-backend/lib/api/admin.routes';
 import { directoryManager } from 'chaire-lib-backend/lib/utils/filesystem/directoryManager';
 import { fileManager } from 'chaire-lib-backend/lib/utils/filesystem/fileManager';
-import { exportAllToCsvBySurveyObject } from '../../../services/adminExport/exportAllToCsvBySurveyObject';
+import { exportAllResponsesToCsvByObject } from '../../../services/adminExport/exportAllResponsesToCsvByObject';
 import { isAdmin } from 'chaire-lib-backend/src/services/auth/authorization';
 import _ from 'lodash';
 
@@ -22,8 +22,8 @@ jest.mock('chaire-lib-backend/lib/services/auth/authorization', () => ({
 }));
 
 // Mock the export functions
-jest.mock('../../../services/adminExport/exportAllToCsvBySurveyObject', () => ({
-    exportAllToCsvBySurveyObject: jest.fn().mockReturnValue('exportStarted')
+jest.mock('../../../services/adminExport/exportAllResponsesToCsvByObject', () => ({
+    exportAllResponsesToCsvByObject: jest.fn().mockReturnValue('exportStarted')
 }));
 
 // Mock the file path on server
@@ -40,7 +40,7 @@ jest.mock('chaire-lib-backend/lib/utils/filesystem/fileManager', () => ({
     }
 }));
 
-const exportAllToCsvBySurveyObjectMock = exportAllToCsvBySurveyObject as jest.MockedFunction<typeof exportAllToCsvBySurveyObject>;
+const exportAllResponsesToCsvByObjectMock = exportAllResponsesToCsvByObject as jest.MockedFunction<typeof exportAllResponsesToCsvByObject>;
 const fileExistsAbsoluteMock = fileManager.fileExistsAbsolute as jest.MockedFunction<
     typeof fileManager.fileExistsAbsolute
 >;
@@ -63,7 +63,7 @@ describe('prepareCsvFileForExportBySurveyObject route', () => {
         expect(response.body).toEqual({
             status: 'exportStarted'
         });
-        expect(exportAllToCsvBySurveyObjectMock).toHaveBeenCalledWith({ responseType: 'correctedIfAvailable' });
+        expect(exportAllResponsesToCsvByObjectMock).toHaveBeenCalledWith({ responseType: 'correctedIfAvailable' });
     });
 
     it('Should prepare corrected response, if specified', async () => {
@@ -74,7 +74,7 @@ describe('prepareCsvFileForExportBySurveyObject route', () => {
         expect(response.body).toEqual({
             status: 'exportStarted'
         });
-        expect(exportAllToCsvBySurveyObjectMock).toHaveBeenCalledWith({ responseType: 'correctedIfAvailable' });
+        expect(exportAllResponsesToCsvByObjectMock).toHaveBeenCalledWith({ responseType: 'correctedIfAvailable' });
     });
 
     it('Should prepare corrected response, if invalid value is specified', async () => {
@@ -85,7 +85,7 @@ describe('prepareCsvFileForExportBySurveyObject route', () => {
         expect(response.body).toEqual({
             status: 'exportStarted'
         });
-        expect(exportAllToCsvBySurveyObjectMock).toHaveBeenCalledWith({ responseType: 'correctedIfAvailable' });
+        expect(exportAllResponsesToCsvByObjectMock).toHaveBeenCalledWith({ responseType: 'correctedIfAvailable' });
     });
 
     it('Should prepare participant data, if specified', async () => {
@@ -96,7 +96,7 @@ describe('prepareCsvFileForExportBySurveyObject route', () => {
         expect(response.body).toEqual({
             status: 'exportStarted'
         });
-        expect(exportAllToCsvBySurveyObjectMock).toHaveBeenCalledWith({ responseType: 'participant' });
+        expect(exportAllResponsesToCsvByObjectMock).toHaveBeenCalledWith({ responseType: 'participant' });
     });
 });
 
