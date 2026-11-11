@@ -109,7 +109,7 @@ class TestWidgetDefinition:
     def test_reports_the_missing_required_fields(self):
         assert _row_issue({"label::fr": "Nom", "label::en": "Name"}) == (
             "Error in Widgets - Required field is missing in row 2. Missing fields: "
-            "['question_name', 'input_type', 'active', 'section']"
+            "['active', 'question_name', 'input_type', 'section']"
         )
 
     def test_reports_an_unknown_input_type(self):
@@ -190,7 +190,13 @@ class TestWidgetDefinition:
     def test_reports_a_name_that_is_not_a_typescript_identifier(
         self, field_name, value
     ):
-        assert _row_issue(_row(**{field_name: value})).startswith(
+        # On a row whose input type uses the column: an ignored one isn't checked.
+        input_type = {
+            "choices": "Radio",
+            "confirm_popup": "NextButton",
+            "input_range": "Range",
+        }.get(field_name, "String")
+        assert _row_issue(_row(input_type, **{field_name: value})).startswith(
             f"Error in Widgets - Invalid {field_name} in row 2: {value!r} - Must be a "
             "valid TypeScript identifier"
         )
@@ -376,12 +382,6 @@ class TestInputTypeRules:
             value="helpPopup",
         ),
         dict(
-            id="validation on Custom",
-            input_type="Custom",
-            field_name="validation",
-            value="emailValidation",
-        ),
-        dict(
             id="validation on NextButton",
             input_type="NextButton",
             field_name="validation",
@@ -415,9 +415,11 @@ class TestInputTypeRules:
     def test_reports_a_field_the_input_type_does_not_use(
         self, input_type, field_name, value
     ):
+        # The generator would silently drop it (only a Custom widget keeps it, see
+        # TestWarnings).
         assert _row_issue(_row(input_type, **{field_name: value})).startswith(
             f"Error in Widgets - Invalid row 2: {field_name} is not used by input_type "
-            f"{input_type!r}, only by ["
+            f"{input_type!r} (only by ["
         )
 
     @cases(
@@ -717,12 +719,6 @@ class TestWidgetParameters:
             name="suffixLabel",
         ),
         dict(
-            id="customLabels on Custom",
-            input_type="Custom",
-            parameters="customLabels={{someLabels}}",
-            name="customLabels",
-        ),
-        dict(
             id="builtInFunction on String",
             input_type="String",
             parameters="builtInFunction={{getWidget}}",
@@ -734,7 +730,7 @@ class TestWidgetParameters:
     ):
         assert _row_issue(_row(input_type, parameters=parameters)).startswith(
             f"Error in Widgets - Invalid row 2: parameter {name!r} is not used by "
-            f"input_type {input_type!r}, only by ["
+            f"input_type {input_type!r} (only by ["
         )
 
     @cases(
@@ -927,13 +923,13 @@ class TestNamesOfOtherTables:
         assert _definition(row, context={"languages": ("fr", "en")}).section == "work"
 
     def test_reports_every_problem_of_a_row_at_once(self):
-        row = _row("InfoText", section="work", choices="yesNo")
+        row = _row("Radio", section="work", choices=None, custom_choice="other")
         row.pop("label::en")
         assert _row_issue(row) == (
-            "Error in Widgets - Invalid row 2: choices is not used by input_type "
-            "'InfoText', only by ['BuiltIn', 'Checkbox', 'Custom', 'Radio', "
-            "'RadioNumber', 'Select']; label::en is required; section 'work' does not "
-            "match any section of the Sections table"
+            "Error in Widgets - Invalid row 2: choices is required for input_type "
+            "'Radio'; custom_path and custom_choice must be set together; label::en "
+            "is required; section 'work' does not match any section of the Sections "
+            "table"
         )
 
 
@@ -1131,3 +1127,149 @@ class TestWidgets:
         assert _issues([_person_row("personAge", active="yes")]) == [
             "Error in Widgets - Invalid active in row 2: 'yes' - Input should be a valid boolean"
         ]
+
+
+class TestInactiveWidgets:
+    """An inactive widget isn't in the survey: its row isn't checked."""
+
+    @cases(
+        dict(id="active FALSE", active=False),
+        dict(id="active 0", active=0),
+    )
+    def test_accepts_an_inactive_row_with_problems(self, active):
+        row = _row(
+            "Radio",
+            active=active,
+            choices=None,
+            path="home..name",
+            section="work",
+            validation="homeNameValidation",
+            conditional="isKidConditional",
+            parameters="minimum=1",
+            appearance="join_with=${nowhere}",
+            group="nowhere",
+            input_range="confidenceSlider",
+            **{"label::es": "Nombre"},
+        )
+        row.pop("label::en")
+        widgets = _widgets([row])
+        assert widgets[0].active is False
+        assert widgets.warnings() == []
+
+    def test_drops_the_values_an_inactive_row_cannot_use(self):
+        widget = _definition(
+            _row(
+                active=False,
+                path=5,
+                contains_html="VRAI",
+                parameters="minimum=1",
+                appearance="join_with=nowhere",
+                **{"label::fr": True},
+            )
+        )
+        assert widget.path is None
+        assert widget.contains_html is False
+        assert widget.parameters == WidgetParameters()
+        assert widget.appearance == WidgetAppearance()
+        assert widget.label == {"en": "Name"}
+
+    @cases(
+        dict(id="question_name", missing="question_name"),
+        dict(id="input_type", missing="input_type"),
+        dict(id="section", missing="section"),
+    )
+    def test_still_requires_the_columns_to_write_it(self, missing):
+        # generate_widgets still writes it, commented out, in its section's files.
+        row = _row(active=False)
+        row.pop(missing)
+        assert _row_issue(row) == (
+            "Error in Widgets - Required field is missing in row 2. Missing fields: "
+            f"[{missing!r}]"
+        )
+
+    @cases(
+        dict(id="same section", section="home"),
+        dict(id="another section", section="household"),
+    )
+    def test_accepts_an_inactive_widget_with_the_name_of_an_active_one(self, section):
+        # e.g. an older version of the widget, kept on purpose.
+        widgets = _widgets([_row(), _row(active=False, section=section)])
+        assert [widget.active for widget in widgets] == [True, False]
+
+    def test_references_the_active_widget_of_a_repeated_name(self):
+        old_group = _row("InfoText", question_name="householdMembers", active=False)
+        old_group["section"] = "household"
+        widgets = _widgets([old_group, _GROUP_ROW, _person_row("personAge", "Number")])
+        assert widgets[2].group == "householdMembers"
+
+
+class TestWarnings:
+    """A Custom widget keeps the columns it doesn't use, with a warning (often the values it had before being made Custom)."""
+
+    @cases(
+        dict(
+            id="validation", columns={"validation": "homeInTerritoryCustomValidation"}
+        ),
+        dict(id="help_popup", columns={"help_popup": "homeHelpPopup"}),
+        dict(id="two_columns", columns={"two_columns": True}),
+        dict(id="parameter", columns={"parameters": "min=0\nmax=4\noverMaxAllowed"}),
+    )
+    def test_warns_about_a_column_a_custom_widget_does_not_use(self, columns):
+        widgets = _widgets([_row("Custom", **columns)])
+        assert widgets[0].warnings != []
+        assert all(
+            warning.endswith("): it is ignored") for warning in widgets[0].warnings
+        )
+        assert widgets.warnings() == [
+            f"Widgets sheet, row 2: {warning}" for warning in widgets[0].warnings
+        ]
+
+    @cases(
+        dict(
+            id="validation",
+            columns={"validation": "homeInTerritoryValidation"},
+        ),
+        dict(id="help_popup", columns={"help_popup": "help popup"}),
+        dict(
+            id="custom_path and custom_choice",
+            columns={"custom_path": "home/other", "custom_choice": "nope"},
+        ),
+        dict(
+            id="parameters",
+            columns={"parameters": "min=0\nmax=${currentPerson}.travelToWorkDays"},
+        ),
+        dict(id="appearance", columns={"appearance": "joinWith=homeCity"}),
+        dict(id="input_range", columns={"input_range": "ageSlider"}),
+    )
+    def test_does_not_check_a_column_a_custom_widget_does_not_use(self, columns):
+        # Its value, kept for later, may not be valid anymore: only the warning.
+        widget = _definition(_row("Custom", **columns))
+        assert widget.warnings != []
+
+    def test_does_not_check_join_with_of_a_custom_widget(self):
+        widgets = _widgets([_row("Custom", appearance="join_with=${nowhere}")])
+        assert widgets[0].warnings[0].startswith("appearance is not used")
+
+    def test_has_no_warnings_when_every_column_is_used(self):
+        rows = [_row(), _row("Radio", question_name="homeCity")]
+        assert _widgets(rows).warnings() == []
+
+    def test_lists_the_warnings_of_every_row(self):
+        widgets = _widgets(
+            [
+                _row("Custom", validation="mapCustomValidation"),
+                _row(question_name="homeCity"),
+                _row("Custom", question_name="homeMap", help_popup="mapHelpPopup"),
+            ]
+        )
+        assert [warning.split(":")[0] for warning in widgets.warnings()] == [
+            "Widgets sheet, row 2",
+            "Widgets sheet, row 4",
+        ]
+
+    def test_reports_the_columns_a_built_in_widget_does_not_use(self):
+        # Only a Custom widget keeps them (see _INPUT_TYPES_KEEPING_UNUSED_COLUMNS).
+        assert _row_issue(_row("BuiltIn", validation="emailValidation")).startswith(
+            "Error in Widgets - Invalid row 2: validation is not used by input_type "
+            "'BuiltIn'"
+        )

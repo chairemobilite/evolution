@@ -78,6 +78,7 @@ def _create_workbook(
     sections_headers=VALID_SECTIONS_HEADERS,
     choices_rows=(),
     input_range_rows=None,
+    widgets_rows=(),
 ):
     """
     Write a workbook whose Widgets sheet holds the survey languages (its
@@ -88,7 +89,7 @@ def _create_workbook(
     add_mocked_excel_sheet(
         workbook, "Conditionals", VALID_CONDITIONALS_HEADERS, conditionals_rows
     )
-    add_mocked_excel_sheet(workbook, "Widgets", widgets_headers, [])
+    add_mocked_excel_sheet(workbook, "Widgets", widgets_headers, list(widgets_rows))
     add_mocked_excel_sheet(workbook, "Labels", ["namespace", "key"], [])
     add_mocked_excel_sheet(
         workbook,
@@ -276,6 +277,33 @@ class TestCheckExcelIntegrityWithWarnings:
                     "rows after its last row with data (row 1). Delete them in Excel "
                     "to make the file faster to open."
                 ],
+            )
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+    def test_warns_about_a_column_a_custom_widget_does_not_use(self):
+        _create_workbook(
+            widgets_headers=[*VALID_WIDGETS_HEADERS, "validation"],
+            widgets_rows=[
+                [
+                    "homeMap",
+                    "Custom",
+                    True,
+                    "home",
+                    "Carte",
+                    "Map",
+                    "mapCustomValidation",
+                ]
+            ],
+        )
+        try:
+            ok, messages, warnings = check_excel_integrity_with_warnings(
+                MOCKED_EXCEL_FILE
+            )
+            assert (ok, messages) == (True, [])
+            assert len(warnings) == 1
+            assert warnings[0].startswith(
+                "Widgets sheet, row 2: validation is not used by input_type 'Custom'"
             )
         finally:
             delete_file_if_exists(MOCKED_EXCEL_FILE)

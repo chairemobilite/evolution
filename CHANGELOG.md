@@ -15,9 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Switch from Yarn 1 to Yarn 4 ([#2158](https://github.com/chairemobilite/evolution/pull/2158))
 - **Breaking** Generator: the InputRange sheet is validated with the survey definition, and its columns are renamed: `inputRangeName` → `input_range_name`, `labelFrMin`/`labelEnMin` → `label_min::fr`/`label_min::en` (same for `Middle` and `Max`), `minValue` → `min_value`, `maxValue` → `max_value`, `unitFr`/`unitEn` → `unit::fr`/`unit::en` (fixes [#2040](https://github.com/chairemobilite/evolution/issues/2040), [#2047](https://github.com/chairemobilite/evolution/issues/2047))
 - **Breaking** Generator: the Widgets sheet's columns are renamed: `questionName` → `question_name`, `inputType` → `input_type`, `inputRange` → `input_range`, `containsHtml` → `contains_html`, `customPath` → `custom_path`, `customChoice` → `custom_choice`, `defaultValue` → `default_value`, `includeNotApplicable` → `include_not_applicable`, `twoColumns` → `two_columns` (fixes [#2038](https://github.com/chairemobilite/evolution/issues/2038))
-- **Breaking** Generator: the Widgets sheet is validated with the survey definition, according to each widget's input type. A column the input type doesn't use (e.g. `choices` on an InfoText) is now an error instead of being silently ignored (fixes [#2038](https://github.com/chairemobilite/evolution/issues/2038))
-- **Breaking** Generator: a widget's names must exist: its `section`, `conditional`, `choices` (and `custom_choice` value) and `input_range` in their sheets, its `validation` and `formatter` in Evolution or ending with `CustomValidation`/`CustomFormatter`. `question_name` must be unique (a Custom or BuiltIn widget may repeat once per section), `group` must name a Custom or BuiltIn widget of the same section, and `join_with` the active widget just before or after (fixes [#2038](https://github.com/chairemobilite/evolution/issues/2038))
-- **Breaking** Generator: stricter widget values: a RadioNumber needs `min` and `max` (no more default 0 to 6), with at most 20 numbers and a path without placeholders; an unknown parameter is an error instead of a warning; `custom_choice` needs `custom_path`; a label is required in every survey language; true/false columns must be TRUE/FALSE or 1/0, not text such as `VRAI` (fixes [#2038](https://github.com/chairemobilite/evolution/issues/2038))
+- **Breaking** Generator: the Widgets sheet is validated with the survey definition, according to each widget's input type: names must exist in their sheets (`section`, `conditional`, `choices`, `input_range`) or in Evolution (`validation`, `formatter`), `question_name` must be unique, a RadioNumber needs `min` and `max` (no more default 0 to 6), a label is required in every survey language, and true/false columns must be TRUE/FALSE or 1/0. A column the input type doesn't use is an error, except on a Custom widget, where it is a warning (it may keep the values it had before being made Custom); an inactive widget isn't checked (fixes [#2038](https://github.com/chairemobilite/evolution/issues/2038))
 
 ### Deprecated
 
@@ -26,7 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Generator: `poetry install` fails with Python 3.14 (fixes [#2170](https://github.com/chairemobilite/evolution/issues/2170))
-- Generator: the `customLabels` widget parameter is read whatever the case of its name, like the other parameters
+- Generator: the `customLabels` widget parameter is read whatever the case of its name, like the other parameters (fixes [#1615](https://github.com/chairemobilite/evolution/issues/1615))
 
 ### Security
 

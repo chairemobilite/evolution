@@ -286,3 +286,35 @@ class TestSurveyDefinitionLanguages:
                 widgets=[widget],
             )
         assert [e["loc"] for e in error.value.errors()] == [("sections",), ("choices",)]
+
+
+class TestSurveyDefinitionWarnings:
+    _SECTION = {"section": "home", "in_nav": False, "abbreviation": "HM_"}
+
+    def _widget(self, **columns) -> dict:
+        return {
+            "question_name": "homeIntro",
+            "input_type": "InfoText",
+            "active": True,
+            "section": "home",
+            "path": "home.intro",
+            "label::fr": "Bienvenue",
+            **columns,
+        }
+
+    def test_has_no_warnings_without_any(self):
+        survey_definition = SurveyDefinition(
+            languages=["fr"], sections=[self._SECTION], widgets=[self._widget()]
+        )
+        assert survey_definition.warnings() == []
+
+    def test_lists_the_warnings_of_the_widgets(self):
+        survey_definition = SurveyDefinition(
+            languages=["fr"],
+            sections=[self._SECTION],
+            widgets=[
+                self._widget(input_type="Custom", validation="homeCustomValidation")
+            ],
+        )
+        assert survey_definition.warnings() == survey_definition.widgets.warnings()
+        assert len(survey_definition.warnings()) == 1

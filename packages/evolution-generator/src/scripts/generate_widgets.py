@@ -79,8 +79,15 @@ def generate_widgets(survey_definition: SurveyDefinition, widgets_output_folder:
     try:
         widgets = survey_definition.widgets
 
-        # Get all unique section names, in the order of the Widgets table
-        section_names = list(dict.fromkeys(widget.section for widget in widgets))
+        # Get all unique section names, in the order of the Widgets table. Only the
+        # sections of the Sections table have a folder: an inactive widget isn't
+        # checked, so its section may be another one; it is then left out.
+        known_sections = {section.section for section in survey_definition.sections}
+        section_names = [
+            section
+            for section in dict.fromkeys(widget.section for widget in widgets)
+            if section in known_sections
+        ]
 
         # Track gender-related fields. It will be done one section at a time, so
         # it's not possible to use gender field in a section before it is

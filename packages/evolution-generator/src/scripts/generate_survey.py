@@ -346,6 +346,17 @@ def _load_survey_with_messages(
         return reader, None, [str(e)]
 
 
+def _warnings(
+    reader: ExcelSurveyDefinitionReader | None,
+    survey_definition: SurveyDefinition | None,
+) -> list[str]:
+    """The warnings about the Excel file (its sheets) and its survey definition (its rows)."""
+    return [
+        *(reader.warnings if reader is not None else []),
+        *(survey_definition.warnings() if survey_definition is not None else []),
+    ]
+
+
 def check_excel_integrity_with_warnings(
     excel_file_path: str,
 ) -> tuple[bool, list[str], list[str]]:
@@ -354,10 +365,11 @@ def check_excel_integrity_with_warnings(
     scripts and UI (see check_excel_integrity_cli.py).
 
     Returns (ok, errors, warnings): ok is True when errors is empty; warnings list
-    the problems that don't stop the generation (see ExcelSurveyDefinitionReader).
+    the problems that don't stop the generation (see ExcelSurveyDefinitionReader and
+    SurveyDefinition.warnings).
     """
     reader, survey_definition, messages = _load_survey_with_messages(excel_file_path)
-    warnings = reader.warnings if reader is not None else []
+    warnings = _warnings(reader, survey_definition)
     return survey_definition is not None, messages, warnings
 
 
@@ -406,7 +418,7 @@ def _load_survey_or_raise(
     """
     reader, survey_definition, messages = _load_survey_with_messages(excel_file_path)
     ok = survey_definition is not None
-    warnings = reader.warnings if reader is not None else []
+    warnings = _warnings(reader, survey_definition)
     _print_integrity_result(excel_file_path, ok, messages, warnings)
     if not ok:
         raise Exception(

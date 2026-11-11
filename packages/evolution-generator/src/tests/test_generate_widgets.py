@@ -33,6 +33,7 @@ from scripts.generate_widgets import (
     generate_widgets,
 )
 from survey_definition.excel_survey_definition_reader import ExcelSurveyDefinitionReader
+from survey_definition.survey_definition import SurveyDefinition
 from survey_definition.widgets_definition import WidgetDefinition
 from tests.parametrize_cases import cases
 
@@ -1204,3 +1205,32 @@ def test_demo_generator_help_popup_from_excel(
     next_export = content.find("\nexport const ", start + 1)
     widget_block = content[start:] if next_export == -1 else content[start:next_export]
     assert f"helpPopup: customHelpPopup.{help_popup_name}" in widget_block
+
+
+def test_generate_widgets_leaves_out_an_inactive_widget_of_an_unknown_section(tmp_path):
+    """An inactive widget isn't checked: its section may not be in the Sections sheet, and has no folder."""
+    os.makedirs(tmp_path / "home")
+    survey_definition = SurveyDefinition(
+        languages=["fr", "en"],
+        sections=[{"section": "home", "in_nav": False, "abbreviation": "HM_"}],
+        widgets=[
+            {
+                "question_name": "homeName",
+                "input_type": "String",
+                "active": True,
+                "section": "home",
+                "path": "home.name",
+                "label::fr": "Nom",
+                "label::en": "Name",
+            },
+            {
+                "question_name": "oldWorkName",
+                "input_type": "String",
+                "active": False,
+                "section": "work",
+            },
+        ],
+    )
+    generate_widgets(survey_definition, str(tmp_path))
+    assert sorted(os.listdir(tmp_path)) == ["home"]
+    assert "homeName" in (tmp_path / "home" / "widgets.tsx").read_text(encoding="utf-8")

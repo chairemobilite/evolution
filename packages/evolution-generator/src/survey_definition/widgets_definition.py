@@ -24,6 +24,7 @@ from pydantic import (
     BaseModel,
     ConfigDict,
     Field,
+    PrivateAttr,
     RootModel,
     ValidationInfo,
     field_validator,
@@ -37,6 +38,7 @@ from survey_definition.row_checks import (
     _strip_blanks,
 )
 from survey_definition.sheet_checks import (
+    SheetRule,
     collect_sheet_issues,
     fields_in_survey_languages,
 )
@@ -88,10 +90,32 @@ _BOOLEAN_FIELD_NAMES = (
     "include_not_applicable",
 )
 
+# The text columns of an inactive widget: a value of another type is dropped rather
+# than reported, as an inactive widget isn't checked (see _readable_values).
+_INACTIVE_WIDGET_TEXT_FIELD_NAMES = (
+    "group",
+    "path",
+    "conditional",
+    "validation",
+    "choices",
+    "help_popup",
+    "confirm_popup",
+    "input_range",
+    "custom_path",
+    "custom_choice",
+    "default_value",
+    "comments",
+)
+
 # Widgets written by hand (customWidgets.tsx) or taken from Evolution: the generator only
 # exports them, so most columns don't apply. Their path, conditional and choices are still
 # read by the questionnaire documentation and UI tests scripts.
 HAND_WRITTEN_INPUT_TYPES: frozenset[WidgetInputType] = frozenset({"Custom", "BuiltIn"})
+
+# The input types whose unused columns and parameters are a warning, not an error, and
+# aren't checked: a widget made Custom often keeps the values it had before (copied to
+# customWidgets.tsx), for the day it can be generated again.
+_INPUT_TYPES_KEEPING_UNUSED_COLUMNS: frozenset[WidgetInputType] = frozenset({"Custom"})
 
 # Widgets the generator writes as a question: they save an answer at their path.
 QUESTION_INPUT_TYPES: frozenset[WidgetInputType] = frozenset(
@@ -167,6 +191,9 @@ WIDGET_REQUIRED_PARAMETERS_BY_INPUT_TYPE: dict[WidgetInputType, tuple[str, ...]]
 # wide range makes the question unusable.
 RADIO_NUMBER_MAX_CHOICES = 20
 
+# TODO: BUILT_IN_VALIDATIONS and BUILT_IN_FORMATTERS (and the BuiltIn widgets, once
+# the generator writes them) are copied from Evolution by hand, so they can go out of
+# date when Evolution adds or renames one. Read them from Evolution instead.
 # The validations exported by Evolution, written as validations.<name>, see
 # evolution-common/src/services/widgets/validations/validations.ts. Any other validation
 # must end with 'CustomValidation' and be in the survey's customValidations.tsx.
@@ -208,8 +235,50 @@ _INTEGER_PATTERN = re.compile(r"-?\d+")
 _DECIMAL_PATTERN = re.compile(r"-?\d+\.\d+")
 
 
+def _is_inactive(info: ValidationInfo) -> bool:
+    """Whether the row being validated is inactive (`active` is validated first)."""
+    return info.data.get("active") is False
+
+
+def _is_ignored(info: ValidationInfo) -> bool:
+    """
+    Whether the column being validated is one a Custom widget doesn't use (see
+    _INPUT_TYPES_KEEPING_UNUSED_COLUMNS): it is a warning, so its value isn't checked
+    (`input_type` is validated before it).
+    """
+    input_types = WIDGET_ALLOWED_INPUT_TYPES_BY_FIELD.get(info.field_name)
+    input_type = info.data.get("input_type")
+    return (
+        input_types is not None
+        and input_type in _INPUT_TYPES_KEEPING_UNUSED_COLUMNS
+        and input_type not in input_types
+    )
+
+
+def _readable_values(data: dict) -> dict:
+    """
+    The cells of an inactive row the generator can still read: a value of another
+    type than its column's (e.g. a number in a text column) is dropped, as an inactive
+    row isn't checked.
+    """
+    readable = {}
+    for key, value in data.items():
+        if key in _INACTIVE_WIDGET_TEXT_FIELD_NAMES and not isinstance(value, str):
+            continue
+        if key in _BOOLEAN_FIELD_NAMES and not isinstance(value, bool):
+            continue
+        if key in ("label", "label_one"):
+            value = {
+                language: text
+                for language, text in value.items()
+                if isinstance(text, str)
+            }
+        readable[key] = value
+    return readable
+
+
 def _name_in(pattern: re.Pattern[str], value: str) -> str | None:
-    """The TypeScript identifier `pattern` wraps in `value`, e.g. 'someName' in '{{someName}}'; None if there is none."""
+    """The TypeScript identifier wrapped by `pattern` in `value`, e.g. 'someName' in '{{someName}}'; None if there is none."""
     match = pattern.fullmatch(value)
     if match and field_checks.valid_ts_identifier(match.group(1), {}):
         return match.group(1)
@@ -280,8 +349,14 @@ class WidgetParameters(BaseModel):
         ]
 
     @classmethod
-    def parse(cls, text: str) -> "WidgetParameters":
-        """Parse a parameters cell; raise ValueError listing every invalid parameter."""
+    def parse(
+        cls, text: str, input_type: WidgetInputType | None = None
+    ) -> "WidgetParameters":
+        """
+        Parse a parameters cell; raise ValueError listing every invalid parameter. A
+        parameter a Custom widget doesn't use is a warning (see
+        _INPUT_TYPES_KEEPING_UNUSED_COLUMNS), so its value is kept as written, unchecked.
+        """
         values: dict[str, Any] = {}
         issues = []
         for written_name, value in _split_options(text):
@@ -297,7 +372,14 @@ class WidgetParameters(BaseModel):
                 try:
                     values[name] = _parameter_value(name, value)
                 except ValueError as error:
-                    issues.append(str(error))
+                    if (
+                        input_type in _INPUT_TYPES_KEEPING_UNUSED_COLUMNS
+                        and input_type
+                        not in WIDGET_ALLOWED_INPUT_TYPES_BY_PARAMETER[name]
+                    ):
+                        values[name] = True if name == "overMaxAllowed" else value
+                    else:
+                        issues.append(str(error))
         if issues:
             raise ValueError("; ".join(issues))
         return cls(**values)
@@ -493,12 +575,16 @@ class WidgetDefinition(BaseModel):
             data["input_type"] = _INPUT_TYPE_BY_LOWER_CASE.get(
                 input_type.lower(), input_type
             )
+        if data.get("active") is False:
+            data = _readable_values(data)
         return data
 
-    # No default: a blank value here is a genuinely missing required value.
+    # No default: a blank value here is a genuinely missing required value. `active`
+    # comes first: the field validators below read it (info.data) to skip the checks
+    # of an inactive row.
+    active: bool
     question_name: str
     input_type: WidgetInputType
-    active: bool
     section: str
 
     group: str | None = None
@@ -521,17 +607,47 @@ class WidgetDefinition(BaseModel):
     include_not_applicable: bool = False
     comments: str | None = None
 
+    # The problems that don't reject the row (see `warnings`).
+    _warnings: list[str] = PrivateAttr(default_factory=list)
+
+    @property
+    def warnings(self) -> list[str]:
+        """
+        The columns and parameters set on a Custom widget that it doesn't use: the
+        generator ignores them, and a widget made Custom often keeps the values it had
+        before, for later, so they are warnings (see
+        _INPUT_TYPES_KEEPING_UNUSED_COLUMNS). On another input type, they are errors.
+        """
+        return self._warnings
+
     @field_validator("parameters", mode="before")
     @classmethod
-    def _parse_parameters(cls, value: Any) -> Any:
-        """Parse the parameters cell into WidgetParameters."""
-        return WidgetParameters.parse(value) if isinstance(value, str) else value
+    def _parse_parameters(cls, value: Any, info: ValidationInfo) -> Any:
+        """Parse the parameters cell into WidgetParameters (none, on an inactive row they don't parse)."""
+        if not isinstance(value, str):
+            return value
+        try:
+            return WidgetParameters.parse(value, info.data.get("input_type"))
+        except ValueError:
+            if _is_inactive(info):
+                return WidgetParameters()
+            raise
 
     @field_validator("appearance", mode="before")
     @classmethod
-    def _parse_appearance(cls, value: Any) -> Any:
-        """Parse the appearance cell into WidgetAppearance."""
-        return WidgetAppearance.parse(value) if isinstance(value, str) else value
+    def _parse_appearance(cls, value: Any, info: ValidationInfo) -> Any:
+        """Parse the appearance cell into WidgetAppearance (none, on an inactive row it doesn't parse)."""
+        if not isinstance(value, str):
+            return value
+        try:
+            return WidgetAppearance.parse(value)
+        except ValueError:
+            if _is_inactive(info):
+                return WidgetAppearance()
+            if _is_ignored(info):
+                # Kept as written, unchecked: only its warning is reported.
+                return WidgetAppearance(join_with=value.strip())
+            raise
 
     # A conditional is only checked as a name here, not for its 'Conditional' suffix:
     # whether a conditional must end with 'Conditional' is still open, for the
@@ -551,7 +667,7 @@ class WidgetDefinition(BaseModel):
         cls, value: str | None, info: ValidationInfo
     ) -> str | None:
         """Check that a name used in the TypeScript code is a valid identifier."""
-        if value is not None:
+        if value is not None and not _is_inactive(info) and not _is_ignored(info):
             _raise_if_check_fails(field_checks.valid_ts_identifier, value, info.data)
         return value
 
@@ -559,15 +675,22 @@ class WidgetDefinition(BaseModel):
     @classmethod
     def _path_is_valid(cls, value: str | None, info: ValidationInfo) -> str | None:
         """Check that a non-blank `path`/`custom_path` is a response path."""
-        if value is not None:
+        if value is not None and not _is_inactive(info) and not _is_ignored(info):
             _raise_if_check_fails(field_checks.valid_response_path, value, info.data)
         return value
 
     @field_validator("validation")
     @classmethod
-    def _validation_name_is_valid(cls, value: str | None) -> str | None:
+    def _validation_name_is_valid(
+        cls, value: str | None, info: ValidationInfo
+    ) -> str | None:
         """Check that a non-blank `validation` is built in, or a custom validation."""
-        if value is None or value in BUILT_IN_VALIDATIONS:
+        if (
+            value is None
+            or value in BUILT_IN_VALIDATIONS
+            or _is_inactive(info)
+            or _is_ignored(info)
+        ):
             return value
         if value.endswith("CustomValidation") and field_checks.valid_ts_identifier(
             value, {}
@@ -585,9 +708,19 @@ class WidgetDefinition(BaseModel):
         """
         Check the rules the input type decides (required and unused columns and
         parameters, RadioNumber range), the labels, and the names of the other tables.
+        On a Custom widget, an unused column or parameter is a warning instead (see
+        _INPUT_TYPES_KEEPING_UNUSED_COLUMNS). An inactive row isn't checked: it isn't
+        in the survey, and may be kept as it was on purpose.
         """
+        if not self.active:
+            return self
+        unused = [*self._unused_fields(), *self._unused_parameters()]
+        if self.input_type in _INPUT_TYPES_KEEPING_UNUSED_COLUMNS:
+            self._warnings = [f"{message}: it is ignored" for message in unused]
+            unused = []
         issues = [
             *self._input_type_issues(),
+            *unused,
             *self._parameters_issues(),
             *self._label_issues(info),
             *self._other_table_issues(info.context or {}),
@@ -596,6 +729,10 @@ class WidgetDefinition(BaseModel):
             raise ValueError("; ".join(issues))
         return self
 
+    def _uses(self, field_name: str) -> bool:
+        """Whether this widget's input type uses the column (see WIDGET_ALLOWED_INPUT_TYPES_BY_FIELD)."""
+        return self.input_type in WIDGET_ALLOWED_INPUT_TYPES_BY_FIELD[field_name]
+
     def _field_is_set(self, field_name: str) -> bool:
         """Whether a column is set: not blank, and true for a true/false column."""
         if field_name == "appearance":
@@ -603,7 +740,7 @@ class WidgetDefinition(BaseModel):
         return _is_set(getattr(self, field_name))
 
     def _input_type_issues(self) -> list[str]:
-        """Check the columns the input type requires, and that it uses every column set."""
+        """Check the columns the input type requires."""
         issues = []
         if self.path is None and self.input_type not in HAND_WRITTEN_INPUT_TYPES:
             issues.append(f"path is required for input_type {self.input_type!r}")
@@ -614,18 +751,39 @@ class WidgetDefinition(BaseModel):
             )
             if not self._field_is_set(field_name)
         )
-        issues.extend(
-            f"{field_name} is not used by input_type {self.input_type!r}, only by "
-            f"{sorted(input_types)}"
-            for field_name, input_types in WIDGET_ALLOWED_INPUT_TYPES_BY_FIELD.items()
-            if self._field_is_set(field_name) and self.input_type not in input_types
-        )
-        if (self.custom_path is None) != (self.custom_choice is None):
+        if self._uses("custom_path") and (self.custom_path is None) != (
+            self.custom_choice is None
+        ):
             issues.append("custom_path and custom_choice must be set together")
         return issues
 
+    def _ignores(self, field_name: str) -> bool:
+        """Whether this is a Custom widget that doesn't use the column: its value isn't checked (see _INPUT_TYPES_KEEPING_UNUSED_COLUMNS)."""
+        return (
+            self.input_type in _INPUT_TYPES_KEEPING_UNUSED_COLUMNS
+            and not self._uses(field_name)
+        )
+
+    def _unused_fields(self) -> list[str]:
+        """The columns set that the input type doesn't use (see WIDGET_ALLOWED_INPUT_TYPES_BY_FIELD)."""
+        return [
+            f"{field_name} is not used by input_type {self.input_type!r} (only by "
+            f"{sorted(input_types)})"
+            for field_name, input_types in WIDGET_ALLOWED_INPUT_TYPES_BY_FIELD.items()
+            if self._field_is_set(field_name) and not self._uses(field_name)
+        ]
+
+    def _unused_parameters(self) -> list[str]:
+        """The parameters set that the input type doesn't use (see WIDGET_ALLOWED_INPUT_TYPES_BY_PARAMETER)."""
+        return [
+            f"parameter {name!r} is not used by input_type {self.input_type!r} (only "
+            f"by {sorted(WIDGET_ALLOWED_INPUT_TYPES_BY_PARAMETER[name])})"
+            for name in self.parameters.names_set()
+            if self.input_type not in WIDGET_ALLOWED_INPUT_TYPES_BY_PARAMETER[name]
+        ]
+
     def _parameters_issues(self) -> list[str]:
-        """Check the parameters the input type requires and uses, and the RadioNumber range."""
+        """Check the parameters the input type requires, and the RadioNumber range."""
         names_set = self.parameters.names_set()
         issues = [
             f"parameter {name!r} is required for input_type {self.input_type!r}"
@@ -634,12 +792,6 @@ class WidgetDefinition(BaseModel):
             )
             if name not in names_set
         ]
-        issues.extend(
-            f"parameter {name!r} is not used by input_type {self.input_type!r}, "
-            f"only by {sorted(WIDGET_ALLOWED_INPUT_TYPES_BY_PARAMETER[name])}"
-            for name in names_set
-            if self.input_type not in WIDGET_ALLOWED_INPUT_TYPES_BY_PARAMETER[name]
-        )
         # A response path is only known in the interview, so only two numbers are compared.
         minimum, maximum = self.parameters.min, self.parameters.max
         if isinstance(minimum, int) and isinstance(maximum, int):
@@ -691,7 +843,8 @@ class WidgetDefinition(BaseModel):
     def _other_table_issues(self, context: dict) -> list[str]:
         """
         Check that the section, conditional, choices, custom_choice and input_range
-        name rows of the other tables, from the validation context.
+        name rows of the other tables, from the validation context. A column a Custom
+        widget doesn't use is a warning, so its value isn't checked.
         """
         issues = []
         section_names = context.get("section_names")
@@ -701,7 +854,9 @@ class WidgetDefinition(BaseModel):
                 "Sections table"
             )
         # A name ending with 'CustomConditional' is written by hand in
-        # customConditionals.tsx, so it isn't in the Conditionals table.
+        # customConditionals.tsx, so it isn't in the Conditionals table. The suffix is
+        # case-sensitive, as in the code the generator writes (generate_conditional);
+        # only 'CustomChoices' is read in any case there.
         conditional_names = context.get("conditional_names")
         if (
             conditional_names is not None
@@ -719,6 +874,7 @@ class WidgetDefinition(BaseModel):
         if (
             choice_values_by_name is not None
             and self.choices is not None
+            and not self._ignores("choices")
             and not self.choices.lower().endswith("customchoices")
         ):
             if self.choices not in choice_values_by_name:
@@ -728,6 +884,7 @@ class WidgetDefinition(BaseModel):
                 )
             elif (
                 self.custom_choice is not None
+                and not self._ignores("custom_choice")
                 and self.custom_choice not in choice_values_by_name[self.choices]
             ):
                 issues.append(
@@ -738,6 +895,7 @@ class WidgetDefinition(BaseModel):
         if (
             input_range_names is not None
             and self.input_range is not None
+            and not self._ignores("input_range")
             and self.input_range not in input_range_names
         ):
             issues.append(
@@ -760,10 +918,11 @@ def _unique_question_names(
     hand-written widget each time, so it is fine. A widget the generator writes,
     repeated, would be two different widgets with one name: the last one would replace
     the other. So would a widget listed twice in the same section, or a name used by
-    widgets of different input types.
+    widgets of different input types. An inactive widget isn't counted: it isn't in
+    the survey (e.g. an older version of a widget, kept on purpose).
     """
     rows_by_name: dict[str, list[tuple[int, WidgetDefinition]]] = {}
-    for row_number, widget in rows:
+    for row_number, widget in _active_rows(rows):
         rows_by_name.setdefault(widget.question_name, []).append((row_number, widget))
     issues = []
     for name, found in rows_by_name.items():
@@ -783,6 +942,18 @@ def _unique_question_names(
             "widget may be repeated, once per section, with the same input_type."
         )
     return issues
+
+
+def _active_rows(
+    rows: Sequence[tuple[int, WidgetDefinition]],
+) -> list[tuple[int, WidgetDefinition]]:
+    """The rows of active widgets: an inactive one isn't checked."""
+    return [(row_number, widget) for row_number, widget in rows if widget.active]
+
+
+def _for_active_rows(rule: SheetRule) -> SheetRule:
+    """A sheet rule run on the rows of active widgets only."""
+    return lambda rows, table_name: rule(_active_rows(rows), table_name)
 
 
 class Widgets(RootModel[list[WidgetDefinition]]):
@@ -821,12 +992,14 @@ class Widgets(RootModel[list[WidgetDefinition]]):
                     # (e.g. a label::fe typo), reported once for the sheet.
                     sheet_rules=[
                         _unique_question_names,
-                        fields_in_survey_languages(
-                            info,
-                            {
-                                "label": WIDGET_LABEL_COLUMN_PREFIX,
-                                "label_one": WIDGET_LABEL_ONE_COLUMN_PREFIX,
-                            },
+                        _for_active_rows(
+                            fields_in_survey_languages(
+                                info,
+                                {
+                                    "label": WIDGET_LABEL_COLUMN_PREFIX,
+                                    "label_one": WIDGET_LABEL_ONE_COLUMN_PREFIX,
+                                },
+                            )
                         ),
                     ],
                 )
@@ -842,14 +1015,19 @@ class Widgets(RootModel[list[WidgetDefinition]]):
         # section (see _collect_all_issues), so row numbers follow the source order
         # and a widget is found by its section and question_name.
         prefix = "Error in Widgets - "
+        # An inactive widget may share its name with an active one (see
+        # _unique_question_names): the active one is the widget referenced.
         widgets_by_key = {
-            (widget.section, widget.question_name): widget for widget in self.root
+            (widget.section, widget.question_name): widget
+            for widget in sorted(self.root, key=lambda widget: widget.active)
         }
         sections_by_name: dict[str, list[str]] = {}
         for widget in self.root:
             sections_by_name.setdefault(widget.question_name, []).append(widget.section)
         issues = []
         for row_number, widget in enumerate(self.root, start=2):
+            if not widget.active:
+                continue
             reason = self._group_issue(widget, widgets_by_key, sections_by_name)
             if reason:
                 issues.append(
@@ -911,7 +1089,9 @@ class Widgets(RootModel[list[WidgetDefinition]]):
         valid or blank. An inactive widget isn't checked: it isn't in the survey.
         """
         join_with = widget.appearance.join_with
-        if join_with is None or not widget.active:
+        # An input type that doesn't use appearance ignores join_with (a warning, see
+        # WidgetDefinition.warnings): what it names doesn't matter.
+        if join_with is None or not widget.active or not widget._uses("appearance"):
             return None
         if join_with == widget.question_name:
             return "A widget cannot join with itself."
@@ -931,6 +1111,17 @@ class Widgets(RootModel[list[WidgetDefinition]]):
         if abs(shown.index(join_with) - shown.index(widget.question_name)) != 1:
             return "Must name the widget just before or after this one."
         return None
+
+    def warnings(self) -> list[str]:
+        """
+        The problems that don't reject the sheet, one per row and problem (see
+        WidgetDefinition.warnings), e.g. a column its input type doesn't use.
+        """
+        return [
+            f"Widgets sheet, row {row_number}: {warning}"
+            for row_number, widget in enumerate(self.root, start=2)
+            for warning in widget.warnings
+        ]
 
     def __iter__(self) -> Iterator[WidgetDefinition]:  # type: ignore[override]
         return iter(self.root)

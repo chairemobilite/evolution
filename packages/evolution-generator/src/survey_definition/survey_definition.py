@@ -211,6 +211,13 @@ class SurveyDefinition(BaseModel):
         # info.context. Its problems are reported as the table's own messages.
         return _validated_table(Widgets, rows, context=context)
 
+    def warnings(self) -> list[str]:
+        """
+        The problems that don't reject the survey definition, e.g. a widget column its
+        input type doesn't use (see Widgets.warnings).
+        """
+        return self.widgets.warnings()
+
 
 def _validated_table[T: BaseModel](
     table: type[T], rows: Any, context: dict | None
