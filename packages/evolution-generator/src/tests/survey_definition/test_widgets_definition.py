@@ -1048,6 +1048,19 @@ class TestWidgets:
             ],
             expected_issue="'householdMembers' - The group is in section 'home', not in 'household'.",
         ),
+        dict(
+            id="inactive group",
+            rows=[
+                _row(
+                    "Custom",
+                    question_name="householdMembers",
+                    section="household",
+                    active=False,
+                ),
+                _person_row("personAge"),
+            ],
+            expected_issue="'householdMembers' - Must name an active widget: the widgets of an inactive group are never shown.",
+        ),
     )
     def test_reports_an_invalid_group(self, rows, expected_issue):
         row_number = len(rows) + 1

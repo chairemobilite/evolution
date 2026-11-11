@@ -426,7 +426,17 @@ class LabelsGenerator:
 
     @staticmethod
     def label_rows_from_widgets(widgets: Widgets) -> list[LabelRow]:
-        """Returns the labels of the survey definition's Widgets table, in source order: one row per widget, in its section's namespace."""
+        """
+        Returns the labels of the survey definition's Widgets table, in source order:
+        one row per widget, in its section's namespace. An inactive widget may share
+        its section and question_name with an active one (e.g. an older version, kept
+        on purpose): only the active one's labels are written, wherever it is.
+        """
+        active_keys = {
+            (widget.section, widget.question_name)
+            for widget in widgets
+            if widget.active
+        }
         return [
             LabelRow(
                 row_number=row_number,
@@ -436,6 +446,8 @@ class LabelsGenerator:
                 label_one=widget.label_one,
             )
             for row_number, widget in enumerate(widgets, start=2)
+            if widget.active
+            or (widget.section, widget.question_name) not in active_keys
         ]
 
     @staticmethod

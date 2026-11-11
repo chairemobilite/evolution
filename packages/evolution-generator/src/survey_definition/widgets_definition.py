@@ -1050,8 +1050,9 @@ class Widgets(RootModel[list[WidgetDefinition]]):
         sections_by_name: dict[str, list[str]],
     ) -> str | None:
         """
-        Check the widget's `group`: it must name a Custom or BuiltIn widget (the group
-        widget, e.g. householdMembers) of the same section.
+        Check the widget's `group`: it must name an active Custom or BuiltIn widget
+        (the group widget, e.g. householdMembers) of the same section. An inactive
+        group is written commented out, so the widgets in it would never be shown.
 
         Returns the reason it is invalid, for the error message, or None if it is
         valid or blank.
@@ -1073,6 +1074,8 @@ class Widgets(RootModel[list[WidgetDefinition]]):
                 f"Must name a Custom or BuiltIn widget (the group), but it is a "
                 f"{group.input_type} widget."
             )
+        if not group.active:
+            return "Must name an active widget: the widgets of an inactive group are never shown."
         return None
 
     def _join_with_issue(

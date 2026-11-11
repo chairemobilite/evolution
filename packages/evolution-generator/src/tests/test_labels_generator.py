@@ -7,6 +7,7 @@ from typing import NamedTuple
 from helpers.generator_helpers import add_generator_yaml_header
 from scripts.labels_generator import LabelsGenerator, LabelFormatter
 from survey_definition.survey_definition import SurveyDefinition
+from tests.parametrize_cases import cases
 import pytest
 
 
@@ -211,6 +212,41 @@ class TestGenerateLabels:
         assert [(row.row_number, row.key) for row in label_rows] == [
             (2, "question1"),
             (3, "question2"),
+        ]
+
+    @cases(
+        dict(id="inactive widget first", active_first=False),
+        dict(id="active widget first", active_first=True),
+    )
+    def test_writes_only_the_labels_of_the_active_widget_of_a_repeated_name(
+        self, active_first
+    ):
+        """An inactive widget may share its section and question_name with an active one: only the active one's label is written, wherever it is."""
+        old = {
+            **_widget("section1", "question1", **{"label::fr": "ancienne"}),
+            "active": False,
+        }
+        new = _widget("section1", "question1", **{"label::fr": "nouvelle"})
+        survey_definition = _survey_definition(
+            ("fr",), widgets=[new, old] if active_first else [old, new]
+        )
+        label_rows = LabelsGenerator.label_rows_from_widgets(survey_definition.widgets)
+
+        assert [(row.key, row.label) for row in label_rows] == [
+            ("question1", {"fr": "nouvelle"})
+        ]
+
+    def test_writes_the_labels_of_an_inactive_widget_alone(self):
+        """An inactive widget without an active one of the same name keeps its labels, as before."""
+        old = {
+            **_widget("section1", "question1", **{"label::fr": "ancienne"}),
+            "active": False,
+        }
+        survey_definition = _survey_definition(("fr",), widgets=[old])
+        label_rows = LabelsGenerator.label_rows_from_widgets(survey_definition.widgets)
+
+        assert [(row.key, row.label) for row in label_rows] == [
+            ("question1", {"fr": "ancienne"})
         ]
 
     def test_reads_the_labels_from_the_survey_definition(
