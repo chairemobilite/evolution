@@ -176,15 +176,13 @@ If you want to start your own survey, you can use the following steps:
 
     The survey languages are read from the Excel file: one per `label::<language>` column of the Widgets sheet (e.g. `label::fr`, `label::en`). Every translated value is then required in each language where it is needed, e.g. `title_fr` and `title_en` in the Sections sheet for a section in the navigation menu, and a translated column in another language (e.g. a typo such as `title_fe`) is reported.
 
-    TODO: The choices, input range, widgets and questionnaire scripts still use the `fr` and `en` columns only.
-
 5.  Navigate to the root folder of your project and run the following command:
 
     ```bash
     yarn generateSurvey
     ```
 
-*Note*: It is also possible to run a single or many specific generation scripts by adding the `--only` parameter to the command line. For example `yarn generateSurvey --only conditionals,labels,widgets` would call the `generate_conditionals`, `generate_labels` and `generate_widgets` scripts, no matter the value in the config file.
+_Note_: It is also possible to run a single or many specific generation scripts by adding the `--only` parameter to the command line. For example `yarn generateSurvey --only conditionals,labels,widgets` would call the `generate_conditionals`, `generate_labels` and `generate_widgets` scripts, no matter the value in the config file.
 
 ## Generate Excel
 
@@ -217,66 +215,79 @@ Widgets are the building blocks of your survey. They define the structure and in
 
 ### Widgets Fields
 
-| Field                        | Description                                                                           | Type              |
-| ---------------------------- | ------------------------------------------------------------------------------------- | ----------------- |
-| questionName                 | Name of the question                                                                  | string            |
-| [inputType](#input)          | Type of input for the question                                                        | string            |
-| active                       | Widget activation status                                                              | boolean           |
-| section                      | Section to which the question belongs                                                 | string            |
-| group                        | Group to which the question belongs (optional)                                        | string?           |
-| path                         | Path of the response object for the question                                          | string            |
-| label::fr                    | French label for the question                                                         | string            |
-| label::en                    | English label for the question                                                        | string            |
-| label_one::fr                | French label for one-person interviews (optional)                                     | string?           |
-| label_one::en                | English label for one-person interviews (optional)                                    | string?           |
-| [parameters](#paramsWidgets) | Additional widget parameters (optional)                                               | string?           |
-| appearance                   | Additional widget appearance options (optional)                                       | string?           |
-| [conditional](#cond)         | Conditional logic for displaying the widget (optional)                                | string?           |
-| [validation](#val)           | Validation logic for the widget (optional)                                            | string?           |
-| [choices](#choices)          | Choices for the InputRadio and InputCheckbox (optional)                               | string?           |
-| [help_popup](#help)          | Help popup name for the question (optional)                                           | string?           |
-| [inputRange](#range)         | Input range name for InputRange (optional)                                            | string?           |
-| comments                     | Additional comments for the question (optional)                                       | string?           |
-| confirm_popup                | Confirmation popup name for the question (optional)                                   | string?           |
-| containsHtml                 | Whether the label contains HTML markup (optional)                                     | boolean?          |
-| customPath                   | Override the generated response path (optional)                                       | string?           |
-| customChoice                 | Override the choice key to use for a widget that relies on a `choicesName` (optional) | string?           |
-| defaultValue                 | Default value when the widget is first shown (optional)                               | string or number? |
-| includeNotApplicable         | Whether to include a “not applicable” option (optional)                               | boolean?          |
+| Field                            | Description                                                                | Type              |
+| -------------------------------- | -------------------------------------------------------------------------- | ----------------- |
+| question_name                    | Name of the question                                                       | string            |
+| [input_type](#input)             | Type of input for the question                                             | string            |
+| active                           | Widget activation status                                                   | boolean           |
+| section                          | Section to which the question belongs                                      | string            |
+| group                            | Group to which the question belongs (optional)                             | string?           |
+| path                             | Path of the response object for the question                               | string            |
+| label::fr                        | French label for the question                                              | string            |
+| label::en                        | English label for the question                                             | string            |
+| label_one::fr                    | French label for one-person interviews (optional)                          | string?           |
+| label_one::en                    | English label for one-person interviews (optional)                         | string?           |
+| [parameters](#paramsWidgets)     | Additional widget parameters (optional)                                    | string?           |
+| [appearance](#appearanceWidgets) | Additional widget appearance options (optional)                            | string?           |
+| [conditional](#cond)             | Conditional logic for displaying the widget (optional)                     | string?           |
+| [validation](#val)               | Validation logic for the widget (optional)                                 | string?           |
+| [choices](#choices)              | Name of the list of choices (required for Radio, Select and Checkbox)      | string?           |
+| [help_popup](#help)              | Help popup name for the question (optional)                                | string?           |
+| [input_range](#range)            | Input range name (required for Range)                                      | string?           |
+| comments                         | Additional comments for the question (optional)                            | string?           |
+| confirm_popup                    | Confirmation popup name for the question (optional)                        | string?           |
+| contains_html                    | Whether the label contains HTML markup (optional)                          | boolean?          |
+| two_columns                      | Whether the question is shown on two columns (optional)                    | boolean?          |
+| [custom_path](#choices)          | Response path of the text typed for `custom_choice` (optional, Radio only) | string?           |
+| [custom_choice](#choices)        | Choice value that shows a text input, e.g. `other` (optional, Radio only)  | string?           |
+| default_value                    | Default value when the widget is first shown (optional)                    | string or number? |
+| include_not_applicable           | Whether to include a “not applicable” option (optional)                    | boolean?          |
 
-<!-- TODO: Document the join_with option in the appearance column. Example: appearance: join_with=${questionName} -->
-<!-- TODO: Document the parameters column (e.g. min=0 max=6 overMaxAllowed, separated by newline, semicolon, or space, with the possibility to either support a number or a response field) -->
+> <span id="input">**Note:**</span> The `input_type` field specifies the type of input for the question and can be one of the following: Custom, BuiltIn, Radio, RadioNumber, Select, String, Number, InfoText, Range, Checkbox, NextButton, or Text. It may be written in any case (e.g. `Builtin` is read as `BuiltIn`).
 
-> <span id="input">**Note:**</span> The `inputType` field specifies the type of input for the question and can be one of the following: Custom, BuiltIn, Radio, RadioNumber, Select, String, Number, InfoText, Range, Checkbox, NextButton, or Text
+> <span id="booleans">**Note:**</span> The true/false fields (`active`, `contains_html`, `two_columns`, `include_not_applicable`) must be TRUE or FALSE. `1` and `0` are also accepted, since a spreadsheet sometimes turns TRUE/FALSE into them, but not text such as `VRAI`.
+
+> <span id="unusedAndInactive">**Note:**</span> A column the input type doesn't use (e.g. `choices` on an `InfoText`) would be ignored by the generator, so it is an error. On a `Custom` widget, it is only a warning, without stopping the generation: a widget made `Custom` often keeps the values it had before, for the day it can be generated again. An inactive widget (`active` FALSE) isn't checked at all, except for its `question_name`, `input_type` and `section`: the generator still writes it, commented out, in its section's files.
 
 > <span id="cond">**Note:**</span> The `conditional` field allows you to define conditional logic for displaying the widget based on other responses. For example, you can specify a condition like `nbPersonsSevenOrMoreConditional` to show the widget only if the number of people is 7 or more.
 
 > <span id="val">**Note:**</span> The `validation` field is optional and allows you to define validation logic for the widget. For example, `moreOrEqualTo7Validation` signifies that the widget will be considered valid if the entered value is equal to or greater than 7.
 
-> <span id="choices">**Note:**</span> The `choices` field is optional, but relevant for `Radio` and `Checkbox` inputs and allows you to specify the available choices for the question. It is also used for the `RadioNumber`'s additional choices property.
+> <span id="choices">**Note:**</span> The `choices` field names the list of choices of the question: a `choicesName` of the `Choices` sheet, or a name ending with `CustomChoices` (from `customChoices.tsx`). It is required for `Radio`, `Select` and `Checkbox`, optional for `RadioNumber` (its additional choices), `Custom` and `BuiltIn`, and not used by the other input types. A `Radio` can show a text input for one of its choices (e.g. "Other, specify"): `custom_choice` is that choice's value, and `custom_path` the response path where the text is saved. They must be set together, and only on a `Radio`.
 
 > <span id="help">**Note:**</span> The `help_popup` field is optional and allows you to specify the name of the help popup for the question. This is useful for providing additional information or context to respondents. It applies to question input types only (not `InfoText` or `NextButton`).
 
-> <span id="range">**Note:**</span> The `inputRange` field is optional and allows you to define the valid range of values for `Range` input.
+> <span id="range">**Note:**</span> The `input_range` field names the slider configuration of a `Range` widget: an `input_range_name` of the `InputRange` sheet. It is required for `Range` and not used by the other input types.
 
-> <span id="paramsWidgets">**Note:**</span> The `parameters` field is optional but can include a `customLabels` override in the format `customLabels={{someCustomLabels}}`. For `inputType=BuiltIn`, set `builtInFunction={{yourBuiltInFunctionName}}`. For `inputType=String` and `inputType=Number`, you can set `suffixLabel=sectionName:valueSuffix` to display a translatable suffix label on the right side of the input (example: `suffixLabel=home:home.size.valueSuffix`).
+> <span id="paramsWidgets">**Note:**</span> The `parameters` field is optional and holds the options of the input type, written `name=value` (or `name` alone for a flag) and separated by new lines, semicolons or spaces, e.g. `min=0;max=5;overMaxAllowed`. Parameter names may be written in any case (e.g. `Max` is read as `max`), and each one is only accepted for the input types below:
+>
+> | Parameter         | Input types                    | Value                                                                                                                                                                                                                                                                                                       |
+> | ----------------- | ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+> | `customLabels`    | every type but Custom, BuiltIn | `customLabels={{someCustomLabels}}`: a function of `customLabels.tsx` writes the label instead of the label columns, which are then optional.                                                                                                                                                               |
+> | `builtInFunction` | BuiltIn                        | `builtInFunction={{yourBuiltInFunctionName}}`: the Evolution function that builds the widget (optional until the generator writes BuiltIn widgets).                                                                                                                                                         |
+> | `min`, `max`      | RadioNumber (required)         | The smallest and largest numbers shown: a whole number, or the response path of a number from the root of the response, e.g. `max=household.size`. A path can't contain placeholders such as `{_activePersonId}` or `${currentPerson}`: they aren't replaced. Literal bounds can define at most 20 numbers. |
+> | `overMaxAllowed`  | RadioNumber                    | No value: adds a "max or more" choice.                                                                                                                                                                                                                                                                      |
+> | `formatter`       | String                         | Formats the input as it is typed: `accessCodeFormatter`, `eightDigitsAccessCodeFormatter`, `canadianPostalCodeFormatter`, or a name ending with `CustomFormatter`.                                                                                                                                          |
+> | `suffixLabel`     | String, Number                 | `suffixLabel=namespace:key`: a translatable label on the right side of the input, e.g. `suffixLabel=home:home.size.valueSuffix`.                                                                                                                                                                            |
+
+> <span id="appearanceWidgets">**Note:**</span> The `appearance` field is optional and only used by question input types (not `InfoText`, `NextButton`, `Custom` or `BuiltIn`). `join_with=${questionName}` shows the widget in the same box as `question_name`, e.g. the fields of an address. `question_name` must be the active widget just before or after this one, in the same section and group.
 
 ### Widgets Example
 
 In this example, we define a widget for the question `end_email`. This widget is an active InputString, and the path to the response object for the question is `end.email`. The French and English labels for the question, the conditional logic for displaying the widget, and the validation logic are also provided. The corresponding TypeScript code and a visual representation of this widget are shown below:
 
-| Field        | Value                           |
-| ------------ | ------------------------------- |
-| questionName | end_email                       |
-| inputType    | String                          |
-| active       | TRUE                            |
-| section      | end                             |
-| group        |                                 |
-| path         | end.email                       |
-| label::fr    | \*\*Courriel\*\*                |
-| label::en    | \*\*E-mail\*\*                  |
-| conditional  | hasAcceptGivingEmailConditional |
-| validation   | emailValidation                 |
+| Field         | Value                           |
+| ------------- | ------------------------------- |
+| question_name | end_email                       |
+| input_type    | String                          |
+| active        | TRUE                            |
+| section       | end                             |
+| group         |                                 |
+| path          | end.email                       |
+| label::fr     | \*\*Courriel\*\*                |
+| label::en     | \*\*E-mail\*\*                  |
+| conditional   | hasAcceptGivingEmailConditional |
+| validation    | emailValidation                 |
 
 ```typescript
 // end/widgets.tsx
@@ -406,12 +417,13 @@ In this example, we are creating a conditional named `hasDrivingLicenseCondition
 > <span id="rel">**Note:**</span> `${relativePath}` in `path` is used to obtain the relative path within the same group, making it easier to reference response objects that share a common parent (or group) with the current widget. Example: `${relativePath}.age`
 
 > **Note:** In the `Conditionals` sheet (Excel), in the `path` column, you can use these “current” keywords to avoid writing ids by hand:
-> - `${currentPerson}`
-> - `${currentJourney}`
-> - `${currentTrip}`
-> - `${currentVisitedPlace}`
-> - `${currentSegment}`
-> - Example: `${currentSegment}.mode`
+>
+> -   `${currentPerson}`
+> -   `${currentJourney}`
+> -   `${currentTrip}`
+> -   `${currentVisitedPlace}`
+> -   `${currentSegment}`
+> -   Example: `${currentSegment}.mode`
 
 The corresponding TypeScript code for this conditional is shown below:
 
@@ -511,20 +523,20 @@ The `InputRange` tab in Excel is used to generate slider components in the `inpu
 
 ### InputRange Fields
 
-| Field                       | Description                                                                                              | Type     |
-| --------------------------- | -------------------------------------------------------------------------------------------------------- | -------- |
-| input_range_name            | Name of the input range, used in the `inputRange` column of the Widgets sheet (unique, valid identifier) | string   |
-| label_min::fr               | French label for the minimum value                                                                       | string   |
-| [label_middle::fr](#middle) | French label for the middle value (optional)                                                             | string?  |
-| label_max::fr               | French label for the maximum value                                                                       | string   |
-| label_min::en               | English label for the minimum value                                                                      | string   |
-| [label_middle::en](#middle) | English label for the middle value (optional)                                                            | string?  |
-| label_max::en               | English label for the maximum value                                                                      | string   |
-| min_value                   | Minimum value for the input range, less than `max_value`                                                 | integer  |
-| max_value                   | Maximum value for the input range                                                                        | integer  |
-| [unit::fr](#unit)           | Unit shown after the value in French (optional)                                                          | string?  |
-| [unit::en](#unit)           | Unit shown after the value in English (optional)                                                         | string?  |
-| [input_color](#color)       | Color of the slider track (optional, `blue` by default)                                                  | string?  |
+| Field                       | Description                                                                                               | Type    |
+| --------------------------- | --------------------------------------------------------------------------------------------------------- | ------- |
+| input_range_name            | Name of the input range, used in the `input_range` column of the Widgets sheet (unique, valid identifier) | string  |
+| label_min::fr               | French label for the minimum value                                                                        | string  |
+| [label_middle::fr](#middle) | French label for the middle value (optional)                                                              | string? |
+| label_max::fr               | French label for the maximum value                                                                        | string  |
+| label_min::en               | English label for the minimum value                                                                       | string  |
+| [label_middle::en](#middle) | English label for the middle value (optional)                                                             | string? |
+| label_max::en               | English label for the maximum value                                                                       | string  |
+| min_value                   | Minimum value for the input range, less than `max_value`                                                  | integer |
+| max_value                   | Maximum value for the input range                                                                         | integer |
+| [unit::fr](#unit)           | Unit shown after the value in French (optional)                                                           | string? |
+| [unit::en](#unit)           | Unit shown after the value in English (optional)                                                          | string? |
+| [input_color](#color)       | Color of the slider track (optional, `blue` by default)                                                   | string? |
 
 > **Note:** The label and unit columns are named `<field>::<language>`, one per survey language (see the `label::<language>` columns of the Widgets sheet). This example is for a survey in French and English.
 
@@ -546,7 +558,10 @@ In this example, we define an InputRange named `confidentInputRange`. This Input
 
 ```typescript
 // inputRange.tsx
-export const confidentInputRange: Pick<InputRangeType, 'labels' | 'minValue' | 'maxValue' | 'formatLabel' | 'trackClassName'> = {
+export const confidentInputRange: Pick<
+    InputRangeType,
+    'labels' | 'minValue' | 'maxValue' | 'formatLabel' | 'trackClassName'
+> = {
     labels: [
         {
             fr: 'Pas du tout confiant',

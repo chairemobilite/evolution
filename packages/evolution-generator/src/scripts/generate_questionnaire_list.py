@@ -7,14 +7,11 @@
 import os
 from typing import Literal
 from helpers.generator_helpers import clean_text
-from survey_definition.excel_survey_definition_reader import ExcelSurveyDefinitionReader
 from survey_definition.survey_definition import SurveyDefinition
 
 
 # Function to generate questionnaire_test for each section
 def generate_questionnaire_list(
-    # TODO: Remove reader once every sheet read here is migrated to the survey definition.
-    reader: ExcelSurveyDefinitionReader,
     survey_definition: SurveyDefinition,
     questionnaire_list_output_folder: str,
     language: Literal["en", "fr"],
@@ -24,22 +21,11 @@ def generate_questionnaire_list(
     its choices.
 
     Args:
-        reader: Reader of the Excel file, to read the sheets not yet migrated to
-            the survey definition from.
         survey_definition: Already-validated survey definition to describe.
         questionnaire_list_output_folder: Folder to write the text file to.
         language: Language of the labels, 'en' or 'fr'.
     """
     try:
-        # Read the Widgets headers
-        widgets_headers = reader.get_headers("Widgets")
-
-        # Find the index
-        widgets_language_index = widgets_headers.index("label::" + language)
-        widgets_section_index = widgets_headers.index("section")
-        widgets_active_index = widgets_headers.index("active")
-        widgets_choices_index = widgets_headers.index("choices")
-
         # Map section names to their titles
         section_titles = {
             section.section: section.title.get(language)
@@ -58,11 +44,11 @@ def generate_questionnaire_list(
 
         # Group questions by section
         sections = {}
-        for row in reader.get_data_rows("Widgets"):
-            section_name = row[widgets_section_index].value
-            question_text = clean_text(row[widgets_language_index].value)
-            active = row[widgets_active_index].value
-            choices_name = row[widgets_choices_index].value
+        for widget in survey_definition.widgets:
+            section_name = widget.section
+            question_text = clean_text(widget.label.get(language))
+            active = widget.active
+            choices_name = widget.choices
 
             # Add question to section if it has a section name, question text, and is active
             if section_name and question_text and active:

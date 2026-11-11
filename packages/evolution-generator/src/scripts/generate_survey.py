@@ -218,7 +218,7 @@ def generate_survey(config_path, only_scripts=None):
         widgets_output_folder = os.path.join(
             survey_folder_path, "src", "survey", "sections"
         )
-        generate_widgets(reader, widgets_output_folder)
+        generate_widgets(survey_definition, widgets_output_folder)
 
     # Call the generate_conditionals function to generate conditionals.tsx if script enabled
     if enabled_generate_conditionals:
@@ -249,52 +249,46 @@ def generate_survey(config_path, only_scripts=None):
 
     # Call the generate_labels function to generate the labels locales folder if script enabled
     if enabled_generate_labels:
-        LabelsGenerator.generate_labels(
-            survey_definition, reader, labels_output_folder_path
-        )
+        LabelsGenerator.generate_labels(survey_definition, labels_output_folder_path)
 
     # Call the generate_UI_tests function to generate the common-UI-tests-helpers-template.ts.ts if script enabled
     if enabled_generate_UI_tests:
         UI_tests_output_file_path = os.path.join(
             survey_folder_path, "tests", "common-UI-tests-helpers-template.ts"
         )
-        generate_UI_tests(reader, UI_tests_output_file_path)
+        generate_UI_tests(survey_definition, UI_tests_output_file_path)
 
     # TODO: Write questionnaire_list files for survey_definition.languages
-    # instead of en/fr once the script supports any language (see #2035).
+    # instead of en/fr once the script supports any language (see #2179).
     # Call the generate_questionnaire_list function to generate the questionnaire_list_en.txt if script enabled
     if enabled_generate_questionnaire_list:
         questionnaire_list_output_folder = os.path.join(
             survey_folder_path, "references"
         )
         generate_questionnaire_list(
-            reader,
             survey_definition,
             questionnaire_list_output_folder,
             language="en",
         )
         generate_questionnaire_list(
-            reader,
             survey_definition,
             questionnaire_list_output_folder,
             language="fr",
         )
 
     # TODO: Write questionnaire_dictionary files for survey_definition.languages
-    # instead of en/fr once the script supports any language (see #2035).
+    # instead of en/fr once the script supports any language (see #2179).
     # Call the generate_questionnaire_dictionary function to generate the questionnaire_dictionary_en.txt if script enabled
     if enabled_generate_questionnaire_dictionary:
         questionnaire_dictionary_output_folder = os.path.join(
             survey_folder_path, "references"
         )
         generate_questionnaire_dictionary(
-            reader,
             survey_definition,
             questionnaire_dictionary_output_folder,
             language="en",
         )
         generate_questionnaire_dictionary(
-            reader,
             survey_definition,
             questionnaire_dictionary_output_folder,
             language="fr",
@@ -352,6 +346,17 @@ def _load_survey_with_messages(
         return reader, None, [str(e)]
 
 
+def _warnings(
+    reader: ExcelSurveyDefinitionReader | None,
+    survey_definition: SurveyDefinition | None,
+) -> list[str]:
+    """The warnings about the Excel file (its sheets) and its survey definition (its rows)."""
+    return [
+        *(reader.warnings if reader is not None else []),
+        *(survey_definition.warnings() if survey_definition is not None else []),
+    ]
+
+
 def check_excel_integrity_with_warnings(
     excel_file_path: str,
 ) -> tuple[bool, list[str], list[str]]:
@@ -360,10 +365,11 @@ def check_excel_integrity_with_warnings(
     scripts and UI (see check_excel_integrity_cli.py).
 
     Returns (ok, errors, warnings): ok is True when errors is empty; warnings list
-    the problems that don't stop the generation (see ExcelSurveyDefinitionReader).
+    the problems that don't stop the generation (see ExcelSurveyDefinitionReader and
+    SurveyDefinition.warnings).
     """
     reader, survey_definition, messages = _load_survey_with_messages(excel_file_path)
-    warnings = reader.warnings if reader is not None else []
+    warnings = _warnings(reader, survey_definition)
     return survey_definition is not None, messages, warnings
 
 
@@ -412,7 +418,7 @@ def _load_survey_or_raise(
     """
     reader, survey_definition, messages = _load_survey_with_messages(excel_file_path)
     ok = survey_definition is not None
-    warnings = reader.warnings if reader is not None else []
+    warnings = _warnings(reader, survey_definition)
     _print_integrity_result(excel_file_path, ok, messages, warnings)
     if not ok:
         raise Exception(

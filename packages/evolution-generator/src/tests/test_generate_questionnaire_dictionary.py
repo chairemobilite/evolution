@@ -5,9 +5,7 @@
 import csv
 
 import pytest
-from helpers.generator_helpers import delete_file_if_exists
 from scripts.generate_questionnaire_dictionary import (
-    MAX_RADIO_NUMBER_VALUES,
     combine_values_text,
     generate_questionnaire_dictionary,
     get_choices_text,
@@ -17,13 +15,11 @@ from scripts.generate_questionnaire_dictionary import (
     rename_input_type,
 )
 from survey_definition.choices_definition import Choices
-from survey_definition.excel_survey_definition_reader import ExcelSurveyDefinitionReader
 from survey_definition.input_range_definition import InputRanges
 from survey_definition.survey_definition import SurveyDefinition
-from tests.mocked_excel import (
-    MOCKED_EXCEL_FILE,
-    add_mocked_excel_sheet,
-    create_mocked_excel_data,
+from survey_definition.widgets_definition import (
+    RADIO_NUMBER_MAX_CHOICES,
+    WidgetParameters,
 )
 
 
@@ -210,33 +206,38 @@ class TestProcessRadioNumberValues:
     @pytest.mark.parametrize("language", ["en", "fr"])
     def test_lists_every_value_from_min_to_max(self, language):
         assert (
-            process_radio_number_values("min=1\nmax=6", language) == "1\n2\n3\n4\n5\n6"
+            process_radio_number_values(
+                WidgetParameters.parse("min=1\nmax=6"), language
+            )
+            == "1\n2\n3\n4\n5\n6"
         )
 
     @pytest.mark.parametrize("language", ["en", "fr"])
     def test_appends_over_max_choice_when_allowed(self, language):
         assert (
-            process_radio_number_values("min=1\nmax=6\noverMaxAllowed", language)
+            process_radio_number_values(
+                WidgetParameters.parse("min=1\nmax=6\noverMaxAllowed"), language
+            )
             == "1\n2\n3\n4\n5\n6\n7+"
         )
-
-    @pytest.mark.parametrize("language", ["en", "fr"])
-    def test_defaults_to_min_0_max_6_when_no_parameters(self, language):
-        assert process_radio_number_values("", language) == "0\n1\n2\n3\n4\n5\n6"
 
     @pytest.mark.parametrize("language", ["en", "fr"])
     def test_shows_raw_bounds_when_min_is_dynamic(self, language):
         # min can reference another response's path instead of a fixed number,
         # in which case the values can't be enumerated ahead of time.
         assert (
-            process_radio_number_values("min=someOtherField\nmax=6", language)
+            process_radio_number_values(
+                WidgetParameters.parse("min=someOtherField\nmax=6"), language
+            )
             == "Min : someOtherField\nMax : 6"
         )
 
     @pytest.mark.parametrize("language", ["en", "fr"])
     def test_shows_raw_bounds_when_max_is_dynamic(self, language):
         assert (
-            process_radio_number_values("min=1\nmax=someOtherField", language)
+            process_radio_number_values(
+                WidgetParameters.parse("min=1\nmax=someOtherField"), language
+            )
             == "Min : 1\nMax : someOtherField"
         )
 
@@ -244,7 +245,8 @@ class TestProcessRadioNumberValues:
         # The over max choice is max + 1, which can't be computed when max is dynamic.
         assert (
             process_radio_number_values(
-                "min=1\nmax=someOtherField\noverMaxAllowed", "en"
+                WidgetParameters.parse("min=1\nmax=someOtherField\noverMaxAllowed"),
+                "en",
             )
             == "Min : 1\nMax : someOtherField"
         )
@@ -252,32 +254,42 @@ class TestProcessRadioNumberValues:
     def test_appends_over_max_choice_when_only_min_is_dynamic(self):
         assert (
             process_radio_number_values(
-                "min=someOtherField\nmax=6\noverMaxAllowed", "en"
+                WidgetParameters.parse("min=someOtherField\nmax=6\noverMaxAllowed"),
+                "en",
             )
             == "Min : someOtherField\nMax : 6\n7+"
         )
 
     def test_still_enumerates_a_range_at_the_limit(self):
-        max_value = MAX_RADIO_NUMBER_VALUES - 1
+        max_value = RADIO_NUMBER_MAX_CHOICES - 1
         expected = "\n".join(str(value) for value in range(0, max_value + 1))
 
-        assert process_radio_number_values(f"min=0\nmax={max_value}", "en") == expected
+        assert (
+            process_radio_number_values(
+                WidgetParameters.parse(f"min=0\nmax={max_value}"), "en"
+            )
+            == expected
+        )
 
     def test_falls_back_to_bounds_when_range_exceeds_the_limit(self):
         # A typo like max=100000 shouldn't materialize a huge list of values into
         # one CSV cell; show the bounds instead, same as a dynamic min/max.
-        max_value = MAX_RADIO_NUMBER_VALUES
+        max_value = RADIO_NUMBER_MAX_CHOICES
         assert (
-            process_radio_number_values(f"min=0\nmax={max_value}", "en")
+            process_radio_number_values(
+                WidgetParameters.parse(f"min=0\nmax={max_value}"), "en"
+            )
             == f"Min : 0\nMax : {max_value}"
         )
 
     def test_falls_back_to_bounds_with_over_max_choice_when_range_exceeds_the_limit(
         self,
     ):
-        max_value = MAX_RADIO_NUMBER_VALUES
+        max_value = RADIO_NUMBER_MAX_CHOICES
         assert (
-            process_radio_number_values(f"min=0\nmax={max_value}\noverMaxAllowed", "en")
+            process_radio_number_values(
+                WidgetParameters.parse(f"min=0\nmax={max_value}\noverMaxAllowed"), "en"
+            )
             == f"Min : 0\nMax : {max_value}\n{max_value + 1}+"
         )
 
@@ -372,52 +384,30 @@ class TestGenerateQuestionnaireDictionary:
                     "title_en": "Household",
                 }
             ],
-        )
-        create_mocked_excel_data(
-            "Widgets",
-            [
-                "section",
-                "label::fr",
-                "label::en",
-                "inputType",
-                "active",
-                "path",
-                "conditional",
-                "choices",
-                "inputRange",
-            ],
-            [
-                [
-                    "household",
-                    "Taille?",
-                    "Size?",
-                    "String",
-                    True,
-                    "household.size",
-                    None,
-                    None,
-                    None,
-                ]
+            widgets=[
+                {
+                    "question_name": "householdSize",
+                    "input_type": "String",
+                    "active": True,
+                    "section": "household",
+                    "path": "household.size",
+                    "label::fr": "Taille?",
+                    "label::en": "Size?",
+                }
             ],
         )
-        try:
-            for language, title, abbreviation_label in (
-                ("en", "Household", "Abbreviation"),
-                ("fr", "Ménage", "Abréviation"),
-            ):
-                generate_questionnaire_dictionary(
-                    ExcelSurveyDefinitionReader(MOCKED_EXCEL_FILE),
-                    survey_definition,
-                    str(tmp_path),
-                    language,
-                )
-                with open(
-                    tmp_path / f"questionnaire_dictionary_{language}.csv",
-                    encoding="utf-8",
-                ) as csv_file:
-                    rows = list(csv.reader(csv_file))
-                assert ["Section", title] in rows
-                assert [abbreviation_label, "HH_"] in rows
-                assert any("HH_size" in row for row in rows)
-        finally:
-            delete_file_if_exists(MOCKED_EXCEL_FILE)
+        for language, title, abbreviation_label in (
+            ("en", "Household", "Abbreviation"),
+            ("fr", "Ménage", "Abréviation"),
+        ):
+            generate_questionnaire_dictionary(
+                survey_definition, str(tmp_path), language
+            )
+            with open(
+                tmp_path / f"questionnaire_dictionary_{language}.csv",
+                encoding="utf-8",
+            ) as csv_file:
+                rows = list(csv.reader(csv_file))
+            assert ["Section", title] in rows
+            assert [abbreviation_label, "HH_"] in rows
+            assert any("HH_size" in row for row in rows)

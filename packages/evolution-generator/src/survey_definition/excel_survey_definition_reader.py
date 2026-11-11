@@ -123,9 +123,8 @@ class ExcelSurveyDefinitionReader:
 
         return headers
 
-    # TODO: Remove the methods below once every sheet is migrated to the survey
-    # definition (#2035): they give the scripts that still read the other sheets
-    # (e.g. Widgets) and the CSV copy access to the sheets' rows.
+    # The methods below give the CSV copy (excel_to_csv_generator.py) access to every
+    # sheet's rows: the scripts read the survey definition instead.
 
     @property
     def sheet_names(self) -> List[str]:
