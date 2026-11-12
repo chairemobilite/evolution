@@ -102,4 +102,13 @@ describe('createAdminWebpackConfig', () => {
 
         expect(getEntry()).toEqual(['/project/admin.tsx', '/project/styles.scss']);
     });
+
+    test('copies the MapLibre worker, needed by the interview map', () => {
+        createAdminWebpackConfig({
+            ...createBaseParams(),
+            adminEntryFile: '/project/admin.tsx'
+        });
+
+        expect(mockedCreateCommonWebpackConfig.mock.calls[0][0].copyMapLibreWorker).toBe(true);
+    });
 });

@@ -67,6 +67,11 @@ type WebpackGenerationConfigParams = CommonWebpackConfigParams & {
     outputFilename: string;
     outputCssFileName: string;
     extraEnvs: Record<string, unknown>;
+    /**
+     * Set to `true` for an application that displays MapLibre maps: the MapLibre tile worker is
+     * copied to the output directory, from where the application loads it. Defaults to `false`.
+     */
+    copyMapLibreWorker?: boolean;
 };
 
 const stringifyEnvValues = (envs: Record<string, unknown>) => {
@@ -84,6 +89,7 @@ export const createCommonWebpackConfig = (params: WebpackGenerationConfigParams)
     // Get root directories of evolution-frontend and chaire-lib-frontend for assets and locales file paths
     const evolutionFrontendRoot = path.dirname(require.resolve('evolution-frontend/package.json'));
     const chaireLibFrontendRoot = path.dirname(require.resolve('chaire-lib-frontend/package.json'));
+    const maplibreDist = path.join(path.dirname(require.resolve('maplibre-gl/package.json')), 'dist');
 
     // Determine if there is project locales path to override evolution's
     const evolutionLocaleFiles = path.join(evolutionFrontendRoot, '..', '..', 'locales');
@@ -275,7 +281,19 @@ export const createCommonWebpackConfig = (params: WebpackGenerationConfigParams)
                         noErrorOnMissing: true,
                         priority: 2,
                         force: true
-                    }
+                    },
+                    // MapLibre does not embed its tile worker in its main file. It loads
+                    // maplibre-gl-worker.mjs from the URL given to `setWorkerUrl`, so webpack does
+                    // not bundle that file.
+                    // https://maplibre.org/maplibre-gl-js/docs/guides/v5-to-v6-migration-guide/
+                    ...(params.copyMapLibreWorker
+                        ? [
+                            {
+                                from: path.join(maplibreDist, 'maplibre-gl-worker.mjs'),
+                                to: 'maplibre-gl-worker.mjs'
+                            }
+                        ]
+                        : [])
                 ]
             })
         ] as WebpackPluginInstance[],
@@ -284,15 +302,20 @@ export const createCommonWebpackConfig = (params: WebpackGenerationConfigParams)
             modules: ['node_modules'],
             extensions: ['.json', '.js', '.ts', '.tsx'],
             // In dev, read SCSS from evolution-frontend source so changes apply without running copy-files
-            alias: isProduction
-                ? {}
-                : {
-                    [path.join(evolutionFrontendRoot, 'lib', 'styles')]: path.join(
-                        evolutionFrontendRoot,
-                        'src',
-                        'styles'
-                    )
-                },
+            alias: {
+                // maplibre-gl only publishes an "import" condition, which does not match the
+                // require() emitted by tsc
+                'maplibre-gl$': path.join(maplibreDist, 'maplibre-gl.mjs'),
+                ...(isProduction
+                    ? {}
+                    : {
+                        [path.join(evolutionFrontendRoot, 'lib', 'styles')]: path.join(
+                            evolutionFrontendRoot,
+                            'src',
+                            'styles'
+                        )
+                    })
+            },
             // These modules are not used in the frontend, don't try to resolve them as they are nodejs only and don't have a browser counterpart
             fallback: { path: false, buffer: false }
         },

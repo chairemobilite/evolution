@@ -10,25 +10,23 @@ import config from 'evolution-common/lib/config/project.config';
 import { useTranslation } from 'react-i18next';
 import MapLibreMap, {
     MapRef,
-    useControl,
     Marker,
+    Source,
+    Layer,
     SourceSpecification,
-    LayerSpecification
+    LayerSpecification,
+    LayerProps,
+    MapLayerMouseEvent
 } from 'react-map-gl/maplibre';
 import 'maplibre-gl/dist/maplibre-gl.css';
-import { MapboxOverlay } from '@deck.gl/mapbox';
-import { PathLayer } from '@deck.gl/layers';
-import { hexToRgb } from 'evolution-common/lib/utils/ColorUtils';
+import AnimatedArrowPathLayer from 'chaire-lib-frontend/lib/services/map/customLayers/AnimatedArrowPathLayer';
 import { getActivityMarkerIcon } from 'evolution-common/lib/services/questionnaire/sections/visitedPlaces/activityIconMapping';
-import AnimatedArrowPathExtension from './AnimatedArrowPathExtension';
+import { prepareTripsForMapLayers } from '../../../services/admin/interviewMapTrips';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faExpand } from '@fortawesome/free-solid-svg-icons/faExpand';
 import { faLocationDot } from '@fortawesome/free-solid-svg-icons/faLocationDot';
 import { faRotateLeft } from '@fortawesome/free-solid-svg-icons/faRotateLeft';
 import { faLayerGroup } from '@fortawesome/free-solid-svg-icons/faLayerGroup';
-import { Position } from '@deck.gl/core/dist/types/layer-props';
-import { PickingInfo } from '@deck.gl/core/dist/lib/picking/pick-info';
-import { LayersList } from '@deck.gl/core/dist/lib/layer-manager';
 import type { Activity } from 'evolution-common/lib/services/odSurvey/types';
 
 /*
@@ -38,32 +36,24 @@ import type { Activity } from 'evolution-common/lib/services/odSurvey/types';
     the usual place path for study and work is unique, but they will not be in the future.
 */
 
+/** Width of the active trip and of the other trips, in CSS pixels */
+const ACTIVE_TRIP_WIDTH_PX = 12;
+const INACTIVE_TRIP_WIDTH_PX = 4;
+
+const TRIPS_CLICK_LAYER_ID = 'trips';
+
 /**
- * DeckGL Overlay Control Component for Animated Trip Paths
+ * MapLibre layer of the trips, which receives the clicks. The trips are drawn by custom layers,
+ * which cannot be queried and do not receive mouse events. This layer has the same widths and is
+ * invisible.
  */
-const DeckGLControl: React.FC<{
-    layers: LayersList;
-    activeTripUuid?: string;
-}> = ({ layers, activeTripUuid }) => {
-    const overlayRef = useRef<MapboxOverlay | null>(null);
-
-    useControl(() => {
-        overlayRef.current = new MapboxOverlay({
-            interleaved: true,
-            _animate: true,
-            useDevicePixels: true,
-            layers
-        });
-        return overlayRef.current;
-    });
-
-    useEffect(() => {
-        if (overlayRef.current) {
-            overlayRef.current.setProps({ layers });
-        }
-    }, [layers, activeTripUuid]);
-
-    return null;
+const tripsClickLayer: LayerProps = {
+    id: TRIPS_CLICK_LAYER_ID,
+    type: 'line',
+    paint: {
+        'line-opacity': 0,
+        'line-width': ['case', ['boolean', ['get', 'active'], false], ACTIVE_TRIP_WIDTH_PX, INACTIVE_TRIP_WIDTH_PX]
+    }
 };
 
 export type SurveyMapPointProperties = {
@@ -96,7 +86,7 @@ export type InterviewMapProps = {
 };
 
 /**
- * Interview Map Component with marker drag + undo and DeckGL trip overlay
+ * Interview Map Component with marker drag + undo and animated trip paths
  */
 const InterviewMap: React.FunctionComponent<InterviewMapProps> = (props: InterviewMapProps) => {
     const { t } = useTranslation(['admin']);
@@ -151,9 +141,20 @@ const InterviewMap: React.FunctionComponent<InterviewMapProps> = (props: Intervi
     };
 
     /**
-     * Track whether places layer has been created to trigger deck layer updates
+     * Track whether places layer has been created to trigger fitBounds
      */
     const [placesLayerReady, setPlacesLayerReady] = useState(false);
+
+    /**
+     * Custom layers drawing the trips with animated arrows. A layer draws all its trips with the
+     * same width, so the active trips and the other trips each have their layer.
+     */
+    const [inactiveTripsLayer] = useState(
+        () => new AnimatedArrowPathLayer({ id: 'inactiveTripsArrows', widthPx: INACTIVE_TRIP_WIDTH_PX })
+    );
+    const [activeTripsLayer] = useState(
+        () => new AnimatedArrowPathLayer({ id: 'activeTripsArrows', widthPx: ACTIVE_TRIP_WIDTH_PX })
+    );
 
     /**
      * Clear drag history when interview changes
@@ -252,16 +253,13 @@ const InterviewMap: React.FunctionComponent<InterviewMapProps> = (props: Intervi
     };
 
     /**
-     * Get trip color for deck.gl PathLayer
+     * Handle a click on the map: select the trip under the pointer, if any
      */
-    const getTripColor = (
-        feature: GeoJSON.Feature<GeoJSON.LineString, SurveyMapTripProperties>
-    ): [number, number, number, number] => {
-        const personColor = feature.properties?.personColor;
-        const tripColor = feature.properties?.color;
-        const colorHex = tripColor || personColor || '#000000';
-        const rgbColor = hexToRgb(colorHex);
-        return rgbColor ? [rgbColor[0], rgbColor[1], rgbColor[2], 255] : [255, 0, 0, 255];
+    const onMapClick = (event: MapLayerMouseEvent) => {
+        const tripUuid = event.features?.[0]?.properties.tripUuid;
+        if (tripUuid && props.onTripClick) {
+            props.onTripClick(tripUuid);
+        }
     };
 
     /**
@@ -272,7 +270,7 @@ const InterviewMap: React.FunctionComponent<InterviewMapProps> = (props: Intervi
     };
 
     /**
-     * Signal that markers are ready for deck layers and trigger fitBounds
+     * Signal that markers are ready and trigger fitBounds
      */
     useEffect(() => {
         if (!mapLoaded) return;
@@ -310,49 +308,24 @@ const InterviewMap: React.FunctionComponent<InterviewMapProps> = (props: Intervi
     }, [mapLoaded, placesLayerReady, props.places.features.length]);
 
     /**
-     * Create deck.gl layers for animated trip paths
+     * Add the custom layers of the trips to the map, the active trips above the other trips
      */
-    const deckLayers = useMemo(() => {
-        if (!props.trips.features.length || !mapLoaded || !placesLayerReady) return [];
+    useEffect(() => {
+        const map = mapRef.current?.getMap();
+        if (!mapLoaded || !map) return;
 
-        return [
-            new PathLayer({
-                id: 'trips-animated',
-                data: props.trips.features,
-                antialias: true,
-                highPrecision: true,
-                getPath: (feature: GeoJSON.Feature<GeoJSON.LineString, SurveyMapTripProperties>) => {
-                    return feature.geometry.coordinates as Position[];
-                },
-                getColor: (feature: GeoJSON.Feature<GeoJSON.LineString, SurveyMapTripProperties>) => {
-                    return getTripColor(feature);
-                },
-                getWidth: (feature: GeoJSON.Feature<GeoJSON.LineString, SurveyMapTripProperties>) => {
-                    return feature.properties.active === true ? 12 : 4;
-                },
-                widthUnits: 'pixels',
-                widthMinPixels: 4,
-                widthMaxPixels: 12,
-                capRounded: true,
-                jointRounded: true,
-                pickable: true,
-                onClick: (info: PickingInfo) => {
-                    if (info.object && props.onTripClick) {
-                        const tripUuid = info.object.properties?.tripUuid;
-                        if (tripUuid) {
-                            props.onTripClick(tripUuid);
-                        }
-                    }
-                },
-                extensions: [new AnimatedArrowPathExtension()],
-                updateTriggers: {
-                    getPath: [props.activeTripUuid],
-                    getColor: [props.activeTripUuid],
-                    getWidth: [props.activeTripUuid]
-                }
-            })
-        ];
-    }, [props.trips.features, mapLoaded, placesLayerReady]);
+        map.addLayer(inactiveTripsLayer);
+        map.addLayer(activeTripsLayer);
+    }, [mapLoaded, inactiveTripsLayer, activeTripsLayer]);
+
+    /**
+     * Update the trips drawn by the custom layers
+     */
+    useEffect(() => {
+        const { activeTrips, inactiveTrips } = prepareTripsForMapLayers(props.trips.features);
+        inactiveTripsLayer.setData(inactiveTrips);
+        activeTripsLayer.setData(activeTrips);
+    }, [props.trips.features, inactiveTripsLayer, activeTripsLayer]);
 
     /**
      * Toggle layer select menu visibility
@@ -394,18 +367,21 @@ const InterviewMap: React.FunctionComponent<InterviewMapProps> = (props: Intervi
             };
         }
 
-        // Add the appropriate base layer
-        if (showAerialTiles && config.mapAerialTilesUrl) {
+        // Add the base layers, with only the appropriate one visible. Replacing the base layer
+        // would add the new one above the custom layers of the trips, which are not in this style.
+        const isAerialVisible = showAerialTiles && !!config.mapAerialTilesUrl;
+        layers.push({
+            id: 'osm',
+            type: 'raster',
+            source: 'osm',
+            layout: { visibility: isAerialVisible ? 'none' : 'visible' }
+        });
+        if (config.mapAerialTilesUrl) {
             layers.push({
                 id: 'aerial',
                 type: 'raster',
-                source: 'aerial'
-            });
-        } else {
-            layers.push({
-                id: 'osm',
-                type: 'raster',
-                source: 'osm'
+                source: 'aerial',
+                layout: { visibility: isAerialVisible ? 'visible' : 'none' }
             });
         }
 
@@ -524,6 +500,8 @@ const InterviewMap: React.FunctionComponent<InterviewMapProps> = (props: Intervi
                 {...viewState}
                 onMove={(evt) => setViewState(evt.viewState)}
                 onLoad={onMapLoad}
+                interactiveLayerIds={[TRIPS_CLICK_LAYER_ID]}
+                onClick={onMapClick}
                 style={{ width: '100%', height: '100%' }}
                 maxZoom={20} // Anything more than 20 is not really useful, since most aerial imageries are maxed out at zoom 20.
                 mapStyle={mapStyle}
@@ -578,8 +556,10 @@ const InterviewMap: React.FunctionComponent<InterviewMapProps> = (props: Intervi
                     );
                 })}
 
-                {/* DeckGL overlay for animated trip paths */}
-                <DeckGLControl layers={deckLayers} activeTripUuid={props.activeTripUuid} />
+                {/* Layer receiving the clicks on the trips, which are drawn by the custom layers */}
+                <Source type="geojson" data={props.trips}>
+                    <Layer {...tripsClickLayer} />
+                </Source>
             </MapLibreMap>
             <div className="admin__interview-map-controls">
                 {/* Custom style switcher - only show if aerial tiles are configured */}
