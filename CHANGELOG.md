@@ -25,6 +25,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Security
 
+- Remove the direct trRouting routes (`/trRouting/route`, `/trRouting/summary`, `/trRouting/accessibilityMap`) from the participant and admin servers: any logged-in user could make the server send requests to arbitrary hosts. Routing only goes through the Transition API ([#2198](https://github.com/chairemobilite/evolution/pull/2198))
+
 ### Dependency updates
 
 Python:
