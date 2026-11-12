@@ -13,7 +13,6 @@ import favicon from 'serve-favicon';
 import expressSession from 'express-session';
 import KnexConnection from 'connect-session-knex';
 import morgan from 'morgan'; // http logger
-import trRoutingRouter from 'chaire-lib-backend/lib/api/trRouting.routes';
 import { participantAuthModel } from '../../services/auth/participantAuthModel';
 import configurePassport from '../../services/auth/auth.config';
 import requestIp from 'request-ip';
@@ -126,8 +125,6 @@ export const setupServerApp = async (
     await loadRegisteredServerConfig();
 
     participantRoutes(app);
-    // Add the trRouting routes
-    trRoutingRouter(app);
 
     app.get('/incompatible', (req, res) => {
         res.sendFile(path.join(publicDirectory, 'incompatible.html'));

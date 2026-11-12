@@ -18,7 +18,6 @@ import favicon from 'serve-favicon';
 import expressSession from 'express-session';
 import KnexConnection from 'connect-session-knex';
 import morgan from 'morgan';
-import trRoutingRouter from 'chaire-lib-backend/lib/api/trRouting.routes';
 import { userAuthModel } from 'chaire-lib-backend/lib/services/auth/userAuthModel';
 import adminRoutes from '../../api/admin.routes';
 import configurePassport from 'chaire-lib-backend/lib/config/auth';
@@ -113,7 +112,6 @@ export const setupServerApp = async (app: Express, serverSetupFct?: (app: Expres
     await loadRegisteredServerConfig();
 
     surveyRoutes(app);
-    trRoutingRouter(app);
     defineDefaultRoles();
     app.use('/api/admin', adminRoutes);
 
