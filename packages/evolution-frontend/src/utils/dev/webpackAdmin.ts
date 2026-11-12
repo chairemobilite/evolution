@@ -62,6 +62,8 @@ export const createAdminWebpackConfig = (params: AdminWebpackConfigParams): Conf
         includeDirectories: params.includeDirectories,
         projectLocalesFilePath: params.projectLocalesFilePath,
         htmlPages: params.htmlPages,
-        extraEnvs: params.extraEnvs || {}
+        extraEnvs: params.extraEnvs || {},
+        // The interview map of the admin application is a MapLibre map
+        copyMapLibreWorker: true
     });
 };

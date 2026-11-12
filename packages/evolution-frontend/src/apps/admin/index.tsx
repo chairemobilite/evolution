@@ -5,6 +5,7 @@
  * License text available at https://opensource.org/licenses/MIT
  */
 import React from 'react';
+import { getVersion, setWorkerUrl } from 'maplibre-gl';
 import { createRoot } from 'react-dom/client';
 import { Provider } from 'react-redux';
 import { I18nextProvider } from 'react-i18next';
@@ -40,6 +41,13 @@ setApplicationConfiguration({
 
 // Set client event route for the admin app to a guarded route
 setLogClientEventRoute('/api/survey/logClientEvent');
+
+// MapLibre loads its tile worker from a separate file, with `new Worker(url, { type: 'module' })`.
+// https://maplibre.org/maplibre-gl-js/docs/guides/v5-to-v6-migration-guide/
+// The admin webpack configuration copies this file next to the bundle. Its name is the same in
+// every release, so the version keeps browsers from using an old cached worker.
+// This must run before the first map is created.
+setWorkerUrl(`/dist/maplibre-gl-worker.mjs?v=${getVersion()}`);
 
 export default () => {
     document.title = config.title[i18n.language];
