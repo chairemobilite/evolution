@@ -8,6 +8,7 @@
 import { ObjectReadableMock } from 'stream-mock';
 import { walkSurveyObjects } from 'evolution-common/lib/services/baseObjects/walkSurveyObjects';
 import interviewsDbQueries from '../../../../models/interviews.db.queries';
+import reviewDecisionsDbQueries from '../../../../models/reviewDecisions.db.queries';
 import { execJob } from '../../../../tasks/serverWorkerPool';
 import {
     exportSurveyObjectsToCsv,
@@ -21,6 +22,14 @@ jest.mock('../../../../models/interviews.db.queries', () => ({
 const mockGetInterviewsStream = interviewsDbQueries.getInterviewsStream as jest.MockedFunction<
     typeof interviewsDbQueries.getInterviewsStream
 >;
+
+jest.mock('../../../../models/reviewDecisions.db.queries', () => ({
+    getReviewDecisionsForInterview: jest.fn().mockResolvedValue([])
+}));
+const mockGetReviewDecisionsForInterview =
+    reviewDecisionsDbQueries.getReviewDecisionsForInterview as jest.MockedFunction<
+        typeof reviewDecisionsDbQueries.getReviewDecisionsForInterview
+    >;
 
 jest.mock('../../../../tasks/serverWorkerPool', () => ({ execJob: jest.fn() }));
 const mockExecJob = execJob as jest.MockedFunction<typeof execJob>;
@@ -58,9 +67,9 @@ describe('exportSurveyObjectsToCsvTask', () => {
         {
             description: 'interviews without corrected response are not exported',
             interviews: [
-                { uuid: 'withCorrected1', corrected_response: { household: {} } },
-                { uuid: 'withoutCorrected', corrected_response: null },
-                { uuid: 'withCorrected2', corrected_response: {} }
+                { id: 1, uuid: 'withCorrected1', corrected_response: { household: {} } },
+                { id: 2, uuid: 'withoutCorrected', corrected_response: null },
+                { id: 3, uuid: 'withCorrected2', corrected_response: {} }
             ],
             expectedCreatedUuids: ['withCorrected1', 'withCorrected2'],
             expectedExportedUuids: ['withCorrected1', 'withCorrected2']
@@ -68,9 +77,9 @@ describe('exportSurveyObjectsToCsvTask', () => {
         {
             description: 'interviews with survey objects that could not be created are not exported',
             interviews: [
-                { uuid: 'valid1', corrected_response: {} },
-                { uuid: 'invalid', corrected_response: {} },
-                { uuid: 'valid2', corrected_response: {} }
+                { id: 1, uuid: 'valid1', corrected_response: {} },
+                { id: 2, uuid: 'invalid', corrected_response: {} },
+                { id: 3, uuid: 'valid2', corrected_response: {} }
             ],
             expectedCreatedUuids: ['valid1', 'invalid', 'valid2'],
             expectedExportedUuids: ['valid1', 'valid2']
@@ -87,9 +96,12 @@ describe('exportSurveyObjectsToCsvTask', () => {
         expect(mockCreateAllObjectsWithErrors.mock.calls.map(([interview]) => interview.uuid)).toEqual(
             expectedCreatedUuids
         );
+        // Each exported interview is walked twice: to compute the reviews, then to write the rows
         expect(mockWalkSurveyObjects.mock.calls.map(([surveyObjects]) => surveyObjects.interview?.uuid)).toEqual(
-            expectedExportedUuids
+            expectedExportedUuids.flatMap((uuid) => [uuid, uuid])
         );
+        // The review decisions are only read for the exported interviews
+        expect(mockGetReviewDecisionsForInterview).toHaveBeenCalledTimes(expectedExportedUuids.length);
         expect(mockFinish).toHaveBeenCalledTimes(1);
         expect(mockClose).toHaveBeenCalledTimes(1);
         expect(fileNames).toEqual(['surveyObjects_test_person.csv']);
@@ -97,7 +109,7 @@ describe('exportSurveyObjectsToCsvTask', () => {
 
     test('closes the writer when the export fails', async () => {
         mockGetInterviewsStream.mockReturnValueOnce(
-            new ObjectReadableMock([{ uuid: 'valid', corrected_response: {} }]) as any
+            new ObjectReadableMock([{ id: 1, uuid: 'valid', corrected_response: {} }]) as any
         );
         mockWalkSurveyObjects.mockRejectedValueOnce(new Error('cannot write'));
 

@@ -10,6 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Export: CSV files of the survey objects, created from the corrected responses ([#2182](https://github.com/chairemobilite/evolution/pull/2182))
+- Export: review status of each object in the survey objects export, and whether it contains a rejected object ([#2202](https://github.com/chairemobilite/evolution/issues/2202))
 
 ### Changed
 

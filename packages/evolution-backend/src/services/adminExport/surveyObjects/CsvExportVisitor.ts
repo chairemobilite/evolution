@@ -15,13 +15,26 @@ import type {
 } from 'evolution-common/lib/services/baseObjects/walkSurveyObjects';
 import { CsvRow, ExportableSurveyObject, surveyObjectToCsvRow } from './surveyObjectToCsvRow';
 import type { SurveyObjectsCsvWriter } from './SurveyObjectsCsvWriter';
+import type { ReviewStatusVisitor } from './ReviewStatusVisitor';
 
 /**
- * Columns identifying an object and linking it to its interview and parent,
- * in the order they are written at the start of each file. A file only has
- * the columns of its object type.
+ * Columns identifying an object, linking it to its interview and parent and
+ * giving its review, in the order they are written at the start of each
+ * file. A file only has the columns of its object type.
  */
-export const leadingColumns = ['_uuid', '_interviewUuid', '_householdUuid', '_personUuid', '_journeyUuid', '_tripUuid'];
+export const leadingColumns = [
+    '_uuid',
+    '_interviewUuid',
+    '_householdUuid',
+    '_personUuid',
+    '_journeyUuid',
+    '_tripUuid',
+    'review_status',
+    'has_rejected_descendant'
+];
+
+/** Object types that contain other exported objects, which can have a rejected descendant */
+const objectTypesWithChildren = ['interview', 'household', 'person', 'journey', 'trip'];
 
 /** A survey object, with its uuid */
 type VisitedObject = ExportableSurveyObject & { uuid?: string };
@@ -29,17 +42,23 @@ type VisitedObject = ExportableSurveyObject & { uuid?: string };
 /**
  * Visitor writing the survey objects of an interview to the CSV files of the
  * export, with one row per object. Each row contains the attributes and
- * custom attributes of the object, the uuid of its interview and the uuid of
- * its parent object, in a column named after the parent type.
+ * custom attributes of the object, the uuid of its interview, the uuid of
+ * its parent object, in a column named after the parent type, its review
+ * status and, for objects that contain others, whether one of them is
+ * rejected.
  */
 export class CsvExportVisitor implements SurveyObjectVisitor {
     private readonly writer: SurveyObjectsCsvWriter;
+    private readonly reviewStatuses: ReviewStatusVisitor;
 
     /**
      * @param {SurveyObjectsCsvWriter} writer - Writer of the CSV files of the export
+     * @param {ReviewStatusVisitor} reviewStatuses - Reviews of the objects of the interview to
+     * visit, which it has already visited
      */
-    constructor(writer: SurveyObjectsCsvWriter) {
+    constructor(writer: SurveyObjectsCsvWriter, reviewStatuses: ReviewStatusVisitor) {
         this.writer = writer;
+        this.reviewStatuses = reviewStatuses;
     }
 
     visitInterview = (interview: VisitedObject, context: InterviewVisitContext) =>
@@ -84,11 +103,14 @@ export class CsvExportVisitor implements SurveyObjectVisitor {
         context: InterviewVisitContext,
         additionalColumns: CsvRow = {}
     ): Promise<void> {
+        const { reviewStatus, hasRejectedDescendant } = this.reviewStatuses.getReview(object);
         return this.writer.writeRow(objectType, {
             ...surveyObjectToCsvRow(object),
             ...additionalColumns,
             _uuid: object.uuid,
-            _interviewUuid: context.interview.uuid
+            _interviewUuid: context.interview.uuid,
+            review_status: reviewStatus,
+            ...(objectTypesWithChildren.includes(objectType) ? { has_rejected_descendant: hasRejectedDescendant } : {})
         });
     }
 }

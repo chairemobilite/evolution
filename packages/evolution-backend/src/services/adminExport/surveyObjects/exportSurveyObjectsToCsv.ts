@@ -8,16 +8,18 @@
 import { walkSurveyObjects } from 'evolution-common/lib/services/baseObjects/walkSurveyObjects';
 import config from 'evolution-common/lib/config/project.config';
 import interviewsDbQueries from '../../../models/interviews.db.queries';
+import reviewDecisionsDbQueries from '../../../models/reviewDecisions.db.queries';
 import { SurveyObjectsFactory } from '../../surveyObjects/SurveyObjectsFactory';
 import { execJob } from '../../../tasks/serverWorkerPool';
 import { filePathOnServer } from '../exportAllResponsesToCsvByObject';
 import { CsvExportVisitor, leadingColumns } from './CsvExportVisitor';
 import { SurveyObjectsCsvWriter } from './SurveyObjectsCsvWriter';
 import { hasSurveyObjectCreationErrors } from './hasSurveyObjectCreationErrors';
+import { ReviewStatusVisitor } from './ReviewStatusVisitor';
 
 /**
  * Task to export the survey objects of all interviews with a corrected
- * response to one CSV file per object type.
+ * response to one CSV file per object type, with the review of each object.
  *
  * The corrected response exists once an interview was audited, when opened
  * for review or by the batch audit. This task does not create it, so that an
@@ -28,6 +30,11 @@ import { hasSurveyObjectCreationErrors } from './hasSurveyObjectCreationErrors';
  * the corrected response (invalid parameters) are not exported either. The
  * factory leaves these objects and their children out, so the exported
  * interview would miss them without anything telling it.
+ *
+ * The survey objects of each interview are walked twice: a
+ * {@link ReviewStatusVisitor} first computes the review of each object from
+ * the review decisions of the interview, as it depends on the whole tree,
+ * then a {@link CsvExportVisitor} writes the rows with these reviews.
  *
  * NOTE: THIS SHOULD ONLY BE CALLED FROM A WORKERPOOL OR TASKS, NOT THE MAIN
  * THREAD, as the survey objects are created with the survey's parsers, which
@@ -42,7 +49,6 @@ export const exportSurveyObjectsToCsvTask = async (): Promise<string[]> => {
         leadingColumns
     });
     try {
-        const visitor = new CsvExportVisitor(writer);
         // The export does not need the routing of the trips
         const factory = new SurveyObjectsFactory({ calculateRouting: false });
         const interviewStream = interviewsDbQueries.getInterviewsStream({
@@ -60,7 +66,11 @@ export const exportSurveyObjectsToCsvTask = async (): Promise<string[]> => {
                 excludedInterviewsCount++;
                 continue;
             }
-            await walkSurveyObjects(surveyObjects, visitor);
+            const reviewStatuses = new ReviewStatusVisitor(
+                await reviewDecisionsDbQueries.getReviewDecisionsForInterview(interview.id)
+            );
+            await walkSurveyObjects(surveyObjects, reviewStatuses);
+            await walkSurveyObjects(surveyObjects, new CsvExportVisitor(writer, reviewStatuses));
         }
         const fileNames = await writer.finish();
         console.log(
