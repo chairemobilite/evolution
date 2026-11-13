@@ -134,8 +134,7 @@ export class PreviousWorkPlaceGeographyWidgetFactory implements WidgetConfigFact
                 }
             }
             const homeCoordinates = getResponse(interview, 'home.geography.geometry.coordinates', null) as
-                | null
-                | [number, number];
+                null | [number, number];
             return homeCoordinates
                 ? {
                     lat: homeCoordinates[1],

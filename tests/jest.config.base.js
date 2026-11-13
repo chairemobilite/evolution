@@ -1,7 +1,16 @@
+// These dependencies are only published as ES modules, they need to be
+// compiled to CommonJS for jest
+const esmOnlyPackages = ['kdbush', 'geokdbush', 'tinyqueue', 'uuid', 'geobuf', 'pbf'].join('|');
+
 module.exports = {
     transform: {
-        '^.+\\.tsx?$': ['ts-jest', { 'tsconfig': 'tsconfig.json' }]
+        '^.+\\.tsx?$': ['ts-jest', { 'tsconfig': 'tsconfig.json' }],
+        [`/node_modules/(${esmOnlyPackages})/.+\\.js$`]: [
+            'ts-jest',
+            { tsconfig: { allowJs: true, module: 'commonjs', esModuleInterop: true } }
+        ]
     },
+    transformIgnorePatterns: [`/node_modules/(?!(${esmOnlyPackages})/)`],
     setupFilesAfterEnv: [
         '../../tests/jestSetup.base.ts'
     ],

@@ -37,10 +37,27 @@ Nodejs:
 * maplibre-gl: 5.17.0 => 6.15.0
 * react-map-gl: 8.0.4 => 8.1.3
 * deck.gl, luma.gl and gl-matrix are removed from evolution-frontend
+* jest: 30.2.0 => 30.5.2
+* jest-each: 30.2.0 => 30.5.2
+* jest-environment-jsdom: 30.2.0 => 30.5.2
+* ts-jest: 294.6 => 29.4.15
+* rimraf: 6.1.2 => 6.1.4
+* uuid: 11.1.0 => 14.0.3
+* serve-favicon: 2.5.0 => 2.5.1
+* workerpool: 6.5.1 => 10.0.0
+* compression-webpack-plugin: 11.1.0 => 12.0.0
+* copy-webpack-plugin: 13.0.1 => 14.0.0
+* ts-loader: 9.5.4 => 9.6.2
+* i18next-fs-backend: 2.6.4 => 2.6.6
 
 Python:
 
 * ruamel-yaml-clib: 0.2.8 => 0.2.15
+
+### Dependency removal
+
+* copyfiles
+* kdbush resolution to 3.0
 
 ## [0.6.7] - 2026-10-27
 

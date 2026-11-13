@@ -15,8 +15,7 @@ type FieldUpdateCallbackResponseCallbackType = { [affectedResponseFieldPath: str
  * terminate the interview for the user.
  */
 type FieldUpdateCallbackReturnType =
-    | FieldUpdateCallbackResponseCallbackType
-    | [FieldUpdateCallbackResponseCallbackType, string];
+    FieldUpdateCallbackResponseCallbackType | [FieldUpdateCallbackResponseCallbackType, string];
 
 /**
  * Type for callbacks when a response field gets updated.

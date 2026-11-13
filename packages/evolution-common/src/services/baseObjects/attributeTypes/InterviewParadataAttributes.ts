@@ -47,9 +47,7 @@ type SectionData = {
 export type SectionMetadata = {
     _actions?: Array<{ section: string; action: string; ts: number; iterationContext?: string[] }>;
     [sectionName: string]:
-        | SectionData
-        | Array<{ section: string; action: string; ts: number; iterationContext?: string[] }>
-        | undefined;
+        SectionData | Array<{ section: string; action: string; ts: number; iterationContext?: string[] }> | undefined;
 };
 // this will be the new version, not yet implemented:
 /*export type SectionMetadata = {
