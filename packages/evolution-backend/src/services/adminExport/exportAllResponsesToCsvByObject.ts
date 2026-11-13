@@ -347,7 +347,7 @@ const formatValue = (value: unknown): unknown => {
  * @param {ExportOptions} options The export options
  * @returns
  */
-export const exportAllToCsvBySurveyObjectTask = async function (
+export const exportAllResponsesToCsvByObjectTask = async function (
     options: ExportOptions = { responseType: 'correctedIfAvailable' }
 ) {
     const pathsBySurveyObject = await getPathsBySurveyObject(options);
@@ -564,12 +564,12 @@ let runningExportNonce: undefined | object = undefined;
  * @param options The export options
  * @returns A message saying the export is started
  */
-export const exportAllToCsvBySurveyObject = function (options: ExportOptions) {
+export const exportAllResponsesToCsvByObject = function (options: ExportOptions) {
     if (runningExportNonce !== undefined) {
         return 'alreadyRunning';
     }
     runningExportNonce = new Object();
-    execJob('exportAllToCsvBySurveyObject', [options])
+    execJob('exportAllResponsesToCsvByObject', [options])
         .then(() => console.log('Export by survey object completed'))
         .catch((error) => {
             console.log('Export by survey object failed:', error);
