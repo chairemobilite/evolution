@@ -70,6 +70,7 @@ Python:
 * @typescript-eslint/parser
 * cross-env
 * clean-webpack-plugin
+* ts-shader-loader
 
 ## [0.6.7] - 2026-10-27
 

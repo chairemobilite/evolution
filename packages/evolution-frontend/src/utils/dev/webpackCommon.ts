@@ -177,11 +177,6 @@ export const createCommonWebpackConfig = (params: WebpackGenerationConfigParams)
                     type: 'asset'
                 },
                 {
-                    // FIXME Do we have glsl shaders in Evolution? If not, we should remove this rule
-                    test: /\.glsl$/,
-                    use: 'ts-shader-loader'
-                },
-                {
                     // Load SCSS files
                     test: /\.s?css$/,
                     use: [
