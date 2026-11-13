@@ -808,6 +808,7 @@ const getInterviewsStream = function (params: {
     const select = [
         'i.id',
         'i.uuid',
+        'i.participant_id',
         'i.updated_at',
         'i.is_completed',
         'i.is_questionable',
