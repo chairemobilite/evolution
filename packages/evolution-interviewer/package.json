@@ -20,7 +20,7 @@
         "test:sequential": "cross-env NODE_ENV=test jest --config=jest.sequential.config.js --runInBand",
         "test:ui": "echo 'no tests to run for this workspace'",
         "lint": "eslint .",
-        "format": "prettier-eslint \"./src/**/*.{ts,tsx}\" --write",
+        "format": "prettier --write --log-level warn \"./src/**/*.{ts,tsx}\" && eslint --fix --quiet \"./src/**/*.{ts,tsx}\"",
         "format:all": "yarn format"
     },
     "dependencies": {
@@ -42,20 +42,20 @@
         "uuid": "^14.0.3"
     },
     "devDependencies": {
+        "@eslint/js": "^10.0.1",
         "@types/jest": "^30.0.0",
         "@types/jest-each": "^24.3.0",
         "@types/lodash": "^4.17.23",
         "@types/node": "^24.10.4",
-        "@typescript-eslint/eslint-plugin": "^8.50.0",
-        "@typescript-eslint/parser": "^8.50.0",
         "cross-env": "^10.1.0",
-        "eslint": "^8.57.1",
-        "eslint-plugin-n": "^15.7.0",
+        "eslint": "^10.13.0",
+        "eslint-plugin-n": "^18.5.0",
         "jest": "^30.5.2",
         "jest-each": "30.5.2",
-        "prettier-eslint-cli": "^8.0.1",
+        "prettier": "^3.9.10",
         "rimraf": "^6.1.4",
         "ts-jest": "^29.4.15",
-        "typescript": "^5.9.3"
+        "typescript": "^5.9.3",
+        "typescript-eslint": "^8.72.0"
     }
 }

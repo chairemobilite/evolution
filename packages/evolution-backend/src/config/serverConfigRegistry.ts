@@ -144,7 +144,7 @@ export const loadRegisteredServerConfig = async (): Promise<void> => {
             }
             setProjectConfig({ [config]: configModule.default });
         } catch (error) {
-            throw new Error(`Error loading the module registered for ${config}: ${error}`);
+            throw new Error(`Error loading the module registered for ${config}: ${error}`, { cause: error });
         }
     }
 };
