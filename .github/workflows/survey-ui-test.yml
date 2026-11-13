@@ -6,6 +6,11 @@ on:
   push:
     branches: [ main ]
   # We are not running on Pull Request, since we need the Google API Key
+  # Manual runs let a maintainer test a branch before merging it. Only users
+  # with write access can start them, so the Google API Key stays protected.
+  # Run from the Actions tab (Survey UI Test > Run workflow > pick the
+  # branch) or with: gh workflow run survey-ui-test.yml --ref <branch>
+  workflow_dispatch:
 
 jobs:
   build-and-test:
