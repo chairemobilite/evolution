@@ -12,20 +12,16 @@ exports[`DeleteGroupedObjectButton behavior Click on button, conditional modal, 
     <div
       class="center"
     >
-      <markdown
-        remarkplugins="remark-gfm,[object Object]"
-      >
+      <p>
         Delete item
-      </markdown>
+      </p>
     </div>
     <div
       class="confirm-popup"
     >
-      <markdown
-        remarkplugins="remark-gfm,[object Object]"
-      >
+      <p>
         Are you sure you want to delete this item?
-      </markdown>
+      </p>
     </div>
     <div
       class="tr__form-buttons-container _center"
@@ -67,20 +63,16 @@ exports[`DeleteGroupedObjectButton behavior Click on button, confirm modal, canc
     <div
       class="center"
     >
-      <markdown
-        remarkplugins="remark-gfm,[object Object]"
-      >
+      <p>
         Delete item
-      </markdown>
+      </p>
     </div>
     <div
       class="confirm-popup"
     >
-      <markdown
-        remarkplugins="remark-gfm,[object Object]"
-      >
+      <p>
         Are you sure you want to delete this item?
-      </markdown>
+      </p>
     </div>
     <div
       class="tr__form-buttons-container _center"
@@ -122,20 +114,16 @@ exports[`DeleteGroupedObjectButton behavior Click on button, confirm modal, conf
     <div
       class="center"
     >
-      <markdown
-        remarkplugins="remark-gfm,[object Object]"
-      >
+      <p>
         Delete item
-      </markdown>
+      </p>
     </div>
     <div
       class="confirm-popup"
     >
-      <markdown
-        remarkplugins="remark-gfm,[object Object]"
-      >
+      <p>
         Are you sure you want to delete this item?
-      </markdown>
+      </p>
     </div>
     <div
       class="tr__form-buttons-container _center"

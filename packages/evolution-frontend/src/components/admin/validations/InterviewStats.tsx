@@ -102,7 +102,7 @@ const InterviewStats = (props: InterviewStatsProps) => {
             Object.keys(surveyObjects.auditsByObject).some(
                 (key) => surveyObjects.auditsByObject![key] && surveyObjects.auditsByObject![key].length > 0
             )) ||
-            (surveyObjects?.audits && surveyObjects.audits.length > 0)
+        (surveyObjects?.audits && surveyObjects.audits.length > 0)
     );
 
     const interviewUuid = interview._uuid;
