@@ -1260,6 +1260,7 @@ describe('stream interviews query', () => {
             done();
         })
             .on('data', (row) => {
+                expect(row.participant_id).toBeDefined();
                 expect(row.audits).toBeDefined();
                 expect(row.response).toBeDefined();
                 expect(row.corrected_response).toBeDefined();

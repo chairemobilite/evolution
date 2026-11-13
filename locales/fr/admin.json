@@ -218,7 +218,12 @@
     "Select": "Sélectionner",
     "export": {
         "PrepareCorrectedCsvExportFiles": "Préparer les fichiers CSV par objet (réponses corrigées si disponibles)",
+        "PrepareCorrectedCsvExportFilesHelp": "Réponses au questionnaire, avec un fichier par groupe d'objets trouvé dans les réponses. Les réponses corrigées sont utilisées pour les entrevues qui en ont, les réponses originales pour les autres. Les entrevues invalides et incomplètes sont incluses.",
         "PrepareParticipantCsvExportFiles": "Préparer les fichiers CSV par objet (réponses originales)",
+        "PrepareParticipantCsvExportFilesHelp": "Mêmes fichiers que l'export précédent, avec les réponses originales des participants, sans aucune correction.",
+        "PrepareSurveyObjectsCsvExportFiles": "Préparer les fichiers CSV des objets d'enquête (réponses corrigées seulement)",
+        "PrepareSurveyObjectsCsvExportFilesHelp": "Objets d'enquête créés à partir des réponses corrigées, avec leurs attributs validés : un fichier pour chacun des types entrevue, domicile, ménage, personne, séjour, lieu visité, déplacement et segment.\n\nNe sont pas exportés :\n\n- les entrevues jamais auditées, qui n'ont pas de réponses corrigées;\n- les entrevues dont au moins un objet n'a pas pu être créé, exclues en entier;\n- les lieux de travail et d'études, les véhicules, les jonctions et les calculs de chemin.\n\nLes entrevues exclues se trouvent dans les fichiers des deux autres exports.",
+        "ShowExportHelp": "Aide sur l'export : {{exportName}}",
         "RefreshExportFiles": "Rafraîchir la liste des fichiers d'export",
         "ServerErrorForExport": "Erreur de serveur pendant la préparation des fichiers d'export",
         "ServerExportForbidden": "Vous n'êtes pas autorisé à exporter les données d'enquête",
