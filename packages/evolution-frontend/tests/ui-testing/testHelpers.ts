@@ -67,10 +67,11 @@ type SimpleAction = (params: CommonTestParameters) => void;
 type ContinueWithInvalidEntriesTest = (
     params: { text: Text; currentPageUrl: Url; nextPageUrl: Url } & CommonTestParameters
 ) => void;
-type FetchGoogleMapsApiResponse = (params: {
+type SearchPlacesOnMap = (params: {
     context: CommonTestParameters['context'];
     refreshButton: Locator;
-}) => Promise<{ results: any[]; resultsNumber: number }>;
+    newPath: string;
+}) => Promise<number>;
 type InputRadioTest = (params: PathAndValueBoolOrStr & CommonTestParameters) => void | Promise<Locator>;
 type InputSelectTest = (params: PathAndValue & CommonTestParameters) => void;
 type InputMultiSelectTest = (params: { path: Path; values: Value | Value[] } & CommonTestParameters) => void;
@@ -726,73 +727,49 @@ export const inputCheckboxTest: InputCheckboxTest = ({ context, path, values }) 
 };
 
 /**
- * Fetch and parse the Google Maps API response.
+ * Click the place search button of a mapFindPlace widget and wait for the
+ * search to complete.
+ *
+ * The search is complete when the widget shows the results select, or when the
+ * question becomes valid if a single result was confirmed automatically. We do
+ * not wait for the Google Places network response: the Google Maps client
+ * answers a search identical to a previous one from its own cache, without any
+ * request, so searching the same place in many widgets never got a response.
+ * The click is retried if the search does not complete, for example when the
+ * map is not ready yet.
  *
  * @param {Object} params - The parameters for the function.
  * @param {Object} params.context - The test context.
- * @param {Object} params.refreshButton - The button element to refresh the map.
- * @returns {Promise<{results: Array<Object>, resultsNumber: number}>} - The parsed response body and the number of results.
+ * @param {Object} params.refreshButton - The button that searches the places.
+ * @param {string} params.newPath - The path to the map widget, with the object
+ * ids.
+ * @returns {Promise<number>} - The number of places found, 0 if no results
+ * select is shown.
  */
-const fetchGoogleMapsApiResponse: FetchGoogleMapsApiResponse = async ({ context, refreshButton }) => {
-    // Wait for a response from the Google Maps API with retry logic.
-    const waitForResponse = async () => {
-        let attempts = 1; // Number of attempts
-        const maxRetries = 3; // Maximum number of retries
-
-        // Attempt to fetch the response from the Google Maps API.
-        const attemptFetch = async () => {
-            try {
-                // Wait for the response from the Google Maps API
-                const [response] = await Promise.all([
-                    context.page.waitForResponse(
-                        (response) =>
-                            response.url().includes('maps.googleapis.com/maps/api/place') && response.status() === 200,
-                        { timeout: 5000 } // Set a timeout of 5 seconds
-                    ),
-                    refreshButton.click() // Click the refresh button to trigger the API call
-                ]);
-                return response; // Return the response if successful
-            } catch (error) {
-                if (attempts <= maxRetries) {
-                    console.log(
-                        `No response received from Google Maps, retrying in 5 seconds... (Attempt ${attempts} of ${maxRetries} with error ${error?.message})`
-                    );
-                    attempts++;
-                    await new Promise((resolve) => setTimeout(resolve, 5000)); // Wait for 5 seconds before retrying
-                    return attemptFetch(); // Retry the fetch
-                } else {
-                    throw new Error('Max retries reached. No response received.'); // Throw an error if max retries are reached
-                }
-            }
-        };
-
-        return attemptFetch(); // Start the first attempt
-    };
-
-    const response = await waitForResponse(); // Wait for a response from the Google Maps API with retry logic.
-    const responseBody = await response.text(); // Get the response body as text
-    let responseBodyJson; // Store the response body as JSON
-    try {
-        // Check if the response body starts with this specific pattern.
-        // Google Maps API returns a JSONP response, which needs to be parsed differently
-        const jsonpPrefix = '/**/_xdc_'; // JSONP prefix
-        if (responseBody.startsWith(jsonpPrefix)) {
-            // Strip out the JSONP prefix and the trailing semicolon
-            const jsonpStartIndex = responseBody.indexOf('(') + 1; // Start index of the JSONP response
-            const jsonpEndIndex = responseBody.lastIndexOf(')'); // End index of the JSONP response
-            const jsonString = responseBody.substring(jsonpStartIndex, jsonpEndIndex); // Extract the JSONP response
-            responseBodyJson = JSON.parse(jsonString); // Parse the JSONP response as JSON
-        } else {
-            responseBodyJson = JSON.parse(responseBody); // Parse the response body as JSON
+const searchPlacesOnMap: SearchPlacesOnMap = async ({ context, refreshButton, newPath }) => {
+    const resultsSelect = context.page.locator(`id=survey-question__${newPath}_mapFindPlace`);
+    const validQuestion = context.page
+        .locator('div.apptr__form-container.question-valid')
+        .filter({ has: refreshButton });
+    const searchCompleted = resultsSelect.or(validQuestion).first();
+    const maxAttempts = 3;
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        await refreshButton.click();
+        try {
+            await expect(searchCompleted).toBeVisible({ timeout: 4000 });
+            break;
+        } catch (error) {
+            console.log(
+                `Place search for ${newPath} did not complete (attempt ${attempt} of ${maxAttempts}): ${(error as Error).message}`
+            );
         }
-    } catch (error) {
-        console.error('Failed to parse response body as JSON:', error);
     }
 
-    const results = responseBodyJson.results || [];
-    const resultsNumber = results.length;
-
-    return { results, resultsNumber };
+    if ((await resultsSelect.count()) === 0) {
+        return 0;
+    }
+    // Do not count the blank option of the select
+    return resultsSelect.locator('option:not([value=""])').count();
 };
 
 /**
@@ -811,17 +788,11 @@ export const inputMapFindPlaceTest: InputMapFindPlaceTest = ({ context, path }) 
         await refreshButton.scrollIntoViewIfNeeded();
         await refreshButton.isVisible();
 
-        // Fetch the Google Maps API response
-        const { resultsNumber } = await fetchGoogleMapsApiResponse({ context, refreshButton });
+        // Search the places and wait for the results
+        const resultsNumber = await searchPlacesOnMap({ context, refreshButton, newPath });
 
         const questionContainer = context.page.locator('div.apptr__form-container').filter({ has: refreshButton });
         await questionContainer.scrollIntoViewIfNeeded();
-
-        // If no result, click again
-        if (resultsNumber === 0) {
-            console.log('Map not ready, clicking again...');
-            await refreshButton.click();
-        }
 
         // If there is at least one result and the select input exists, select the first option and confirm.
         // Note: This is necessary because sometimes the select input appears with only one available option.
