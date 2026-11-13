@@ -68,6 +68,7 @@ Python:
 * kdbush resolution to 3.0
 * @typescript-eslint/eslint-plugin
 * @typescript-eslint/parser
+* cross-env
 
 ## [0.6.7] - 2026-10-27
 
