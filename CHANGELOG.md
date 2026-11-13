@@ -69,6 +69,7 @@ Python:
 * @typescript-eslint/eslint-plugin
 * @typescript-eslint/parser
 * cross-env
+* clean-webpack-plugin
 
 ## [0.6.7] - 2026-10-27
 

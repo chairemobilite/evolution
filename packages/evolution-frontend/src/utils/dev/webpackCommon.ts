@@ -17,8 +17,6 @@ import CopyWebpackPlugin from 'copy-webpack-plugin';
 // eslint-disable-next-line n/no-unpublished-import
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 // eslint-disable-next-line n/no-unpublished-import
-import { CleanWebpackPlugin } from 'clean-webpack-plugin';
-// eslint-disable-next-line n/no-unpublished-import
 import CompressionPlugin from 'compression-webpack-plugin';
 
 export type ParticipantWebpackConfigParams = CommonWebpackConfigParams & {
@@ -144,7 +142,9 @@ export const createCommonWebpackConfig = (params: WebpackGenerationConfigParams)
         output: {
             path: outputPath,
             filename: params.outputFilename,
-            publicPath: '/dist/'
+            publicPath: '/dist/',
+            // Remove the files of previous production builds
+            clean: isProduction
         },
         watchOptions: {
             // In dev, watch evolution-frontend and evolution-common so CSS/TS changes trigger rebuild
@@ -227,12 +227,6 @@ export const createCommonWebpackConfig = (params: WebpackGenerationConfigParams)
             ]
         },
         plugins: [
-            // Remove any previously generated or intermediary files after production builds
-            new CleanWebpackPlugin({
-                dry: !isProduction,
-                verbose: true,
-                cleanAfterEveryBuildPatterns: ['**/*', '!images/**', '!icons/**', '!*.html']
-            }),
             // Create the HTML file to serve the webpack bundles, using the provided template and injecting the generated bundles
             ...params.htmlPages.map((htmlPage) => new HtmlWebpackPlugin(htmlPage)),
             // Extract CSS in production in separate files, but keep it in the JS bundle in dev for faster builds and hot reload
