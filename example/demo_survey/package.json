@@ -25,7 +25,7 @@
         "start:debug": "cross-env \"DEBUG=express:*\" yarn node --trace-warnings lib/server.js --max-old-space-size=4096",
         "test": "cross-env NODE_ENV=test jest --config=jest.config.js",
         "test:ui": "LOCALE_DIR=$(pwd)/locales npx playwright test",
-        "format": "prettier-eslint \"./**/*.{ts,tsx}\" --write",
+        "format": "prettier --write --log-level warn \"./src/**/*.{ts,tsx}\" && eslint --fix --quiet \"./src/**/*.{ts,tsx}\"",
         "lint": "eslint ."
     },
     "dependencies": {
@@ -53,20 +53,20 @@
         "uuid": "^14.0.3"
     },
     "devDependencies": {
+        "@eslint/js": "^10.0.1",
         "@playwright/test": "^1.61.1",
         "@types/geojson": "^7946.0.16",
         "@types/lodash": "^4.17.23",
         "@types/node": "^24.10.4",
-        "@typescript-eslint/eslint-plugin": "^8.50.0",
-        "@typescript-eslint/parser": "^8.50.0",
         "cross-env": "^10.1.0",
-        "eslint": "^8.57.1",
-        "eslint-plugin-n": "^15.7.0",
+        "eslint": "^10.13.0",
+        "eslint-plugin-n": "^18.5.0",
         "jest": "^30.5.2",
         "jest-each": "^30.5.2",
-        "prettier-eslint-cli": "^8.0.1",
+        "prettier": "^3.9.10",
         "rimraf": "^6.1.4",
         "typescript": "^5.9.3",
+        "typescript-eslint": "^8.72.0",
         "webpack": "^5.104.1",
         "webpack-cli": "^6.0.1"
     }

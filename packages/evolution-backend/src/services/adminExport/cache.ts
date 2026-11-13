@@ -31,7 +31,7 @@ const mkDirByPathSync = (targetDir: string, { isRelativeToScript = false } = {})
             // To avoid `EISDIR` error on Mac and `EACCES`-->`ENOENT` and `EPERM` on Windows.
             if (err.code === 'ENOENT') {
                 // Throw the original parentDir error on curDir `ENOENT` failure.
-                throw new Error(`EACCES: permission denied, mkdir '${parentDir}'`);
+                throw new Error(`EACCES: permission denied, mkdir '${parentDir}'`, { cause: err });
             }
 
             const caughtErr = ['EACCES', 'EPERM', 'EISDIR'].indexOf(err.code) > -1;
@@ -58,7 +58,7 @@ const createDirectoryIfNotExists = (absoluteDirectoryPath: string): void => {
 
 export const getCache = (cacheName: string, defaultContent: object = { updatedAt: 0 }): any => {
     const cacheFilePath = setupCacheFile(cacheName);
-    let cacheContent: object | null = null;
+    let cacheContent: object | null;
     if (fs.existsSync(cacheFilePath)) {
         cacheContent = JSON.parse(fs.readFileSync(cacheFilePath, { encoding: 'utf8' }));
     } else {
