@@ -46,7 +46,7 @@ $desktop-breakpoint: 50rem;
       width: 100%;
     }
   }
-  
+
   .survey-visited-place-item-description {
     @media only screen and (max-width: $desktop-breakpoint) {
       max-width: 80%;
@@ -81,7 +81,7 @@ $desktop-breakpoint: 50rem;
   @media only screen and (max-width: $desktop-breakpoint) {
     flex-flow: row wrap;
   }
-  
+
   .survey-visited-place-item-element, .survey-trip-item-element {
     display: flex;
     align-items: center;
@@ -139,7 +139,7 @@ $desktop-breakpoint: 50rem;
     width: 100%;
     //overflow-x: hidden;
     //height: 2em;
-    
+
     p {
       margin-top: 0.3em;
       margin-bottom: 0;
@@ -151,12 +151,12 @@ $desktop-breakpoint: 50rem;
       position: relative;
       //overflow-x: hidden;
       height: 2em;
-      background: rgba(115, 147, 184, 0.5) url(~evolution-frontend/lib/assets/images/interface_icons/carret-right-white.svg);
+      background: rgba(115, 147, 184, 0.5) url(evolution-frontend/lib/assets/images/interface_icons/carret-right-white.svg);
       background-size: 1.2em 1.2em;
       background-repeat: repeat-x;
       background-position: center left;
       //border: 1px solid rgba(0,0,0,0.05);
-      
+
       .survey-visited-places-schedule-visited-place {
         position: absolute;
         //border-left: 1px solid rgba(0,0,0,0.3);
@@ -169,19 +169,19 @@ $desktop-breakpoint: 50rem;
         z-index: 1;
 
         //box-shadow: -1em 0 1em rgba(0,0,0,0.5);
-        
+
         p {margin-bottom: 0; margin-top: 0;}
 
         .survey-visited-places-schedule-visited-place-icon {
           text-align: center;
         }
-        
+
         &:hover, &:active, &:focus {
           min-width: 10em;
           height: 4em;
           z-index: 2;
         }
-  
+
       }
 
       .survey-visited-places-schedule-visited-place.hand-cursor-on-hover:hover {
@@ -190,6 +190,6 @@ $desktop-breakpoint: 50rem;
     }
   }
 
-  
+
 
 }
