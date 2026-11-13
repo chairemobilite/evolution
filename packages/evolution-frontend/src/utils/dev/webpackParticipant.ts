@@ -31,8 +31,8 @@ export const createParticipantWebpackConfig = (params: ParticipantWebpackConfigP
         ? `${namePartOfOutputFilename}-${params.config.projectShortname}-bundle-${currentNodeEnv}.[contenthash].js`
         : `${namePartOfOutputFilename}-${params.config.projectShortname}-bundle-${currentNodeEnv}.dev.js`;
     const outputCssFileName = isProduction
-        ? `survey-${params.config.projectShortname}-styles.[contenthash].css`
-        : `survey-${params.config.projectShortname}-styles.dev.css`;
+        ? `${namePartOfOutputFilename}-${params.config.projectShortname}-styles.[contenthash].css`
+        : `${namePartOfOutputFilename}-${params.config.projectShortname}-styles.dev.css`;
 
     return createCommonWebpackConfig({
         env: params.env,

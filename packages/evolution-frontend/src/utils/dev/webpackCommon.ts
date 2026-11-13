@@ -11,8 +11,6 @@ import type { Configuration, WebpackPluginInstance } from 'webpack';
 // eslint-disable-next-line n/no-unpublished-import
 import webpack from 'webpack';
 // eslint-disable-next-line n/no-unpublished-import
-import MiniCssExtractPlugin from 'mini-css-extract-plugin';
-// eslint-disable-next-line n/no-unpublished-import
 import CopyWebpackPlugin from 'copy-webpack-plugin';
 // eslint-disable-next-line n/no-unpublished-import
 import HtmlWebpackPlugin from 'html-webpack-plugin';
@@ -82,8 +80,6 @@ export const createCommonWebpackConfig = (params: WebpackGenerationConfigParams)
 
     console.log(`building js for project ${params.config.projectShortname} for env ${currentNodeEnv}`);
 
-    // Determine which style loader to use
-    const styleLoader = isProduction ? MiniCssExtractPlugin.loader : 'style-loader';
     // Get root directories of evolution-frontend and chaire-lib-frontend for assets and locales file paths
     const evolutionFrontendRoot = path.dirname(require.resolve('evolution-frontend/package.json'));
     const chaireLibFrontendRoot = path.dirname(require.resolve('chaire-lib-frontend/package.json'));
@@ -142,9 +138,15 @@ export const createCommonWebpackConfig = (params: WebpackGenerationConfigParams)
         output: {
             path: outputPath,
             filename: params.outputFilename,
+            cssFilename: params.outputCssFileName,
             publicPath: '/dist/',
             // Remove the files of previous production builds
             clean: isProduction
+        },
+        experiments: {
+            // Webpack's built-in CSS support resolves @import and url() and emits the .css file,
+            // replacing css-loader, style-loader and mini-css-extract-plugin
+            css: true
         },
         watchOptions: {
             // In dev, watch evolution-frontend and evolution-common so CSS/TS changes trigger rebuild
@@ -177,16 +179,15 @@ export const createCommonWebpackConfig = (params: WebpackGenerationConfigParams)
                     type: 'asset'
                 },
                 {
+                    // Plain CSS (including files @imported from SCSS) is handled natively by webpack
+                    test: /\.css$/,
+                    type: 'css'
+                },
+                {
                     // Load SCSS files
-                    test: /\.s?css$/,
+                    test: /\.scss$/,
+                    type: 'css',
                     use: [
-                        styleLoader, // In dev, style-loader injects CSS via <style> so SCSS changes apply after reload without a separate .css file
-                        {
-                            loader: 'css-loader',
-                            options: {
-                                sourceMap: true
-                            }
-                        },
                         {
                             loader: 'sass-loader',
                             options: {
@@ -224,11 +225,6 @@ export const createCommonWebpackConfig = (params: WebpackGenerationConfigParams)
         plugins: [
             // Create the HTML file to serve the webpack bundles, using the provided template and injecting the generated bundles
             ...params.htmlPages.map((htmlPage) => new HtmlWebpackPlugin(htmlPage)),
-            // Extract CSS in production in separate files, but keep it in the JS bundle in dev for faster builds and hot reload
-            // FIXME This may not be required in dev mode
-            new MiniCssExtractPlugin({
-                filename: params.outputCssFileName
-            }),
             // Define environment variables to be used in the build, including the project configuration
             new webpack.DefinePlugin(definePluginValues),
             // FIXME Confirm what copilot says: Merge chunks in production to reduce the number of generated files and optimize loading, but keep chunks separate in dev for faster builds and better debugging
@@ -298,6 +294,9 @@ export const createCommonWebpackConfig = (params: WebpackGenerationConfigParams)
                 ...(isProduction
                     ? {}
                     : {
+                        // The app imports evolution-frontend styles by package name, so alias the
+                        // package path as well as the resolved directory below
+                        'evolution-frontend/lib/styles': path.join(evolutionFrontendRoot, 'src', 'styles'),
                         [path.join(evolutionFrontendRoot, 'lib', 'styles')]: path.join(
                             evolutionFrontendRoot,
                             'src',

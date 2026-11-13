@@ -71,6 +71,9 @@ Python:
 * cross-env
 * clean-webpack-plugin
 * ts-shader-loader
+* css-loader
+* mini-css-extract-plugin
+* style-loader
 
 ## [0.6.7] - 2026-10-27
 
