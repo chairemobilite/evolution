@@ -49,6 +49,14 @@ Nodejs:
 * copy-webpack-plugin: 13.0.1 => 14.0.0
 * ts-loader: 9.5.4 => 9.6.2
 * i18next-fs-backend: 2.6.4 => 2.6.6
+* eslint: 8.57.1 => 10.13.0
+* prettier-eslint-cli: 8.0.1 => prettier: 3.9.10
+* eslint-plugin-n: 15.7.0 => 18.5.0
+* typescript-eslint: => 8.72.0
+* @eslint/js: => 10.0.1
+* typescript-eslint: => 8.72.0
+* eslint-plugin-react: 7.37.2 => 7.37.5
+* globals: => 17.13.0
 
 Python:
 
@@ -58,6 +66,8 @@ Python:
 
 * copyfiles
 * kdbush resolution to 3.0
+* @typescript-eslint/eslint-plugin
+* @typescript-eslint/parser
 
 ## [0.6.7] - 2026-10-27
 

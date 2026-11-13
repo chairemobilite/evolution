@@ -46,7 +46,7 @@ export const checkConditionals = ({
 }): [boolean, ValueType] => {
     let mathExpression = ''; // Construct the math expression to be evaluated
     let parenthesesBalance = 0; // Running balance: '(' +1, ')' -1. Must never go negative and must end at 0.
-    let parenthesesInvalid = false; // If true, parentheses are unbalanced.
+    const parenthesesInvalid = false; // If true, parentheses are unbalanced.
 
     // Iterate through the provided conditionals
     for (let index = 0; index < conditionals.length; index++) {
@@ -60,7 +60,6 @@ export const checkConditionals = ({
         } else if (parentheses === ')') {
             parenthesesBalance -= 1;
             if (parenthesesBalance < 0) {
-                parenthesesInvalid = true;
                 throw new Error(
                     `checkConditionals: Unbalanced parentheses (closing without opening) in conditionals (index=${index})`
                 );
