@@ -768,8 +768,7 @@ export class NavigationService {
             if (repeatedBlock) {
                 // Get the current active object in the repeated block
                 const activeObjectId = getResponse(interview, repeatedBlock.activeSurveyObjectPath) as
-                    | string
-                    | undefined;
+                    string | undefined;
 
                 if (activeObjectId !== targetSection.iterationContext[targetSection.iterationContext.length - 1]) {
                     // Need to update the active object in the interview

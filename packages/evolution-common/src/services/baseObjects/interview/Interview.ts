@@ -457,8 +457,7 @@ export class Interview extends Uuidable {
      */
     static unserialize(
         params:
-            | ExtendedInterviewAttributesWithComposedObjects
-            | SerializedExtendedInterviewAttributesWithComposedObjects,
+            ExtendedInterviewAttributesWithComposedObjects | SerializedExtendedInterviewAttributesWithComposedObjects,
         surveyObjectsRegistry: SurveyObjectsRegistry,
         interviewAttributes?: rawInterviewAttributes
     ): Interview {

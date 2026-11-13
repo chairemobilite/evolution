@@ -40,10 +40,7 @@ export type AnswerStatusValue = (typeof answerStatusValues)[number];
 // those needs the questionnaire flow to be followed and stored somewhere, so
 // they take a design discussion of their own.
 export type AnswerStatus<T> =
-    | { status: 'answered'; value: T }
-    | { status: 'dont_know' }
-    | { status: 'refusal' }
-    | { status: 'not_applicable' };
+    { status: 'answered'; value: T } | { status: 'dont_know' } | { status: 'refusal' } | { status: 'not_applicable' };
 
 /**
  * Non-response values a questionnaire may store in place of an answer, and the

@@ -48,10 +48,10 @@
         "passport": "^0.7.0",
         "passport-local": "^1.0.0",
         "request-ip": "^3.3.0",
-        "serve-favicon": "^2.5.0",
+        "serve-favicon": "^2.5.1",
         "slugify": "^1.6.6",
-        "uuid": "^11.1.0",
-        "workerpool": "^6.5.1",
+        "uuid": "^14.0.3",
+        "workerpool": "^10.0.0",
         "yargs": "^18.0.0"
     },
     "devDependencies": {
@@ -68,15 +68,15 @@
         "cross-env": "^10.1.0",
         "eslint": "^8.57.1",
         "eslint-plugin-n": "^15.7.0",
-        "jest": "^30.2.0",
-        "jest-each": "^30.2.0",
+        "jest": "^30.5.2",
+        "jest-each": "^30.5.2",
         "jest-fetch-mock": "^3.0.3",
         "mockdate": "^3.0.5",
         "prettier-eslint-cli": "^8.0.1",
-        "rimraf": "^6.1.2",
+        "rimraf": "^6.1.4",
         "stream-mock": "^2.0.5",
         "supertest": "^7.1.4",
-        "ts-jest": "^29.4.6",
+        "ts-jest": "^29.4.15",
         "typescript": "^5.9.3"
     }
 }

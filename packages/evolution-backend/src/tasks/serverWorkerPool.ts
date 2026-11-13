@@ -4,10 +4,10 @@
  * This file is licensed under the MIT License.
  * License text available at https://opensource.org/licenses/MIT
  */
-import workerpool, { WorkerPool } from 'workerpool';
+import workerpool, { type Pool } from 'workerpool';
 import { getRegisteredServerConfigs } from '../config/serverConfigRegistry';
 
-let pool: WorkerPool | undefined = undefined;
+let pool: Pool | undefined = undefined;
 
 export const startPool = () => {
     // TODO: Add a server preference for the maximum number of workers
@@ -22,11 +22,9 @@ export const startPool = () => {
     });
 };
 
-export const execJob = async (
-    ...parameters: Parameters<WorkerPool['exec']>
-): Promise<ReturnType<WorkerPool['exec']>> => {
+export const execJob = async (...parameters: Parameters<Pool['exec']>): Promise<ReturnType<Pool['exec']>> => {
     if (pool === undefined) {
         startPool();
     }
-    return pool.exec(...parameters);
+    return pool!.exec(...parameters);
 };
