@@ -44,20 +44,16 @@ exports[`Button widget: behavioral tests Button click, with modal, cancelled 1`]
     <div
       class="center"
     >
-      <markdown
-        remarkplugins="remark-gfm,[object Object]"
-      >
+      <p>
         popupTitle
-      </markdown>
+      </p>
     </div>
     <div
       class="confirm-popup"
     >
-      <markdown
-        remarkplugins="remark-gfm,[object Object]"
-      >
+      <p>
         popupContent
-      </markdown>
+      </p>
     </div>
     <div
       class="tr__form-buttons-container _center"

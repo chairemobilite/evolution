@@ -1203,7 +1203,7 @@ export const getVisitedPlaceGeography = function ({
     interview: UserInterviewAttributes;
     person: Person;
 }): GeoJSON.Feature<GeoJSON.Point> | null {
-    let geojson: GeoJSON.Feature<GeoJSON.Point> | null = null;
+    let geojson: GeoJSON.Feature<GeoJSON.Point> | null;
     if (visitedPlace.activity === 'home') {
         geojson = getResponse(interview, 'home.geography', null) as GeoJSON.Feature<GeoJSON.Point> | null;
     } else {

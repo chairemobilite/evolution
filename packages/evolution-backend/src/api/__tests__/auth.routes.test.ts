@@ -6,7 +6,6 @@
  */
 import express, { RequestHandler } from 'express';
 import request from 'supertest';
-import session from 'supertest-session';
 import passport from 'passport';
 
 import authRoutes from '../auth.routes';
@@ -122,7 +121,7 @@ describe('Auth by field route', () => {
             error: null,
             user: validUser
         };
-        const res = await session(app)
+        const res = await request(app)
             .post('/auth-by-field')
             .send({ field: validFieldValue })
             .set('Accept', 'application/json')
@@ -140,7 +139,7 @@ describe('Auth by field route', () => {
             error: null,
             user: validUser
         };
-        const res = await session(app)
+        const res = await request(app)
             .post('/auth-by-field')
             .send({ field: validFieldValue })
             .set('Accept', 'application/json')
@@ -161,7 +160,7 @@ describe('Auth by field route', () => {
             error: null,
             user: validUser
         };
-        const res = await session(app)
+        const res = await request(app)
             .post('/auth-by-field')
             .send({ field: validFieldValue })
             .set('Accept', 'application/json')
@@ -178,7 +177,7 @@ describe('Auth by field route', () => {
             error: 'InvalidData',
             user: false
         };
-        const res = await session(app)
+        const res = await request(app)
             .post('/auth-by-field')
             .send({ field: 'invalid-value' })
             .set('Accept', 'application/json')
@@ -196,7 +195,7 @@ describe('Auth by field route', () => {
             user: false,
             statusCode: 401
         };
-        const res = await session(app)
+        const res = await request(app)
             .post('/auth-by-field')
             .send({ field: validFieldValue })
             .set('Accept', 'application/json')

@@ -550,8 +550,7 @@ export type InfoMapWidgetConfig = {
 
 export type GroupNameLangData = {
     [lang: string]:
-        | string
-        | ((object: unknown, sequence: number, interview?: UserInterviewAttributes, path?: string) => string);
+        string | ((object: unknown, sequence: number, interview?: UserInterviewAttributes, path?: string) => string);
 };
 
 export type GroupNameTranslatableStringFunction = (
@@ -613,8 +612,4 @@ export type GroupConfig = {
 };
 
 export type WidgetConfig =
-    | QuestionWidgetConfig
-    | TextWidgetConfig
-    | GroupConfig
-    | ButtonWidgetConfig
-    | InfoMapWidgetConfig;
+    QuestionWidgetConfig | TextWidgetConfig | GroupConfig | ButtonWidgetConfig | InfoMapWidgetConfig;

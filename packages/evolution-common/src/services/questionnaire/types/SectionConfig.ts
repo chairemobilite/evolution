@@ -595,8 +595,7 @@ export type SegmentSectionConfiguration = {
      * these fields based on their position in the journey.
      */
     fieldsWithGeojsonPoint?: ({ fieldName: string } & (
-        | { type: 'point' }
-        | { type: 'fromCollection'; featureCollection: GeoJSON.FeatureCollection<GeoJSON.Point> }
+        { type: 'point' } | { type: 'fromCollection'; featureCollection: GeoJSON.FeatureCollection<GeoJSON.Point> }
     ))[];
     /**
      * Maps a widget name to a function run when the label is displayed to allow
