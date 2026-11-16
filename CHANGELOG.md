@@ -5,14 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased (0.6.8)]
+## [Unreleased (0.6.9)]
 
 ### Added
 
 ### Changed
 
-- Generator: the Excel integrity check now validates the Choices sheet (fixes [#2039](https://github.com/chairemobilite/evolution/issues/2039))
-- Switch from Yarn 1 to Yarn 4 ([#2158](https://github.com/chairemobilite/evolution/pull/2158))
+### Deprecated
+
+### Removed
+
+### Fixed
+
+### Security
+
+### Dependency updates
+
+
+## [0.6.8] - 2026-11-16
+
+### Added
+
+### Changed
+
+- Generator: the Excel integrity check now validates the Choices sheet (fixes [#2039](https://github.com/chairemobilite/evolution/issues/2039), [#2046](https://github.com/chairemobilite/evolution/issues/2046))
+- **Breaking** Switch from Yarn 1 to Yarn 4 ([#2158](https://github.com/chairemobilite/evolution/pull/2158))
 - **Breaking** Generator: the InputRange sheet is validated with the survey definition, and its columns are renamed: `inputRangeName` → `input_range_name`, `labelFrMin`/`labelEnMin` → `label_min::fr`/`label_min::en` (same for `Middle` and `Max`), `minValue` → `min_value`, `maxValue` → `max_value`, `unitFr`/`unitEn` → `unit::fr`/`unit::en` (fixes [#2040](https://github.com/chairemobilite/evolution/issues/2040), [#2047](https://github.com/chairemobilite/evolution/issues/2047))
 - Admin: the interview map uses MapLibre GL 6 and the animated path layers of chaire-lib-frontend instead of deck.gl (fixes [#2197](https://github.com/chairemobilite/evolution/issues/2197))
 
@@ -25,6 +42,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - Generator: `poetry install` fails with Python 3.14 (fixes [#2170](https://github.com/chairemobilite/evolution/issues/2170))
+- use text-wrap pretty on question labels to avoid single characters on line (fixes [#1129](https://github.com/chairemobilite/evolution/issues/1129))
 
 ### Security
 
