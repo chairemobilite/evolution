@@ -17,6 +17,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Map find place widget: a map displayed with an existing value opens at the zoom of the value, or close to it when the value has no zoom, instead of the default zoom of the widget (fixes [#2217](https://github.com/chairemobilite/evolution/issues/2217))
+
 ### Security
 
 ### Dependency updates

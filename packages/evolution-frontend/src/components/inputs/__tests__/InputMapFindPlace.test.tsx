@@ -125,6 +125,46 @@ describe('Render InputMapPoint with various parameters', () => {
 
 });
 
+describe('Initial zoom of the map', () => {
+    const widgetDefaultZoom = 10;
+    const widgetMaxZoom = 18;
+    const testWidgetConfig = { ...baseWidgetConfig, defaultZoom: widgetDefaultZoom, maxZoom: widgetMaxZoom };
+    const point = { type: 'Point' as const, coordinates: [-73.1, 45.02] };
+
+    test.each([
+        { description: 'no value: default zoom of the widget', value: undefined, expectedZoom: widgetDefaultZoom },
+        {
+            description: 'value without zoom: zoom close to the value',
+            value: { type: 'Feature' as const, properties: { lastAction: 'preGeocoded' }, geometry: point },
+            expectedZoom: 16
+        },
+        {
+            description: 'value with a zoom: zoom of the value',
+            value: { type: 'Feature' as const, properties: { zoom: 14 }, geometry: point },
+            expectedZoom: 14
+        },
+        {
+            description: 'value with a zoom above the maximum: maximum zoom of the widget',
+            value: { type: 'Feature' as const, properties: { zoom: 20 }, geometry: point },
+            expectedZoom: widgetMaxZoom
+        }
+    ])('$description', ({ value, expectedZoom }) => {
+        render(
+            <InputMapFindPlace
+                id={'test'}
+                onValueChange={() => { /* nothing to do */}}
+                widgetConfig={testWidgetConfig}
+                value={value}
+                inputRef={React.createRef()}
+                interview={interviewAttributes}
+                user={userAttributes}
+                path='foo.test'
+            />
+        );
+        expect(screen.getByTestId('mock-input-map')).toHaveAttribute('data-default-zoom', String(expectedZoom));
+    });
+});
+
 describe('Test geocoding requests', () => {
     const testId = 'test';
     const geocodingString = 'foo restaurant';
