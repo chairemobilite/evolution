@@ -9,6 +9,10 @@ import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import type { Person } from 'evolution-common/lib/services/baseObjects/Person';
 import type { Journey } from 'evolution-common/lib/services/baseObjects/Journey';
+import { Trip } from 'evolution-common/lib/services/baseObjects/Trip';
+import type { Segment } from 'evolution-common/lib/services/baseObjects/Segment';
+import type { VisitedPlace } from 'evolution-common/lib/services/baseObjects/VisitedPlace';
+import { SurveyObjectsRegistry } from 'evolution-common/lib/services/baseObjects/SurveyObjectsRegistry';
 import type { AuditForObject } from 'evolution-common/lib/services/audits/types';
 import { PersonPanel } from '../PersonPanel';
 import { SurveyObjectBox } from '../SurveyObjectBox';
@@ -55,17 +59,36 @@ const journeyUuid = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
 const tripUuid = 'cccccccc-cccc-4ccc-8ccc-cccccccccccc';
 const segmentUuid = 'dddddddd-dddd-4ddd-8ddd-dddddddddddd';
 
+/**
+ * A Trip between two partial places, with its times taken from the places as TripFactory does.
+ */
+const createTrip = ({
+    startPlace,
+    endPlace,
+    segments
+}: {
+    startPlace: Partial<VisitedPlace>;
+    endPlace: Partial<VisitedPlace>;
+    segments: Partial<Segment>[];
+}): Trip => {
+    const trip = new Trip({ _uuid: tripUuid }, new SurveyObjectsRegistry());
+    trip.startPlace = startPlace as VisitedPlace;
+    trip.endPlace = endPlace as VisitedPlace;
+    trip.segments = segments as Segment[];
+    trip.setupStartAndEndTimes();
+    return trip;
+};
+
 const person = { _uuid: personUuid } as Person;
 const journey = {
     _uuid: journeyUuid,
     visitedPlaces: [],
     trips: [
-        {
-            _uuid: tripUuid,
+        createTrip({
             startPlace: { endTime: 100 },
             endPlace: { startTime: 200 },
             segments: [{ _uuid: segmentUuid, mode: 'walk' }]
-        }
+        })
     ]
 } as unknown as Journey;
 
@@ -119,12 +142,11 @@ describe('PersonPanel transit stations', () => {
         const journeyWithStations = {
             ...journey,
             trips: [
-                {
-                    _uuid: tripUuid,
+                createTrip({
                     startPlace: { endTime: 100 },
                     endPlace: { startTime: 200 },
-                    segments: [{ _uuid: segmentUuid, mode, ...segment }]
-                }
+                    segments: [{ _uuid: segmentUuid, mode, ...segment } as Partial<Segment>]
+                })
             ]
         } as unknown as Journey;
 
@@ -157,12 +179,11 @@ describe('PersonPanel car passenger driver', () => {
         const journeyWithPassenger = {
             ...journey,
             trips: [
-                {
-                    _uuid: tripUuid,
+                createTrip({
                     startPlace: { endTime: 100 },
                     endPlace: { startTime: 200 },
-                    segments: [{ _uuid: segmentUuid, mode: 'carPassenger', ...segment }]
-                }
+                    segments: [{ _uuid: segmentUuid, mode: 'carPassenger', ...segment } as Partial<Segment>]
+                })
             ]
         } as unknown as Journey;
 
@@ -241,6 +262,96 @@ describe('PersonPanel visited place times', () => {
         );
 
         expect(getByText(/\(1h\)/)).toBeTruthy();
+    });
+});
+
+describe('PersonPanel trip bird distance and speed', () => {
+    const pointAt = (latitude: number): GeoJSON.Feature<GeoJSON.Point> => ({
+        type: 'Feature',
+        properties: {},
+        geometry: { type: 'Point', coordinates: [-73.6, latitude] }
+    });
+    const originGeography = pointAt(45.5);
+    const destinationGeography = pointAt(45.51);
+
+    test.each([
+        {
+            description: 'both geographies and a duration',
+            startPlace: { endTime: 3600, geography: originGeography },
+            endPlace: { startTime: 4200, geography: destinationGeography },
+            expectedText: '1. 1:001:10 (10 min) • 1112 m • 6.7 km/h',
+            expectedHoverTexts: [
+                ['1112 m', 'interviewStats.labels.trip.birdDistance'],
+                ['6.7 km/h', 'interviewStats.labels.trip.birdSpeed']
+            ]
+        },
+        {
+            description: 'a distance in a duration of 0 has an infinite speed',
+            startPlace: { endTime: 3600, geography: originGeography },
+            endPlace: { startTime: 3600, geography: destinationGeography },
+            expectedText: '1. 1:001:00 (0 min) • 1112 m • ∞ km/h',
+            expectedHoverTexts: [
+                ['1112 m', 'interviewStats.labels.trip.birdDistance'],
+                ['∞ km/h', 'interviewStats.labels.trip.birdSpeed']
+            ]
+        },
+        {
+            description: 'no distance in a duration of 0 has no speed',
+            startPlace: { endTime: 3600, geography: originGeography },
+            endPlace: { startTime: 3600, geography: originGeography },
+            expectedText: '1. 1:001:00 (0 min) • 0 m',
+            expectedHoverTexts: [['0 m', 'interviewStats.labels.trip.birdDistance']]
+        },
+        {
+            description: 'no distance in a duration has a speed of 0',
+            startPlace: { endTime: 3600, geography: originGeography },
+            endPlace: { startTime: 4200, geography: originGeography },
+            expectedText: '1. 1:001:10 (10 min) • 0 m • 0 km/h',
+            expectedHoverTexts: [
+                ['0 m', 'interviewStats.labels.trip.birdDistance'],
+                ['0 km/h', 'interviewStats.labels.trip.birdSpeed']
+            ]
+        },
+        {
+            description: 'no arrival time has no speed',
+            startPlace: { endTime: 3600, geography: originGeography },
+            endPlace: { geography: destinationGeography },
+            expectedText: '1. 1:00? • 1112 m',
+            expectedHoverTexts: [['1112 m', 'interviewStats.labels.trip.birdDistance']]
+        },
+        {
+            description: 'a missing geography has no distance nor speed',
+            startPlace: { endTime: 3600, geography: originGeography },
+            endPlace: { startTime: 4200 },
+            expectedText: '1. 1:001:10 (10 min)',
+            expectedHoverTexts: []
+        }
+    ])('$description', ({ startPlace, endPlace, expectedText, expectedHoverTexts }) => {
+        const journeyWithGeographies = {
+            ...journey,
+            trips: [createTrip({ startPlace, endPlace, segments: [] })]
+        } as unknown as Journey;
+
+        render(
+            <PersonPanel
+                person={person}
+                journey={journeyWithGeographies}
+                personId={personUuid}
+                selectPlace={jest.fn()}
+                selectTrip={jest.fn()}
+            />
+        );
+
+        // The SurveyObjectBox mock renders only its children, so the trip line is rendered from the props it received.
+        const tripBoxProps = mockSurveyObjectBox.mock.calls.find(([props]) => props.objectType === 'trip')![0];
+        const tripLine = 'selectableContent' in tripBoxProps ? tripBoxProps.selectableContent : undefined;
+        const { container } = render(<>{tripLine}</>);
+        expect(container.textContent).toEqual(expectedText);
+        const hoverTextByValue = Array.from(container.querySelectorAll('span[title]')).map((element) => [
+            element.textContent,
+            element.getAttribute('title')
+        ]);
+        expect(hoverTextByValue).toEqual(expectedHoverTexts);
     });
 });
 

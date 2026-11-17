@@ -174,6 +174,10 @@
                 "busLines": "Lignes de bus",
                 "stations": "Stations"
             },
+            "trip": {
+                "birdDistance": "Distance à vol d'oiseau",
+                "birdSpeed": "Vitesse à vol d'oiseau"
+            },
             "unitNumber": "#Unité",
             "yearsOld": "ans",
             "lastAction": "Dernière action",
