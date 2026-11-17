@@ -169,6 +169,10 @@
                 "busLines": "Bus lines",
                 "stations": "Stations"
             },
+            "trip": {
+                "birdDistance": "Bird distance",
+                "birdSpeed": "Bird speed"
+            },
             "unitNumber": "#Unit",
             "yearsOld": "years old",
             "lastAction": "Last action",

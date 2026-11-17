@@ -20,6 +20,7 @@ import {
 } from '@fortawesome/free-solid-svg-icons';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import { secondsSinceMidnightToTimeStr } from 'chaire-lib-common/lib/utils/DateTimeUtils';
+import { roundToDecimals } from 'chaire-lib-common/lib/utils/MathUtils';
 import steeringWheelSvg from '../../../assets/images/admin/steering-wheel-solid.svg';
 import { Person } from 'evolution-common/lib/services/baseObjects/Person';
 import { Journey } from 'evolution-common/lib/services/baseObjects/Journey';
@@ -81,6 +82,23 @@ const carPassengerDriverSummary = (
             {')'}
         </>
     );
+};
+
+/**
+ * Bird speed of a trip with its unit, rounded to one decimal.
+ * A distance travelled in a duration of 0 gives the infinity sign.
+ * @param trip Trip being summarized
+ * @returns The speed to display, or undefined when it cannot be calculated: a missing duration or
+ * geography, or no distance travelled in a duration of 0
+ */
+const birdSpeedSummary = (trip: Trip): string | undefined => {
+    const birdSpeedKph = trip.getBirdSpeedKph();
+    if (birdSpeedKph !== undefined) {
+        return `${roundToDecimals(birdSpeedKph, 1)} km/h`;
+    }
+    const birdDistanceMeters = trip.getBirdDistanceMeters();
+    const isInfinite = trip.getDurationSeconds() === 0 && birdDistanceMeters !== undefined && birdDistanceMeters > 0;
+    return isInfinite ? '∞ km/h' : undefined;
 };
 
 export interface PersonPanelProps {
@@ -203,6 +221,9 @@ export const PersonPanel = ({
             const startAt = trip.startPlace.endTime as number;
             const endAt = trip.endPlace.startTime as number;
             const duration = !_isBlank(startAt) && !_isBlank(endAt) ? endAt! - startAt! : undefined;
+            // Shown beside the duration, to compare with the bounds of the bird speed and short trip duration audits.
+            const birdDistanceMeters = trip.getBirdDistanceMeters();
+            const birdSpeed = birdSpeedSummary(trip);
 
             const tripSubtreeInheritedStatus = getInheritedStatusForDisplay(reviewDecisionStatusByObject, {
                 objectType: 'trip',
@@ -285,6 +306,20 @@ export const PersonPanel = ({
                             <FontAwesomeIcon icon={faArrowRight} />
                             {!_isBlank(endAt) ? secondsSinceMidnightToTimeStr(endAt) : '?'}
                             {duration !== undefined ? ` (${Math.ceil(duration / 60)} min)` : ''}
+                            {birdDistanceMeters !== undefined && (
+                                <>
+                                    {' • '}
+                                    <span title={t('interviewStats.labels.trip.birdDistance')}>
+                                        {birdDistanceMeters} m
+                                    </span>
+                                </>
+                            )}
+                            {birdSpeed !== undefined && (
+                                <>
+                                    {' • '}
+                                    <span title={t('interviewStats.labels.trip.birdSpeed')}>{birdSpeed}</span>
+                                </>
+                            )}
                         </>
                     }
                 >
