@@ -15,14 +15,16 @@ export const mockGeocodeMultiplePlaces = jest.fn();
 /**
  * Test double for GoogleMapAdapter: renders InfoWindow confirm so both
  * confirm entry points (map popup + below-map button) can be exercised.
+ * The zoom requested by the widget is rendered in the `data-default-zoom`
+ * attribute.
  */
-const MockInputMap: React.FC<MapWidgetProps> = ({ infoWindow, onMapReady }) => {
+const MockInputMap: React.FC<MapWidgetProps> = ({ infoWindow, onMapReady, defaultZoom }) => {
     React.useEffect(() => {
         onMapReady?.([0, 0, 0, 0]);
     }, [onMapReady]);
 
     return (
-        <div data-testid="mock-input-map">
+        <div data-testid="mock-input-map" data-default-zoom={defaultZoom}>
             {infoWindow ? (
                 <div data-testid="mock-info-window">
                     <div

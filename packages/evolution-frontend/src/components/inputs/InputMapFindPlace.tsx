@@ -42,6 +42,11 @@ const defaultSelectedMarkerUrl = '/dist/images/activities_icons/default_selected
 // Default max zoom and zoom
 const defaultZoom = 13;
 const defaultMaxZoom = 18;
+// Zoom of the map when the widget is displayed with a value that does not have
+// its own zoom, for example a point geocoded before the interview. Chosen by
+// us: at this level, the streets and buildings around the point are visible,
+// so the respondent can validate the location.
+const defaultZoomWithValue = 16;
 
 interface InputMapFindPlaceState {
     geocoding: boolean;
@@ -99,7 +104,9 @@ export class InputMapFindPlace extends React.Component<
             places: [],
             searchPlaceButtonWasMouseDowned: false,
             geocodingSpecificOptions: {},
-            renderGeoCodeButton: false
+            renderGeoCodeButton: false,
+            // Display an existing value at the zoom it was located with
+            currentZoom: props.value ? props.value.properties?.zoom || defaultZoomWithValue : undefined
         };
     }
 
