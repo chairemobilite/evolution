@@ -16,6 +16,7 @@ from helpers.generator_helpers import (
 from survey_definition.excel_survey_definition_reader import ExcelSurveyDefinitionReader
 from survey_definition.widgets_definition import WIDGET_REQUIRED_FIELD_NAMES
 from tests.mocked_excel import add_mocked_excel_sheet, create_mocked_excel_data
+from tests.parametrize_cases import cases
 
 MOCKED_EXCEL_FILE = "src/tests/references/test.xlsx"
 
@@ -562,6 +563,91 @@ class TestLoadSurveyDefinition:
             with pytest.raises(
                 Exception,
                 match="Missing expected header in Choices sheet: spreadChoicesName",
+            ):
+                load_survey_definition(ExcelSurveyDefinitionReader(MOCKED_EXCEL_FILE))
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+    VALID_VALIDATIONS_HEADERS = [
+        "validation_name",
+        "error_name",
+        "path",
+        "comparison_operator",
+        "value",
+        "error_message::fr",
+        "error_message::en",
+    ]
+
+    def test_validations_sheet_is_optional(self):
+        self._create_valid_workbook()
+        try:
+            survey_definition = load_survey_definition(
+                ExcelSurveyDefinitionReader(MOCKED_EXCEL_FILE)
+            )
+            assert len(survey_definition.validations) == 0
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+    def test_validations_sheet_is_read_by_column_name(self):
+        workbook = self._create_valid_workbook()
+        add_mocked_excel_sheet(
+            workbook,
+            "Validations",
+            [*self.VALID_VALIDATIONS_HEADERS, "is_warning"],
+            [
+                [
+                    "yearValidation",
+                    "required",
+                    "",
+                    "isBlank",
+                    "",
+                    "Requis",
+                    "Required",
+                    "",
+                ],
+                [
+                    "yearValidation",
+                    "tooLow",
+                    "",
+                    "<",
+                    1910,
+                    "Trop tôt",
+                    "Too early",
+                    True,
+                ],
+            ],
+        )
+        try:
+            validations = load_survey_definition(
+                ExcelSurveyDefinitionReader(MOCKED_EXCEL_FILE)
+            ).validations
+            assert [
+                (v.error_name, v.comparison_operator, v.value, v.is_warning)
+                for v in validations
+            ] == [("required", "isBlank", None, False), ("tooLow", "<", 1910, True)]
+            assert validations[1].error_message == {"fr": "Trop tôt", "en": "Too early"}
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+    @cases(
+        dict(id="validation_name", missing_header="validation_name"),
+        dict(id="error_name", missing_header="error_name"),
+        dict(id="path", missing_header="path"),
+        dict(id="comparison_operator", missing_header="comparison_operator"),
+        dict(id="value", missing_header="value"),
+    )
+    def test_validations_sheet_needs_its_required_headers(self, missing_header):
+        workbook = self._create_valid_workbook()
+        add_mocked_excel_sheet(
+            workbook,
+            "Validations",
+            [h for h in self.VALID_VALIDATIONS_HEADERS if h != missing_header],
+            [],
+        )
+        try:
+            with pytest.raises(
+                Exception,
+                match=f"Missing expected header in Validations sheet: {missing_header}",
             ):
                 load_survey_definition(ExcelSurveyDefinitionReader(MOCKED_EXCEL_FILE))
         finally:

@@ -26,6 +26,9 @@ The Generator is designed to simplify and expedite your workflow. It allows for 
 -   [Generate InputRange](#generate-inputrange)
     -   [InputRange Fields](#inputrange-fields)
     -   [InputRange Example](#inputrange-example)
+-   [Generate Validations](#generate-validations)
+    -   [Validations Fields](#validations-fields)
+    -   [Validations Example](#validations-example)
 -   [Generate Labels](#generate-labels)
     -   [Labels Fields](#labels-fields)
     -   [Labels Example](#labels-example)
@@ -87,6 +90,7 @@ survey/
 │  ├─ customWidgets.tsx - Contains custom widgets for the survey. (Manual)
 │  ├─ helpPopup.tsx - Contains the help popups for the survey. (Manual)
 │  ├─ inputRange.tsx - Contains the input range configurations for the InputRange widget. (Generator)
+│  ├─ validations.ts - Contains the validation functions of the Validations sheet. (Generator)
 ├─ sections/ - Contains all the sections for the survey.
 │  ├─ sectionName/
 │  |  ├─ groups.ts - Contains the groups for the section. (Manual)
@@ -104,8 +108,10 @@ references/
 locales/
 ├─ en/
 │  ├─ sectionName.yml - Contains the English labels for the section. (Generator)
+│  ├─ validations.yaml - Contains the English error messages of the Validations sheet. (Generator)
 ├─ fr/
 │  ├─ sectionName.yml - Contains the French labels for the section. (Generator)
+│  ├─ validations.yaml - Contains the French error messages of the Validations sheet. (Generator)
 ```
 
 > **Note:** For sections that utilize template, `template.tsx` should be implemented as a React component.
@@ -170,6 +176,7 @@ If you want to start your own survey, you can use the following steps:
         generate_conditionals: true
         generate_choices: true
         generate_input_range: true
+        generate_validations: true
         generate_labels: true
         copy_excel_to_csv: true
     ```
@@ -253,7 +260,11 @@ Widgets are the building blocks of your survey. They define the structure and in
 
 > <span id="cond">**Note:**</span> The `conditional` field allows you to define conditional logic for displaying the widget based on other responses. For example, you can specify a condition like `nbPersonsSevenOrMoreConditional` to show the widget only if the number of people is 7 or more.
 
-> <span id="val">**Note:**</span> The `validation` field is optional and allows you to define validation logic for the widget. For example, `moreOrEqualTo7Validation` signifies that the widget will be considered valid if the entered value is equal to or greater than 7.
+> <span id="val">**Note:**</span> The `validation` field is optional and names the validation of the widget's answer. Blank means `requiredValidation`. It must be one of:
+>
+> -   a validation of Evolution, e.g. `emailValidation` (see `evolution-common/src/services/widgets/validations/validations.ts`);
+> -   a `validation_name` of the `Validations` sheet, e.g. `between7And18Validation` (see [Generate Validations](#generate-validations));
+> -   a name ending with `CustomValidation`, written by hand in `customValidations.tsx`.
 
 > <span id="choices">**Note:**</span> The `choices` field names the list of choices of the question: a `choicesName` of the `Choices` sheet, or a name ending with `CustomChoices` (from `customChoices.tsx`). It is required for `Radio`, `Select` and `Checkbox`, optional for `RadioNumber` (its additional choices), `Custom` and `BuiltIn`, and not used by the other input types. A `Radio` can show a text input for one of its choices (e.g. "Other, specify"): `custom_choice` is that choice's value, and `custom_path` the response path where the text is saved. They must be set together, and only on a `Radio`.
 
@@ -298,7 +309,7 @@ export const end_email: WidgetConfig.InputStringType = {
     path: 'end.email',
     label: (t: TFunction) => t('end:end.email'),
     conditional: conditionals.hasAcceptGivingEmailConditional,
-    validations: validations.emailValidation
+    validations: builtInValidations.emailValidation
 };
 ```
 
@@ -585,6 +596,130 @@ export const confidentInputRange: Pick<
 
 ![InputRange example](./src/assets/images/inputRangeExample.png)
 
+## Generate Validations
+
+The optional `Validations` tab lets you write simple validations of the answers without writing code: number bounds, required answers, integers, or a comparison of another answer with a value. It generates `src/survey/common/validations.ts`, one validation function per `validation_name`, and the error messages in `locales/<language>/validations.yaml`. A widget uses one by writing its `validation_name` in its `validation` column (see [Widgets Fields](#widgets-fields)). Enable it with `generate_validations: true` in `generatorConfigs.yaml`, or run it alone with `yarn generateSurvey --only validations`.
+
+A validation that needs more (a text format such as a postal code, several answers combined, a geography, the list of persons, ...) is still written by hand in `customValidations.tsx`, with a name ending with `CustomValidation`.
+
+### Validations Fields
+
+Each row is **one error** the validation can show. The rows sharing a `validation_name` make up that validation, their errors in the order of the rows.
+
+| Field                                         | Description                                                                         | Type                       |
+| --------------------------------------------- | ----------------------------------------------------------------------------------- | -------------------------- |
+| [validation_name](#validation_name)           | Name of the validation, used in the `validation` column of the Widgets sheet        | string                     |
+| [error_name](#error_name)                     | Name of this error in its validation, unique in the validation                      | string                     |
+| [path](#validation_path)                      | Path of the answer to check (optional, blank means the answer of the widget itself) | string?                    |
+| [comparison_operator](#validation_comparison) | When the error is shown                                                             | see below                  |
+| [value](#validation_value)                    | What the answer is compared with (blank for `isBlank` and `isNotInteger`)           | number, string or boolean? |
+| error_message::fr                             | French error message                                                                | string                     |
+| error_message::en                             | English error message                                                               | string                     |
+| is_warning                                    | Whether the error is only a warning (optional, false by default)                    | boolean?                   |
+
+> **Note:** The error message columns are named `error_message::<language>`, one per survey language, and each is required (see the `label::<language>` columns of the Widgets sheet). This example is for a survey in French and English. The messages are formatted like the labels (e.g. `**bold**`), and may use `{{nickname}}`, `{{count}}` and `{{gender:...}}`.
+
+> <span id="validation_name">**Note:**</span> `validation_name` must be a valid identifier (letters, digits, `_` or `$`, not starting with a digit). It can't be the name of a validation of Evolution (e.g. `ageValidation`, use it directly in the Widgets sheet instead), and can't end with `CustomValidation`, which names a validation written by hand.
+
+> <span id="error_name">**Note:**</span> `error_name` must be a valid identifier, and is the key of the error message: `validations:<validation_name>.<error_name>`, e.g. `validations:between7And18Validation.tooLow`.
+
+> <span id="validation_path">**Note:**</span> `path` is blank to check the answer of the widget itself. Otherwise, it is the path of another answer, e.g. `household.size`. Like in the `Conditionals` sheet, it may start with one of these keywords, followed by a dot: `${relativePath}` (the widget's group, e.g. `${relativePath}.age`), `${currentPerson}`, `${currentJourney}`, `${currentTrip}`, `${currentVisitedPlace}` or `${currentSegment}` (e.g. `${currentPerson}.age`).
+
+> <span id="validation_comparison">**Note:**</span> The row describes **the error**: the error is shown when the condition is true. `comparison_operator` is one of:
+>
+> | comparison_operator  | The error is shown when the answer...     | value                     |
+> | -------------------- | ----------------------------------------- | ------------------------- |
+> | `isBlank`            | is blank                                  | blank                     |
+> | `isNotInteger`       | is not an integer                         | blank                     |
+> | `>`, `<`, `>=`, `<=` | is greater than, less than, ... the value | number                    |
+> | `===`, `!==`         | is equal to, not equal to the value       | number, string or boolean |
+>
+> Every operator except `isBlank` is only checked on an answer that isn't blank. So a validation **without** an `isBlank` row lets the participant leave the question blank (an optional question), and a validation with one makes it required.
+
+> <span id="validation_value">**Note:**</span> `value` must be a number for `>`, `<`, `>=` and `<=` (not a text like `"7"`), and the answer is then compared as a number. A number with `===` or `!==` is also compared as a number.
+
+### Validations Example
+
+In this example, `between7And18Validation` makes the question required, and only accepts an integer between 7 and 18, warning above 16. `childrenCountValidation` lets the question be left blank, and checks another answer: it shows an error when the household has a single member.
+
+| validation_name         | error_name    | path           | comparison_operator | value | error_message::fr                             | error_message::en                    | is_warning |
+| ----------------------- | ------------- | -------------- | ------------------- | ----- | --------------------------------------------- | ------------------------------------ | ---------- |
+| between7And18Validation | required      |                | isBlank             |       | Cette réponse est requise.                    | This answer is required.             |            |
+| between7And18Validation | notInteger    |                | isNotInteger        |       | Ce nombre doit être un entier.                | This number must be an integer.      |            |
+| between7And18Validation | tooLow        |                | <                   | 7     | Ce nombre doit être supérieur ou égal à 7.    | This number must be 7 or more.       |            |
+| between7And18Validation | tooHigh       |                | >                   | 18    | Ce nombre doit être inférieur ou égal à 18.   | This number must be 18 or less.      |            |
+| between7And18Validation | unusual       |                | >                   | 16    | Êtes-vous certain de ce nombre?               | Are you sure of this number?         | TRUE       |
+| childrenCountValidation | householdSize | household.size | <=                  | 1     | Le ménage n'a pas assez de membres pour cela. | The household is too small for that. |            |
+
+The corresponding TypeScript code is shown below:
+
+```typescript
+// validations.ts
+export const between7And18Validation: ValidationFunction = (value) => {
+    return [
+        {
+            validation: _isBlank(value),
+            errorMessage: (t: TFunction) =>
+                t("validations:between7And18Validation.required"),
+        },
+        {
+            validation: !_isBlank(value) && !Number.isInteger(Number(value)),
+            errorMessage: (t: TFunction) =>
+                t("validations:between7And18Validation.notInteger"),
+        },
+        {
+            validation: !_isBlank(value) && Number(value) < 7,
+            errorMessage: (t: TFunction) =>
+                t("validations:between7And18Validation.tooLow"),
+        },
+        {
+            validation: !_isBlank(value) && Number(value) > 18,
+            errorMessage: (t: TFunction) =>
+                t("validations:between7And18Validation.tooHigh"),
+        },
+        {
+            validation: !_isBlank(value) && Number(value) > 16,
+            errorMessage: (t: TFunction) =>
+                t("validations:between7And18Validation.unusual"),
+            isWarning: true,
+        },
+    ];
+};
+
+export const childrenCountValidation: ValidationFunction = (
+    _value,
+    _customValue,
+    interview,
+) => {
+    return [
+        {
+            validation:
+                !_isBlank(
+                    surveyHelper.getResponse(interview, "household.size"),
+                ) &&
+                Number(surveyHelper.getResponse(interview, "household.size")) <=
+                    1,
+            errorMessage: (t: TFunction) =>
+                t("validations:childrenCountValidation.householdSize"),
+        },
+    ];
+};
+```
+
+```yaml
+# locales/en/validations.yaml
+between7And18Validation:
+    required: This answer is required.
+    notInteger: This number must be an integer.
+    tooLow: This number must be 7 or more.
+    tooHigh: This number must be 18 or less.
+    unusual: Are you sure of this number?
+childrenCountValidation:
+    householdSize: The household is too small for that.
+```
+
+> **Note:** A widget using it writes `validations: validations.between7And18Validation`, and its `widgets.tsx` imports `validations.ts` as `validations`, like `choices` and `conditionals`. Evolution's own validations are imported as `builtInValidations`, e.g. `validations: builtInValidations.emailValidation`.
+
 ## Generate Labels
 
 <!-- TODO: Modify the generate_labels.py and documentation to support en_cati, fr_cati, etc. -->
@@ -653,4 +788,4 @@ The CSV files are written next to the Excel file in a folder named
 
 ## Last Updated
 
-2026-05-13 by Samuel Duhaime-Morissette
+2026-11-18 by Samuel Duhaime-Morissette

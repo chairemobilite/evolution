@@ -9,6 +9,16 @@ from pydantic import ValidationError
 
 from survey_definition.sections_definition import SectionDefinition, Sections
 from survey_definition.survey_definition import SurveyDefinition
+from tests.parametrize_cases import cases
+
+# A row of the Validations table, in French.
+_VALIDATION_ROW = {
+    "validation_name": "between7And18Validation",
+    "error_name": "tooLow",
+    "comparison_operator": "<",
+    "value": 7,
+    "error_message::fr": "Trop bas",
+}
 
 
 class TestSurveyDefinition:
@@ -17,6 +27,13 @@ class TestSurveyDefinition:
         assert len(survey_definition.sections) == 0
         assert len(survey_definition.labels) == 0
         assert len(survey_definition.choices) == 0
+        assert len(survey_definition.validations) == 0
+
+    def test_survey_definition_builds_validations_from_source_rows(self):
+        survey_definition = SurveyDefinition(
+            languages=["fr"], validations=[_VALIDATION_ROW]
+        )
+        assert [v.error_name for v in survey_definition.validations] == ["tooLow"]
 
     def test_survey_definition_holds_parsed_rows(self):
         survey_definition = SurveyDefinition(
@@ -267,6 +284,63 @@ class TestSurveyDefinitionLanguages:
             "match any value of the 'schoolType' choices"
         ]
 
+    def test_passes_the_survey_languages_to_the_validations(self):
+        assert self._issues(languages=["fr", "en"], validations=[_VALIDATION_ROW]) == [
+            "Error in Validations - Invalid row 2: error_message::en is required"
+        ]
+
+    @cases(
+        dict(id="in the Validations table", validation="between7And18Validation"),
+        dict(id="built in", validation="ageValidation"),
+        dict(id="custom", validation="ageCustomValidation"),
+    )
+    def test_accepts_a_widget_validation_of_the_validations_table(self, validation):
+        survey_definition = SurveyDefinition(
+            languages=["fr"],
+            sections=[{"section": "home", "in_nav": False, "abbreviation": "HM_"}],
+            validations=[_VALIDATION_ROW],
+            widgets=[self._number_widget(validation=validation)],
+        )
+        assert survey_definition.widgets[0].validation == validation
+
+    def test_passes_the_validation_names_to_the_widgets(self):
+        assert self._issues(
+            languages=["fr"],
+            sections=[{"section": "home", "in_nav": False, "abbreviation": "HM_"}],
+            validations=[_VALIDATION_ROW],
+            widgets=[self._number_widget(validation="between7And19Validation")],
+        ) == [
+            "Error in Widgets - Invalid row 2: validation 'between7And19Validation' "
+            "is not built in (['accessCodeValidation', 'ageValidation', "
+            "'bicycleNumberValidation', 'carNumberValidation', 'emailValidation', "
+            "'householdSizeValidation', 'inputRangeValidation', 'optionalValidation', "
+            "'phoneValidation', 'postalCodeValidation', 'requiredValidation', "
+            "'twoWheelNumberValidation']), does not end with 'CustomValidation', and "
+            "does not match any validation_name of the Validations table"
+        ]
+
+    def test_does_not_check_widget_validations_against_invalid_validations(self):
+        """An invalid Validations table is reported on its own, not again by each widget."""
+        with pytest.raises(ValidationError) as error:
+            SurveyDefinition(
+                languages=["fr"],
+                sections=[{"section": "home", "in_nav": False, "abbreviation": "HM_"}],
+                validations=[{**_VALIDATION_ROW, "value": "7"}],
+                widgets=[self._number_widget(validation="between7And18Validation")],
+            )
+        assert [e["loc"] for e in error.value.errors()] == [("validations",)]
+
+    def _number_widget(self, **columns) -> dict:
+        return {
+            "question_name": "personAge",
+            "input_type": "Number",
+            "active": True,
+            "section": "home",
+            "path": "age",
+            "label::fr": "Âge",
+            **columns,
+        }
+
     def test_does_not_check_widget_names_against_invalid_tables(self):
         """An invalid table is reported on its own, not again by each widget."""
         widget = {
@@ -318,3 +392,46 @@ class TestSurveyDefinitionWarnings:
         )
         assert survey_definition.warnings() == survey_definition.widgets.warnings()
         assert len(survey_definition.warnings()) == 1
+
+    def test_warns_about_a_validation_no_widget_uses(self):
+        survey_definition = SurveyDefinition(
+            languages=["fr"],
+            sections=[self._SECTION],
+            validations=[
+                _VALIDATION_ROW,
+                {
+                    **_VALIDATION_ROW,
+                    "error_name": "tooHigh",
+                    "comparison_operator": ">",
+                },
+            ],
+            widgets=[self._widget()],
+        )
+        # One warning for the validation, not one per row.
+        assert survey_definition.warnings() == [
+            "Validations sheet: validation_name 'between7And18Validation' is not used "
+            "by any active widget"
+        ]
+
+    @cases(
+        dict(id="an active widget", active=True, input_type="Number", warnings=0),
+        dict(
+            id="only an inactive widget", active=False, input_type="Number", warnings=1
+        ),
+        # The Custom widget's own warning, and the unused validation's.
+        dict(id="only a Custom widget", active=True, input_type="Custom", warnings=2),
+    )
+    def test_counts_a_validation_as_used_by(self, active, input_type, warnings):
+        survey_definition = SurveyDefinition(
+            languages=["fr"],
+            sections=[self._SECTION],
+            validations=[_VALIDATION_ROW],
+            widgets=[
+                self._widget(
+                    input_type=input_type,
+                    active=active,
+                    validation="between7And18Validation",
+                )
+            ],
+        )
+        assert len(survey_definition.warnings()) == warnings

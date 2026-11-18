@@ -31,6 +31,7 @@ from survey_definition.conditionals_definition import Conditionals
 from survey_definition.input_range_definition import InputRanges
 from survey_definition.labels_definition import Labels
 from survey_definition.sections_definition import Sections
+from survey_definition.validations_definition import Validations
 from survey_definition.widgets_definition import Widgets
 
 # A language code: two lowercase letters, optionally followed by a region, e.g. 'fr' or
@@ -75,6 +76,8 @@ class SurveyDefinition(BaseModel):
             source order.
         input_ranges: The InputRange table, already checked: one InputRangeDefinition
             per row (slider configuration), in source order.
+        validations: The Validations table, already checked: one ValidationDefinition
+            per row (one error of a validation), in source order.
         widgets: The Widgets table, already checked: one WidgetDefinition per row, in
             source order. Its names of the other tables are checked against them.
     """
@@ -91,6 +94,7 @@ class SurveyDefinition(BaseModel):
     labels: Labels = Field(default_factory=lambda: Labels([]))
     choices: Choices = Field(default_factory=lambda: Choices([]))
     input_ranges: InputRanges = Field(default_factory=lambda: InputRanges([]))
+    validations: Validations = Field(default_factory=lambda: Validations([]))
     widgets: Widgets = Field(default_factory=lambda: Widgets([]))
 
     @field_validator("languages")
@@ -158,6 +162,14 @@ class SurveyDefinition(BaseModel):
         languages = info.data.get("languages", ())
         return _validated_table(InputRanges, rows, context={"languages": languages})
 
+    @field_validator("validations", mode="before")
+    @classmethod
+    def _validations_are_valid(cls, rows: Any, info: ValidationInfo) -> Any:
+        """Validate the Validations table with the survey languages in its context."""
+        # See _sections_are_valid: no language at all when they are invalid.
+        languages = info.data.get("languages", ())
+        return _validated_table(Validations, rows, context={"languages": languages})
+
     @field_validator("widgets", mode="before")
     @classmethod
     def _widgets_are_valid(cls, rows: Any, info: ValidationInfo) -> Any:
@@ -165,7 +177,7 @@ class SurveyDefinition(BaseModel):
         Validate the Widgets table, giving it what its rows name in the other tables.
 
         A widget row names things defined in other sheets: its section, conditional,
-        choices list (and a value of it, custom_choice) and input range. The Widgets
+        choices list (and a value of it, custom_choice), input range and validation. The Widgets
         table can't see those sheets by itself, so this collects their names from the
         tables already built and passes them in the validation context, where the
         rows read them (see WidgetDefinition._other_table_issues).
@@ -180,6 +192,7 @@ class SurveyDefinition(BaseModel):
         conditionals = info.data.get("conditionals")
         choices = info.data.get("choices")
         input_ranges = info.data.get("input_ranges")
+        validations = info.data.get("validations")
         context = {
             # e.g. ("fr", "en"): every label must be in each one.
             "languages": info.data.get("languages", ()),
@@ -206,6 +219,11 @@ class SurveyDefinition(BaseModel):
                 if input_ranges is not None
                 else None
             ),
+            # e.g. {"between7And18Validation"}: a widget's validation must be one of
+            # them, unless it is built in or ends with 'CustomValidation'.
+            "validation_names": (
+                set(validations.by_name()) if validations is not None else None
+            ),
         }
         # Builds the Widgets table from the raw rows: each row gets the context as
         # info.context. Its problems are reported as the table's own messages.
@@ -214,9 +232,17 @@ class SurveyDefinition(BaseModel):
     def warnings(self) -> list[str]:
         """
         The problems that don't reject the survey definition, e.g. a widget column its
-        input type doesn't use (see Widgets.warnings).
+        input type doesn't use (see Widgets.warnings), or a validation of the
+        Validations table that no widget uses.
         """
-        return self.widgets.warnings()
+        used_validations = self.widgets.used_validation_names()
+        unused_validations = [
+            f"Validations sheet: validation_name {name!r} is not used by any active "
+            "widget"
+            for name in self.validations.by_name()
+            if name not in used_validations
+        ]
+        return [*self.widgets.warnings(), *unused_validations]
 
 
 def _validated_table[T: BaseModel](

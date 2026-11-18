@@ -22,6 +22,7 @@ from scripts.generate_survey import (
     check_excel_integrity_with_messages,
     check_excel_integrity_with_warnings,
     generate_survey,
+    _parse_only_scripts,
 )
 from survey_definition.excel_survey_definition_reader import (
     EMPTY_ROWS_WARNING_THRESHOLD,
@@ -68,6 +69,20 @@ VALID_INPUT_RANGE_HEADERS = [
 ]
 VALID_INPUT_RANGE_ROWS = [["slider", "Min", "Max", "Min", "Max", 0, 100]]
 
+VALID_VALIDATIONS_HEADERS = [
+    "validation_name",
+    "error_name",
+    "path",
+    "comparison_operator",
+    "value",
+    "error_message::fr",
+    "error_message::en",
+]
+VALID_VALIDATIONS_ROWS = [
+    ["between7And18Validation", "tooLow", "", "<", 7, "Trop bas", "Too low"],
+    ["between7And18Validation", "tooHigh", "", ">", 18, "Trop haut", "Too high"],
+]
+
 VALID_WIDGETS_HEADERS = [*WIDGET_REQUIRED_FIELD_NAMES, "label::fr", "label::en"]
 
 
@@ -78,12 +93,14 @@ def _create_workbook(
     sections_headers=VALID_SECTIONS_HEADERS,
     choices_rows=(),
     input_range_rows=None,
+    validations_rows=None,
     widgets_rows=(),
 ):
     """
     Write a workbook whose Widgets sheet holds the survey languages (its
-    label::<language> columns). The InputRange sheet, in French and English, is only
-    added with `input_range_rows`: it is optional.
+    label::<language> columns). The InputRange and Validations sheets, in French and
+    English, are only added with `input_range_rows` and `validations_rows`: they are
+    optional.
     """
     workbook = create_mocked_excel_data("Sections", sections_headers, sections_rows)
     add_mocked_excel_sheet(
@@ -107,6 +124,10 @@ def _create_workbook(
     if input_range_rows is not None:
         add_mocked_excel_sheet(
             workbook, "InputRange", VALID_INPUT_RANGE_HEADERS, input_range_rows
+        )
+    if validations_rows is not None:
+        add_mocked_excel_sheet(
+            workbook, "Validations", VALID_VALIDATIONS_HEADERS, validations_rows
         )
 
 
@@ -247,6 +268,82 @@ class TestCheckExcelIntegrityChoices:
             delete_file_if_exists(MOCKED_EXCEL_FILE)
 
 
+# The Widgets columns of _number_widget_row.
+NUMBER_WIDGET_HEADERS = [*VALID_WIDGETS_HEADERS, "path", "validation"]
+
+
+# A Number widget of the home section, in French and English, with this validation.
+def _number_widget_row(validation):
+    return [
+        "homeChildren",
+        "Number",
+        True,
+        "home",
+        "Enfants",
+        "Children",
+        "home.children",
+        validation,
+    ]
+
+
+class TestCheckExcelIntegrityValidations:
+    def test_valid_validations_sheet_returns_true(self):
+        _create_workbook(validations_rows=VALID_VALIDATIONS_ROWS)
+        try:
+            assert check_excel_integrity_with_messages(MOCKED_EXCEL_FILE) == (True, [])
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+    def test_reports_the_validations_problems_with_the_other_sheets_ones(self):
+        _create_workbook(
+            sections_rows=[["home", "Accueil", "Home", True, "", "", ""]],
+            validations_rows=[
+                ["between7And18Validation", "tooLow", "", "<", "7", "Trop bas", ""]
+            ],
+        )
+        try:
+            ok, messages = check_excel_integrity_with_messages(MOCKED_EXCEL_FILE)
+            assert ok is False
+            assert messages == [
+                "Error in Sections - Required field is missing in row 2. Missing fields: ['abbreviation']",
+                "Error in Validations - Invalid row 2: value must be a number for "
+                "comparison_operator '<', got '7'; error_message::en is required",
+            ]
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+    def test_reports_a_widget_validation_missing_from_the_validations_sheet(self):
+        _create_workbook(
+            validations_rows=VALID_VALIDATIONS_ROWS,
+            widgets_headers=NUMBER_WIDGET_HEADERS,
+            widgets_rows=[_number_widget_row("between7And19Validation")],
+        )
+        try:
+            ok, messages = check_excel_integrity_with_messages(MOCKED_EXCEL_FILE)
+            assert ok is False
+            assert len(messages) == 1
+            assert messages[0].startswith(
+                "Error in Widgets - Invalid row 2: validation "
+                "'between7And19Validation' is not built in"
+            )
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+    def test_warns_about_a_validation_no_widget_uses(self):
+        _create_workbook(validations_rows=VALID_VALIDATIONS_ROWS)
+        try:
+            assert check_excel_integrity_with_warnings(MOCKED_EXCEL_FILE) == (
+                True,
+                [],
+                [
+                    "Validations sheet: validation_name 'between7And18Validation' is "
+                    "not used by any active widget"
+                ],
+            )
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+
 class TestCheckExcelIntegrity:
     def test_valid_file_returns_true(self):
         _create_workbook()
@@ -381,6 +478,61 @@ class TestGenerateSurvey:
             assert "yes: Oui" in (
                 tmp_path / "locales" / "fr" / "choices.yaml"
             ).read_text(encoding="utf-8")
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+    def test_generates_the_validations_and_the_widgets_using_them(self, tmp_path):
+        _create_workbook(
+            validations_rows=VALID_VALIDATIONS_ROWS,
+            widgets_headers=NUMBER_WIDGET_HEADERS,
+            widgets_rows=[_number_widget_row("between7And18Validation")],
+        )
+        config_path = tmp_path / "generatorConfigs.yaml"
+        config_path.write_text(
+            f"survey_folder_path: {tmp_path}\n"
+            f"excel_file_path: {MOCKED_EXCEL_FILE}\n"
+        )
+        try:
+            generate_survey(
+                str(config_path),
+                only_scripts=_parse_only_scripts("validations,widgets"),
+            )
+            survey_path = tmp_path / "src" / "survey"
+            validations_ts = (survey_path / "common" / "validations.ts").read_text(
+                encoding="utf-8"
+            )
+            assert (
+                "export const between7And18Validation: ValidationFunction = (value) => {"
+                in validations_ts
+            )
+            assert "tooLow: Trop bas" in (
+                tmp_path / "locales" / "fr" / "validations.yaml"
+            ).read_text(encoding="utf-8")
+            widgets_ts = (survey_path / "sections" / "home" / "widgets.tsx").read_text(
+                encoding="utf-8"
+            )
+            assert (
+                "import * as validations from '../../common/validations';" in widgets_ts
+            )
+            assert "validations: validations.between7And18Validation" in widgets_ts
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+    def test_does_not_generate_the_validations_unless_enabled(self, tmp_path):
+        _create_workbook(validations_rows=VALID_VALIDATIONS_ROWS)
+        config_path = tmp_path / "generatorConfigs.yaml"
+        config_path.write_text(
+            f"survey_folder_path: {tmp_path}\n"
+            f"excel_file_path: {MOCKED_EXCEL_FILE}\n"
+            "enabled_scripts:\n"
+            "    generate_choices: true\n"
+        )
+        try:
+            generate_survey(str(config_path))
+            assert not (
+                tmp_path / "src" / "survey" / "common" / "validations.ts"
+            ).exists()
+            assert not (tmp_path / "locales" / "fr" / "validations.yaml").exists()
         finally:
             delete_file_if_exists(MOCKED_EXCEL_FILE)
 
