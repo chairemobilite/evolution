@@ -13,7 +13,11 @@ from survey_definition.conditionals_definition import CONDITIONAL_REQUIRED_FIELD
 from survey_definition.input_range_definition import INPUT_RANGE_REQUIRED_FIELD_NAMES
 from survey_definition.labels_definition import LABEL_REQUIRED_FIELD_NAMES
 from survey_definition.sections_definition import SECTION_REQUIRED_FIELD_NAMES
-from survey_definition.survey_definition import SurveyDefinition
+from survey_definition.survey_definition import (
+    SHEET_COLUMNS,
+    SurveyDefinition,
+    unknown_columns_warnings,
+)
 from survey_definition.widgets_definition import WIDGET_REQUIRED_FIELD_NAMES
 
 # Define constants
@@ -81,6 +85,30 @@ def is_ts_file(file: str) -> None:
         raise Exception(
             f"Invalid output file extension for {file} : must be an TypeScript .ts or .tsx file"
         )
+
+
+def read_unknown_columns_warnings(reader: ExcelSurveyDefinitionReader) -> list[str]:
+    """
+    The warnings about the columns the survey definition's sheets have but don't read
+    (see survey_definition.py::unknown_columns_warnings), e.g. a misspelled header.
+    Read from the headers only, so they are given even when the sheets are invalid.
+    """
+    try:
+        languages = reader.get_languages()
+    except Exception:
+        # Already reported by load_survey_definition: no language to suggest.
+        languages = ()
+    headers_by_sheet = {}
+    for sheet_name in SHEET_COLUMNS:
+        if sheet_name not in reader.sheet_names:
+            continue
+        try:
+            headers_by_sheet[sheet_name] = reader.get_headers(sheet_name)
+        except Exception:
+            # Headers that can't be read (e.g. one with a space) are already reported
+            # by load_survey_definition: skip this sheet, and warn about the others.
+            continue
+    return unknown_columns_warnings(headers_by_sheet, languages)
 
 
 def load_survey_definition(reader: ExcelSurveyDefinitionReader) -> SurveyDefinition:

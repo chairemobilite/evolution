@@ -16,6 +16,7 @@
 # instance from the tables it reads.
 
 import re
+from collections.abc import Sequence
 from typing import Any
 
 from pydantic import (
@@ -26,12 +27,39 @@ from pydantic import (
     field_validator,
 )
 
-from survey_definition.choices_definition import Choices
-from survey_definition.conditionals_definition import Conditionals
-from survey_definition.input_range_definition import InputRanges
-from survey_definition.labels_definition import Labels
-from survey_definition.sections_definition import Sections
-from survey_definition.widgets_definition import Widgets
+from survey_definition.choices_definition import (
+    CHOICE_LABEL_COLUMN_PREFIX,
+    CHOICE_LABEL_ONE_COLUMN_PREFIX,
+    ChoiceDefinition,
+    Choices,
+)
+from survey_definition.conditionals_definition import (
+    ConditionalDefinition,
+    Conditionals,
+)
+from survey_definition.input_range_definition import (
+    INPUT_RANGE_COLUMN_PREFIX_BY_FIELD,
+    InputRangeDefinition,
+    InputRanges,
+)
+from survey_definition.labels_definition import (
+    LABEL_COLUMN_PREFIX,
+    LABEL_ONE_COLUMN_PREFIX,
+    LabelDefinition,
+    Labels,
+)
+from survey_definition.sections_definition import (
+    SECTION_TITLE_COLUMN_PREFIX,
+    SectionDefinition,
+    Sections,
+)
+from survey_definition.sheet_checks import unknown_columns_warning
+from survey_definition.widgets_definition import (
+    WIDGET_LABEL_COLUMN_PREFIX,
+    WIDGET_LABEL_ONE_COLUMN_PREFIX,
+    WidgetDefinition,
+    Widgets,
+)
 
 # A language code: two lowercase letters, optionally followed by a region, e.g. 'fr' or
 # 'en-CA'. It names the translated columns (title_fr) and the locales folders (locales/fr).
@@ -217,6 +245,58 @@ class SurveyDefinition(BaseModel):
         input type doesn't use (see Widgets.warnings).
         """
         return self.widgets.warnings()
+
+
+# The columns of each sheet: its row model, and its translated columns (a field
+# gathered from one column per language, with the prefix of these columns).
+SHEET_COLUMNS: dict[str, tuple[type[BaseModel], dict[str, str]]] = {
+    "Sections": (SectionDefinition, {"title": SECTION_TITLE_COLUMN_PREFIX}),
+    "Conditionals": (ConditionalDefinition, {}),
+    "Labels": (
+        LabelDefinition,
+        {"label": LABEL_COLUMN_PREFIX, "label_one": LABEL_ONE_COLUMN_PREFIX},
+    ),
+    "Choices": (
+        ChoiceDefinition,
+        {
+            "label": CHOICE_LABEL_COLUMN_PREFIX,
+            "label_one": CHOICE_LABEL_ONE_COLUMN_PREFIX,
+        },
+    ),
+    "InputRange": (InputRangeDefinition, INPUT_RANGE_COLUMN_PREFIX_BY_FIELD),
+    "Widgets": (
+        WidgetDefinition,
+        {
+            "label": WIDGET_LABEL_COLUMN_PREFIX,
+            "label_one": WIDGET_LABEL_ONE_COLUMN_PREFIX,
+        },
+    ),
+}
+
+
+def unknown_columns_warnings(
+    headers_by_sheet: dict[str, Sequence], languages: Sequence[str] = ()
+) -> list[str]:
+    """
+    One warning per sheet of `headers_by_sheet` (its header row, by sheet name) that
+    has columns its table doesn't read (see sheet_checks.py::unknown_columns_warning),
+    in SHEET_COLUMNS order. Computed from the headers only, so it is reported even
+    when the sheet has errors: a misspelled header is often their cause.
+    """
+    warnings = []
+    for sheet_name, (model, column_prefix_by_field) in SHEET_COLUMNS.items():
+        if sheet_name not in headers_by_sheet:
+            continue
+        warning = unknown_columns_warning(
+            sheet_name,
+            headers_by_sheet[sheet_name],
+            model,
+            column_prefix_by_field,
+            languages,
+        )
+        if warning:
+            warnings.append(warning)
+    return warnings
 
 
 def _validated_table[T: BaseModel](

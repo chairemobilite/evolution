@@ -308,6 +308,65 @@ class TestCheckExcelIntegrityWithWarnings:
         finally:
             delete_file_if_exists(MOCKED_EXCEL_FILE)
 
+    def test_warns_about_a_column_a_sheet_does_not_read(self):
+        _create_workbook(widgets_headers=[*VALID_WIDGETS_HEADERS, "custom_paht"])
+        try:
+            assert check_excel_integrity_with_warnings(MOCKED_EXCEL_FILE) == (
+                True,
+                [],
+                [
+                    "Widgets sheet has columns it doesn't read, so they are ignored: "
+                    "'custom_paht' (did you mean 'custom_path'?)"
+                ],
+            )
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+    def test_warns_about_a_misspelled_column_with_the_errors_it_causes(self):
+        # Title_fr isn't read, so the title in French is reported missing: the
+        # warning names the real cause.
+        _create_workbook(
+            sections_headers=[
+                "Title_fr" if header == "title_fr" else header
+                for header in VALID_SECTIONS_HEADERS
+            ]
+        )
+        try:
+            ok, messages, warnings = check_excel_integrity_with_warnings(
+                MOCKED_EXCEL_FILE
+            )
+            assert ok is False
+            assert any("title_fr is required" in message for message in messages)
+            assert warnings == [
+                "Sections sheet has columns it doesn't read, so they are ignored: "
+                "'Title_fr' (did you mean 'title_fr'?)"
+            ]
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+    def test_reports_unreadable_headers_and_warns_about_the_other_sheets(self):
+        # A header with a space can't be read: the check reports it instead of
+        # failing, and still warns about the columns of the other sheets.
+        _create_workbook(
+            sections_headers=[
+                "title fr" if header == "title_fr" else header
+                for header in VALID_SECTIONS_HEADERS
+            ],
+            widgets_headers=[*VALID_WIDGETS_HEADERS, "custom_paht"],
+        )
+        try:
+            ok, messages, warnings = check_excel_integrity_with_warnings(
+                MOCKED_EXCEL_FILE
+            )
+            assert ok is False
+            assert messages == ["Header has spaces in Sections sheet: 'title fr'"]
+            assert warnings == [
+                "Widgets sheet has columns it doesn't read, so they are ignored: "
+                "'custom_paht' (did you mean 'custom_path'?)"
+            ]
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
     def test_unreadable_file_has_no_warnings(self):
         ok, messages, warnings = check_excel_integrity_with_warnings("nonexistent.xlsx")
         assert ok is False

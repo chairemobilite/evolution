@@ -8,7 +8,10 @@ import pytest  # pyright: ignore[reportMissingImports]
 from pydantic import ValidationError
 
 from survey_definition.sections_definition import SectionDefinition, Sections
-from survey_definition.survey_definition import SurveyDefinition
+from survey_definition.survey_definition import (
+    SurveyDefinition,
+    unknown_columns_warnings,
+)
 
 
 class TestSurveyDefinition:
@@ -318,3 +321,40 @@ class TestSurveyDefinitionWarnings:
         )
         assert survey_definition.warnings() == survey_definition.widgets.warnings()
         assert len(survey_definition.warnings()) == 1
+
+
+class TestUnknownColumnsWarnings:
+    def test_warns_once_per_sheet_in_sheet_order(self):
+        warnings = unknown_columns_warnings(
+            {
+                "Widgets": ["question_name", "custom_paht", "label::fr"],
+                "Sections": ["section", "Title_fr"],
+                "InputRange": ["input_range_name", "Label_min::fr"],
+            },
+            languages=("fr",),
+        )
+        assert warnings == [
+            "Sections sheet has columns it doesn't read, so they are ignored: "
+            "'Title_fr' (did you mean 'title_fr'?)",
+            "InputRange sheet has columns it doesn't read, so they are ignored: "
+            "'Label_min::fr' (did you mean 'label_min::fr'?)",
+            "Widgets sheet has columns it doesn't read, so they are ignored: "
+            "'custom_paht' (did you mean 'custom_path'?)",
+        ]
+
+    def test_accepts_comments_in_every_sheet(self):
+        headers_by_sheet = {
+            sheet_name: ["comments"]
+            for sheet_name in (
+                "Sections",
+                "Conditionals",
+                "Labels",
+                "Choices",
+                "InputRange",
+                "Widgets",
+            )
+        }
+        assert unknown_columns_warnings(headers_by_sheet) == []
+
+    def test_ignores_the_sheets_that_are_not_tables(self):
+        assert unknown_columns_warnings({"Notes": ["anything"]}) == []

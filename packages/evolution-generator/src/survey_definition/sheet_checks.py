@@ -9,7 +9,9 @@
 # sections_definition.py::Sections._collect_all_issues). Reports every problem
 # found, not just the first.
 
+import difflib
 from collections.abc import Callable, Sequence
+from itertools import takewhile
 
 from pydantic import BaseModel, ValidationError, ValidationInfo
 
@@ -59,6 +61,95 @@ def collect_sheet_issues[M: BaseModel](
         issues.extend(sheet_rule(parsed, table_name))
 
     return [definition for _, definition in parsed], issues
+
+
+# Columns any sheet may have, which the generator doesn't read: notes for whoever edits
+# the sheet.
+COMMENT_COLUMN_NAMES: tuple[str, ...] = ("comments",)
+
+
+def unknown_columns_warning(
+    sheet_name: str,
+    headers: Sequence,
+    model: type[BaseModel],
+    column_prefix_by_field: dict[str, str],
+    languages: Sequence[str] = (),
+) -> str | None:
+    """
+    The warning listing the columns of a sheet its table doesn't read, or None if
+    there is none. They are ignored, so a misspelled header (e.g. Label_min::fr) loses
+    its whole column, and may only show up as another column reported missing.
+
+    A known column is a field of `model` (or its alias), a translated column (a key of
+    `column_prefix_by_field` maps a field to the prefix of its columns, e.g.
+    {"title": "title_"}, see row_checks.py::_collect_language_columns) or a comment
+    column (COMMENT_COLUMN_NAMES). Text after the first empty header is a note, not a
+    column (see ExcelSurveyDefinitionReader.get_headers). Each unknown column names
+    the closest known one, e.g. 'Label_min::fr' (did you mean 'label_min::fr'?), with
+    the translated columns in the survey `languages`.
+    """
+    known_columns = {
+        name
+        for field_name, field in model.model_fields.items()
+        if field_name not in column_prefix_by_field
+        for name in (field_name, field.alias)
+        if name is not None
+    } | set(COMMENT_COLUMN_NAMES)
+    prefixes = tuple(column_prefix_by_field.values())
+    columns = takewhile(
+        lambda header: header is not None and str(header).strip() != "", headers
+    )
+    unknown = [
+        column
+        for column in columns
+        if column not in known_columns
+        and not (isinstance(column, str) and column.startswith(prefixes))
+    ]
+    if not unknown:
+        return None
+    descriptions = []
+    for column in unknown:
+        # The translated columns in the survey languages, and in the column's own
+        # language (e.g. en for lable::en): a misspelled label::en is the column the
+        # survey languages are read from. Compared in lower case: a wrong case is a
+        # common typo.
+        candidates = [
+            *sorted(known_columns),
+            *(
+                prefix + language
+                for prefix in prefixes
+                for language in [*languages, _language_of(str(column), prefix)]
+                if language
+            ),
+        ]
+        candidate_by_lower_case = {
+            candidate.lower(): candidate for candidate in candidates
+        }
+        # get_close_matches scores how alike two names are, character by character,
+        # from 0 (nothing in common) to 1 (the same), e.g. abreviation and
+        # abbreviation score 0.96. It gives the best candidate scoring at least 0.6,
+        # or none: the column is then listed without a suggestion, rather than with
+        # a misleading one. It only guesses from the spelling, hence "did you mean".
+        closest = difflib.get_close_matches(
+            str(column).lower(), list(candidate_by_lower_case), n=1
+        )
+        descriptions.append(
+            f"{column!r} (did you mean {candidate_by_lower_case[closest[0]]!r}?)"
+            if closest
+            else repr(column)
+        )
+    return (
+        f"{sheet_name} sheet has columns it doesn't read, so they are ignored: "
+        f"{', '.join(descriptions)}"
+    )
+
+
+def _language_of(column: str, prefix: str) -> str | None:
+    """The language a column ends with, after the separator of `prefix` (:: or _), e.g. en for lable::en with label::; None if it has none."""
+    separator = "::" if prefix.endswith("::") else prefix[-1]
+    if separator not in column:
+        return None
+    return column.rsplit(separator, 1)[1] or None
 
 
 def unique_field(field_name: str) -> SheetRule[BaseModel]:

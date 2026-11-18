@@ -11,7 +11,10 @@ from dotenv import load_dotenv  # For environment variables
 import os  # For file operations
 import yaml  # For reading the yaml file
 from pydantic import ValidationError
-from helpers.generator_helpers import load_survey_definition
+from helpers.generator_helpers import (
+    load_survey_definition,
+    read_unknown_columns_warnings,
+)
 from survey_definition.excel_survey_definition_reader import ExcelSurveyDefinitionReader
 from survey_definition.survey_definition import SurveyDefinition
 from scripts.excel_to_csv_generator import ExcelToCsvGenerator
@@ -350,9 +353,10 @@ def _warnings(
     reader: ExcelSurveyDefinitionReader | None,
     survey_definition: SurveyDefinition | None,
 ) -> list[str]:
-    """The warnings about the Excel file (its sheets) and its survey definition (its rows)."""
+    """The warnings about the Excel file (its sheets and their columns) and its survey definition (its rows)."""
     return [
         *(reader.warnings if reader is not None else []),
+        *(read_unknown_columns_warnings(reader) if reader is not None else []),
         *(survey_definition.warnings() if survey_definition is not None else []),
     ]
 

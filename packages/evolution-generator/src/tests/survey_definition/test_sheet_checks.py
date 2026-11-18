@@ -10,11 +10,15 @@ from types import SimpleNamespace
 import pytest  # pyright: ignore[reportMissingImports]
 from pydantic import BaseModel, ValidationInfo, model_validator
 
+from survey_definition.choices_definition import ChoiceDefinition
+from survey_definition.sections_definition import SectionDefinition
 from survey_definition.sheet_checks import (
     collect_sheet_issues,
     fields_in_survey_languages,
     unique_field,
+    unknown_columns_warning,
 )
+from tests.parametrize_cases import cases
 
 
 class TestCollectSheetIssues:
@@ -115,3 +119,69 @@ class TestFieldsInSurveyLanguages:
     def test_no_issue_without_any_survey_language(self):
         """The languages were invalid, and are reported as such: nothing to compare to."""
         assert self._issues([self._Item(name={"fr": "a"})], {"languages": ()}) == []
+
+
+class TestUnknownColumnsWarning:
+    """The columns a sheet has but its table doesn't read, e.g. a misspelled header."""
+
+    _SECTION_HEADERS = ["section", "in_nav", "abbreviation", "title_fr", "title_en"]
+
+    def _warning(self, headers, languages=("fr", "en")):
+        return unknown_columns_warning(
+            "Sections", headers, SectionDefinition, {"title": "title_"}, languages
+        )
+
+    @cases(
+        dict(id="fields of the model", headers=_SECTION_HEADERS),
+        dict(id="translated columns in any language", headers=["section", "title_es"]),
+        dict(id="comments", headers=["section", "comments"]),
+        dict(
+            id="a note after an empty header",
+            headers=["section", None, "Note: to translate"],
+        ),
+    )
+    def test_accepts_the_columns_the_table_reads(self, headers):
+        assert self._warning(headers) is None
+
+    def test_accepts_the_alias_of_a_field(self):
+        # The Choices columns are named like choicesName, the field choices_name.
+        warning = unknown_columns_warning(
+            "Choices", ["choicesName", "choices_name"], ChoiceDefinition, {}
+        )
+        assert warning is None
+
+    def test_does_not_take_a_translated_field_for_a_column(self):
+        # title is gathered from the title_<language> columns: a title column is unknown.
+        assert self._warning(["section", "title"]) == (
+            "Sections sheet has columns it doesn't read, so they are ignored: "
+            "'title' (did you mean 'title_fr'?)"
+        )
+
+    @cases(
+        dict(id="wrong case", column="Title_fr", suggestion="title_fr"),
+        dict(id="misspelled field", column="abreviation", suggestion="abbreviation"),
+        dict(id="misspelled prefix", column="titel_en", suggestion="title_en"),
+        dict(
+            id="language that isn't a survey language",
+            column="titre_es",
+            suggestion="title_es",
+        ),
+    )
+    def test_suggests_the_closest_known_column(self, column, suggestion):
+        assert self._warning(["section", column]) == (
+            "Sections sheet has columns it doesn't read, so they are ignored: "
+            f"{column!r} (did you mean {suggestion!r}?)"
+        )
+
+    def test_gives_no_suggestion_when_no_known_column_is_close(self):
+        # zzz has nothing in common with any known column: it is listed alone, rather
+        # than with a misleading suggestion.
+        assert self._warning(["section", "zzz"]) == (
+            "Sections sheet has columns it doesn't read, so they are ignored: 'zzz'"
+        )
+
+    def test_lists_every_unknown_column_in_sheet_order(self):
+        assert self._warning(["section", "zzz", "Title_fr", 12]) == (
+            "Sections sheet has columns it doesn't read, so they are ignored: "
+            "'zzz', 'Title_fr' (did you mean 'title_fr'?), 12"
+        )
