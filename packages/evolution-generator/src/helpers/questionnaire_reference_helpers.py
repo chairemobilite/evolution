@@ -17,39 +17,50 @@ def get_abbreviation_by_section(sections: Sections) -> dict[str, str]:
     return {section.section: section.abbreviation for section in sections}
 
 
-def transform_path(path: str, abbreviation_by_section: dict[str, str]) -> str:
+def transform_path(
+    path: str,
+    abbreviation_by_section: dict[str, str],
+    section_name: str | None = None,
+) -> str:
     """
     Shorten `path` for the questionnaire reference documents by replacing its section
     prefix (the part before the first '.') with that section's abbreviation, e.g.
     'household.size' becomes 'hh_size' when 'household' has the abbreviation 'hh_'.
 
-    Only a path whose first part is a known section is shortened; any other path
-    ('${relativePath}.age', '${currentPerson}.age', 'usualWorkPlace.name', or one
-    without a dot) is returned as is, dots included.
+    When `section_name` is given (the section of the widget the path belongs to), only
+    a path whose first part is that section is shortened, e.g.
+    'household.persons.{_activePersonId}.journeys' in the 'tripsIntro' section is
+    returned as is. Without `section_name`, a path whose first part is any known
+    section is shortened.
+
+    Any other path ('${relativePath}.age', '${currentPerson}.age',
+    'usualWorkPlace.name', or one without a dot) is returned as is, dots included.
     """
-    # If the path contains the relativePath, we don't change it
-    if "${relativePath}." in path:
+    # Paths relative to a context token, or without a dot, are kept as is
+    if path.startswith("${") or "${relativePath}." in path or "." not in path:
         return path
 
-    # If the path contains '.', we change it to 'abreviation_fieldName'
-    if "." in path:
-        # limit the split to 1 to avoid too many values to unpack
-        # FIXME This does not handle correctly cases of complex paths with multiple dots. See https://github.com/chairemobilite/evolution/issues/1058 for more details
-        section_name, field_name = path.split(".", 1)
+    # limit the split to 1 to avoid too many values to unpack
+    path_section_name, field_name = path.split(".", 1)
 
-        # If the path doesn't start with a section (e.g. 'usualWorkPlace.name' or
-        # '${currentPerson}.age'), we don't change it: dropping the prefix would lose
-        # context and make different paths look the same (e.g. 'name').
-        if section_name not in abbreviation_by_section:
-            return path
-
-        if path.count(".") > 1:
-            print(
-                f"Warning: The path '{path}' contains multiple dots, which may lead to incorrect section attribution. See issue #1058 in Evolution for details."
-            )
-        return f"{abbreviation_by_section[section_name]}{field_name}"
-    else:
+    if section_name is not None:
+        if path_section_name == section_name:
+            return f"{abbreviation_by_section[section_name]}{field_name}"
+        # The path does not start with its widget's section, e.g. a path in the
+        # household asked in the 'tripsIntro' section. Shortening it with the path's
+        # section would describe it as a field of another section than its widget's,
+        # and prefixing it with its widget's section abbreviation ('TI_household...')
+        # would read as the non-existent 'tripsIntro.household...' path. The section
+        # heading of the reference document already tells the widget's section.
         return path
+
+    # If the path doesn't start with a section (e.g. 'usualWorkPlace.name'), we don't
+    # change it: dropping the prefix would lose context and make different paths look
+    # the same (e.g. 'name').
+    if path_section_name not in abbreviation_by_section:
+        return path
+
+    return f"{abbreviation_by_section[path_section_name]}{field_name}"
 
 
 def describe_conditional(

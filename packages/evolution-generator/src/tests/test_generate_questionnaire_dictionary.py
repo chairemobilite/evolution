@@ -411,3 +411,31 @@ class TestGenerateQuestionnaireDictionary:
             assert ["Section", title] in rows
             assert [abbreviation_label, "HH_"] in rows
             assert any("HH_size" in row for row in rows)
+
+    def test_path_starting_with_another_section_is_kept_as_is(self, tmp_path):
+        """A path starting with another section than its widget's is not shortened with either section."""
+        path = "household.persons.{_activePersonId}.journeys.{_activeJourneyId}.departurePlaceOther"
+        survey_definition = SurveyDefinition(
+            languages=("fr", "en"),
+            sections=[
+                {"section": "household", "in_nav": False, "abbreviation": "HH_"},
+                {"section": "tripsIntro", "in_nav": False, "abbreviation": "TI_"},
+            ],
+            widgets=[
+                {
+                    "question_name": "departurePlaceOther",
+                    "input_type": "String",
+                    "active": True,
+                    "section": "tripsIntro",
+                    "path": path,
+                    "label::fr": "Lieu?",
+                    "label::en": "Place?",
+                }
+            ],
+        )
+        generate_questionnaire_dictionary(survey_definition, str(tmp_path), "en")
+        with open(
+            tmp_path / "questionnaire_dictionary_en.csv", encoding="utf-8"
+        ) as csv_file:
+            rows = list(csv.reader(csv_file))
+        assert ["Field", path] in rows
