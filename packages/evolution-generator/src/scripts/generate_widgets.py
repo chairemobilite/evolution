@@ -11,7 +11,10 @@ from helpers.generator_helpers import (
     get_label_context_flags,
 )
 from survey_definition.survey_definition import SurveyDefinition
-from survey_definition.widgets_definition import WidgetDefinition
+from survey_definition.widgets_definition import (
+    WIDGET_ALLOWED_INPUT_TYPES_BY_FIELD,
+    WidgetDefinition,
+)
 from typing import TypedDict
 from dataclasses import dataclass
 
@@ -911,9 +914,14 @@ def get_widgets_file_import_flags(
             import_flags.has_custom_widgets_import = True
         if widget.input_type == "BuiltIn":
             import_flags.has_built_in_widgets_import = True
-        # Only the input types that write them can have a help or confirm popup (see
+        # Only the input types that write a popup import customHelpPopup: a Custom widget
+        # may keep a help_popup or confirm_popup it doesn't use (see
         # WIDGET_ALLOWED_INPUT_TYPES_BY_FIELD)
-        if widget.help_popup or widget.confirm_popup:
+        if any(
+            getattr(widget, field_name)
+            and widget.input_type in WIDGET_ALLOWED_INPUT_TYPES_BY_FIELD[field_name]
+            for field_name in ("help_popup", "confirm_popup")
+        ):
             import_flags.has_help_popup_import = True
 
         # Check for {{nickname}}, {{count}}, and label_one in the labels, in every language

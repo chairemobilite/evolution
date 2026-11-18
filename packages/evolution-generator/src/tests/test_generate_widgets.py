@@ -1071,19 +1071,36 @@ class TestGetWidgetsFileImportFlags:
         import_flags = get_widgets_file_import_flags([widget("Custom")])
         assert import_flags.has_custom_widgets_import is True
 
-    def test_help_popup_imports(self):
-        """Test that help_popup columns are correctly detected"""
-        # Help popup
-        import_flags = get_widgets_file_import_flags(
-            [widget(help_popup="someHelpPopup")]
-        )
-        assert import_flags.has_help_popup_import is True
-
-        # Confirm popup on NextButton
-        import_flags = get_widgets_file_import_flags(
-            [widget("NextButton", confirm_popup="someConfirmPopup")]
-        )
-        assert import_flags.has_help_popup_import is True
+    @cases(
+        dict(
+            id="help popup on a question",
+            input_type="String",
+            columns={"help_popup": "someHelpPopup"},
+            expected_import=True,
+        ),
+        dict(
+            id="confirm popup on a NextButton",
+            input_type="NextButton",
+            columns={"confirm_popup": "someConfirmPopup"},
+            expected_import=True,
+        ),
+        dict(
+            id="help popup kept by a Custom widget",
+            input_type="Custom",
+            columns={"help_popup": "someHelpPopup"},
+            expected_import=False,
+        ),
+        dict(
+            id="confirm popup kept by a Custom widget",
+            input_type="Custom",
+            columns={"confirm_popup": "someConfirmPopup"},
+            expected_import=False,
+        ),
+    )
+    def test_help_popup_imports(self, input_type, columns, expected_import):
+        """Test that only a widget whose input type writes its popup imports customHelpPopup"""
+        import_flags = get_widgets_file_import_flags([widget(input_type, **columns)])
+        assert import_flags.has_help_popup_import is expected_import
 
     def test_label_context_imports(self):
         """Test that label context imports are correctly detected"""
