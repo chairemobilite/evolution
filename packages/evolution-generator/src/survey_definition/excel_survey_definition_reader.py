@@ -84,7 +84,7 @@ class ExcelSurveyDefinitionReader:
         Return every row of the `table_name` sheet (row 1 is the header) as a dict keyed
         by its headers. Raises if the sheet or one of `required_fields` is missing; with
         `is_table_optional`, a missing sheet is read as an empty table (e.g. a survey
-        without any slider has no InputRange sheet).
+        without any slider can leave out the InputRange sheet).
 
         Empty rows between rows with data are kept (still invalid if the table requires
         values); there are no empty rows after the data (see _ExcelSheet).

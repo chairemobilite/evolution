@@ -387,7 +387,7 @@ export default sectionsConfigs;
 
 ## Generate Conditionals
 
-In your survey logic, conditionals play a key role in determining whether a widget will appear. The table below outlines the fields used to define conditionals in the `Conditionals` tab, along with an example and the corresponding TypeScript code.
+In your survey logic, conditionals play a key role in determining whether a widget will appear. The table below outlines the fields used to define conditionals in the `Conditionals` tab, along with an example and the corresponding TypeScript code. The `Conditionals` tab is optional: a survey without any conditional can leave it out, and no `conditionals.tsx` is generated then.
 
 ### Conditionals Fields
 
@@ -455,7 +455,7 @@ export const hasDrivingLicenseConditional: Conditional = (interview, path) => {
 
 ## Generate Choices
 
-Choices in your survey define the available options for `InputRadio` or `InputCheckbox` widgets. The table below outlines the fields in the `Choices` tab used to define choices, along with an example and the expected output in a `choices.tsx` file.
+Choices in your survey define the available options for `InputRadio` or `InputCheckbox` widgets. The table below outlines the fields in the `Choices` tab used to define choices, along with an example and the expected output in a `choices.tsx` file. The `Choices` tab is optional: a survey without any choice can leave it out, and no `choices.tsx` is generated then.
 
 ### Choices Fields
 

@@ -95,9 +95,13 @@ def load_survey_definition(reader: ExcelSurveyDefinitionReader) -> SurveyDefinit
     return SurveyDefinition(
         languages=reader.get_languages(),
         sections=reader.get_table("Sections", SECTION_REQUIRED_FIELD_NAMES),
-        conditionals=reader.get_table("Conditionals", CONDITIONAL_REQUIRED_FIELD_NAMES),
+        conditionals=reader.get_table(
+            "Conditionals", CONDITIONAL_REQUIRED_FIELD_NAMES, is_table_optional=True
+        ),
         labels=reader.get_table("Labels", LABEL_REQUIRED_FIELD_NAMES),
-        choices=reader.get_table("Choices", CHOICE_REQUIRED_FIELD_NAMES),
+        choices=reader.get_table(
+            "Choices", CHOICE_REQUIRED_FIELD_NAMES, is_table_optional=True
+        ),
         input_ranges=reader.get_table(
             "InputRange", INPUT_RANGE_REQUIRED_FIELD_NAMES, is_table_optional=True
         ),
