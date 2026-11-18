@@ -335,6 +335,25 @@ class Choices(RootModel[list[ChoiceDefinition]]):
             groups.setdefault(choice.choices_name, []).append(choice)
         return groups
 
+    def values_by_name(self) -> dict[str, list[str]]:
+        """
+        The values of each list, as text, with the values its spread rows bring in, in
+        the order choices.tsx writes them, e.g. for a widget's customChoice to name one.
+        """
+        # A valid spread names a list that starts earlier, so it is already expanded.
+        values: dict[str, list[str]] = {}
+        for choices_name, choices in self.by_name().items():
+            values[choices_name] = [
+                value
+                for choice in choices
+                for value in (
+                    [str(choice.value)]
+                    if choice.spread_choices_name is None
+                    else values.get(choice.spread_choices_name, [])
+                )
+            ]
+        return values
+
     def __iter__(self) -> Iterator[ChoiceDefinition]:  # type: ignore[override]
         return iter(self.root)
 

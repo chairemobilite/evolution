@@ -11,12 +11,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Breaking** Generator: the Widgets sheet's columns are renamed: `questionName` → `question_name`, `inputType` → `input_type`, `inputRange` → `input_range`, `containsHtml` → `contains_html`, `customPath` → `custom_path`, `customChoice` → `custom_choice`, `defaultValue` → `default_value`, `includeNotApplicable` → `include_not_applicable`, `twoColumns` → `two_columns` (fixes [#2038](https://github.com/chairemobilite/evolution/issues/2038))
+- **Breaking** Generator: the Widgets sheet is validated with the survey definition, according to each widget's input type: names must exist in their sheets (`section`, `conditional`, `choices`, `input_range`) or in Evolution (`validation`, `formatter`), `question_name` must be unique, a RadioNumber needs `min` and `max` (no more default 0 to 6), a label is required in every survey language, and true/false columns must be TRUE/FALSE or 1/0. A column the input type doesn't use is an error, except on a Custom widget, where it is a warning (it may keep the values it had before being made Custom). An inactive widget is left out: it isn't checked, and it is no longer written in the generated code, not even commented out, nor are its labels (fixes [#2038](https://github.com/chairemobilite/evolution/issues/2038))
+
 ### Deprecated
 
 ### Removed
 
 ### Fixed
 
+- Generator: the `customLabels` widget parameter is read whatever the case of its name, like the other parameters (fixes [#1615](https://github.com/chairemobilite/evolution/issues/1615))
 - Map find place widget: a map displayed with an existing value opens at the zoom of the value, or close to it when the value has no zoom, instead of the default zoom of the widget (fixes [#2217](https://github.com/chairemobilite/evolution/issues/2217))
 
 ### Security

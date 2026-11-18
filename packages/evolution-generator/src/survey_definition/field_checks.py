@@ -12,6 +12,12 @@ import re
 
 _TS_IDENTIFIER_PATTERN = re.compile(r"^[a-zA-Z_$][a-zA-Z0-9_$]*$")
 _PATH_CHARS_PATTERN = re.compile(r"^[a-zA-Z0-9_.{}]+$")
+# A response path: segments joined by dots, each a key or a {placeholder} holding another
+# response path, replaced by that response's value (see interpolatePath in
+# evolution-common/src/utils/helpers.ts), e.g. household.persons.{_activePersonId}.age.
+_PATH_KEY = r"[a-zA-Z0-9_]+"
+_PATH_SEGMENT = rf"(?:{_PATH_KEY}|\{{{_PATH_KEY}(?:\.{_PATH_KEY})*\}})"
+_RESPONSE_PATH_PATTERN = re.compile(rf"{_PATH_SEGMENT}(?:\.{_PATH_SEGMENT})*")
 
 
 def valid_ts_identifier(value, row: dict) -> bool:
@@ -22,6 +28,11 @@ def valid_ts_identifier(value, row: dict) -> bool:
 def valid_path_chars(value, row: dict) -> bool:
     """Must only contain characters allowed in a survey response path: a-z, A-Z, 0-9, _, ., {, }."""
     return bool(_PATH_CHARS_PATTERN.match(str(value)))
+
+
+def valid_response_path(value, row: dict) -> bool:
+    """Must be a response path: keys (a-z, A-Z, 0-9, _) or {placeholders} joined by dots, e.g. 'household.persons.{_activePersonId}.age'."""
+    return bool(_RESPONSE_PATH_PATTERN.fullmatch(str(value)))
 
 
 def non_blank(value, row: dict) -> bool:

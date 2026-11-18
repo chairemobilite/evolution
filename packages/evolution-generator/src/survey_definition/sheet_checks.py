@@ -25,8 +25,13 @@ def collect_sheet_issues[M: BaseModel](
     table_name: str,
     sheet_rules: Sequence[SheetRule[M]],
     context: dict | None = None,
+    is_skipped: Callable[[dict | M], bool] | None = None,
 ) -> tuple[list[M], list[str]]:
     """Parse every row into `model`, then run each of `sheet_rules` on the rows that parsed. Returns (parsed rows, every issue found).
+
+    A row for which `is_skipped` is true (e.g. an inactive widget) is left out: it isn't
+    parsed, checked or returned. The rows are still numbered as in the source, skipped
+    ones included, so every issue names the row of the source.
 
     `context` is the table's validation context (see validation_context.py), passed on
     to each row so its rules can read it. A row that is already a `model` instance was
@@ -38,6 +43,8 @@ def collect_sheet_issues[M: BaseModel](
     parsed: list[tuple[int, M]] = []
 
     for row_number, row in enumerate(rows, start=2):
+        if is_skipped is not None and is_skipped(row):
+            continue
         if isinstance(row, model):
             parsed.append((row_number, row))
             continue
