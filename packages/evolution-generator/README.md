@@ -245,6 +245,8 @@ Widgets are the building blocks of your survey. They define the structure and in
 
 > <span id="input">**Note:**</span> The `input_type` field specifies the type of input for the question and can be one of the following: Custom, BuiltIn, Radio, RadioNumber, Select, String, Number, InfoText, Range, Checkbox, NextButton, or Text. It may be written in any case (e.g. `Builtin` is read as `BuiltIn`).
 
+> <span id="builtInLabels">**Note:**</span> A `BuiltIn` widget has its labels from Evolution, so its label columns are optional. Filling them overrides the builtin label, read from `<section>:<widgetName>`, when `section` and `question_name` are those of the builtin widget, e.g. `segments` and `segmentMode`. The other keys of Evolution's `locales/<language>/<section>.yml` are kept, and can be overridden in the `Labels` sheet.
+
 > <span id="booleans">**Note:**</span> The true/false fields (`active`, `contains_html`, `two_columns`, `include_not_applicable`) must be TRUE or FALSE. `1` and `0` are also accepted, since a spreadsheet sometimes turns TRUE/FALSE into them, but not text such as `VRAI`.
 
 > <span id="unusedAndInactive">**Note:**</span> A column the input type doesn't use (e.g. `choices` on an `InfoText`) would be ignored by the generator, so it is an error. On a `Custom` widget, it is only a warning, without stopping the generation: a widget made `Custom` often keeps the values it had before, for the day it can be generated again. An inactive widget (`active` FALSE or 0) is left out: it isn't checked, and the generator doesn't write it, its labels or its UI test. The errors and warnings still name the rows of the sheet.
