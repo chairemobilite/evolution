@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Generator: the Excel check warns about a column a sheet doesn't read, e.g. a misspelled header, and suggests the closest known column. Every sheet may have a `comments` column (fixes [#2195](https://github.com/chairemobilite/evolution/issues/2195))
+
 ### Changed
 
 - **Breaking** Generator: the Widgets sheet's columns are renamed: `questionName` → `question_name`, `inputType` → `input_type`, `inputRange` → `input_range`, `containsHtml` → `contains_html`, `customPath` → `custom_path`, `customChoice` → `custom_choice`, `defaultValue` → `default_value`, `includeNotApplicable` → `include_not_applicable`, `twoColumns` → `two_columns` (fixes [#2038](https://github.com/chairemobilite/evolution/issues/2038))
