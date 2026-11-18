@@ -10,6 +10,7 @@ import pytest  # pyright: ignore[reportMissingImports]
 from pydantic import ValidationError
 
 from survey_definition.sections_definition import Sections, SectionDefinition
+from tests.parametrize_cases import cases
 
 
 def _sections(rows) -> Sections:
@@ -148,6 +149,28 @@ class TestSections:
             "Error in Sections - Invalid in_nav in row 2: 'yes' - "
             "Input should be a valid boolean"
         ]
+
+    @cases(
+        dict(id="in_nav True", field_name="in_nav", value="True", expected=True),
+        dict(id="in_nav 0", field_name="in_nav", value=0, expected=False),
+        dict(id="template TRUE", field_name="template", value="TRUE", expected=True),
+        dict(
+            id="has_preload false",
+            field_name="has_preload",
+            value="false",
+            expected=False,
+        ),
+        dict(id="has_preload 1", field_name="has_preload", value=1, expected=True),
+    )
+    def test_reads_true_and_false_written_as_text_or_a_number(
+        self, field_name, value, expected
+    ):
+        rows = [{**self._valid_section_row("home", "HM_"), field_name: value}]
+        assert getattr(_sections(rows)[0], field_name) is expected
+
+    def test_keeps_a_builtin_template_name(self):
+        rows = [{**self._valid_section_row("home", "HM_"), "template": "tripsIntro"}]
+        assert _sections(rows)[0].template == "tripsIntro"
 
     def test_gathers_the_title_of_each_language(self):
         rows = [{**self._valid_section_row("home", "HM_"), "title_es": "Inicio"}]

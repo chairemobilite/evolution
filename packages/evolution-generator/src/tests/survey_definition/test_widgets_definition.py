@@ -122,8 +122,7 @@ class TestWidgetDefinition:
         dict(id="active as text", field_name="active", value="yes"),
         dict(id="active as a number other than 0 and 1", field_name="active", value=2),
         dict(id="active as French text", field_name="active", value="VRAI"),
-        dict(id="active as the text 1", field_name="active", value="1"),
-        dict(id="contains_html as text", field_name="contains_html", value="TRUE"),
+        dict(id="contains_html as text", field_name="contains_html", value="oui"),
         dict(id="question_name as a number", field_name="question_name", value=12),
     )
     def test_reports_a_value_of_the_wrong_type(self, field_name, value):
@@ -145,6 +144,31 @@ class TestWidgetDefinition:
     )
     def test_reads_1_and_0_as_true_and_false(self, field_name, value, expected):
         # A spreadsheet sometimes turns TRUE/FALSE into 1/0, e.g. LibreOffice.
+        assert getattr(_definition(_row(**{field_name: value})), field_name) is expected
+
+    @cases(
+        dict(id="active True", field_name="active", value="True", expected=True),
+        dict(id="active the text 1", field_name="active", value="1", expected=True),
+        dict(
+            id="contains_html TRUE",
+            field_name="contains_html",
+            value="TRUE",
+            expected=True,
+        ),
+        dict(
+            id="two_columns false",
+            field_name="two_columns",
+            value="false",
+            expected=False,
+        ),
+        dict(
+            id="include_not_applicable FALSE",
+            field_name="include_not_applicable",
+            value=" FALSE ",
+            expected=False,
+        ),
+    )
+    def test_reads_true_and_false_written_as_text(self, field_name, value, expected):
         assert getattr(_definition(_row(**{field_name: value})), field_name) is expected
 
     @cases(
@@ -1228,6 +1252,7 @@ class TestInactiveWidgets:
     @cases(
         dict(id="active FALSE", active=False),
         dict(id="active 0", active=0),
+        dict(id="active False as text", active="False"),
     )
     def test_leaves_out_an_inactive_row_unchecked(self, active):
         broken = {

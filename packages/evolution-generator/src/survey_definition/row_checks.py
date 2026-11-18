@@ -6,7 +6,13 @@
 # checking that the source provides the required field names, and turning one row into
 # a definition model, with its problems reported in the Generator's error message format.
 
+from typing import Any
+
 from pydantic import ValidationError
+
+# The texts a true/false cell may hold, in any case and with surrounding spaces ignored,
+# e.g. a cell formatted as text, or a file converted to CSV along the way.
+_BOOLEAN_BY_TEXT = {"true": True, "false": False, "1": True, "0": False}
 
 
 def check_required_field_names(
@@ -101,6 +107,29 @@ def _collect_language_columns(row: dict, field_name: str, column_prefix: str) ->
     if collected:
         rest[field_name] = collected
     return rest
+
+
+def _as_boolean(value: Any) -> Any:
+    """
+    The true/false value of a cell: TRUE/FALSE written as text (e.g. 'True', in any
+    case), and 1/0 (as a number or a text, a spreadsheet sometimes turns TRUE/FALSE into
+    them), are read as true and false; any other value (e.g. 'yes') is kept as is, so it
+    is still reported as an invalid boolean.
+    """
+    if isinstance(value, str):
+        return _BOOLEAN_BY_TEXT.get(value.strip().lower(), value)
+    # type() and not isinstance(): True is also an int in Python.
+    if type(value) in (int, float) and value in (0, 1):
+        return bool(value)
+    return value
+
+
+def _read_booleans(row: dict, field_names: tuple[str, ...]) -> dict:
+    """Return `row` with the value of each of `field_names` it holds read by _as_boolean."""
+    return {
+        key: _as_boolean(value) if key in field_names else value
+        for key, value in row.items()
+    }
 
 
 def _raise_if_check_fails(check, value, row: dict) -> None:

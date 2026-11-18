@@ -12,6 +12,7 @@ import pytest  # pyright: ignore[reportMissingImports]
 from pydantic import ValidationError
 
 from survey_definition.choices_definition import Choices, ChoiceDefinition
+from tests.parametrize_cases import cases
 
 CONTEXT = {"languages": ("fr", "en")}
 
@@ -147,6 +148,15 @@ class TestChoices:
             "Error in Choices - Invalid hidden in row 2: 'yes' - "
             "Input should be a valid boolean"
         ]
+
+    @cases(
+        dict(id="True as text", hidden="True", expected=True),
+        dict(id="false as text", hidden="false", expected=False),
+        dict(id="1", hidden=1, expected=True),
+        dict(id="bool", hidden=True, expected=True),
+    )
+    def test_reads_hidden_written_as_text_or_a_number(self, hidden, expected):
+        assert self._choices([self._row("yesNo", hidden=hidden)])[0].hidden is expected
 
     def test_blank_hidden_is_false(self):
         assert self._choices([self._row("yesNo", hidden="")])[0].hidden is False

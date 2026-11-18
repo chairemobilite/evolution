@@ -27,6 +27,7 @@ from survey_definition import field_checks
 from survey_definition.row_checks import (
     _collect_language_columns,
     _raise_if_check_fails,
+    _read_booleans,
     _strip_blanks,
 )
 from survey_definition.sheet_checks import (
@@ -47,6 +48,10 @@ SECTION_REQUIRED_FIELD_NAMES: tuple[str, ...] = (
     "parent_section",
     "abbreviation",
 )
+
+# The columns holding a true/false value (template may also hold a builtin template's
+# name), read by _as_boolean.
+_SECTION_BOOLEAN_FIELD_NAMES = ("in_nav", "template", "has_preload")
 
 # Prefix of the title columns: one per survey language, e.g. title_fr, title_en.
 SECTION_TITLE_COLUMN_PREFIX = "title_"
@@ -69,7 +74,9 @@ class SectionDefinition(BaseModel):
     (see validation_context.py), e.g. `Sections.model_validate(rows,
     context={"languages": ("fr", "es")})`; a row in the navigation menu needs them.
     Constructing a SectionDefinition directly only runs the per-row rules below. Validation
-    is strict: no type coercion (e.g. the string "yes" is rejected for a bool field).
+    is strict: no type coercion (e.g. the string "yes" is rejected for a bool field),
+    except that a true/false field accepts TRUE/FALSE written as text or as 1/0 (see
+    row_checks._as_boolean).
 
     Attributes:
         section: Unique name of this section, and the value other rows use in their
@@ -103,19 +110,21 @@ class SectionDefinition(BaseModel):
     # strict=True turns that off: a value must already have exactly the declared type,
     # otherwise it is reported as an error. A cell holding "yes" where a true/false
     # value is expected is most likely a mistake in the spreadsheet, so we want to
-    # point it out rather than guess what was meant. The same goes for a TRUE that
-    # became 1 or "true" after a round trip between Excel, LibreOffice Calc and a text
-    # editor: it means the file was converted along the way, which is worth knowing.
+    # point it out rather than guess what was meant. A TRUE written as text ("True"),
+    # or turned into 1 by a spreadsheet, is clearly meant as true, though: the
+    # before-validator reads those (see row_checks._as_boolean).
     model_config = ConfigDict(strict=True)
 
     @model_validator(mode="before")
     @classmethod
     def _strip_blank_cells(cls, data: Any) -> Any:
-        """Treat a blank/whitespace-only cell as an absent key, and gather the title_<language> columns into `title`."""
+        """Treat a blank/whitespace-only cell as an absent key, read the true/false cells, and gather the title_<language> columns into `title`."""
         if not isinstance(data, dict):
             return data
         return _collect_language_columns(
-            _strip_blanks(data), "title", SECTION_TITLE_COLUMN_PREFIX
+            _read_booleans(_strip_blanks(data), _SECTION_BOOLEAN_FIELD_NAMES),
+            "title",
+            SECTION_TITLE_COLUMN_PREFIX,
         )
 
     # No default: a blank value here is a genuinely missing required value.

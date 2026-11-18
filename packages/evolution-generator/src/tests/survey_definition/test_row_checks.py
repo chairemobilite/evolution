@@ -9,6 +9,7 @@ import pytest  # pyright: ignore[reportMissingImports]
 from pydantic import BaseModel, ValidationError, model_validator
 
 from survey_definition.row_checks import (
+    _as_boolean,
     _collect_language_columns,
     _raise_if_check_fails,
     _strip_blanks,
@@ -19,6 +20,7 @@ from survey_definition.sections_definition import (
     SECTION_REQUIRED_FIELD_NAMES,
     SectionDefinition,
 )
+from tests.parametrize_cases import cases
 
 
 class TestCheckRequiredFieldNames:
@@ -201,3 +203,31 @@ class TestCollectLanguageColumns:
     def test_leaves_a_row_without_such_columns_unchanged(self):
         row = {"section": "home"}
         assert _collect_language_columns(row, "title", "title_") == row
+
+
+class TestAsBoolean:
+    @cases(
+        dict(id="True", value=True, expected=True),
+        dict(id="False", value=False, expected=False),
+        dict(id="the text True", value="True", expected=True),
+        dict(id="the text TRUE", value="TRUE", expected=True),
+        dict(id="the text false", value="false", expected=False),
+        dict(id="the text FALSE with spaces", value=" FALSE ", expected=False),
+        dict(id="the text 1", value="1", expected=True),
+        dict(id="the text 0", value="0", expected=False),
+        dict(id="the number 1", value=1, expected=True),
+        dict(id="the number 0", value=0, expected=False),
+        dict(id="the number 1.0", value=1.0, expected=True),
+    )
+    def test_reads_a_true_false_value(self, value, expected):
+        assert _as_boolean(value) is expected
+
+    @cases(
+        dict(id="yes", value="yes"),
+        dict(id="French text", value="VRAI"),
+        dict(id="the number 2", value=2),
+        dict(id="the text 2", value="2"),
+        dict(id="None", value=None),
+    )
+    def test_keeps_any_other_value(self, value):
+        assert _as_boolean(value) == value
