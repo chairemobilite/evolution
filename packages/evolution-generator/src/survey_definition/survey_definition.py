@@ -214,9 +214,10 @@ class SurveyDefinition(BaseModel):
     def warnings(self) -> list[str]:
         """
         The problems that don't reject the survey definition, e.g. a widget column its
-        input type doesn't use (see Widgets.warnings).
+        input type doesn't use, or a label_one missing in some survey languages (see
+        Widgets.warnings and Labels.warnings).
         """
-        return self.widgets.warnings()
+        return [*self.labels.warnings(self.languages), *self.widgets.warnings()]
 
 
 def _validated_table[T: BaseModel](
