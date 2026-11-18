@@ -229,6 +229,8 @@ def generate_choices(
     """
     Write choices.tsx (one exported ChoiceType[] list per choicesName) and, when
     `labels_output_folder_path` is given, the locales/<language>/choices.yaml labels.
+    choices.tsx isn't written when the Choices table is empty: no widget imports it
+    then.
 
     Args:
         survey_definition: Already-validated survey definition, read for its Choices
@@ -242,16 +244,18 @@ def generate_choices(
 
         choices_by_name = survey_definition.choices.by_name()
 
-        # Generate TypeScript code
-        ts_code = _generate_typescript_code(choices_by_name=choices_by_name)
+        if choices_by_name:
+            # Generate TypeScript code
+            ts_code = _generate_typescript_code(choices_by_name=choices_by_name)
 
-        # Write TypeScript code to a file
-        with open(output_file, mode="w", encoding="utf-8", newline="\n") as ts_file:
-            ts_file.write(ts_code)
+            # Write TypeScript code to a file
+            with open(output_file, mode="w", encoding="utf-8", newline="\n") as ts_file:
+                ts_file.write(ts_code)
 
-        print(f"Generated {output_file} successfully")
+            print(f"Generated {output_file} successfully")
 
-        # Generate locales/<lang>/choices.yaml files
+        # Generate locales/<lang>/choices.yaml files (an empty table only deletes the
+        # previous ones)
         if labels_output_folder_path is not None:
             _generate_choices_yaml_locales(
                 choices_by_name,
