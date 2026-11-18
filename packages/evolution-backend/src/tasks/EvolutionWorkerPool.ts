@@ -8,7 +8,8 @@
 import workerpool from 'workerpool';
 import { workerData } from 'worker_threads';
 import { loadRegisteredServerConfig, registerServerConfigs } from '../config/serverConfigRegistry';
-import { exportAllToCsvBySurveyObjectTask } from '../services/adminExport/exportAllToCsvBySurveyObject';
+import { exportAllResponsesToCsvByObjectTask } from '../services/adminExport/exportAllResponsesToCsvByObject';
+import { exportSurveyObjectsToCsvTask } from '../services/adminExport/surveyObjects/exportSurveyObjectsToCsv';
 import { exportInterviewLogTask } from '../services/adminExport/exportInterviewLogs';
 import { runBatchAuditsTask } from '../services/audits/BatchAuditService';
 
@@ -22,7 +23,8 @@ const run = async () => {
 
     // create a worker and register public functions
     workerpool.worker({
-        exportAllToCsvBySurveyObject: exportAllToCsvBySurveyObjectTask,
+        exportAllResponsesToCsvByObject: exportAllResponsesToCsvByObjectTask,
+        exportSurveyObjectsToCsv: exportSurveyObjectsToCsvTask,
         exportInterviewLog: exportInterviewLogTask,
         runBatchAudits: runBatchAuditsTask
     });

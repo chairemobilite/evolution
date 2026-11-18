@@ -9,6 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Export: CSV files of the survey objects, created from the corrected responses ([#2182](https://github.com/chairemobilite/evolution/pull/2182))
+- Export: review status of each object in the survey objects export, and whether it contains a rejected object ([#2202](https://github.com/chairemobilite/evolution/issues/2202))
+
 ### Changed
 
 - **Breaking** Generator: the Widgets sheet's columns are renamed: `questionName` → `question_name`, `inputType` → `input_type`, `inputRange` → `input_range`, `containsHtml` → `contains_html`, `customPath` → `custom_path`, `customChoice` → `custom_choice`, `defaultValue` → `default_value`, `includeNotApplicable` → `include_not_applicable`, `twoColumns` → `two_columns` (fixes [#2038](https://github.com/chairemobilite/evolution/issues/2038))
