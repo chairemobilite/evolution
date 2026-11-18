@@ -88,7 +88,7 @@ def generate_questionnaire_dictionary(
                         widget.parameters, language
                     )
                 transformed_path = transform_path(
-                    question_path, abbreviation_by_section
+                    question_path, abbreviation_by_section, section_name
                 )
                 # Get conditional text or the name if it contains 'CustomConditional'
                 conditional_text = (

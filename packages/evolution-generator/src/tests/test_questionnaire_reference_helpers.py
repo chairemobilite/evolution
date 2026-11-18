@@ -5,6 +5,9 @@
 # Note: Tests for helpers/questionnaire_reference_helpers.py: path and conditional
 # descriptions shared by the questionnaire reference documents scripts.
 
+from typing import NamedTuple
+
+import pytest
 from helpers.questionnaire_reference_helpers import (
     describe_conditional,
     describe_conditionals,
@@ -59,17 +62,14 @@ class TestTransformPath:
             == "${currentPerson}.age"
         )
 
-    def test_warns_about_multiple_dots_only_for_a_known_section(self, capsys):
-        """The multiple-dots warning is only printed for a path that is shortened."""
+    def test_shortens_only_the_section_of_a_path_with_multiple_dots(self):
+        """Only the first part of a path with multiple dots is replaced by its section's abbreviation."""
         assert transform_path("household.car.make", self.ABBREVIATIONS) == (
             "HH_car.make"
         )
-        assert "contains multiple dots" in capsys.readouterr().out
-
         assert transform_path("unknown.car.make", self.ABBREVIATIONS) == (
             "unknown.car.make"
         )
-        assert capsys.readouterr().out == ""
 
     def test_keeps_relative_path_as_is(self):
         """A ${relativePath} path is not shortened."""
@@ -82,6 +82,87 @@ class TestTransformPath:
         """A path without a dot is not shortened."""
         assert transform_path("acceptToBeContacted", self.ABBREVIATIONS) == (
             "acceptToBeContacted"
+        )
+
+
+class TransformPathInSectionCase(NamedTuple):
+    """A widget's path, the section of that widget and the expected transformed path."""
+
+    path: str
+    section_name: str
+    expected_path: str
+
+
+class TestTransformPathInSection:
+    ABBREVIATIONS = {"household": "HH_", "tripsIntro": "TI_"}
+
+    @pytest.mark.parametrize(
+        "case",
+        [
+            pytest.param(
+                TransformPathInSectionCase(
+                    path="household.size",
+                    section_name="household",
+                    expected_path="HH_size",
+                ),
+                id="path starting with its widget's section is shortened",
+            ),
+            pytest.param(
+                TransformPathInSectionCase(
+                    path="household.car.make",
+                    section_name="household",
+                    expected_path="HH_car.make",
+                ),
+                id="path with multiple dots starting with its widget's section",
+            ),
+            # Neither 'HH_persons...' (wrong section) nor 'TI_household...' (not a real path)
+            pytest.param(
+                TransformPathInSectionCase(
+                    path="household.persons.{_activePersonId}.journeys.{_activeJourneyId}.departurePlaceOther",
+                    section_name="tripsIntro",
+                    expected_path="household.persons.{_activePersonId}.journeys.{_activeJourneyId}.departurePlaceOther",
+                ),
+                id="path starting with another section is kept as is",
+            ),
+            pytest.param(
+                TransformPathInSectionCase(
+                    path="usualWorkPlace.name",
+                    section_name="household",
+                    expected_path="usualWorkPlace.name",
+                ),
+                id="path not starting with a section is kept as is",
+            ),
+            pytest.param(
+                TransformPathInSectionCase(
+                    path="${relativePath}.age",
+                    section_name="household",
+                    expected_path="${relativePath}.age",
+                ),
+                id="relative path is kept as is",
+            ),
+            pytest.param(
+                TransformPathInSectionCase(
+                    path="${currentPerson}.age",
+                    section_name="household",
+                    expected_path="${currentPerson}.age",
+                ),
+                id="context token path is kept as is",
+            ),
+            pytest.param(
+                TransformPathInSectionCase(
+                    path="acceptToBeContacted",
+                    section_name="household",
+                    expected_path="acceptToBeContacted",
+                ),
+                id="path without dot is kept as is",
+            ),
+        ],
+    )
+    def test_transform_path_in_section(self, case: TransformPathInSectionCase):
+        """With its widget's section, only a path starting with that section is shortened."""
+        assert (
+            transform_path(case.path, self.ABBREVIATIONS, case.section_name)
+            == case.expected_path
         )
 
 
