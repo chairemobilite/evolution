@@ -358,20 +358,6 @@ class TestLoadSurveyDefinition:
         finally:
             delete_file_if_exists(MOCKED_EXCEL_FILE)
 
-    def test_missing_conditionals_sheet_raises(self):
-        self._create_workbook(
-            "Sections",
-            self.VALID_SECTIONS_HEADERS,
-            self.VALID_SECTIONS_ROWS,
-        )
-        try:
-            with pytest.raises(
-                Exception, match="Sheet with name Conditionals does not exist"
-            ):
-                load_survey_definition(ExcelSurveyDefinitionReader(MOCKED_EXCEL_FILE))
-        finally:
-            delete_file_if_exists(MOCKED_EXCEL_FILE)
-
     def test_missing_labels_sheet_raises(self):
         workbook = self._create_workbook(
             "Sections", self.VALID_SECTIONS_HEADERS, self.VALID_SECTIONS_ROWS
@@ -535,15 +521,31 @@ class TestLoadSurveyDefinition:
         finally:
             delete_file_if_exists(MOCKED_EXCEL_FILE)
 
-    def test_missing_choices_sheet_raises(self):
-        workbook = self._create_valid_workbook()
-        del workbook["Choices"]
+    @pytest.mark.parametrize(
+        "sheet_name, table_attribute",
+        [
+            pytest.param("Conditionals", "conditionals", id="conditionals"),
+            pytest.param("Choices", "choices", id="choices"),
+            pytest.param("InputRange", "input_ranges", id="input_range"),
+        ],
+    )
+    def test_missing_optional_sheet_is_an_empty_table(
+        self, sheet_name, table_attribute
+    ):
+        """
+        The Conditionals, Choices and InputRange sheets are optional: a survey that
+        uses no conditional, choice or slider can leave the sheet out, and gets an
+        empty table (so no conditionals.tsx, choices.tsx or inputRange.tsx is
+        generated).
+        """
+        workbook = self._create_workbook_with_input_range()
+        del workbook[sheet_name]
         workbook.save(MOCKED_EXCEL_FILE)
         try:
-            with pytest.raises(
-                Exception, match="Sheet with name Choices does not exist"
-            ):
-                load_survey_definition(ExcelSurveyDefinitionReader(MOCKED_EXCEL_FILE))
+            survey_definition = load_survey_definition(
+                ExcelSurveyDefinitionReader(MOCKED_EXCEL_FILE)
+            )
+            assert len(getattr(survey_definition, table_attribute)) == 0
         finally:
             delete_file_if_exists(MOCKED_EXCEL_FILE)
 
@@ -611,21 +613,6 @@ class TestLoadSurveyDefinition:
                 ExcelSurveyDefinitionReader(MOCKED_EXCEL_FILE)
             ).input_ranges
             assert input_range[0].unit == {}
-        finally:
-            delete_file_if_exists(MOCKED_EXCEL_FILE)
-
-    def test_missing_input_range_sheet_is_an_empty_table(self):
-        """The InputRange sheet is optional: a survey without any slider can leave it out."""
-        self._create_valid_workbook()
-        try:
-            assert (
-                len(
-                    load_survey_definition(
-                        ExcelSurveyDefinitionReader(MOCKED_EXCEL_FILE)
-                    ).input_ranges
-                )
-                == 0
-            )
         finally:
             delete_file_if_exists(MOCKED_EXCEL_FILE)
 
