@@ -8,14 +8,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased (0.6.9)]
 
 ### Added
+- Repeated blocks: `estimatedIterationCount` option, the number of iterations to assume for the section progress bar before the objects to iterate over are known
 
 ### Changed
 
 ### Deprecated
 
 ### Removed
+- `calculateSurveyCompletionPercentage` helper, the completion percentage is now calculated by the navigation service (`NavigationService.getCompletionPercentage`)
 
 ### Fixed
+- Section progress bar: count the sections from the navigation flow instead of requiring a last section named 'completed', count the sections of repeated blocks for each iteration and keep the progress when going back (fixes [#918](https://github.com/chairemobilite/evolution/issues/918), [#934](https://github.com/chairemobilite/evolution/issues/934) and [#1024](https://github.com/chairemobilite/evolution/issues/1024))
 
 ### Security
 

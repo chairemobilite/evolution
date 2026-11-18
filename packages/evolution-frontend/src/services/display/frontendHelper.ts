@@ -11,7 +11,6 @@ import DOMPurify from 'dompurify';
 import i18n from '../../config/i18n.config';
 import { secondsSinceMidnightToTimeStr } from 'chaire-lib-common/lib/utils/DateTimeUtils';
 import { ButtonAction, Person, VisitedPlace } from 'evolution-common/lib/services/questionnaire/types';
-import { calculateSurveyCompletionPercentage } from 'evolution-common/lib/utils/helpers';
 
 type GenderedData = {
     [gender: string]: {
@@ -146,30 +145,16 @@ export const validateButtonActionWithCompleteSection: ButtonAction = (
     _interview,
     path,
     _section,
-    sections,
+    _sections,
     saveCallback
 ) => {
-    callbacks.startNavigate(undefined, (updatedInterview, targetSection) => {
+    callbacks.startNavigate(undefined, (updatedInterview) => {
         if ((updatedInterview as any).allWidgetsValid) {
             if (typeof saveCallback === 'function') {
                 saveCallback(callbacks, updatedInterview, path);
             } else {
-                // Calculate the survey completion percentage based on the number of completed sections
-                // FIXME Completion rate should be calculated by the navigation service itself
-                const completionPercentage = calculateSurveyCompletionPercentage({
-                    interview: updatedInterview,
-                    sections,
-                    sectionName: targetSection.sectionShortname,
-                    sectionTarget: 'nextSection'
-                });
-
-                // Update the completion percentage and scroll to top of page
+                // Scroll to top of page. The completion percentage is stored by the navigation itself
                 window.scrollTo(0, 0);
-                callbacks.startUpdateInterview({
-                    valuesByPath: {
-                        'response._completionPercentage': completionPercentage
-                    }
-                });
             }
         }
     });

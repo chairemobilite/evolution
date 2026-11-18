@@ -102,6 +102,15 @@ export type RepeatedBlockSectionConfig = {
     skipSelectionInNaturalFlow?: boolean;
 
     /**
+     * Number of iterations to assume for the survey completion percentage,
+     * while there is no object to iterate over yet (for example, before the
+     * household members are entered). A higher estimate gives a lower
+     * percentage at the beginning of the survey, that will then increase
+     * faster. Defaults to 4.
+     */
+    estimatedIterationCount?: number;
+
+    /**
      * Path where to store the currently selected object ID
      * e.g., '_activePersonId'
      */
@@ -431,6 +440,16 @@ export const getAndValidateSurveySections = (sections: SurveySectionsConfig): Su
                     );
                 }
             });
+            // The estimated iteration count is used to create the list of sections for the completion percentage
+            const estimatedIterationCount = sectionConfig.repeatedBlock.estimatedIterationCount;
+            if (
+                estimatedIterationCount !== undefined &&
+                !(Number.isInteger(estimatedIterationCount) && estimatedIterationCount >= 0)
+            ) {
+                throw new Error(
+                    `The "estimatedIterationCount" of section "${sectionName}" must be a non-negative integer, but it is ${estimatedIterationCount}.`
+                );
+            }
             // The selectionSection should exist if specified
             if (sectionConfig.repeatedBlock.selectionSectionId) {
                 if (!sectionsWithDefaults[sectionConfig.repeatedBlock.selectionSectionId]) {

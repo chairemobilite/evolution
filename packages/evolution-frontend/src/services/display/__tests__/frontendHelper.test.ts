@@ -254,12 +254,8 @@ describe('validateButtonActionWithCompleteSection', () => {
             undefined,
             expect.any(Function)
         );
-        expect(callbacks.startUpdateInterview).toHaveBeenCalledTimes(1);
-        expect(callbacks.startUpdateInterview).toHaveBeenCalledWith({
-            valuesByPath: {
-                'response._completionPercentage': 100
-            }
-        });
+        // The completion percentage is stored by the navigation, not by the button action
+        expect(callbacks.startUpdateInterview).not.toHaveBeenCalled();
     });
 
     test('with callback', () => {

@@ -14,6 +14,10 @@ import { getLastVisitedSection, isIterationContextStarted } from './navigationHe
 import { getResponse, parseBoolean } from '../../../utils/helpers';
 import { getInterviewablePersonsArray } from '../../odSurvey/helpers';
 
+// Number of iterations to assume for a repeated block in the completion
+// percentage, when the block's `estimatedIterationCount` is not set
+const DEFAULT_ESTIMATED_ITERATION_COUNT = 4;
+
 /**
  * NavigationService handles complex navigation for questionnaires,
  * including repeated blocks of sections and conditional navigation.
@@ -587,6 +591,136 @@ export class NavigationService {
                 valuesByPath:
                       valuesByPath === undefined ? valuesToUpdate : Object.assign(valuesByPath, valuesToUpdate)
             };
+    }
+
+    // Get the iteration contexts of a repeated block for the completion
+    // percentage. When there is no object to iterate on yet and the block is
+    // still ahead, assume the block's estimated number of iterations, so that
+    // the percentage is rather lower than higher than the actual completion.
+    private getIterationContextsForProgress({
+        interview,
+        blockSection,
+        isBlockAhead
+    }: {
+        interview: UserRuntimeInterviewAttributes;
+        blockSection: SectionConfigWithDefaultsBlock;
+        isBlockAhead: boolean;
+    }): (string[] | undefined)[] {
+        let iterationContexts: string[][] = [];
+        try {
+            [iterationContexts] = this.getIterationContextsForBlock({ interview, blockSection });
+        } catch {
+            // Unsupported iteration rule, use the estimate
+        }
+        if (iterationContexts.length > 0 || !isBlockAhead) {
+            return iterationContexts;
+        }
+        const estimatedIterationCount =
+            blockSection.repeatedBlock.estimatedIterationCount ?? DEFAULT_ESTIMATED_ITERATION_COUNT;
+        return new Array(estimatedIterationCount).fill(undefined);
+    }
+
+    // Get the sections that the respondent may go through, in order, with the
+    // iteration context of the sections in repeated blocks. The repeated block
+    // sections themselves are not shown, but their sections are repeated for
+    // each iteration. Sections that may be skipped by their `isSectionVisible`
+    // function are still counted, as their visibility often depends on
+    // answers not given yet: skipping them makes the percentage increase
+    // faster instead of stalling. Only the selection section of repeated
+    // blocks is omitted when it is not part of the flow.
+    private getProgressSteps({
+        interview,
+        currentSection
+    }: {
+        interview: UserRuntimeInterviewAttributes;
+        currentSection: NavigationSection;
+    }): NavigationSection[] {
+        const steps: NavigationSection[] = [];
+        const isCurrentSection = (section: NavigationSection) =>
+            section.sectionShortname === currentSection.sectionShortname &&
+            _isEqual(section.iterationContext, currentSection.iterationContext);
+
+        const visited = new Set<string>();
+        let sectionName: string | null = this.getFirstSection();
+        let isCurrentSectionReached = false;
+        // Stop at the end of the flow, or if a section was already visited, to avoid infinite loops
+        while (sectionName !== null && this.sections[sectionName] !== undefined && !visited.has(sectionName)) {
+            visited.add(sectionName);
+            const sectionConfig = this.sections[sectionName];
+            if (sectionConfig.type !== 'repeatedBlock') {
+                const section = { sectionShortname: sectionName };
+                isCurrentSectionReached = isCurrentSectionReached || isCurrentSection(section);
+                steps.push(section);
+                sectionName = sectionConfig.nextSection;
+                continue;
+            }
+
+            const repeatedBlock = sectionConfig.repeatedBlock;
+            const blockSections = repeatedBlock.sections;
+            const iterationContexts = this.getIterationContextsForProgress({
+                interview,
+                blockSection: sectionConfig,
+                isBlockAhead: isCurrentSectionReached
+            });
+            // Like in the navigation, the selection section is shown only if
+            // there are many iterations, and may be skipped in the natural flow
+            const isSelectionInFlow =
+                iterationContexts.length > 1 &&
+                !(repeatedBlock.skipSelectionInNaturalFlow && blockSections[0] === repeatedBlock.selectionSectionId);
+            iterationContexts.forEach((iterationContext) => {
+                blockSections.forEach((blockSectionName) => {
+                    const section = { sectionShortname: blockSectionName, iterationContext };
+                    isCurrentSectionReached = isCurrentSectionReached || isCurrentSection(section);
+                    if (
+                        blockSectionName !== repeatedBlock.selectionSectionId ||
+                        isSelectionInFlow ||
+                        isCurrentSection(section)
+                    ) {
+                        steps.push(section);
+                    }
+                });
+            });
+            sectionName = sectionConfig.nextSection;
+        }
+        return steps;
+    }
+
+    /**
+     * Get the survey completion percentage when the respondent is in the
+     * given section. The percentage is the position of the section among the
+     * sections the respondent may go through, where the sections of repeated
+     * blocks are counted for each iteration. Sections that may be skipped are
+     * counted, so the percentage is rather lower than the actual completion
+     * and increases faster when sections are skipped. It never goes below the completion
+     * percentage already stored in the interview, so going back to a previous
+     * section keeps the highest percentage reached.
+     *
+     * @param {Object} params The parameters
+     * @param {UserRuntimeInterviewAttributes} params.interview The interview
+     * @param {NavigationSection} params.section The section the respondent is
+     * in, with its iteration context if it is in a repeated block
+     * @returns {number} The completion percentage, between 0 and 100
+     */
+    public getCompletionPercentage({
+        interview,
+        section
+    }: {
+        interview: UserRuntimeInterviewAttributes;
+        section: NavigationSection;
+    }): number {
+        const storedCompletionPercentage = Math.min(100, Math.max(0, interview.response._completionPercentage || 0));
+        const steps = this.getProgressSteps({ interview, currentSection: section });
+        const sectionIndex = steps.findIndex(
+            (step) =>
+                step.sectionShortname === section.sectionShortname &&
+                _isEqual(step.iterationContext, section.iterationContext)
+        );
+        // Section not part of the survey flow, or a single section survey: keep the stored percentage
+        if (sectionIndex === -1 || steps.length <= 1) {
+            return storedCompletionPercentage;
+        }
+        const completionPercentage = Math.round((sectionIndex / (steps.length - 1)) * 100);
+        return Math.max(storedCompletionPercentage, completionPercentage);
     }
 
     /**

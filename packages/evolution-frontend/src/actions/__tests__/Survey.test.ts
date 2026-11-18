@@ -14,6 +14,7 @@ import { prepareSectionWidgets } from '../utils';
 import { handleClientError, handleHttpOtherResponseCode } from '../../services/errorManagement/errorHandling';
 import applicationConfiguration from '../../config/application.config';
 import bowser from 'bowser';
+import projectConfig from 'chaire-lib-common/lib/config/shared/project.config';
 import { SurveyActionTypes } from '../../store/survey';
 import { createNavigationService, NavigationService } from 'evolution-common/lib/services/questionnaire/sections/NavigationService';
 
@@ -60,12 +61,14 @@ const mockedHandleClientError = handleClientError as jest.MockedFunction<typeof 
 jest.mock('evolution-common/lib/services/questionnaire/sections/NavigationService', () => ({
     createNavigationService: jest.fn().mockReturnValue(({
         initNavigationState: jest.fn(),
-        navigate: jest.fn()
+        navigate: jest.fn(),
+        getCompletionPercentage: jest.fn()
     }))
 }));
 const navigationServiceMock = createNavigationService({});
 const mockNavigate = navigationServiceMock.navigate as jest.MockedFunction<typeof navigationServiceMock.navigate>;
 const mockInitNavigationState = navigationServiceMock.initNavigationState as jest.MockedFunction<typeof navigationServiceMock.initNavigationState>;
+const mockGetCompletionPercentage = navigationServiceMock.getCompletionPercentage as jest.MockedFunction<typeof navigationServiceMock.getCompletionPercentage>;
 
 // Default interview data
 const interviewAttributes: UserRuntimeInterviewAttributes = {
@@ -1347,6 +1350,87 @@ describe('startNavigate', () => {
         // Verifications
         expect(handleClientError).toHaveBeenCalledTimes(1);
         expect(handleClientError).toHaveBeenCalledWith(error, { interviewId: interviewAttributes.id });
+    });
+
+    describe('completion percentage', () => {
+        beforeEach(() => {
+            // Previous tests may leave unused navigation results
+            mockNavigate.mockReset();
+        });
+
+        afterEach(() => {
+            delete (projectConfig as any).hasSectionProgressBar;
+            mockGetCompletionPercentage.mockReset();
+        });
+
+        test.each([
+            {
+                description: 'stores the new percentage',
+                hasSectionProgressBar: true,
+                storedPercentage: 20,
+                completionPercentage: 40,
+                expectedValuesByPath: { 'response._completionPercentage': 40 }
+            },
+            {
+                description: 'does not store an unchanged percentage, when going back to a previous section',
+                hasSectionProgressBar: true,
+                storedPercentage: 40,
+                completionPercentage: 40,
+                expectedValuesByPath: undefined
+            },
+            {
+                description: 'does not store the percentage without a progress bar',
+                hasSectionProgressBar: false,
+                storedPercentage: 20,
+                completionPercentage: 40,
+                expectedValuesByPath: undefined
+            }
+        ])('$description', async ({ hasSectionProgressBar, storedPercentage, completionPercentage, expectedValuesByPath }) => {
+            (projectConfig as any).hasSectionProgressBar = hasSectionProgressBar;
+            const targetSection = { sectionShortname: 'nextSection' };
+            mockNavigate.mockReturnValueOnce({ targetSection });
+            mockGetCompletionPercentage.mockReturnValueOnce(completionPercentage);
+            mockGetState.mockImplementationOnce(() => {
+                const state = mockStateWithNav();
+                state.survey.interview.response._completionPercentage = storedPercentage;
+                return state;
+            });
+
+            const callback = SurveyActions.startNavigate();
+            await callback(mockDispatch, mockGetState);
+
+            expect(mockGetCompletionPercentage).toHaveBeenCalledTimes(hasSectionProgressBar ? 1 : 0);
+            expect(SurveyActions.startUpdateInterview).toHaveBeenCalledWith({
+                sectionShortname: targetSection.sectionShortname,
+                valuesByPath: expectedValuesByPath,
+                userAction: { type: 'sectionChange', targetSection, previousSection: currentSection }
+            });
+        });
+
+        test('evaluates the percentage with the target section values, without changing the interview', async () => {
+            (projectConfig as any).hasSectionProgressBar = true;
+            const targetSection = { sectionShortname: 'personSection', iterationContext: ['person', 'p2'] };
+            mockNavigate.mockReturnValueOnce({ targetSection, valuesByPath: { 'response._activePersonId': 'p2' } });
+            mockGetCompletionPercentage.mockReturnValueOnce(60);
+            const state = mockStateWithNav();
+            mockGetState.mockImplementationOnce(() => state);
+
+            const callback = SurveyActions.startNavigate();
+            await callback(mockDispatch, mockGetState);
+
+            expect(mockGetCompletionPercentage).toHaveBeenCalledWith({
+                interview: expect.objectContaining({
+                    response: expect.objectContaining({ _activePersonId: 'p2' })
+                }),
+                section: targetSection
+            });
+            expect((state.survey.interview.response as any)._activePersonId).toBeUndefined();
+            expect(SurveyActions.startUpdateInterview).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    valuesByPath: { 'response._activePersonId': 'p2', 'response._completionPercentage': 60 }
+                })
+            );
+        });
     });
 
 });

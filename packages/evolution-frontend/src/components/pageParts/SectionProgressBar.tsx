@@ -2,27 +2,21 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { I18nData } from 'evolution-common/lib/services/questionnaire/types';
-import { UserInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
-import { translateString, calculateSurveyCompletionPercentage } from 'evolution-common/lib/utils/helpers';
+import { UserRuntimeInterviewAttributes } from 'evolution-common/lib/services/questionnaire/types';
+import { translateString } from 'evolution-common/lib/utils/helpers';
 
 type SectionProgressBarProps = {
     title: I18nData;
-    interview: UserInterviewAttributes;
+    interview: UserRuntimeInterviewAttributes;
     sectionName: string;
-    sections: { [key: string]: any };
 };
 
 // Section Progress Bar Component to show the completion percentage of the survey and the section title
-const SectionProgressBar: React.FC<SectionProgressBarProps> = ({ title, interview, sectionName, sections }) => {
+const SectionProgressBar: React.FC<SectionProgressBarProps> = ({ title, interview, sectionName }) => {
     const { t, i18n } = useTranslation();
 
-    // Calculate the survey completion percentage based on the number of completed sections
-    const completionPercentage = calculateSurveyCompletionPercentage({
-        interview,
-        sections,
-        sectionName,
-        sectionTarget: 'currentSection'
-    });
+    // The completion percentage is calculated and stored by the navigation
+    const completionPercentage = Math.min(100, Math.max(0, Number(interview.response._completionPercentage) || 0));
 
     // Circular progress bar properties
     const radius = 45; // Adjusted radius to fit within 100px diameter
