@@ -28,6 +28,7 @@ from survey_definition import field_checks
 from survey_definition.row_checks import (
     _collect_language_columns,
     _raise_if_check_fails,
+    _read_booleans,
     _strip_blanks,
 )
 from survey_definition.sheet_checks import (
@@ -71,7 +72,8 @@ class ChoiceDefinition(BaseModel):
     conditional names of the Conditionals table, e.g. `Choices.model_validate(rows,
     context={"languages": ("fr", "en"), "conditional_names": {"isAdultConditional"}})`.
     Validation is strict: no type coercion (e.g. the string "yes" is rejected for
-    `hidden`), except that a number in a label column is read as text.
+    `hidden`), except that a number in a label column is read as text, and that
+    `hidden` accepts TRUE/FALSE written as text or as 1/0 (see row_checks._as_boolean).
 
     Attributes:
         choices_name: Name of the list this row belongs to (column `choicesName`);
@@ -101,11 +103,13 @@ class ChoiceDefinition(BaseModel):
     @model_validator(mode="before")
     @classmethod
     def _strip_blank_cells(cls, data: Any) -> Any:
-        """Treat a blank/whitespace-only cell as an absent key, and gather the label::<language> and label_one::<language> columns."""
+        """Treat a blank/whitespace-only cell as an absent key, read the true/false cells, and gather the label::<language> and label_one::<language> columns."""
         if not isinstance(data, dict):
             return data
         data = _collect_language_columns(
-            _strip_blanks(data), "label_one", CHOICE_LABEL_ONE_COLUMN_PREFIX
+            _read_booleans(_strip_blanks(data), ("hidden",)),
+            "label_one",
+            CHOICE_LABEL_ONE_COLUMN_PREFIX,
         )
         return _collect_language_columns(data, "label", CHOICE_LABEL_COLUMN_PREFIX)
 

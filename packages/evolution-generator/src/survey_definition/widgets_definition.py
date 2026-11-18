@@ -33,8 +33,10 @@ from pydantic import (
 
 from survey_definition import field_checks
 from survey_definition.row_checks import (
+    _as_boolean,
     _collect_language_columns,
     _raise_if_check_fails,
+    _read_booleans,
     _strip_blanks,
 )
 from survey_definition.sheet_checks import (
@@ -80,8 +82,8 @@ _INPUT_TYPE_BY_LOWER_CASE = {
     input_type.lower(): input_type for input_type in WIDGET_INPUT_TYPES
 }
 
-# The true/false columns. A spreadsheet sometimes turns TRUE/FALSE into 1/0 (e.g.
-# LibreOffice), so 1 and 0 are read as true and false; other values stay errors.
+# The true/false columns, read by _as_boolean: TRUE/FALSE written as text or turned into
+# 1/0 by a spreadsheet (e.g. LibreOffice) are accepted; other values stay errors.
 _BOOLEAN_FIELD_NAMES = (
     "active",
     "contains_html",
@@ -216,14 +218,6 @@ _DOLLAR_NAME_PATTERN = re.compile(r"\$\{(.+)\}")
 _SUFFIX_LABEL_PATTERN = re.compile(r"[a-zA-Z0-9_.-]+:[a-zA-Z0-9_.-]+")
 _INTEGER_PATTERN = re.compile(r"-?\d+")
 _DECIMAL_PATTERN = re.compile(r"-?\d+\.\d+")
-
-
-def _as_boolean(value: Any) -> Any:
-    """The true/false value of a cell: 1 and 0 are read as true and false, as a spreadsheet sometimes turns TRUE/FALSE into them; any other value is kept as is."""
-    # type() is int: True is also an int in Python.
-    if type(value) is int and value in (0, 1):
-        return bool(value)
-    return value
 
 
 def _is_inactive_row(row: Any) -> bool:
@@ -485,7 +479,8 @@ class WidgetDefinition(BaseModel):
     table is invalid and already reported. Validation is strict: no type coercion
     (e.g. the string "yes" or "VRAI" is rejected for `active`), except for what a
     spreadsheet may have changed: a number in a label, `custom_choice` or
-    `default_value` is read as text, and 1 and 0 as true and false. The input type and
+    `default_value` is read as text, and TRUE/FALSE written as text or as 1/0 as true
+    and false (see row_checks._as_boolean). The input type and
     the parameter names may be written in any case (e.g. Builtin, Max).
 
     Attributes:
@@ -558,9 +553,7 @@ class WidgetDefinition(BaseModel):
             value = data.get(field_name)
             if isinstance(value, (int, float)) and not isinstance(value, bool):
                 data[field_name] = str(value)
-        for field_name in _BOOLEAN_FIELD_NAMES:
-            if field_name in data:
-                data[field_name] = _as_boolean(data[field_name])
+        data = _read_booleans(data, _BOOLEAN_FIELD_NAMES)
         input_type = data.get("input_type")
         if isinstance(input_type, str):
             data["input_type"] = _INPUT_TYPE_BY_LOWER_CASE.get(
