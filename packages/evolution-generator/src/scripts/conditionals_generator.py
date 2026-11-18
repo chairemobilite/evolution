@@ -320,7 +320,13 @@ class ConditionalsGenerator:
     def generate_conditionals(
         cls, survey_definition: SurveyDefinition, output_file: str
     ) -> None:
-        """Write TypeScript generated from ``survey_definition.conditionals`` to ``output_file`` (e.g. conditionals.tsx)."""
+        """
+        Write TypeScript generated from ``survey_definition.conditionals`` to
+        ``output_file`` (e.g. conditionals.tsx). Nothing is written when the
+        Conditionals table is empty: no widget, section or choice imports it then.
+        """
+        if not survey_definition.conditionals:
+            return
         conditional_by_name = cls._group_conditionals_by_name(
             survey_definition.conditionals
         )

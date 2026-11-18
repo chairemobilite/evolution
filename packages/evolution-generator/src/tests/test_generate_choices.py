@@ -312,6 +312,28 @@ class TestGenerateChoices:
         assert "value: '1'," in ts_code
         assert "value: 'True'," in ts_code
 
+    def test_empty_table_writes_no_file_and_deletes_previous_locales(
+        self, output_paths
+    ):
+        """
+        An empty Choices table writes no choices.tsx (no widget imports it then), and
+        the choices.yaml locales from a previous generation are deleted, so no stale
+        labels are left behind.
+        """
+        os.makedirs(os.path.dirname(output_paths["en_choices_yaml_path"]))
+        with open(output_paths["en_choices_yaml_path"], mode="w", encoding="utf-8"):
+            pass
+
+        generate_choices(
+            SurveyDefinition(languages=("fr", "en")),
+            output_paths["choices_tsx_path"],
+            labels_output_folder_path=output_paths["locales_dir_path"],
+        )
+
+        assert not os.path.exists(output_paths["choices_tsx_path"])
+        assert not os.path.exists(output_paths["en_choices_yaml_path"])
+        assert not os.path.exists(output_paths["fr_choices_yaml_path"])
+
     def test_rejects_invalid_output_file_extension(self):
         with pytest.raises(Exception) as e_info:
             generate_choices(SurveyDefinition(languages=("fr", "en")), "choices.txt")

@@ -262,6 +262,16 @@ class TestGenerateConditionals:
         assert "valueWhenHidden: false," in ts_code
         assert "path: 'household.size'," in ts_code
 
+    def test_empty_table_writes_no_file(self, tmp_path):
+        """An empty Conditionals table writes no conditionals.tsx: no widget, section or choice imports it then."""
+        output_file = tmp_path / "conditionals.tsx"
+
+        ConditionalsGenerator.generate_conditionals(
+            SurveyDefinition(languages=("fr", "en")), str(output_file)
+        )
+
+        assert not output_file.exists()
+
 
 class TestExpandTokenizedPath:
     def test_expands_relative_path_and_current_person(self):
