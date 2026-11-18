@@ -1,11 +1,11 @@
-questionName,inputType,active,section,group,path,label::fr,label::en,label_one::fr,label_one::en,parameters,appearance,conditional,validation,choices,help_popup,inputRange,comments,confirm_popup,containsHtml,customPath,customChoice,defaultValue,includeNotApplicable
+question_name,input_type,active,section,group,path,label::fr,label::en,label_one::fr,label_one::en,parameters,appearance,conditional,validation,choices,help_popup,input_range,comments,confirm_popup,contains_html,custom_path,custom_choice,default_value,include_not_applicable
 accessCode,String,TRUE,home,,accessCode,"**Code d'accès**
 __Inscrit dans la lettre reçue.__","**Access code**
 __Printed on the letter you received.__",,,,,,,,,,,,TRUE,,,,
 acceptToBeContactedForHelp,Radio,TRUE,home,,acceptToBeContactedForHelp,"Je consens à être contacté(e) pour **continuer ou préciser le questionnaire**. 
 __Si je ne le termine pas ou si certains des renseignements fournis sont incohérents.__","I consent to be contacted to **continue the survey**.
 __If I do not complete it or if some of the information provided is incoherent.__",,,,,,,yesNo,,,,,TRUE,,,,
-contactInformationIntro,InfoText,TRUE,home,,contactInformationIntro,Veuillez saisir le courriel **ou** le numéro de téléphone pour vous recontacter.,Please enter the email **or** phone number to get in contact.,,,,,,,joi,,,,,TRUE,,,,
+contactInformationIntro,InfoText,TRUE,home,,contactInformationIntro,Veuillez saisir le courriel **ou** le numéro de téléphone pour vous recontacter.,Please enter the email **or** phone number to get in contact.,,,,,,,,,,,,TRUE,,,,
 contactEmail,String,TRUE,home,,contactEmail,**Adresse courriel**,**Email address**,,,,,,emailValidation,,,,,,TRUE,,,,
 phoneNumber,String,TRUE,home,,phoneNumber,"**Numéro de téléphone**
 __Format: 123-456-7890__","**Phone number**
