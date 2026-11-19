@@ -102,15 +102,10 @@ const visitedPlacesConfig: SectionConfig = {
     }
 };
 
-// FIXME Workaround to satisfy the completion percentage calculation that expects sections to be defined in their order of display in the object (see https://github.com/chairemobilite/evolution/issues/1024)
-const { travelBehavior, end, completed, ...earlierSections } = customSurveySections;
 const validatedSections = getAndValidateSurveySections({
-    ...earlierSections,
+    ...customSurveySections,
     visitedPlaces: visitedPlacesConfig,
-    segments: segmentConfig,
-    travelBehavior,
-    end,
-    completed
+    segments: segmentConfig
 });
 
 // Widgets defined in the interview will override the ones from the section factory, if any

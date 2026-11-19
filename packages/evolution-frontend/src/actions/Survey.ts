@@ -8,6 +8,7 @@
 import _set from 'lodash/set';
 import _get from 'lodash/get';
 import _cloneDeep from 'lodash/cloneDeep';
+import _pickBy from 'lodash/pickBy';
 import isEqual from 'lodash/isEqual';
 import bowser from 'bowser';
 import { ThunkDispatch } from 'redux-thunk';
@@ -33,6 +34,7 @@ const isExternalRedirect = (redirectUrl: string): boolean => {
 };
 
 import i18n from '../config/i18n.config';
+import config from 'chaire-lib-common/lib/config/shared/project.config';
 import { _isBlank } from 'chaire-lib-common/lib/utils/LodashExtensions';
 import * as surveyHelper from 'evolution-common/lib/utils/helpers';
 import { applyInterviewValuesByPath } from 'evolution-common/lib/services/interviews/applyInterviewValuesByPath';
@@ -633,6 +635,24 @@ export const startNavigateWithUpdateCallback =
                 if (targetSectionResult.valuesByPath) {
                 // If the target section has values by path, prepare them
                     Object.assign(allValuesByPath, targetSectionResult.valuesByPath);
+                }
+
+                // Store the highest completion percentage reached, so that going back to a previous section keeps it
+                if (config.hasSectionProgressBar === true) {
+                // Evaluate the completion in the target section's context (for example its active iteration)
+                    const targetInterview = { ...interview, response: _cloneDeep(interview.response) };
+                    applyInterviewValuesByPath(targetInterview, {
+                        valuesByPath: _pickBy(targetSectionResult.valuesByPath || {}, (_value, path) =>
+                            path.startsWith('response.')
+                        )
+                    });
+                    const completionPercentage = navigationService.getCompletionPercentage({
+                        interview: targetInterview,
+                        section: targetSectionResult.targetSection
+                    });
+                    if (completionPercentage !== interview.response._completionPercentage) {
+                        allValuesByPath['response._completionPercentage'] = completionPercentage;
+                    }
                 }
 
                 // Call the update interview to update to the new section

@@ -2690,3 +2690,148 @@ describe('Exceptions in sectionConfig\'s functions', () => {
         expect(() => navigationService.navigate({ interview: testInterview, currentSection: _cloneDeep(currentSectionData), direction: 'forward' })).toThrow('NavigationService: Error evaluating isIterationValid for section personsTrips with iteration personId1: Error: Test error');
     });
 });
+
+describe('getCompletionPercentage', () => {
+    const navigationService = createNavigationService(simpleSectionsConfig);
+
+    test.each([
+        { description: 'first section', sectionShortname: 'home', storedPercentage: undefined, expected: 0 },
+        { description: 'middle section', sectionShortname: 'householdMembers', storedPercentage: undefined, expected: 50 },
+        { description: 'last section', sectionShortname: 'end', storedPercentage: undefined, expected: 100 },
+        { description: 'back to a previous section keeps the stored percentage', sectionShortname: 'home', storedPercentage: 100, expected: 100 },
+        { description: 'section not in the survey flow keeps the stored percentage', sectionShortname: 'unknown', storedPercentage: 40, expected: 40 }
+    ])('$description', ({ sectionShortname, storedPercentage, expected }) => {
+        const testInterview = _cloneDeep(interview);
+        testInterview.response._completionPercentage = storedPercentage;
+        expect(navigationService.getCompletionPercentage({ interview: testInterview, section: { sectionShortname } })).toEqual(expected);
+    });
+});
+
+describe('getCompletionPercentage with repeated blocks', () => {
+    const navigationService = createNavigationService(complexSectionsConfig);
+
+    // With 2 interviewable persons, the selection section skipped in natural flow and
+    // all sections visible, the steps are: home, householdMembers, visitedPlaces and
+    // travelBehavior for each person, then end
+    test.each<{
+        description: string;
+        withPersons: boolean;
+        section: { sectionShortname: string; iterationContext?: string[] };
+        tbVisibleForPerson1: boolean;
+        expected: number;
+    }>([
+        { description: 'first section', withPersons: true, section: { sectionShortname: 'home' }, tbVisibleForPerson1: true, expected: 0 },
+        { description: 'section before the block', withPersons: true, section: { sectionShortname: 'householdMembers' }, tbVisibleForPerson1: true, expected: 17 },
+        { description: 'first iteration', withPersons: true, section: { sectionShortname: 'visitedPlaces', iterationContext: ['personId1'] }, tbVisibleForPerson1: true, expected: 33 },
+        { description: 'second iteration', withPersons: true, section: { sectionShortname: 'visitedPlaces', iterationContext: ['personId2'] }, tbVisibleForPerson1: true, expected: 67 },
+        { description: 'last section of the last iteration', withPersons: true, section: { sectionShortname: 'travelBehavior', iterationContext: ['personId2'] }, tbVisibleForPerson1: true, expected: 83 },
+        { description: 'section after the block', withPersons: true, section: { sectionShortname: 'end' }, tbVisibleForPerson1: true, expected: 100 },
+        { description: 'section that may be skipped is counted', withPersons: true, section: { sectionShortname: 'visitedPlaces', iterationContext: ['personId2'] }, tbVisibleForPerson1: false, expected: 67 },
+        { description: 'estimated iterations while there are no persons yet', withPersons: false, section: { sectionShortname: 'householdMembers' }, tbVisibleForPerson1: true, expected: 10 },
+        { description: 'no estimate once the block is passed', withPersons: false, section: { sectionShortname: 'end' }, tbVisibleForPerson1: true, expected: 100 }
+    ])('$description', ({ withPersons, section, tbVisibleForPerson1, expected }) => {
+        tbIsSectionVisible.mockImplementation((_interview, iterationContext) => tbVisibleForPerson1 || iterationContext[0] !== 'personId1');
+        const testInterview = _cloneDeep(interview);
+        if (withPersons) {
+            testInterview.response = _cloneDeep(hhWithPersonsResponse) as any;
+        }
+        expect(navigationService.getCompletionPercentage({ interview: testInterview, section })).toEqual(expected);
+        tbIsSectionVisible.mockReturnValue(true);
+    });
+
+    test('keeps increasing with the iterations', () => {
+        const testInterview = _cloneDeep(interview);
+        testInterview.response = _cloneDeep(hhWithPersonsResponse) as any;
+        const percentages = [
+            { sectionShortname: 'home' },
+            { sectionShortname: 'householdMembers' },
+            { sectionShortname: 'visitedPlaces', iterationContext: ['personId1'] },
+            { sectionShortname: 'travelBehavior', iterationContext: ['personId1'] },
+            { sectionShortname: 'visitedPlaces', iterationContext: ['personId2'] },
+            { sectionShortname: 'travelBehavior', iterationContext: ['personId2'] },
+            { sectionShortname: 'end' }
+        ].map((section) => navigationService.getCompletionPercentage({ interview: testInterview, section }));
+        expect(percentages).toEqual([0, 17, 33, 50, 67, 83, 100]);
+    });
+
+    describe('selection section and estimated iteration count', () => {
+        const getSections = (repeatedBlockOptions: Record<string, unknown>) =>
+            getAndValidateSurveySections({
+                home: { previousSection: null, nextSection: 'household', widgets: [] },
+                household: { previousSection: 'home', nextSection: 'personsBlock', widgets: [] },
+                personsBlock: {
+                    previousSection: 'household',
+                    nextSection: 'end',
+                    widgets: [],
+                    repeatedBlock: {
+                        iterationRule: { type: 'surveyObjectPath', path: 'household.persons' },
+                        activeSurveyObjectPath: '_activePersonId',
+                        selectionSectionId: 'selectPerson',
+                        sections: ['selectPerson', 'personInfo'],
+                        ...repeatedBlockOptions
+                    }
+                },
+                selectPerson: { previousSection: 'personsBlock', nextSection: 'personInfo', widgets: [] },
+                personInfo: { previousSection: 'selectPerson', nextSection: 'personsBlock', widgets: [] },
+                end: { previousSection: 'personsBlock', nextSection: null, widgets: [] }
+            } as any);
+
+        test.each<{
+            description: string;
+            repeatedBlockOptions: Record<string, unknown>;
+            persons: Record<string, unknown> | undefined;
+            section: { sectionShortname: string; iterationContext?: string[] };
+            expected: number;
+        }>([
+            {
+                // Steps: home, household, personInfo, end
+                description: 'selection section hidden with one iteration',
+                repeatedBlockOptions: {},
+                persons: { p1: {} },
+                section: { sectionShortname: 'personInfo', iterationContext: ['p1'] },
+                expected: 67
+            },
+            {
+                // Steps: home, household, selectPerson and personInfo for each person, end
+                description: 'selection section counted for each iteration with many iterations',
+                repeatedBlockOptions: {},
+                persons: { p1: {}, p2: {} },
+                section: { sectionShortname: 'personInfo', iterationContext: ['p2'] },
+                expected: 83
+            },
+            {
+                // Steps: home, household, personInfo for each person, end
+                description: 'selection section skipped in natural flow',
+                repeatedBlockOptions: { skipSelectionInNaturalFlow: true },
+                persons: { p1: {}, p2: {} },
+                section: { sectionShortname: 'personInfo', iterationContext: ['p2'] },
+                expected: 75
+            },
+            {
+                // Steps: home, household, selectPerson and personInfo for 4 estimated iterations, end
+                description: 'default estimated iteration count',
+                repeatedBlockOptions: {},
+                persons: undefined,
+                section: { sectionShortname: 'household' },
+                expected: 10
+            },
+            {
+                // Steps: home, household, selectPerson and personInfo for 9 estimated iterations, end
+                description: 'custom estimated iteration count',
+                repeatedBlockOptions: { estimatedIterationCount: 9 },
+                persons: undefined,
+                section: { sectionShortname: 'household' },
+                expected: 5
+            }
+        ])('$description', ({ repeatedBlockOptions, persons, section, expected }) => {
+            const testInterview = _cloneDeep(interview);
+            testInterview.response = (persons === undefined ? {} : { household: { persons } }) as any;
+            expect(
+                createNavigationService(getSections(repeatedBlockOptions)).getCompletionPercentage({
+                    interview: testInterview,
+                    section
+                })
+            ).toEqual(expected);
+        });
+    });
+});
