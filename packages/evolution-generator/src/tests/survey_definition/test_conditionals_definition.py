@@ -135,13 +135,21 @@ class TestConditionals:
             conditionals = Conditionals([{**self._row("cond1"), "path": path}])
             assert conditionals[0].path == path
 
-    def test_rejects_more_than_one_expansion_token_in_path(self):
-        path = "${relativePath}.${currentPerson}.age"
+    @pytest.mark.parametrize(
+        "path",
+        [
+            pytest.param("${currentJourny}.mode", id="unknown token"),
+            pytest.param("household.${currentTrip}.mode", id="token not at the start"),
+        ],
+    )
+    def test_reports_invalid_path(self, path):
+        """The rule itself is tested in test_field_checks.py."""
         issues = self._issues([{**self._row("cond1"), "path": path}])
-        assert len(issues) == 1
-        assert "only one expansion token" in issues[0]
-        assert "${relativePath}" in issues[0]
-        assert "${currentPerson}" in issues[0]
+        assert issues == [
+            f"Error in Conditionals - Invalid path in row 2: {path!r} - "
+            "Must be a response path, optionally starting with one expansion token "
+            "and a dot, e.g. '${currentPerson}.age'."
+        ]
 
     def test_balanced_parentheses_across_a_group(self):
         rows = [

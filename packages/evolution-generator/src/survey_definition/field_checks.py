@@ -19,6 +19,18 @@ _PATH_KEY = r"[a-zA-Z0-9_]+"
 _PATH_SEGMENT = rf"(?:{_PATH_KEY}|\{{{_PATH_KEY}(?:\.{_PATH_KEY})*\}})"
 _RESPONSE_PATH_PATTERN = re.compile(rf"{_PATH_SEGMENT}(?:\.{_PATH_SEGMENT})*")
 
+# Tokens a Conditionals or Validations path may start with; the generator replaces the
+# token and its dot by the path it stands for (see
+# ConditionalsGenerator.CONDITIONALS_CURRENT_CONTEXT_SPECS).
+EXPANSION_TOKENS: tuple[str, ...] = (
+    "${relativePath}",
+    "${currentPerson}",
+    "${currentJourney}",
+    "${currentTrip}",
+    "${currentSegment}",
+    "${currentVisitedPlace}",
+)
+
 
 def valid_ts_identifier(value, row: dict) -> bool:
     """Must be a valid TypeScript identifier (letters, digits, '_' or '$', not starting with a digit)."""
@@ -33,6 +45,17 @@ def valid_path_chars(value, row: dict) -> bool:
 def valid_response_path(value, row: dict) -> bool:
     """Must be a response path: keys (a-z, A-Z, 0-9, _) or {placeholders} joined by dots, e.g. 'household.persons.{_activePersonId}.age'."""
     return bool(_RESPONSE_PATH_PATTERN.fullmatch(str(value)))
+
+
+def valid_expansion_token_path(value, row: dict) -> bool:
+    """Must be a response path, optionally starting with one expansion token and a dot, e.g. '${currentPerson}.age'."""
+    path = str(value)
+    for token in EXPANSION_TOKENS:
+        # The generator only expands a leading '<token>.'; elsewhere it builds a wrong path.
+        if path.startswith(f"{token}."):
+            path = path.removeprefix(f"{token}.")
+            break
+    return valid_response_path(path, row)
 
 
 def non_blank(value, row: dict) -> bool:

@@ -38,18 +38,6 @@ CONDITIONAL_REQUIRED_FIELD_NAMES: tuple[str, ...] = (
     "parentheses",
 )
 
-# Tokens a path may expand to (see ConditionalsGenerator.CONDITIONALS_CURRENT_CONTEXT_SPECS,
-# which carries the richer per-token data generate_typescript_code needs); a path may use
-# at most one of these.
-CONDITIONAL_PATH_EXPANSION_TOKENS: tuple[str, ...] = (
-    "${relativePath}",
-    "${currentPerson}",
-    "${currentJourney}",
-    "${currentTrip}",
-    "${currentSegment}",
-    "${currentVisitedPlace}",
-)
-
 
 class ConditionalDefinition(BaseModel):
     """
@@ -74,8 +62,9 @@ class ConditionalDefinition(BaseModel):
             row of the same conditional. Required.
         logical_operator: How this row combines with the previous one ('||' or '&&').
             Required (non-blank) on every row of a conditional except its first.
-        path: Interview path this row compares, e.g. 'household.size'. May contain at
-            most one expansion token (see CONDITIONAL_PATH_EXPANSION_TOKENS). Required.
+        path: Interview path this row compares, e.g. 'household.size'. May start with
+            one expansion token and a dot (see field_checks.EXPANSION_TOKENS), e.g.
+            '${currentPerson}.age'. Required.
         comparison_operator: How `path` is compared to `value`. Required.
         value: Value `path` is compared against. Required.
         parentheses: Groups rows of a conditional: '(' opens a group, ')' closes it.
@@ -108,18 +97,9 @@ class ConditionalDefinition(BaseModel):
 
     @field_validator("path")
     @classmethod
-    def _path_has_at_most_one_expansion_token(
-        cls, value: str, info: ValidationInfo
-    ) -> str:
-        """Check that `path` contains at most one expansion token."""
-        tokens_found = [
-            token for token in CONDITIONAL_PATH_EXPANSION_TOKENS if token in value
-        ]
-        if len(tokens_found) > 1:
-            raise ValueError(
-                "only one expansion token is allowed in the path; "
-                f"found {', '.join(tokens_found)} in {value!r}"
-            )
+    def _path_is_valid(cls, value: str, info: ValidationInfo) -> str:
+        """Check that `path` is a response path, optionally after one expansion token."""
+        _raise_if_check_fails(field_checks.valid_expansion_token_path, value, info.data)
         return value
 
     @field_validator("value")
