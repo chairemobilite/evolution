@@ -115,7 +115,7 @@ class InputRangeDefinition(BaseModel):
 
     @model_validator(mode="before")
     @classmethod
-    def _strip_blank_cells(cls, data: Any) -> Any:
+    def _prepare_cells(cls, data: Any) -> Any:
         """Treat a blank/whitespace-only cell as an absent key, and gather the label and unit columns of each language."""
         if not isinstance(data, dict):
             return data

@@ -89,7 +89,7 @@ class ConditionalDefinition(BaseModel):
 
     @model_validator(mode="before")
     @classmethod
-    def _strip_blank_cells(cls, data) -> object:
+    def _prepare_cells(cls, data) -> object:
         """Treat a blank/whitespace-only cell as an absent key, not a genuinely blank value."""
         return _strip_blanks(data) if isinstance(data, dict) else data
 

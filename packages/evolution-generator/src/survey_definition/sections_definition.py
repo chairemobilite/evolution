@@ -117,7 +117,7 @@ class SectionDefinition(BaseModel):
 
     @model_validator(mode="before")
     @classmethod
-    def _strip_blank_cells(cls, data: Any) -> Any:
+    def _prepare_cells(cls, data: Any) -> Any:
         """Treat a blank/whitespace-only cell as an absent key, read the true/false cells, and gather the title_<language> columns into `title`."""
         if not isinstance(data, dict):
             return data

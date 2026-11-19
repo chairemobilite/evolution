@@ -102,7 +102,7 @@ class ChoiceDefinition(BaseModel):
 
     @model_validator(mode="before")
     @classmethod
-    def _strip_blank_cells(cls, data: Any) -> Any:
+    def _prepare_cells(cls, data: Any) -> Any:
         """Treat a blank/whitespace-only cell as an absent key, read the true/false cells, and gather the label::<language> and label_one::<language> columns."""
         if not isinstance(data, dict):
             return data
