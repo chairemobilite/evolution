@@ -11,7 +11,7 @@
 # See survey_definition.py for the bundle of all tables, and scripts/generate_choices.py
 # for TypeScript generation.
 
-from collections.abc import Iterator
+from collections.abc import Iterator, Sequence
 from typing import Any, Self
 
 from pydantic import (
@@ -34,6 +34,7 @@ from survey_definition.row_checks import (
 from survey_definition.sheet_checks import (
     collect_sheet_issues,
     fields_in_survey_languages,
+    label_one_fallback_warning,
 )
 from survey_definition.validation_context import context_languages
 
@@ -85,8 +86,9 @@ class ChoiceDefinition(BaseModel):
             `label::<language>` columns (e.g. {"fr": "Oui", "en": "Yes"}). Required in
             every survey language unless `spread_choices_name` is set.
         label_one: Singular label, by language, read from the `label_one::<language>`
-            columns, used when the label is addressed to a single person. Optional, but
-            when set, it must be in every survey language too.
+            columns, used when the label is addressed to a single person. Optional. When
+            set in only some languages, the others fall back to `label`, with a warning
+            (see Choices.warnings).
         spread_choices_name: Name of another list whose choices are copied in place of
             this row (column `spreadChoicesName`). If set, must name a list that starts
             in an earlier row; this row's value and labels are then not used.
@@ -148,8 +150,7 @@ class ChoiceDefinition(BaseModel):
     def _choice_is_complete(self, info: ValidationInfo) -> Self:
         """
         Check that a choice (not a spread) has a value and a label in every survey
-        language, that `label_one`, when set, is in every survey language too, and
-        that `conditional`, unless custom, names a conditional of the Conditionals table.
+        language, and that `conditional`, unless custom, names a conditional of the Conditionals table.
         """
         issues = []
         if self.spread_choices_name is None:
@@ -162,13 +163,6 @@ class ChoiceDefinition(BaseModel):
                 for language in languages
                 if language not in self.label
             )
-            if self.label_one:
-                issues.extend(
-                    f"{CHOICE_LABEL_ONE_COLUMN_PREFIX}{language} is required when "
-                    "label_one is set in another language"
-                    for language in languages
-                    if language not in self.label_one
-                )
         # A name ending with 'CustomConditional' is written by hand in
         # customConditionals.tsx, so it isn't in the Conditionals table. Without the
         # conditional names (the Conditionals table is invalid, and reported as such),
@@ -278,6 +272,24 @@ class Choices(RootModel[list[ChoiceDefinition]]):
         if issues:
             raise ValueError("\n".join(issues))
         return self
+
+    def warnings(self, languages: Sequence[str]) -> list[str]:
+        """
+        The problems that don't stop the generation: a choice with `label_one` set in
+        some of the survey `languages` but not all (see label_one_fallback_warning). A
+        spread row's labels aren't used, so it gets none.
+        """
+        warnings: list[str] = []
+        for row_number, choice in enumerate(self.root, start=2):
+            if choice.spread_choices_name is not None:
+                continue
+            warning = label_one_fallback_warning(choice.label_one, languages)
+            if warning is not None:
+                warnings.append(
+                    f"Choices row {row_number} ({choice.choices_name}.{choice.value}): "
+                    f"{warning}"
+                )
+        return warnings
 
     def _duplicate_value_issues(self, prefix: str) -> list[str]:
         """

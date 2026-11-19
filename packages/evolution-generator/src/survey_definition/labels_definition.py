@@ -25,6 +25,7 @@ from survey_definition.row_checks import _collect_language_columns, _strip_blank
 from survey_definition.sheet_checks import (
     collect_sheet_issues,
     fields_in_survey_languages,
+    label_one_fallback_warning,
 )
 from survey_definition.validation_context import context_languages
 
@@ -148,23 +149,14 @@ class Labels(RootModel[list[LabelDefinition]]):
     def warnings(self, languages: Sequence[str]) -> list[str]:
         """
         The problems that don't stop the generation: a row with `label_one` set in some
-        of the survey `languages` but not all. It may be intended, e.g. the French text
-        is the same for one or many, so the missing ones fall back to `label`.
+        of the survey `languages` but not all (see label_one_fallback_warning).
         """
         warnings: list[str] = []
         for row_number, label in enumerate(self.root, start=2):
-            if not label.label_one:
-                continue
-            missing = [
-                f"{LABEL_ONE_COLUMN_PREFIX}{language}"
-                for language in languages
-                if language not in label.label_one
-            ]
-            if missing:
+            warning = label_one_fallback_warning(label.label_one, languages)
+            if warning is not None:
                 warnings.append(
-                    f"Labels row {row_number} ({label.namespace}.{label.key}): "
-                    f"label_one is not set in {missing}, so label is used instead "
-                    "for one."
+                    f"Labels row {row_number} ({label.namespace}.{label.key}): {warning}"
                 )
         return warnings
 

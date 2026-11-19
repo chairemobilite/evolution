@@ -547,11 +547,23 @@ class TestLabels:
             "in another language"
         )
 
-    def test_reports_a_label_one_missing_a_language(self):
-        assert _row_issue(_row(**{"label_one::fr": "Ton nom"})) == (
-            "Error in Widgets - Invalid row 2: label_one::en is required when "
-            "label_one is set in another language"
+    def test_label_one_can_be_set_in_only_some_survey_languages(self):
+        """E.g. the French text is the same for one or many: label is used instead."""
+        widget = _definition(_row(**{"label_one::fr": "Ton nom"}))
+        assert widget.label_one == {"fr": "Ton nom"}
+
+    def test_warns_about_a_label_one_missing_a_language(self):
+        widgets = _widgets([_row(**{"label_one::fr": "Ton nom"})])
+        assert widgets.warnings(CONTEXT["languages"]) == [
+            "Widgets sheet, row 2: label_one is not set in ['label_one::en'], so "
+            "label is used instead for one."
+        ]
+
+    def test_has_no_label_one_warning_when_in_every_survey_language(self):
+        widgets = _widgets(
+            [_row(**{"label_one::fr": "Ton nom", "label_one::en": "Your name"})]
         )
+        assert widgets.warnings(CONTEXT["languages"]) == []
 
     def test_reads_label_one_in_every_language(self):
         widget = _definition(
@@ -1263,7 +1275,7 @@ class TestInactiveWidgets:
         }
         widgets = _widgets([broken, _row(question_name="homeCity")])
         assert [widget.question_name for widget in widgets] == ["homeCity"]
-        assert widgets.warnings() == []
+        assert widgets.warnings(CONTEXT["languages"]) == []
 
     def test_keeps_the_sheet_row_numbers(self):
         widgets = _widgets(
@@ -1313,9 +1325,9 @@ class TestInactiveWidgets:
                 _row("Custom", validation="mapCustomValidation"),
             ]
         )
-        assert [warning.split(":")[0] for warning in widgets.warnings()] == [
-            "Widgets sheet, row 3"
-        ]
+        assert [
+            warning.split(":")[0] for warning in widgets.warnings(CONTEXT["languages"])
+        ] == ["Widgets sheet, row 3"]
 
     @cases(
         dict(id="same section", section="home"),
@@ -1367,7 +1379,7 @@ class TestWarnings:
         assert all(
             warning.endswith("): it is ignored") for warning in widgets[0].warnings
         )
-        assert widgets.warnings() == [
+        assert widgets.warnings(CONTEXT["languages"]) == [
             f"Widgets sheet, row 2: {warning}" for warning in widgets[0].warnings
         ]
 
@@ -1418,7 +1430,7 @@ class TestWarnings:
 
     def test_has_no_warnings_when_every_column_is_used(self):
         rows = [_row(), _row("Radio", question_name="homeCity")]
-        assert _widgets(rows).warnings() == []
+        assert _widgets(rows).warnings(CONTEXT["languages"]) == []
 
     def test_lists_the_warnings_of_every_row(self):
         widgets = _widgets(
@@ -1428,7 +1440,9 @@ class TestWarnings:
                 _row("Custom", question_name="homeMap", help_popup="mapHelpPopup"),
             ]
         )
-        assert [warning.split(":")[0] for warning in widgets.warnings()] == [
+        assert [
+            warning.split(":")[0] for warning in widgets.warnings(CONTEXT["languages"])
+        ] == [
             "Widgets sheet, row 2",
             "Widgets sheet, row 4",
         ]

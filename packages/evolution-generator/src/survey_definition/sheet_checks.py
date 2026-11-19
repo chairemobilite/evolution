@@ -123,3 +123,21 @@ def fields_in_survey_languages(
         ]
 
     return rule
+
+
+def label_one_fallback_warning(
+    label_one: dict[str, str], languages: Sequence[str]
+) -> str | None:
+    """
+    The warning about a row whose `label_one` (by language) is set in some of the
+    survey `languages` but not all, or None. It may be intended, e.g. the French text
+    is the same for one or many, so the missing languages fall back to `label`.
+    """
+    if not label_one:
+        return None
+    missing = [
+        f"label_one::{language}" for language in languages if language not in label_one
+    ]
+    if not missing:
+        return None
+    return f"label_one is not set in {missing}, so label is used instead for one."
