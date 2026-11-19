@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Generator: the Excel check warns about a column a sheet doesn't read, e.g. a misspelled header, and suggests the closest known column. Every sheet may have a `comments` column (fixes [#2195](https://github.com/chairemobilite/evolution/issues/2195))
+- Generator: the Excel check warns about a field a table doesn't read, e.g. a misspelled header, and suggests the closest known field. Every table may have a `comments` field (fixes [#2195](https://github.com/chairemobilite/evolution/issues/2195))
 
 ### Changed
 

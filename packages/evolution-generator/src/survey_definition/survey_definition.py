@@ -53,7 +53,7 @@ from survey_definition.sections_definition import (
     SectionDefinition,
     Sections,
 )
-from survey_definition.sheet_checks import unknown_columns_warning
+from survey_definition.sheet_checks import unknown_fields_warning
 from survey_definition.widgets_definition import (
     WIDGET_LABEL_COLUMN_PREFIX,
     WIDGET_LABEL_ONE_COLUMN_PREFIX,
@@ -247,9 +247,9 @@ class SurveyDefinition(BaseModel):
         return self.widgets.warnings()
 
 
-# The columns of each sheet: its row model, and its translated columns (a field
-# gathered from one column per language, with the prefix of these columns).
-SHEET_COLUMNS: dict[str, tuple[type[BaseModel], dict[str, str]]] = {
+# The fields of each table: its row model, and its translated fields (a field of the
+# model read from one field per language, with the prefix of these fields).
+TABLE_FIELDS: dict[str, tuple[type[BaseModel], dict[str, str]]] = {
     "Sections": (SectionDefinition, {"title": SECTION_TITLE_COLUMN_PREFIX}),
     "Conditionals": (ConditionalDefinition, {}),
     "Labels": (
@@ -274,24 +274,24 @@ SHEET_COLUMNS: dict[str, tuple[type[BaseModel], dict[str, str]]] = {
 }
 
 
-def unknown_columns_warnings(
-    headers_by_sheet: dict[str, Sequence], languages: Sequence[str] = ()
+def unknown_fields_warnings(
+    field_names_by_table: dict[str, Sequence], languages: Sequence[str] = ()
 ) -> list[str]:
     """
-    One warning per sheet of `headers_by_sheet` (its header row, by sheet name) that
-    has columns its table doesn't read (see sheet_checks.py::unknown_columns_warning),
-    in SHEET_COLUMNS order. Computed from the headers only, so it is reported even
-    when the sheet has errors: a misspelled header is often their cause.
+    One warning per table of `field_names_by_table` (its field names, by table name)
+    that has fields it doesn't read (see sheet_checks.py::unknown_fields_warning), in
+    TABLE_FIELDS order. Computed from the field names only, so it is reported even
+    when the table has errors: a misspelled field name is often their cause.
     """
     warnings = []
-    for sheet_name, (model, column_prefix_by_field) in SHEET_COLUMNS.items():
-        if sheet_name not in headers_by_sheet:
+    for table_name, (model, prefix_by_translated_field) in TABLE_FIELDS.items():
+        if table_name not in field_names_by_table:
             continue
-        warning = unknown_columns_warning(
-            sheet_name,
-            headers_by_sheet[sheet_name],
+        warning = unknown_fields_warning(
+            table_name,
+            field_names_by_table[table_name],
             model,
-            column_prefix_by_field,
+            prefix_by_translated_field,
             languages,
         )
         if warning:

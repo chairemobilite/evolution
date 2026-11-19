@@ -14,9 +14,9 @@ from survey_definition.input_range_definition import INPUT_RANGE_REQUIRED_FIELD_
 from survey_definition.labels_definition import LABEL_REQUIRED_FIELD_NAMES
 from survey_definition.sections_definition import SECTION_REQUIRED_FIELD_NAMES
 from survey_definition.survey_definition import (
-    SHEET_COLUMNS,
+    TABLE_FIELDS,
     SurveyDefinition,
-    unknown_columns_warnings,
+    unknown_fields_warnings,
 )
 from survey_definition.widgets_definition import WIDGET_REQUIRED_FIELD_NAMES
 
@@ -87,28 +87,29 @@ def is_ts_file(file: str) -> None:
         )
 
 
-def read_unknown_columns_warnings(reader: ExcelSurveyDefinitionReader) -> list[str]:
+def read_unknown_fields_warnings(reader: ExcelSurveyDefinitionReader) -> list[str]:
     """
-    The warnings about the columns the survey definition's sheets have but don't read
-    (see survey_definition.py::unknown_columns_warnings), e.g. a misspelled header.
-    Read from the headers only, so they are given even when the sheets are invalid.
+    The warnings about the fields the survey definition's tables have but don't read
+    (see survey_definition.py::unknown_fields_warnings), e.g. a misspelled header. A
+    table's field names are its sheet's headers. Read from the headers only, so they
+    are given even when the tables are invalid.
     """
     try:
         languages = reader.get_languages()
     except Exception:
         # Already reported by load_survey_definition: no language to suggest.
         languages = ()
-    headers_by_sheet = {}
-    for sheet_name in SHEET_COLUMNS:
-        if sheet_name not in reader.sheet_names:
+    field_names_by_table = {}
+    for table_name in TABLE_FIELDS:
+        if table_name not in reader.sheet_names:
             continue
         try:
-            headers_by_sheet[sheet_name] = reader.get_headers(sheet_name)
+            field_names_by_table[table_name] = reader.get_headers(table_name)
         except Exception:
             # Headers that can't be read (e.g. one with a space) are already reported
-            # by load_survey_definition: skip this sheet, and warn about the others.
+            # by load_survey_definition: skip this table, and warn about the others.
             continue
-    return unknown_columns_warnings(headers_by_sheet, languages)
+    return unknown_fields_warnings(field_names_by_table, languages)
 
 
 def load_survey_definition(reader: ExcelSurveyDefinitionReader) -> SurveyDefinition:
