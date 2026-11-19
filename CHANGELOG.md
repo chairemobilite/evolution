@@ -26,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Generator: the `customLabels` widget parameter is read whatever the case of its name, like the other parameters (fixes [#1615](https://github.com/chairemobilite/evolution/issues/1615))
 - Map find place widget: a map displayed with an existing value opens at the zoom of the value, or close to it when the value has no zoom, instead of the default zoom of the widget (fixes [#2217](https://github.com/chairemobilite/evolution/issues/2217))
 - Generator: true/false columns accept TRUE/FALSE written as text and 1/0 in every sheet (fixes [#2219](https://github.com/chairemobilite/evolution/issues/2219), [#2176](https://github.com/chairemobilite/evolution/issues/2176))
+- Generator: a Conditionals `path` must be a response path, optionally starting with one expansion token and a dot (`${currentPerson}.age`); an unknown or unclosed `${...}`, or a token elsewhere in the path, is now an error (fixes [#1578](https://github.com/chairemobilite/evolution/issues/1578))
 
 ### Security
 

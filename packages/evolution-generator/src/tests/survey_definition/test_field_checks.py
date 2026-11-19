@@ -71,6 +71,35 @@ class TestValidResponsePath:
         assert field_checks.valid_response_path(path, {}) is False
 
 
+class TestValidExpansionTokenPath:
+    @cases(
+        dict(id="no token", path="household.size"),
+        *(
+            dict(id=token, path=f"{token}.segments.0.mode")
+            for token in field_checks.EXPANSION_TOKENS
+        ),
+        dict(id="placeholder after a token", path="${currentPerson}.{_activeTripId}"),
+    )
+    def test_accepts_a_path(self, path):
+        assert field_checks.valid_expansion_token_path(path, {}) is True
+
+    @cases(
+        dict(id="unknown token", path="${currentJourny}.mode"),
+        dict(id="unknown name", path="household.${foo}.size"),
+        dict(id="empty token", path="${}.size"),
+        dict(id="unclosed token", path="${currentTrip.mode"),
+        dict(id="unclosed at the end", path="household.${size"),
+        dict(id="two tokens", path="${relativePath}.${currentPerson}.age"),
+        dict(id="token after a key", path="household.${currentTrip}.mode"),
+        dict(id="token at the end", path="household.${currentTrip}"),
+        dict(id="token alone", path="${currentTrip}"),
+        dict(id="no dot after the token", path="${currentTrip}mode"),
+        dict(id="invalid path after the token", path="${currentTrip}.mode-1"),
+    )
+    def test_rejects_an_invalid_path(self, path):
+        assert field_checks.valid_expansion_token_path(path, {}) is False
+
+
 class TestNonBlank:
     def test_accepts_non_empty_string(self):
         assert field_checks.non_blank("hello", {}) is True
