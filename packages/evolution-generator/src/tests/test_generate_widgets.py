@@ -465,6 +465,11 @@ class TestGenerateChoices:
         expected="validations: customValidations.homeCustomValidation",
     ),
     dict(
+        id="custom in lowercase",
+        validation="homecustomvalidation",
+        expected="validations: customValidations.homecustomvalidation",
+    ),
+    dict(
         id="from the Validations table",
         validation="between7And18Validation",
         expected="validations: validations.between7And18Validation",
@@ -1075,6 +1080,13 @@ class TestGetWidgetsFileImportFlags:
         )
         assert import_flags.has_custom_validations_import is False
         assert import_flags.has_validations_import is True
+
+        # The CustomValidation suffix is read in any case, like in generate_validation
+        import_flags = get_widgets_file_import_flags(
+            [widget(validation="agecustomvalidation")]
+        )
+        assert import_flags.has_custom_validations_import is True
+        assert import_flags.has_validations_import is False
 
     def test_conditional_imports(self):
         """Test that conditional columns are correctly detected"""

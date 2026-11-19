@@ -264,7 +264,7 @@ Widgets are the building blocks of your survey. They define the structure and in
 >
 > -   a validation of Evolution, e.g. `emailValidation` (see `evolution-common/src/services/widgets/validations/validations.ts`);
 > -   a `validation_name` of the `Validations` sheet, e.g. `between7And18Validation` (see [Generate Validations](#generate-validations));
-> -   a name ending with `CustomValidation`, written by hand in `customValidations.tsx`.
+> -   a name ending with `CustomValidation` (in any case, e.g. `homeCustomValidation` or `homecustomvalidation`), written by hand in `customValidations.tsx`.
 
 > <span id="choices">**Note:**</span> The `choices` field names the list of choices of the question: a `choicesName` of the `Choices` sheet, or a name ending with `CustomChoices` (from `customChoices.tsx`). It is required for `Radio`, `Select` and `Checkbox`, optional for `RadioNumber` (its additional choices), `Custom` and `BuiltIn`, and not used by the other input types. A `Radio` can show a text input for one of its choices (e.g. "Other, specify"): `custom_choice` is that choice's value, and `custom_path` the response path where the text is saved. They must be set together, and only on a `Radio`.
 
@@ -619,7 +619,7 @@ Each row is **one error** the validation can show. The rows sharing a `validatio
 
 > **Note:** The error message columns are named `error_message::<language>`, one per survey language, and each is required (see the `label::<language>` columns of the Widgets sheet). This example is for a survey in French and English. The messages are formatted like the labels (e.g. `**bold**`), and may use `{{nickname}}`, `{{count}}` and `{{gender:...}}`.
 
-> <span id="validation_name">**Note:**</span> `validation_name` must be a valid identifier (letters, digits, `_` or `$`, not starting with a digit). It can't be the name of a validation of Evolution (e.g. `ageValidation`, use it directly in the Widgets sheet instead), and can't end with `CustomValidation`, which names a validation written by hand.
+> <span id="validation_name">**Note:**</span> `validation_name` must be a valid identifier (letters, digits, `_` or `$`, not starting with a digit, and not a reserved word such as `class`). It can't be the name of a validation of Evolution (e.g. `ageValidation`, use it directly in the Widgets sheet instead), and can't end with `CustomValidation` in any case, which names a validation written by hand.
 
 > <span id="error_name">**Note:**</span> `error_name` must be a valid identifier, and is the key of the error message: `validations:<validation_name>.<error_name>`, e.g. `validations:between7And18Validation.tooLow`.
 

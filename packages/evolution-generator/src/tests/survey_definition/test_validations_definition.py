@@ -119,12 +119,13 @@ class TestValidationName:
         dict(id="with a space", validation_name="age Validation"),
         dict(id="starting with a digit", validation_name="1ageValidation"),
         dict(id="with a dash", validation_name="age-validation"),
+        dict(id="a reserved word", validation_name="delete"),
     )
     def test_reports_an_invalid_identifier(self, validation_name):
         assert _row_issue(validation_name=validation_name) == (
             "Error in Validations - Invalid validation_name in row 2: "
             f"{validation_name!r} - Must be a valid TypeScript identifier (letters, "
-            "digits, '_' or '$', not starting with a digit)."
+            "digits, '_' or '$', not starting with a digit, and not a reserved word such as 'class')."
         )
 
     @cases(
@@ -141,11 +142,29 @@ class TestValidationName:
             "directly in the widget's validation column, or choose another name"
         )
 
-    def test_reports_a_custom_validation_name(self):
-        assert _row_issue(validation_name="ageCustomValidation") == (
+    @cases(
+        dict(id="_isBlank", validation_name="_isBlank"),
+        dict(id="TFunction", validation_name="TFunction"),
+        dict(id="ValidationFunction", validation_name="ValidationFunction"),
+        dict(id="surveyHelper", validation_name="surveyHelper"),
+    )
+    def test_reports_a_name_imported_by_the_generated_module(self, validation_name):
+        assert _row_issue(validation_name=validation_name) == (
             "Error in Validations - Invalid validation_name in row 2: "
-            "'ageCustomValidation' - Must not end with 'CustomValidation': that suffix "
-            "names a validation written by hand in customValidations.tsx"
+            f"{validation_name!r} - Is imported by the generated validations.ts: "
+            "choose another name"
+        )
+
+    @cases(
+        dict(id="CustomValidation", validation_name="ageCustomValidation"),
+        dict(id="in lowercase", validation_name="agecustomvalidation"),
+        dict(id="in another case", validation_name="agecustomValidation"),
+    )
+    def test_reports_a_custom_validation_name(self, validation_name):
+        assert _row_issue(validation_name=validation_name) == (
+            "Error in Validations - Invalid validation_name in row 2: "
+            f"{validation_name!r} - Must not end with 'CustomValidation', in any case: "
+            "that suffix names a validation written by hand in customValidations.tsx"
         )
 
     @cases(
@@ -166,7 +185,7 @@ class TestErrorName:
         assert _row_issue(error_name=error_name) == (
             f"Error in Validations - Invalid error_name in row 2: {error_name!r} - "
             "Must be a valid TypeScript identifier (letters, digits, '_' or '$', not "
-            "starting with a digit)."
+            "starting with a digit, and not a reserved word such as 'class')."
         )
 
 
@@ -379,6 +398,15 @@ class TestValidations:
             "value"
         ]
 
+    def test_reports_equal_numbers_as_a_duplicate_check(self):
+        assert _issues(
+            [_row(error_name="first", value=7), _row(error_name="second", value=7.0)]
+        ) == [
+            "Error in Validations - Duplicate check in validation_name "
+            "'personAgeValidation': rows [2, 3] have the same path, comparison_operator and "
+            "value"
+        ]
+
     @cases(
         dict(id="another path", second={"path": "household.size"}),
         dict(id="another operator", second={"comparison_operator": ">="}),
@@ -386,6 +414,10 @@ class TestValidations:
         dict(
             id="a number and its text",
             second={"comparison_operator": "===", "value": "120"},
+        ),
+        dict(
+            id="a number and a boolean",
+            second={"comparison_operator": "===", "value": True},
         ),
         dict(id="another validation", second={"validation_name": "yearValidation"}),
     )

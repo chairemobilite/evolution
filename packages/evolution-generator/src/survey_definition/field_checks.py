@@ -11,6 +11,18 @@
 import re
 
 _TS_IDENTIFIER_PATTERN = re.compile(r"^[a-zA-Z_$][a-zA-Z0-9_$]*$")
+# The reserved words of TypeScript (and JavaScript strict mode): the generated code
+# declares names as `export const <name>`, so none of them can be a name.
+TS_RESERVED_WORDS = frozenset(
+    {
+        "break", "case", "catch", "class", "const", "continue", "debugger", "default",
+        "delete", "do", "else", "enum", "export", "extends", "false", "finally", "for",
+        "function", "if", "import", "in", "instanceof", "new", "null", "return",
+        "super", "switch", "this", "throw", "true", "try", "typeof", "var", "void",
+        "while", "with", "implements", "interface", "let", "package", "private",
+        "protected", "public", "static", "yield", "await", "arguments", "eval",
+    }
+)  # fmt: skip
 _PATH_CHARS_PATTERN = re.compile(r"^[a-zA-Z0-9_.{}]+$")
 # A response path: segments joined by dots, each a key or a {placeholder} holding another
 # response path, replaced by that response's value (see interpolatePath in
@@ -21,8 +33,11 @@ _RESPONSE_PATH_PATTERN = re.compile(rf"{_PATH_SEGMENT}(?:\.{_PATH_SEGMENT})*")
 
 
 def valid_ts_identifier(value, row: dict) -> bool:
-    """Must be a valid TypeScript identifier (letters, digits, '_' or '$', not starting with a digit)."""
-    return bool(_TS_IDENTIFIER_PATTERN.match(str(value)))
+    """Must be a valid TypeScript identifier (letters, digits, '_' or '$', not starting with a digit, and not a reserved word such as 'class')."""
+    return (
+        bool(_TS_IDENTIFIER_PATTERN.match(str(value)))
+        and str(value) not in TS_RESERVED_WORDS
+    )
 
 
 def valid_path_chars(value, row: dict) -> bool:

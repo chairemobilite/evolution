@@ -86,7 +86,7 @@ class TestSections:
         assert self._issues(rows) == [
             "Error in Sections - Invalid section in row 2: '1bad' - "
             "Must be a valid TypeScript identifier "
-            "(letters, digits, '_' or '$', not starting with a digit)."
+            "(letters, digits, '_' or '$', not starting with a digit, and not a reserved word such as 'class')."
         ]
 
     def test_reports_abbreviation_not_ending_with_underscore(self):
@@ -265,7 +265,7 @@ class TestSections:
         assert self._issues(rows) == [
             "Error in Sections - Invalid section in row 2: '1bad' - "
             "Must be a valid TypeScript identifier "
-            "(letters, digits, '_' or '$', not starting with a digit).",
+            "(letters, digits, '_' or '$', not starting with a digit, and not a reserved word such as 'class').",
             "Error in Sections - Invalid abbreviation in row 2: 'HM' - "
             "Must end with an underscore ('_'), e.g. 'h_'.",
         ]

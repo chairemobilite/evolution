@@ -14,6 +14,7 @@ from survey_definition.survey_definition import SurveyDefinition
 from survey_definition.widgets_definition import (
     WIDGET_ALLOWED_INPUT_TYPES_BY_FIELD,
     BUILT_IN_VALIDATIONS,
+    is_custom_validation,
     WidgetDefinition,
 )
 from typing import TypedDict
@@ -597,8 +598,8 @@ def generate_validation(validation):
     if not validation:
         # If validation is empty, use 'requiredValidation'
         return f"{INDENT}validations: builtInValidations.requiredValidation"
-    elif validation.endswith("CustomValidation"):
-        # If validation ends with 'CustomValidation', use 'customValidation'
+    elif is_custom_validation(validation):
+        # If validation ends with 'CustomValidation', in any case, use 'customValidation'
         return f"{INDENT}validations: customValidations.{validation}"
     elif validation in BUILT_IN_VALIDATIONS:
         return f"{INDENT}validations: builtInValidations.{validation}"
@@ -910,8 +911,8 @@ def get_widgets_file_import_flags(
             else:
                 import_flags.has_choices_import = True
         if widget.validation:
-            # Check to see if the validation finish with 'CustomValidation'
-            if widget.validation.lower().endswith("customvalidation"):
+            # Check to see if the validation finish with 'CustomValidation', in any case
+            if is_custom_validation(widget.validation):
                 import_flags.has_custom_validations_import = True
             elif widget.validation in BUILT_IN_VALIDATIONS:
                 import_flags.has_built_in_validations_import = True

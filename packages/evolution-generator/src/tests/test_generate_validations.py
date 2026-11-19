@@ -6,17 +6,20 @@
 # locales/<language>/validations.yaml error messages.
 
 import os
+import re
 
 import pytest  # pyright: ignore[reportMissingImports]
 
 from scripts.generate_validations import (
     _error_condition,
+    _generate_import_statements,
     _generate_typescript_code,
     _generate_validation_typescript,
     generate_validations,
 )
 from survey_definition.survey_definition import SurveyDefinition
 from survey_definition.validations_definition import (
+    GENERATED_VALIDATIONS_IMPORTS,
     ValidationDefinition,
     Validations,
 )
@@ -372,6 +375,21 @@ class TestGenerateTypescriptCode:
         code = _generate_typescript_code(validations_by_name(validations_row()))
         assert code.startswith("// This file was automatically generated")
         assert self.BASE_IMPORTS in code
+
+    def test_imports_only_names_a_validation_name_cannot_take(self):
+        # A validation_name that is an imported binding would redeclare it.
+        imports = _generate_import_statements(
+            needs_survey_helper_import=True,
+            needs_od_survey_helpers_import=True,
+            needs_escape_import=True,
+        )
+        bindings = set()
+        for line in imports.splitlines():
+            names = re.match(
+                r"import (?:\{ (?:type )?(\w+) \}|\* as (\w+)|(\w+)) from", line
+            )
+            bindings.add(next(name for name in names.groups() if name))
+        assert bindings == GENERATED_VALIDATIONS_IMPORTS
 
     def test_writes_an_empty_sheet_as_imports_only(self):
         code = _generate_typescript_code({})

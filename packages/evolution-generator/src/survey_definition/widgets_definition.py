@@ -181,7 +181,7 @@ RADIO_NUMBER_MAX_CHOICES = 20
 # The validations exported by Evolution, written as validations.<name>, see
 # evolution-common/src/services/widgets/validations/validations.ts. Any other validation
 # is either a validation_name of the Validations table (validations.ts), or ends
-# with 'CustomValidation' and is in the survey's customValidations.tsx.
+# with 'CustomValidation' (in any case) and is in the survey's customValidations.tsx.
 BUILT_IN_VALIDATIONS: frozenset[str] = frozenset(
     {
         "requiredValidation",
@@ -198,6 +198,16 @@ BUILT_IN_VALIDATIONS: frozenset[str] = frozenset(
         "twoWheelNumberValidation",
     }
 )
+
+
+def is_custom_validation(name: str) -> bool:
+    """
+    Whether `name` is a validation written by hand in customValidations.tsx: it ends
+    with 'CustomValidation', in any case (e.g. 'ageCustomValidation' or
+    'agecustomvalidation'), like 'CustomChoices'.
+    """
+    return name.lower().endswith("customvalidation")
+
 
 # The formatters exported by Evolution, written as formatters.<name>, see
 # evolution-common/src/utils/formatters.ts. Any other formatter must end with
@@ -516,7 +526,7 @@ class WidgetDefinition(BaseModel):
             it ends with 'CustomConditional', in the Conditionals table.
         validation: Name of the validation of the answer: one of BUILT_IN_VALIDATIONS,
             a validation_name of the Validations table, or a name ending with
-            'CustomValidation'. Blank means requiredValidation.
+            'CustomValidation', in any case. Blank means requiredValidation.
         choices: Name of the list of choices: a choicesName of the Choices table, or a
             name ending with 'CustomChoices' (customChoices.tsx). Required for Radio,
             Select and Checkbox; the additional choices of a RadioNumber.
@@ -881,15 +891,15 @@ class WidgetDefinition(BaseModel):
                 "input_range_name of the InputRange table"
             )
         # A built-in validation is in Evolution, and a name ending with
-        # 'CustomValidation' in customValidations.tsx: neither is in the Validations
-        # table.
+        # 'CustomValidation' (in any case, see is_custom_validation) in
+        # customValidations.tsx: neither is in the Validations table.
         validation_names = context.get("validation_names")
         if (
             validation_names is not None
             and self.validation is not None
             and not self._ignores("validation")
             and self.validation not in BUILT_IN_VALIDATIONS
-            and not self.validation.endswith("CustomValidation")
+            and not is_custom_validation(self.validation)
             and self.validation not in validation_names
         ):
             issues.append(

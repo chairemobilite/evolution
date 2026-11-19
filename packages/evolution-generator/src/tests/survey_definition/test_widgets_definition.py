@@ -309,6 +309,8 @@ class TestWidgetDefinition:
         dict(id="built in for a household", validation="householdSizeValidation"),
         dict(id="re-exported built in", validation="carNumberValidation"),
         dict(id="custom", validation="homeNameCustomValidation"),
+        dict(id="custom suffix in lowercase", validation="homeNamecustomvalidation"),
+        dict(id="custom suffix in another case", validation="homeNamecustomValidation"),
         dict(id="in the Validations table", validation="between7And18Validation"),
     )
     def test_accepts_a_built_in_custom_or_validations_table_validation(
@@ -335,7 +337,6 @@ class TestWidgetDefinition:
     @cases(
         dict(id="ending with Validation", validation="homeNameValidation"),
         dict(id="a typo of a table's name", validation="between7And19Validation"),
-        dict(id="custom suffix in another case", validation="homeNamecustomValidation"),
     )
     def test_reports_a_validation_missing_from_the_validations_table(self, validation):
         assert _row_issue(_row(validation=validation)) == (

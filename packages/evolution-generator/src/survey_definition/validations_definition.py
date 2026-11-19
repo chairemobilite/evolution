@@ -37,7 +37,17 @@ from survey_definition.sheet_checks import (
     fields_in_survey_languages,
 )
 from survey_definition.validation_context import context_languages
-from survey_definition.widgets_definition import BUILT_IN_VALIDATIONS
+from survey_definition.widgets_definition import (
+    BUILT_IN_VALIDATIONS,
+    is_custom_validation,
+)
+
+# Names a validation_name can't take, as it is exported from the generated
+# validations.ts: the bindings that module imports (see _generate_import_statements in
+# scripts/generate_validations.py). Reserved words are refused by valid_ts_identifier.
+GENERATED_VALIDATIONS_IMPORTS = frozenset(
+    {"TFunction", "_isBlank", "ValidationFunction", "_escape", "surveyHelper", "odSurveyHelpers"}
+)  # fmt: skip
 
 # Field names the Validations source must provide, even though path and value may be
 # blank on a given row. The error_message columns (one per language) aren't listed: a
@@ -62,6 +72,17 @@ VALIDATION_UNARY_OPERATORS: tuple[str, ...] = ("isBlank", "isNotInteger")
 type ValidationOperator = Literal[
     "===", "!==", ">", "<", ">=", "<=", "isBlank", "isNotInteger"
 ]
+
+
+def _check_value_key(value: object | None) -> str:
+    """
+    The key of a value in the duplicate check: equal numbers (7 and 7.0) share one, but
+    repr still tells 7 from '7' and from True, as the generated code compares them
+    differently.
+    """
+    if isinstance(value, (int, float)) and not isinstance(value, bool):
+        return repr(float(value))
+    return repr(value)
 
 
 class ValidationDefinition(BaseModel):
@@ -92,8 +113,8 @@ class ValidationDefinition(BaseModel):
         validation_name: Name of the validation this row belongs to; shared by every
             row of the same validation, and written in the widgets' validation column.
             Required; must be a valid TypeScript identifier, not the name of a validation
-            of Evolution (BUILT_IN_VALIDATIONS) and not end with 'CustomValidation',
-            which names a validation written by hand in customValidations.tsx.
+            of Evolution (BUILT_IN_VALIDATIONS) and not end with 'CustomValidation', in
+            any case, which names a validation written by hand in customValidations.tsx.
         error_name: Name of this error in its validation, e.g. 'tooHigh': its
             translation key is validations:<validation_name>.<error_name>. Required;
             must be a valid TypeScript identifier.
@@ -144,15 +165,19 @@ class ValidationDefinition(BaseModel):
     def _validation_name_is_valid(cls, value: str, info: ValidationInfo) -> str:
         """Check that `validation_name` is a valid TypeScript identifier, neither built in nor custom."""
         _raise_if_check_fails(field_checks.valid_ts_identifier, value, info.data)
+        if value in GENERATED_VALIDATIONS_IMPORTS:
+            raise ValueError(
+                "Is imported by the generated validations.ts: choose another name"
+            )
         if value in BUILT_IN_VALIDATIONS:
             raise ValueError(
                 "Is the name of a validation of Evolution: use it directly in the "
                 "widget's validation column, or choose another name"
             )
-        if value.endswith("CustomValidation"):
+        if is_custom_validation(value):
             raise ValueError(
-                "Must not end with 'CustomValidation': that suffix names a "
-                "validation written by hand in customValidations.tsx"
+                "Must not end with 'CustomValidation', in any case: that suffix names "
+                "a validation written by hand in customValidations.tsx"
             )
         return value
 
@@ -300,12 +325,11 @@ class Validations(RootModel[list[ValidationDefinition]]):
             rows_by_error.setdefault(
                 (validation.validation_name, validation.error_name), []
             ).append(row_number)
-            # repr tells 7 from '7': the generated code compares them differently.
             check = (
                 validation.validation_name,
                 validation.path,
                 validation.comparison_operator,
-                repr(validation.value),
+                _check_value_key(validation.value),
             )
             rows_by_check.setdefault(check, []).append(row_number)
 
