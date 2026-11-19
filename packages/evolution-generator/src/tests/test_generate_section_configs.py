@@ -182,8 +182,20 @@ def test_generate_section_configs_from_survey_definition(tmp_path: Path) -> None
         ),
     )
 
+    # A section conditional not ending with 'CustomConditional' must be defined in the
+    # Conditionals table.
+    conditionals = [
+        {
+            "conditional_name": "hasHouseholdSize1Conditional",
+            "path": "household.size",
+            "comparison_operator": "===",
+            "value": 1,
+        }
+    ]
     for case in SECTION_CONFIG_CASES:
-        survey_definition = SurveyDefinition(languages=("fr", "en"), sections=case.rows)
+        survey_definition = SurveyDefinition(
+            languages=("fr", "en"), conditionals=conditionals, sections=case.rows
+        )
         out_dir = tmp_path / case.id
         for row in case.rows:
             (out_dir / row["section"]).mkdir(parents=True, exist_ok=True)
