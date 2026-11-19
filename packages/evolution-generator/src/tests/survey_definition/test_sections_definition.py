@@ -131,6 +131,48 @@ class TestSections:
         assert sections[0].enable_conditional == "hasSize1Conditional"
         assert sections[0].completion_conditional == "isDoneCustomConditional"
 
+    @cases(
+        dict(id="enable_conditional", field_name="enable_conditional"),
+        dict(id="completion_conditional", field_name="completion_conditional"),
+    )
+    def test_reports_a_conditional_missing_from_the_conditionals_table(
+        self, field_name
+    ):
+        rows = [
+            {**self._valid_section_row("home", "HM_"), field_name: "isKidConditional"}
+        ]
+        with pytest.raises(ValidationError) as error:
+            Sections.model_validate(
+                rows,
+                context={
+                    "languages": ("fr", "en"),
+                    "conditional_names": {"isAdultConditional"},
+                },
+            )
+        assert str(error.value.errors()[0]["ctx"]["error"]).split("\n") == [
+            f"Error in Sections - Invalid {field_name} in row 2: "
+            "'isKidConditional' - Must be a conditional_name of the Conditionals "
+            "table, or end with 'CustomConditional'."
+        ]
+
+    def test_accepts_conditionals_of_the_conditionals_table(self):
+        rows = [
+            {
+                **self._valid_section_row("home", "HM_"),
+                "enable_conditional": "isAdultConditional",
+                # Written in customConditionals.tsx, not in the Conditionals table.
+                "completion_conditional": "isDoneCustomConditional",
+            }
+        ]
+        sections = Sections.model_validate(
+            rows,
+            context={
+                "languages": ("fr", "en"),
+                "conditional_names": {"isAdultConditional"},
+            },
+        )
+        assert sections[0].enable_conditional == "isAdultConditional"
+
     def test_allows_blank_conditionals(self):
         rows = [
             {
