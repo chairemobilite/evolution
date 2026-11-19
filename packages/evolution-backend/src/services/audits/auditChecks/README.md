@@ -17,6 +17,15 @@ In Evolution, an **audit check** is a post-submission validation run over a comp
 
 Checks do *not* run while the respondent fills the questionnaire — that is **real-time validation**, a separate system (see [`docs/nomenclature.md`](../../../../../../docs/nomenclature.md)). If your rule needs to prevent a respondent from moving forward, it is a real-time validation, not an audit.
 
+### Why audits duplicate real-time validation
+
+An audit check must validate the data it is given regardless of whether that data was ever seen by real-time validation. It cannot assume a field is valid just because the respondent passed through it once, because:
+
+- A respondent can go back to a previously-completed field, clear it or type an invalid value (e.g. an invalid email), then leave the interview without fixing the error shown in red by real-time validation. The invalid value stays saved.
+- A respondent (or anyone with access to the browser) can edit the interview's stored data directly — e.g. through the Redux dev tools — completely bypassing real-time validation.
+
+Because the server can never trust that stored data went through real-time validation, most checks in `evolution-common/src/services/widgets/validations` (frontend/real-time) have a corresponding audit check here that re-validates the same rule against the data as it actually sits in the database. When adding a real-time validation, check whether it needs an audit-check counterpart too, and vice versa.
+
 **Rule of thumb**:
 
 
