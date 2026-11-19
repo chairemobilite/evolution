@@ -540,7 +540,7 @@ class WidgetDefinition(BaseModel):
 
     @model_validator(mode="before")
     @classmethod
-    def _strip_blank_cells(cls, data: Any) -> Any:
+    def _prepare_cells(cls, data: Any) -> Any:
         """Treat a blank/whitespace-only cell as an absent key, gather the label columns, and read the cells a spreadsheet may have changed (see below)."""
         if not isinstance(data, dict):
             return data

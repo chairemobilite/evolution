@@ -37,7 +37,7 @@ def collect_sheet_issues[M: BaseModel](
     to each row so its rules can read it. A row that is already a `model` instance was
     checked when it was built, so it is kept as is; the sheet rules still apply to it.
     Blank-stripping isn't done here: each table's own model handles that itself (see
-    SectionDefinition._strip_blank_cells).
+    SectionDefinition._prepare_cells).
     """
     issues: list[str] = []
     parsed: list[tuple[int, M]] = []
