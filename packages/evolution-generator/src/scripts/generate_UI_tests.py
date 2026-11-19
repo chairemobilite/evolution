@@ -133,8 +133,10 @@ def generate_UI_tests(survey_definition: SurveyDefinition, output_file: str):
                 )
                 choices_message = f" with choices {choices}"
             ts_code += f"{INDENT}// Test {input_type.lower()} widget {question_name}{conditional_message}{choices_message}{conditional_link_message}{choices_link_message}\n"
-            # Generate input visible test
-            if conditional:
+            # Generate input visible test. Text widgets have no input with the
+            # path to find, and their waitTextVisible test below already checks
+            # that they are shown.
+            if conditional and input_type != "InfoText":
                 ts_code += f"{INDENT}testHelpers.inputVisibleTest({{ context, path: '{path}', isVisible: true }});\n"
             # Generate input tests
             if input_type == "Radio":
