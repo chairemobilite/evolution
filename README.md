@@ -80,27 +80,31 @@ The following instructions explain how to prepare and compile the application
 - `yarn migrate`: Update the database schema with latest changes. This can be run whenever the source code is updated
 - Optionally `yarn create-user`: Run this task to create a new user in the database. The user will be able to login to the web interface. This command can be run entirely in a non-interactive mode with the following parameters: `yarn create-user --username <username> --email <email> --password <clearTextPassword> [--first_name <firstName> --last_name <lastName> --[no-]admin --[no-]valid --[no-]confirmed --prefs <jsonStringOfPreferences>]`. For example, to create and administrator user with the english language as preference, run the following command `yarn create-user --username admin --email admin@example.org --password MyAdminPassword --admin --prefs '{ "lang": "en" }'`
 
-## Verify Excel (generator)
+## Verify the survey definition (generator)
 
-You can run this either via the repo `yarn` command, or directly via Python/Poetry (package).
+Checks a Generator survey definition: an Excel file, or a folder of CSV files (one per sheet). With `--config_path '/absolute/path/to/generatorConfigs.yaml'` instead of a path, it checks the source set in that Generator config. You can run this either via the repo `yarn` command, or directly via Python/Poetry (package).
 
 Exit code `0` when valid. If invalid, exit code is non-zero and the terminal prints that the check failed, then each validation error message.
 
-### Verify Excel with Yarn
+### Verify with Yarn
 
 From the repo root:
 
 - `cd packages/evolution-generator`
 - `poetry install`
 - Back in the repo root: `yarn verifyExcel '/absolute/path/to/file.xlsx'`
+- For a folder of CSV files: `yarn verifyExcel '/absolute/path/to/folder_csv'`
+- For the source of a Generator config: `yarn verifyExcel --config_path '/absolute/path/to/generatorConfigs.yaml'`
 
-### Verify Excel with Python / Poetry
+### Verify with Python / Poetry
 
 From the repo root:
 
 - `cd packages/evolution-generator`
 - `poetry install`
 - `poetry run verifyExcel '/absolute/path/to/file.xlsx'`
+- For a folder of CSV files: `poetry run verifyExcel '/absolute/path/to/folder_csv'`
+- For the source of a Generator config: `poetry run verifyExcel --config_path '/absolute/path/to/generatorConfigs.yaml'`
 
 ## Run the example application
 

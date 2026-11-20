@@ -1,5 +1,9 @@
 survey_folder_path: ../../example/demo_generator
-excel_file_path: ../../example/demo_generator/references/Household_Travel_Generate_Survey.xlsx
+survey_definition:
+    # The files you edit: excel or csv. The other format is written from it.
+    source: excel
+    excel_file_path: ../../example/demo_generator/references/Household_Travel_Generate_Survey.xlsx
+    csv_folder_path: ../../example/demo_generator/references/Household_Travel_Generate_Survey_csv
 
 enabled_scripts:
     generate_excel: false
@@ -14,4 +18,3 @@ enabled_scripts:
     generate_UI_tests: true
     generate_questionnaire_list: true
     generate_questionnaire_dictionary: true
-    copy_excel_to_csv: true

@@ -4,8 +4,10 @@
 
 # Note: Tests for scripts/generate_survey.py's Excel integrity/loading entry points.
 
+import filecmp
 import os
 import shutil
+import sys
 from unittest.mock import MagicMock
 
 import openpyxl
@@ -18,11 +20,13 @@ from helpers.generator_helpers import (
 from tests.mocked_excel import add_mocked_excel_sheet, create_mocked_excel_data
 import scripts.generate_survey as generate_survey_module
 from scripts.excel_to_csv_generator import ExcelToCsvGenerator
+from scripts.generator_config import GeneratorConfigError
 from scripts.generate_survey import (
     check_excel_integrity,
     check_excel_integrity_with_messages,
     check_excel_integrity_with_warnings,
     generate_survey,
+    verify_excel_cli_main,
 )
 from survey_definition.excel_survey_definition_reader import (
     EMPTY_ROWS_WARNING_THRESHOLD,
@@ -316,18 +320,60 @@ class TestCheckExcelIntegrityWithWarnings:
         assert warnings == []
 
 
+def _write_config(tmp_path, survey_definition: str, enabled_scripts: str = "{}"):
+    """Write a generatorConfigs.yaml generating in tmp_path, with this survey_definition block content."""
+    config_path = tmp_path / "generatorConfigs.yaml"
+    config_path.write_text(
+        f"survey_folder_path: {tmp_path}\n"
+        f"survey_definition:\n{survey_definition}"
+        f"enabled_scripts: {enabled_scripts}\n"
+    )
+    return config_path
+
+
+def _excel_source(excel_file_path, csv_folder_path=None) -> str:
+    block = f"    source: excel\n    excel_file_path: {excel_file_path}\n"
+    if csv_folder_path is not None:
+        block += f"    csv_folder_path: {csv_folder_path}\n"
+    return block
+
+
 class TestGenerateSurvey:
-    def test_invalid_excel_file_aborts_generation(self, tmp_path):
-        config_path = tmp_path / "generatorConfigs.yaml"
-        config_path.write_text(
-            f"survey_folder_path: {tmp_path}\n"
-            "excel_file_path: nonexistent.xlsx\n"
-            "enabled_scripts: {}\n"
-        )
-        with pytest.raises(Exception, match="Survey definition integrity check failed"):
+    def test_missing_excel_file_aborts_generation(self, tmp_path):
+        config_path = _write_config(tmp_path, _excel_source("nonexistent.xlsx"))
+        with pytest.raises(
+            GeneratorConfigError, match="excel_file_path not found: nonexistent.xlsx"
+        ):
             generate_survey(str(config_path))
         # Nothing was generated in the survey folder
         assert list(tmp_path.iterdir()) == [config_path]
+
+    def test_invalid_excel_file_aborts_generation(self, tmp_path):
+        _create_workbook(
+            sections_rows=[["home", "Accueil", "Home", "maybe", "", "", "HM_"]]
+        )
+        config_path = _write_config(tmp_path, _excel_source(MOCKED_EXCEL_FILE))
+        try:
+            with pytest.raises(
+                Exception, match="Survey definition integrity check failed"
+            ):
+                generate_survey(str(config_path))
+            # Nothing was generated in the survey folder
+            assert list(tmp_path.iterdir()) == [config_path]
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+    def test_prints_what_it_reads_and_writes(self, tmp_path, capsys):
+        _create_workbook()
+        config_path = _write_config(tmp_path, _excel_source(MOCKED_EXCEL_FILE))
+        try:
+            generate_survey(str(config_path))
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+        output = capsys.readouterr().out
+        assert f"Config: {config_path}\n" in output
+        assert f"Survey definition source: excel ({MOCKED_EXCEL_FILE})\n" in output
+        assert "CSV copy: not written (no csv_folder_path)\n" in output
 
     def test_creates_a_locales_folder_per_survey_language(self, tmp_path):
         _create_workbook(
@@ -335,12 +381,7 @@ class TestGenerateSurvey:
             sections_headers=[h for h in VALID_SECTIONS_HEADERS if h != "title_fr"],
             sections_rows=[["home", "Home", True, "", "", "HM_"]],
         )
-        config_path = tmp_path / "generatorConfigs.yaml"
-        config_path.write_text(
-            f"survey_folder_path: {tmp_path}\n"
-            f"excel_file_path: {MOCKED_EXCEL_FILE}\n"
-            "enabled_scripts: {}\n"
-        )
+        config_path = _write_config(tmp_path, _excel_source(MOCKED_EXCEL_FILE))
         try:
             generate_survey(str(config_path))
             assert sorted(os.listdir(tmp_path / "locales")) == ["en"]
@@ -355,11 +396,7 @@ class TestGenerateSurvey:
             generate_survey_module, "load_survey_definition", load_survey_definition
         )
         _create_workbook()
-        config_path = tmp_path / "generatorConfigs.yaml"
-        config_path.write_text(
-            f"survey_folder_path: {tmp_path}\n"
-            f"excel_file_path: {MOCKED_EXCEL_FILE}\n"
-        )
+        config_path = _write_config(tmp_path, _excel_source(MOCKED_EXCEL_FILE))
         try:
             generate_survey(str(config_path))
             load_survey_definition.assert_called_once()
@@ -368,11 +405,7 @@ class TestGenerateSurvey:
 
     def test_generates_the_choices_from_the_survey_definition(self, tmp_path):
         _create_workbook(choices_rows=[["yesNo", "yes", "Oui", "Yes", "", ""]])
-        config_path = tmp_path / "generatorConfigs.yaml"
-        config_path.write_text(
-            f"survey_folder_path: {tmp_path}\n"
-            f"excel_file_path: {MOCKED_EXCEL_FILE}\n"
-        )
+        config_path = _write_config(tmp_path, _excel_source(MOCKED_EXCEL_FILE))
         try:
             generate_survey(str(config_path), only_scripts={"generate_choices"})
             choices_ts = (
@@ -394,18 +427,34 @@ class TestGenerateSurvey:
         shutil.copy(DEMO_EXCEL_FILE, excel_file_path)
         load_workbook = MagicMock(wraps=openpyxl.load_workbook)
         monkeypatch.setattr(openpyxl, "load_workbook", load_workbook)
-        enabled_scripts = "".join(
-            f"    {script_key}: {script_key != 'generate_excel'}\n"
-            for script_key in generate_survey_module.SUPPORTED_SCRIPT_KEYS
-        )
-        config_path = tmp_path / "generatorConfigs.yaml"
-        config_path.write_text(
-            f"survey_folder_path: {tmp_path}\n"
-            f"excel_file_path: {excel_file_path}\n"
-            f"enabled_scripts:\n{enabled_scripts}"
+        config_path = _write_config(
+            tmp_path,
+            _excel_source(excel_file_path, tmp_path / "references" / "survey_csv"),
+            _all_scripts_but_generate_excel(),
         )
         generate_survey(str(config_path))
         load_workbook.assert_called_once()
+
+
+def _all_scripts_but_generate_excel() -> str:
+    return "\n" + "".join(
+        f"    {script_key}: {script_key != 'generate_excel'}\n"
+        for script_key in generate_survey_module.SUPPORTED_SCRIPT_KEYS
+    )
+
+
+def _assert_same_files(left, right) -> None:
+    """Assert that the two folders hold the same files, with the same content."""
+    comparison = filecmp.dircmp(left, right)
+    assert comparison.left_only == [] and comparison.right_only == []
+    _, mismatch, errors = filecmp.cmpfiles(
+        left, right, comparison.common_files, shallow=False
+    )
+    assert mismatch == [] and errors == []
+    for sub_folder in comparison.common_dirs:
+        _assert_same_files(
+            os.path.join(left, sub_folder), os.path.join(right, sub_folder)
+        )
 
 
 @pytest.fixture
@@ -420,6 +469,36 @@ def demo_excel_file(tmp_path):
 
 
 class TestCsvSource:
+    def test_csv_copy_generates_the_same_survey_as_the_excel_file(
+        self, tmp_path, demo_excel_file
+    ):
+        csv_folder_path = tmp_path / "references" / "survey_csv"
+        excel_survey, csv_survey = tmp_path / "from_excel", tmp_path / "from_csv"
+        excel_survey.mkdir()
+        csv_survey.mkdir()
+        generate_survey(
+            str(
+                _write_config(
+                    excel_survey,
+                    _excel_source(demo_excel_file, csv_folder_path),
+                    _all_scripts_but_generate_excel(),
+                )
+            )
+        )
+        generate_survey(
+            str(
+                _write_config(
+                    csv_survey,
+                    f"    source: csv\n    csv_folder_path: {csv_folder_path}\n",
+                    _all_scripts_but_generate_excel(),
+                )
+            )
+        )
+        os.remove(excel_survey / "generatorConfigs.yaml")
+        os.remove(csv_survey / "generatorConfigs.yaml")
+        assert os.listdir(excel_survey / "src" / "survey" / "sections") != []
+        _assert_same_files(excel_survey, csv_survey)
+
     def test_checks_the_integrity_of_a_csv_folder(self, tmp_path, demo_excel_file):
         csv_folder_path = tmp_path / "survey_csv"
         ExcelToCsvGenerator.generate_csv_copy(
@@ -435,3 +514,31 @@ class TestCsvSource:
         ok, messages = check_excel_integrity_with_messages(str(csv_folder_path))
         assert ok is False
         assert any("Invalid in_nav" in message for message in messages)
+
+
+class TestVerifyExcelCli:
+    def _run(self, monkeypatch, *args) -> int:
+        monkeypatch.setattr(sys, "argv", ["verifyExcel", *args])
+        return verify_excel_cli_main()
+
+    def test_checks_an_excel_file(self, monkeypatch, demo_excel_file):
+        assert self._run(monkeypatch, str(demo_excel_file)) == 0
+
+    def test_checks_the_source_of_a_config(
+        self, monkeypatch, tmp_path, demo_excel_file, capsys
+    ):
+        config_path = _write_config(tmp_path, _excel_source(demo_excel_file))
+        assert self._run(monkeypatch, "--config_path", str(config_path)) == 0
+        assert f"Survey definition source: excel ({demo_excel_file})" in (
+            capsys.readouterr().out
+        )
+
+    def test_reports_an_invalid_config(self, monkeypatch, tmp_path, capsys):
+        config_path = tmp_path / "generatorConfigs.yaml"
+        config_path.write_text("survey_folder_path: survey\nexcel_file_path: a.xlsx\n")
+        assert self._run(monkeypatch, "--config_path", str(config_path)) == 1
+        assert "the survey_definition block is missing" in capsys.readouterr().err
+
+    @pytest.mark.parametrize("args", [(), ("a.xlsx", "--config_path", "c.yaml")])
+    def test_needs_either_a_source_or_a_config(self, monkeypatch, args):
+        assert self._run(monkeypatch, *args) == 2
