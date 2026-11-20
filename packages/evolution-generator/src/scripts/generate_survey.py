@@ -9,11 +9,14 @@
 import argparse  # For command-line arguments
 from dotenv import load_dotenv  # For environment variables
 import os  # For file operations
+import sys
 import yaml  # For reading the yaml file
 from pydantic import ValidationError
 from helpers.generator_helpers import load_survey_definition
+from survey_definition.csv_survey_definition_reader import CsvSurveyDefinitionReader
 from survey_definition.excel_survey_definition_reader import ExcelSurveyDefinitionReader
 from survey_definition.survey_definition import SurveyDefinition
+from survey_definition.survey_definition_reader import SurveyDefinitionReader
 from scripts.excel_to_csv_generator import ExcelToCsvGenerator
 from scripts.generate_excel import generate_excel
 from scripts.generate_folders import generate_folders
@@ -318,11 +321,19 @@ def main():
     generate_survey(config_path, only_scripts=only_scripts)
 
 
+def open_survey_definition_reader(source_path: str) -> SurveyDefinitionReader:
+    """Return the reader of the survey definition at `source_path`: a folder of CSV files, or else an Excel file."""
+    if os.path.isdir(source_path):
+        return CsvSurveyDefinitionReader(source_path)
+    return ExcelSurveyDefinitionReader(source_path)
+
+
 def _load_survey_with_messages(
-    excel_file_path: str,
-) -> tuple[ExcelSurveyDefinitionReader | None, SurveyDefinition | None, list[str]]:
+    source_path: str,
+) -> tuple[SurveyDefinitionReader | None, SurveyDefinition | None, list[str]]:
     """
-    Read the Excel file and load its SurveyDefinition (see load_survey_definition).
+    Read the Excel file or the folder of CSV files and load its SurveyDefinition (see
+    load_survey_definition).
 
     Returns (reader, survey_definition, []) when valid, or
     (reader, None, messages) with human-readable issues; reader is None when the
@@ -330,7 +341,7 @@ def _load_survey_with_messages(
     """
     reader = None
     try:
-        reader = ExcelSurveyDefinitionReader(excel_file_path)
+        reader = open_survey_definition_reader(source_path)
         return reader, load_survey_definition(reader), []
     except ValidationError as exc:
         # SurveyDefinition reports every table's problems in one error, one problem
@@ -347,10 +358,10 @@ def _load_survey_with_messages(
 
 
 def _warnings(
-    reader: ExcelSurveyDefinitionReader | None,
+    reader: SurveyDefinitionReader | None,
     survey_definition: SurveyDefinition | None,
 ) -> list[str]:
-    """The warnings about the Excel file (its sheets) and its survey definition (its rows)."""
+    """The warnings about the source (e.g. the Excel file's sheets) and its survey definition (its rows)."""
     return [
         *(reader.warnings if reader is not None else []),
         *(survey_definition.warnings() if survey_definition is not None else []),
@@ -358,71 +369,73 @@ def _warnings(
 
 
 def check_excel_integrity_with_warnings(
-    excel_file_path: str,
+    source_path: str,
 ) -> tuple[bool, list[str], list[str]]:
     """
-    Check the integrity of the Excel file (see load_survey_definition). Entry point for
-    scripts and UI (see check_excel_integrity_cli.py).
+    Check the integrity of the survey definition at `source_path`, an Excel file or a
+    folder of CSV files (see load_survey_definition). Entry point for scripts and UI
+    (see check_excel_integrity_cli.py).
 
     Returns (ok, errors, warnings): ok is True when errors is empty; warnings list
     the problems that don't stop the generation (see ExcelSurveyDefinitionReader and
     SurveyDefinition.warnings).
     """
-    reader, survey_definition, messages = _load_survey_with_messages(excel_file_path)
+    reader, survey_definition, messages = _load_survey_with_messages(source_path)
     warnings = _warnings(reader, survey_definition)
     return survey_definition is not None, messages, warnings
 
 
-def check_excel_integrity_with_messages(excel_file_path: str) -> tuple[bool, list[str]]:
+def check_excel_integrity_with_messages(source_path: str) -> tuple[bool, list[str]]:
     """
-    Check the integrity of the Excel file, like check_excel_integrity_with_warnings
-    without the warnings.
+    Check the integrity of the survey definition, like
+    check_excel_integrity_with_warnings without the warnings.
 
     Returns (True, []) when valid, or (False, messages) with human-readable issues.
     """
-    ok, messages, _ = check_excel_integrity_with_warnings(excel_file_path)
+    ok, messages, _ = check_excel_integrity_with_warnings(source_path)
     return ok, messages
 
 
 def _print_integrity_result(
-    excel_file_path: str, ok: bool, messages: list[str], warnings: list[str]
+    source_path: str, ok: bool, messages: list[str], warnings: list[str]
 ) -> None:
     for warning in warnings:
         print(f"Warning: {warning}")
     if ok:
-        print(f"Excel integrity check passed for {excel_file_path}")
+        print(f"Survey definition integrity check passed for {source_path}")
     else:
-        print(f"Excel integrity check FAILED for {excel_file_path}")
+        print(f"Survey definition integrity check FAILED for {source_path}")
         for message in messages:
             print(message)
 
 
-# Check the integrity of the Excel file to avoid generating the survey with invalid data
-def check_excel_integrity(excel_file_path: str) -> bool:
-    """Check the integrity of the Excel file. Entry point for scripts and UI."""
-    ok, messages, warnings = check_excel_integrity_with_warnings(excel_file_path)
-    _print_integrity_result(excel_file_path, ok, messages, warnings)
+# Check the integrity of the survey definition to avoid generating the survey with invalid data
+def check_excel_integrity(source_path: str) -> bool:
+    """Check the integrity of the Excel file or folder of CSV files. Entry point for scripts and UI."""
+    ok, messages, warnings = check_excel_integrity_with_warnings(source_path)
+    _print_integrity_result(source_path, ok, messages, warnings)
     return ok
 
 
 def _load_survey_or_raise(
-    excel_file_path: str,
-) -> tuple[ExcelSurveyDefinitionReader, SurveyDefinition]:
+    source_path: str,
+) -> tuple[SurveyDefinitionReader, SurveyDefinition]:
     """
-    Read the Excel file and load its SurveyDefinition, printing the same messages as
-    check_excel_integrity, and raise if invalid.
+    Read the Excel file or folder of CSV files and load its SurveyDefinition, printing
+    the same messages as check_excel_integrity, and raise if invalid.
 
     For a caller (generate_survey) that needs the reader and SurveyDefinition
     themselves, not just a pass/fail bool, so it can check integrity and keep the
-    result in one step instead of re-reading the Excel file afterwards.
+    result in one step instead of reading the source again afterwards.
     """
-    reader, survey_definition, messages = _load_survey_with_messages(excel_file_path)
+    reader, survey_definition, messages = _load_survey_with_messages(source_path)
     ok = survey_definition is not None
     warnings = _warnings(reader, survey_definition)
-    _print_integrity_result(excel_file_path, ok, messages, warnings)
+    _print_integrity_result(source_path, ok, messages, warnings)
     if not ok:
         raise Exception(
-            f"Excel integrity check failed for {excel_file_path}. Aborting generation."
+            f"Survey definition integrity check failed for {source_path}. "
+            "Aborting generation."
         )
     return reader, survey_definition
 
@@ -431,11 +444,9 @@ def verify_excel_cli_main() -> int:
     """
     Console entry for ``verifyExcel`` (see pyproject ``[tool.poetry.scripts]``).
 
-    Usage: ``verifyExcel <path-to-file.xlsx>``
+    Usage: ``verifyExcel <path-to-file.xlsx or CSV folder>``
     """
-    import sys
-
     if len(sys.argv) < 2:
-        print("Usage: verifyExcel <path-to-file.xlsx>", file=sys.stderr)
+        print("Usage: verifyExcel <path-to-file.xlsx or CSV folder>", file=sys.stderr)
         return 2
     return 0 if check_excel_integrity(sys.argv[1]) else 1

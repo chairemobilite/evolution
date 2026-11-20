@@ -17,6 +17,7 @@ from helpers.generator_helpers import (
 )
 from tests.mocked_excel import add_mocked_excel_sheet, create_mocked_excel_data
 import scripts.generate_survey as generate_survey_module
+from scripts.excel_to_csv_generator import ExcelToCsvGenerator
 from scripts.generate_survey import (
     check_excel_integrity,
     check_excel_integrity_with_messages,
@@ -323,7 +324,7 @@ class TestGenerateSurvey:
             "excel_file_path: nonexistent.xlsx\n"
             "enabled_scripts: {}\n"
         )
-        with pytest.raises(Exception, match="Excel integrity check failed"):
+        with pytest.raises(Exception, match="Survey definition integrity check failed"):
             generate_survey(str(config_path))
         # Nothing was generated in the survey folder
         assert list(tmp_path.iterdir()) == [config_path]
@@ -405,3 +406,32 @@ class TestGenerateSurvey:
         )
         generate_survey(str(config_path))
         load_workbook.assert_called_once()
+
+
+@pytest.fixture
+def demo_excel_file(tmp_path):
+    """The demo survey's Excel file, copied out of the repo (its CSV copy is written next to it)."""
+    if not os.path.isfile(DEMO_EXCEL_FILE):
+        pytest.skip(f"Demo generator file not found: {DEMO_EXCEL_FILE}")
+    excel_file_path = tmp_path / "references" / "survey.xlsx"
+    excel_file_path.parent.mkdir()
+    shutil.copy(DEMO_EXCEL_FILE, excel_file_path)
+    return excel_file_path
+
+
+class TestCsvSource:
+    def test_checks_the_integrity_of_a_csv_folder(self, tmp_path, demo_excel_file):
+        csv_folder_path = tmp_path / "survey_csv"
+        ExcelToCsvGenerator.generate_csv_copy(
+            ExcelSurveyDefinitionReader(str(demo_excel_file)), str(csv_folder_path)
+        )
+        assert check_excel_integrity_with_messages(str(csv_folder_path)) == (True, [])
+
+        sections_path = csv_folder_path / "Sections.csv"
+        sections_path.write_text(
+            sections_path.read_text(encoding="utf-8").replace("TRUE", "maybe", 1),
+            encoding="utf-8",
+        )
+        ok, messages = check_excel_integrity_with_messages(str(csv_folder_path))
+        assert ok is False
+        assert any("Invalid in_nav" in message for message in messages)
