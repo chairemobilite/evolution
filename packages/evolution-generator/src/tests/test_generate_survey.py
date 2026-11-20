@@ -20,7 +20,11 @@ from helpers.generator_helpers import (
 from tests.mocked_excel import add_mocked_excel_sheet, create_mocked_excel_data
 from tests.parametrize_cases import cases
 import scripts.generate_survey as generate_survey_module
-from scripts.excel_to_csv_generator import ExcelToCsvGenerator
+from scripts.excel_to_csv_generator import (
+    COPY_CHECKSUMS_FILE_NAME,
+    CsvCopyEditedError,
+    ExcelToCsvGenerator,
+)
 from scripts.generator_config import GeneratorConfigError
 from scripts.generate_survey import (
     check_excel_integrity,
@@ -597,6 +601,58 @@ class TestCsvSource:
         ).read_text(encoding="utf-8")
         assert "value: 'True'" in choices_ts
         _assert_same_files(excel_survey, csv_survey)
+
+    def test_csv_source_releases_the_copy_and_keeps_its_edits(
+        self, tmp_path, demo_excel_file, capsys
+    ):
+        csv_folder_path = tmp_path / "references" / "survey_csv"
+        generate_survey(
+            str(
+                _write_config(tmp_path, _excel_source(demo_excel_file, csv_folder_path))
+            )
+        )
+        labels_path = csv_folder_path / "Labels.csv"
+        edited_labels = (
+            labels_path.read_text(encoding="utf-8")
+            + "home,editedInCsv,Modifié,Edited\n"
+        )
+        labels_path.write_text(edited_labels, encoding="utf-8")
+
+        # The copy would lose the edit
+        with pytest.raises(CsvCopyEditedError):
+            generate_survey(
+                str(
+                    _write_config(
+                        tmp_path, _excel_source(demo_excel_file, csv_folder_path)
+                    )
+                )
+            )
+
+        capsys.readouterr()
+        generate_survey(
+            str(
+                _write_config(
+                    tmp_path,
+                    f"    source: csv\n    csv_folder_path: {csv_folder_path}\n",
+                    "\n    generate_labels: true\n",
+                )
+            )
+        )
+        output = capsys.readouterr().out
+        assert "is now the survey definition source" in output
+        assert sorted(os.listdir(csv_folder_path)) == [
+            COPY_CHECKSUMS_FILE_NAME,
+            "Choices.csv",
+            "Conditionals.csv",
+            "InputRange.csv",
+            "Labels.csv",
+            "Sections.csv",
+            "Widgets.csv",
+        ]
+        assert labels_path.read_text(encoding="utf-8") == edited_labels
+        assert "editedInCsv: Edited" in (
+            tmp_path / "locales" / "en" / "home.yaml"
+        ).read_text(encoding="utf-8")
 
     def test_checks_the_integrity_of_a_csv_folder(self, tmp_path, demo_excel_file):
         csv_folder_path = tmp_path / "survey_csv"
