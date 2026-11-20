@@ -11,11 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Admin: the interview summary shows the bird distance and the bird speed of each trip beside its duration (fixes [#2173](https://github.com/chairemobilite/evolution/issues/2173))
 - Export: CSV files of the survey objects, created from the corrected responses ([#2182](https://github.com/chairemobilite/evolution/pull/2182))
+- Generator: the survey definition can be edited as a folder of CSV files instead of the Excel file (fixes [#138](https://github.com/chairemobilite/evolution/issues/138))
 
 ### Changed
 
 - **Breaking** Generator: the Widgets sheet's columns are renamed: `questionName` → `question_name`, `inputType` → `input_type`, `inputRange` → `input_range`, `containsHtml` → `contains_html`, `customPath` → `custom_path`, `customChoice` → `custom_choice`, `defaultValue` → `default_value`, `includeNotApplicable` → `include_not_applicable`, `twoColumns` → `two_columns` (fixes [#2038](https://github.com/chairemobilite/evolution/issues/2038))
 - **Breaking** Generator: the Widgets sheet is validated with the survey definition, according to each widget's input type: names must exist in their sheets (`section`, `conditional`, `choices`, `input_range`) or in Evolution (`validation`, `formatter`), `question_name` must be unique, a RadioNumber needs `min` and `max` (no more default 0 to 6), a label is required in every survey language, and true/false columns must be TRUE/FALSE (also as text) or 1/0. A column the input type doesn't use is an error, except on a Custom widget, where it is a warning (it may keep the values it had before being made Custom). An inactive widget is left out: it isn't checked, and it is no longer written in the generated code, not even commented out, nor are its labels (fixes [#2038](https://github.com/chairemobilite/evolution/issues/2038))
+- **Breaking** Generator: `generatorConfigs.yaml` needs a `survey_definition` block (`source: excel` or `csv`, `excel_file_path` and `csv_folder_path`), which replaces the top-level `excel_file_path` and `enabled_scripts.copy_excel_to_csv`. The Generator stops on an old config and shows the block to paste (fixes [#138](https://github.com/chairemobilite/evolution/issues/138))
 - Generator: the `Conditionals` and `Choices` sheets are optional, like `InputRange`, and `conditionals.tsx` and `choices.tsx` aren't written when their table is missing or empty: no generated file imports them then (fixes [#2167](https://github.com/chairemobilite/evolution/issues/2167))
 - Generator: the Excel integrity check now validates the conditional names in the Conditionals, Sections and Choices sheets
 

@@ -4,11 +4,13 @@
 
 # Note: This script copies each sheet of the Generator Excel file to a CSV file
 # so changes are easier to review in git diffs. It is intended to be invoked
-# from the generate_survey.py script.
+# from the generate_survey.py script, when the config's survey_definition has source
+# excel and a csv_folder_path (see generator_config.py).
 import csv
 import os
 import re
 
+from scripts.generator_config import default_csv_folder_path
 from survey_definition.excel_survey_definition_reader import ExcelSurveyDefinitionReader
 
 
@@ -31,9 +33,7 @@ class ExcelToCsvGenerator:
     @staticmethod
     def get_output_folder_path(excel_file_path: str) -> str:
         """Return "<excel_name>_csv" next to the Excel file."""
-        excel_folder_path = os.path.dirname(excel_file_path)
-        excel_file_name = os.path.splitext(os.path.basename(excel_file_path))[0]
-        return os.path.join(excel_folder_path, f"{excel_file_name}_csv")
+        return default_csv_folder_path(excel_file_path)
 
     @staticmethod
     def sanitize_sheet_title(sheet_title: str) -> str:
