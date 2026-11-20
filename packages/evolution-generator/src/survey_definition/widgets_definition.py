@@ -175,9 +175,10 @@ WIDGET_REQUIRED_PARAMETERS_BY_INPUT_TYPE: dict[WidgetInputType, tuple[str, ...]]
 # wide range makes the question unusable.
 RADIO_NUMBER_MAX_CHOICES = 20
 
-# TODO: BUILT_IN_VALIDATIONS and BUILT_IN_FORMATTERS (and the BuiltIn widgets, once
-# the generator writes them) are copied from Evolution by hand, so they can go out of
-# date when Evolution adds or renames one. Read them from Evolution instead.
+# BUILT_IN_VALIDATIONS and BUILT_IN_FORMATTERS are copied from Evolution by hand:
+# tests/test_evolution_sync.py fails when they differ from Evolution's exports.
+# TODO: check the BuiltIn widgets (builtInFunction) the same way once the generator
+# writes them.
 # The validations exported by Evolution, written as validations.<name>, see
 # evolution-common/src/services/widgets/validations/validations.ts. Any other validation
 # must end with 'CustomValidation' and be in the survey's customValidations.tsx.
