@@ -7,13 +7,13 @@ import os  # File system operations
 import re  # Regular expression module for pattern matching
 from typing import Iterable, Optional, Tuple  # Types for Python
 
-from survey_definition.excel_survey_definition_reader import ExcelSurveyDefinitionReader
 from survey_definition.choices_definition import CHOICE_REQUIRED_FIELD_NAMES
 from survey_definition.conditionals_definition import CONDITIONAL_REQUIRED_FIELD_NAMES
 from survey_definition.input_range_definition import INPUT_RANGE_REQUIRED_FIELD_NAMES
 from survey_definition.labels_definition import LABEL_REQUIRED_FIELD_NAMES
 from survey_definition.sections_definition import SECTION_REQUIRED_FIELD_NAMES
 from survey_definition.survey_definition import SurveyDefinition
+from survey_definition.survey_definition_reader import SurveyDefinitionReader
 from survey_definition.widgets_definition import WIDGET_REQUIRED_FIELD_NAMES
 
 # Define constants
@@ -83,7 +83,7 @@ def is_ts_file(file: str) -> None:
         )
 
 
-def load_survey_definition(reader: ExcelSurveyDefinitionReader) -> SurveyDefinition:
+def load_survey_definition(reader: SurveyDefinitionReader) -> SurveyDefinition:
     """
     Build a SurveyDefinition from the languages and tables read by `reader`.
 

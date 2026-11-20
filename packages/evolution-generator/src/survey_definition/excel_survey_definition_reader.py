@@ -6,12 +6,16 @@
 # is read once, so every script works on the same in-memory copy instead of
 # re-opening it. Sheets, rows and cells are details of this reader: the survey
 # definition is read as tables of dicts (see ExcelSurveyDefinitionReader).
-from itertools import takewhile
 from typing import List, Sequence, Tuple
 
 import openpyxl
 from openpyxl.cell.read_only import EMPTY_CELL
 from openpyxl.utils import get_column_letter
+
+from survey_definition.survey_definition_reader import (
+    SurveyDefinitionReader,
+    is_empty_value,
+)
 
 # Number of empty rows after the last row with data, and of empty columns after the
 # last column with data, from which a sheet gets a warning. Excel keeps such rows and
@@ -20,9 +24,8 @@ from openpyxl.utils import get_column_letter
 EMPTY_ROWS_WARNING_THRESHOLD = 1000
 EMPTY_COLUMNS_WARNING_THRESHOLD = 100
 
-# Prefix of the translated columns the survey languages are read from, in the Widgets
-# sheet: one column per language, e.g. label::fr, label::en.
-LANGUAGE_COLUMN_PREFIX = "label::"
+# The Excel 2010+ file extensions openpyxl reads.
+EXCEL_FILE_EXTENSIONS = (".xlsx", ".xlsm", ".xltx", ".xltm")
 
 
 class _ExcelSheet:
@@ -38,7 +41,7 @@ class _ExcelSheet:
         self.rows = rows
 
 
-class ExcelSurveyDefinitionReader:
+class ExcelSurveyDefinitionReader(SurveyDefinitionReader):
     """
     Reads the survey definition from the Generator Excel file: the survey languages
     (get_languages) and each table, one sheet per table (get_table).
@@ -49,30 +52,10 @@ class ExcelSurveyDefinitionReader:
     """
 
     def __init__(self, excel_file_path: str) -> None:
+        super().__init__()
         _check_excel_file_extension(excel_file_path)
         sheets, self.warnings = _read_workbook(excel_file_path)
         self._sheets = {sheet.title: sheet for sheet in sheets}
-
-    def get_languages(self) -> tuple[str, ...]:
-        """
-        Return the survey languages, read from the Widgets sheet: one per
-        `label::<language>` column, in column order, e.g. ("fr", "en") for label::fr and label::en.
-
-        The file carries its own languages, so a survey is checked the same way from
-        any app or config. Raises if the sheet has no such column.
-        """
-        headers = self.get_headers("Widgets")
-        languages = tuple(
-            header.removeprefix(LANGUAGE_COLUMN_PREFIX)
-            for header in headers
-            if isinstance(header, str) and header.startswith(LANGUAGE_COLUMN_PREFIX)
-        )
-        if not languages:
-            raise Exception(
-                "Missing label::<language> columns in Widgets sheet: the survey languages "
-                "are read from them, e.g. label::fr and label::en."
-            )
-        return languages
 
     def get_table(
         self,
@@ -105,22 +88,8 @@ class ExcelSurveyDefinitionReader:
         sheet or one of `expected_headers` is missing, or if a header before the first
         empty one has spaces.
         """
-        header_cells = self._get_sheet(sheet_name).rows[0]
-        headers = [cell.value for cell in header_cells]
-
-        # Text after the first empty header (e.g. a note in a column left apart) is
-        # not a header, so it may have spaces.
-        for cell in takewhile(lambda cell: not _is_empty(cell), header_cells):
-            if isinstance(cell.value, str) and " " in cell.value:
-                raise Exception(
-                    f"Header has spaces in {sheet_name} sheet: {cell.value!r}"
-                )
-        for expected in expected_headers:
-            if expected not in headers:
-                raise Exception(
-                    f"Missing expected header in {sheet_name} sheet: {expected}"
-                )
-
+        headers = [cell.value for cell in self._get_sheet(sheet_name).rows[0]]
+        self._check_headers(sheet_name, headers, expected_headers)
         return headers
 
     # The methods below give the CSV copy (excel_to_csv_generator.py) access to every
@@ -146,13 +115,7 @@ class ExcelSurveyDefinitionReader:
 
 
 def _check_excel_file_extension(file: str) -> None:
-    file_lower = file.lower()
-    if not (
-        file_lower.endswith(".xlsx")
-        or file_lower.endswith(".xlsm")
-        or file_lower.endswith(".xltx")
-        or file_lower.endswith(".xltm")
-    ):
+    if not file.lower().endswith(EXCEL_FILE_EXTENSIONS):
         raise Exception(
             f"Invalid input file extension for {file} : must be an Excel 2010+ .xlsx, .xlsm, .xltx or .xltm file"
         )
@@ -160,9 +123,7 @@ def _check_excel_file_extension(file: str) -> None:
 
 def _is_empty(cell) -> bool:
     """A cell with no value or only an empty/whitespace-only string, like row_checks.py's blanks."""
-    return cell.value is None or (
-        isinstance(cell.value, str) and not cell.value.strip()
-    )
+    return is_empty_value(cell.value)
 
 
 def _has_value(row: Tuple) -> bool:
