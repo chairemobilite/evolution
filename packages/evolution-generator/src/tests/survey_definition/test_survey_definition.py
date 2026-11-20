@@ -170,6 +170,29 @@ class TestSurveyDefinitionLanguages:
         survey_definition = SurveyDefinition(languages=["fr"], choices=[choice])
         assert survey_definition.choices[0].label == {"fr": "Oui"}
 
+    def test_passes_the_conditional_names_to_the_sections(self):
+        """A section conditional must name a conditional of the Conditionals table."""
+        conditional = {
+            "conditional_name": "isAdultConditional",
+            "path": "person.age",
+            "comparison_operator": ">=",
+            "value": 18,
+        }
+        section = self._section()
+        SurveyDefinition(
+            languages=["fr", "en"],
+            conditionals=[conditional],
+            sections=[{**section, "enable_conditional": "isAdultConditional"}],
+        )
+        assert self._issues(
+            languages=["fr", "en"],
+            sections=[{**section, "completion_conditional": "isKidConditional"}],
+        ) == [
+            "Error in Sections - Invalid completion_conditional in row 2: "
+            "'isKidConditional' - Must be a conditional_name of the Conditionals "
+            "table, or end with 'CustomConditional'."
+        ]
+
     def test_passes_the_conditional_names_to_the_choices(self):
         """A choice conditional must name a conditional of the Conditionals table."""
         conditional = {

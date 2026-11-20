@@ -117,12 +117,22 @@ class SurveyDefinition(BaseModel):
     @field_validator("sections", mode="before")
     @classmethod
     def _sections_are_valid(cls, rows: Any, info: ValidationInfo) -> Any:
-        """Validate the Sections table with the survey languages in its context."""
+        """Validate the Sections table with the survey languages and the conditional names in its context."""
         # The languages are missing from info.data when they are invalid. That problem
         # is already reported, so check the sections with no language at all: their
         # other problems are still reported, without a title error for each language.
+        # Without a valid Conditionals table (already reported), the section
+        # conditionals aren't compared to it.
         languages = info.data.get("languages", ())
-        return _validated_table(Sections, rows, context={"languages": languages})
+        conditionals = info.data.get("conditionals")
+        conditional_names = (
+            set(conditionals.by_name()) if conditionals is not None else None
+        )
+        return _validated_table(
+            Sections,
+            rows,
+            context={"languages": languages, "conditional_names": conditional_names},
+        )
 
     @field_validator("labels", mode="before")
     @classmethod
