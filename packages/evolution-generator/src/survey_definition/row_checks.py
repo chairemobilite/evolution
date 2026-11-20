@@ -132,6 +132,28 @@ def _read_booleans(row: dict, field_names: tuple[str, ...]) -> dict:
     }
 
 
+def _read_whole_numbers(row: dict, field_names: tuple[str, ...]) -> dict:
+    """
+    Return `row` with the value of each of `field_names` it holds read as an int when it
+    is a whole number written as text (e.g. '10' or '-5', every cell of a CSV file is
+    text). Any other value is kept as is, so e.g. '10.5' or 'ten' is still reported as
+    an invalid integer.
+    """
+
+    def as_whole_number(value: Any) -> Any:
+        if not isinstance(value, str):
+            return value
+        try:
+            return int(value)
+        except ValueError:
+            return value
+
+    return {
+        key: as_whole_number(value) if key in field_names else value
+        for key, value in row.items()
+    }
+
+
 def _raise_if_check_fails(check, value, row: dict) -> None:
     """Run a survey_field_checks-style (value, row) -> bool check; raise ValueError using its docstring on failure."""
     if not check(value, row):
