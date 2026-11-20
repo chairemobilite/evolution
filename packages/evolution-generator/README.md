@@ -10,6 +10,7 @@ The Generator is designed to simplify and expedite your workflow. It allows for 
 -   [How to Run?](#how-to-run)
 -   [Project Structure](#project-structure)
 -   [Start your own survey](#start-your-own-survey)
+-   [Excel or CSV source](#excel-or-csv-source)
 -   [Generate Excel](#generate-excel)
 -   [Generate Widgets](#generate-widgets)
     -   [Widgets Fields](#widgets-fields)
@@ -29,7 +30,6 @@ The Generator is designed to simplify and expedite your workflow. It allows for 
 -   [Generate Labels](#generate-labels)
     -   [Labels Fields](#labels-fields)
     -   [Labels Example](#labels-example)
--   [Copy Excel To CSV](#copy-excel-to-csv)
 -   [Last Updated](#last-updated)
 
 ## How to Run?
@@ -113,41 +113,22 @@ locales/
 
 ## Start your own survey
 
-If you want to start your own survey, you can use the following steps:
+Every survey made with the Generator has a `generatorConfigs.yaml`: it says where the survey is generated, which files the survey definition is edited in, and which scripts run. The Generator stops with a message showing what to fix when this file is missing or incomplete.
 
-1.  Copy `generateSurveyExample.xlsx` to your project.
-
-    For Windows users:
+1.  Copy the demo survey definition to your project: the Excel file `example/demo_generator/references/Household_Travel_Generate_Survey.xlsx`, or its folder of CSV files `example/demo_generator/references/Household_Travel_Generate_Survey_csv` if you'd rather edit CSV files (see [Excel or CSV source](#excel-or-csv-source)).
 
     ```bash
     cd projectName
-    copy ./evolution/packages/evolution-generator/src/examples/generateSurveyExample.xlsx ./survey/src/survey/references/generateSurveyExample.xlsx
+    cp ./evolution/example/demo_generator/references/Household_Travel_Generate_Survey.xlsx ./survey/references/<Name_Excel_File>.xlsx
     ```
 
-    For Linux and Mac users:
+2.  Copy the demo `generatorConfigs.yaml` to your project.
 
     ```bash
-    cd projectName
-    cp ./evolution/packages/evolution-generator/src/examples/generateSurveyExample.xlsx ./survey/src/survey/references/generateSurveyExample.xlsx
+    cp ./evolution/example/demo_generator/references/generatorConfigs.yaml ./survey/references/generatorConfigs.yaml
     ```
 
-2.  Copy `generatorConfig.yaml` to your project.
-
-    For Windows users:
-
-    ```bash
-    cd projectName
-    copy ./evolution/packages/evolution-generator/src/examples/generatorConfig.yaml ./survey/src/survey/config/generatorConfig.yaml
-    ```
-
-    For Linux and Mac users:
-
-    ```bash
-    cd projectName
-    cp ./evolution/packages/evolution-generator/src/examples/generatorConfig.yaml ./survey/src/survey/config/generatorConfig.yaml
-    ```
-
-3.  Create a script entry in your `package.json`.
+3.  Create a script entry in your `package.json`. The paths of the config file, and in it, are relative to `evolution/packages/evolution-generator`.
 
     ```json
     "scripts": {
@@ -155,14 +136,18 @@ If you want to start your own survey, you can use the following steps:
     }
     ```
 
-4.  Customize the `generatorConfig.yaml` file to match your project's requirements.
+4.  Customize `generatorConfigs.yaml` for your project.
 
     ```YAML
     survey_folder_path: ../../../survey
-    excel_file_path: ../../../survey/references/<Name_Excel_File>.xlsx
+    survey_definition:
+        # The files you edit: excel or csv. The other format is written from it.
+        source: excel
+        excel_file_path: ../../../survey/references/<Name_Excel_File>.xlsx
+        csv_folder_path: ../../../survey/references/<Name_Excel_File>_csv
 
     enabled_scripts:
-        generate_excel: true
+        generate_excel: false
         generate_section_configs: true
         generate_sections: true
         generate_widgets_configs: true
@@ -171,10 +156,20 @@ If you want to start your own survey, you can use the following steps:
         generate_choices: true
         generate_input_range: true
         generate_labels: true
-        copy_excel_to_csv: true
+        generate_UI_tests: true
+        generate_questionnaire_list: true
+        generate_questionnaire_dictionary: true
     ```
 
-    The survey languages are read from the Excel file: one per `label::<language>` column of the Widgets sheet (e.g. `label::fr`, `label::en`). Every translated value is then required in each language where it is needed, e.g. `title_fr` and `title_en` in the Sections sheet for a section in the navigation menu, and a translated column in another language (e.g. a typo such as `title_fe`) is reported.
+    | Key                                 | Description                                                                                                         |
+    | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+    | `survey_folder_path`                | Folder of the survey the files are generated in                                                                     |
+    | `survey_definition.source`          | The files you edit: `excel` or `csv` (see [Excel or CSV source](#excel-or-csv-source))                              |
+    | `survey_definition.excel_file_path` | The Excel file (`.xlsx`). Required with `source: excel`                                                             |
+    | `survey_definition.csv_folder_path` | The folder of CSV files, one per sheet. Required with `source: csv`; with `source: excel`, where the copy is written |
+    | `enabled_scripts.<script>`          | Whether each script runs: `true` or `false`                                                                         |
+
+    The survey languages are read from the survey definition: one per `label::<language>` column of the Widgets sheet (e.g. `label::fr`, `label::en`). Every translated value is then required in each language where it is needed, e.g. `title_fr` and `title_en` in the Sections sheet for a section in the navigation menu, and a translated column in another language (e.g. a typo such as `title_fe`) is reported.
 
 5.  Navigate to the root folder of your project and run the following command:
 
@@ -184,17 +179,42 @@ If you want to start your own survey, you can use the following steps:
 
 _Note_: It is also possible to run a single or many specific generation scripts by adding the `--only` parameter to the command line. For example `yarn generateSurvey --only conditionals,labels,widgets` would call the `generate_conditionals`, `generate_labels` and `generate_widgets` scripts, no matter the value in the config file.
 
+## Excel or CSV source
+
+The survey definition is a set of tables (Sections, Widgets, Labels, and the optional Conditionals, Choices and InputRange), with the columns described below. They can be edited in either of two forms, and `survey_definition.source` in `generatorConfigs.yaml` says which one is yours:
+
+| `source` | You edit                                        | The Generator reads | The Generator writes                              |
+| -------- | ----------------------------------------------- | ------------------- | ------------------------------------------------- |
+| `excel`  | the Excel file, one sheet per table             | `excel_file_path`   | the CSV copy in `csv_folder_path`, when it is set |
+| `csv`    | the CSV files, one `<Sheet name>.csv` per table | `csv_folder_path`   | nothing: the Excel file, if any, isn't used       |
+
+**With `source: excel`**, the CSV copy makes the changes to the Excel file easy to review in git diffs. Leave out `csv_folder_path` to not write it. The copy's folder gets a `README.md` saying it is written from the Excel file, and the checksums of its files (`.excel_copy_checksums.json`): if a CSV file was edited by hand, the Generator stops instead of overwriting it, and tells you to either switch to `source: csv` or delete the folder.
+
+**With `source: csv`**, the CSV files hold exactly the same columns as the sheets: the first row is the header, an empty cell is a blank value, and true/false cells are `TRUE`/`FALSE` (or `1`/`0`). The files are read as UTF-8, with or without the byte order mark Excel's "CSV UTF-8" adds. `Sections.csv`, `Widgets.csv` and `Labels.csv` are required; a missing `Conditionals.csv`, `Choices.csv` or `InputRange.csv` is an empty table. `generate_excel` can't be enabled, since it downloads the Excel file.
+
+**To switch from Excel to CSV**, run the Generator once with `source: excel` and a `csv_folder_path`, so the copy is up to date, then set `source: csv`. On the next run, the Generator removes the copy's `README.md` and checksums: the folder is now the source. The Excel file can be deleted, or kept and listed as `excel_file_path` (it isn't read).
+
+To check a survey definition without generating anything:
+
+```bash
+yarn verifyExcel '/absolute/path/to/file.xlsx'
+yarn verifyExcel '/absolute/path/to/folder_csv'
+yarn verifyExcel --config_path '/absolute/path/to/generatorConfigs.yaml'
+```
+
 ## Generate Excel
 
 This step is optional but can greatly improve your workflow if you're frequently updating your project's Excel document. By using Microsoft 365 cloud storage, you can avoid manually uploading your document every time you make a change. Here's how you can set it up:
 
-1.  Make sure the `generatorConfig.yaml` has the correct settings.
+1.  Make sure the `generatorConfigs.yaml` has the correct settings: the file is downloaded to `excel_file_path`, so the source must be `excel`.
 
     ```YAML
-    excel_file_path: ../../../survey/references/<Name_Excel_File>.xlsx
+    survey_definition:
+        source: excel
+        excel_file_path: ../../../survey/references/<Name_Excel_File>.xlsx
 
     enabled_scripts:
-       generate_excel: true
+        generate_excel: true
     ```
 
 2.  Copy the `generateSurveyExample.xlsx` to your own Microsoft 365 Cloud.
@@ -635,22 +655,6 @@ household.transitFares: Does {{nickname}} have a transit fare?
 household.transitFares_one: Do you have a transit fare?
 ```
 
-## Copy Excel To CSV
-
-This step is optional and writes one CSV file per Excel sheet so changes to the
-Generator Excel file are easier to review in git diffs. It is run as part of
-`generateSurvey` when enabled.
-
-```YAML
-excel_file_path: ../../../survey/references/<Name_Excel_File>.xlsx
-
-enabled_scripts:
-    copy_excel_to_csv: true
-```
-
-The CSV files are written next to the Excel file in a folder named
-`<Name_Excel_File>_csv`.
-
 ## Last Updated
 
-2026-05-13 by Samuel Duhaime-Morissette
+2026-11-20 by Samuel Duhaime-Morissette

@@ -7,14 +7,25 @@
 # can be overridden with the --only argument to only run a subset of the
 # scripts, which is useful for development and debugging.
 import argparse  # For command-line arguments
+import sys
 from dotenv import load_dotenv  # For environment variables
 import os  # For file operations
-import yaml  # For reading the yaml file
 from pydantic import ValidationError
 from helpers.generator_helpers import load_survey_definition
+from survey_definition.csv_survey_definition_reader import CsvSurveyDefinitionReader
 from survey_definition.excel_survey_definition_reader import ExcelSurveyDefinitionReader
 from survey_definition.survey_definition import SurveyDefinition
-from scripts.excel_to_csv_generator import ExcelToCsvGenerator
+from survey_definition.survey_definition_reader import SurveyDefinitionReader
+from scripts.excel_to_csv_generator import (
+    CsvCopyEditedError,
+    ExcelToCsvGenerator,
+    release_csv_folder,
+)
+from scripts.generator_config import (
+    SUPPORTED_SCRIPT_KEYS,
+    GeneratorConfigError,
+    load_generator_config,
+)
 from scripts.generate_excel import generate_excel
 from scripts.generate_folders import generate_folders
 from scripts.generate_section_configs import generate_section_configs
@@ -33,8 +44,6 @@ from scripts.conditionals_generator import ConditionalsGenerator
 # keys in the config file's enabled_scripts section.
 SUPPORTED_SCRIPT_ALIASES = {
     "excel": "generate_excel",
-    "copy_excel_to_csv": "copy_excel_to_csv",
-    "excel_to_csv": "copy_excel_to_csv",
     "section_configs": "generate_section_configs",
     "sections": "generate_sections",
     "widget_configs": "generate_widgets_configs",
@@ -49,23 +58,8 @@ SUPPORTED_SCRIPT_ALIASES = {
     "questionnaire_dictionary": "generate_questionnaire_dictionary",
 }
 
-# List all the supported script keys that can be enabled/disabled in the config
-# file and via the --only argument.
-SUPPORTED_SCRIPT_KEYS = [
-    "generate_excel",
-    "copy_excel_to_csv",
-    "generate_section_configs",
-    "generate_sections",
-    "generate_widgets_configs",
-    "generate_widgets",
-    "generate_conditionals",
-    "generate_choices",
-    "generate_input_range",
-    "generate_labels",
-    "generate_UI_tests",
-    "generate_questionnaire_list",
-    "generate_questionnaire_dictionary",
-]
+# The supported script keys that can be enabled/disabled in the config file and via
+# the --only argument are SUPPORTED_SCRIPT_KEYS (see generator_config.py).
 
 
 # Parse the --only argument to get the set of scripts to run, validating the
@@ -105,84 +99,87 @@ def _override_enabled_scripts(only_scripts):
     }
 
 
-# TODO: Add some validation for the config file
-# Generate the survey from the config file
 def generate_survey(config_path, only_scripts=None):
     """
     Generate the survey from the Generator config file.
 
-    Reads the Excel file and validates its survey definition once (aborting if the
-    file is invalid), then runs every script enabled in the config and passes it the
-    Excel file's reader and the definition it needs.
+    Checks the config file (see generator_config.py), then reads and validates the
+    survey definition once from its source, the Excel file or the folder of CSV files
+    (aborting if it is invalid), and runs every script enabled in the config with the
+    definition it needs. With source excel and a csv_folder_path, the CSV copy of the
+    Excel file is written too.
 
     Args:
         config_path: Path to the Generator config YAML file.
         only_scripts: Set of script keys to run instead of the config's
             enabled_scripts (see _parse_only_scripts), or None to use the config.
+
+    Raises GeneratorConfigError when the config file can't be used, and
+    CsvCopyEditedError when the CSV copy would overwrite files edited by hand.
     """
     # Load environment variables from .env file
     load_dotenv()
 
-    # Load the data from the YAML file
-    with open(config_path, "r") as file:
-        surveyGenerator = yaml.safe_load(file)
+    config = load_generator_config(
+        config_path,
+        enabled_scripts_override=(
+            _override_enabled_scripts(only_scripts)
+            if only_scripts is not None
+            else None
+        ),
+    )
+    for line in config.summary_lines():
+        print(line)
 
-        # Get the data from the YAML file
-        survey_folder_path = surveyGenerator["survey_folder_path"]
-        excel_file_path = surveyGenerator["excel_file_path"]
-        enabled_scripts = surveyGenerator.get("enabled_scripts", {})
-        # Override enabled_scripts from config file if --only argument is provided
-        if only_scripts is not None:
-            enabled_scripts = _override_enabled_scripts(only_scripts)
-        enabled_generate_excel = enabled_scripts.get("generate_excel", False)
-        enabled_copy_excel_to_csv = enabled_scripts.get("copy_excel_to_csv", False)
-        enabled_generate_section_configs = enabled_scripts.get(
-            "generate_section_configs", False
-        )
-        enabled_generate_sections = enabled_scripts.get("generate_sections", False)
-        enabled_generate_widgets_configs = enabled_scripts.get(
-            "generate_widgets_configs", False
-        )
-        enabled_generate_widgets = enabled_scripts.get("generate_widgets", False)
-        enabled_generate_conditionals = enabled_scripts.get(
-            "generate_conditionals", False
-        )
-        enabled_generate_choices = enabled_scripts.get("generate_choices", False)
-        enabled_generate_input_range = enabled_scripts.get(
-            "generate_input_range", False
-        )
-        enabled_generate_labels = enabled_scripts.get("generate_labels", False)
-        enabled_generate_UI_tests = enabled_scripts.get("generate_UI_tests", False)
-        enabled_generate_questionnaire_list = enabled_scripts.get(
-            "generate_questionnaire_list", False
-        )
-        enabled_generate_questionnaire_dictionary = enabled_scripts.get(
-            "generate_questionnaire_dictionary", False
-        )
+    survey_folder_path = config.survey_folder_path
+    enabled_scripts = config.enabled_scripts
+    enabled_generate_excel = enabled_scripts.get("generate_excel", False)
+    enabled_generate_section_configs = enabled_scripts.get(
+        "generate_section_configs", False
+    )
+    enabled_generate_sections = enabled_scripts.get("generate_sections", False)
+    enabled_generate_widgets_configs = enabled_scripts.get(
+        "generate_widgets_configs", False
+    )
+    enabled_generate_widgets = enabled_scripts.get("generate_widgets", False)
+    enabled_generate_conditionals = enabled_scripts.get("generate_conditionals", False)
+    enabled_generate_choices = enabled_scripts.get("generate_choices", False)
+    enabled_generate_input_range = enabled_scripts.get("generate_input_range", False)
+    enabled_generate_labels = enabled_scripts.get("generate_labels", False)
+    enabled_generate_UI_tests = enabled_scripts.get("generate_UI_tests", False)
+    enabled_generate_questionnaire_list = enabled_scripts.get(
+        "generate_questionnaire_list", False
+    )
+    enabled_generate_questionnaire_dictionary = enabled_scripts.get(
+        "generate_questionnaire_dictionary", False
+    )
 
     # Find the labels output folder path
     labels_output_folder_path = os.path.join(survey_folder_path, "locales")
 
-    # Call the generate_excel function to generate the Excel file if script enabled
+    # Download the Excel file if script enabled (only with source excel, see
+    # generator_config.py)
     if enabled_generate_excel:
         generate_excel(
             os.getenv("SHAREPOINT_URL"),
             os.getenv("EXCEL_FILE_PATH"),
-            excel_file_path,
+            config.excel_file_path,
             os.getenv("OFFICE365_USERNAME_EMAIL"),
             os.getenv("OFFICE365_PASSWORD"),
         )
 
-    # Check the integrity of the Excel file to avoid generating the survey with invalid data
-    reader, survey_definition = _load_survey_or_raise(excel_file_path)
+    # Check the integrity of the survey definition to avoid generating the survey with invalid data
+    reader, survey_definition = _load_survey_or_raise(config.source_path)
 
-    # Copy every Excel sheet to CSV if script enabled, so changes are easier to review in git diffs.
-    if enabled_copy_excel_to_csv:
+    if config.writes_csv_copy:
+        # Copy every Excel sheet to CSV, so changes are easier to review in git diffs.
         ExcelToCsvGenerator.generate_csv_copy(
-            reader=reader,
-            output_folder_path=ExcelToCsvGenerator.get_output_folder_path(
-                excel_file_path
-            ),
+            reader=reader, output_folder_path=config.csv_folder_path
+        )
+    elif config.source == "csv" and release_csv_folder(config.csv_folder_path):
+        print(
+            f"{config.csv_folder_path} is now the survey definition source: removed "
+            "the README.md and checksums of the copy of the Excel file."
         )
 
     # Call the generate_folders function to generate the folders for the survey
@@ -315,14 +312,27 @@ def main():
     only_scripts = _parse_only_scripts(args.only)
 
     # Call the generate_survey function with the config_path argument
-    generate_survey(config_path, only_scripts=only_scripts)
+    try:
+        generate_survey(config_path, only_scripts=only_scripts)
+    except (GeneratorConfigError, CsvCopyEditedError) as error:
+        # The message says how to fix it: a traceback would only hide it.
+        print(error, file=sys.stderr)
+        sys.exit(1)
+
+
+def open_survey_definition_reader(source_path: str) -> SurveyDefinitionReader:
+    """Return the reader of the survey definition at `source_path`: a folder of CSV files, or else an Excel file."""
+    if os.path.isdir(source_path):
+        return CsvSurveyDefinitionReader(source_path)
+    return ExcelSurveyDefinitionReader(source_path)
 
 
 def _load_survey_with_messages(
-    excel_file_path: str,
-) -> tuple[ExcelSurveyDefinitionReader | None, SurveyDefinition | None, list[str]]:
+    source_path: str,
+) -> tuple[SurveyDefinitionReader | None, SurveyDefinition | None, list[str]]:
     """
-    Read the Excel file and load its SurveyDefinition (see load_survey_definition).
+    Read the Excel file or the folder of CSV files and load its SurveyDefinition (see
+    load_survey_definition).
 
     Returns (reader, survey_definition, []) when valid, or
     (reader, None, messages) with human-readable issues; reader is None when the
@@ -330,7 +340,7 @@ def _load_survey_with_messages(
     """
     reader = None
     try:
-        reader = ExcelSurveyDefinitionReader(excel_file_path)
+        reader = open_survey_definition_reader(source_path)
         return reader, load_survey_definition(reader), []
     except ValidationError as exc:
         # SurveyDefinition reports every table's problems in one error, one problem
@@ -347,10 +357,10 @@ def _load_survey_with_messages(
 
 
 def _warnings(
-    reader: ExcelSurveyDefinitionReader | None,
+    reader: SurveyDefinitionReader | None,
     survey_definition: SurveyDefinition | None,
 ) -> list[str]:
-    """The warnings about the Excel file (its sheets) and its survey definition (its rows)."""
+    """The warnings about the source (e.g. the Excel file's sheets) and its survey definition (its rows)."""
     return [
         *(reader.warnings if reader is not None else []),
         *(survey_definition.warnings() if survey_definition is not None else []),
@@ -358,71 +368,73 @@ def _warnings(
 
 
 def check_excel_integrity_with_warnings(
-    excel_file_path: str,
+    source_path: str,
 ) -> tuple[bool, list[str], list[str]]:
     """
-    Check the integrity of the Excel file (see load_survey_definition). Entry point for
-    scripts and UI (see check_excel_integrity_cli.py).
+    Check the integrity of the survey definition at `source_path`, an Excel file or a
+    folder of CSV files (see load_survey_definition). Entry point for scripts and UI
+    (see check_excel_integrity_cli.py).
 
     Returns (ok, errors, warnings): ok is True when errors is empty; warnings list
     the problems that don't stop the generation (see ExcelSurveyDefinitionReader and
     SurveyDefinition.warnings).
     """
-    reader, survey_definition, messages = _load_survey_with_messages(excel_file_path)
+    reader, survey_definition, messages = _load_survey_with_messages(source_path)
     warnings = _warnings(reader, survey_definition)
     return survey_definition is not None, messages, warnings
 
 
-def check_excel_integrity_with_messages(excel_file_path: str) -> tuple[bool, list[str]]:
+def check_excel_integrity_with_messages(source_path: str) -> tuple[bool, list[str]]:
     """
-    Check the integrity of the Excel file, like check_excel_integrity_with_warnings
-    without the warnings.
+    Check the integrity of the survey definition, like
+    check_excel_integrity_with_warnings without the warnings.
 
     Returns (True, []) when valid, or (False, messages) with human-readable issues.
     """
-    ok, messages, _ = check_excel_integrity_with_warnings(excel_file_path)
+    ok, messages, _ = check_excel_integrity_with_warnings(source_path)
     return ok, messages
 
 
 def _print_integrity_result(
-    excel_file_path: str, ok: bool, messages: list[str], warnings: list[str]
+    source_path: str, ok: bool, messages: list[str], warnings: list[str]
 ) -> None:
     for warning in warnings:
         print(f"Warning: {warning}")
     if ok:
-        print(f"Excel integrity check passed for {excel_file_path}")
+        print(f"Survey definition integrity check passed for {source_path}")
     else:
-        print(f"Excel integrity check FAILED for {excel_file_path}")
+        print(f"Survey definition integrity check FAILED for {source_path}")
         for message in messages:
             print(message)
 
 
-# Check the integrity of the Excel file to avoid generating the survey with invalid data
-def check_excel_integrity(excel_file_path: str) -> bool:
-    """Check the integrity of the Excel file. Entry point for scripts and UI."""
-    ok, messages, warnings = check_excel_integrity_with_warnings(excel_file_path)
-    _print_integrity_result(excel_file_path, ok, messages, warnings)
+# Check the integrity of the survey definition to avoid generating the survey with invalid data
+def check_excel_integrity(source_path: str) -> bool:
+    """Check the integrity of the Excel file or folder of CSV files. Entry point for scripts and UI."""
+    ok, messages, warnings = check_excel_integrity_with_warnings(source_path)
+    _print_integrity_result(source_path, ok, messages, warnings)
     return ok
 
 
 def _load_survey_or_raise(
-    excel_file_path: str,
-) -> tuple[ExcelSurveyDefinitionReader, SurveyDefinition]:
+    source_path: str,
+) -> tuple[SurveyDefinitionReader, SurveyDefinition]:
     """
-    Read the Excel file and load its SurveyDefinition, printing the same messages as
-    check_excel_integrity, and raise if invalid.
+    Read the Excel file or folder of CSV files and load its SurveyDefinition, printing
+    the same messages as check_excel_integrity, and raise if invalid.
 
     For a caller (generate_survey) that needs the reader and SurveyDefinition
     themselves, not just a pass/fail bool, so it can check integrity and keep the
-    result in one step instead of re-reading the Excel file afterwards.
+    result in one step instead of reading the source again afterwards.
     """
-    reader, survey_definition, messages = _load_survey_with_messages(excel_file_path)
+    reader, survey_definition, messages = _load_survey_with_messages(source_path)
     ok = survey_definition is not None
     warnings = _warnings(reader, survey_definition)
-    _print_integrity_result(excel_file_path, ok, messages, warnings)
+    _print_integrity_result(source_path, ok, messages, warnings)
     if not ok:
         raise Exception(
-            f"Excel integrity check failed for {excel_file_path}. Aborting generation."
+            f"Survey definition integrity check failed for {source_path}. "
+            "Aborting generation."
         )
     return reader, survey_definition
 
@@ -431,11 +443,40 @@ def verify_excel_cli_main() -> int:
     """
     Console entry for ``verifyExcel`` (see pyproject ``[tool.poetry.scripts]``).
 
-    Usage: ``verifyExcel <path-to-file.xlsx>``
+    Usage: ``verifyExcel <path-to-file.xlsx or CSV folder>``, or
+    ``verifyExcel --config_path <generatorConfigs.yaml>`` to check the survey
+    definition source of a Generator config.
     """
-    import sys
-
-    if len(sys.argv) < 2:
-        print("Usage: verifyExcel <path-to-file.xlsx>", file=sys.stderr)
+    parser = argparse.ArgumentParser(
+        prog="verifyExcel",
+        description="Check a survey definition: an Excel file or a folder of CSV files.",
+    )
+    parser.add_argument(
+        "source_path",
+        nargs="?",
+        help="The Excel file or the folder of CSV files to check",
+    )
+    parser.add_argument(
+        "--config_path",
+        help="Check the survey definition source of this Generator config file",
+    )
+    args = parser.parse_args()
+    if (args.source_path is None) == (args.config_path is None):
+        parser.print_usage(sys.stderr)
+        print(
+            "verifyExcel: give either the Excel file or CSV folder, or --config_path",
+            file=sys.stderr,
+        )
         return 2
-    return 0 if check_excel_integrity(sys.argv[1]) else 1
+
+    source_path = args.source_path
+    if args.config_path is not None:
+        try:
+            config = load_generator_config(args.config_path)
+        except GeneratorConfigError as error:
+            print(error, file=sys.stderr)
+            return 1
+        for line in config.summary_lines():
+            print(line)
+        source_path = config.source_path
+    return 0 if check_excel_integrity(source_path) else 1

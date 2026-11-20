@@ -85,6 +85,11 @@ class TestInputRangeDefinition:
         assert input_range.unit == {}
         assert input_range.input_color is None
 
+    @pytest.mark.parametrize("value, expected", [("10", 10), (" -5 ", -5)])
+    def test_a_whole_number_written_as_text_is_read_as_a_number(self, value, expected):
+        """Every cell of a CSV file is text."""
+        assert _definition(_row(min_value=value, max_value="200")).min_value == expected
+
     def test_a_number_in_a_label_or_unit_column_is_read_as_text(self):
         """A spreadsheet stores a text like "1" as a number."""
         input_range = _definition(_row(**{"unit::fr": 1, "unit::en": 1}))
@@ -141,7 +146,7 @@ class TestInputRange:
             "Must be a valid TypeScript identifier (letters, digits, '_' or '$', not starting with a digit)."
         ]
 
-    @pytest.mark.parametrize("value", [10.5, 10.0, "10", True])
+    @pytest.mark.parametrize("value", [10.5, 10.0, "10.5", "ten", True])
     def test_reports_min_value_that_is_not_a_whole_number(self, value):
         assert _issues([_row(min_value=value)]) == [
             f"Error in InputRange - Invalid min_value in row 2: {value!r} - "

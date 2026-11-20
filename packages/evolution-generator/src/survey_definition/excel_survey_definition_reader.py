@@ -6,12 +6,17 @@
 # is read once, so every script works on the same in-memory copy instead of
 # re-opening it. Sheets, rows and cells are details of this reader: the survey
 # definition is read as tables of dicts (see ExcelSurveyDefinitionReader).
-from itertools import takewhile
 from typing import List, Sequence, Tuple
 
 import openpyxl
 from openpyxl.cell.read_only import EMPTY_CELL
 from openpyxl.utils import get_column_letter
+
+from survey_definition.survey_definition_reader import (
+    check_headers,
+    is_empty_value,
+    languages_from_headers,
+)
 
 # Number of empty rows after the last row with data, and of empty columns after the
 # last column with data, from which a sheet gets a warning. Excel keeps such rows and
@@ -19,10 +24,6 @@ from openpyxl.utils import get_column_letter
 # open for every tool.
 EMPTY_ROWS_WARNING_THRESHOLD = 1000
 EMPTY_COLUMNS_WARNING_THRESHOLD = 100
-
-# Prefix of the translated columns the survey languages are read from, in the Widgets
-# sheet: one column per language, e.g. label::fr, label::en.
-LANGUAGE_COLUMN_PREFIX = "label::"
 
 
 class _ExcelSheet:
@@ -41,7 +42,8 @@ class _ExcelSheet:
 class ExcelSurveyDefinitionReader:
     """
     Reads the survey definition from the Generator Excel file: the survey languages
-    (get_languages) and each table, one sheet per table (get_table).
+    (get_languages) and each table, one sheet per table (get_table). A
+    SurveyDefinitionReader (see survey_definition_reader.py).
 
     The whole file is read when the reader is created. `warnings` lists the problems
     found while reading that don't stop the generation, e.g. a sheet with many empty
@@ -61,18 +63,7 @@ class ExcelSurveyDefinitionReader:
         The file carries its own languages, so a survey is checked the same way from
         any app or config. Raises if the sheet has no such column.
         """
-        headers = self.get_headers("Widgets")
-        languages = tuple(
-            header.removeprefix(LANGUAGE_COLUMN_PREFIX)
-            for header in headers
-            if isinstance(header, str) and header.startswith(LANGUAGE_COLUMN_PREFIX)
-        )
-        if not languages:
-            raise Exception(
-                "Missing label::<language> columns in Widgets sheet: the survey languages "
-                "are read from them, e.g. label::fr and label::en."
-            )
-        return languages
+        return languages_from_headers(self.get_headers("Widgets"))
 
     def get_table(
         self,
@@ -105,22 +96,8 @@ class ExcelSurveyDefinitionReader:
         sheet or one of `expected_headers` is missing, or if a header before the first
         empty one has spaces.
         """
-        header_cells = self._get_sheet(sheet_name).rows[0]
-        headers = [cell.value for cell in header_cells]
-
-        # Text after the first empty header (e.g. a note in a column left apart) is
-        # not a header, so it may have spaces.
-        for cell in takewhile(lambda cell: not _is_empty(cell), header_cells):
-            if isinstance(cell.value, str) and " " in cell.value:
-                raise Exception(
-                    f"Header has spaces in {sheet_name} sheet: {cell.value!r}"
-                )
-        for expected in expected_headers:
-            if expected not in headers:
-                raise Exception(
-                    f"Missing expected header in {sheet_name} sheet: {expected}"
-                )
-
+        headers = [cell.value for cell in self._get_sheet(sheet_name).rows[0]]
+        check_headers(sheet_name, headers, expected_headers)
         return headers
 
     # The methods below give the CSV copy (excel_to_csv_generator.py) access to every
@@ -160,9 +137,7 @@ def _check_excel_file_extension(file: str) -> None:
 
 def _is_empty(cell) -> bool:
     """A cell with no value or only an empty/whitespace-only string, like row_checks.py's blanks."""
-    return cell.value is None or (
-        isinstance(cell.value, str) and not cell.value.strip()
-    )
+    return is_empty_value(cell.value)
 
 
 def _has_value(row: Tuple) -> bool:

@@ -6,9 +6,13 @@
 # checking that the source provides the required field names, and turning one row into
 # a definition model, with its problems reported in the Generator's error message format.
 
+import re
 from typing import Any
 
 from pydantic import ValidationError
+
+# A whole number written as text, e.g. in a CSV file, where every cell is text.
+_WHOLE_NUMBER_TEXT_PATTERN = re.compile(r"\s*-?\d+\s*")
 
 # The texts a true/false cell may hold, in any case and with surrounding spaces ignored,
 # e.g. a cell formatted as text, or a file converted to CSV along the way.
@@ -128,6 +132,24 @@ def _read_booleans(row: dict, field_names: tuple[str, ...]) -> dict:
     """Return `row` with the value of each of `field_names` it holds read by _as_boolean."""
     return {
         key: _as_boolean(value) if key in field_names else value
+        for key, value in row.items()
+    }
+
+
+def _read_whole_numbers(row: dict, field_names: tuple[str, ...]) -> dict:
+    """
+    Return `row` with each of `field_names` it holds as a whole number written as text
+    (e.g. '10' or '-5', every cell of a CSV file is text) turned into an int. Any other
+    value is kept as is, so e.g. '10.5' or 'ten' is still reported as an invalid integer.
+    """
+    return {
+        key: (
+            int(value)
+            if key in field_names
+            and isinstance(value, str)
+            and _WHOLE_NUMBER_TEXT_PATTERN.fullmatch(value)
+            else value
+        )
         for key, value in row.items()
     }
 
