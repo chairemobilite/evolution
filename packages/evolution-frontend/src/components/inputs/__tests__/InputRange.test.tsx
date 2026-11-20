@@ -140,6 +140,8 @@ describe('Should correctly render InputRange with various parameters', () => {
             />
         );
         expect(container).toMatchSnapshot();
+        // The label of the value can translate its unit with t
+        expect(formatLabel).toHaveBeenCalledWith(10, expect.any(String), expect.any(Function));
     });
 
 });
