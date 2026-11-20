@@ -42,6 +42,7 @@ from survey_definition.row_checks import (
 from survey_definition.sheet_checks import (
     collect_sheet_issues,
     fields_in_survey_languages,
+    label_one_fallback_warning,
 )
 from survey_definition.validation_context import context_languages
 
@@ -505,8 +506,9 @@ class WidgetDefinition(BaseModel):
             `label::<language>` columns. Required in every survey language, except
             for Custom and BuiltIn widgets and when the customLabels parameter is set.
         label_one: Singular label, by language, read from the `label_one::<language>`
-            columns, used for a single person. Optional, but when set, it must be in
-            every survey language too.
+            columns, used for a single person. Optional. When set in only some
+            languages, the others fall back to `label`, with a warning (see
+            Widgets.warnings).
         parameters: The options of the input type (see WidgetParameters), written
             `name=value` and separated by new lines, ';' or spaces.
         appearance: How the widget is shown (see WidgetAppearance).
@@ -782,12 +784,12 @@ class WidgetDefinition(BaseModel):
         return issues
 
     def _label_issues(self, info: ValidationInfo) -> list[str]:
-        """Check that the label is in every survey language where needed, and label_one too when set."""
+        """Check that the label is in every survey language where needed (label_one may be in only some: see Widgets.warnings)."""
         label_is_required = (
             self.input_type in LABELLED_INPUT_TYPES
             and self.parameters.custom_labels is None
         )
-        if not label_is_required and not self.label and not self.label_one:
+        if not label_is_required and not self.label:
             return []
         # The languages are only read here, so a row without any label needs none.
         languages = context_languages(info)
@@ -804,13 +806,6 @@ class WidgetDefinition(BaseModel):
                 "set in another language"
                 for language in languages
                 if language not in self.label
-            )
-        if self.label_one:
-            issues.extend(
-                f"{WIDGET_LABEL_ONE_COLUMN_PREFIX}{language} is required when "
-                "label_one is set in another language"
-                for language in languages
-                if language not in self.label_one
             )
         return issues
 
@@ -1128,16 +1123,23 @@ class Widgets(RootModel[list[WidgetDefinition]]):
             return "Must name the widget just before or after this one."
         return None
 
-    def warnings(self) -> list[str]:
+    def warnings(self, languages: Sequence[str]) -> list[str]:
         """
-        The problems that don't reject the sheet, one per row and problem (see
-        WidgetDefinition.warnings), e.g. a column a Custom widget doesn't use.
+        The problems that don't reject the sheet, one per row and problem: a column a
+        Custom widget doesn't use (see WidgetDefinition.warnings), or `label_one` set
+        in some of the survey `languages` but not all (see label_one_fallback_warning).
         """
-        return [
-            f"Widgets sheet, row {row_number}: {warning}"
-            for row_number, widget in self.numbered()
-            for warning in widget.warnings
-        ]
+        warnings: list[str] = []
+        for row_number, widget in self.numbered():
+            row_warnings = list(widget.warnings)
+            label_one_warning = label_one_fallback_warning(widget.label_one, languages)
+            if label_one_warning is not None:
+                row_warnings.append(label_one_warning)
+            warnings.extend(
+                f"Widgets sheet, row {row_number}: {warning}"
+                for warning in row_warnings
+            )
+        return warnings
 
     def __iter__(self) -> Iterator[WidgetDefinition]:  # type: ignore[override]
         return iter(self.root)

@@ -10,7 +10,7 @@
 # See survey_definition.py for the bundle of all tables, and scripts/labels_generator.py
 # for the YAML generation.
 
-from collections.abc import Iterator
+from collections.abc import Iterator, Sequence
 from typing import Any, Self
 
 from pydantic import (
@@ -25,6 +25,7 @@ from survey_definition.row_checks import _collect_language_columns, _strip_blank
 from survey_definition.sheet_checks import (
     collect_sheet_issues,
     fields_in_survey_languages,
+    label_one_fallback_warning,
 )
 from survey_definition.validation_context import context_languages
 
@@ -60,8 +61,9 @@ class LabelDefinition(BaseModel):
         label: The label by language, read from the `label::<language>` columns (e.g.
             {"fr": "Bonjour", "en": "Hello"}). Required, in every survey language.
         label_one: The singular form of the label by language, read from the
-            `label_one::<language>` columns (written as `<key>_one`). Optional, but
-            when set, it must be in every survey language too.
+            `label_one::<language>` columns (written as `<key>_one`). Optional. When
+            set in only some languages, the others fall back to `label` (e.g. the
+            same French text for one or many), with a warning (see Labels.warnings).
     """
 
     # Strict: a value must already have the declared type, e.g. a number is rejected
@@ -86,23 +88,16 @@ class LabelDefinition(BaseModel):
 
     label_one: dict[str, str] = {}
 
-    # An "after" validator: it checks label and label_one together, once both are read.
+    # An "after" validator: it checks label once the language columns are gathered.
     @model_validator(mode="after")
-    def _labels_in_every_survey_language(self, info: ValidationInfo) -> Self:
-        """Check that `label`, and `label_one` when set, are in every survey language."""
+    def _label_in_every_survey_language(self, info: ValidationInfo) -> Self:
+        """Check that `label` is in every survey language."""
         languages = context_languages(info)
         issues = [
             f"{LABEL_COLUMN_PREFIX}{language} is required"
             for language in languages
             if language not in self.label
         ]
-        if self.label_one:
-            issues.extend(
-                f"{LABEL_ONE_COLUMN_PREFIX}{language} is required when label_one "
-                "is set in another language"
-                for language in languages
-                if language not in self.label_one
-            )
         if issues:
             raise ValueError("; ".join(issues))
         return self
@@ -150,6 +145,20 @@ class Labels(RootModel[list[LabelDefinition]]):
                     raise ValueError("\n".join(issues))
                 return handler(labels)
         return handler(rows)
+
+    def warnings(self, languages: Sequence[str]) -> list[str]:
+        """
+        The problems that don't stop the generation: a row with `label_one` set in some
+        of the survey `languages` but not all (see label_one_fallback_warning).
+        """
+        warnings: list[str] = []
+        for row_number, label in enumerate(self.root, start=2):
+            warning = label_one_fallback_warning(label.label_one, languages)
+            if warning is not None:
+                warnings.append(
+                    f"Labels row {row_number} ({label.namespace}.{label.key}): {warning}"
+                )
+        return warnings
 
     def __iter__(self) -> Iterator[LabelDefinition]:  # type: ignore[override]
         return iter(self.root)
