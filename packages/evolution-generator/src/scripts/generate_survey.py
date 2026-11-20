@@ -16,7 +16,11 @@ from survey_definition.csv_survey_definition_reader import CsvSurveyDefinitionRe
 from survey_definition.excel_survey_definition_reader import ExcelSurveyDefinitionReader
 from survey_definition.survey_definition import SurveyDefinition
 from survey_definition.survey_definition_reader import SurveyDefinitionReader
-from scripts.excel_to_csv_generator import ExcelToCsvGenerator
+from scripts.excel_to_csv_generator import (
+    CsvCopyEditedError,
+    ExcelToCsvGenerator,
+    release_csv_folder,
+)
 from scripts.generator_config import (
     SUPPORTED_SCRIPT_KEYS,
     GeneratorConfigError,
@@ -110,7 +114,8 @@ def generate_survey(config_path, only_scripts=None):
         only_scripts: Set of script keys to run instead of the config's
             enabled_scripts (see _parse_only_scripts), or None to use the config.
 
-    Raises GeneratorConfigError when the config file can't be used.
+    Raises GeneratorConfigError when the config file can't be used, and
+    CsvCopyEditedError when the CSV copy would overwrite files edited by hand.
     """
     # Load environment variables from .env file
     load_dotenv()
@@ -170,6 +175,11 @@ def generate_survey(config_path, only_scripts=None):
         # Copy every Excel sheet to CSV, so changes are easier to review in git diffs.
         ExcelToCsvGenerator.generate_csv_copy(
             reader=reader, output_folder_path=config.csv_folder_path
+        )
+    elif config.source == "csv" and release_csv_folder(config.csv_folder_path):
+        print(
+            f"{config.csv_folder_path} is now the survey definition source: removed "
+            "the README.md and checksums of the copy of the Excel file."
         )
 
     # Call the generate_folders function to generate the folders for the survey
@@ -304,7 +314,7 @@ def main():
     # Call the generate_survey function with the config_path argument
     try:
         generate_survey(config_path, only_scripts=only_scripts)
-    except GeneratorConfigError as error:
+    except (GeneratorConfigError, CsvCopyEditedError) as error:
         # The message says how to fix it: a traceback would only hide it.
         print(error, file=sys.stderr)
         sys.exit(1)

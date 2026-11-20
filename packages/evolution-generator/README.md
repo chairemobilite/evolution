@@ -188,11 +188,11 @@ The survey definition is a set of tables (Sections, Widgets, Labels, and the opt
 | `excel`  | the Excel file, one sheet per table             | `excel_file_path`   | the CSV copy in `csv_folder_path`, when it is set |
 | `csv`    | the CSV files, one `<Sheet name>.csv` per table | `csv_folder_path`   | nothing: the Excel file, if any, isn't used       |
 
-**With `source: excel`**, the CSV copy makes the changes to the Excel file easy to review in git diffs. Leave out `csv_folder_path` to not write it. Don't edit the copy: it is written again at each run.
+**With `source: excel`**, the CSV copy makes the changes to the Excel file easy to review in git diffs. Leave out `csv_folder_path` to not write it. The copy's folder gets a `README.md` saying it is written from the Excel file, and the checksums of its files (`.excel_copy_checksums.json`): if a CSV file was edited by hand, the Generator stops instead of overwriting it, and tells you to either switch to `source: csv` or delete the folder.
 
 **With `source: csv`**, the CSV files hold exactly the same columns as the sheets: the first row is the header, an empty cell is a blank value, and true/false cells are `TRUE`/`FALSE` (or `1`/`0`). The files are read as UTF-8, with or without the byte order mark Excel's "CSV UTF-8" adds. `Sections.csv`, `Widgets.csv` and `Labels.csv` are required; a missing `Conditionals.csv`, `Choices.csv` or `InputRange.csv` is an empty table. `generate_excel` can't be enabled, since it downloads the Excel file.
 
-**To switch from Excel to CSV**, run the Generator once with `source: excel` and a `csv_folder_path`, so the copy is up to date, then set `source: csv`: the folder is now the source. The Excel file can be deleted, or kept and listed as `excel_file_path` (it isn't read).
+**To switch from Excel to CSV**, run the Generator once with `source: excel` and a `csv_folder_path`, so the copy is up to date, then set `source: csv`. On the next run, the Generator removes the copy's `README.md` and checksums: the folder is now the source. The Excel file can be deleted, or kept and listed as `excel_file_path` (it isn't read).
 
 To check a survey definition without generating anything:
 
