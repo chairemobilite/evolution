@@ -28,6 +28,7 @@ from scripts.generate_widgets import (
     generate_suffix_label_code,
     generate_label,
     generate_path,
+    generate_validation,
     generate_import_statements,
     get_widgets_file_import_flags,
     GenderFields,
@@ -85,7 +86,7 @@ class TestGenerateImportStatements:
             has_conditionals_import=False,
             has_input_range_import=False,
             has_custom_widgets_import=False,
-            has_validations_import=False,
+            has_built_in_validations_import=False,
             has_custom_validations_import=False,
             has_custom_conditionals_import=False,
             has_help_popup_import=False,
@@ -111,10 +112,11 @@ class TestGenerateImportStatements:
         assert "import * as conditionals" not in result
         assert "import * as customWidgets" not in result
         assert "import * as customValidations" not in result
+        assert "import * as validations from '../../common/validations';" not in result
         assert "import * as customConditionals" not in result
         assert "import * as customHelpPopup" not in result
         assert "import * as inputRange" not in result
-        assert "import * as validations" not in result
+        assert "import * as builtInValidations" not in result
         assert "import * as formatters" not in result
         assert "import * as customFormatters" not in result
         assert "import * as customLabels" not in result
@@ -132,8 +134,9 @@ class TestGenerateImportStatements:
             has_conditionals_import=True,
             has_input_range_import=True,
             has_custom_widgets_import=True,
-            has_validations_import=True,
+            has_built_in_validations_import=True,
             has_custom_validations_import=True,
+            has_validations_import=True,
             has_custom_conditionals_import=True,
             has_help_popup_import=True,
             has_helper_import=True,
@@ -159,10 +162,11 @@ class TestGenerateImportStatements:
         assert "import * as conditionals" in result
         assert "import * as customWidgets" in result
         assert "import * as customValidations" in result
+        assert "import * as validations from '../../common/validations';" in result
         assert "import * as customConditionals" in result
         assert "import * as customHelpPopup" in result
         assert "import * as inputRange" in result
-        assert "import * as validations" in result
+        assert "import * as builtInValidations" in result
         assert "import * as formatters" in result
         assert "import * as customFormatters" in result
         assert "import * as customLabels from '../../common/customLabels';" in result
@@ -172,7 +176,7 @@ class TestGenerateImportStatements:
             "import { getGenderedSuffixes" in result
             or "import { getGenderedSuffixes }" in result
         )
-        assert "import * as validations" in result
+        assert "import * as builtInValidations" in result
         assert "import _escape from 'lodash/escape'" in result
 
 
@@ -444,7 +448,37 @@ class TestGenerateChoices:
 
 
 # TODO: Test generate_conditional
-# TODO: Test generate_validation
+@cases(
+    dict(
+        id="blank, required by default",
+        validation=None,
+        expected="validations: builtInValidations.requiredValidation",
+    ),
+    dict(
+        id="built in",
+        validation="emailValidation",
+        expected="validations: builtInValidations.emailValidation",
+    ),
+    dict(
+        id="custom",
+        validation="homeCustomValidation",
+        expected="validations: customValidations.homeCustomValidation",
+    ),
+    dict(
+        id="custom in lowercase",
+        validation="homecustomvalidation",
+        expected="validations: customValidations.homecustomvalidation",
+    ),
+    dict(
+        id="from the Validations table",
+        validation="between7And18Validation",
+        expected="validations: validations.between7And18Validation",
+    ),
+)
+def test_generate_validation(validation, expected):
+    assert generate_validation(validation) == f"    {expected}"
+
+
 # TODO: Test generate_two_columns
 # TODO: Test generate_contains_html
 # TODO: Test generate_custom_path
@@ -520,7 +554,7 @@ def test_generate_radio_widget_basic():
     assert "label: (t: TFunction) => t('home:acceptToBeContactedForHelp')" in code
     assert "choices: choices.yesNo" in code
     assert "conditional: defaultConditional" in code
-    assert "validations: validations.requiredValidation" in code
+    assert "validations: builtInValidations.requiredValidation" in code
     assert code.strip().endswith("};")
 
 
@@ -553,7 +587,7 @@ def test_generate_radio_widget_complex():
     assert "helpPopup: customHelpPopup.someHelpPopup" in code
     assert "choices: choices.yesNo" in code
     assert "conditional: conditionals.someConditional" in code
-    assert "validations: validations.ageValidation" in code
+    assert "validations: builtInValidations.ageValidation" in code
     assert code.strip().endswith("};")
 
 
@@ -643,7 +677,7 @@ def test_generate_radio_number_widget_basic():
     assert "max: 6" in code
     assert "overMaxAllowed: true" not in code  # default is not present
     assert "conditional: defaultConditional" in code
-    assert "validations: validations.requiredValidation" in code
+    assert "validations: builtInValidations.requiredValidation" in code
     assert code.strip().endswith("};")
     assert "additionalChoices" not in code
     assert result["has_helper_import"] is False
@@ -672,7 +706,7 @@ def test_generate_radio_number_widget_complex():
     assert "additionalChoices: choices.householdSizeAdditionalChoices" in code
     assert "helpPopup: customHelpPopup.householdSizeHelpPopup" in code
     assert "conditional: conditionals.someConditional" in code
-    assert "validations: validations.householdSizeValidation" in code
+    assert "validations: builtInValidations.householdSizeValidation" in code
     assert code.strip().endswith("};")
     assert result["has_helper_import"] is False
 
@@ -721,7 +755,7 @@ class TestGenerateStringWidget:
         assert "...defaultInputBase.inputStringBase," in code
         assert "path: 'accessCode'," in code
         assert "conditional: defaultConditional" in code
-        assert "validations: validations.requiredValidation" in code
+        assert "validations: builtInValidations.requiredValidation" in code
         assert "inputFilter" not in code
         assert "suffixLabel" not in code
         assert code.strip().endswith("};")
@@ -745,7 +779,7 @@ class TestGenerateStringWidget:
         assert "...defaultInputBase.inputStringBase," in code
         assert "path: 'accessCode'," in code
         assert "conditional: conditionals.accessCodeVisibleConditional" in code
-        assert "validations: validations.accessCodeValidation" in code
+        assert "validations: builtInValidations.accessCodeValidation" in code
         assert "defaultValue: '12345678'" in code
         assert "containsHtml: true" in code
         assert "twoColumns: true" in code
@@ -977,7 +1011,7 @@ class TestGetWidgetsFileImportFlags:
         import_flags = get_widgets_file_import_flags([])
 
         # Only validations should be True by default
-        assert import_flags.has_validations_import is True
+        assert import_flags.has_built_in_validations_import is True
 
         # All other flags should be False
         assert import_flags.has_choices_import is False
@@ -1020,23 +1054,39 @@ class TestGetWidgetsFileImportFlags:
         """Test that validation columns are correctly detected"""
         # Default validations
         import_flags = get_widgets_file_import_flags([widget()])
-        assert import_flags.has_validations_import is True
+        assert import_flags.has_built_in_validations_import is True
         assert import_flags.has_custom_validations_import is False
+        assert import_flags.has_validations_import is False
 
         # Standard validation
         import_flags = get_widgets_file_import_flags(
             [widget(validation="phoneValidation")]
         )
-        assert import_flags.has_validations_import is True
+        assert import_flags.has_built_in_validations_import is True
         assert import_flags.has_custom_validations_import is False
 
         # Explicitly custom validation with CustomValidation suffix
         import_flags = get_widgets_file_import_flags(
             [widget(validation="specialCustomValidation")]
         )
-        # has_validation_import is always true because of default validations, should it be?
-        assert import_flags.has_validations_import is True
+        # has_built_in_validations_import is always true because of default validations, should it be?
+        assert import_flags.has_built_in_validations_import is True
         assert import_flags.has_custom_validations_import is True
+        assert import_flags.has_validations_import is False
+
+        # Validation of the Validations table
+        import_flags = get_widgets_file_import_flags(
+            [widget(validation="between7And18Validation")]
+        )
+        assert import_flags.has_custom_validations_import is False
+        assert import_flags.has_validations_import is True
+
+        # The CustomValidation suffix is read in any case, like in generate_validation
+        import_flags = get_widgets_file_import_flags(
+            [widget(validation="agecustomvalidation")]
+        )
+        assert import_flags.has_custom_validations_import is True
+        assert import_flags.has_validations_import is False
 
     def test_conditional_imports(self):
         """Test that conditional columns are correctly detected"""

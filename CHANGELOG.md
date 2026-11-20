@@ -10,8 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - Admin: the interview summary shows the bird distance and the bird speed of each trip beside its duration (fixes [#2173](https://github.com/chairemobilite/evolution/issues/2173))
+- Generator: an optional Validations sheet to write simple validations of the answers (required, integer, number bounds, comparison of another answer with a value), generated in `validations.ts` with their error messages in `locales/<language>/validations.yaml`, enabled with `generate_validations` (fixes [#1382](https://github.com/chairemobilite/evolution/issues/1382))
 
 ### Changed
+
+- Generator: the generated `widgets.tsx` import Evolution's validations as `builtInValidations` (e.g. `builtInValidations.requiredValidation`), and the validations of the Validations sheet as `validations`, like `choices` and `conditionals` (fixes [#1382](https://github.com/chairemobilite/evolution/issues/1382))
 
 - **Breaking** Generator: the Widgets sheet's columns are renamed: `questionName` → `question_name`, `inputType` → `input_type`, `inputRange` → `input_range`, `containsHtml` → `contains_html`, `customPath` → `custom_path`, `customChoice` → `custom_choice`, `defaultValue` → `default_value`, `includeNotApplicable` → `include_not_applicable`, `twoColumns` → `two_columns` (fixes [#2038](https://github.com/chairemobilite/evolution/issues/2038))
 - **Breaking** Generator: the Widgets sheet is validated with the survey definition, according to each widget's input type: names must exist in their sheets (`section`, `conditional`, `choices`, `input_range`) or in Evolution (`validation`, `formatter`), `question_name` must be unique, a RadioNumber needs `min` and `max` (no more default 0 to 6), a label is required in every survey language, and true/false columns must be TRUE/FALSE (also as text) or 1/0. A column the input type doesn't use is an error, except on a Custom widget, where it is a warning (it may keep the values it had before being made Custom). An inactive widget is left out: it isn't checked, and it is no longer written in the generated code, not even commented out, nor are its labels (fixes [#2038](https://github.com/chairemobilite/evolution/issues/2038))

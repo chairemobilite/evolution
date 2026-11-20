@@ -26,6 +26,18 @@ class TestValidTsIdentifier:
     def test_rejects_name_with_dots(self):
         assert field_checks.valid_ts_identifier("household.size", {}) is False
 
+    @cases(
+        dict(id="class", name="class"),
+        dict(id="delete", name="delete"),
+        dict(id="interface", name="interface"),
+        dict(id="await", name="await"),
+    )
+    def test_rejects_a_reserved_word(self, name):
+        assert field_checks.valid_ts_identifier(name, {}) is False
+
+    def test_accepts_a_name_that_contains_a_reserved_word(self):
+        assert field_checks.valid_ts_identifier("className", {}) is True
+
 
 class TestValidPathChars:
     def test_accepts_simple_path(self):

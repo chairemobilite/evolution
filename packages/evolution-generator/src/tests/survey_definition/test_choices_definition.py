@@ -115,11 +115,12 @@ class TestChoices:
             "Missing fields: ['choicesName']"
         ]
 
-    def test_reports_choices_name_that_is_not_a_valid_identifier(self):
-        assert self._issues([self._row("yes no")]) == [
-            "Error in Choices - Invalid choicesName in row 2: 'yes no' - "
+    @pytest.mark.parametrize("choices_name", ["yes no", "default"])
+    def test_reports_choices_name_that_is_not_a_valid_identifier(self, choices_name):
+        assert self._issues([self._row(choices_name)]) == [
+            f"Error in Choices - Invalid choicesName in row 2: {choices_name!r} - "
             "Must be a valid TypeScript identifier "
-            "(letters, digits, '_' or '$', not starting with a digit)."
+            "(letters, digits, '_' or '$', not starting with a digit, and not a reserved word such as 'class')."
         ]
 
     def test_reports_missing_value_when_not_a_spread(self):
@@ -286,7 +287,7 @@ class TestChoices:
                 "yesNo",
                 value=None,
                 conditional="isKidConditional",
-                **{"label::en": None}
+                **{"label::en": None},
             )
         ]
         assert self._issues(rows, conditional_names=set()) == [

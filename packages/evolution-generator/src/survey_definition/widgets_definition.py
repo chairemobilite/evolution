@@ -180,7 +180,8 @@ RADIO_NUMBER_MAX_CHOICES = 20
 # date when Evolution adds or renames one. Read them from Evolution instead.
 # The validations exported by Evolution, written as validations.<name>, see
 # evolution-common/src/services/widgets/validations/validations.ts. Any other validation
-# must end with 'CustomValidation' and be in the survey's customValidations.tsx.
+# is either a validation_name of the Validations table (validations.ts), or ends
+# with 'CustomValidation' (in any case) and is in the survey's customValidations.tsx.
 BUILT_IN_VALIDATIONS: frozenset[str] = frozenset(
     {
         "requiredValidation",
@@ -197,6 +198,16 @@ BUILT_IN_VALIDATIONS: frozenset[str] = frozenset(
         "twoWheelNumberValidation",
     }
 )
+
+
+def is_custom_validation(name: str) -> bool:
+    """
+    Whether `name` is a validation written by hand in customValidations.tsx: it ends
+    with 'CustomValidation', in any case (e.g. 'ageCustomValidation' or
+    'agecustomvalidation'), like 'CustomChoices'.
+    """
+    return name.lower().endswith("customvalidation")
+
 
 # The formatters exported by Evolution, written as formatters.<name>, see
 # evolution-common/src/utils/formatters.ts. Any other formatter must end with
@@ -475,7 +486,7 @@ class WidgetDefinition(BaseModel):
     What a row can't know by itself comes from the validation context (see
     validation_context.py): the survey languages, and the names of the other tables
     (`section_names`, `conditional_names`, `choice_values_by_name`,
-    `input_range_names`). A name missing from the context isn't checked, e.g. when that
+    `input_range_names`, `validation_names`). A name missing from the context isn't checked, e.g. when that
     table is invalid and already reported. Validation is strict: no type coercion
     (e.g. the string "yes" or "VRAI" is rejected for `active`), except for what a
     spreadsheet may have changed: a number in a label, `custom_choice` or
@@ -514,7 +525,8 @@ class WidgetDefinition(BaseModel):
             Blank means always shown. Must be a valid TypeScript identifier and, unless
             it ends with 'CustomConditional', in the Conditionals table.
         validation: Name of the validation of the answer: one of BUILT_IN_VALIDATIONS,
-            or a name ending with 'CustomValidation'. Blank means requiredValidation.
+            a validation_name of the Validations table, or a name ending with
+            'CustomValidation', in any case. Blank means requiredValidation.
         choices: Name of the list of choices: a choicesName of the Choices table, or a
             name ending with 'CustomChoices' (customChoices.tsx). Required for Radio,
             Select and Checkbox; the additional choices of a RadioNumber.
@@ -658,16 +670,18 @@ class WidgetDefinition(BaseModel):
     def _validation_name_is_valid(
         cls, value: str | None, info: ValidationInfo
     ) -> str | None:
-        """Check that a non-blank `validation` is built in, or a custom validation."""
+        """
+        Check that a non-blank `validation` is a valid TypeScript identifier. Whether
+        it names a validation is checked with the other tables (see
+        _other_table_issues).
+        """
         if value is None or value in BUILT_IN_VALIDATIONS or _is_ignored(info):
             return value
-        if value.endswith("CustomValidation") and field_checks.valid_ts_identifier(
-            value, {}
-        ):
+        if field_checks.valid_ts_identifier(value, {}):
             return value
         raise ValueError(
-            f"Must be one of {sorted(BUILT_IN_VALIDATIONS)}, or a name ending with "
-            "'CustomValidation'"
+            f"Must be one of {sorted(BUILT_IN_VALIDATIONS)}, a validation_name of the "
+            "Validations table, or a name ending with 'CustomValidation'"
         )
 
     # One "after" validator for every rule between fields or needing the context:
@@ -816,8 +830,8 @@ class WidgetDefinition(BaseModel):
 
     def _other_table_issues(self, context: dict) -> list[str]:
         """
-        Check that the section, conditional, choices, custom_choice and input_range
-        name rows of the other tables, from the validation context. A column a Custom
+        Check that the section, conditional, choices, custom_choice, input_range and
+        validation name rows of the other tables, from the validation context. A column a Custom
         widget doesn't use is a warning, so its value isn't checked.
         """
         issues = []
@@ -875,6 +889,24 @@ class WidgetDefinition(BaseModel):
             issues.append(
                 f"input_range {self.input_range!r} does not match any "
                 "input_range_name of the InputRange table"
+            )
+        # A built-in validation is in Evolution, and a name ending with
+        # 'CustomValidation' (in any case, see is_custom_validation) in
+        # customValidations.tsx: neither is in the Validations table.
+        validation_names = context.get("validation_names")
+        if (
+            validation_names is not None
+            and self.validation is not None
+            and not self._ignores("validation")
+            and self.validation not in BUILT_IN_VALIDATIONS
+            and not is_custom_validation(self.validation)
+            and self.validation not in validation_names
+        ):
+            issues.append(
+                f"validation {self.validation!r} is not built in "
+                f"({sorted(BUILT_IN_VALIDATIONS)}), does not end with "
+                "'CustomValidation', and does not match any validation_name of the "
+                "Validations table"
             )
         return issues
 
@@ -1138,6 +1170,18 @@ class Widgets(RootModel[list[WidgetDefinition]]):
             for row_number, widget in self.numbered()
             for warning in widget.warnings
         ]
+
+    def used_validation_names(self) -> set[str]:
+        """
+        The validations the active widgets name, e.g. to find the ones of the
+        Validations table that no widget uses. A Custom widget's validation column is
+        ignored, so it isn't counted.
+        """
+        return {
+            widget.validation
+            for widget in self.root
+            if widget.validation is not None and not widget._ignores("validation")
+        }
 
     def __iter__(self) -> Iterator[WidgetDefinition]:  # type: ignore[override]
         return iter(self.root)

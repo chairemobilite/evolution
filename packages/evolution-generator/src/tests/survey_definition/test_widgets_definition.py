@@ -21,7 +21,7 @@ from survey_definition.widgets_definition import (
 from tests.parametrize_cases import cases
 
 # The validation context SurveyDefinition passes, for a survey in French and English
-# with these sections, conditionals, choices and input ranges.
+# with these sections, conditionals, choices, input ranges and validations.
 CONTEXT = {
     "languages": ("fr", "en"),
     "section_names": {"home", "household"},
@@ -31,6 +31,7 @@ CONTEXT = {
         "schoolType": ["school", "97", "other"],
     },
     "input_range_names": {"confidenceSlider"},
+    "validation_names": {"between7And18Validation"},
 }
 
 # What each input type needs besides the columns of _row, to be a valid row.
@@ -308,19 +309,50 @@ class TestWidgetDefinition:
         dict(id="built in for a household", validation="householdSizeValidation"),
         dict(id="re-exported built in", validation="carNumberValidation"),
         dict(id="custom", validation="homeNameCustomValidation"),
+        dict(id="custom suffix in lowercase", validation="homeNamecustomvalidation"),
+        dict(id="custom suffix in another case", validation="homeNamecustomValidation"),
+        dict(id="in the Validations table", validation="between7And18Validation"),
     )
-    def test_accepts_a_built_in_or_custom_validation(self, validation):
+    def test_accepts_a_built_in_custom_or_validations_table_validation(
+        self, validation
+    ):
         assert _definition(_row(validation=validation)).validation == validation
 
     @cases(
-        dict(id="neither built in nor custom", validation="homeNameValidation"),
         dict(id="custom with a space", validation="home nameCustomValidation"),
+        dict(id="with a space", validation="between 7 and 18"),
+        dict(id="starting with a digit", validation="7To18Validation"),
     )
-    def test_reports_an_unknown_validation(self, validation):
-        assert _row_issue(_row(validation=validation)).startswith(
+    def test_reports_a_validation_that_is_not_an_identifier(self, validation):
+        assert _row_issue(_row(validation=validation)) == (
             f"Error in Widgets - Invalid validation in row 2: {validation!r} - Must be "
-            "one of ["
+            "one of ['accessCodeValidation', 'ageValidation', 'bicycleNumberValidation', "
+            "'carNumberValidation', 'emailValidation', 'householdSizeValidation', "
+            "'inputRangeValidation', 'optionalValidation', 'phoneValidation', "
+            "'postalCodeValidation', 'requiredValidation', 'twoWheelNumberValidation'], "
+            "a validation_name of the Validations table, or a name ending with "
+            "'CustomValidation'"
         )
+
+    @cases(
+        dict(id="ending with Validation", validation="homeNameValidation"),
+        dict(id="a typo of a table's name", validation="between7And19Validation"),
+    )
+    def test_reports_a_validation_missing_from_the_validations_table(self, validation):
+        assert _row_issue(_row(validation=validation)) == (
+            f"Error in Widgets - Invalid row 2: validation {validation!r} is not built "
+            "in (['accessCodeValidation', 'ageValidation', 'bicycleNumberValidation', "
+            "'carNumberValidation', 'emailValidation', 'householdSizeValidation', "
+            "'inputRangeValidation', 'optionalValidation', 'phoneValidation', "
+            "'postalCodeValidation', 'requiredValidation', 'twoWheelNumberValidation']), "
+            "does not end with 'CustomValidation', and does not match any "
+            "validation_name of the Validations table"
+        )
+
+    def test_does_not_check_a_validation_against_a_custom_widget(self):
+        # A Custom widget doesn't use its validation column: only a warning.
+        widget = _definition(_row("Custom", validation="homeNameValidation"))
+        assert widget.warnings != []
 
     def test_accepts_a_conditional_without_the_conditional_suffix(self):
         # Whether the suffix is required is still open (chairemobilite/evolution#2157).
@@ -953,6 +985,7 @@ class TestNamesOfOtherTables:
             choices="noYes",
             custom_path="otherName",
             custom_choice="others",
+            validation="homeNameValidation",
         )
         assert _definition(row, context={"languages": ("fr", "en")}).section == "work"
 
@@ -1348,6 +1381,36 @@ class TestInactiveWidgets:
         )
         widgets = _widgets([old_group, _GROUP_ROW, _person_row("personAge", "Number")])
         assert widgets[1].group == "householdMembers"
+
+
+class TestUsedValidationNames:
+    """The validations the active widgets name, to find the unused ones of the Validations table."""
+
+    def test_lists_the_validations_of_the_active_widgets(self):
+        widgets = _widgets(
+            [
+                _row(validation="between7And18Validation"),
+                _row(question_name="homeCity", validation="emailValidation"),
+                _row(question_name="homeStreet"),
+            ]
+        )
+        assert widgets.used_validation_names() == {
+            "between7And18Validation",
+            "emailValidation",
+        }
+
+    @cases(
+        dict(
+            id="inactive widget",
+            row=_row(active=False, validation="between7And18Validation"),
+        ),
+        dict(
+            id="Custom widget, which ignores its validation",
+            row=_row("Custom", validation="between7And18Validation"),
+        ),
+    )
+    def test_leaves_out_a_validation_that_is_not_used(self, row):
+        assert _widgets([row]).used_validation_names() == set()
 
 
 class TestWarnings:
