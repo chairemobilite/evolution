@@ -16,13 +16,17 @@ from helpers.generator_helpers import (
     delete_file_if_exists,
 )
 from tests.mocked_excel import add_mocked_excel_sheet, create_mocked_excel_data
+from tests.parametrize_cases import cases
 import scripts.generate_survey as generate_survey_module
+from scripts.excel_to_csv_generator import ExcelToCsvGenerator
 from scripts.generate_survey import (
     check_excel_integrity,
     check_excel_integrity_with_messages,
     check_excel_integrity_with_warnings,
+    create_survey_definition_reader,
     generate_survey,
 )
+from survey_definition.csv_survey_definition_reader import CsvSurveyDefinitionReader
 from survey_definition.excel_survey_definition_reader import (
     EMPTY_ROWS_WARNING_THRESHOLD,
     ExcelSurveyDefinitionReader,
@@ -108,6 +112,33 @@ def _create_workbook(
         add_mocked_excel_sheet(
             workbook, "InputRange", VALID_INPUT_RANGE_HEADERS, input_range_rows
         )
+
+
+class TestCreateSurveyDefinitionReader:
+    def test_creates_a_csv_reader_for_a_folder(self, tmp_path):
+        assert isinstance(
+            create_survey_definition_reader(str(tmp_path)), CsvSurveyDefinitionReader
+        )
+
+    def test_creates_an_excel_reader_for_an_excel_file(self):
+        _create_workbook()
+        try:
+            assert isinstance(
+                create_survey_definition_reader(MOCKED_EXCEL_FILE),
+                ExcelSurveyDefinitionReader,
+            )
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+    @cases(
+        dict(id="missing folder", source_path="missing_csv"),
+        dict(id="other file type", source_path="survey.ods"),
+    )
+    def test_raises_for_another_source(self, source_path):
+        with pytest.raises(
+            Exception, match="must be a folder of CSV files or an Excel file"
+        ):
+            create_survey_definition_reader(source_path)
 
 
 class TestCheckExcelIntegrityWithMessages:
@@ -323,7 +354,7 @@ class TestGenerateSurvey:
             "excel_file_path: nonexistent.xlsx\n"
             "enabled_scripts: {}\n"
         )
-        with pytest.raises(Exception, match="Excel integrity check failed"):
+        with pytest.raises(Exception, match="Survey definition integrity check failed"):
             generate_survey(str(config_path))
         # Nothing was generated in the survey folder
         assert list(tmp_path.iterdir()) == [config_path]
@@ -405,3 +436,32 @@ class TestGenerateSurvey:
         )
         generate_survey(str(config_path))
         load_workbook.assert_called_once()
+
+
+@pytest.fixture
+def demo_excel_file(tmp_path):
+    """The demo survey's Excel file, copied out of the repo (its CSV copy is written next to it)."""
+    if not os.path.isfile(DEMO_EXCEL_FILE):
+        pytest.skip(f"Demo generator file not found: {DEMO_EXCEL_FILE}")
+    excel_file_path = tmp_path / "references" / "survey.xlsx"
+    excel_file_path.parent.mkdir()
+    shutil.copy(DEMO_EXCEL_FILE, excel_file_path)
+    return excel_file_path
+
+
+class TestCsvSource:
+    def test_checks_the_integrity_of_a_csv_folder(self, tmp_path, demo_excel_file):
+        csv_folder_path = tmp_path / "survey_csv"
+        ExcelToCsvGenerator.generate_csv_copy(
+            ExcelSurveyDefinitionReader(str(demo_excel_file)), str(csv_folder_path)
+        )
+        assert check_excel_integrity_with_messages(str(csv_folder_path)) == (True, [])
+
+        sections_path = csv_folder_path / "Sections.csv"
+        sections_path.write_text(
+            sections_path.read_text(encoding="utf-8").replace("TRUE", "maybe", 1),
+            encoding="utf-8",
+        )
+        ok, messages = check_excel_integrity_with_messages(str(csv_folder_path))
+        assert ok is False
+        assert any("Invalid in_nav" in message for message in messages)
