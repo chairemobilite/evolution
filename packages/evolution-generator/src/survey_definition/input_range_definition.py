@@ -28,6 +28,7 @@ from survey_definition import field_checks
 from survey_definition.row_checks import (
     _collect_language_columns,
     _raise_if_check_fails,
+    _read_whole_numbers,
     _strip_blanks,
 )
 from survey_definition.sheet_checks import (
@@ -85,8 +86,8 @@ class InputRangeDefinition(BaseModel):
     in a language that isn't a survey language. The survey languages come from the
     validation context (see validation_context.py), e.g.
     `InputRanges.model_validate(rows, context={"languages": ("fr", "en")})`. Validation
-    is strict: no type coercion (e.g. 10.5 or the text "10" is rejected for
-    `min_value`).
+    is strict: no type coercion (e.g. 10.5 or the text "10.5" is rejected for
+    `min_value`), except a whole number written as text (e.g. "10", from a CSV file).
 
     Attributes:
         input_range_name: Name of this slider, exported from inputRange.tsx and used in
@@ -116,10 +117,10 @@ class InputRangeDefinition(BaseModel):
     @model_validator(mode="before")
     @classmethod
     def _prepare_cells(cls, data: Any) -> Any:
-        """Treat a blank/whitespace-only cell as an absent key, and gather the label and unit columns of each language."""
+        """Treat a blank/whitespace-only cell as an absent key, read a whole number written as text, and gather the label and unit columns of each language."""
         if not isinstance(data, dict):
             return data
-        data = _strip_blanks(data)
+        data = _read_whole_numbers(_strip_blanks(data), ("min_value", "max_value"))
         for field_name, column_prefix in INPUT_RANGE_COLUMN_PREFIX_BY_FIELD.items():
             data = _collect_language_columns(data, field_name, column_prefix)
         return data

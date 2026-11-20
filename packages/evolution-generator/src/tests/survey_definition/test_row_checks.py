@@ -12,6 +12,7 @@ from survey_definition.row_checks import (
     _as_boolean,
     _collect_language_columns,
     _raise_if_check_fails,
+    _read_whole_numbers,
     _strip_blanks,
     format_pydantic_errors,
     check_required_field_names,
@@ -231,3 +232,27 @@ class TestAsBoolean:
     )
     def test_keeps_any_other_value(self, value):
         assert _as_boolean(value) == value
+
+
+class TestReadWholeNumbers:
+    @pytest.mark.parametrize(
+        "value, expected",
+        [
+            ("10", 10),
+            (" -5 ", -5),
+            ("0", 0),
+            (7, 7),
+            ("10.5", "10.5"),
+            ("1e3", "1e3"),
+            ("ten", "ten"),
+            ("", ""),
+            (None, None),
+        ],
+    )
+    def test_reads_only_whole_numbers_written_as_text(self, value, expected):
+        assert _read_whole_numbers({"min_value": value}, ("min_value",)) == {
+            "min_value": expected
+        }
+
+    def test_leaves_the_other_fields_as_they_are(self):
+        assert _read_whole_numbers({"name": "10"}, ("min_value",)) == {"name": "10"}
