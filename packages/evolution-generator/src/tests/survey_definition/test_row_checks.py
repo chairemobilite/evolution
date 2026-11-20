@@ -12,6 +12,7 @@ from survey_definition.row_checks import (
     _as_boolean,
     _collect_language_columns,
     _raise_if_check_fails,
+    _read_whole_numbers,
     _strip_blanks,
     format_pydantic_errors,
     check_required_field_names,
@@ -231,3 +232,24 @@ class TestAsBoolean:
     )
     def test_keeps_any_other_value(self, value):
         assert _as_boolean(value) == value
+
+
+class TestReadWholeNumbers:
+    @cases(
+        dict(id="whole number text", value="10", expected=10),
+        dict(id="negative with spaces", value=" -5 ", expected=-5),
+        dict(id="zero", value="0", expected=0),
+        dict(id="number kept", value=7, expected=7),
+        dict(id="decimal text kept", value="10.5", expected="10.5"),
+        dict(id="exponent text kept", value="1e3", expected="1e3"),
+        dict(id="word kept", value="ten", expected="ten"),
+        dict(id="empty text kept", value="", expected=""),
+        dict(id="no value kept", value=None, expected=None),
+    )
+    def test_reads_only_whole_numbers_written_as_text(self, value, expected):
+        assert _read_whole_numbers({"min_value": value}, ("min_value",)) == {
+            "min_value": expected
+        }
+
+    def test_leaves_the_other_fields_as_they_are(self):
+        assert _read_whole_numbers({"name": "10"}, ("min_value",)) == {"name": "10"}
