@@ -13,6 +13,8 @@ from helpers.generator_helpers import (
 from survey_definition.survey_definition import SurveyDefinition
 from survey_definition.widgets_definition import (
     WIDGET_ALLOWED_INPUT_TYPES_BY_FIELD,
+    BUILT_IN_VALIDATIONS,
+    is_custom_validation,
     WidgetDefinition,
 )
 from typing import TypedDict
@@ -33,9 +35,10 @@ class ImportFlags:
     has_input_range_import: bool = False
     has_custom_widgets_import: bool = False
     has_built_in_widgets_import: bool = False
-    has_validations_import: bool = (
-        True  # Default to True for validations.requiredValidation
+    has_built_in_validations_import: bool = (
+        True  # Default to True for builtInValidations.requiredValidation
     )
+    has_validations_import: bool = False
     has_custom_validations_import: bool = False
     has_custom_conditionals_import: bool = False
     has_help_popup_import: bool = False
@@ -328,14 +331,22 @@ def generate_import_statements(import_flags: ImportFlags) -> str:
         if import_flags.has_custom_widgets_import
         else ""
     )
-    validations_import = (
-        "import * as validations from 'evolution-common/lib/services/widgets/validations/validations';\n"
-        if import_flags.has_validations_import
+    # Evolution's validations are builtInValidations, so that the validations of the
+    # Validations sheet are validations, like the other generated files (choices,
+    # conditionals, inputRange).
+    built_in_validations_import = (
+        "import * as builtInValidations from 'evolution-common/lib/services/widgets/validations/validations';\n"
+        if import_flags.has_built_in_validations_import
         else ""
     )
     custom_validations_import = (
         "import * as customValidations from '../../common/customValidations';\n"
         if import_flags.has_custom_validations_import
+        else ""
+    )
+    validations_import = (
+        "import * as validations from '../../common/validations';\n"
+        if import_flags.has_validations_import
         else ""
     )
     custom_conditionals_import = (
@@ -363,6 +374,10 @@ def generate_import_statements(import_flags: ImportFlags) -> str:
         if import_flags.has_helper_import
         else ""
     )
+    # TODO: Evolution's formatters are imported as formatters, while Evolution's
+    # validations are builtInValidations (see built_in_validations_import). Import
+    # them as builtInFormatters if the generator ever writes the survey's own
+    # formatters, so the two follow the same rule.
     formatter_import = (
         "import * as formatters from 'evolution-common/lib/utils/formatters';\n"
         if import_flags.has_formatter_import
@@ -384,12 +399,13 @@ def generate_import_statements(import_flags: ImportFlags) -> str:
         f"import * as defaultInputBase from 'evolution-frontend/lib/components/inputs/defaultInputBase';\n"
         f"import {{ defaultConditional }} from 'evolution-common/lib/services/widgets/conditionals/defaultConditional';\n"
         f"import * as WidgetConfig from 'evolution-common/lib/services/questionnaire/types';\n"
-        f"{validations_import}"
+        f"{built_in_validations_import}"
         # TODO: Add built-in widgets import when we are ready to support them
         f"{od_survey_helpers_import}"
         f"{survey_helper_import}"
         f"{choices_import}"
         f"{conditionals_import}"
+        f"{validations_import}"
         f"{formatter_import}"
         f"{input_range_import}"
         f"{gendered_suffix_import}"
@@ -581,12 +597,14 @@ def generate_conditional(conditional):
 def generate_validation(validation):
     if not validation:
         # If validation is empty, use 'requiredValidation'
-        return f"{INDENT}validations: validations.requiredValidation"
-    elif validation.endswith("CustomValidation"):
-        # If validation ends with 'CustomValidation', use 'customValidation'
+        return f"{INDENT}validations: builtInValidations.requiredValidation"
+    elif is_custom_validation(validation):
+        # If validation ends with 'CustomValidation', in any case, use 'customValidation'
         return f"{INDENT}validations: customValidations.{validation}"
+    elif validation in BUILT_IN_VALIDATIONS:
+        return f"{INDENT}validations: builtInValidations.{validation}"
     else:
-        # Otherwise, use the provided validation
+        # Any other name is a validation_name of the Validations table
         return f"{INDENT}validations: validations.{validation}"
 
 
@@ -893,9 +911,11 @@ def get_widgets_file_import_flags(
             else:
                 import_flags.has_choices_import = True
         if widget.validation:
-            # Check to see if the validation finish with 'CustomValidation'
-            if widget.validation.lower().endswith("customvalidation"):
+            # Check to see if the validation finish with 'CustomValidation', in any case
+            if is_custom_validation(widget.validation):
                 import_flags.has_custom_validations_import = True
+            elif widget.validation in BUILT_IN_VALIDATIONS:
+                import_flags.has_built_in_validations_import = True
             else:
                 import_flags.has_validations_import = True
         if widget.conditional and widget.conditional.lower().endswith(

@@ -23,6 +23,7 @@ from scripts.generate_widgets_configs import generate_widgets_configs
 from scripts.generate_widgets import generate_widgets
 from scripts.generate_choices import generate_choices
 from scripts.generate_input_range import generate_input_range
+from scripts.generate_validations import generate_validations
 from scripts.labels_generator import LabelsGenerator
 from scripts.generate_UI_tests import generate_UI_tests
 from scripts.generate_questionnaire_list import generate_questionnaire_list
@@ -43,6 +44,7 @@ SUPPORTED_SCRIPT_ALIASES = {
     "conditionals": "generate_conditionals",
     "choices": "generate_choices",
     "input_range": "generate_input_range",
+    "validations": "generate_validations",
     "labels": "generate_labels",
     "ui_tests": "generate_UI_tests",
     "questionnaire_list": "generate_questionnaire_list",
@@ -61,6 +63,7 @@ SUPPORTED_SCRIPT_KEYS = [
     "generate_conditionals",
     "generate_choices",
     "generate_input_range",
+    "generate_validations",
     "generate_labels",
     "generate_UI_tests",
     "generate_questionnaire_list",
@@ -150,6 +153,9 @@ def generate_survey(config_path, only_scripts=None):
         enabled_generate_choices = enabled_scripts.get("generate_choices", False)
         enabled_generate_input_range = enabled_scripts.get(
             "generate_input_range", False
+        )
+        enabled_generate_validations = enabled_scripts.get(
+            "generate_validations", False
         )
         enabled_generate_labels = enabled_scripts.get("generate_labels", False)
         enabled_generate_UI_tests = enabled_scripts.get("generate_UI_tests", False)
@@ -246,6 +252,17 @@ def generate_survey(config_path, only_scripts=None):
             survey_folder_path, "src", "survey", "common", "inputRange.tsx"
         )
         generate_input_range(survey_definition, input_range_output_file_path)
+
+    # Call the generate_validations function to generate validations.ts if script enabled
+    if enabled_generate_validations:
+        validations_output_file_path = os.path.join(
+            survey_folder_path, "src", "survey", "common", "validations.ts"
+        )
+        generate_validations(
+            survey_definition,
+            validations_output_file_path,
+            labels_output_folder_path=labels_output_folder_path,
+        )
 
     # Call the generate_labels function to generate the labels locales folder if script enabled
     if enabled_generate_labels:

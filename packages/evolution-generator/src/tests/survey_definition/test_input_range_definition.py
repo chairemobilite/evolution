@@ -138,7 +138,7 @@ class TestInputRange:
     def test_reports_input_range_name_that_is_not_a_ts_identifier(self):
         assert _issues([_row("my-slider")]) == [
             "Error in InputRange - Invalid input_range_name in row 2: 'my-slider' - "
-            "Must be a valid TypeScript identifier (letters, digits, '_' or '$', not starting with a digit)."
+            "Must be a valid TypeScript identifier (letters, digits, '_' or '$', not starting with a digit, and not a reserved word such as 'class')."
         ]
 
     @pytest.mark.parametrize("value", [10.5, 10.0, "10", True])
