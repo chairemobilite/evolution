@@ -173,6 +173,24 @@ class TestSections:
         )
         assert sections[0].enable_conditional == "isAdultConditional"
 
+    @cases(
+        dict(id="no conditional_names", context={"languages": ("fr", "en")}),
+        dict(
+            id="conditional_names None",
+            context={"languages": ("fr", "en"), "conditional_names": None},
+        ),
+    )
+    def test_does_not_check_conditionals_without_the_conditional_names(self, context):
+        """E.g. the Conditionals table is invalid, which is reported on its own."""
+        rows = [
+            {
+                **self._valid_section_row("home", "HM_"),
+                "enable_conditional": "isKidConditional",
+            }
+        ]
+        sections = Sections.model_validate(rows, context=context)
+        assert sections[0].enable_conditional == "isKidConditional"
+
     def test_allows_blank_conditionals(self):
         rows = [
             {
