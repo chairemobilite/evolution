@@ -194,6 +194,31 @@ class TestSurveyDefinitionLanguages:
             "table, or end with 'CustomConditional'."
         ]
 
+    def test_reports_section_conditionals_without_a_conditionals_table(self):
+        """A missing Conditionals sheet is an empty table: each section conditional it should define is reported."""
+        section = self._section(
+            enable_conditional="isAdultConditional",
+            completion_conditional="isDoneConditional",
+        )
+        assert self._issues(languages=["fr", "en"], sections=[section]) == [
+            "Error in Sections - Invalid enable_conditional in row 2: "
+            "'isAdultConditional' - Must be a conditional_name of the Conditionals "
+            "table, or end with 'CustomConditional'.",
+            "Error in Sections - Invalid completion_conditional in row 2: "
+            "'isDoneConditional' - Must be a conditional_name of the Conditionals "
+            "table, or end with 'CustomConditional'.",
+        ]
+
+    def test_does_not_check_section_conditionals_against_invalid_conditionals(self):
+        """An invalid Conditionals table is reported on its own, not again by each section."""
+        with pytest.raises(ValidationError) as error:
+            SurveyDefinition(
+                languages=["fr", "en"],
+                conditionals=[{"conditional_name": "isAdultConditional"}],
+                sections=[self._section(enable_conditional="isAdultConditional")],
+            )
+        assert [e["loc"] for e in error.value.errors()] == [("conditionals",)]
+
     def test_passes_the_conditional_names_to_the_choices(self):
         """A choice conditional must name a conditional of the Conditionals table."""
         conditional = {
