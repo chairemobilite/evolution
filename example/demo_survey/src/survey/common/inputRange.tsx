@@ -21,8 +21,8 @@ export const sliderVeryEasyToVeryDifficult: Pick<
     ],
     minValue: -10,
     maxValue: 100,
-    formatLabel: (value, language) => {
-        return value < 0 ? '' : `${value} ${language === 'fr' ? '%' : language === 'en' ? '%' : ''}`;
+    formatLabel: (value) => {
+        return value < 0 ? '' : `${value} %`;
     },
     trackClassName: 'input-slider-green-yellow-red'
 };
