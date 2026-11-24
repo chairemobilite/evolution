@@ -58,8 +58,8 @@ const buttonSwitchPerson: ButtonWidgetConfig = {
         _sections,
         _saveCallback
     ) {
-        // FIXME: We navigate to the selectPerson section... That means this widget should be part of a feature that contains this section
-        callbacks.startNavigate({ requestedSection: { sectionShortname: 'selectPerson' } });
+        // FIXME: We navigate to the personsTrips section... That means this widget should be part of a feature that contains this section
+        callbacks.startNavigate({ requestedSection: { sectionShortname: 'personsTrips' } });
     }
 };
 

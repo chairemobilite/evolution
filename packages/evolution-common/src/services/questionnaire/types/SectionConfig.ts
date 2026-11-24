@@ -42,16 +42,14 @@ export type RepeatedBlockSectionConfig = {
      * Describes what this block will iterate over.
      *
      * FIXME: This type may not be complete, we may want to support a fixed
-     * number of iterations, or the kind of iterations where the respondent can
-     * dynamically add a new iteration (does not only depend on previous
-     * answers). But it covers the current use cases
+     * number of iterations.
      */
     iterationRule:
         | {
               /**
-               * Iterate over a collection of objects in the interview response. This
-               * object collection won't be modified during the repeated block
-               * sections, they typically depend on answers in previous sections.
+               * Iterate over a collection of objects in the interview response. The
+               * collection can grow while in the repeated block, for example when the
+               * respondent adds another iteration.
                *
                * FIXME: Add a filter on the objects if required
                */
@@ -89,14 +87,15 @@ export type RepeatedBlockSectionConfig = {
     order?: 'sequential' | 'random';
 
     /**
-     * ID of the section that selects the current object for iteration. Should
-     * be set if the `skipSelectionInNaturalFlow` is `true`, otherwise it will
-     * default to the first listed section.
+     * @deprecated Place selection widgets on the repeated-block section itself.
+     * Widgets of the section are moved to the repeated block if it has no
+     * widget. Remove in november 2027.
      */
     selectionSectionId?: string;
 
     /**
-     * Whether to skip the selection section in natural navigation flow.
+     * Whether to skip this section in natural navigation flow and enter the
+     * first iteration directly.
      * Defaults to `false`
      */
     skipSelectionInNaturalFlow?: boolean;
@@ -119,7 +118,8 @@ export type RepeatedBlockSectionConfig = {
     pathPrefix?: string;
 
     /**
-     * Sections that are part of this repeated block
+     * Sections that are repeated for each iteration. Do not include the
+     * section that defines the repeated block.
      */
     sections: string[];
 
@@ -127,7 +127,8 @@ export type RepeatedBlockSectionConfig = {
      * Determine whether a given iteration of the block is valid or not. This
      * function will be used to automatically select an incomplete iteration.
      * The participant may have a non-linear navigation through the iteration. A
-     * previous one may be incomplete even if the last one is.
+     * previous one may be incomplete even if the last one is. If this is not
+     * set, all iterations are considered valid.
      */
     isIterationValid?: SectionConditionalFunction;
 };
@@ -276,13 +277,13 @@ export type SectionConfig = {
     isSectionVisible?: SectionConditionalFunction;
 
     /**
-     * Configuration for a repeated block of sections Only defined for the first
-     * section of a repeated block. The other sections of the block are ordinary
-     * sections. The last one should point back to the section defining the
-     * repeated block. A section with a repeated block should not have any
-     * widgets and will not be navigated to. But it can still be seen in the
-     * menus to contain its sub-sections or have its enablement and completion
-     * conditions set.
+     * Configuration for a repeated block of sections. The sections in the block
+     * are ordinary sections and the last one should point back to this section.
+     * This section is also a normal section, its widgets should present the
+     * available iterations of the block and their validity and allow the
+     * participant to select an existing iteration, add one, or continue once
+     * all iterations are valid. In natural flow it can be skipped with
+     * `skipSelectionInNaturalFlow`.
      *
      * TODO Support nested repeated blocks, currently, it only works with one
      * repeated block
@@ -363,8 +364,48 @@ export const getAndValidateSurveySections = (sections: SurveySectionsConfig): Su
         if (sectionConfig.repeatedBlock) {
             const repeatedSections = sectionConfig.repeatedBlock.sections;
             repeatedSections.forEach((repeatedSectionName) => {
-                sectionsInRepeatedBlock[repeatedSectionName] = sectionName;
+                if (repeatedSectionName !== sectionName) {
+                    sectionsInRepeatedBlock[repeatedSectionName] = sectionName;
+                }
             });
+        }
+    });
+
+    // Handle the `selectionSectionId` deprecation
+    // FIXME Remove in november 2027
+    const repeatedBlockSections = Object.keys(sections).filter(
+        (sectionName) => sections[sectionName].repeatedBlock !== undefined
+    );
+    repeatedBlockSections.forEach((repeatedBlockSectionName) => {
+        // If the repeated block has a selection section, emit a warning, if
+        // there are no widgets to the repeated block, add the selection
+        // section's widgets to the repeated block, and remove it from section.
+        const repeatedBlockSection = sections[repeatedBlockSectionName];
+        const selectionSectionName = repeatedBlockSection.repeatedBlock?.selectionSectionId;
+        if (selectionSectionName !== undefined) {
+            console.warn(
+                `Section configuration: 'selectionSectionId' is deprecated for section ${repeatedBlockSectionName}. Move the widgets to the repeated block section itself.`
+            );
+            delete repeatedBlockSection.repeatedBlock?.selectionSectionId;
+            const selectionSection = sections[selectionSectionName];
+            if (selectionSection !== undefined && repeatedBlockSection.widgets.length === 0) {
+                repeatedBlockSection.widgets = selectionSection.widgets;
+                delete sections[selectionSectionName];
+                if (repeatedBlockSection.repeatedBlock?.sections.includes(selectionSectionName)) {
+                    repeatedBlockSection.repeatedBlock.sections = repeatedBlockSection.repeatedBlock?.sections.filter(
+                        (sectionName) => sectionName !== selectionSectionName
+                    );
+                }
+                // Change any previous/next section to be the repeated block instead of selection section
+                Object.keys(sections).forEach((sectionName) => {
+                    if (sections[sectionName].previousSection === selectionSectionName) {
+                        sections[sectionName].previousSection = repeatedBlockSectionName;
+                    }
+                    if (sections[sectionName].nextSection === selectionSectionName) {
+                        sections[sectionName].nextSection = repeatedBlockSectionName;
+                    }
+                });
+            }
         }
     });
 
@@ -424,6 +465,9 @@ export const getAndValidateSurveySections = (sections: SurveySectionsConfig): Su
         if (sectionConfig.type === 'repeatedBlock') {
             // All repeated sections should exist
             const repeatedSections = sectionConfig.repeatedBlock.sections;
+            if (repeatedSections.includes(sectionName)) {
+                throw new Error(`Section "${sectionName}" cannot include itself in its "repeatedBlock.sections" list.`);
+            }
             repeatedSections.forEach((repeatedSectionName) => {
                 if (!sectionsWithDefaults[repeatedSectionName]) {
                     throw new Error(
@@ -431,14 +475,6 @@ export const getAndValidateSurveySections = (sections: SurveySectionsConfig): Su
                     );
                 }
             });
-            // The selectionSection should exist if specified
-            if (sectionConfig.repeatedBlock.selectionSectionId) {
-                if (!sectionsWithDefaults[sectionConfig.repeatedBlock.selectionSectionId]) {
-                    throw new Error(
-                        `Section "${sectionConfig.repeatedBlock.selectionSectionId}" is referenced in "selectionSectionId" of section "${sectionName}", but it is not defined in the sections config.`
-                    );
-                }
-            }
         }
         // Validate that the section in the navMenu exists
         if (sectionConfig.navMenu.type === 'hidden') {

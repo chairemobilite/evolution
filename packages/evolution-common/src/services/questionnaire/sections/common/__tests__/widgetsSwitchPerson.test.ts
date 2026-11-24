@@ -131,7 +131,7 @@ describe('buttonSwitchPerson widget', () => {
         expect(action).toBeDefined();
         const callbackMocks = { startUpdateInterview: jest.fn(), startAddGroupedObjects: jest.fn(), startRemoveGroupedObjects: jest.fn(), startNavigate: jest.fn() };
         action(callbackMocks, interviewAttributesForTestCases, 'path', 'section', {}, jest.fn());
-        expect(callbackMocks.startNavigate).toHaveBeenCalledWith({ requestedSection: { sectionShortname: 'selectPerson' } });
+        expect(callbackMocks.startNavigate).toHaveBeenCalledWith({ requestedSection: { sectionShortname: 'personsTrips' } });
     });
 
     test('label', () => {
