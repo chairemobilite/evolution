@@ -335,7 +335,7 @@ class TestCheckExcelIntegrityWithWarnings:
                 label_one_fr=None,
                 label_one_en="One",
                 expected_warnings=[
-                    "Labels row 2 (home.welcome): label_one is not set in "
+                    "Labels sheet, row 2: label_one is not set in "
                     "['label_one::fr'], so label is used instead for one."
                 ],
             ),

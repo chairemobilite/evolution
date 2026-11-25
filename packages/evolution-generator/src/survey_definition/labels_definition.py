@@ -25,7 +25,7 @@ from survey_definition.row_checks import _collect_language_columns, _strip_blank
 from survey_definition.sheet_checks import (
     collect_sheet_issues,
     fields_in_survey_languages,
-    label_one_fallback_warning,
+    label_one_fallback_warnings,
 )
 from survey_definition.validation_context import context_languages
 
@@ -149,16 +149,11 @@ class Labels(RootModel[list[LabelDefinition]]):
     def warnings(self, languages: Sequence[str]) -> list[str]:
         """
         The problems that don't stop the generation: a row with `label_one` set in some
-        of the survey `languages` but not all (see label_one_fallback_warning).
+        of the survey `languages` but not all (see label_one_fallback_warnings).
         """
-        warnings: list[str] = []
-        for row_number, label in enumerate(self.root, start=2):
-            warning = label_one_fallback_warning(label.label_one, languages)
-            if warning is not None:
-                warnings.append(
-                    f"Labels row {row_number} ({label.namespace}.{label.key}): {warning}"
-                )
-        return warnings
+        return label_one_fallback_warnings(
+            enumerate(self.root, start=2), "Labels", languages
+        )
 
     def __iter__(self) -> Iterator[LabelDefinition]:  # type: ignore[override]
         return iter(self.root)

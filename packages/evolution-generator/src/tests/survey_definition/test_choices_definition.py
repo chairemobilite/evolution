@@ -252,7 +252,7 @@ class TestChoices:
     def test_warns_about_a_label_one_missing_a_language(self):
         choices = self._choices([self._row("yesNo", **{"label_one::fr": "Oui!"})])
         assert choices.warnings(CONTEXT["languages"]) == [
-            "Choices row 2 (yesNo.yes): label_one is not set in ['label_one::en'], "
+            "Choices sheet, row 2: label_one is not set in ['label_one::en'], "
             "so label is used instead for one."
         ]
 

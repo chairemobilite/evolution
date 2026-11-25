@@ -34,7 +34,7 @@ from survey_definition.row_checks import (
 from survey_definition.sheet_checks import (
     collect_sheet_issues,
     fields_in_survey_languages,
-    label_one_fallback_warning,
+    label_one_fallback_warnings,
 )
 from survey_definition.validation_context import context_languages
 
@@ -276,20 +276,18 @@ class Choices(RootModel[list[ChoiceDefinition]]):
     def warnings(self, languages: Sequence[str]) -> list[str]:
         """
         The problems that don't stop the generation: a choice with `label_one` set in
-        some of the survey `languages` but not all (see label_one_fallback_warning). A
+        some of the survey `languages` but not all (see label_one_fallback_warnings). A
         spread row's labels aren't used, so it gets none.
         """
-        warnings: list[str] = []
-        for row_number, choice in enumerate(self.root, start=2):
-            if choice.spread_choices_name is not None:
-                continue
-            warning = label_one_fallback_warning(choice.label_one, languages)
-            if warning is not None:
-                warnings.append(
-                    f"Choices row {row_number} ({choice.choices_name}.{choice.value}): "
-                    f"{warning}"
-                )
-        return warnings
+        return label_one_fallback_warnings(
+            (
+                (row_number, choice)
+                for row_number, choice in enumerate(self.root, start=2)
+                if choice.spread_choices_name is None
+            ),
+            "Choices",
+            languages,
+        )
 
     def _duplicate_value_issues(self, prefix: str) -> list[str]:
         """
