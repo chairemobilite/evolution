@@ -10,10 +10,10 @@ import pytest
 from helpers.generator_helpers import load_survey_definition
 from scripts.generate_choices import (
     generate_choices,
-    _generate_choices_yaml_locales,
     _generate_import_statements,
 )
-from survey_definition.choices_definition import Choices
+from scripts.generate_locales import generate_locales
+from survey_definition.choices_definition import CHOICES_LOCALES_NAMESPACE
 from survey_definition.excel_survey_definition_reader import ExcelSurveyDefinitionReader
 from survey_definition.survey_definition import SurveyDefinition
 
@@ -53,6 +53,16 @@ def choices_row(
         "conditional": conditional,
         "hidden": hidden,
     }
+
+
+def generate_choices_and_locales(survey_definition: SurveyDefinition, output_paths):
+    """Write choices.tsx, then the choices.yaml locales, as generate_survey does."""
+    generate_choices(survey_definition, output_paths["choices_tsx_path"])
+    generate_locales(
+        survey_definition,
+        output_paths["locales_dir_path"],
+        [CHOICES_LOCALES_NAMESPACE],
+    )
 
 
 def survey_definition_with_choices(*rows: dict) -> SurveyDefinition:
@@ -108,10 +118,9 @@ class TestGenerateChoices:
         if not os.path.isfile(demo_input):
             pytest.skip(f"Demo generator file not found: {demo_input}")
 
-        generate_choices(
+        generate_choices_and_locales(
             load_survey_definition(ExcelSurveyDefinitionReader(demo_input)),
-            output_paths["choices_tsx_path"],
-            labels_output_folder_path=output_paths["locales_dir_path"],
+            output_paths,
         )
 
         assert os.path.isfile(output_paths["choices_tsx_path"])
@@ -153,11 +162,7 @@ class TestGenerateChoices:
             ),
         )
 
-        generate_choices(
-            survey_definition,
-            output_paths["choices_tsx_path"],
-            labels_output_folder_path=output_paths["locales_dir_path"],
-        )
+        generate_choices_and_locales(survey_definition, output_paths)
 
         assert os.path.isfile(output_paths["choices_tsx_path"])
         assert os.path.isfile(output_paths["en_choices_yaml_path"])
@@ -324,10 +329,8 @@ class TestGenerateChoices:
         with open(output_paths["en_choices_yaml_path"], mode="w", encoding="utf-8"):
             pass
 
-        generate_choices(
-            SurveyDefinition(languages=("fr", "en")),
-            output_paths["choices_tsx_path"],
-            labels_output_folder_path=output_paths["locales_dir_path"],
+        generate_choices_and_locales(
+            SurveyDefinition(languages=("fr", "en")), output_paths
         )
 
         assert not os.path.exists(output_paths["choices_tsx_path"])
@@ -343,16 +346,14 @@ class TestGenerateChoices:
         )
 
 
-class TestGenerateChoicesYamlLocales:
-    """Tests for _generate_choices_yaml_locales(choices_by_name, languages, labels_output_folder_path)."""
+class TestChoicesTranslations:
+    """Tests for choices_translations, written in locales/<language>/choices.yaml by generate_locales."""
 
     def _generate(self, output_paths, *rows: dict, languages=("fr", "en")):
-        _generate_choices_yaml_locales(
-            Choices.model_validate(
-                list(rows), context={"languages": languages}
-            ).by_name(),
-            languages=languages,
-            labels_output_folder_path=output_paths["locales_dir_path"],
+        generate_locales(
+            SurveyDefinition(languages=languages, choices=list(rows)),
+            output_paths["locales_dir_path"],
+            [CHOICES_LOCALES_NAMESPACE],
         )
 
     def test_skips_spread_only_groups(self, output_paths):
@@ -410,11 +411,7 @@ class TestGenerateChoicesYamlLocales:
             )
         )
 
-        generate_choices(
-            survey_definition,
-            output_paths["choices_tsx_path"],
-            labels_output_folder_path=output_paths["locales_dir_path"],
-        )
+        generate_choices_and_locales(survey_definition, output_paths)
 
         fr_yaml = read_file(output_paths["fr_choices_yaml_path"])
         assert "\ngreetingChoices:\n" in fr_yaml

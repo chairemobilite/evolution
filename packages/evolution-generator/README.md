@@ -550,9 +550,11 @@ The `InputRange` tab in Excel is used to generate slider components in the `inpu
 
 > **Note:** A negative `min_value` leaves room for a "no answer" zone at the start of the slider: no value label is shown below 0.
 
+> **Note:** The labels and units are written in `locales/<language>/inputRange.yaml`, under `<input_range_name>.<column>` (e.g. `confidentInputRange.label_min`), and `inputRange.tsx` translates them with `t()`. The slider shows them as plain text: unlike the widget labels, they get no formatting (e.g. `**bold**`).
+
 ### InputRange Example
 
-In this example, we define an InputRange named `confidentInputRange`. This InputRange allows users to select a value representing their confidence level, ranging from "Not at all confident" to "Very confident". The corresponding TypeScript code and a visual representation of this InputRange are shown below:
+In this example, we define an InputRange named `confidentInputRange`. This InputRange allows users to select a value representing their confidence level, ranging from "Not at all confident" to "Very confident". The corresponding TypeScript code, its English translations and a visual representation of this InputRange are shown below:
 
 | input_range_name    | label_min::fr        | label_max::fr | label_min::en        | label_max::en  | min_value | max_value | unit::fr | unit::en |
 | ------------------- | -------------------- | ------------- | -------------------- | -------------- | --------- | --------- | -------- | -------- |
@@ -565,22 +567,24 @@ export const confidentInputRange: Pick<
     'labels' | 'minValue' | 'maxValue' | 'formatLabel' | 'trackClassName'
 > = {
     labels: [
-        {
-            fr: 'Pas du tout confiant',
-            en: 'Not at all confident'
-        },
-        {
-            fr: 'Très confiant',
-            en: 'Very confident'
-        }
+        (t: TFunction) => t('inputRange:confidentInputRange.label_min'),
+        (t: TFunction) => t('inputRange:confidentInputRange.label_max')
     ],
     minValue: -10,
     maxValue: 100,
-    formatLabel: (value, language) => {
-        return value < 0 ? '' : `${value} ${language === 'fr' ? '%' : language === 'en' ? '%' : ''}`;
+    formatLabel: (value, t) => {
+        return value < 0 ? '' : `${value} ${t('inputRange:confidentInputRange.unit')}`;
     },
     trackClassName: 'input-slider-blue'
 };
+```
+
+```yaml
+# locales/en/inputRange.yaml
+confidentInputRange:
+    label_min: Not at all confident
+    label_max: Very confident
+    unit: '%'
 ```
 
 ![InputRange example](./src/assets/images/inputRangeExample.png)
@@ -601,6 +605,8 @@ In the context of your survey logic, labels play a crucial role in presenting qu
 | label::en     | English label                         | string |
 | label_one::fr | French label for one person           | string |
 | label_one::en | English label for one person          | string |
+
+> **Note:** A label can add a key to any namespace, including a section's (e.g. `household`, next to the widget labels) or one generated from another sheet (`choices`, `sectionConfigs`, `inputRange`). Each locales file is rewritten whole with the translations of every sheet, whichever script runs (e.g. `--only choices` or `--only labels`). A key the other sheet already generates, or that would contain or be inside one of its keys (e.g. `yesNo` when the Choices sheet generates `yesNo.yes`), is refused.
 
 ### Labels Example
 

@@ -55,7 +55,9 @@ class LabelDefinition(BaseModel):
 
     Attributes:
         namespace: Translation namespace of this label, i.e. the locales file it is
-            written to (locales/<language>/<namespace>.yaml). Required.
+            written to (locales/<language>/<namespace>.yaml). Required. It can be
+            a namespace generated from another sheet (e.g. choices), as long as the
+            key isn't one that sheet generates.
         key: Key of this label in its namespace. Required.
         label: The label by language, read from the `label::<language>` columns (e.g.
             {"fr": "Bonjour", "en": "Hello"}). Required, in every survey language.

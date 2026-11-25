@@ -12,7 +12,10 @@ from helpers.generator_helpers import (
     is_ts_file,
 )
 from scripts.labels_generator import LabelFormatter, LabelsGenerator
-from survey_definition.choices_definition import ChoiceDefinition
+from survey_definition.choices_definition import (
+    CHOICES_LOCALES_NAMESPACE,
+    ChoiceDefinition,
+)
 from survey_definition.survey_definition import SurveyDefinition
 
 
@@ -50,7 +53,7 @@ def _generate_choice_label_typescript(
     Otherwise, it returns a full TranslatableStringFunction `(t, interview, path) => {...}`
     compatible with evolution-common's I18nData type.
     """
-    translation_key = f"choices:{choice_name}.{value_key}"
+    translation_key = f"{CHOICES_LOCALES_NAMESPACE}:{choice_name}.{value_key}"
     has_nickname, has_count, has_gender_context, has_label_one = (
         _get_choice_label_context_flags(choice)
     )
@@ -152,25 +155,20 @@ def _generate_typescript_code(
     return ts_code
 
 
-def _generate_choices_yaml_locales(
-    choices_by_name: dict[str, list[ChoiceDefinition]],
-    languages: tuple[str, ...],
-    labels_output_folder_path: str,
-):
+def choices_translations(survey_definition: SurveyDefinition) -> dict[str, dict]:
     """
-    Generate locales choices YAML files containing the labels for each choice, one per
-    survey language.
-
-    Output:
-      <surveyRoot>/locales/<language>/choices.yaml, e.g. locales/fr/choices.yaml
+    The labels of the choices, for locales/<language>/choices.yaml: for each survey
+    language, the YAML values by their dot-separated key in the choices namespace.
 
     Schema (per language file):
       <choicesName>:
         <value>: <label>
     """
+    languages = survey_definition.languages
+    choices_by_name = survey_definition.choices.by_name()
     # Reuse the exact same translation-key generation behavior as labels generation.
-    # We build a flat translations dict first (like LabelsGenerator does), then convert to
-    # the nested choices.yaml schema expected by the frontend.
+    # We build a flat translations dict first (like LabelsGenerator does); the YAML
+    # writer then converts it to the nested choices.yaml schema expected by the frontend.
     translations_dict = {language: {} for language in languages}
 
     # Preserve source order: choices_by_name keeps the rows top-down.
@@ -192,7 +190,7 @@ def _generate_choices_yaml_locales(
                 ):
                     LabelsGenerator.add_gender_or_base_translations(
                         language=language,
-                        section="choices",
+                        section=CHOICES_LOCALES_NAMESPACE,
                         label_key=label_key,
                         gender_dict=LabelsGenerator.expand_gender(label),
                         label=label,
@@ -203,41 +201,27 @@ def _generate_choices_yaml_locales(
 
             rowNumber += 1  # Increment row number
 
-    # Delete existing files first to avoid stale keys if some choices are removed
-    LabelsGenerator.delete_all_labels_yaml_files(
-        labels_output_folder_path=labels_output_folder_path,
-        languages=list(languages),
-        sections=["choices"],
-    )
-
-    # Save translations
-    for language, translations in translations_dict.items():
-        LabelsGenerator.save_translations(
-            language,
-            "choices",
-            labels_output_folder_path,
-            translations,
-        )
+    return {
+        language: translations.get(CHOICES_LOCALES_NAMESPACE, {})
+        for language, translations in translations_dict.items()
+    }
 
 
 # Function to generate choices.tsx
 def generate_choices(
     survey_definition: SurveyDefinition,
     output_file: str,
-    labels_output_folder_path: str | None = None,
 ):
     """
-    Write choices.tsx (one exported ChoiceType[] list per choicesName) and, when
-    `labels_output_folder_path` is given, the locales/<language>/choices.yaml labels.
-    choices.tsx isn't written when the Choices table is empty: no widget imports it
-    then.
+    Write choices.tsx (one exported ChoiceType[] list per choicesName). choices.tsx
+    isn't written when the Choices table is empty: no widget imports it then. Its
+    labels are written in locales/<language>/choices.yaml by generate_locales.py (see
+    choices_translations).
 
     Args:
         survey_definition: Already-validated survey definition, read for its Choices
-            table and its languages.
+            table.
         output_file: TypeScript file to write.
-        labels_output_folder_path: The survey's locales folder, or None to skip the
-            labels.
     """
     try:
         is_ts_file(output_file)  # Check if the output file is an TypeScript file
@@ -253,15 +237,6 @@ def generate_choices(
                 ts_file.write(ts_code)
 
             print(f"Generated {output_file} successfully")
-
-        # Generate locales/<lang>/choices.yaml files (an empty table only deletes the
-        # previous ones)
-        if labels_output_folder_path is not None:
-            _generate_choices_yaml_locales(
-                choices_by_name,
-                languages=survey_definition.languages,
-                labels_output_folder_path=labels_output_folder_path,
-            )
 
     except Exception as e:
         # Handle any other exceptions that might occur during script execution

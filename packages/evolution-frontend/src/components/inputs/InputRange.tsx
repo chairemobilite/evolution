@@ -71,9 +71,7 @@ export const InputRange = (props: InputRangeProps) => {
                 maxValue={maxValue as number | undefined}
                 minValue={minValue as number | undefined}
                 formatLabel={
-                    formatLabelFct !== undefined
-                        ? (value) => formatLabelFct(value, i18n.language)
-                        : (value) => String(value)
+                    formatLabelFct !== undefined ? (value) => formatLabelFct(value, t) : (value) => String(value)
                 }
                 value={typeof value === 'number' && value >= minValue ? value : minValue}
                 classNames={defaultClassNames}

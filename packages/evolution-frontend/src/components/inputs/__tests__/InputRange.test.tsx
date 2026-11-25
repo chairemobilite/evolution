@@ -140,6 +140,8 @@ describe('Should correctly render InputRange with various parameters', () => {
             />
         );
         expect(container).toMatchSnapshot();
+        // The label of the value is translated with t
+        expect(formatLabel).toHaveBeenCalledWith(10, expect.any(Function));
     });
 
 });

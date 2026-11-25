@@ -259,7 +259,11 @@ export type InputTimeType = BaseQuestionType & {
 export type InputRangeType = BaseQuestionType & {
     inputType: 'slider';
     labels?: I18nData[];
-    formatLabel?: (value: number, lang: string) => string;
+    /**
+     * Label of the selected value, e.g. the value followed by its unit,
+     * translated with `t`.
+     */
+    formatLabel?: (value: number, t: TFunction) => string;
     minValue?: number;
     maxValue?: number;
     /** Whether to include a 'not applicable' checkbox that will disable the input */

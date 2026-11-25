@@ -24,10 +24,14 @@ from scripts.generate_widgets import generate_widgets
 from scripts.generate_choices import generate_choices
 from scripts.generate_input_range import generate_input_range
 from scripts.labels_generator import LabelsGenerator
+from scripts.generate_locales import generate_locales
 from scripts.generate_UI_tests import generate_UI_tests
 from scripts.generate_questionnaire_list import generate_questionnaire_list
 from scripts.generate_questionnaire_dictionary import generate_questionnaire_dictionary
 from scripts.conditionals_generator import ConditionalsGenerator
+from survey_definition.choices_definition import CHOICES_LOCALES_NAMESPACE
+from survey_definition.input_range_definition import INPUT_RANGE_LOCALES_NAMESPACE
+from survey_definition.sections_definition import SECTION_TITLES_NAMESPACE
 
 # Supported script aliases for the --only argument, mapping to the actual script
 # keys in the config file's enabled_scripts section.
@@ -162,6 +166,8 @@ def generate_survey(config_path, only_scripts=None):
 
     # Find the labels output folder path
     labels_output_folder_path = os.path.join(survey_folder_path, "locales")
+    # The namespaces whose locales files are rewritten at the end (see generate_locales)
+    locales_namespaces: set[str] = set()
 
     # Call the generate_excel function to generate the Excel file if script enabled
     if enabled_generate_excel:
@@ -193,11 +199,8 @@ def generate_survey(config_path, only_scripts=None):
         section_config_output_folder = os.path.join(
             survey_folder_path, "src", "survey", "sections"
         )
-        generate_section_configs(
-            survey_definition,
-            section_config_output_folder,
-            labels_output_folder_path=labels_output_folder_path,
-        )
+        generate_section_configs(survey_definition, section_config_output_folder)
+        locales_namespaces.add(SECTION_TITLES_NAMESPACE)
 
     # Call the generate_sections function to generate sections.tsx if script enabled
     if enabled_generate_sections:
@@ -234,11 +237,8 @@ def generate_survey(config_path, only_scripts=None):
         choices_output_file_path = os.path.join(
             survey_folder_path, "src", "survey", "common", "choices.tsx"
         )
-        generate_choices(
-            survey_definition,
-            choices_output_file_path,
-            labels_output_folder_path=labels_output_folder_path,
-        )
+        generate_choices(survey_definition, choices_output_file_path)
+        locales_namespaces.add(CHOICES_LOCALES_NAMESPACE)
 
     # Call the generate_input_range function to generate inputRange.tsx if script enabled
     if enabled_generate_input_range:
@@ -246,10 +246,19 @@ def generate_survey(config_path, only_scripts=None):
             survey_folder_path, "src", "survey", "common", "inputRange.tsx"
         )
         generate_input_range(survey_definition, input_range_output_file_path)
+        locales_namespaces.add(INPUT_RANGE_LOCALES_NAMESPACE)
 
-    # Call the generate_labels function to generate the labels locales folder if script enabled
+    # The Widgets and Labels tables write to their own namespaces, and to the
+    # generated ones above
     if enabled_generate_labels:
-        LabelsGenerator.generate_labels(survey_definition, labels_output_folder_path)
+        locales_namespaces |= LabelsGenerator.labels_namespaces(survey_definition)
+
+    # Rewrite once, with the translations of every sheet, the locales files of the
+    # scripts that ran
+    if locales_namespaces:
+        generate_locales(
+            survey_definition, labels_output_folder_path, locales_namespaces
+        )
 
     # Call the generate_UI_tests function to generate the common-UI-tests-helpers-template.ts.ts if script enabled
     if enabled_generate_UI_tests:
