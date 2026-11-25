@@ -375,7 +375,7 @@ def _warnings(
     ]
 
 
-def check_excel_integrity_with_warnings(
+def check_survey_definition_integrity_with_warnings(
     source_path: str,
 ) -> tuple[bool, list[str], list[str]]:
     """
@@ -392,17 +392,6 @@ def check_excel_integrity_with_warnings(
     return survey_definition is not None, messages, warnings
 
 
-def check_excel_integrity_with_messages(source_path: str) -> tuple[bool, list[str]]:
-    """
-    Check the integrity of the survey definition, like
-    check_excel_integrity_with_warnings without the warnings.
-
-    Returns (True, []) when valid, or (False, messages) with human-readable issues.
-    """
-    ok, messages, _ = check_excel_integrity_with_warnings(source_path)
-    return ok, messages
-
-
 def _print_integrity_result(
     source_path: str, ok: bool, messages: list[str], warnings: list[str]
 ) -> None:
@@ -417,9 +406,11 @@ def _print_integrity_result(
 
 
 # Check the integrity of the survey definition to avoid generating the survey with invalid data
-def check_excel_integrity(source_path: str) -> bool:
-    """Check the integrity of the Excel file or folder of CSV files. Entry point for scripts and UI."""
-    ok, messages, warnings = check_excel_integrity_with_warnings(source_path)
+def check_survey_definition_integrity(source_path: str) -> bool:
+    """Check the integrity of the Excel file or folder of CSV files, printing the result. Entry point for scripts."""
+    ok, messages, warnings = check_survey_definition_integrity_with_warnings(
+        source_path
+    )
     _print_integrity_result(source_path, ok, messages, warnings)
     return ok
 
@@ -429,7 +420,7 @@ def _load_survey_or_raise(
 ) -> tuple[SurveyDefinitionReader, SurveyDefinition]:
     """
     Read the Excel file or folder of CSV files and load its SurveyDefinition, printing
-    the same messages as check_excel_integrity, and raise if invalid.
+    the same messages as check_survey_definition_integrity, and raise if invalid.
 
     For a caller (generate_survey) that needs the reader and SurveyDefinition
     themselves, not just a pass/fail bool, so it can check integrity and keep the
@@ -487,4 +478,4 @@ def verify_excel_cli_main() -> int:
         for line in config.summary_lines():
             print(line)
         source_path = config.source_path
-    return 0 if check_excel_integrity(source_path) else 1
+    return 0 if check_survey_definition_integrity(source_path) else 1

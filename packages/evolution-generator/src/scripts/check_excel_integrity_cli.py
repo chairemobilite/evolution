@@ -7,9 +7,9 @@ import json
 import sys
 
 try:
-    from scripts.generate_survey import check_excel_integrity_with_warnings
+    from scripts.generate_survey import check_survey_definition_integrity_with_warnings
 except ModuleNotFoundError:
-    from generate_survey import check_excel_integrity_with_warnings
+    from generate_survey import check_survey_definition_integrity_with_warnings
 
 
 def main() -> int:
@@ -20,8 +20,8 @@ def main() -> int:
     excel_file_path = sys.argv[1]
 
     try:
-        integrity_ok, errors, warnings = check_excel_integrity_with_warnings(
-            excel_file_path
+        integrity_ok, errors, warnings = (
+            check_survey_definition_integrity_with_warnings(excel_file_path)
         )
         payload: dict = {
             "ok": True,
