@@ -554,7 +554,7 @@ class WidgetDefinition(BaseModel):
         )
         data = _collect_language_columns(data, "label", WIDGET_LABEL_COLUMN_PREFIX)
         # A spreadsheet stores a value like 97 or 1.5 as a number.
-        for field_name in ("custom_choice", "default_value"):
+        for field_name in ("custom_choice", "default_value", "comments"):
             value = data.get(field_name)
             if isinstance(value, (int, float)) and not isinstance(value, bool):
                 data[field_name] = str(value)

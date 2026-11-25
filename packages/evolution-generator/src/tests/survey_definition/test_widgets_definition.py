@@ -490,6 +490,12 @@ class TestInputTypeRules:
             field_name="default_value",
             extra={"default_value": 1.5},
         ),
+        dict(
+            id="comments",
+            input_type="String",
+            field_name="comments",
+            extra={"comments": 12},
+        ),
     )
     def test_reads_a_number_as_text(self, input_type, field_name, extra):
         value = getattr(_definition(_row(input_type, **extra)), field_name)
