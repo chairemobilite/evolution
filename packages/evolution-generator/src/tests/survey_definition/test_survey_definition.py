@@ -7,6 +7,7 @@
 import pytest  # pyright: ignore[reportMissingImports]
 from pydantic import ValidationError
 
+from survey_definition.labels_definition import Labels
 from survey_definition.sections_definition import SectionDefinition, Sections
 from survey_definition.survey_definition import SurveyDefinition
 
@@ -368,3 +369,21 @@ class TestSurveyDefinitionWarnings:
         )
         assert survey_definition.warnings() == survey_definition.widgets.warnings()
         assert len(survey_definition.warnings()) == 1
+
+    def test_lists_the_warnings_of_every_table_in_declaration_order(self, monkeypatch):
+        # A table that overrides SurveyTable.warnings is collected without any change
+        # to SurveyDefinition.
+        monkeypatch.setattr(Labels, "warnings", lambda self: ["Labels warning"])
+        monkeypatch.setattr(Sections, "warnings", lambda self: ["Sections warning"])
+        survey_definition = SurveyDefinition(
+            languages=["fr"],
+            sections=[self._SECTION],
+            widgets=[
+                self._widget(input_type="Custom", validation="homeCustomValidation")
+            ],
+        )
+        assert survey_definition.warnings() == [
+            "Sections warning",
+            "Labels warning",
+            *survey_definition.widgets.warnings(),
+        ]

@@ -11,13 +11,11 @@
 # This module only defines the shape and the checks; it does not read any input source.
 # See survey_definition.py for the bundle of all tables.
 
-from collections.abc import Iterator
 from typing import Any, Self
 
 from pydantic import (
     BaseModel,
     ConfigDict,
-    RootModel,
     ValidationInfo,
     field_validator,
     model_validator,
@@ -35,6 +33,7 @@ from survey_definition.sheet_checks import (
     fields_in_survey_languages,
     unique_field,
 )
+from survey_definition.survey_table import SurveyTable
 from survey_definition.validation_context import context_languages
 
 # Field names the Sections source must provide, even though several of them
@@ -210,7 +209,7 @@ class SectionDefinition(BaseModel):
         return self
 
 
-class Sections(RootModel[list[SectionDefinition]]):
+class Sections(SurveyTable[SectionDefinition]):
     """
     The whole Sections sheet: a list of SectionDefinition that has passed every check,
     the ones on each row and the ones across rows (see its model validators).
@@ -288,12 +287,3 @@ class Sections(RootModel[list[SectionDefinition]]):
         if issues:
             raise ValueError("\n".join(issues))
         return self
-
-    def __iter__(self) -> Iterator[SectionDefinition]:  # type: ignore[override]
-        return iter(self.root)
-
-    def __len__(self) -> int:
-        return len(self.root)
-
-    def __getitem__(self, index: int) -> SectionDefinition:
-        return self.root[index]

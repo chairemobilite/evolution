@@ -11,14 +11,12 @@
 # See survey_definition.py for the bundle of all tables, and scripts/generate_choices.py
 # for TypeScript generation.
 
-from collections.abc import Iterator
 from typing import Any, Self
 
 from pydantic import (
     BaseModel,
     ConfigDict,
     Field,
-    RootModel,
     ValidationInfo,
     field_validator,
     model_validator,
@@ -35,6 +33,7 @@ from survey_definition.sheet_checks import (
     collect_sheet_issues,
     fields_in_survey_languages,
 )
+from survey_definition.survey_table import SurveyTable
 from survey_definition.validation_context import context_languages
 
 # Field names the Choices source must provide, even though value, spreadChoicesName and
@@ -199,7 +198,7 @@ class ChoiceDefinition(BaseModel):
         return self
 
 
-class Choices(RootModel[list[ChoiceDefinition]]):
+class Choices(SurveyTable[ChoiceDefinition]):
     """
     The whole Choices sheet: a list of ChoiceDefinition that has passed every check,
     the ones on each row and the ones across rows (see its model validators).
@@ -367,12 +366,3 @@ class Choices(RootModel[list[ChoiceDefinition]]):
                 )
             ]
         return values
-
-    def __iter__(self) -> Iterator[ChoiceDefinition]:  # type: ignore[override]
-        return iter(self.root)
-
-    def __len__(self) -> int:
-        return len(self.root)
-
-    def __getitem__(self, index: int) -> ChoiceDefinition:
-        return self.root[index]

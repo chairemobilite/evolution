@@ -12,13 +12,11 @@
 # See survey_definition.py for the
 # bundle of all tables, and scripts/generate_input_range.py for TypeScript generation.
 
-from collections.abc import Iterator
 from typing import Any, Literal, Self
 
 from pydantic import (
     BaseModel,
     ConfigDict,
-    RootModel,
     ValidationInfo,
     field_validator,
     model_validator,
@@ -36,6 +34,7 @@ from survey_definition.sheet_checks import (
     fields_in_survey_languages,
     unique_field,
 )
+from survey_definition.survey_table import SurveyTable
 from survey_definition.validation_context import context_languages
 
 # Field names the InputRange source must provide. The label and unit columns (one per
@@ -180,7 +179,7 @@ class InputRangeDefinition(BaseModel):
         return self
 
 
-class InputRanges(RootModel[list[InputRangeDefinition]]):
+class InputRanges(SurveyTable[InputRangeDefinition]):
     """
     The whole InputRange sheet: a list of InputRangeDefinition that has passed every
     check, the ones on each row and the ones across rows (see _collect_all_issues).
@@ -225,12 +224,3 @@ class InputRanges(RootModel[list[InputRangeDefinition]]):
                     raise ValueError("\n".join(issues))
                 return handler(input_ranges)
         return handler(rows)
-
-    def __iter__(self) -> Iterator[InputRangeDefinition]:  # type: ignore[override]
-        return iter(self.root)
-
-    def __len__(self) -> int:
-        return len(self.root)
-
-    def __getitem__(self, index: int) -> InputRangeDefinition:
-        return self.root[index]
