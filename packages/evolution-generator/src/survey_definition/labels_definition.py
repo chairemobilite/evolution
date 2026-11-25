@@ -11,7 +11,7 @@
 # for the YAML generation.
 
 from collections.abc import Iterator
-from typing import Any, Self
+from typing import Any, ClassVar, Self
 
 from pydantic import (
     BaseModel,
@@ -35,6 +35,12 @@ LABEL_REQUIRED_FIELD_NAMES: tuple[str, ...] = ("namespace", "key")
 # Prefixes of the translated columns: one per language, e.g. label::fr, label_one::en.
 LABEL_COLUMN_PREFIX = "label::"
 LABEL_ONE_COLUMN_PREFIX = "label_one::"
+
+# Prefixes of the translated columns, by field.
+LABEL_COLUMN_PREFIX_BY_FIELD: dict[str, str] = {
+    "label": LABEL_COLUMN_PREFIX,
+    "label_one": LABEL_ONE_COLUMN_PREFIX,
+}
 
 
 class LabelDefinition(BaseModel):
@@ -74,10 +80,10 @@ class LabelDefinition(BaseModel):
         """Treat a blank/whitespace-only cell as an absent key, and gather the label::<language> and label_one::<language> columns."""
         if not isinstance(data, dict):
             return data
-        data = _collect_language_columns(
-            _strip_blanks(data), "label_one", LABEL_ONE_COLUMN_PREFIX
-        )
-        return _collect_language_columns(data, "label", LABEL_COLUMN_PREFIX)
+        data = _strip_blanks(data)
+        for field_name, column_prefix in LABEL_COLUMN_PREFIX_BY_FIELD.items():
+            data = _collect_language_columns(data, field_name, column_prefix)
+        return data
 
     # No default: a blank value here is a genuinely missing required value.
     namespace: str
@@ -121,6 +127,9 @@ class Labels(RootModel[list[LabelDefinition]]):
         problem, and the labels in another language than the survey languages, at once.
     """
 
+    # The name of this table, in its messages, and of the sheet it is read from.
+    table_name: ClassVar[str] = "Labels"
+
     @model_validator(mode="wrap")
     @classmethod
     def _collect_all_issues(cls, rows: Any, handler, info: ValidationInfo) -> Any:
@@ -131,19 +140,13 @@ class Labels(RootModel[list[LabelDefinition]]):
                 labels, issues = collect_sheet_issues(
                     rows=rows,
                     model=LabelDefinition,
-                    table_name="Labels",
+                    table_name=cls.table_name,
                     context=info.context,
                     # The rows check that no survey language is missing; this rule
                     # checks the other way, that no label is in another language
                     # (e.g. a label::fe typo), reported once for the sheet.
                     sheet_rules=[
-                        fields_in_survey_languages(
-                            info,
-                            {
-                                "label": LABEL_COLUMN_PREFIX,
-                                "label_one": LABEL_ONE_COLUMN_PREFIX,
-                            },
-                        )
+                        fields_in_survey_languages(info, LABEL_COLUMN_PREFIX_BY_FIELD)
                     ],
                 )
                 if issues:

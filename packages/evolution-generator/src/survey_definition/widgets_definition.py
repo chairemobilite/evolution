@@ -18,7 +18,7 @@
 
 import re
 from collections.abc import Iterator, Sequence
-from typing import Any, Literal, Self, get_args
+from typing import Any, ClassVar, Literal, Self, get_args
 
 from pydantic import (
     BaseModel,
@@ -58,6 +58,12 @@ WIDGET_REQUIRED_FIELD_NAMES: tuple[str, ...] = (
 # Prefixes of the translated columns: one per language, e.g. label::fr, label_one::en.
 WIDGET_LABEL_COLUMN_PREFIX = "label::"
 WIDGET_LABEL_ONE_COLUMN_PREFIX = "label_one::"
+
+# Prefixes of the translated columns, by field.
+WIDGET_COLUMN_PREFIX_BY_FIELD: dict[str, str] = {
+    "label": WIDGET_LABEL_COLUMN_PREFIX,
+    "label_one": WIDGET_LABEL_ONE_COLUMN_PREFIX,
+}
 
 # The widget types the generator writes (see generate_widgets.py::generate_widget_statement).
 WidgetInputType = Literal[
@@ -549,10 +555,9 @@ class WidgetDefinition(BaseModel):
         """Treat a blank/whitespace-only cell as an absent key, gather the label columns, and read the cells a spreadsheet may have changed (see below)."""
         if not isinstance(data, dict):
             return data
-        data = _collect_language_columns(
-            _strip_blanks(data), "label_one", WIDGET_LABEL_ONE_COLUMN_PREFIX
-        )
-        data = _collect_language_columns(data, "label", WIDGET_LABEL_COLUMN_PREFIX)
+        data = _strip_blanks(data)
+        for field_name, column_prefix in WIDGET_COLUMN_PREFIX_BY_FIELD.items():
+            data = _collect_language_columns(data, field_name, column_prefix)
         # A spreadsheet stores a value like 97 or 1.5 as a number.
         for field_name in ("custom_choice", "default_value", "comments"):
             value = data.get(field_name)
@@ -958,6 +963,9 @@ class Widgets(RootModel[list[WidgetDefinition]]):
     # section_names). None when built from something else than rows.
     _section_names: list[str] | None = PrivateAttr(default=None)
 
+    # The name of this table, in its messages, and of the sheet it is read from.
+    table_name: ClassVar[str] = "Widgets"
+
     @model_validator(mode="wrap")
     @classmethod
     def _collect_all_issues(cls, rows: Any, handler, info: ValidationInfo) -> Any:
@@ -969,7 +977,7 @@ class Widgets(RootModel[list[WidgetDefinition]]):
                 widgets, issues = collect_sheet_issues(
                     rows=rows,
                     model=WidgetDefinition,
-                    table_name="Widgets",
+                    table_name=cls.table_name,
                     context=info.context,
                     is_skipped=_is_inactive_row,
                     # The rows check that no survey language is missing; this rule
@@ -977,13 +985,7 @@ class Widgets(RootModel[list[WidgetDefinition]]):
                     # (e.g. a label::fe typo), reported once for the sheet.
                     sheet_rules=[
                         _unique_question_names,
-                        fields_in_survey_languages(
-                            info,
-                            {
-                                "label": WIDGET_LABEL_COLUMN_PREFIX,
-                                "label_one": WIDGET_LABEL_ONE_COLUMN_PREFIX,
-                            },
-                        ),
+                        fields_in_survey_languages(info, WIDGET_COLUMN_PREFIX_BY_FIELD),
                     ],
                 )
                 if issues:

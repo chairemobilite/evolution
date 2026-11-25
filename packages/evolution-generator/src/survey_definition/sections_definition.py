@@ -12,7 +12,7 @@
 # See survey_definition.py for the bundle of all tables.
 
 from collections.abc import Iterator
-from typing import Any, Self
+from typing import Any, ClassVar, Self
 
 from pydantic import (
     BaseModel,
@@ -50,6 +50,9 @@ SECTION_REQUIRED_FIELD_NAMES: tuple[str, ...] = (
 
 # Prefix of the title columns: one per survey language, e.g. title_fr, title_en.
 SECTION_TITLE_COLUMN_PREFIX = "title_"
+
+# Prefix of the translated columns, by field.
+SECTION_COLUMN_PREFIX_BY_FIELD: dict[str, str] = {"title": SECTION_TITLE_COLUMN_PREFIX}
 
 
 class SectionDefinition(BaseModel):
@@ -114,9 +117,10 @@ class SectionDefinition(BaseModel):
         """Treat a blank/whitespace-only cell as an absent key, and gather the title_<language> columns into `title`."""
         if not isinstance(data, dict):
             return data
-        return _collect_language_columns(
-            _strip_blanks(data), "title", SECTION_TITLE_COLUMN_PREFIX
-        )
+        data = _strip_blanks(data)
+        for field_name, column_prefix in SECTION_COLUMN_PREFIX_BY_FIELD.items():
+            data = _collect_language_columns(data, field_name, column_prefix)
+        return data
 
     # No default: a blank value here is a genuinely missing required value.
     section: str
@@ -199,6 +203,9 @@ class Sections(RootModel[list[SectionDefinition]]):
     SectionDefinition objects.
     """
 
+    # The name of this table, in its messages, and of the sheet it is read from.
+    table_name: ClassVar[str] = "Sections"
+
     @model_validator(mode="wrap")
     @classmethod
     def _collect_all_issues(cls, rows: Any, handler, info: ValidationInfo) -> Any:
@@ -214,13 +221,13 @@ class Sections(RootModel[list[SectionDefinition]]):
                 sections, issues = collect_sheet_issues(
                     rows=rows,
                     model=SectionDefinition,
-                    table_name="Sections",
+                    table_name=cls.table_name,
                     context=info.context,
                     sheet_rules=[
                         unique_field("section"),
                         unique_field("abbreviation"),
                         fields_in_survey_languages(
-                            info, {"title": SECTION_TITLE_COLUMN_PREFIX}
+                            info, SECTION_COLUMN_PREFIX_BY_FIELD
                         ),
                     ],
                 )

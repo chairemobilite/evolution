@@ -13,7 +13,7 @@
 # bundle of all tables, and scripts/generate_input_range.py for TypeScript generation.
 
 from collections.abc import Iterator
-from typing import Any, Literal, Self
+from typing import Any, ClassVar, Literal, Self
 
 from pydantic import (
     BaseModel,
@@ -197,6 +197,9 @@ class InputRanges(RootModel[list[InputRangeDefinition]]):
     to check it again.
     """
 
+    # The name of this table, in its messages, and of the sheet it is read from.
+    table_name: ClassVar[str] = "InputRange"
+
     @model_validator(mode="wrap")
     @classmethod
     def _collect_all_issues(cls, rows: Any, handler, info: ValidationInfo) -> Any:
@@ -208,7 +211,7 @@ class InputRanges(RootModel[list[InputRangeDefinition]]):
                 input_ranges, issues = collect_sheet_issues(
                     rows=rows,
                     model=InputRangeDefinition,
-                    table_name="InputRange",
+                    table_name=cls.table_name,
                     context=info.context,
                     # The rows check that no survey language is missing; this rule
                     # checks the other way, that no label or unit is in another

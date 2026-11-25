@@ -12,7 +12,7 @@
 # for TypeScript generation.
 
 from collections.abc import Iterator
-from typing import Any, Self
+from typing import Any, ClassVar, Self
 
 from pydantic import (
     BaseModel,
@@ -50,6 +50,12 @@ CHOICE_REQUIRED_FIELD_NAMES: tuple[str, ...] = (
 # Prefixes of the translated columns: one per language, e.g. label::fr, label_one::en.
 CHOICE_LABEL_COLUMN_PREFIX = "label::"
 CHOICE_LABEL_ONE_COLUMN_PREFIX = "label_one::"
+
+# Prefixes of the translated columns, by field.
+CHOICE_COLUMN_PREFIX_BY_FIELD: dict[str, str] = {
+    "label": CHOICE_LABEL_COLUMN_PREFIX,
+    "label_one": CHOICE_LABEL_ONE_COLUMN_PREFIX,
+}
 
 
 class ChoiceDefinition(BaseModel):
@@ -104,10 +110,10 @@ class ChoiceDefinition(BaseModel):
         """Treat a blank/whitespace-only cell as an absent key, and gather the label::<language> and label_one::<language> columns."""
         if not isinstance(data, dict):
             return data
-        data = _collect_language_columns(
-            _strip_blanks(data), "label_one", CHOICE_LABEL_ONE_COLUMN_PREFIX
-        )
-        return _collect_language_columns(data, "label", CHOICE_LABEL_COLUMN_PREFIX)
+        data = _strip_blanks(data)
+        for field_name, column_prefix in CHOICE_COLUMN_PREFIX_BY_FIELD.items():
+            data = _collect_language_columns(data, field_name, column_prefix)
+        return data
 
     # No default: a blank value here is a genuinely missing required value.
     choices_name: str = Field(alias="choicesName")
@@ -205,6 +211,9 @@ class Choices(RootModel[list[ChoiceDefinition]]):
     ChoiceDefinition objects.
     """
 
+    # The name of this table, in its messages, and of the sheet it is read from.
+    table_name: ClassVar[str] = "Choices"
+
     @model_validator(mode="wrap")
     @classmethod
     def _collect_all_issues(cls, rows: Any, handler, info: ValidationInfo) -> Any:
@@ -215,19 +224,13 @@ class Choices(RootModel[list[ChoiceDefinition]]):
                 choices, issues = collect_sheet_issues(
                     rows=rows,
                     model=ChoiceDefinition,
-                    table_name="Choices",
+                    table_name=cls.table_name,
                     context=info.context,
                     # The rows check that no survey language is missing; this rule
                     # checks the other way, that no label is in another language
                     # (e.g. a label::fe typo), reported once for the sheet.
                     sheet_rules=[
-                        fields_in_survey_languages(
-                            info,
-                            {
-                                "label": CHOICE_LABEL_COLUMN_PREFIX,
-                                "label_one": CHOICE_LABEL_ONE_COLUMN_PREFIX,
-                            },
-                        )
+                        fields_in_survey_languages(info, CHOICE_COLUMN_PREFIX_BY_FIELD)
                     ],
                 )
                 if issues:

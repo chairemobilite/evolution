@@ -11,7 +11,7 @@
 # bundle of all tables, and scripts/conditionals_generator.py for TypeScript generation.
 
 from collections.abc import Iterator
-from typing import Literal, Self
+from typing import ClassVar, Literal, Self
 
 from pydantic import (
     BaseModel,
@@ -159,6 +159,9 @@ class Conditionals(RootModel[list[ConditionalDefinition]]):
     ConditionalDefinition objects.
     """
 
+    # The name of this table, in its messages, and of the sheet it is read from.
+    table_name: ClassVar[str] = "Conditionals"
+
     @model_validator(mode="wrap")
     @classmethod
     def _collect_all_issues(cls, rows: object, handler, info: ValidationInfo) -> object:
@@ -170,7 +173,7 @@ class Conditionals(RootModel[list[ConditionalDefinition]]):
                 conditionals, issues = collect_sheet_issues(
                     rows=rows,
                     model=ConditionalDefinition,
-                    table_name="Conditionals",
+                    table_name=cls.table_name,
                     context=info.context,
                     sheet_rules=[],
                 )
