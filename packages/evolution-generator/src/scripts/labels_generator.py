@@ -171,6 +171,40 @@ class LabelsGenerator:
                         raise e
 
     @classmethod
+    def regenerate_labels_yaml_files(
+        cls,
+        labels_output_folder_path: str,
+        languages: tuple[str, ...],
+        namespace: str,
+        translations_by_language: dict[str, dict],
+    ):
+        """
+        Rewrite locales/<language>/<namespace>.yaml for each survey language from scratch.
+
+        The previous files are deleted first, so the keys of removed rows don't stay
+        behind, and a language without translations gets no file.
+
+        Args:
+            labels_output_folder_path: The survey's locales folder.
+            languages: The survey languages.
+            namespace: The locales namespace, e.g. 'choices'.
+            translations_by_language: For each language, the YAML values by their
+                dot-separated key in the namespace, e.g. {'fr': {'home.title': 'Domicile'}}.
+        """
+        cls.delete_all_labels_yaml_files(
+            labels_output_folder_path=labels_output_folder_path,
+            languages=list(languages),
+            sections=[namespace],
+        )
+        for language in languages:
+            cls.save_translations(
+                language,
+                namespace,
+                labels_output_folder_path,
+                {namespace: translations_by_language.get(language, {})},
+            )
+
+    @classmethod
     def add_translation(
         cls, language, section, labelKey, value, rowNumber, translations
     ):
@@ -457,58 +491,37 @@ class LabelsGenerator:
         ]
 
     @classmethod
-    def add_translations(
+    def add_label_rows_translations(
         cls,
         label_rows: list[LabelRow],
-        labels_output_folder_path,
         languages: tuple[str, ...],
+        translations_dict: dict[str, dict],
     ):
         """
-        Adds the translations of `label_rows` to the appropriate YAML files.
+        Adds the translations of `label_rows`, formatted and with their gender context
+        expanded, to `translations_dict`.
 
         Args:
-            label_rows (list[LabelRow]): The rows of one table, in source order.
-            labels_output_folder_path (str): The output folder path for the labels.
+            label_rows (list[LabelRow]): The rows to add, in source order.
             languages (tuple of str): The survey languages.
+            translations_dict (dict): The translations to update, by language, then
+                namespace, then dot-separated key.
         """
-        try:
-            processed_sections = set()  # Track processed sections
-            # Store translations for each language
-            translations_dict = {language: {} for language in languages}
-
-            for label_row in label_rows:
-                section = label_row.namespace
-                processed_sections.add(section)
-
-                # Add the translations of each language, expanding the gender context
-                for language in languages:
-                    label = label_row.label.get(language)
-                    label_one = label_row.label_one.get(language)
-                    for text, extra_suffix in ((label, ""), (label_one, "_one")):
-                        cls.add_gender_or_base_translations(
-                            language,
-                            section,
-                            label_row.key,
-                            cls.expand_gender(text),
-                            text,
-                            extra_suffix,
-                            label_row.row_number,
-                            translations_dict,
-                        )
-
-            # Save all translations
-            for language, translations in translations_dict.items():
-                for section in processed_sections:
-                    cls.save_translations(
+        for label_row in label_rows:
+            for language in languages:
+                label = label_row.label.get(language)
+                label_one = label_row.label_one.get(language)
+                for text, extra_suffix in ((label, ""), (label_one, "_one")):
+                    cls.add_gender_or_base_translations(
                         language,
-                        section,
-                        labels_output_folder_path,
-                        translations,
+                        label_row.namespace,
+                        label_row.key,
+                        cls.expand_gender(text),
+                        text,
+                        extra_suffix,
+                        label_row.row_number,
+                        translations_dict,
                     )
-
-        except Exception as e:
-            print(f"Exception occurred in add_translations: {e}")
-            raise e
 
     @staticmethod
     def split_respecting_quotes(text, delimiter="/"):
@@ -685,57 +698,26 @@ class LabelsGenerator:
                 a[k] = v
         return a
 
-    # Function to generate the labels locales files
     @classmethod
-    def generate_labels(
-        cls,
-        survey_definition: SurveyDefinition,
-        labels_output_folder_path,
-    ):
+    def label_rows(cls, survey_definition: SurveyDefinition) -> list[LabelRow]:
+        """The rows of the survey definition's Widgets, then Labels tables, in source order."""
+        return cls.label_rows_from_widgets(
+            survey_definition.widgets
+        ) + cls.label_rows_from_labels(survey_definition.labels)
+
+    @classmethod
+    def labels_namespaces(cls, survey_definition: SurveyDefinition) -> set[str]:
         """
-        Generates the labels locales files, in the survey languages, from the survey
-        definition's Widgets and Labels tables.
-
-        This function:
-        1. Collects all unique namespaces from both tables.
-        2. Deletes all YAML files for all namespaces/languages once before any processing.
-        3. Processes each table, merging translations into the same YAML files per namespace/language.
-
-        Args:
-            survey_definition (SurveyDefinition): The already-validated survey definition.
-            labels_output_folder_path (str): The output folder path for the labels.
+        The namespaces the Widgets and Labels tables write to, with the sections of the
+        inactive widgets: their old labels are deleted too.
         """
-        try:
-            languages = survey_definition.languages
-            label_rows_by_table = [
-                cls.label_rows_from_widgets(survey_definition.widgets),
-                cls.label_rows_from_labels(survey_definition.labels),
-            ]
-
-            # Step 1: Collect all unique namespaces from both tables, with the sections
-            # of the inactive widgets: their old labels are deleted too.
-            known_sections = {section.section for section in survey_definition.sections}
-            all_sections = {
-                label_row.namespace
-                for label_rows in label_rows_by_table
-                for label_row in label_rows
-                if label_row.namespace
-            } | {
-                section
-                for section in survey_definition.widgets.section_names()
-                if section in known_sections
-            }
-
-            # Step 2: Delete all YAML files for all sections/languages ONCE before any processing
-            cls.delete_all_labels_yaml_files(
-                labels_output_folder_path,
-                list(languages),
-                all_sections,
-            )
-
-            # Step 3: Process each table and merge translations into the same files
-            for label_rows in label_rows_by_table:
-                cls.add_translations(label_rows, labels_output_folder_path, languages)
-        except Exception as e:
-            print(f"An error occurred: {e}")
-            raise e
+        known_sections = {section.section for section in survey_definition.sections}
+        return {
+            label_row.namespace
+            for label_row in cls.label_rows(survey_definition)
+            if label_row.namespace
+        } | {
+            section
+            for section in survey_definition.widgets.section_names()
+            if section in known_sections
+        }

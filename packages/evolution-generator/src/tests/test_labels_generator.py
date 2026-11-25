@@ -2,6 +2,7 @@
 # This file is licensed under the MIT License.
 # License text available at https://opensource.org/licenses/MIT
 
+import os
 from typing import NamedTuple
 
 from helpers.generator_helpers import add_generator_yaml_header
@@ -137,66 +138,8 @@ def _survey_definition(languages, widgets=(), labels=()) -> SurveyDefinition:
     )
 
 
-class TestGenerateLabels:
-    """Tests for generate_labels, from the Widgets and Labels tables of the survey definition"""
-
-    @pytest.fixture
-    def saved_translations(self, monkeypatch):
-        """Record each save_translations call, as (language, section, translations), instead of writing files."""
-        calls = []
-        monkeypatch.setattr(
-            "scripts.labels_generator.LabelsGenerator.save_translations",
-            lambda language, section, folder, translations: calls.append(
-                (language, section, translations)
-            ),
-        )
-        return calls
-
-    def test_reads_the_widgets_labels_from_the_survey_definition(
-        self, saved_translations, tmp_path
-    ):
-        survey_definition = _survey_definition(
-            ("fr", "en"),
-            widgets=[
-                _widget(
-                    "section1",
-                    "section1Question1",
-                    **{"label::fr": "personne", "label::en": "person"},
-                ),
-                _widget(
-                    "section1",
-                    "section1Question2",
-                    **{"label::fr": "une question", "label::en": "a question"},
-                ),
-                _widget(
-                    "section2",
-                    "section2Question1",
-                    **{"label::fr": "une autre", "label::en": "another"},
-                ),
-            ],
-        )
-        LabelsGenerator.generate_labels(survey_definition, str(tmp_path / "locales"))
-
-        expected_fr = {
-            "section1": {
-                "section1Question1": "personne",
-                "section1Question2": "une question",
-            },
-            "section2": {"section2Question1": "une autre"},
-        }
-        expected_en = {
-            "section1": {
-                "section1Question1": "person",
-                "section1Question2": "a question",
-            },
-            "section2": {"section2Question1": "another"},
-        }
-        assert sorted(saved_translations) == [
-            ("en", "section1", expected_en),
-            ("en", "section2", expected_en),
-            ("fr", "section1", expected_fr),
-            ("fr", "section2", expected_fr),
-        ]
+class TestLabelRows:
+    """Tests for the label rows of the Widgets and Labels tables of the survey definition, and their namespaces"""
 
     def test_widgets_label_rows_have_their_row_numbers(self):
         """The row numbers, used in the warnings, are the Widgets table's: the first widget is in row 2."""
@@ -268,139 +211,20 @@ class TestGenerateLabels:
             (4, "question2"),
         ]
 
-    def test_reads_the_labels_from_the_survey_definition(
-        self, saved_translations, tmp_path
-    ):
-        survey_definition = SurveyDefinition(
-            languages=("fr", "en"),
-            labels=[
-                {
-                    "namespace": "home",
-                    "key": "some.path",
-                    "label::fr": "personne",
-                    "label::en": "person",
-                    "label_one::fr": "une personne",
-                    "label_one::en": "one person",
-                },
-                {
-                    "namespace": "end",
-                    "key": "thanks",
-                    "label::fr": "Merci",
-                    "label::en": "Thanks",
-                },
-            ],
-        )
-        LabelsGenerator.generate_labels(survey_definition, str(tmp_path / "locales"))
-
-        expected_fr = {
-            "home": {"some.path": "personne", "some.path_one": "une personne"},
-            "end": {"thanks": "Merci"},
-        }
-        expected_en = {
-            "home": {"some.path": "person", "some.path_one": "one person"},
-            "end": {"thanks": "Thanks"},
-        }
-        assert sorted(saved_translations) == [
-            ("en", "end", expected_en),
-            ("en", "home", expected_en),
-            ("fr", "end", expected_fr),
-            ("fr", "home", expected_fr),
-        ]
-
-    def test_generates_a_translation_per_survey_language(
-        self, saved_translations, tmp_path
-    ):
-        """Each survey language reads its own label::<language> column."""
-        survey_definition = _survey_definition(
-            ("es", "en"),
-            widgets=[
-                _widget(
-                    "home",
-                    "carCount",
-                    **{
-                        "label::es": "¿Cuántos?",
-                        "label::en": "How many?",
-                        "label_one::es": "¿Cuántos tienes?",
-                        "label_one::en": "How many do you have?",
-                    },
-                )
-            ],
-        )
-        LabelsGenerator.generate_labels(survey_definition, str(tmp_path / "locales"))
-
-        assert sorted(saved_translations) == [
-            (
-                "en",
-                "home",
-                {
-                    "home": {
-                        "carCount": "How many?",
-                        "carCount_one": "How many do you have?",
-                    }
-                },
-            ),
-            (
-                "es",
-                "home",
-                {
-                    "home": {
-                        "carCount": "¿Cuántos?",
-                        "carCount_one": "¿Cuántos tienes?",
-                    }
-                },
-            ),
-        ]
-
-    def test_deletes_the_files_of_every_namespace_once(self, monkeypatch, tmp_path):
-        """The Widgets and Labels namespaces are deleted together, before any is written."""
-        events = []
-        monkeypatch.setattr(
-            "scripts.labels_generator.LabelsGenerator.delete_all_labels_yaml_files",
-            lambda folder, languages, sections: events.append(
-                ("delete", languages, sorted(sections))
-            ),
-        )
-        monkeypatch.setattr(
-            "scripts.labels_generator.LabelsGenerator.save_translations",
-            lambda language, section, folder, translations: events.append(
-                ("save", language, section)
-            ),
-        )
-        survey_definition = _survey_definition(
-            ("fr", "en"),
-            widgets=[
-                _widget("home", "q1", **{"label::fr": "Q1 fr", "label::en": "Q1 en"})
-            ],
-            labels=[
-                {
-                    "namespace": "end",
-                    "key": "thanks",
-                    "label::fr": "Merci",
-                    "label::en": "Thanks",
-                }
-            ],
-        )
-        LabelsGenerator.generate_labels(survey_definition, str(tmp_path / "locales"))
-
-        assert events[0] == ("delete", ["fr", "en"], ["end", "home"])
-        assert [event[0] for event in events[1:]] == ["save"] * 4
-
-    def test_deletes_the_files_of_a_namespace_whose_widgets_are_all_inactive(
-        self, monkeypatch, tmp_path
-    ):
-        """A section whose widgets were all made inactive loses the labels written before."""
-        deleted = []
-        monkeypatch.setattr(
-            "scripts.labels_generator.LabelsGenerator.delete_all_labels_yaml_files",
-            lambda folder, languages, sections: deleted.extend(sorted(sections)),
-        )
+    def test_labels_namespaces_are_the_widgets_and_labels_ones(self):
+        """With the sections whose widgets are all inactive: their old labels are deleted too."""
         old = {**_widget("end", "q2", **{"label::fr": "Q2 fr"}), "active": False}
         survey_definition = _survey_definition(
-            ("fr",), widgets=[_widget("home", "q1", **{"label::fr": "Q1 fr"}), old]
+            ("fr",),
+            widgets=[_widget("home", "q1", **{"label::fr": "Q1 fr"}), old],
+            labels=[{"namespace": "choices", "key": "other", "label::fr": "Autre"}],
         )
-        LabelsGenerator.generate_labels(survey_definition, str(tmp_path / "locales"))
 
-        assert deleted == ["end", "home"]
+        assert LabelsGenerator.labels_namespaces(survey_definition) == {
+            "choices",
+            "end",
+            "home",
+        }
 
 
 class TestAddGenderOrBaseTranslations:
@@ -1338,6 +1162,57 @@ class TestSaveTranslations:
             section=section,
         )
         assert not (tmp_path / "locales" / "fr" / "home.yaml").exists()
+
+
+class TestRegenerateLabelsYamlFiles:
+    """Tests for regenerate_labels_yaml_files"""
+
+    def test_rewrites_each_language_file_without_the_previous_keys(self, tmp_path):
+        labels_output_folder_path = str(tmp_path / "locales")
+        # A previous generation wrote a key that is now removed
+        LabelsGenerator.regenerate_labels_yaml_files(
+            labels_output_folder_path,
+            ("fr", "en"),
+            "choices",
+            {"fr": {"yesNo.old": "Ancien"}, "en": {"yesNo.old": "Old"}},
+        )
+
+        LabelsGenerator.regenerate_labels_yaml_files(
+            labels_output_folder_path,
+            ("fr", "en"),
+            "choices",
+            {"fr": {"yesNo.yes": "Oui"}, "en": {"yesNo.yes": "Yes"}},
+        )
+
+        for language, label in (("fr", "Oui"), ("en", "Yes")):
+            file_path = LabelsGenerator.get_labels_file_path(
+                labels_output_folder_path, language, "choices"
+            )
+            with open(file_path, "r", encoding="utf-8") as f:
+                content = f.read()
+            assert content.startswith(add_generator_yaml_header())
+            assert f"\nyesNo:\n    yes: {label}\n" in content
+            assert "old" not in content
+
+    def test_writes_no_file_for_a_language_without_translations(self, tmp_path):
+        labels_output_folder_path = str(tmp_path / "locales")
+        LabelsGenerator.regenerate_labels_yaml_files(
+            labels_output_folder_path,
+            ("fr", "en"),
+            "choices",
+            {"fr": {"yesNo.yes": "Oui"}},
+        )
+
+        assert os.path.exists(
+            LabelsGenerator.get_labels_file_path(
+                labels_output_folder_path, "fr", "choices"
+            )
+        )
+        assert not os.path.exists(
+            LabelsGenerator.get_labels_file_path(
+                labels_output_folder_path, "en", "choices"
+            )
+        )
 
 
 # TODO: test add_translation

@@ -9,6 +9,7 @@ from helpers.generator_helpers import (
     add_generator_comment,
 )
 from scripts.labels_generator import LabelsGenerator
+from survey_definition.sections_definition import SECTION_TITLES_NAMESPACE
 from survey_definition.survey_definition import SurveyDefinition
 import os
 import shutil
@@ -27,12 +28,6 @@ def _section_conditional_ts_expression(name: str) -> str:
     return f"conditionals.{name}"
 
 
-# Translations namespace of the section titles, named after the sectionConfigs.ts files
-# that read them so no other namespace reuses it: locales/<language>/sectionConfigs.yaml,
-# holding `<section>.title` for each section that has a title.
-SECTION_TITLES_NAMESPACE = "sectionConfigs"
-
-
 def _section_has_titles(section_definition, languages: tuple[str, ...]) -> bool:
     """
     Whether a section has a title in every survey language: only then does it get a
@@ -46,60 +41,41 @@ def _section_title_ts(section: str) -> str:
     return f"(t: TFunction) => t('{SECTION_TITLES_NAMESPACE}:{section}.title')"
 
 
-def _generate_section_titles_locales(
-    survey_definition: SurveyDefinition, labels_output_folder_path: str
-):
+def section_titles_translations(survey_definition: SurveyDefinition) -> dict[str, dict]:
     """
-    Write locales/<language>/sectionConfigs.yaml for each survey language, with the title of
-    every section that has one:
+    The titles of the sections, for locales/<language>/sectionConfigs.yaml: for each
+    survey language, the YAML values by their dot-separated key in the sectionConfigs
+    namespace, for every section that has a title:
 
         <section>:
             title: <title>
     """
     languages = survey_definition.languages
-    translations_dict = {
-        language: {SECTION_TITLES_NAMESPACE: {}} for language in languages
-    }
+    translations_by_language: dict[str, dict] = {language: {} for language in languages}
     for section_definition in survey_definition.sections:
         if not _section_has_titles(section_definition, languages):
             continue
         for language in languages:
-            translations_dict[language][SECTION_TITLES_NAMESPACE][
+            translations_by_language[language][
                 f"{section_definition.section}.title"
             ] = LabelsGenerator.string_to_yaml(section_definition.title[language])
-
-    # Delete existing files first to avoid stale keys if some sections are removed
-    LabelsGenerator.delete_all_labels_yaml_files(
-        labels_output_folder_path=labels_output_folder_path,
-        languages=list(languages),
-        sections=[SECTION_TITLES_NAMESPACE],
-    )
-    for language, translations in translations_dict.items():
-        LabelsGenerator.save_translations(
-            language,
-            SECTION_TITLES_NAMESPACE,
-            labels_output_folder_path,
-            translations,
-        )
+    return translations_by_language
 
 
 # Function to generate sectionConfigs.ts for each section
 def generate_section_configs(
     survey_definition: SurveyDefinition,
     section_config_output_folder: str,
-    labels_output_folder_path: str | None = None,
 ):
     """
-    Write sectionConfigs.ts in each section's folder and, when
-    `labels_output_folder_path` is given, the section titles in
-    locales/<language>/sectionConfigs.yaml (read by the titles of sectionConfigs.ts).
+    Write sectionConfigs.ts in each section's folder. Their titles are written in
+    locales/<language>/sectionConfigs.yaml by generate_locales.py (see
+    section_titles_translations).
 
     Args:
         survey_definition: Already-validated survey definition, read for its
             Sections table and its languages.
         section_config_output_folder: Folder holding one folder per section.
-        labels_output_folder_path: The survey's locales folder, or None to skip the
-            titles' translations.
     """
     try:
         sections = survey_definition.sections
@@ -317,12 +293,6 @@ def generate_section_configs(
 
             # Update previousSection with the current section
             previousSection = section
-
-        # Generate locales/<language>/sectionConfigs.yaml with the section titles
-        if labels_output_folder_path is not None:
-            _generate_section_titles_locales(
-                survey_definition, labels_output_folder_path
-            )
 
     except Exception as e:
         # Handle any other exceptions that might occur during script execution

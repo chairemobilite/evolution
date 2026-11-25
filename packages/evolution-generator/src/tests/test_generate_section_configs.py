@@ -13,6 +13,8 @@ from scripts.generate_section_configs import (
     _section_conditional_ts_expression,
     generate_section_configs,
 )
+from scripts.generate_locales import generate_locales
+from survey_definition.sections_definition import SECTION_TITLES_NAMESPACE
 from survey_definition.survey_definition import SurveyDefinition
 
 IND = INDENT
@@ -253,11 +255,8 @@ def test_generate_section_configs_writes_the_titles_as_translations(
         (tmp_path / "sections" / section).mkdir(parents=True)
     locales = tmp_path / "locales"
 
-    generate_section_configs(
-        survey_definition,
-        str(tmp_path / "sections"),
-        labels_output_folder_path=str(locales),
-    )
+    generate_section_configs(survey_definition, str(tmp_path / "sections"))
+    generate_locales(survey_definition, str(locales), [SECTION_TITLES_NAMESPACE])
 
     generated = (tmp_path / "sections" / "home" / "sectionConfigs.ts").read_text(
         encoding="utf-8"
@@ -307,9 +306,8 @@ def test_generate_section_configs_replaces_stale_section_titles(tmp_path: Path) 
         ],
     )
 
-    generate_section_configs(
-        survey_definition, str(tmp_path), labels_output_folder_path=str(locales)
-    )
+    generate_section_configs(survey_definition, str(tmp_path))
+    generate_locales(survey_definition, str(locales), [SECTION_TITLES_NAMESPACE])
 
     french = (locales / "fr" / "sectionConfigs.yaml").read_text(encoding="utf-8")
     assert "removed" not in french

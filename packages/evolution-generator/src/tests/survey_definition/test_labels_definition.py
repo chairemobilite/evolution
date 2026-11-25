@@ -9,6 +9,7 @@ import pytest  # pyright: ignore[reportMissingImports]
 from pydantic import ValidationError
 
 from survey_definition.labels_definition import LabelDefinition, Labels
+from tests.parametrize_cases import cases
 
 
 def _labels(rows) -> Labels:
@@ -75,6 +76,14 @@ class TestLabels:
             "Error in Labels - Required field is missing in row 2. "
             "Missing fields: ['namespace', 'key', 'label']"
         ]
+
+    @cases(
+        dict(id="section namespace", namespace="household"),
+        dict(id="namespace generated from the Choices sheet", namespace="choices"),
+    )
+    def test_namespace_is_accepted(self, namespace):
+        """A generated namespace is written with its Labels rows (see generate_locales.py)."""
+        assert _labels([_row(namespace=namespace)]).root[0].namespace == namespace
 
     def test_namespace_and_key_must_be_text(self):
         assert _issues([_row(namespace=1, key=2)]) == [

@@ -52,6 +52,10 @@ CHOICE_REQUIRED_FIELD_NAMES: tuple[str, ...] = (
 CHOICE_LABEL_COLUMN_PREFIX = "label::"
 CHOICE_LABEL_ONE_COLUMN_PREFIX = "label_one::"
 
+# The locales namespace of the choice labels: locales/<language>/choices.yaml, written
+# by scripts/generate_choices.py. The Labels sheet can't use it.
+CHOICES_LOCALES_NAMESPACE = "choices"
+
 
 class ChoiceDefinition(BaseModel):
     """

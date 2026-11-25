@@ -602,6 +602,8 @@ In the context of your survey logic, labels play a crucial role in presenting qu
 | label_one::fr | French label for one person           | string |
 | label_one::en | English label for one person          | string |
 
+> **Note:** A label can add a key to any namespace, including a section's (e.g. `household`, next to the widget labels) or one generated from another sheet (`choices`, `sectionConfigs`). Each locales file is rewritten whole with the translations of every sheet, whichever script runs (e.g. `--only choices` or `--only labels`). A key the other sheet already generates, or that would contain or be inside one of its keys (e.g. `yesNo` when the Choices sheet generates `yesNo.yes`), is refused.
+
 ### Labels Example
 
 In this example, we define a label for the question `introduction.whichOrganization`. Labels are used to present questions to respondents in different languages. In this case, we provide translations for both French and English, as well as special labels for the one-person case. The text within the double asterisks `**` will be displayed in bold. The corresponding YAML output for the English translation is also shown.

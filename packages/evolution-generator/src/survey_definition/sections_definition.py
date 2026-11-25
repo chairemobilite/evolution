@@ -56,6 +56,12 @@ _SECTION_BOOLEAN_FIELD_NAMES = ("in_nav", "template", "has_preload")
 # Prefix of the title columns: one per survey language, e.g. title_fr, title_en.
 SECTION_TITLE_COLUMN_PREFIX = "title_"
 
+# The locales namespace of the section titles, named after the sectionConfigs.ts files
+# that read them: locales/<language>/sectionConfigs.yaml, holding `<section>.title` for
+# each section that has a title, written by scripts/generate_section_configs.py. The
+# Labels sheet can't use it.
+SECTION_TITLES_NAMESPACE = "sectionConfigs"
+
 
 class SectionDefinition(BaseModel):
     """
