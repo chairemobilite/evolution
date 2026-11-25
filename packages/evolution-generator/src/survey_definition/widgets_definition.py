@@ -17,7 +17,7 @@
 # for TypeScript generation.
 
 import re
-from collections.abc import Iterator, Sequence
+from collections.abc import Sequence
 from typing import Any, Literal, Self, get_args
 
 from pydantic import (
@@ -25,7 +25,6 @@ from pydantic import (
     ConfigDict,
     Field,
     PrivateAttr,
-    RootModel,
     ValidationInfo,
     field_validator,
     model_validator,
@@ -43,6 +42,7 @@ from survey_definition.sheet_checks import (
     collect_sheet_issues,
     fields_in_survey_languages,
 )
+from survey_definition.survey_table import SurveyTable
 from survey_definition.validation_context import context_languages
 
 # Field names the Widgets source must provide: the ones every row needs a value for.
@@ -914,7 +914,7 @@ def _unique_question_names(
     return issues
 
 
-class Widgets(RootModel[list[WidgetDefinition]]):
+class Widgets(SurveyTable[WidgetDefinition]):
     """
     The whole Widgets sheet: a list of WidgetDefinition that has passed every check,
     the ones on each row and the ones across rows (see _collect_all_issues).
@@ -1134,15 +1134,6 @@ class Widgets(RootModel[list[WidgetDefinition]]):
             for row_number, widget in self.numbered()
             for warning in widget.warnings
         ]
-
-    def __iter__(self) -> Iterator[WidgetDefinition]:  # type: ignore[override]
-        return iter(self.root)
-
-    def __len__(self) -> int:
-        return len(self.root)
-
-    def __getitem__(self, index: int) -> WidgetDefinition:
-        return self.root[index]
 
 
 def _widget_key(row: Any) -> tuple[Any, Any]:

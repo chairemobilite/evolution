@@ -10,13 +10,11 @@
 # This module only defines the shape and the checks. See survey_definition.py for the
 # bundle of all tables, and scripts/conditionals_generator.py for TypeScript generation.
 
-from collections.abc import Iterator
 from typing import Literal, Self
 
 from pydantic import (
     BaseModel,
     ConfigDict,
-    RootModel,
     ValidationInfo,
     field_validator,
     model_validator,
@@ -25,6 +23,7 @@ from pydantic import (
 from survey_definition import field_checks
 from survey_definition.row_checks import _raise_if_check_fails, _strip_blanks
 from survey_definition.sheet_checks import collect_sheet_issues
+from survey_definition.survey_table import SurveyTable
 
 # Field names the Conditionals source must provide, even though logical_operator and
 # parentheses may be blank on a given row. value_when_hidden is left out: unlike those
@@ -141,7 +140,7 @@ class ConditionalDefinition(BaseModel):
         return value
 
 
-class Conditionals(RootModel[list[ConditionalDefinition]]):
+class Conditionals(SurveyTable[ConditionalDefinition]):
     """
     The whole Conditionals sheet: a list of ConditionalDefinition that has passed every
     check, the ones on each row and the ones across rows of the same conditional_name
@@ -282,12 +281,3 @@ class Conditionals(RootModel[list[ConditionalDefinition]]):
         for conditional in self.root:
             groups.setdefault(conditional.conditional_name, []).append(conditional)
         return groups
-
-    def __iter__(self) -> Iterator[ConditionalDefinition]:  # type: ignore[override]
-        return iter(self.root)
-
-    def __len__(self) -> int:
-        return len(self.root)
-
-    def __getitem__(self, index: int) -> ConditionalDefinition:
-        return self.root[index]

@@ -31,6 +31,7 @@ from survey_definition.conditionals_definition import Conditionals
 from survey_definition.input_range_definition import InputRanges
 from survey_definition.labels_definition import Labels
 from survey_definition.sections_definition import Sections
+from survey_definition.survey_table import SurveyTable
 from survey_definition.widgets_definition import Widgets
 
 # A language code: two lowercase letters, optionally followed by a region, e.g. 'fr' or
@@ -223,10 +224,15 @@ class SurveyDefinition(BaseModel):
 
     def warnings(self) -> list[str]:
         """
-        The problems that don't reject the survey definition, e.g. a widget column its
-        input type doesn't use (see Widgets.warnings).
+        The problems that don't reject the survey definition: the warnings of each of
+        its tables, in the order the tables are declared (see SurveyTable.warnings).
         """
-        return self.widgets.warnings()
+        return [
+            warning
+            for field_name in type(self).model_fields
+            if isinstance(table := getattr(self, field_name), SurveyTable)
+            for warning in table.warnings()
+        ]
 
 
 def _validated_table[T: BaseModel](

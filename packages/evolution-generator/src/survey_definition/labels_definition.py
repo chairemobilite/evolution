@@ -10,13 +10,11 @@
 # See survey_definition.py for the bundle of all tables, and scripts/labels_generator.py
 # for the YAML generation.
 
-from collections.abc import Iterator
 from typing import Any, Self
 
 from pydantic import (
     BaseModel,
     ConfigDict,
-    RootModel,
     ValidationInfo,
     model_validator,
 )
@@ -26,6 +24,7 @@ from survey_definition.sheet_checks import (
     collect_sheet_issues,
     fields_in_survey_languages,
 )
+from survey_definition.survey_table import SurveyTable
 from survey_definition.validation_context import context_languages
 
 # Field names the Labels source must provide. The label columns (one per language)
@@ -108,7 +107,7 @@ class LabelDefinition(BaseModel):
         return self
 
 
-class Labels(RootModel[list[LabelDefinition]]):
+class Labels(SurveyTable[LabelDefinition]):
     """
     The whole Labels sheet: a list of LabelDefinition that has passed every check.
 
@@ -150,12 +149,3 @@ class Labels(RootModel[list[LabelDefinition]]):
                     raise ValueError("\n".join(issues))
                 return handler(labels)
         return handler(rows)
-
-    def __iter__(self) -> Iterator[LabelDefinition]:  # type: ignore[override]
-        return iter(self.root)
-
-    def __len__(self) -> int:
-        return len(self.root)
-
-    def __getitem__(self, index: int) -> LabelDefinition:
-        return self.root[index]
