@@ -15,9 +15,11 @@
 from collections.abc import Callable, Iterable
 
 from scripts.generate_choices import choices_translations
+from scripts.generate_input_range import input_range_translations
 from scripts.generate_section_configs import section_titles_translations
 from scripts.labels_generator import LabelRow, LabelsGenerator
 from survey_definition.choices_definition import CHOICES_LOCALES_NAMESPACE
+from survey_definition.input_range_definition import INPUT_RANGE_LOCALES_NAMESPACE
 from survey_definition.sections_definition import SECTION_TITLES_NAMESPACE
 from survey_definition.survey_definition import SurveyDefinition
 
@@ -29,6 +31,7 @@ GENERATED_NAMESPACES: dict[
 ] = {
     CHOICES_LOCALES_NAMESPACE: ("Choices", choices_translations),
     SECTION_TITLES_NAMESPACE: ("Sections", section_titles_translations),
+    INPUT_RANGE_LOCALES_NAMESPACE: ("InputRange", input_range_translations),
 }
 
 

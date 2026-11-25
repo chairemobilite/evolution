@@ -30,6 +30,7 @@ from scripts.generate_questionnaire_list import generate_questionnaire_list
 from scripts.generate_questionnaire_dictionary import generate_questionnaire_dictionary
 from scripts.conditionals_generator import ConditionalsGenerator
 from survey_definition.choices_definition import CHOICES_LOCALES_NAMESPACE
+from survey_definition.input_range_definition import INPUT_RANGE_LOCALES_NAMESPACE
 from survey_definition.sections_definition import SECTION_TITLES_NAMESPACE
 
 # Supported script aliases for the --only argument, mapping to the actual script
@@ -245,6 +246,7 @@ def generate_survey(config_path, only_scripts=None):
             survey_folder_path, "src", "survey", "common", "inputRange.tsx"
         )
         generate_input_range(survey_definition, input_range_output_file_path)
+        locales_namespaces.add(INPUT_RANGE_LOCALES_NAMESPACE)
 
     # The Widgets and Labels tables write to their own namespaces, and to the
     # generated ones above

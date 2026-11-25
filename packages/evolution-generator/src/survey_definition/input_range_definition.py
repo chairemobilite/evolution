@@ -68,6 +68,10 @@ InputRangeColor = Literal[
 ]
 INPUT_RANGE_DEFAULT_COLOR: InputRangeColor = "blue"
 
+# The locales namespace of the labels and units: locales/<language>/inputRange.yaml,
+# written by scripts/generate_input_range.py. The Labels sheet can't use it.
+INPUT_RANGE_LOCALES_NAMESPACE = "inputRange"
+
 
 class InputRangeDefinition(BaseModel):
     """

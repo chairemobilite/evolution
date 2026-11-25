@@ -10,6 +10,7 @@ import ruamel.yaml
 from scripts.generate_locales import generate_locales
 from scripts.labels_generator import LabelsGenerator
 from survey_definition.choices_definition import CHOICES_LOCALES_NAMESPACE
+from survey_definition.input_range_definition import INPUT_RANGE_LOCALES_NAMESPACE
 from survey_definition.sections_definition import SECTION_TITLES_NAMESPACE
 from survey_definition.survey_definition import SurveyDefinition
 from tests.parametrize_cases import cases
@@ -207,6 +208,27 @@ GENERATED_NAMESPACE_CASES = (
             ]
         },
         generated={"home": {"title": "Domicile"}},
+    ),
+    dict(
+        id="inputRange",
+        namespace=INPUT_RANGE_LOCALES_NAMESPACE,
+        tables={
+            "input_ranges": [
+                {
+                    "input_range_name": "confidentInputRange",
+                    "label_min::fr": "Pas du tout",
+                    "label_max::fr": "Tout à fait",
+                    "min_value": 0,
+                    "max_value": 100,
+                }
+            ]
+        },
+        generated={
+            "confidentInputRange": {
+                "label_min": "Pas du tout",
+                "label_max": "Tout à fait",
+            }
+        },
     ),
 )
 
