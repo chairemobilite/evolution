@@ -2,7 +2,7 @@
 # This file is licensed under the MIT License.
 # License text available at https://opensource.org/licenses/MIT
 
-# Note: Tests for scripts/generate_survey.py's Excel integrity/loading entry points.
+# Note: Tests for scripts/generate_survey.py's survey definition integrity/loading entry points.
 
 import filecmp
 import os
@@ -27,9 +27,8 @@ from scripts.excel_to_csv_generator import (
 )
 from scripts.generator_config import GeneratorConfigError
 from scripts.generate_survey import (
-    check_excel_integrity,
-    check_excel_integrity_with_messages,
-    check_excel_integrity_with_warnings,
+    check_survey_definition_integrity,
+    check_survey_definition_integrity_with_warnings,
     create_survey_definition_reader,
     generate_survey,
     verify_excel_cli_main,
@@ -122,6 +121,12 @@ def _create_workbook(
         )
 
 
+def _check_integrity_errors(source_path) -> tuple[bool, list[str]]:
+    """The result of check_survey_definition_integrity_with_warnings, without the warnings."""
+    ok, errors, _ = check_survey_definition_integrity_with_warnings(source_path)
+    return ok, errors
+
+
 class TestCreateSurveyDefinitionReader:
     def test_creates_a_csv_reader_for_a_folder(self, tmp_path):
         assert isinstance(
@@ -149,16 +154,16 @@ class TestCreateSurveyDefinitionReader:
             create_survey_definition_reader(source_path)
 
 
-class TestCheckExcelIntegrityWithMessages:
+class TestCheckSurveyDefinitionIntegrityErrors:
     def test_valid_file_returns_true(self):
         _create_workbook(input_range_rows=VALID_INPUT_RANGE_ROWS)
         try:
-            assert check_excel_integrity_with_messages(MOCKED_EXCEL_FILE) == (True, [])
+            assert _check_integrity_errors(MOCKED_EXCEL_FILE) == (True, [])
         finally:
             delete_file_if_exists(MOCKED_EXCEL_FILE)
 
     def test_invalid_file_returns_false(self):
-        ok, messages = check_excel_integrity_with_messages("nonexistent.xlsx")
+        ok, messages = _check_integrity_errors("nonexistent.xlsx")
         assert ok is False
         assert len(messages) == 1
 
@@ -169,7 +174,7 @@ class TestCheckExcelIntegrityWithMessages:
             input_range_rows=[["slider", "Min", "Max", "Min", "Max", 100, 0]],
         )
         try:
-            ok, messages = check_excel_integrity_with_messages(MOCKED_EXCEL_FILE)
+            ok, messages = _check_integrity_errors(MOCKED_EXCEL_FILE)
             assert ok is False
             # Conditionals first: the tables are validated in dependency order
             assert messages == [
@@ -187,7 +192,7 @@ class TestCheckExcelIntegrityWithMessages:
             conditionals_rows=[["cond1", "", "", "===", 1, "", ""]],
         )
         try:
-            assert check_excel_integrity_with_messages(MOCKED_EXCEL_FILE) == (
+            assert _check_integrity_errors(MOCKED_EXCEL_FILE) == (
                 False,
                 [
                     "Error in Conditionals - Required field is missing in row 2. Missing fields: ['path']",
@@ -203,7 +208,7 @@ class TestCheckExcelIntegrityWithMessages:
             widgets_headers=[*WIDGET_REQUIRED_FIELD_NAMES, "label::fr", "label::es"]
         )
         try:
-            assert check_excel_integrity_with_messages(MOCKED_EXCEL_FILE) == (
+            assert _check_integrity_errors(MOCKED_EXCEL_FILE) == (
                 False,
                 [
                     "Error in Sections - Invalid row 2: title_es is required when in_nav is true"
@@ -218,7 +223,7 @@ class TestCheckExcelIntegrityWithMessages:
             widgets_headers=[*WIDGET_REQUIRED_FIELD_NAMES, "label::fr"],
         )
         try:
-            ok, messages = check_excel_integrity_with_messages(MOCKED_EXCEL_FILE)
+            ok, messages = _check_integrity_errors(MOCKED_EXCEL_FILE)
             assert ok is False
             assert messages == [
                 "Error in Sections - Unexpected columns: ['title_en']. The survey "
@@ -230,7 +235,7 @@ class TestCheckExcelIntegrityWithMessages:
     def test_reports_a_widgets_sheet_without_label_columns(self):
         _create_workbook(widgets_headers=[*WIDGET_REQUIRED_FIELD_NAMES, "label"])
         try:
-            ok, messages = check_excel_integrity_with_messages(MOCKED_EXCEL_FILE)
+            ok, messages = _check_integrity_errors(MOCKED_EXCEL_FILE)
             assert ok is False
             assert messages == [
                 "Missing label::<language> columns in Widgets sheet: the survey "
@@ -244,7 +249,7 @@ class TestCheckExcelIntegrityWithMessages:
             widgets_headers=[*WIDGET_REQUIRED_FIELD_NAMES, "label::French"]
         )
         try:
-            ok, messages = check_excel_integrity_with_messages(MOCKED_EXCEL_FILE)
+            ok, messages = _check_integrity_errors(MOCKED_EXCEL_FILE)
             assert ok is False
             assert messages == [
                 "Invalid survey languages ['French']: each must be a language code "
@@ -254,13 +259,13 @@ class TestCheckExcelIntegrityWithMessages:
             delete_file_if_exists(MOCKED_EXCEL_FILE)
 
 
-class TestCheckExcelIntegrityChoices:
+class TestCheckSurveyDefinitionIntegrityChoices:
     def test_reports_a_choice_conditional_missing_from_the_conditionals_sheet(self):
         _create_workbook(
             choices_rows=[["yesNo", "yes", "Oui", "Yes", "", "nopeConditional"]]
         )
         try:
-            assert check_excel_integrity_with_messages(MOCKED_EXCEL_FILE) == (
+            assert _check_integrity_errors(MOCKED_EXCEL_FILE) == (
                 False,
                 [
                     "Error in Choices - Invalid row 2: conditional 'nopeConditional' "
@@ -276,7 +281,7 @@ class TestCheckExcelIntegrityChoices:
             choices_rows=[["yesNo", "yes", "Oui", "", "", ""]],
         )
         try:
-            ok, messages = check_excel_integrity_with_messages(MOCKED_EXCEL_FILE)
+            ok, messages = _check_integrity_errors(MOCKED_EXCEL_FILE)
             assert ok is False
             assert messages == [
                 "Error in Sections - Required field is missing in row 2. Missing fields: ['abbreviation']",
@@ -286,19 +291,19 @@ class TestCheckExcelIntegrityChoices:
             delete_file_if_exists(MOCKED_EXCEL_FILE)
 
 
-class TestCheckExcelIntegrity:
+class TestCheckSurveyDefinitionIntegrity:
     def test_valid_file_returns_true(self):
         _create_workbook()
         try:
-            assert check_excel_integrity(MOCKED_EXCEL_FILE) is True
+            assert check_survey_definition_integrity(MOCKED_EXCEL_FILE) is True
         finally:
             delete_file_if_exists(MOCKED_EXCEL_FILE)
 
     def test_invalid_file_returns_false(self):
-        assert check_excel_integrity("nonexistent.xlsx") is False
+        assert check_survey_definition_integrity("nonexistent.xlsx") is False
 
 
-class TestCheckExcelIntegrityWithWarnings:
+class TestCheckSurveyDefinitionIntegrityWithWarnings:
     def test_warns_about_many_empty_rows_after_the_data(self):
         _create_workbook()
         # A formatted cell far below the data, with no value
@@ -308,7 +313,9 @@ class TestCheckExcelIntegrityWithWarnings:
         ).fill = PatternFill(fill_type="solid", fgColor="FFFF00")
         workbook.save(MOCKED_EXCEL_FILE)
         try:
-            assert check_excel_integrity_with_warnings(MOCKED_EXCEL_FILE) == (
+            assert check_survey_definition_integrity_with_warnings(
+                MOCKED_EXCEL_FILE
+            ) == (
                 True,
                 [],
                 [
@@ -336,7 +343,7 @@ class TestCheckExcelIntegrityWithWarnings:
             ],
         )
         try:
-            ok, messages, warnings = check_excel_integrity_with_warnings(
+            ok, messages, warnings = check_survey_definition_integrity_with_warnings(
                 MOCKED_EXCEL_FILE
             )
             assert (ok, messages) == (True, [])
@@ -348,7 +355,9 @@ class TestCheckExcelIntegrityWithWarnings:
             delete_file_if_exists(MOCKED_EXCEL_FILE)
 
     def test_unreadable_file_has_no_warnings(self):
-        ok, messages, warnings = check_excel_integrity_with_warnings("nonexistent.xlsx")
+        ok, messages, warnings = check_survey_definition_integrity_with_warnings(
+            "nonexistent.xlsx"
+        )
         assert ok is False
         assert len(messages) == 1
         assert warnings == []
@@ -659,14 +668,14 @@ class TestCsvSource:
         ExcelToCsvGenerator.generate_csv_copy(
             ExcelSurveyDefinitionReader(str(demo_excel_file)), str(csv_folder_path)
         )
-        assert check_excel_integrity_with_messages(str(csv_folder_path)) == (True, [])
+        assert _check_integrity_errors(str(csv_folder_path)) == (True, [])
 
         sections_path = csv_folder_path / "Sections.csv"
         sections_path.write_text(
             sections_path.read_text(encoding="utf-8").replace("TRUE", "maybe", 1),
             encoding="utf-8",
         )
-        ok, messages = check_excel_integrity_with_messages(str(csv_folder_path))
+        ok, messages = _check_integrity_errors(str(csv_folder_path))
         assert ok is False
         assert any("Invalid in_nav" in message for message in messages)
 
