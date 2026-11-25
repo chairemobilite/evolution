@@ -10,11 +10,15 @@ from types import SimpleNamespace
 import pytest  # pyright: ignore[reportMissingImports]
 from pydantic import BaseModel, ValidationInfo, model_validator
 
+from survey_definition.choices_definition import ChoiceDefinition
+from survey_definition.sections_definition import SectionDefinition
 from survey_definition.sheet_checks import (
     collect_sheet_issues,
     fields_in_survey_languages,
     unique_field,
+    unknown_fields_warning,
 )
+from tests.parametrize_cases import cases
 
 
 class TestCollectSheetIssues:
@@ -115,3 +119,73 @@ class TestFieldsInSurveyLanguages:
     def test_no_issue_without_any_survey_language(self):
         """The languages were invalid, and are reported as such: nothing to compare to."""
         assert self._issues([self._Item(name={"fr": "a"})], {"languages": ()}) == []
+
+
+class TestUnknownFieldsWarning:
+    """The fields a table has but doesn't read, e.g. a misspelled field name."""
+
+    _SECTION_FIELD_NAMES = ["section", "in_nav", "abbreviation", "title_fr", "title_en"]
+
+    def _warning(self, field_names, languages=("fr", "en")):
+        return unknown_fields_warning(
+            "Sections", field_names, SectionDefinition, {"title": "title_"}, languages
+        )
+
+    @cases(
+        dict(id="fields of the model", field_names=_SECTION_FIELD_NAMES),
+        dict(
+            id="translated fields in any language", field_names=["section", "title_es"]
+        ),
+        dict(id="comments", field_names=["section", "comments"]),
+        dict(
+            id="a note after an empty field name",
+            field_names=["section", None, "Note: to translate"],
+        ),
+    )
+    def test_accepts_the_fields_the_table_reads(self, field_names):
+        assert self._warning(field_names) is None
+
+    def test_accepts_the_alias_of_a_field(self):
+        # The Choices fields are named like choicesName, the model field choices_name.
+        warning = unknown_fields_warning(
+            "Choices", ["choicesName", "choices_name"], ChoiceDefinition, {}
+        )
+        assert warning is None
+
+    def test_does_not_take_a_translated_field_for_a_table_field(self):
+        # title is read from the title_<language> fields: a title field is unknown.
+        assert self._warning(["section", "title"]) == (
+            "Sections table has fields it doesn't read, so they are ignored: "
+            "'title' (did you mean 'title_fr'?)"
+        )
+
+    @cases(
+        dict(id="wrong case", field_name="Title_fr", suggestion="title_fr"),
+        dict(
+            id="misspelled field", field_name="abreviation", suggestion="abbreviation"
+        ),
+        dict(id="misspelled prefix", field_name="titel_en", suggestion="title_en"),
+        dict(
+            id="language that isn't a survey language",
+            field_name="titre_es",
+            suggestion="title_es",
+        ),
+    )
+    def test_suggests_the_closest_known_field(self, field_name, suggestion):
+        assert self._warning(["section", field_name]) == (
+            "Sections table has fields it doesn't read, so they are ignored: "
+            f"{field_name!r} (did you mean {suggestion!r}?)"
+        )
+
+    def test_gives_no_suggestion_when_no_known_field_is_close(self):
+        # zzz has nothing in common with any known field: it is listed alone, rather
+        # than with a misleading suggestion.
+        assert self._warning(["section", "zzz"]) == (
+            "Sections table has fields it doesn't read, so they are ignored: 'zzz'"
+        )
+
+    def test_lists_every_unknown_field_in_table_order(self):
+        assert self._warning(["section", "zzz", "Title_fr", 12]) == (
+            "Sections table has fields it doesn't read, so they are ignored: "
+            "'zzz', 'Title_fr' (did you mean 'title_fr'?), 12"
+        )

@@ -16,6 +16,7 @@
 # instance from the tables it reads.
 
 import re
+from collections.abc import Sequence
 from typing import Any
 
 from pydantic import (
@@ -217,6 +218,31 @@ class SurveyDefinition(BaseModel):
         input type doesn't use (see Widgets.warnings).
         """
         return self.widgets.warnings()
+
+
+# The tables of a SurveyDefinition, in the order of its fields.
+TABLES = (Conditionals, Sections, Labels, Choices, InputRanges, Widgets)
+
+
+def unknown_fields_warnings(
+    field_names_by_table: dict[str, Sequence], languages: Sequence[str] = ()
+) -> list[str]:
+    """
+    One warning per table of `field_names_by_table` (its field names, by table name)
+    that has fields it doesn't read (see each table's unknown_fields_warning), in
+    TABLES order. Computed from the field names only, so it is reported even when the
+    table has errors: a misspelled field name is often their cause.
+    """
+    warnings = []
+    for table in TABLES:
+        if table.table_name not in field_names_by_table:
+            continue
+        warning = table.unknown_fields_warning(
+            field_names_by_table[table.table_name], languages
+        )
+        if warning:
+            warnings.append(warning)
+    return warnings
 
 
 def _validated_table[T: BaseModel](

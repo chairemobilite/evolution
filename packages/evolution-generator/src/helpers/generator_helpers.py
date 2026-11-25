@@ -13,7 +13,11 @@ from survey_definition.conditionals_definition import CONDITIONAL_REQUIRED_FIELD
 from survey_definition.input_range_definition import INPUT_RANGE_REQUIRED_FIELD_NAMES
 from survey_definition.labels_definition import LABEL_REQUIRED_FIELD_NAMES
 from survey_definition.sections_definition import SECTION_REQUIRED_FIELD_NAMES
-from survey_definition.survey_definition import SurveyDefinition
+from survey_definition.survey_definition import (
+    TABLES,
+    SurveyDefinition,
+    unknown_fields_warnings,
+)
 from survey_definition.widgets_definition import WIDGET_REQUIRED_FIELD_NAMES
 
 # Define constants
@@ -81,6 +85,33 @@ def is_ts_file(file: str) -> None:
         raise Exception(
             f"Invalid output file extension for {file} : must be an TypeScript .ts or .tsx file"
         )
+
+
+def read_unknown_fields_warnings(reader: ExcelSurveyDefinitionReader) -> list[str]:
+    """
+    The warnings about the fields the survey definition's tables have but don't read
+    (see survey_definition.py::unknown_fields_warnings), e.g. a misspelled header. A
+    table's field names are its sheet's headers. Read from the headers only, so they
+    are given even when the tables are invalid.
+    """
+    try:
+        languages = reader.get_languages()
+    except Exception:
+        # Already reported by load_survey_definition: no language to suggest.
+        languages = ()
+    field_names_by_table = {}
+    for table in TABLES:
+        if table.table_name not in reader.sheet_names:
+            continue
+        try:
+            field_names_by_table[table.table_name] = reader.get_headers(
+                table.table_name
+            )
+        except Exception:
+            # Headers that can't be read (e.g. one with a space) are already reported
+            # by load_survey_definition: skip this table, and warn about the others.
+            continue
+    return unknown_fields_warnings(field_names_by_table, languages)
 
 
 def load_survey_definition(reader: ExcelSurveyDefinitionReader) -> SurveyDefinition:

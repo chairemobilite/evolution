@@ -10,7 +10,7 @@
 # This module only defines the shape and the checks. See survey_definition.py for the
 # bundle of all tables, and scripts/conditionals_generator.py for TypeScript generation.
 
-from collections.abc import Iterator
+from collections.abc import Iterator, Sequence
 from typing import ClassVar, Literal, Self
 
 from pydantic import (
@@ -24,7 +24,7 @@ from pydantic import (
 
 from survey_definition import field_checks
 from survey_definition.row_checks import _raise_if_check_fails, _strip_blanks
-from survey_definition.sheet_checks import collect_sheet_issues
+from survey_definition.sheet_checks import collect_sheet_issues, unknown_fields_warning
 
 # Field names the Conditionals source must provide, even though logical_operator and
 # parentheses may be blank on a given row. value_when_hidden is left out: unlike those
@@ -161,6 +161,15 @@ class Conditionals(RootModel[list[ConditionalDefinition]]):
 
     # The name of this table, in its messages, and of the sheet it is read from.
     table_name: ClassVar[str] = "Conditionals"
+
+    @classmethod
+    def unknown_fields_warning(
+        cls, field_names: Sequence, languages: Sequence[str] = ()
+    ) -> str | None:
+        """The warning listing the fields of this table that it doesn't read, from its field names only (see sheet_checks.py::unknown_fields_warning), or None if there is none."""
+        return unknown_fields_warning(
+            cls.table_name, field_names, ConditionalDefinition, {}, languages
+        )
 
     @model_validator(mode="wrap")
     @classmethod

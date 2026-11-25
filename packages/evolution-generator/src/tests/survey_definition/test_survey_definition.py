@@ -8,7 +8,11 @@ import pytest  # pyright: ignore[reportMissingImports]
 from pydantic import ValidationError
 
 from survey_definition.sections_definition import SectionDefinition, Sections
-from survey_definition.survey_definition import SurveyDefinition
+from survey_definition.survey_definition import (
+    TABLES,
+    SurveyDefinition,
+    unknown_fields_warnings,
+)
 
 
 class TestSurveyDefinition:
@@ -318,3 +322,38 @@ class TestSurveyDefinitionWarnings:
         )
         assert survey_definition.warnings() == survey_definition.widgets.warnings()
         assert len(survey_definition.warnings()) == 1
+
+
+class TestUnknownFieldsWarnings:
+    def test_warns_once_per_table_in_table_order(self):
+        warnings = unknown_fields_warnings(
+            {
+                "Widgets": ["question_name", "custom_paht", "label::fr"],
+                "Sections": ["section", "Title_fr"],
+                "InputRange": ["input_range_name", "Label_min::fr"],
+            },
+            languages=("fr",),
+        )
+        assert warnings == [
+            "Sections table has fields it doesn't read, so they are ignored: "
+            "'Title_fr' (did you mean 'title_fr'?)",
+            "InputRange table has fields it doesn't read, so they are ignored: "
+            "'Label_min::fr' (did you mean 'label_min::fr'?)",
+            "Widgets table has fields it doesn't read, so they are ignored: "
+            "'custom_paht' (did you mean 'custom_path'?)",
+        ]
+
+    def test_accepts_comments_in_every_table(self):
+        field_names_by_table = {table.table_name: ["comments"] for table in TABLES}
+        assert unknown_fields_warnings(field_names_by_table) == []
+
+    def test_checks_every_table_of_the_survey_definition(self):
+        table_fields = [
+            field.annotation
+            for field_name, field in SurveyDefinition.model_fields.items()
+            if field_name != "languages"
+        ]
+        assert list(TABLES) == table_fields
+
+    def test_ignores_the_tables_it_does_not_know(self):
+        assert unknown_fields_warnings({"Notes": ["anything"]}) == []

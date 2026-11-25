@@ -9,7 +9,9 @@
 # sections_definition.py::Sections._collect_all_issues). Reports every problem
 # found, not just the first.
 
+import difflib
 from collections.abc import Callable, Sequence
+from itertools import takewhile
 
 from pydantic import BaseModel, ValidationError, ValidationInfo
 
@@ -59,6 +61,96 @@ def collect_sheet_issues[M: BaseModel](
         issues.extend(sheet_rule(parsed, table_name))
 
     return [definition for _, definition in parsed], issues
+
+
+# Fields any table may have, which the generator doesn't read: notes for whoever edits
+# the table.
+COMMENT_FIELD_NAMES: tuple[str, ...] = ("comments",)
+
+
+def unknown_fields_warning(
+    table_name: str,
+    field_names: Sequence,
+    model: type[BaseModel],
+    prefix_by_translated_field: dict[str, str],
+    languages: Sequence[str] = (),
+) -> str | None:
+    """
+    The warning listing the fields of a table that it doesn't read, or None if there
+    is none. They are ignored, so a misspelled field name (e.g. Label_min::fr) loses
+    the whole field, and may only show up as another field reported missing.
+
+    A known field is a field of `model` (or its alias), a translated field (read from
+    one field per language: `prefix_by_translated_field` maps a field of `model` to
+    the prefix of these fields, e.g. {"title": "title_"}, see
+    row_checks.py::_collect_language_columns) or a comment field
+    (COMMENT_FIELD_NAMES). The field names end at the first empty one: what follows is
+    a note (see ExcelSurveyDefinitionReader.get_headers). Each unknown field names the
+    closest known one, e.g. 'Label_min::fr' (did you mean 'label_min::fr'?), with the
+    translated fields in the survey `languages`.
+    """
+    known_field_names = {
+        name
+        for model_field_name, model_field in model.model_fields.items()
+        if model_field_name not in prefix_by_translated_field
+        for name in (model_field_name, model_field.alias)
+        if name is not None
+    } | set(COMMENT_FIELD_NAMES)
+    prefixes = tuple(prefix_by_translated_field.values())
+    read_field_names = takewhile(
+        lambda name: name is not None and str(name).strip() != "", field_names
+    )
+    unknown = [
+        name
+        for name in read_field_names
+        if name not in known_field_names
+        and not (isinstance(name, str) and name.startswith(prefixes))
+    ]
+    if not unknown:
+        return None
+    descriptions = []
+    for name in unknown:
+        # The translated fields in the survey languages, and in the field's own
+        # language (e.g. en for lable::en): a misspelled label::en is the field the
+        # survey languages are read from. Compared in lower case: a wrong case is a
+        # common typo.
+        candidates = [
+            *sorted(known_field_names),
+            *(
+                prefix + language
+                for prefix in prefixes
+                for language in [*languages, _language_of(str(name), prefix)]
+                if language
+            ),
+        ]
+        candidate_by_lower_case = {
+            candidate.lower(): candidate for candidate in candidates
+        }
+        # get_close_matches scores how alike two names are, character by character,
+        # from 0 (nothing in common) to 1 (the same), e.g. abreviation and
+        # abbreviation score 0.96. It gives the best candidate scoring at least 0.6,
+        # or none: the field is then listed without a suggestion, rather than with
+        # a misleading one. It only guesses from the spelling, hence "did you mean".
+        closest = difflib.get_close_matches(
+            str(name).lower(), list(candidate_by_lower_case), n=1
+        )
+        descriptions.append(
+            f"{name!r} (did you mean {candidate_by_lower_case[closest[0]]!r}?)"
+            if closest
+            else repr(name)
+        )
+    return (
+        f"{table_name} table has fields it doesn't read, so they are ignored: "
+        f"{', '.join(descriptions)}"
+    )
+
+
+def _language_of(field_name: str, prefix: str) -> str | None:
+    """The language a field name ends with, after the separator of `prefix` (:: or _), e.g. en for lable::en with label::; None if it has none."""
+    separator = "::" if prefix.endswith("::") else prefix[-1]
+    if separator not in field_name:
+        return None
+    return field_name.rsplit(separator, 1)[1] or None
 
 
 def unique_field(field_name: str) -> SheetRule[BaseModel]:

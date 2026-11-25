@@ -40,6 +40,7 @@ from survey_definition.row_checks import (
 from survey_definition.sheet_checks import (
     collect_sheet_issues,
     fields_in_survey_languages,
+    unknown_fields_warning,
 )
 from survey_definition.validation_context import context_languages
 
@@ -965,6 +966,19 @@ class Widgets(RootModel[list[WidgetDefinition]]):
 
     # The name of this table, in its messages, and of the sheet it is read from.
     table_name: ClassVar[str] = "Widgets"
+
+    @classmethod
+    def unknown_fields_warning(
+        cls, field_names: Sequence, languages: Sequence[str] = ()
+    ) -> str | None:
+        """The warning listing the fields of this table that it doesn't read, from its field names only (see sheet_checks.py::unknown_fields_warning), or None if there is none."""
+        return unknown_fields_warning(
+            cls.table_name,
+            field_names,
+            WidgetDefinition,
+            WIDGET_COLUMN_PREFIX_BY_FIELD,
+            languages,
+        )
 
     @model_validator(mode="wrap")
     @classmethod
