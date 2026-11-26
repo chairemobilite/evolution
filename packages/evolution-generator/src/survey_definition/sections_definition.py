@@ -56,6 +56,13 @@ _SECTION_BOOLEAN_FIELD_NAMES = ("in_nav", "template", "has_preload")
 # Prefix of the title columns: one per survey language, e.g. title_fr, title_en.
 SECTION_TITLE_COLUMN_PREFIX = "title_"
 
+# The section templates Evolution provides: a template written by name must be one of
+# them. See BuiltinSectionTemplates in
+# evolution-common/src/services/questionnaire/types/SectionConfig.ts.
+BUILT_IN_SECTION_TEMPLATES: frozenset[str] = frozenset(
+    {"tripsAndSegmentsWithMap", "visitedPlaces"}
+)
+
 
 class SectionDefinition(BaseModel):
     """
@@ -93,8 +100,9 @@ class SectionDefinition(BaseModel):
             columns (e.g. {"fr": "Accueil", "en": "Home"}). Only required, in every
             survey language, when `in_nav` is true.
         template: How this section is rendered. True means it has its own custom
-            `template.tsx`, a str names a builtin template, and None uses the default
-            (no template). See `generate_section_configs.py`.
+            `template.tsx`, a str names a builtin template (one of
+            BUILT_IN_SECTION_TEMPLATES), and None uses the default (no template). See
+            `generate_section_configs.py`.
         parent_section: Name of another row's `section` to nest this section under
             (it then stays out of the navigation menu). If set, must name a real
             section in this table.
@@ -159,6 +167,19 @@ class SectionDefinition(BaseModel):
     ) -> str:
         """Check that `abbreviation` ends with an underscore (e.g. "h_")."""
         raise_if_check_fails(field_checks.ends_with_underscore, value, info.data)
+        return value
+
+    @field_validator("template")
+    @classmethod
+    def _template_name_is_built_in(cls, value: str | bool | None) -> str | bool | None:
+        """Check that a template written by name is one of Evolution's built-in templates."""
+        # Evolution accepts any name in TypeScript, but shows the default page for an
+        # unknown one, so a typo would go unnoticed.
+        if isinstance(value, str) and value not in BUILT_IN_SECTION_TEMPLATES:
+            raise ValueError(
+                f"Must be one of {sorted(BUILT_IN_SECTION_TEMPLATES)}, TRUE for the "
+                "section's own template.tsx, or FALSE."
+            )
         return value
 
     @field_validator("enable_conditional", "completion_conditional")

@@ -3,8 +3,8 @@
 # License text available at https://opensource.org/licenses/MIT
 
 # Note: Checks that the names the generator copies from Evolution still exist:
-# BUILT_IN_VALIDATIONS, BUILT_IN_FORMATTERS, and the evolution-common names the
-# generated TypeScript imports.
+# BUILT_IN_VALIDATIONS, BUILT_IN_FORMATTERS, BUILT_IN_SECTION_TEMPLATES, and the
+# evolution-common names the generated TypeScript imports.
 # Reads Evolution's exports from docs/internalApi/api.json (`yarn docs:api`, run by CI).
 # Without that file the tests are skipped, or fail in CI.
 # TODO: check the evolution-frontend imports once it is documented (#924).
@@ -16,6 +16,7 @@ from pathlib import Path
 
 import pytest
 
+from survey_definition.sections_definition import BUILT_IN_SECTION_TEMPLATES
 from survey_definition.widgets_definition import (
     BUILT_IN_FORMATTERS,
     BUILT_IN_VALIDATIONS,
@@ -31,6 +32,7 @@ DOCUMENTED_PACKAGE = "evolution-common/"
 DOCUMENTED_MODULE_PREFIX = "evolution-common/lib/"
 VALIDATIONS_MODULE = "evolution-common/lib/services/widgets/validations/validations"
 FORMATTERS_MODULE = "evolution-common/lib/utils/formatters"
+SECTION_CONFIG_MODULE = "services/questionnaire/types/SectionConfig"
 
 # The generator scripts that write TypeScript.
 GENERATOR_SCRIPT_FILES = sorted(
@@ -56,11 +58,8 @@ _HELPER_MEMBER_PATTERNS = {
 
 
 @pytest.fixture(scope="module")
-def documented_exports() -> dict[str, set[str]]:
-    """
-    Output: the names each documented module exports, re-exports included, e.g.
-        {'utils/formatters': {'accessCodeFormatter', ...}}.
-    """
+def documented_modules() -> dict[str, dict]:
+    """Output: each documented module's typedoc entry, by its path, e.g. 'utils/formatters'."""
     if not API_DOCUMENTATION_FILE.is_file():
         message = (
             f"{API_DOCUMENTATION_FILE.relative_to(REPOSITORY_DIRECTORY)} not found: "
@@ -70,10 +69,37 @@ def documented_exports() -> dict[str, set[str]]:
             pytest.fail(message)
         pytest.skip(message)
     project = json.loads(API_DOCUMENTATION_FILE.read_text(encoding="utf-8"))
+    return {module["name"]: module for module in project.get("children", [])}
+
+
+@pytest.fixture(scope="module")
+def documented_exports(documented_modules) -> dict[str, set[str]]:
+    """
+    Output: the names each documented module exports, re-exports included, e.g.
+        {'utils/formatters': {'accessCodeFormatter', ...}}.
+    """
     return {
-        module["name"]: {child["name"] for child in module.get("children", [])}
-        for module in project.get("children", [])
+        name: {child["name"] for child in module.get("children", [])}
+        for name, module in documented_modules.items()
     }
+
+
+def _union_values(documented_modules: dict[str, dict], module: str, name: str) -> set:
+    """Output: the values of a documented union of literals, e.g. type A = 'a' | 'b'."""
+    declaration = next(
+        (
+            child
+            for child in documented_modules.get(module, {}).get("children", [])
+            if child["name"] == name
+        ),
+        None,
+    )
+    assert declaration is not None, f"Evolution's {module!r} no longer exports {name}."
+    union = declaration.get("type", {})
+    assert union.get("type") == "union" and all(
+        member.get("type") == "literal" for member in union["types"]
+    ), f"{name} is no longer a union of literal values: update this test."
+    return {member["value"] for member in union["types"]}
 
 
 def _exports_of(documented_exports: dict[str, set[str]], module: str) -> set[str]:
@@ -196,6 +222,18 @@ def test_built_in_formatters_match_evolution_exports(documented_exports):
         "the formatters exported by Evolution: "
         f"missing {sorted(exported - BUILT_IN_FORMATTERS)}, "
         f"no longer exported {sorted(BUILT_IN_FORMATTERS - exported)}."
+    )
+
+
+def test_built_in_section_templates_match_evolution_type(documented_modules):
+    templates = _union_values(
+        documented_modules, SECTION_CONFIG_MODULE, "BuiltinSectionTemplates"
+    )
+    assert BUILT_IN_SECTION_TEMPLATES == templates, (
+        "BUILT_IN_SECTION_TEMPLATES (survey_definition/sections_definition.py) differs "
+        "from Evolution's BuiltinSectionTemplates: "
+        f"missing {sorted(templates - BUILT_IN_SECTION_TEMPLATES)}, "
+        f"no longer in Evolution {sorted(BUILT_IN_SECTION_TEMPLATES - templates)}."
     )
 
 
