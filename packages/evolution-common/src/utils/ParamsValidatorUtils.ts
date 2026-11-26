@@ -18,7 +18,7 @@ import {
 } from 'geojson-validation';
 
 // type for a class: https://stackoverflow.com/a/64985108
-declare type Class<T = unknown> = new (...args: unknown[]) => T;
+export type Class<T = unknown> = new (...args: unknown[]) => T;
 
 export class ParamsValidatorUtils {
     // isRecord checks if the value is a plain object (Record type) - excludes arrays, primitives, and class instances

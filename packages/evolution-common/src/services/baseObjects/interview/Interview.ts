@@ -122,8 +122,6 @@ export type SerializedExtendedInterviewAttributesWithComposedObjects = {
 /**
  * Represents an interview in the survey.
  *
- * @class
- * @description
  * An interview can be associated with an household, a person or an organization. TODO: should we also accept a Vehicle interview?
  *
  * The Interview class is central to the survey process, handling data throughout various stages:

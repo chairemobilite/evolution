@@ -132,12 +132,12 @@ export type RepeatedBlockSectionConfig = {
     isIterationValid?: SectionConditionalFunction;
 };
 
-type SectionConditionalFunction = (
+export type SectionConditionalFunction = (
     interview: UserRuntimeInterviewAttributes,
     iterationContext: string[] | undefined
 ) => boolean;
 
-type SectionEventFunction = (
+export type SectionEventFunction = (
     interview: UserRuntimeInterviewAttributes,
     iterationContext: string[] | undefined
 ) => Record<string, unknown> | undefined;
@@ -552,7 +552,7 @@ export type SegmentSectionConfiguration = {
      * that, if set, all modes included need to be in at least one modePre.
      *
      * If not set, the available modePre fall back to the
-     * {@link defaultModePreValues} and default mapping.
+     * {@link services/odSurvey/types!defaultModePreValues | defaultModePreValues} and default mapping.
      */
     modeCategoryToModeMap?: {
         [modePre: string]: ModeCategoryConfiguration;

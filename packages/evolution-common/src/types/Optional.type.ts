@@ -10,7 +10,6 @@
 /**
  * Optional object of type T
  *
- * @export
  * @typedef {Optional}
  */
 export type Optional<T> = T | undefined;

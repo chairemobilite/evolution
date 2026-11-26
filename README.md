@@ -68,7 +68,7 @@ The following instructions explain how to prepare and compile the application
 - Create a `.env` file in the project root directory (you can copy the `.env.example` file) and setup the project
 - Update the `.env` with the Postgres connection string and create a new Google map API key if you need the Google map in the project
 
-```env
+```ini
     PG_CONNECTION_STRING_PREFIX = "postgres://postgres:<Password>@localhost:5432/"
     GOOGLE_API_KEY = "<MyGoogleApiKey>"
 ```

@@ -20,19 +20,19 @@ type InstanceWithValidationAttributes = {
 };
 
 /**
- * Base class for survey entities registered in {@link SurveyObjectsRegistry}.
+ * Base class for survey entities registered in {@link services/baseObjects/SurveyObjectsRegistry!SurveyObjectsRegistry | SurveyObjectsRegistry}.
  * Implements {@link IValidatable}: `_isValid` on `_attributes`, plus {@link validate} / {@link isValid}.
  * Extends {@link Uuidable} and holds **completeness** flags (`hasMinimum`, `isStarted`, `isCompleted`)
  * on the subclass `_attributes` object (see {@link CompletableAttributes}).
  *
  * **Subclass contract:** concrete classes must expose a `_attributes` object that includes
  * `CompletableAttributes`; the constructor should list completable keys in the attribute list passed
- * to {@link ConstructorUtils.initializeAttributes} (or equivalent) so values are not treated as custom attributes.
+ * to {@link utils/ConstructorUtils!ConstructorUtils.initializeAttributes | ConstructorUtils.initializeAttributes} (or equivalent) so values are not treated as custom attributes.
  *
  * **Good candidates to move here later (not done yet):** shared references such as
  * `SurveyObjectsRegistry`, common serialization hooks, or generic `validateParams` fragments—only
  * where every survey entity behaves identically—to avoid pulling composed-only types
- * (e.g. {@link Address}, {@link Routing}) into this hierarchy.
+ * (e.g. {@link services/baseObjects/Address!Address | Address}, {@link services/baseObjects/Routing!Routing | Routing}) into this hierarchy.
  */
 export abstract class SurveyObject extends Uuidable implements IValidatable {
     constructor(_uuid?: Optional<string>) {

@@ -57,7 +57,7 @@ const defaultSelectedPlacesIcon = {
     size: [35, 35] as [number, number]
 };
 
-type GeocodingQueryFieldPath = {
+export type GeocodingQueryFieldPath = {
     /**
      * Field path to read for geocoding query. If `absolute` is false or
      * undefined, this path is interpreted as relative to the widget's own path
@@ -186,7 +186,7 @@ const getLocationGeographyWidgetConfig = (options: LocationGeographyWidgetOption
  * geography widget, either based on a custom function or on the values of other
  * fields in the interview responses
  */
-type GeocodingQueryData =
+export type GeocodingQueryData =
     | {
           type: 'fields';
           fieldPaths: GeocodingQueryFieldPath[];

@@ -26,8 +26,6 @@ export type InterviewAuditedAttributes = {
 /**
  * Represents an audited interview in the survey system.
  *
- * @class
- * @description
  * The InterviewAudited class includes the interview data after it has been audited and/or enhance.
  *
  * The auditing process works as follows:

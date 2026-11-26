@@ -10,7 +10,7 @@ import type { WidgetFactoryOptions } from './sections/types';
 import { VisitedPlacesSectionFactory } from './sections/visitedPlaces/sectionVisitedPlaces';
 import type { QuestionnaireConfiguration, SurveySectionsConfig, WidgetConfig } from './types';
 
-type SectionsAndWidgetConfigs = {
+export type SectionsAndWidgetConfigs = {
     surveySections: SurveySectionsConfig;
     widgetsConfig: Record<string, WidgetConfig>;
 };

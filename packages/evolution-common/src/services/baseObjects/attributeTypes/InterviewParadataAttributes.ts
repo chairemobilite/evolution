@@ -39,7 +39,7 @@ export type WidgetMetadata = StartEndTimestampable; // TODO: should we log chang
 inside sections, it may have objects with uuids as keys, which includes startedAt and other attributes
 for the specific object. This is a legacy format coming from interview response object.
 TODO: implement the new section metadata format and remove the _actions and sections shortnames. */
-type SectionData = {
+export type SectionData = {
     _startedAt?: number;
     _isCompleted?: boolean;
     [personKey: string]: number | boolean | { _startedAt?: number; _isCompleted?: boolean } | undefined;

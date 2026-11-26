@@ -139,14 +139,14 @@ export type ReviewCollectionsByUuid<TItem> = {
 };
 
 /** Singleton review buckets keyed by {@link SingletonSurveyObjectName}. */
-type ReviewDecisionsBySingletonObject = {
+export type ReviewDecisionsBySingletonObject = {
     [K in SingletonSurveyObjectName]: ReviewDecision[];
 };
 
 export type ReviewDecisionsByObject = ReviewDecisionsBySingletonObject & ReviewCollectionsByUuid<ReviewDecision[]>;
 
 /** Optional singleton review status entries keyed by {@link SingletonSurveyObjectName}. */
-type ReviewDecisionStatusBySingletonObject = {
+export type ReviewDecisionStatusBySingletonObject = {
     [K in SingletonSurveyObjectName]?: ReviewDecisionStatusForObject;
 };
 

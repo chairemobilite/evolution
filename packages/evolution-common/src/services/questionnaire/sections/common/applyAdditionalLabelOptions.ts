@@ -53,13 +53,11 @@ const getEnhancedI18nData =
  * Internal build time function that changes the label function to add the
  * additional interpolation options to the label call.
  *
- * @param widgetConfigs The widget configs on which to applyt he additional
+ * @param widgetConfigs The widget configs on which to apply the additional
  * label options
  * @param additionalLabelOptionFunctions Object with the functions that will add
  * the interpolation keys to label. The key is the name of the widget and the
  * value is the function.
- * @param resolveContext A function that will resolve proper context to pass as
- * argument to the label option functions.
  * @returns The updated widget configs, with label functions enhanced to support
  * additional keys
  */
