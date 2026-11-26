@@ -261,11 +261,25 @@ class TestChoices:
     def test_label_one_is_optional(self):
         assert self._choices([self._row("yesNo")])[0].label_one == {}
 
-    def test_label_one_is_required_in_every_survey_language_when_set(self):
-        assert self._issues([self._row("yesNo", **{"label_one::fr": "Oui!"})]) == [
-            "Error in Choices - Invalid row 2: label_one::en is required when "
-            "label_one is set in another language"
+    def test_label_one_can_be_set_in_only_some_survey_languages(self):
+        """E.g. the French text is the same for one or many: label is used instead."""
+        choices = self._choices([self._row("yesNo", **{"label_one::fr": "Oui!"})])
+        assert choices[0].label_one == {"fr": "Oui!"}
+
+    def test_warns_about_a_label_one_missing_a_language(self):
+        choices = self._choices([self._row("yesNo", **{"label_one::fr": "Oui!"})])
+        assert choices.warnings(CONTEXT["languages"]) == [
+            "Choices sheet, row 2: label_one is not set in ['label_one::en'], "
+            "so label is used instead for one."
         ]
+
+    def test_has_no_label_one_warning_when_in_every_survey_language(self):
+        row = self._row("yesNo", **{"label_one::fr": "Oui!", "label_one::en": "Yes!"})
+        assert self._choices([row]).warnings(CONTEXT["languages"]) == []
+
+    def test_spread_row_has_no_label_one_warning(self):
+        choices = self._choices([self._row("yes"), self._spread("yesNo", "yes")])
+        assert choices.warnings(CONTEXT["languages"]) == []
 
     def test_reports_labels_in_another_language_once(self):
         rows = [

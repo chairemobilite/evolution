@@ -366,5 +366,7 @@ class TestSurveyDefinitionWarnings:
                 self._widget(input_type="Custom", validation="homeCustomValidation")
             ],
         )
-        assert survey_definition.warnings() == survey_definition.widgets.warnings()
+        assert survey_definition.warnings() == survey_definition.widgets.warnings(
+            survey_definition.languages
+        )
         assert len(survey_definition.warnings()) == 1

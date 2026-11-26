@@ -6,6 +6,7 @@
 
 import os
 import shutil
+from dataclasses import dataclass
 from unittest.mock import MagicMock
 
 import openpyxl
@@ -79,6 +80,8 @@ def _create_workbook(
     choices_rows=(),
     input_range_rows=None,
     widgets_rows=(),
+    labels_headers=("namespace", "key"),
+    labels_rows=(),
 ):
     """
     Write a workbook whose Widgets sheet holds the survey languages (its
@@ -90,7 +93,7 @@ def _create_workbook(
         workbook, "Conditionals", VALID_CONDITIONALS_HEADERS, conditionals_rows
     )
     add_mocked_excel_sheet(workbook, "Widgets", widgets_headers, list(widgets_rows))
-    add_mocked_excel_sheet(workbook, "Labels", ["namespace", "key"], [])
+    add_mocked_excel_sheet(workbook, "Labels", list(labels_headers), list(labels_rows))
     add_mocked_excel_sheet(
         workbook,
         "Choices",
@@ -259,6 +262,16 @@ class TestCheckExcelIntegrity:
         assert check_excel_integrity("nonexistent.xlsx") is False
 
 
+@dataclass(frozen=True)
+class LabelOneIntegrityCase:
+    """A Labels row's label_one cells, and the integrity check's expected warnings."""
+
+    description: str
+    label_one_fr: str | None
+    label_one_en: str | None
+    expected_warnings: list[str]
+
+
 class TestCheckExcelIntegrityWithWarnings:
     def test_warns_about_many_empty_rows_after_the_data(self):
         _create_workbook()
@@ -304,6 +317,59 @@ class TestCheckExcelIntegrityWithWarnings:
             assert len(warnings) == 1
             assert warnings[0].startswith(
                 "Widgets sheet, row 2: validation is not used by input_type 'Custom'"
+            )
+        finally:
+            delete_file_if_exists(MOCKED_EXCEL_FILE)
+
+    @pytest.mark.parametrize(
+        "case",
+        [
+            LabelOneIntegrityCase(
+                description="label_one in every survey language",
+                label_one_fr="Un",
+                label_one_en="One",
+                expected_warnings=[],
+            ),
+            LabelOneIntegrityCase(
+                description="label_one missing in a survey language",
+                label_one_fr=None,
+                label_one_en="One",
+                expected_warnings=[
+                    "Labels sheet, row 2: label_one is not set in "
+                    "['label_one::fr'], so label is used instead for one."
+                ],
+            ),
+        ],
+        ids=lambda case: case.description,
+    )
+    def test_label_one_in_some_survey_languages_is_a_warning(
+        self, case: LabelOneIntegrityCase
+    ):
+        _create_workbook(
+            labels_headers=(
+                "namespace",
+                "key",
+                "label::fr",
+                "label::en",
+                "label_one::fr",
+                "label_one::en",
+            ),
+            labels_rows=[
+                [
+                    "home",
+                    "welcome",
+                    "Bienvenue",
+                    "Welcome",
+                    case.label_one_fr,
+                    case.label_one_en,
+                ]
+            ],
+        )
+        try:
+            assert check_excel_integrity_with_warnings(MOCKED_EXCEL_FILE) == (
+                True,
+                [],
+                case.expected_warnings,
             )
         finally:
             delete_file_if_exists(MOCKED_EXCEL_FILE)

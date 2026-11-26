@@ -5,6 +5,8 @@
 # Note: Tests for survey_definition/labels_definition.py: LabelDefinition and the
 # Labels class that holds a checked sheet.
 
+from dataclasses import dataclass
+
 import pytest  # pyright: ignore[reportMissingImports]
 from pydantic import ValidationError
 
@@ -36,6 +38,24 @@ def _issues(rows: list) -> list[str]:
         _labels(rows)
     assert error.value.error_count() == 1
     return str(error.value.errors()[0]["ctx"]["error"]).split("\n")
+
+
+@dataclass(frozen=True)
+class PartialLabelOneCase:
+    """A Labels row with label_one in only some languages, and the label_one read."""
+
+    description: str
+    label_one_columns: dict
+    expected_label_one: dict[str, str]
+
+
+@dataclass(frozen=True)
+class LabelOneWarningCase:
+    """A Labels row's label_one columns, and the warnings expected about them."""
+
+    description: str
+    label_one_columns: dict
+    expected_warnings: list[str]
 
 
 class TestLabelDefinition:
@@ -87,19 +107,28 @@ class TestLabels:
             "Error in Labels - Invalid row 2: label::en is required"
         ]
 
-    def test_label_one_is_required_in_every_survey_language_when_set(self):
-        assert _issues([_row(**{"label_one::fr": "Un", "label_one::en": None})]) == [
-            "Error in Labels - Invalid row 2: label_one::en is required when "
-            "label_one is set in another language"
-        ]
-
-    def test_reports_every_missing_label_of_a_row_at_once(self):
-        assert _issues(
-            [_row(**{"label::en": None, "label_one::fr": "Un", "label_one::en": None})]
-        ) == [
-            "Error in Labels - Invalid row 2: label::en is required; label_one::en is "
-            "required when label_one is set in another language"
-        ]
+    @pytest.mark.parametrize(
+        "case",
+        [
+            PartialLabelOneCase(
+                description="label_one missing in French",
+                label_one_columns={"label_one::fr": None, "label_one::en": "One"},
+                expected_label_one={"en": "One"},
+            ),
+            PartialLabelOneCase(
+                description="label_one missing in English",
+                label_one_columns={"label_one::fr": "Un", "label_one::en": "  "},
+                expected_label_one={"fr": "Un"},
+            ),
+        ],
+        ids=lambda case: case.description,
+    )
+    def test_label_one_can_be_set_in_only_some_survey_languages(
+        self, case: PartialLabelOneCase
+    ):
+        """E.g. the French text is the same for one or many: label is used instead."""
+        labels = _labels([_row(**case.label_one_columns)])
+        assert labels[0].label_one == case.expected_label_one
 
     def test_reads_the_survey_languages_from_the_context(self):
         row = {"namespace": "home", "key": "welcome", "label::es": "Bienvenido"}
@@ -131,6 +160,36 @@ class TestLabels:
             "Error in Labels - Unexpected columns: ['label::fe', 'label_one::es']. "
             "The survey languages are ['fr', 'en']."
         ]
+
+    @pytest.mark.parametrize(
+        "case",
+        [
+            LabelOneWarningCase(
+                description="label_one not set",
+                label_one_columns={},
+                expected_warnings=[],
+            ),
+            LabelOneWarningCase(
+                description="label_one in every survey language",
+                label_one_columns={"label_one::fr": "Un", "label_one::en": "One"},
+                expected_warnings=[],
+            ),
+            LabelOneWarningCase(
+                description="label_one missing in a survey language",
+                label_one_columns={"label_one::en": "One"},
+                expected_warnings=[
+                    "Labels sheet, row 2: label_one is not set in "
+                    "['label_one::fr'], so label is used instead for one."
+                ],
+            ),
+        ],
+        ids=lambda case: case.description,
+    )
+    def test_warns_about_label_one_missing_in_some_survey_languages(
+        self, case: LabelOneWarningCase
+    ):
+        labels = _labels([_row(**case.label_one_columns)])
+        assert labels.warnings(CONTEXT["languages"]) == case.expected_warnings
 
     def test_reports_the_issues_of_every_row(self):
         assert _issues([_row(), _row(key=None), _row(namespace=None)]) == [

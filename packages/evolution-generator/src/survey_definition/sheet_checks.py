@@ -9,7 +9,7 @@
 # sections_definition.py::Sections._collect_all_issues). Reports every problem
 # found, not just the first.
 
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Iterable, Sequence
 
 from pydantic import BaseModel, ValidationError, ValidationInfo
 
@@ -123,3 +123,30 @@ def fields_in_survey_languages(
         ]
 
     return rule
+
+
+def label_one_fallback_warnings(
+    rows: Iterable[tuple[int, BaseModel]], table_name: str, languages: Sequence[str]
+) -> list[str]:
+    """
+    The warnings about the `rows` (row number, definition) whose `label_one` (by
+    language) is set in some of the survey `languages` but not all, one per row, naming
+    the sheet and row. It may be intended, e.g. the French text is the same for one or
+    many, so the missing languages fall back to `label`.
+    """
+    warnings: list[str] = []
+    for row_number, definition in rows:
+        label_one = getattr(definition, "label_one")
+        if not label_one:
+            continue
+        missing = [
+            f"label_one::{language}"
+            for language in languages
+            if language not in label_one
+        ]
+        if missing:
+            warnings.append(
+                f"{table_name} sheet, row {row_number}: label_one is not set in "
+                f"{missing}, so label is used instead for one."
+            )
+    return warnings
