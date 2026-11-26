@@ -59,13 +59,18 @@ const defaultSelectedPlacesIcon = {
 
 export type GeocodingQueryFieldPath = {
     /**
-     * Field path to read for geocoding query. If `absolute` is false or
-     * undefined, this path is interpreted as relative to the widget's own path
-     * (for example `../name`).
+     * Field path to read for the geocoding query, interpreted according to
+     * `pathType`.
      */
     path: string;
     /**
-     * Whether `path` should be interpreted as an absolute response path.
+     * How `path` is resolved:
+     * - `absolute`: a response path from the root of the response (for example
+     *   `home.address`)
+     * - `relative`: a path relative to the geography widget's own path (for
+     *   example `../name`)
+     * - `inGroup`: the name of a field in the same group as the geography
+     *   widget (for example `name`, read at `../name`)
      */
     pathType: 'absolute' | 'relative' | 'inGroup';
 };
