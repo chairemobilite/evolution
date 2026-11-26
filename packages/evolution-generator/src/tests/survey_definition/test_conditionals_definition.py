@@ -14,6 +14,7 @@ from survey_definition.conditionals_definition import (
     Conditionals,
     ConditionalDefinition,
 )
+from tests.parametrize_cases import cases
 
 
 class TestConditionalDefinition:
@@ -97,6 +98,19 @@ class TestConditionals:
         assert issues[0].startswith(
             "Error in Conditionals - Invalid conditional_name in row 2: "
             "'isCompleteCustomConditional' - Must not end with 'CustomConditional'"
+        )
+
+    @cases(
+        dict(id="reserved word", name="class"),
+        dict(id="name conditionals.tsx imports", name="checkConditionals"),
+    )
+    def test_reports_conditional_name_reserved_in_conditionals_file(self, name):
+        """`export const <name>` would not compile in conditionals.tsx."""
+        issues = self._issues([self._row(name)])
+        assert len(issues) == 1
+        assert issues[0].startswith(
+            f"Error in Conditionals - Invalid conditional_name in row 2: '{name}' - "
+            "Must not be a JavaScript reserved word"
         )
 
     def test_reports_wrong_type(self):

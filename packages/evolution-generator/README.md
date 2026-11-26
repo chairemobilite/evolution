@@ -401,7 +401,7 @@ In your survey logic, conditionals play a key role in determining whether a widg
 | [parentheses](#par)                     | Parentheses (optional)                                                   | ( or )                    |
 | [value_when_hidden](#value_when_hidden) | Value to use when the widget is hidden (conditional is false) (optional) | boolean, number or string |
 
-> <span id="cond_name">**Note:**</span> The `conditional_name` must be a valid TypeScript name (letters, digits, `_` or `$`, not starting with a digit), not ending with `CustomConditional`, e.g. `hasDrivingLicense`. Wherever a conditional is referenced by name, a name ending with `CustomConditional` is imported from `customConditionals.tsx`, which is written by hand, so a conditional of this sheet can't use that ending.
+> <span id="cond_name">**Note:**</span> The `conditional_name` must be a valid TypeScript name (letters, digits, `_` or `$`, not starting with a digit), not ending with `CustomConditional`, e.g. `hasDrivingLicense`. It can't be a JavaScript reserved word (e.g. `class`) nor `checkConditionals`, `WidgetConditional` or `odSurveyHelpers`, which `conditionals.tsx` imports. Wherever a conditional is referenced by name, a name ending with `CustomConditional` is imported from `customConditionals.tsx`, which is written by hand, so a conditional of this sheet can't use that ending.
 
 > <span id="comp">**Note:**</span> The `comparison_operator` field helps compare the respondent’s response with the specified value. It determines how the respondent's answer should be evaluated in the conditional logic. For example, `>=` signifies that the condition is true when the response at `path` is greater than or equal to the value.
 

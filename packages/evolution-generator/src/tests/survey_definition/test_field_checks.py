@@ -141,3 +141,21 @@ class TestValidGeneratedConditionalName:
             )
             is False
         )
+
+
+class TestNotReservedInConditionalsFile:
+    def test_accepts_camel_case_name(self):
+        assert (
+            field_checks.not_reserved_in_conditionals_file("householdHasCars", {})
+            is True
+        )
+
+    @cases(
+        dict(id="reserved word", name="class"),
+        dict(id="strict-mode reserved word", name="arguments"),
+        dict(id="imported function", name="checkConditionals"),
+        dict(id="imported type", name="WidgetConditional"),
+        dict(id="imported namespace", name="odSurveyHelpers"),
+    )
+    def test_rejects_reserved_name(self, name):
+        assert field_checks.not_reserved_in_conditionals_file(name, {}) is False
