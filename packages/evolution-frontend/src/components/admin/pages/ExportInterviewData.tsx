@@ -11,6 +11,7 @@ import FormErrors from 'chaire-lib-frontend/lib/components/pageParts/FormErrors'
 import LoadingPage from 'chaire-lib-frontend/lib/components/pages/LoadingPage';
 import * as Status from 'chaire-lib-common/lib/utils/Status';
 import TrError from 'chaire-lib-common/lib/utils/TrError';
+import ExportHelpButton from '../widgets/ExportHelpButton';
 
 const ExportInterviewData = ({ t, i18n }: WithTranslation) => {
     const [error, setError] = useState<string | undefined>(undefined);
@@ -30,13 +31,22 @@ const ExportInterviewData = ({ t, i18n }: WithTranslation) => {
         return onPrepareCsvExportFiles('correctedIfAvailable');
     };
 
+    const onPrepareSurveyObjectsCsvExportFiles = async () => {
+        return onPrepareCsvExportFiles('surveyObjects');
+    };
+
+    // TODO `exportType` mixes the response type of the responses export with
+    // the kind of export. Take the URL of the route preparing the export as
+    // parameter instead, so that each button gives its own route.
     const onPrepareCsvExportFiles = async (
-        exportType: 'correctedIfAvailable' | 'participant' = 'correctedIfAvailable'
+        exportType: 'correctedIfAvailable' | 'participant' | 'surveyObjects' = 'correctedIfAvailable'
     ) => {
         setIsPreparingCsvExportFiles(true);
         try {
             const response = await fetch(
-                '/api/admin/data/prepareCsvFileForExportBySurveyObject?responseType=' + exportType,
+                exportType === 'surveyObjects'
+                    ? '/api/admin/data/prepareSurveyObjectsCsvExport'
+                    : '/api/admin/data/prepareCsvFileForExportBySurveyObject?responseType=' + exportType,
                 {
                     method: 'GET',
                     credentials: 'include',
@@ -201,18 +211,42 @@ const ExportInterviewData = ({ t, i18n }: WithTranslation) => {
     return (
         <div className="admin-widget-container">
             {isPreparingCsvExportFiles && <LoadingPage />}
-            <Button
-                color="blue"
-                onClick={onPrepareCsvCorrectedExportFiles}
-                label={t('admin:export:PrepareCorrectedCsvExportFiles')}
-                align="left"
-            />
-            <Button
-                color="blue"
-                onClick={onPrepareCsvRespondentExportFiles}
-                label={t('admin:export:PrepareParticipantCsvExportFiles')}
-                align="left"
-            />
+            <div className="tr__form-buttons-container _left">
+                <Button
+                    color="blue"
+                    onClick={onPrepareCsvCorrectedExportFiles}
+                    label={t('admin:export:PrepareCorrectedCsvExportFiles')}
+                    align="left"
+                />
+                <ExportHelpButton
+                    exportName={t('admin:export:PrepareCorrectedCsvExportFiles')}
+                    helpText={t('admin:export:PrepareCorrectedCsvExportFilesHelp')}
+                />
+            </div>
+            <div className="tr__form-buttons-container _left">
+                <Button
+                    color="blue"
+                    onClick={onPrepareCsvRespondentExportFiles}
+                    label={t('admin:export:PrepareParticipantCsvExportFiles')}
+                    align="left"
+                />
+                <ExportHelpButton
+                    exportName={t('admin:export:PrepareParticipantCsvExportFiles')}
+                    helpText={t('admin:export:PrepareParticipantCsvExportFilesHelp')}
+                />
+            </div>
+            <div className="tr__form-buttons-container _left">
+                <Button
+                    color="blue"
+                    onClick={onPrepareSurveyObjectsCsvExportFiles}
+                    label={t('admin:export:PrepareSurveyObjectsCsvExportFiles')}
+                    align="left"
+                />
+                <ExportHelpButton
+                    exportName={t('admin:export:PrepareSurveyObjectsCsvExportFiles')}
+                    helpText={t('admin:export:PrepareSurveyObjectsCsvExportFilesHelp')}
+                />
+            </div>
             <Button
                 color="green"
                 onClick={downloadSurveyQuestionnaireListTxt}
