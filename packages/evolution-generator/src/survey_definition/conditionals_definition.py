@@ -61,7 +61,8 @@ class ConditionalDefinition(BaseModel):
         conditional_name: Name of the conditional this row belongs to; shared by every
             row of the same conditional. Required; must be a valid TypeScript
             identifier not ending with "CustomConditional" (those are written by hand
-            in customConditionals.tsx).
+            in customConditionals.tsx), and neither a JavaScript reserved word nor a
+            name conditionals.tsx imports.
         logical_operator: How this row combines with the previous one ('||' or '&&').
             Required (non-blank) on every row of a conditional except its first.
         path: Interview path this row compares, e.g. 'household.size'. May start with
@@ -100,7 +101,7 @@ class ConditionalDefinition(BaseModel):
     @field_validator("conditional_name")
     @classmethod
     def _conditional_name_is_valid(cls, value: str, info: ValidationInfo) -> str:
-        """Check that `conditional_name` is a valid TypeScript identifier not ending with "CustomConditional"."""
+        """Check that `conditional_name` is a valid TypeScript identifier not ending with "CustomConditional", nor reserved in conditionals.tsx."""
         # Each conditional is exported under its name in conditionals.tsx.
         _raise_if_check_fails(field_checks.valid_ts_identifier, value, info.data)
         # A conditional is referenced by name, and a name ending with "CustomConditional"
@@ -108,6 +109,10 @@ class ConditionalDefinition(BaseModel):
         # it, or it would be looked for there.
         _raise_if_check_fails(
             field_checks.valid_generated_conditional_name, value, info.data
+        )
+        # `export const <name>` must compile next to the file's imports.
+        _raise_if_check_fails(
+            field_checks.not_reserved_in_conditionals_file, value, info.data
         )
         return value
 

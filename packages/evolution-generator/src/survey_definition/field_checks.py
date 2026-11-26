@@ -73,6 +73,31 @@ def valid_generated_conditional_name(value, row: dict) -> bool:
     return not str(value).endswith("CustomConditional")
 
 
+# Names a conditional of conditionals.tsx can't be exported under: the JavaScript
+# reserved words (a module is strict, so with the strict-mode ones, 'eval' and
+# 'arguments'), and the names conditionals.tsx imports (see
+# ConditionalsGenerator.generate_typescript_code).
+_CONDITIONALS_FILE_RESERVED_NAMES = frozenset(
+    {
+        # fmt: off
+        "await", "break", "case", "catch", "class", "const", "continue", "debugger",
+        "default", "delete", "do", "else", "enum", "export", "extends", "false",
+        "finally", "for", "function", "if", "import", "in", "instanceof", "new",
+        "null", "return", "super", "switch", "this", "throw", "true", "try",
+        "typeof", "var", "void", "while", "with", "yield", "let", "static",
+        "implements", "interface", "package", "private", "protected", "public",
+        "eval", "arguments",
+        "checkConditionals", "WidgetConditional", "odSurveyHelpers",
+        # fmt: on
+    }
+)
+
+
+def not_reserved_in_conditionals_file(value, row: dict) -> bool:
+    """Must not be a JavaScript reserved word (e.g. 'class') or a name conditionals.tsx imports ('checkConditionals', 'WidgetConditional', 'odSurveyHelpers')."""
+    return str(value) not in _CONDITIONALS_FILE_RESERVED_NAMES
+
+
 def primitive_value(value, row: dict) -> bool:
     """Must be a bool, int, float, or str."""
     return isinstance(value, (bool, int, float, str))
