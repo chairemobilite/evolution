@@ -23,7 +23,7 @@ from pydantic import (
 )
 
 from survey_definition import field_checks
-from survey_definition.row_checks import _raise_if_check_fails, _strip_blanks
+from survey_definition.row_checks import raise_if_check_fails, strip_blanks
 from survey_definition.sheet_checks import collect_sheet_issues
 
 # Field names the Conditionals source must provide, even though logical_operator and
@@ -83,7 +83,7 @@ class ConditionalDefinition(BaseModel):
     @classmethod
     def _prepare_cells(cls, data) -> object:
         """Treat a blank/whitespace-only cell as an absent key, not a genuinely blank value."""
-        return _strip_blanks(data) if isinstance(data, dict) else data
+        return strip_blanks(data) if isinstance(data, dict) else data
 
     # Literal fields need no field_validator: Pydantic rejects any other value itself,
     # and its error message lists the allowed values.
@@ -103,15 +103,15 @@ class ConditionalDefinition(BaseModel):
     def _conditional_name_is_valid(cls, value: str, info: ValidationInfo) -> str:
         """Check that `conditional_name` is a valid TypeScript identifier not ending with "CustomConditional", nor reserved in conditionals.tsx."""
         # Each conditional is exported under its name in conditionals.tsx.
-        _raise_if_check_fails(field_checks.valid_ts_identifier, value, info.data)
+        raise_if_check_fails(field_checks.valid_ts_identifier, value, info.data)
         # A conditional is referenced by name, and a name ending with "CustomConditional"
         # is imported from customConditionals.tsx, so a generated one must not end with
         # it, or it would be looked for there.
-        _raise_if_check_fails(
+        raise_if_check_fails(
             field_checks.valid_generated_conditional_name, value, info.data
         )
         # `export const <name>` must compile next to the file's imports.
-        _raise_if_check_fails(
+        raise_if_check_fails(
             field_checks.not_reserved_in_conditionals_file, value, info.data
         )
         return value
@@ -120,14 +120,14 @@ class ConditionalDefinition(BaseModel):
     @classmethod
     def _path_is_valid(cls, value: str, info: ValidationInfo) -> str:
         """Check that `path` is a response path, optionally after one expansion token."""
-        _raise_if_check_fails(field_checks.valid_expansion_token_path, value, info.data)
+        raise_if_check_fails(field_checks.valid_expansion_token_path, value, info.data)
         return value
 
     @field_validator("value")
     @classmethod
     def _value_is_primitive(cls, value: object, info: ValidationInfo) -> object:
         """Check that `value` is a bool, int, float, or str."""
-        _raise_if_check_fails(field_checks.primitive_value, value, info.data)
+        raise_if_check_fails(field_checks.primitive_value, value, info.data)
         return value
 
     @field_validator("value_when_hidden")
@@ -137,7 +137,7 @@ class ConditionalDefinition(BaseModel):
     ) -> object | None:
         """Check that a non-blank `value_when_hidden` is a bool, int, float, or str."""
         if value is not None:
-            _raise_if_check_fails(field_checks.primitive_value, value, info.data)
+            raise_if_check_fails(field_checks.primitive_value, value, info.data)
         return value
 
 

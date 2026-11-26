@@ -26,10 +26,10 @@ from pydantic import (
 
 from survey_definition import field_checks
 from survey_definition.row_checks import (
-    _collect_language_columns,
-    _raise_if_check_fails,
-    _read_booleans,
-    _strip_blanks,
+    collect_language_columns,
+    raise_if_check_fails,
+    read_booleans,
+    strip_blanks,
 )
 from survey_definition.sheet_checks import (
     collect_sheet_issues,
@@ -73,7 +73,7 @@ class ChoiceDefinition(BaseModel):
     context={"languages": ("fr", "en"), "conditional_names": {"isAdultConditional"}})`.
     Validation is strict: no type coercion (e.g. the string "yes" is rejected for
     `hidden`), except that a number in a label column is read as text, and that
-    `hidden` accepts TRUE/FALSE written as text or as 1/0 (see row_checks._as_boolean).
+    `hidden` accepts TRUE/FALSE written as text or as 1/0 (see row_checks.as_boolean).
 
     Attributes:
         choices_name: Name of the list this row belongs to (column `choicesName`);
@@ -106,12 +106,12 @@ class ChoiceDefinition(BaseModel):
         """Treat a blank/whitespace-only cell as an absent key, read the true/false cells, and gather the label::<language> and label_one::<language> columns."""
         if not isinstance(data, dict):
             return data
-        data = _collect_language_columns(
-            _read_booleans(_strip_blanks(data), ("hidden",)),
+        data = collect_language_columns(
+            read_booleans(strip_blanks(data), ("hidden",)),
             "label_one",
             CHOICE_LABEL_ONE_COLUMN_PREFIX,
         )
-        return _collect_language_columns(data, "label", CHOICE_LABEL_COLUMN_PREFIX)
+        return collect_language_columns(data, "label", CHOICE_LABEL_COLUMN_PREFIX)
 
     # No default: a blank value here is a genuinely missing required value.
     choices_name: str = Field(alias="choicesName")
@@ -132,14 +132,14 @@ class ChoiceDefinition(BaseModel):
     ) -> object | None:
         """Check that a non-blank `value` is a bool, int, float, or str."""
         if value is not None:
-            _raise_if_check_fails(field_checks.primitive_value, value, info.data)
+            raise_if_check_fails(field_checks.primitive_value, value, info.data)
         return value
 
     @field_validator("choices_name")
     @classmethod
     def _choices_name_is_valid_identifier(cls, value: str, info: ValidationInfo) -> str:
         """Check that `choices_name` is a valid TypeScript identifier."""
-        _raise_if_check_fails(field_checks.valid_ts_identifier, value, info.data)
+        raise_if_check_fails(field_checks.valid_ts_identifier, value, info.data)
         return value
 
     @field_validator("conditional")
@@ -149,7 +149,7 @@ class ChoiceDefinition(BaseModel):
     ) -> str | None:
         """Check that a non-blank `conditional` is a valid TypeScript identifier."""
         if value is not None:
-            _raise_if_check_fails(field_checks.valid_ts_identifier, value, info.data)
+            raise_if_check_fails(field_checks.valid_ts_identifier, value, info.data)
         return value
 
     # One "after" validator for every rule between fields or needing the context:

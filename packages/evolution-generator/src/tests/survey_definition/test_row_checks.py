@@ -9,11 +9,11 @@ import pytest  # pyright: ignore[reportMissingImports]
 from pydantic import BaseModel, ValidationError, model_validator
 
 from survey_definition.row_checks import (
-    _as_boolean,
-    _collect_language_columns,
-    _raise_if_check_fails,
-    _read_whole_numbers,
-    _strip_blanks,
+    as_boolean,
+    collect_language_columns,
+    raise_if_check_fails,
+    read_whole_numbers,
+    strip_blanks,
     format_pydantic_errors,
     check_required_field_names,
 )
@@ -60,18 +60,18 @@ class TestCheckRequiredFieldNames:
 
 class TestStripBlanks:
     def test_drops_none_and_empty_string_values(self):
-        assert _strip_blanks({"a": None, "b": "", "c": "kept"}) == {"c": "kept"}
+        assert strip_blanks({"a": None, "b": "", "c": "kept"}) == {"c": "kept"}
 
     def test_drops_whitespace_only_strings(self):
-        assert _strip_blanks({"a": "   ", "b": "\t", "c": " kept "}) == {"c": " kept "}
+        assert strip_blanks({"a": "   ", "b": "\t", "c": " kept "}) == {"c": " kept "}
 
     def test_keeps_falsy_values_that_are_not_blank(self):
         # False and 0 are real answers, not blank cells.
-        assert _strip_blanks({"a": False, "b": 0}) == {"a": False, "b": 0}
+        assert strip_blanks({"a": False, "b": 0}) == {"a": False, "b": 0}
 
     def test_does_not_modify_the_input(self):
         row = {"a": None, "b": "kept"}
-        _strip_blanks(row)
+        strip_blanks(row)
         assert row == {"a": None, "b": "kept"}
 
 
@@ -81,7 +81,7 @@ class TestRaiseIfCheckFails:
             """Must be positive."""
             return value > 0
 
-        assert _raise_if_check_fails(check, 1, {}) is None
+        assert raise_if_check_fails(check, 1, {}) is None
 
     def test_raises_with_the_first_docstring_line_as_the_message(self):
         def check(value, row):
@@ -92,7 +92,7 @@ class TestRaiseIfCheckFails:
             return value > 0
 
         with pytest.raises(ValueError) as error:
-            _raise_if_check_fails(check, -1, {})
+            raise_if_check_fails(check, -1, {})
         assert str(error.value) == "Must be positive."
 
     def test_falls_back_to_the_function_name_without_a_docstring(self):
@@ -100,7 +100,7 @@ class TestRaiseIfCheckFails:
             return value > 0
 
         with pytest.raises(ValueError, match="is_positive"):
-            _raise_if_check_fails(is_positive, -1, {})
+            raise_if_check_fails(is_positive, -1, {})
 
     def test_passes_the_row_to_the_check(self):
         seen = {}
@@ -110,7 +110,7 @@ class TestRaiseIfCheckFails:
             seen["row"] = row
             return True
 
-        _raise_if_check_fails(check, "x", {"sibling": 1})
+        raise_if_check_fails(check, "x", {"sibling": 1})
         assert seen["row"] == {"sibling": 1}
 
 
@@ -188,14 +188,14 @@ class TestFormatPydanticErrors:
 class TestCollectLanguageColumns:
     def test_gathers_the_columns_of_every_language_into_one_dict(self):
         row = {"section": "home", "title_fr": "Accueil", "title_es": "Inicio"}
-        assert _collect_language_columns(row, "title", "title_") == {
+        assert collect_language_columns(row, "title", "title_") == {
             "section": "home",
             "title": {"fr": "Accueil", "es": "Inicio"},
         }
 
     def test_reads_a_number_as_text_but_not_a_bool(self):
         row = {"title_fr": 1, "title_en": 2.5, "title_es": True}
-        assert _collect_language_columns(row, "title", "title_")["title"] == {
+        assert collect_language_columns(row, "title", "title_")["title"] == {
             "fr": "1",
             "en": "2.5",
             "es": True,
@@ -203,7 +203,7 @@ class TestCollectLanguageColumns:
 
     def test_leaves_a_row_without_such_columns_unchanged(self):
         row = {"section": "home"}
-        assert _collect_language_columns(row, "title", "title_") == row
+        assert collect_language_columns(row, "title", "title_") == row
 
 
 class TestAsBoolean:
@@ -221,7 +221,7 @@ class TestAsBoolean:
         dict(id="the number 1.0", value=1.0, expected=True),
     )
     def test_reads_a_true_false_value(self, value, expected):
-        assert _as_boolean(value) is expected
+        assert as_boolean(value) is expected
 
     @cases(
         dict(id="yes", value="yes"),
@@ -231,7 +231,7 @@ class TestAsBoolean:
         dict(id="None", value=None),
     )
     def test_keeps_any_other_value(self, value):
-        assert _as_boolean(value) == value
+        assert as_boolean(value) == value
 
 
 class TestReadWholeNumbers:
@@ -247,9 +247,9 @@ class TestReadWholeNumbers:
         dict(id="no value kept", value=None, expected=None),
     )
     def test_reads_only_whole_numbers_written_as_text(self, value, expected):
-        assert _read_whole_numbers({"min_value": value}, ("min_value",)) == {
+        assert read_whole_numbers({"min_value": value}, ("min_value",)) == {
             "min_value": expected
         }
 
     def test_leaves_the_other_fields_as_they_are(self):
-        assert _read_whole_numbers({"name": "10"}, ("min_value",)) == {"name": "10"}
+        assert read_whole_numbers({"name": "10"}, ("min_value",)) == {"name": "10"}

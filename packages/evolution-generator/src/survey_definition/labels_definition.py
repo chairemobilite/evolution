@@ -21,7 +21,7 @@ from pydantic import (
     model_validator,
 )
 
-from survey_definition.row_checks import _collect_language_columns, _strip_blanks
+from survey_definition.row_checks import collect_language_columns, strip_blanks
 from survey_definition.sheet_checks import (
     collect_sheet_issues,
     fields_in_survey_languages,
@@ -74,10 +74,10 @@ class LabelDefinition(BaseModel):
         """Treat a blank/whitespace-only cell as an absent key, and gather the label::<language> and label_one::<language> columns."""
         if not isinstance(data, dict):
             return data
-        data = _collect_language_columns(
-            _strip_blanks(data), "label_one", LABEL_ONE_COLUMN_PREFIX
+        data = collect_language_columns(
+            strip_blanks(data), "label_one", LABEL_ONE_COLUMN_PREFIX
         )
-        return _collect_language_columns(data, "label", LABEL_COLUMN_PREFIX)
+        return collect_language_columns(data, "label", LABEL_COLUMN_PREFIX)
 
     # No default: a blank value here is a genuinely missing required value.
     namespace: str

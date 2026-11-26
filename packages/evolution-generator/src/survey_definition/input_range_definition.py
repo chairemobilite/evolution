@@ -26,10 +26,10 @@ from pydantic import (
 
 from survey_definition import field_checks
 from survey_definition.row_checks import (
-    _collect_language_columns,
-    _raise_if_check_fails,
-    _read_whole_numbers,
-    _strip_blanks,
+    collect_language_columns,
+    raise_if_check_fails,
+    read_whole_numbers,
+    strip_blanks,
 )
 from survey_definition.sheet_checks import (
     collect_sheet_issues,
@@ -120,9 +120,9 @@ class InputRangeDefinition(BaseModel):
         """Treat a blank/whitespace-only cell as an absent key, read a whole number written as text, and gather the label and unit columns of each language."""
         if not isinstance(data, dict):
             return data
-        data = _read_whole_numbers(_strip_blanks(data), ("min_value", "max_value"))
+        data = read_whole_numbers(strip_blanks(data), ("min_value", "max_value"))
         for field_name, column_prefix in INPUT_RANGE_COLUMN_PREFIX_BY_FIELD.items():
-            data = _collect_language_columns(data, field_name, column_prefix)
+            data = collect_language_columns(data, field_name, column_prefix)
         return data
 
     # No default: a blank value here is a genuinely missing required value.
@@ -142,7 +142,7 @@ class InputRangeDefinition(BaseModel):
         cls, value: str, info: ValidationInfo
     ) -> str:
         """Check that `input_range_name` is a valid TypeScript identifier."""
-        _raise_if_check_fails(field_checks.valid_ts_identifier, value, info.data)
+        raise_if_check_fails(field_checks.valid_ts_identifier, value, info.data)
         return value
 
     # One "after" validator for every rule between fields or needing the context:

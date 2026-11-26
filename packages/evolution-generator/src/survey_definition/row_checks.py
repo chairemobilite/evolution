@@ -74,7 +74,7 @@ def format_pydantic_errors(
     return issues
 
 
-def _strip_blanks(row: dict) -> dict:
+def strip_blanks(row: dict) -> dict:
     """Drop None and empty/whitespace-only strings, so a blank value looks like a genuinely absent key to Pydantic."""
     return {
         key: value
@@ -83,7 +83,7 @@ def _strip_blanks(row: dict) -> dict:
     }
 
 
-def _collect_language_columns(row: dict, field_name: str, column_prefix: str) -> dict:
+def collect_language_columns(row: dict, field_name: str, column_prefix: str) -> dict:
     """
     Move every `<column_prefix><language>` key of `row` into one dict under `field_name`,
     keyed by language, e.g. {"title_fr": "Accueil", "title_en": "Home"} becomes
@@ -93,7 +93,7 @@ def _collect_language_columns(row: dict, field_name: str, column_prefix: str) ->
     languages must be present is checked by the table, from the survey languages in
     its validation context (see validation_context.py). A
     number is turned into text, since a spreadsheet stores a text like "1" as a
-    number. Call it after _strip_blanks, so a blank cell is left out.
+    number. Call it after strip_blanks, so a blank cell is left out.
     """
     collected = {}
     rest = {}
@@ -109,7 +109,7 @@ def _collect_language_columns(row: dict, field_name: str, column_prefix: str) ->
     return rest
 
 
-def _as_boolean(value: Any) -> Any:
+def as_boolean(value: Any) -> Any:
     """
     The true/false value of a cell: TRUE/FALSE written as text (e.g. 'True', in any
     case), and 1/0 (as a number or a text, a spreadsheet sometimes turns TRUE/FALSE into
@@ -124,15 +124,15 @@ def _as_boolean(value: Any) -> Any:
     return value
 
 
-def _read_booleans(row: dict, field_names: tuple[str, ...]) -> dict:
-    """Return `row` with the value of each of `field_names` it holds read by _as_boolean."""
+def read_booleans(row: dict, field_names: tuple[str, ...]) -> dict:
+    """Return `row` with the value of each of `field_names` it holds read by as_boolean."""
     return {
-        key: _as_boolean(value) if key in field_names else value
+        key: as_boolean(value) if key in field_names else value
         for key, value in row.items()
     }
 
 
-def _read_whole_numbers(row: dict, field_names: tuple[str, ...]) -> dict:
+def read_whole_numbers(row: dict, field_names: tuple[str, ...]) -> dict:
     """
     Return `row` with the value of each of `field_names` it holds read as an int when it
     is a whole number written as text (e.g. '10' or '-5', every cell of a CSV file is
@@ -154,7 +154,7 @@ def _read_whole_numbers(row: dict, field_names: tuple[str, ...]) -> dict:
     }
 
 
-def _raise_if_check_fails(check, value, row: dict) -> None:
+def raise_if_check_fails(check, value, row: dict) -> None:
     """Run a survey_field_checks-style (value, row) -> bool check; raise ValueError using its docstring on failure."""
     if not check(value, row):
         reason = (check.__doc__ or check.__name__).strip().splitlines()[0]
