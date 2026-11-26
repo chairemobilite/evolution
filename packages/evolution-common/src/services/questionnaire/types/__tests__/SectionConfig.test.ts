@@ -389,6 +389,46 @@ describe('getAndValidateSurveySections', () => {
         ]).test('%s', (_location, sections, expectedError) => {
             expect(() => getAndValidateSurveySections(sections)).toThrow(expectedError);
         });
+
+        const getSectionsWithEstimatedIterationCount = (estimatedIterationCount: unknown) => ({
+            section1: {
+                title: { en: 'Test Section', fr: 'Section de test' },
+                previousSection: null,
+                nextSection: 'section3',
+                widgets: [],
+                repeatedBlock: {
+                    iterationRule: { type: 'builtin' as const, path: 'interviewablePersons' as const },
+                    activeSurveyObjectPath: '_activePersonId',
+                    sections: ['section2'],
+                    estimatedIterationCount: estimatedIterationCount as number
+                }
+            },
+            section2: { previousSection: 'section1', nextSection: 'section1', widgets: [] },
+            section3: { previousSection: 'section1', nextSection: null, widgets: [] }
+        });
+
+        test.each([
+            { description: 'fractional number', estimatedIterationCount: 2.5 },
+            { description: 'negative number', estimatedIterationCount: -1 },
+            { description: 'not a number', estimatedIterationCount: Number.NaN },
+            { description: 'infinity', estimatedIterationCount: Number.POSITIVE_INFINITY }
+        ])('Invalid estimatedIterationCount: $description', ({ estimatedIterationCount }) => {
+            expect(() =>
+                getAndValidateSurveySections(getSectionsWithEstimatedIterationCount(estimatedIterationCount))
+            ).toThrow(
+                `The "estimatedIterationCount" of section "section1" must be a non-negative integer, but it is ${estimatedIterationCount}.`
+            );
+        });
+
+        test.each([
+            { description: 'positive integer', estimatedIterationCount: 3 },
+            { description: 'zero', estimatedIterationCount: 0 },
+            { description: 'not set', estimatedIterationCount: undefined }
+        ])('Valid estimatedIterationCount: $description', ({ estimatedIterationCount }) => {
+            expect(() =>
+                getAndValidateSurveySections(getSectionsWithEstimatedIterationCount(estimatedIterationCount))
+            ).not.toThrow();
+        });
     });
 
 });

@@ -68,7 +68,6 @@ export const Section: React.FC<SectionProps & WithSurveyContextProps> = (
                             title={props.sectionConfig.title}
                             interview={props.interview}
                             sectionName={props.shortname}
-                            sections={props.surveyContext.sections}
                         />
                     </React.Fragment>
                 )}

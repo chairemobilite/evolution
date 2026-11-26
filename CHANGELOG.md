@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased (0.6.9)]
 
 ### Added
+- Repeated blocks: `estimatedIterationCount` option, the number of iterations to assume for the section progress bar before the objects to iterate over are known
 
 - Admin: the interview summary shows the bird distance and the bird speed of each trip beside its duration (fixes [#2173](https://github.com/chairemobilite/evolution/issues/2173))
 - Export: CSV files of the survey objects, created from the corrected responses ([#2182](https://github.com/chairemobilite/evolution/pull/2182))
@@ -24,8 +25,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Deprecated
 
 ### Removed
+- `calculateSurveyCompletionPercentage` helper, the completion percentage is now calculated by the navigation service (`NavigationService.getCompletionPercentage`)
 
 ### Fixed
+- Section progress bar: count the sections from the navigation flow instead of requiring a last section named 'completed', count the sections of repeated blocks for each iteration and keep the progress when going back (fixes [#918](https://github.com/chairemobilite/evolution/issues/918), [#934](https://github.com/chairemobilite/evolution/issues/934) and [#1024](https://github.com/chairemobilite/evolution/issues/1024))
 
 - Generator: the `customLabels` widget parameter is read whatever the case of its name, like the other parameters (fixes [#1615](https://github.com/chairemobilite/evolution/issues/1615))
 - Map find place widget: a map displayed with an existing value opens at the zoom of the value, or close to it when the value has no zoom, instead of the default zoom of the widget (fixes [#2217](https://github.com/chairemobilite/evolution/issues/2217))

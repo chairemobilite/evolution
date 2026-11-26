@@ -33,7 +33,8 @@ testHelpers.inputSelectTest({ context, path: 'home.dwellingType', value: 'tenant
 testHelpers.inputMapFindPlaceTest({ context, path: 'home.geography' });
 testHelpers.inputNextButtonTest({ context, text: 'Save and continue', nextPageUrl: '/survey/householdMembers' });
 
-// Test the household page
+// Test the household page, the progress counts the sections of both persons
+testHelpers.sectionProgressBarTest({ context, sectionName: 'Household members', completionPercentage: 8 });
 // Data for the first person
 testHelpers.inputStringTest({ context, path: 'household.persons.${personId[0]}.nickname', value: 'bob' });
 testHelpers.inputStringTest({ context, path: 'household.persons.${personId[0]}.age', value: '30' });
@@ -64,11 +65,13 @@ testHelpers.inputNextButtonTest({ context, text: 'Save and continue', nextPageUr
 testHelpers.waitTextVisible({ context, text: 'bob\'s interview' });
 
 // Test the profile page
+testHelpers.sectionProgressBarTest({ context, sectionName: 'Profile', completionPercentage: 15 });
 testHelpers.inputRadioTest({ context, path: 'household.persons.${personId[0]}.workOnTheRoad', value: false });
 testHelpers.inputRadioTest({ context, path: 'household.persons.${personId[0]}.usualWorkPlaceIsHome', value: true });
 testHelpers.inputNextButtonTest({ context, text: 'Save and continue', nextPageUrl: '/survey/travelBehavior' });
 
-// Test the travel behavior page for first person
+// Test the travel behavior page for first person, the skipped trips sections make the progress jump
+testHelpers.sectionProgressBarTest({ context, sectionName: 'Travel behavior', completionPercentage: 46 });
 testHelpers.inputRadioTest({
     context,
     path: 'household.persons.${personId[0]}.whoAnsweredForThisPerson',
@@ -80,11 +83,13 @@ testHelpers.waitTextVisible({ context, text: 'alice\'s interview' });
 // Test the profile for the second
 // FIXME Show popup functionality has not been brought back after navigation migration
 // testHelpers.inputPopupButtonTest({ context, text: 'Continue', popupText: 'If alice is available, she can come and continue the interview, or you can answer for her' });
+testHelpers.sectionProgressBarTest({ context, sectionName: 'Profile', completionPercentage: 54 });
 testHelpers.inputRadioTest({ context, path: 'household.persons.${personId[1]}.workOnTheRoad', value: false });
 testHelpers.inputRadioTest({ context, path: 'household.persons.${personId[1]}.usualWorkPlaceIsHome', value: true });
 testHelpers.inputNextButtonTest({ context, text: 'Save and continue', nextPageUrl: '/survey/travelBehavior' });
 
 // Second person is retired, straight to travel behavior for her too
+testHelpers.sectionProgressBarTest({ context, sectionName: 'Travel behavior', completionPercentage: 85 });
 testHelpers.inputRadioTest({
     context,
     path: 'household.persons.${personId[1]}.whoAnsweredForThisPerson',
@@ -93,6 +98,7 @@ testHelpers.inputRadioTest({
 testHelpers.inputNextButtonTest({ context, text: 'Continue', nextPageUrl: '/survey/end' });
 
 // Test the end page
+testHelpers.sectionProgressBarTest({ context, sectionName: 'End', completionPercentage: 92 });
 testHelpers.inputSelectTest({ context, path: 'household.residentialPhoneType', value: 'landLine' });
 testHelpers.inputRadioTest({ context, path: 'household.didAlsoRespondByPhone', value: false });
 testHelpers.inputRadioTest({ context, path: 'household.wouldLikeToParticipateInOtherSurveys', value: false });
