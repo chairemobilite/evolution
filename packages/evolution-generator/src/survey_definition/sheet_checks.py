@@ -89,7 +89,7 @@ def fields_in_survey_languages(
     Reported once for the table, not on each row.
 
     `column_prefix_by_field` maps each translated field, a dict by language (see
-    row_checks.py::_collect_language_columns), to the prefix of its columns, e.g.
+    row_checks.py::collect_language_columns), to the prefix of its columns, e.g.
     {"title": "title_"}, to name the unexpected columns. The survey languages are only
     read when a row has a translated value, so a table without any can be built
     without them. Without any language (they were invalid, and reported as such),

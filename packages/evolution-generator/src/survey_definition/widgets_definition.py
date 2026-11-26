@@ -33,11 +33,11 @@ from pydantic import (
 
 from survey_definition import field_checks
 from survey_definition.row_checks import (
-    _as_boolean,
-    _collect_language_columns,
-    _raise_if_check_fails,
-    _read_booleans,
-    _strip_blanks,
+    as_boolean,
+    collect_language_columns,
+    raise_if_check_fails,
+    read_booleans,
+    strip_blanks,
 )
 from survey_definition.sheet_checks import (
     collect_sheet_issues,
@@ -82,7 +82,7 @@ _INPUT_TYPE_BY_LOWER_CASE = {
     input_type.lower(): input_type for input_type in WIDGET_INPUT_TYPES
 }
 
-# The true/false columns, read by _as_boolean: TRUE/FALSE written as text or turned into
+# The true/false columns, read by as_boolean: TRUE/FALSE written as text or turned into
 # 1/0 by a spreadsheet (e.g. LibreOffice) are accepted; other values stay errors.
 _BOOLEAN_FIELD_NAMES = (
     "active",
@@ -227,7 +227,7 @@ def _is_inactive_row(row: Any) -> bool:
     """
     if isinstance(row, WidgetDefinition):
         return not row.active
-    return isinstance(row, dict) and _as_boolean(row.get("active")) is False
+    return isinstance(row, dict) and as_boolean(row.get("active")) is False
 
 
 def _is_ignored(info: ValidationInfo) -> bool:
@@ -480,7 +480,7 @@ class WidgetDefinition(BaseModel):
     (e.g. the string "yes" or "VRAI" is rejected for `active`), except for what a
     spreadsheet may have changed: a number in a label, `custom_choice` or
     `default_value` is read as text, and TRUE/FALSE written as text or as 1/0 as true
-    and false (see row_checks._as_boolean). The input type and
+    and false (see row_checks.as_boolean). The input type and
     the parameter names may be written in any case (e.g. Builtin, Max).
 
     Attributes:
@@ -544,16 +544,16 @@ class WidgetDefinition(BaseModel):
         """Treat a blank/whitespace-only cell as an absent key, gather the label columns, and read the cells a spreadsheet may have changed (see below)."""
         if not isinstance(data, dict):
             return data
-        data = _collect_language_columns(
-            _strip_blanks(data), "label_one", WIDGET_LABEL_ONE_COLUMN_PREFIX
+        data = collect_language_columns(
+            strip_blanks(data), "label_one", WIDGET_LABEL_ONE_COLUMN_PREFIX
         )
-        data = _collect_language_columns(data, "label", WIDGET_LABEL_COLUMN_PREFIX)
+        data = collect_language_columns(data, "label", WIDGET_LABEL_COLUMN_PREFIX)
         # A spreadsheet stores a value like 97 or 1.5 as a number.
         for field_name in ("custom_choice", "default_value"):
             value = data.get(field_name)
             if isinstance(value, (int, float)) and not isinstance(value, bool):
                 data[field_name] = str(value)
-        data = _read_booleans(data, _BOOLEAN_FIELD_NAMES)
+        data = read_booleans(data, _BOOLEAN_FIELD_NAMES)
         input_type = data.get("input_type")
         if isinstance(input_type, str):
             data["input_type"] = _INPUT_TYPE_BY_LOWER_CASE.get(
@@ -638,7 +638,7 @@ class WidgetDefinition(BaseModel):
     ) -> str | None:
         """Check that a name used in the TypeScript code is a valid identifier."""
         if value is not None and not _is_ignored(info):
-            _raise_if_check_fails(field_checks.valid_ts_identifier, value, info.data)
+            raise_if_check_fails(field_checks.valid_ts_identifier, value, info.data)
         return value
 
     @field_validator("path", "custom_path")
@@ -646,7 +646,7 @@ class WidgetDefinition(BaseModel):
     def _path_is_valid(cls, value: str | None, info: ValidationInfo) -> str | None:
         """Check that a non-blank `path`/`custom_path` is a response path."""
         if value is not None and not _is_ignored(info):
-            _raise_if_check_fails(field_checks.valid_response_path, value, info.data)
+            raise_if_check_fails(field_checks.valid_response_path, value, info.data)
         return value
 
     @field_validator("validation")
