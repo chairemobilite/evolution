@@ -37,7 +37,7 @@
         "evolution-common": "workspace:^",
         "evolution-frontend": "workspace:^",
         "evolution-generator": "workspace:^",
-        "i18next": "^26.0.6",
+        "i18next": "^26.3.4",
         "lodash": "^4.18.1",
         "moment": "^2.31.0",
         "moment-business-days": "^1.2.0"
