@@ -59,11 +59,6 @@ jest.mock('../../participant/routes', () => ({
     default: jest.fn()
 }));
 
-jest.mock('chaire-lib-backend/lib/api/trRouting.routes', () => ({
-    __esModule: true,
-    default: jest.fn()
-}));
-
 jest.mock('connect-session-knex', () => {
     const MockStore = jest.fn().mockImplementation(() => ({
         on: jest.fn()

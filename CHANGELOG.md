@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- Admin: the interview summary shows the bird distance and the bird speed of each trip beside its duration (fixes [#2173](https://github.com/chairemobilite/evolution/issues/2173))
+
 ### Changed
 
 ### Deprecated
@@ -18,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 ### Security
+
+- Remove the direct trRouting routes (`/trRouting/route`, `/trRouting/summary`, `/trRouting/accessibilityMap`) from the participant and admin servers: any logged-in user could make the server send requests to arbitrary hosts. Routing only goes through the Transition API ([#2198](https://github.com/chairemobilite/evolution/pull/2198))
 
 ### Dependency updates
 
