@@ -41,7 +41,7 @@ export const getLastVisitedSection = ({
  * @param {Object} options - The options object
  * @param {UserInterviewAttributes} options.interview The interview
  * object
- * @param {string} options.section The name of the section to check
+ * @param {string} options.sectionName The name of the section to check
  * @param {string[]} [options.iterationContext] The specific iteration context
  * to check if the section is part of a repeated block
  * @returns Whether the section is marked as completed

@@ -47,7 +47,7 @@ export class ConstructorUtils {
      *
      * @template U - The type of the unserialized attribute item.
      * @template P - The type of the attribute item parameters.
-     * @param params - The parameters object containing the composed attribute values. Undefined array elements are allowed but will be ignored
+     * @param attributeParams - The parameters object containing the composed attribute values. Undefined array elements are allowed but will be ignored
      * @param unserializeFunc - The function used to unserialize each attribute item.
      * @param surveyObjectsRegistry - The survey objects registry.
      * @returns An array of unserialized attribute items.

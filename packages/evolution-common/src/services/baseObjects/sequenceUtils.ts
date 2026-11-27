@@ -39,10 +39,8 @@ const isValidSequence = (sequence: unknown): sequence is number => {
  * Sort hash map entries by `_sequence` (`|| 0`), then UUID for a stable tie-break.
  * The order may be arbitrary when sequences are missing or duplicated, but that is ok:
  * the audit checks report those cases so a reviewer can fix the data.
- * @param uuidA - Object key from `Object.entries`
- * @param a - First entry attributes
- * @param uuidB - Object key from `Object.entries`
- * @param b - Second entry attributes
+ * @param entryA - First `[uuid, attributes]` entry from `Object.entries`
+ * @param entryB - Second `[uuid, attributes]` entry from `Object.entries`
  */
 export const compareSequenceThenUuid = <T extends SequencedAttributes>(
     [uuidA, a]: [string, T],

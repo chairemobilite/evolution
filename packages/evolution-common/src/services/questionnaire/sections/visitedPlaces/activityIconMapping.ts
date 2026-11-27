@@ -77,7 +77,7 @@ export const getActivityIcon = (activity: ActivityCategory | Activity | null | u
     return `${resolveIconBasePath(activity)}.svg`;
 };
 
-type MarkerType = 'round' | 'square';
+export type MarkerType = 'round' | 'square';
 /**
  * Returns the appropriate icon path for the map marker corresponding to a given
  * activity or activity category

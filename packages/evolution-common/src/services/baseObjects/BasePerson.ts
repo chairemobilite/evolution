@@ -41,7 +41,7 @@ type BasePersonAttributes = {
 type ExtendedPersonAttributes = BasePersonAttributes & { [key: string]: any };
 
 /* eslint-disable @typescript-eslint/no-empty-interface, @typescript-eslint/no-empty-object-type */
-interface IBasePersonAttributes extends BasePersonAttributes {}
+export interface IBasePersonAttributes extends BasePersonAttributes {}
 
 class BasePerson extends Uuidable implements IBasePersonAttributes, IValidatable {
     _isValid: Optional<boolean>;

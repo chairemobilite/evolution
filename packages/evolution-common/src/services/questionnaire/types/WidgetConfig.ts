@@ -17,19 +17,19 @@ import {
     UserInterviewAttributes
 } from './Data';
 
-type IconData = {
+export type IconData = {
     url: string | ParsingFunction<string>;
     size?: [number, number];
 };
 
-type WidgetSize = 'small' | 'medium' | 'large';
+export type WidgetSize = 'small' | 'medium' | 'large';
 // ChatGPT: This could represent the directional alignment options as it "is focused on the direction in which elements are aligned"
-type WidgetDirectionAlign = 'center' | 'left' | 'right';
+export type WidgetDirectionAlign = 'center' | 'left' | 'right';
 // ChatGPT: This would represent the spatial alignment options as it "pertains to the spatial orientation"
-type WidgetSpaceAlign = 'vertical' | 'horizontal' | 'auto';
+export type WidgetSpaceAlign = 'vertical' | 'horizontal' | 'auto';
 
 // This represent if the content contains HTML
-type ContainsHtml = boolean;
+export type ContainsHtml = boolean;
 
 // This represent when the widget have a help popup
 export type HelpPopup = {
@@ -112,7 +112,7 @@ export type InputTextType = BaseQuestionType & {
 };
 
 // TODO This type is used by select, checkbox, radio, buttons etc. See if we can leverage functionality. Now every widget uses a subset of the properties (some may not need some of them, some could use them)
-type BaseChoiceType = {
+export type BaseChoiceType = {
     label: I18nData;
     hidden?: boolean;
     icon?: IconProp;
@@ -279,7 +279,7 @@ export type InputDatePickerType = BaseQuestionType & {
     size?: WidgetSize;
 };
 
-type InputMapType = {
+export type InputMapType = {
     defaultCenter: { lat: number; lon: number } | ParsingFunction<{ lat: number; lon: number }>;
     geocodingQueryString?: ParsingFunction<string | { queryString: string; zoom: number }[] | undefined>;
     refreshGeocodingLabel?: I18nData;
@@ -514,7 +514,7 @@ export type SurveyMapObjectProperty = {
     lastAction?: 'findPlace' | 'preGeocoded' | 'shortcut' | 'markerDragged' | 'mapClicked' | 'geocoding';
 };
 
-type SurveyMapObjectPolygonProperty = SurveyMapObjectProperty & {
+export type SurveyMapObjectPolygonProperty = SurveyMapObjectProperty & {
     strokeColor?: string;
     strokeOpacity?: number;
     strokeWeight?: number;

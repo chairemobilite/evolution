@@ -7,19 +7,19 @@
 import { getResponse, interpolatePath } from '../../../utils/helpers';
 
 // Type definitions for conditionals, logical operators and comparison operators
-type PathType = string;
-type ComparisonOperatorsType = '===' | '!==' | '>' | '<' | '>=' | '<=';
-type ValueType = string | number | boolean | null;
-type logicalOperatorsType = '&&' | '||';
-type ParenthesesType = '(' | ')';
-type SingleConditionalsType = {
+export type PathType = string;
+export type ComparisonOperatorsType = '===' | '!==' | '>' | '<' | '>=' | '<=';
+export type ValueType = string | number | boolean | null;
+export type logicalOperatorsType = '&&' | '||';
+export type ParenthesesType = '(' | ')';
+export type SingleConditionalsType = {
     logicalOperator?: logicalOperatorsType;
     path: PathType;
     comparisonOperator: ComparisonOperatorsType;
     value: ValueType;
     parentheses?: ParenthesesType;
 };
-type ConditionalsType = SingleConditionalsType[];
+export type ConditionalsType = SingleConditionalsType[];
 
 /**
  * Evaluates a list of conditionals against an interview response.
@@ -30,6 +30,7 @@ type ConditionalsType = SingleConditionalsType[];
  * Use `value: null` to test for missing/null responses (and empty arrays for `===` / `!==`). The legacy string
  * sentinel `value: 'null'` is still accepted for older generated code.
  *
+ * @param params The parameters object.
  * @param params.interview Interview object containing `response`
  * @param {ConditionalsType} params.conditionals List of conditionals to evaluate (combined left-to-right)
  * @param {ValueType} [params.valueWhenHidden] Optional value returned as the 2nd tuple element; defaults to `null` when omitted

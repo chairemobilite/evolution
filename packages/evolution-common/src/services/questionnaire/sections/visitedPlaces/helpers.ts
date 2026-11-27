@@ -38,7 +38,7 @@ import { getBirdDistanceMeters } from '../../../../utils/PhysicsUtils';
  * places from
  * @param arg.path The path of the current visited place widget, used to get the
  * visited place context and the previous and next visited places
- * @param arg.incompatibleActivities The list of incompatible activities for the
+ * @param arg.incompatibleConsecutiveActivities The list of incompatible activities for the
  * current activity choice
  * @returns True if the previous and next visited places have an activity that
  * is not in the list of incompatible activities
@@ -220,6 +220,7 @@ const getHouseholdVisitedPlacesByPersonId = ({
  * that are not compatible with the current activity, that have no geographies,
  * or that have already the same geography as previous or next places.
  *
+ * @param options The options object.
  * @param options.interview The interview data.
  * @param options.currentVisitedPlace The currently located visited place, used
  * to get the previous and next places for comparison.

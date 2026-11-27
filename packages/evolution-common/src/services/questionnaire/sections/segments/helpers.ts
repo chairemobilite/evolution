@@ -304,9 +304,9 @@ export const getFilteredModesPre = (sectionConfig: SegmentSectionConfiguration, 
     }
 };
 
-type SegmentLocationGetterReturnType = GeoJSON.Feature<GeoJSON.Point> | null;
-type SegmentLocationGetterWithUnknownReturnType = SegmentLocationGetterReturnType | 'unknown';
-type SegmentLocationGetterParams = {
+export type SegmentLocationGetterReturnType = GeoJSON.Feature<GeoJSON.Point> | null;
+export type SegmentLocationGetterWithUnknownReturnType = SegmentLocationGetterReturnType | 'unknown';
+export type SegmentLocationGetterParams = {
     segment: Segment;
     journey: Journey;
     trip: Trip;

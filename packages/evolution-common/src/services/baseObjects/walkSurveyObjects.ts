@@ -37,7 +37,7 @@ export type TripVisitContext = JourneyVisitContext & { journey: Journey };
 /** Context of a visited segment: all its ancestors */
 export type SegmentVisitContext = TripVisitContext & { trip: Trip };
 
-type VisitMethod<T, TContext> = (object: T, context: TContext) => void | Promise<void>;
+export type VisitMethod<T, TContext> = (object: T, context: TContext) => void | Promise<void>;
 
 /**
  * Operation to run on each survey object of an interview. Implement only the

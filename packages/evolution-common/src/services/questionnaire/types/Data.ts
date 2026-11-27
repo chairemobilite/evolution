@@ -50,14 +50,13 @@ export type TranslatableStringFunction = (
 
 export type I18nData = string | LangData | TranslatableStringFunction;
 
-type Required<T> = { [P in keyof T]-?: T[P] };
 // This recursive generic type is taken from this stack overflow question:
 // https://stackoverflow.com/questions/65332597/typescript-is-there-a-recursive-keyof
 // But in order to be able to type-check strings for objects with uuid keys, we
 // only allow simple fields in this type, not fields reaching object types (like
 // `household` directly)
 // TODO This is not evolution-specific, it can go somewhere else once the types are fixed
-type RecursiveFinalKeyOf<TObj extends object> = {
+export type RecursiveFinalKeyOf<TObj extends object> = {
     [TKey in keyof TObj & (string | number)]: TObj[TKey] extends any[]
         ? `${TKey}`
         : TObj[TKey] extends object | undefined
@@ -67,7 +66,7 @@ type RecursiveFinalKeyOf<TObj extends object> = {
 
 export type InterviewResponsePath = RecursiveFinalKeyOf<Required<InterviewResponse>>;
 
-type RecursivePartial<T> = {
+export type RecursivePartial<T> = {
     [P in keyof T]?: T[P] extends (infer U)[]
         ? RecursivePartial<U>[]
         : T[P] extends object | undefined
@@ -78,7 +77,7 @@ type RecursivePartial<T> = {
 export type PartialInterviewResponse = RecursivePartial<InterviewResponse>;
 
 // Type for the validations, which should have the same keys as the response, but with boolean values
-type RecursiveBoolean<TObj extends object> = {
+export type RecursiveBoolean<TObj extends object> = {
     [TKey in keyof TObj]?: TObj[TKey] extends object ? RecursiveBoolean<Required<TObj[TKey]>> : boolean;
 };
 export type InterviewValidations = RecursiveBoolean<Required<InterviewResponse>>;
@@ -94,7 +93,7 @@ export type Household = HouseholdAttributes & {
     };
 };
 
-type SurveyPointProperties = {
+export type SurveyPointProperties = {
     /**
      * The type of action done on a point:
      *
@@ -193,7 +192,8 @@ export type Journey = JourneyAttributes &
         _skipTripDiary?: boolean;
     };
 
-type NextPlaceCategory = 'wentBackHome' | 'visitedAnotherPlace' | 'stayedThereUntilTheNextDay' | 'wentToUsualWorkPlace';
+export type NextPlaceCategory =
+    'wentBackHome' | 'visitedAnotherPlace' | 'stayedThereUntilTheNextDay' | 'wentToUsualWorkPlace';
 // FIXME We are not using the VisitedPlaceAttributes type here because during survey, most of the data from that type is rather as a property of the geography feature and not as fields of the object
 export type VisitedPlace = QuestionnaireObjectWithUuidAndSequence &
     NamedPlace & {
@@ -287,7 +287,7 @@ export type Segment = Omit<SegmentAttributes, 'mode'> &
         hasNextMode?: boolean;
     };
 
-type SectionStatus = {
+export type SectionStatus = {
     _isCompleted?: boolean;
     _startedAt: number;
 };
@@ -309,7 +309,6 @@ export type PlaceAddress = {
  *
  * TODO Update to use new types in surveyObjects
  *
- * @export
  * @interface InterviewResponse
  */
 export type InterviewResponse = {
@@ -368,7 +367,6 @@ export interface InterviewAudits {
  * Interview attributes visible to users. This is a user-facing object and does
  * not contain any administrative data for this interview.
  *
- * @export
  * @interface UserInterviewAttributes
  */
 export interface UserInterviewAttributes {
@@ -409,7 +407,6 @@ export type InterviewLoginMethod = (typeof interviewLoginMethodValues)[number];
  * Interview attributes, describing a complete interview object. This object
  * will typically be available to admins to other user roles.
  *
- * @export
  * @interface InterviewAttributes
  */
 export interface InterviewAttributes extends UserInterviewAttributes {

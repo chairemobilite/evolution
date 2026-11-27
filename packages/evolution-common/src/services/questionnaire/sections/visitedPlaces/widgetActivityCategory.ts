@@ -160,7 +160,7 @@ const getActivityCategoryChoices = (filteredCategories: ActivityCategory[]): Rad
  * (for example `(0-15)[École];(15-inf)[École / Études];`).
  *
  * @param sectionConfig The configuration of the section
- * @param options The widget factory options
+ * @param _options The widget factory options
  * @returns The widget configuration for the activity category question, which
  * is a radio input with the available activity categories
  */

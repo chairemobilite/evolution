@@ -16,5 +16,20 @@
     "excludeExternals": true,
     "categorizeByGroup": true,
     "sort": ["alphabetical"],
-    "includeVersion": true
+    "includeVersion": true,
+    "highlightLanguages": [
+        "bash",
+        "console",
+        "css",
+        "html",
+        "ini",
+        "javascript",
+        "json",
+        "jsonc",
+        "json5",
+        "yaml",
+        "tsx",
+        "typescript"
+    ],
+    "treatWarningsAsErrors": true
 }

@@ -69,8 +69,6 @@ export type SerializedExtendedInterviewParadataAttributes = {
  * Represents metadata associated with an interview (paradata).
  * See https://en.wikipedia.org/wiki/Paradata
  *
- * @class
- * @description
  * The InterviewParadata class manages paradata related to an interview.
  * It is typically created as part of the Interview object initialization process.
  *

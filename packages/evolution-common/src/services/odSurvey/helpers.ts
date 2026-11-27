@@ -368,7 +368,7 @@ export const countAdults = ({ interview }: { interview: UserInterviewAttributes 
  * self-response age defined in the configuration
  *
  * @param {Object} options - The options object.
- * @param {UserInterviewAttributes} optins.interview The interview object
+ * @param {UserInterviewAttributes} options.interview The interview object
  * @param {Person} options.person The person to check
  * @returns {boolean} `true` if the person is self-declared, `false` otherwise.
  */
@@ -1094,7 +1094,6 @@ export const getVisitedPlaceContextFromPath = ({
  * @param {UserInterviewAttributes} options.interview The interview object
  * @param {string} options.shortcutTo The path of the visited place for which to
  * replace all shortcuts
- * @param visitedPlacesPath The path of the visited place to replace
  */
 export const replaceVisitedPlaceShortcuts = ({
     interview,
