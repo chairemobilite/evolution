@@ -10,7 +10,7 @@ import _set from 'lodash/set';
 import { UserRuntimeInterviewAttributes } from '../types/Data';
 import { SurveySections, SectionConfigWithDefaultsBlock, SectionConfigWithDefaultsSet } from '../types/SectionConfig';
 import { NavigationSection, sectionToUrlPath, TargetSectionResult } from '../types/NavigationTypes';
-import { getLastVisitedSection, isIterationContextStarted } from './navigationHelpers';
+import { getLastVisitedSection, isSectionCompleted } from './navigationHelpers';
 import { getResponse, parseBoolean } from '../../../utils/helpers';
 import { getInterviewablePersonsArray } from '../../odSurvey/helpers';
 
@@ -81,6 +81,39 @@ export class NavigationService {
             });
     }
 
+    private isRepeatedBlockIterationValid({
+        interview,
+        repeatedBlockSection,
+        iterationContext
+    }: {
+        interview: UserRuntimeInterviewAttributes;
+        repeatedBlockSection: SectionConfigWithDefaultsBlock;
+        iterationContext: string[];
+    }): boolean {
+        const isIterationValid = repeatedBlockSection.repeatedBlock.isIterationValid;
+        // If there is a `isIterationValid` function, run it to determine if it is valid
+        if (typeof isIterationValid === 'function') {
+            try {
+                return isIterationValid(interview, iterationContext);
+            } catch (error) {
+                this.logAndThrowErrorInSectionFunction({
+                    section: {
+                        sectionShortname: repeatedBlockSection.sectionName,
+                        iterationContext
+                    },
+                    functionName: 'isIterationValid',
+                    error
+                });
+            }
+        }
+        // Otherwise, the iteration is valid if every visible section of the block is completed
+        return repeatedBlockSection.repeatedBlock.sections.every(
+            (sectionName) =>
+                !this.isSectionVisible({ interview, section: { sectionShortname: sectionName, iterationContext } }) ||
+                isSectionCompleted({ interview, sectionName, iterationContext })
+        );
+    }
+
     private isSectionCompleted({
         interview,
         section
@@ -119,15 +152,20 @@ export class NavigationService {
         if (!this.isSectionEnabled({ interview, section })) {
             return false;
         }
+        return this.isSectionVisible({ interview, section });
+    }
+
+    // Verify that a section is enabled, but not visible. A section that is
+    // enabled, but not visible should be considered as completed from the point
+    // of view of navigation and it should be possible to go to the next section
+    private isSectionVisible({
+        interview,
+        section
+    }: {
+        interview: UserRuntimeInterviewAttributes;
+        section: NavigationSection;
+    }): boolean {
         const sectionConfig = this.sections[section.sectionShortname];
-        // If the section is the selection section of a repeated block, make it invisible if there is only one iteration
-        if (sectionConfig.type === 'section' && sectionConfig.repeatedBlockSection) {
-            const blockSection = this.sections[sectionConfig.repeatedBlockSection] as SectionConfigWithDefaultsBlock;
-            if (blockSection.repeatedBlock.selectionSectionId === section.sectionShortname) {
-                const [iterationContexts] = this.getIterationContextsForBlock({ interview, blockSection });
-                return iterationContexts.length > 1;
-            }
-        }
         // Run the section's `isSectionVisible` function if it exists
         if (sectionConfig.isSectionVisible) {
             try {
@@ -138,6 +176,32 @@ export class NavigationService {
         }
         // By default the section is visible
         return true;
+    }
+
+    private getNextSectionCandidateFromSection({
+        interview,
+        section,
+        direction
+    }: {
+        interview: UserRuntimeInterviewAttributes;
+        section: NavigationSection;
+        direction: 'forward' | 'backward';
+    }): string | null {
+        const sectionConfig = this.sections[section.sectionShortname];
+        if (sectionConfig.type !== 'repeatedBlock' || direction !== 'forward') {
+            return direction === 'forward' ? sectionConfig.nextSection : sectionConfig.previousSection;
+        }
+
+        // If the section is a repeated block, the possible next section is
+        // either the actual next section if the active survey object is not
+        // set, or the first section of the block.
+        const activeObjectId = getResponse(interview, sectionConfig.repeatedBlock.activeSurveyObjectPath) as
+            string | undefined;
+        if (activeObjectId !== undefined) {
+            return sectionConfig.repeatedBlock.sections[0];
+        }
+
+        return sectionConfig.nextSection;
     }
 
     // Find the first section that shouldn't be skipped in the given direction
@@ -162,10 +226,11 @@ export class NavigationService {
         while (!visited.has(sectionToUrlPath(lastVisitedSection))) {
             visited.add(sectionToUrlPath(lastVisitedSection));
 
-            // Get the next section in the direction
-            const sectionConfig = this.sections[lastVisitedSection.sectionShortname];
-            const targetSectionName =
-                direction === 'forward' ? sectionConfig.nextSection : sectionConfig.previousSection;
+            const targetSectionName = this.getNextSectionCandidateFromSection({
+                interview,
+                section: lastVisitedSection,
+                direction
+            });
 
             // If null, keep current section
             if (targetSectionName === null) {
@@ -342,38 +407,12 @@ export class NavigationService {
         repeatedBlockSection: SectionConfigWithDefaultsBlock;
         iterationContext: string[];
     }): string {
-        // There are 2 flow of possibilities for the target section of the block
-        // 1. If it is the natural flow (the new iteration has not started yet),
-        //    then we go to the first section of the block, or skip it if it is
-        //    the selection section and the block is configured to skip in
-        //    natural flow
-        // 2. If not in natural flow, go to the selection section if specified
-        //    or to the first one of the block
-
-        const isNaturalFlow = !isIterationContextStarted({ interview, iterationContext });
-        const firstBlockSection = repeatedBlockSection.repeatedBlock.sections[0];
-        if (isNaturalFlow) {
-            return this.findFirstVisibleSectionInRepeatedBlock({
-                interview,
-                repeatedBlockSection,
-                iterationContext,
-                startFrom:
-                    repeatedBlockSection.repeatedBlock.skipSelectionInNaturalFlow &&
-                    firstBlockSection === repeatedBlockSection.repeatedBlock.selectionSectionId
-                        ? repeatedBlockSection.repeatedBlock.sections[1]
-                        : firstBlockSection
-            });
-        } else {
-            // If not in natural flow, go to the selection section if specified
-            return this.findFirstVisibleSectionInRepeatedBlock({
-                interview,
-                repeatedBlockSection,
-                iterationContext,
-                startFrom: repeatedBlockSection.repeatedBlock.selectionSectionId
-                    ? repeatedBlockSection.repeatedBlock.selectionSectionId
-                    : firstBlockSection
-            });
-        }
+        return this.findFirstVisibleSectionInRepeatedBlock({
+            interview,
+            repeatedBlockSection,
+            iterationContext,
+            startFrom: repeatedBlockSection.repeatedBlock.sections[0]
+        });
     }
 
     private deactivateActiveSurveyObject({
@@ -397,7 +436,7 @@ export class NavigationService {
         interview: UserRuntimeInterviewAttributes;
         originSection: NavigationSection;
         repeatedBlockSection: SectionConfigWithDefaultsBlock;
-        direction: string;
+        direction: 'forward' | 'backward';
     }): [NavigationSection, Record<string, unknown> | undefined] {
         // Get the iteration contexts for which the block will be repeated
         const [iterationContexts, updatedValues] = this.getIterationContextsForBlock({
@@ -405,16 +444,24 @@ export class NavigationService {
             blockSection: repeatedBlockSection
         });
 
+        if (!repeatedBlockSection.repeatedBlock.skipSelectionInNaturalFlow) {
+            return [
+                { sectionShortname: repeatedBlockSection.sectionName },
+                originSection.iterationContext
+                    ? this.deactivateActiveSurveyObject({ repeatedBlockSection, valuesByPath: updatedValues })
+                    : updatedValues
+            ];
+        }
+
         // Get the index of the current iteration in the iteration contexts
         const currentIterationIndex = iterationContexts.findIndex((context) =>
             _isEqual(context, originSection.iterationContext)
         );
 
         // See if we need to get off the block if current iteration is the last
-        // and the direction is fioward, or if the iteration is the first and
+        // and the direction is forward, or if the iteration is the first and
         // direction is backward.
-        if (currentIterationIndex === iterationContexts.length - 1 && direction === 'forward') {
-            // If the last iteration is completed, go to the next section, or first invalid iteration
+        if (direction === 'forward' && currentIterationIndex === iterationContexts.length - 1) {
             return this.findEndOfBlockNextSection({
                 interview,
                 repeatedBlockSection,
@@ -431,16 +478,45 @@ export class NavigationService {
         // Determine the next object to activate: if there was no previously
         // selected object, take the first, otherwise, take the next one in the
         // direction of the navigation
-        const nextIterationIndex =
-            currentIterationIndex === -1
-                ? 0
-                : Math.max(
-                    0,
-                    Math.min(currentIterationIndex + (direction === 'forward' ? 1 : -1), iterationContexts.length - 1)
-                );
+        const enteringFromOutside = currentIterationIndex === -1;
+        const nextIterationIndex = enteringFromOutside
+            ? 0
+            : Math.max(
+                0,
+                Math.min(currentIterationIndex + (direction === 'forward' ? 1 : -1), iterationContexts.length - 1)
+            );
         const nextIterationContext = iterationContexts[nextIterationIndex];
 
-        // Go to the target section of the repeated block
+        // There is no next iteration context, we stay in this section
+        if (!nextIterationContext) {
+            return [
+                { sectionShortname: repeatedBlockSection.sectionName },
+                originSection.iterationContext
+                    ? this.deactivateActiveSurveyObject({ repeatedBlockSection, valuesByPath: updatedValues })
+                    : updatedValues
+            ];
+        }
+        // If the next iteration is valid, we don't need to get into it again,
+        // unless we are in skipSelectionInNaturalFlow and there is only one
+        // iteration Just stay in the main section and let the participant
+        // decide where to go
+        if (
+            this.isRepeatedBlockIterationValid({
+                interview,
+                repeatedBlockSection,
+                iterationContext: nextIterationContext
+            }) &&
+            !(repeatedBlockSection.repeatedBlock.skipSelectionInNaturalFlow === true && iterationContexts.length === 1)
+        ) {
+            return [
+                { sectionShortname: repeatedBlockSection.sectionName },
+                originSection.iterationContext
+                    ? this.deactivateActiveSurveyObject({ repeatedBlockSection, valuesByPath: updatedValues })
+                    : updatedValues
+            ];
+        }
+
+        // Go to the target section of the repeated block for the selected iteration
         const targetSectionName = this.findTargetSectionInRepeatedBlock({
             interview,
             repeatedBlockSection,
@@ -461,40 +537,21 @@ export class NavigationService {
         updatedValues: Record<string, unknown> | undefined;
         iterationContexts: string[][];
     }): [NavigationSection, Record<string, unknown> | undefined] {
-        // The navigation in the repeated block section may not have been linear
-        // and some iterations might be invalid. We find the first invalid
-        // iteration and navigate to the first visible section of this block.
-        if (repeatedBlockSection.repeatedBlock.isIterationValid !== undefined) {
-            const firstInvalidIteration = iterationContexts.find((context) => {
-                try {
-                    return !repeatedBlockSection.repeatedBlock.isIterationValid!(interview, context);
-                } catch (error) {
-                    this.logAndThrowErrorInSectionFunction({
-                        section: { sectionShortname: repeatedBlockSection.sectionName, iterationContext: context },
-                        functionName: 'isIterationValid',
-                        error
-                    });
-                }
-            });
-            if (firstInvalidIteration) {
-                // If there is an invalid iteration, find first visible section
-                // in the block for this person, skipping the selection section
-                // if required
-                return [
-                    {
-                        sectionShortname: this.findFirstVisibleSectionInRepeatedBlock({
-                            interview,
-                            repeatedBlockSection,
-                            iterationContext: firstInvalidIteration,
-                            startFrom: repeatedBlockSection.repeatedBlock.selectionSectionId
-                                ? repeatedBlockSection.repeatedBlock.sections[1]
-                                : repeatedBlockSection.repeatedBlock.sections[0]
-                        }),
-                        iterationContext: firstInvalidIteration
-                    },
-                    updatedValues
-                ];
-            }
+        // If a non-linear flow left an iteration invalid, let the repeated
+        // block section offer the respondent a chance to select it.
+        const firstInvalidIteration = iterationContexts.find(
+            (context) =>
+                !this.isRepeatedBlockIterationValid({
+                    interview,
+                    repeatedBlockSection,
+                    iterationContext: context
+                })
+        );
+        if (firstInvalidIteration) {
+            return [
+                { sectionShortname: repeatedBlockSection.sectionName },
+                this.deactivateActiveSurveyObject({ repeatedBlockSection, valuesByPath: updatedValues })
+            ];
         }
         return [
             { sectionShortname: repeatedBlockSection.nextSection },
@@ -502,8 +559,8 @@ export class NavigationService {
         ];
     }
 
-    // Add the iteration context to the target section or remove any previous
-    // context if it is not in a repeated block
+    // Add an active iteration context to a child section, or land on its
+    // repeated-block section when no object has been selected yet.
     private goToCurrentIterationContextOrSelect({
         interview,
         sectionName,
@@ -526,7 +583,7 @@ export class NavigationService {
 
         if (activeObjectId === undefined) {
             return {
-                sectionShortname: repeatedBlock.selectionSectionId || repeatedBlockSectionName,
+                sectionShortname: repeatedBlockSectionName,
                 iterationContext: undefined
             };
         } else {
@@ -569,12 +626,10 @@ export class NavigationService {
         currentSection: NavigationSection,
         direction: 'forward' | 'backward' = 'forward'
     ): TargetSectionResult {
-        const correctedCurrentSection = this.correctCurrentSectionIteration({ interview, currentSection });
-
         // Find the first non-skipped section in the requested direction
         const [targetSection, valuesByPath] = this.findFirstNonSkippedSection({
             interview,
-            currentSection: correctedCurrentSection,
+            currentSection,
             direction
         });
 
@@ -636,37 +691,6 @@ export class NavigationService {
         });
     }
 
-    // If the current section is the survey object selection section, update the current iteration to match the
-    // selected object. This is used to correct the current section iteration context when navigating to a section
-    // that is in a repeated block.
-    private correctCurrentSectionIteration({
-        interview,
-        currentSection
-    }: {
-        interview: UserRuntimeInterviewAttributes;
-        currentSection: NavigationSection;
-    }): NavigationSection {
-        const currentSectionConfig = this.sections[currentSection.sectionShortname];
-        if (currentSectionConfig.type === 'section' && currentSectionConfig.repeatedBlockSection) {
-            const repeatedBlockConfig = this.sections[
-                currentSectionConfig.repeatedBlockSection
-            ] as SectionConfigWithDefaultsBlock;
-            // If the section is not the selection section, no need for any correction
-            if (repeatedBlockConfig.repeatedBlock.selectionSectionId === currentSection.sectionShortname) {
-                // Just go to the current iteration of the section and return it if there is one, otherwise, keep the current section
-                const correctedCurrentSection = this.goToCurrentIterationContextOrSelect({
-                    interview,
-                    sectionName: currentSection.sectionShortname,
-                    repeatedBlockSectionName: currentSectionConfig.repeatedBlockSection
-                });
-                if (correctedCurrentSection.iterationContext !== undefined) {
-                    return correctedCurrentSection;
-                }
-            }
-        }
-        return currentSection;
-    }
-
     // Add the iteration context to the target section if it is in a repeated
     // block and not set yet, or reversely, remove it if it was set and not in a
     // repeated block section
@@ -690,8 +714,8 @@ export class NavigationService {
             });
         } else if (
             targetSection.iterationContext !== undefined &&
-            sectionConfig.type === 'section' &&
-            !sectionConfig.repeatedBlockSection
+            ((sectionConfig.type === 'section' && !sectionConfig.repeatedBlockSection) ||
+                sectionConfig.type === 'repeatedBlock')
         ) {
             // Remove the iteration context if it is not in a repeated block
             return { sectionShortname: targetSection.sectionShortname, iterationContext: undefined };

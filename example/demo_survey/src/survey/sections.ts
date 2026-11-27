@@ -199,11 +199,10 @@ const sections: { [sectionName: string]: SectionConfig } = {
                 path: 'interviewablePersons'
             },
             order: 'sequential',
-            selectionSectionId: 'selectPerson',
             skipSelectionInNaturalFlow: true,
             activeSurveyObjectPath: '_activePersonId',
             pathPrefix: 'person',
-            sections: ['selectPerson', 'profile', 'tripsIntro', 'visitedPlaces', 'segments', 'travelBehavior'],
+            sections: ['profile', 'tripsIntro', 'visitedPlaces', 'segments', 'travelBehavior'],
             isIterationValid: (interview, iterationContext) => {
                 const personId = iterationContext[iterationContext.length - 1];
                 const person = odSurveyHelper.getPerson({ interview, personId });
@@ -212,26 +211,8 @@ const sections: { [sectionName: string]: SectionConfig } = {
         }
     },
 
-    selectPerson: {
-        previousSection: 'personsTrips',
-        nextSection: 'profile',
-        title: {
-            fr: 'Sélection du membre du ménage',
-            en: 'Household member selection'
-        },
-        widgets: ['selectPerson', 'buttonSelectPersonConfirm'],
-        enableConditional: function (interview) {
-            return helper.householdMembersSectionComplete(interview);
-        },
-        isSectionCompleted: (interview, iterationContext) => {
-            // Completed if there is an active person ID set
-            const activePersonId = getResponse(interview, '_activePersonId');
-            return !_isBlank(activePersonId);
-        }
-    },
-
     profile: {
-        previousSection: 'selectPerson',
+        previousSection: 'personsTrips',
         nextSection: 'tripsIntro',
         title: {
             fr: 'Profil',

@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Admin: the interview summary shows the bird distance and the bird speed of each trip beside its duration (fixes [#2173](https://github.com/chairemobilite/evolution/issues/2173))
 - Export: CSV files of the survey objects, created from the corrected responses ([#2182](https://github.com/chairemobilite/evolution/pull/2182))
 - Generator: the survey definition can be edited as a folder of CSV files instead of the Excel file (fixes [#138](https://github.com/chairemobilite/evolution/issues/138))
+- Section navigation can now support dynamic iteration lists and automatic navigation to next section if all iterations are valid (fixes [#2169](https://github.com/chairemobilite/evolution/issues/2169))
 
 ### Changed
 
@@ -20,8 +21,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Breaking** Generator: `generatorConfigs.yaml` needs a `survey_definition` block (`source: excel` or `csv`, `excel_file_path` and `csv_folder_path`), which replaces the top-level `excel_file_path` and `enabled_scripts.copy_excel_to_csv`. The Generator stops on an old config and shows the block to paste (fixes [#138](https://github.com/chairemobilite/evolution/issues/138))
 - Generator: the `Conditionals` and `Choices` sheets are optional, like `InputRange`, and `conditionals.tsx` and `choices.tsx` aren't written when their table is missing or empty: no generated file imports them then (fixes [#2167](https://github.com/chairemobilite/evolution/issues/2167))
 - Generator: the Excel integrity check now validates the conditional names in the Conditionals, Sections and Choices sheets
+- **Breaking** The `widgetSwitchPerson` button action now navigates to the `personsTrips` section instead of the `selectPerson`. Surveys with a `selectPerson` section will have to move the widgets to the `personsTrips` section.
 
 ### Deprecated
+
+- The `SectionConfiguration`'s `selectionSectionId` is replaced by the block itself. The widgets from this section are moved to the block section and the section is removed from config.
 
 ### Removed
 
