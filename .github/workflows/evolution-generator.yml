@@ -46,10 +46,6 @@ jobs:
     - name: Install
       # Yarn 4 needs the project to be installed before running scripts
       run: yarn
-    - name: Run Python unit tests
-      working-directory: packages/evolution-generator
-      run: |
-        yarn test:python
     - name: Generate survey
       run: yarn generateSurvey:generator
     - name: Format python
@@ -64,6 +60,14 @@ jobs:
         fi
     - name: Compile Evolution
       run: yarn compile
+    - name: Generate the Evolution API documentation
+      # After the compile: typedoc needs the compiled chaire-lib-common. The Python tests
+      # read docs/internalApi/api.json to check the names copied from Evolution.
+      run: yarn docs:api
+    - name: Run Python unit tests
+      working-directory: packages/evolution-generator
+      run: |
+        yarn test:python
     - name: Compile Generated survey
       run: yarn compile:generator
     - name: Build Client bundle

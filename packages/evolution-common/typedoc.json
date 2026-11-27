@@ -2,6 +2,7 @@
     "entryPoints": ["src"],
     "entryPointStrategy": "expand",
     "out": "../../docs/internalApi",
+    "json": "../../docs/internalApi/api.json",
     "tsconfig": "tsconfig.json",
     "exclude": [
         "**/*.test.ts",

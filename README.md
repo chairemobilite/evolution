@@ -178,13 +178,13 @@ For more details about Typedoc, visit the [official documentation](https://typed
 
 ### Generating internal API Documentation
 
-To generate the internal API documentation, use the following command:
+To generate the internal API documentation, run `yarn compile` first (typedoc needs the compiled `chaire-lib-common`), then use the following command:
 
 ```bash
 yarn docs:api
 ```
 
-This will create the documentation in the `docs/internalApi` folder.
+This will create the documentation in the `docs/internalApi` folder, with a JSON version of it in `docs/internalApi/api.json`. The Generator's Python tests read this JSON file to check that the names the Generator copies from Evolution (built-in validations and formatters, imported types and helpers) are still exported.
 
 ### Viewing the Documentation
 

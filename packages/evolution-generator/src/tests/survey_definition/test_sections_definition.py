@@ -232,8 +232,16 @@ class TestSections:
         assert getattr(_sections(rows)[0], field_name) is expected
 
     def test_keeps_a_builtin_template_name(self):
-        rows = [{**self._valid_section_row("home", "HM_"), "template": "tripsIntro"}]
-        assert _sections(rows)[0].template == "tripsIntro"
+        rows = [{**self._valid_section_row("home", "HM_"), "template": "visitedPlaces"}]
+        assert _sections(rows)[0].template == "visitedPlaces"
+
+    def test_reports_a_template_name_that_is_not_built_in(self):
+        rows = [{**self._valid_section_row("home", "HM_"), "template": "visitedPlace"}]
+        assert self._issues(rows) == [
+            "Error in Sections - Invalid template in row 2: 'visitedPlace' - "
+            "Must be one of ['tripsAndSegmentsWithMap', 'visitedPlaces'], TRUE for the "
+            "section's own template.tsx, or FALSE."
+        ]
 
     def test_gathers_the_title_of_each_language(self):
         rows = [{**self._valid_section_row("home", "HM_"), "title_es": "Inicio"}]
